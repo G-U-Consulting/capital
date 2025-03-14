@@ -1,6 +1,6 @@
 .vs/
-bin/
+/bin/
 .config/
-Logs/
-obj/
-Properties/
+/Logs/
+/obj/
+/Properties/
