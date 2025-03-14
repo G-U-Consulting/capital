@@ -1,0 +1,223 @@
+﻿@font-face {
+    font-family: 'BodyFont';
+    src: url(../fonts/sourcesanspro-regular.woff2)format('woff2'),url(../fonts/sourcesanspro-regular.woff)format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    /*overflow: hidden;*/
+    background-color: white;
+}
+
+* {
+    font-family: 'BodyFont', sans-serif;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+div {
+    font-family: 'BodyFont', sans-serif;
+}
+
+.mainContent {
+    background-color: white;
+}
+
+.header {
+    width: 100%;
+    color: #3197a0;
+    height: 3.5rem;
+    line-height: 3.5rem;
+    font-size: 1em;
+    vertical-align: middle;
+    position: relative;
+    background-color: #3197a0;
+    /*border-bottom: 1px solid #3C3C3C;*/
+}
+
+    .header .userLabel {
+        display: inline;
+        font-size: 0.7em;
+        position: absolute;
+        top: 0;
+        right: 1em;
+    }
+.footer {
+    height: 2em;
+    width: 100%;
+    /*background: #0e547d;*/
+    border-top: 0px solid #3197a0;
+}
+.mainMenu {
+    /*background-color: rgb(0, 151, 174);*/
+    background-color: rgba(255,255,255,0.95);
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+.menuOption {
+    padding: 0.5em;
+    white-space: initial;
+    cursor: pointer;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+}
+
+.innerMenuOption {
+    border: 1px solid rgb(231, 231, 231);
+    border-radius: 0.3em;
+    height: 100%;
+    background-color: white;
+}
+
+    .innerMenuOption > div:first-child {
+        background-color: #EEE;
+        padding: 0.5em;
+        border: 1px solid rgb(231, 231, 231);
+        border-radius: 0.3em;
+        font-size: 0.9em;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .innerMenuOption > div:nth-child(2) {
+        font-size: 0.9em;
+        padding: 0.5em 1em;
+        height: 100%;
+        line-height: 1.5em;
+    }
+
+    .innerMenuOption:hover {
+        background-color: #d8f1f3;
+    }
+
+    .innerMenuOption img {
+        width: 3em;
+        height: auto;
+        vertical-align: middle;
+        margin-right: 1em;
+    }
+
+.selectedMenuOption > div {
+    background-color: #003848;
+}
+
+    .selectedMenuOption > div > div:nth-child(2) {
+        color: white;
+    }
+
+.menuCategory {
+    padding: 0.5rem 0em 0.5rem 0.5rem;
+    white-space: initial;
+    cursor: pointer;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+    border-right: 0.3em solid #EEE;
+    text-align: right;
+    padding-right: 1em;
+}
+
+.selectedMenuCategory {
+    color: #3197a0;
+    border-color: #3197a0;
+}
+
+h3 {
+    color: #0097AE;
+    font-size: 2.0em;
+    margin: 20px 0;
+    position: relative;
+    font-weight: 100;
+}
+
+h2 {
+    /*color: #0097AE;*/
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0px;
+}
+
+.lateralMenu {
+    background-color: #EEE;
+    height: calc(100vh - 5.5em);
+    padding: 0.5rem;
+}
+
+.lateralMenuItem {
+    padding: 0.2rem 1rem;
+    border-left: 3px solid #EEE;
+    border-radius: 0.1rem;
+    cursor: pointer;
+}
+
+.lateralMenuItem > img {
+    height: 0.8rem;
+    width: auto;
+    margin-right: 0.3rem;
+}
+.lateralMenuItemSelected {
+    border-color: #3197a0;
+    background-color: #e5e5eb;
+}
+.listItem {
+    padding: 0.3em;
+    border-bottom: 1px solid rgb(224, 221, 221);
+}
+.hoverLink:hover {
+    text-decoration: underline;
+    cursor: pointer;
+    text-decoration-color: rgb(224, 221, 221);
+}
+.searchBox {
+    background-color: #EEE;
+    padding: 1rem;
+}
+
+.imgGraybutton {
+    cursor: pointer;
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+    border: 1px solid #CCCCCC;
+    padding: 0.1em;
+}
+
+    .imgGraybutton > img {
+        vertical-align: middle;
+        height: 1.5rem;
+    }
+
+button, input[type=submit] {
+    /*border: 2px solid #007ab3;
+    color: #007ab3;*/
+    border: 2px solid #3197a0;
+    color: white;
+    background-color: #3197a0;
+    padding: 0.2em 0.5em;
+    display: inline;
+    cursor: pointer;
+    font-size: 1.0em;
+    border-radius: 0.2em;
+    min-width: 10em;
+}
+
+    button:hover, button:focus, input[type=submit]:focus, input[type=submit]:hover {
+        color: white;
+        background-color: #003848;
+        outline: none;
+    }

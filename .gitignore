@@ -1,0 +1,6 @@
+.vs/
+bin/
+.config/
+Logs/
+obj/
+Properties/

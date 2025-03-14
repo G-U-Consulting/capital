@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="./css/lib/grids-min.css" rel="stylesheet" />
+    <link href="./css/lib/grids-responsive-min.css" rel="stylesheet" />
+    <link href="css/own/base.css" rel="stylesheet" />
+    <link href="css/own/main.css" rel="stylesheet" />
+    <script src="./js/lib/vue.global.js"></script>
+    <script src="./js/lib/axios.min.js"></script>
+</head>
+<body>
+    <div id="indexMainDiv" style="display:none">
+        <div>
+            <div class="header noSelect">
+                <div v-on:click="showMobileMenu = true" style="position: absolute; left: 1em;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;cursor: pointer" alt="">
+                    <div style="display: inline-block">
+                        <img style="height: 2.5em;width: auto;vertical-align: middle;margin-bottom: 0.8em;" src="./img/ico/menu.png" />
+                    </div>
+                    <span class="pure-hidden-sm pure-hidden-xs" style="color: white; font-size: 2em;">{{moduleSelected == null ? "Menú principal": moduleSelected.title}}</span>
+                    <span v-if="loginData.devDB || loginData.debug" class="pure-hidden-sm pure-hidden-xs" style="color: #ffff00; font-size: 1em; margin-left: 2em">
+                        {{loginData.debug?" Portal de pruebas ":""}}
+                    </span>
+                    <span class="pure-hidden-md pure-hidden-lg pure-hidden-xl" style="color: white; font-size: 1.5em;">{{moduleSelected == null ? "Menú principal": moduleSelected.title}}</span>
+                </div>
+                <img class="pure-hidden-sm pure-hidden-xs" style="height: 2.5em; position: absolute; right: 1em; margin: 0.5em 2em;" alt="" src="./img/cli/logo01.png" />
+            </div>
+        </div>
+        <div v-show="showMobileMenu" class="mdialogo2" style="top: 0px; display:none">
+            <div class="pure-g mainMenu shadow">
+                <div class="pure-u-1-1 pure-u-md-4-5 noSelect" v-on:click="showMobileMenu = false" style="background-color: #3197a0; color: white; cursor: pointer; padding-top: 0.5rem; padding-left: 1rem; ">
+                    <div style="display: inline-block">
+                        <img style="height: 2.5em;width: auto;vertical-align: middle;margin-bottom: 0.5rem;" src="../IMG/ico/menu.png" />
+                    </div>
+                    <span style="font-size: 1.8rem">Bienvenido</span> <span style="margin-left:1em;font-size: 1.8rem">|</span> <span style="color:#FFF5C2;margin-left:1em;font-size: 1.8em">{{loginData.user}}</span>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-5 menuOption" v-on:click="cambiar();" style="background-color: #3197a0; color: white; cursor: pointer; padding-top: 0.8rem ">
+                    <img style="height: 1.5em;width: auto;vertical-align: top;" src="./img/ico/cerrar-sesion.png" /><span style="font-size: 1.2em;">Cerrar sesión</span>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-4-24 pure-hidden-sm pure-hidden-xs pure-g">
+                    <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 1rem 1rem">
+                        <div style="height:1rem"></div>
+                        <div style="text-align: center; border-radius: 0.3rem; height: 2rem; line-height: 2rem; margin: 0.5rem auto; border: 1px solid black; background-color: #ff9999">
+                            <div>
+                                Zona Usuarios
+                            </div>
+                        </div>
+                        <div style="text-align: center; border-radius: 0.3rem; height: 2rem; line-height: 2rem; margin: 0.5rem auto; border: 1px solid black">
+                            <div>
+                                Zona Asesores
+                            </div>
+                        </div>
+                        <div style="">
+                            <div style="text-align: center; border-radius: 0.3rem; height: 2rem; line-height: 2rem; margin: 0.5rem auto; border: 1px solid black">
+                                Zona Obras
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 2rem 0em">
+                        
+                        <div class="menuCategory" v-on:click="category = ''" v-bind:class="{ selectedMenuCategory:  category == ''}">
+                            Todo
+                        </div>
+                        <div class="menuCategory" v-on:click="category = 'PROYECTOS'" v-bind:class="{ selectedMenuCategory:  category == 'PROYECTOS'}">
+                            Proyectos
+                        </div>
+                        <div class="menuCategory" v-on:click="category = 'INFORMES'" v-bind:class="{ selectedMenuCategory:  category == 'INFORMES'}">
+                            Informes
+                        </div>
+                        <div class="menuCategory" v-on:click="category = 'CONFIGURACION'" v-bind:class="{ selectedMenuCategory:  category == 'CONFIGURACION'}">
+                            Configuración
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-20-24" style="padding: 2em 0em" v-if="mostrarMenu">
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-1-5 menuOption" v-for="(value, key) in modules">
+                            <div v-if="checkAcces(key) && modules[key].hidden != true && (value.category == null || value.category == category || category == '')"
+                                 v-on:click="loadModule(key, null); showMobileMenu = false;" v-bind:class="{ selectedMenuOption: isActiveModule(key) }">
+                                <div class="innerMenuOption">
+                                    <div>{{value.title}}</div>
+                                    <div>
+                                        <table>
+                                            <tr>
+                                                <td style="vertical-align:top">
+                                                    <img v-bind:src="value.imgSrc" />
+                                                </td>
+                                                <td style="width: 100%">
+                                                    {{value.desc}}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-1" style="text-align:center">
+                    <div style="height: 3em; width: 3em; cursor: pointer; display: inline-block; background-color: #3197a0; padding: 0.5rem; border-radius: 2rem;" 
+                         v-on:click="showMobileMenu = false">
+                        <img src="./img/ico/svg/close.svg" style="width: 100%; height:100%; margin: 0px auto; color:white" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div id="indexMenuDiv" style="display: none; min-height: calc(100vh - 3.5em); background-color: white">
+
+        </div>
+    </div>
+    <div id="mainContentDiv" style="min-height: calc(100% - 5.5em) ">
+
+    </div>
+    <div id="mainFooter" class="footer">
+        <div style="width: 50%; float: left">
+            <span style="font-size: 0.6em;margin-left: 2em">Copyright &#169; 2025. All Rights Reserved Serlefin BPO&O </span>
+        </div>
+    </div>
+    <!------------------------------------------- DIALOGS ------------------------------------------>
+    <div id="divProcess" class="progressBackgroundFilter" style="display: block;z-index: 1010"><div><img src="./img/background/loading.gif" /></div></div>
+    <div id="divMessage" style="display: none;">
+        <div class="progressBackgroundFilter" style="z-index: 1008">
+        </div>
+        <div class="mdialogo2 pure-g" style="z-index: 1009">
+            <div class="pure-u-1-1 pure-u-md-1-3"></div>
+            <div class="pure-u-1-1 pure-u-md-1-3 mdialogoContent">
+                <div class="mdialogoHead">
+                    <img src="./img/ico/svg/close.svg" onclick="hideMessage()" />
+                </div>
+                <div style="padding: 0em 2em; text-align:center">
+                    <br /><label id="lbMessage">text</label><br /><br />
+                    <div style="text-align: center;">
+                        <button id="btAccept" onclick="hideMessage()">Aceptar</button><br /><br />
+                    </div>
+                </div>
+            </div>
+            <div class="pure-u-1-1 pure-u-md-1-3"></div>
+        </div>
+    </div>
+    <div id="divConfirm" style="display: none;">
+        <div class="progressBackgroundFilter">
+        </div>
+        <div class="mdialogo2 pure-g">
+            <div class="pure-u-1-1 pure-u-md-1-3"></div>
+            <div class="pure-u-1-1 pure-u-md-1-3 mdialogoContent">
+                <div class="mdialogoHead">
+                    <img src="./img/ico/svg/close.svg" id="btXConfirmCancel" />
+                </div>
+                <div style="padding: 0em 2em; text-align:center">
+                    <br /><label id="lbConfirmMessage">text</label><br /><br />
+                    <div style="text-align: center;">
+                        <button id="btConfirmAccept" style="margin: 0.5em 0.5em; width: 7em;">Aceptar</button>
+                        <button id="btConfirmCancel" style="margin: 0.5em 0.5em; width: 7em;">Cancelar</button>
+                    </div>
+                </div>
+                <br />
+            </div>
+            <div class="pure-u-1-1 pure-u-md-1-3"></div>
+        </div>
+    </div>
+    <div id="divNotice" style="display: none;">
+        <div class="progressBackgroundFilter" style="z-index: 1008">
+        </div>
+        <div class="mdialogo2 pure-g" style="z-index: 1009; top:20% !important">
+            <div class="pure-u-1-1 pure-u-md-1-4"></div>
+            <div class="pure-u-1-1 pure-u-md-1-2 mdialogoContent">
+                <div class="mdialogoHead">
+                    <div style="width: 90%;float: left;text-align: center;padding: 0.4em;color:white;">
+                        <label id="lbNoticeTitle"></label>
+                    </div>
+
+                    <!--<img src="../IMG/cerrar.png" onclick="hideNotice()" />-->
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-1" style="padding: 0em 2em;max-height: 90%;text-align: justify;overflow:auto;">
+                    <br /><label id="lbNotice">text</label><br /><br />
+                    <div style="text-align: center;">
+                        <button id="btNoticeAccept" onclick="hideNotice()">Aceptar</button><br /><br />
+                    </div>
+                </div>
+            </div>
+            <div class="pure-u-1-1 pure-u-md-1-4"></div>
+        </div>
+    </div>
+    <script src="./index.js?v=1" type="text/javascript"></script>
+</body>
+</html>

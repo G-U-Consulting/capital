@@ -1,0 +1,6 @@
+@capital_HostAddress = https://localhost:7210
+
+
+POST {{capital_HostAddress}}/crypto/1234
+
+###
