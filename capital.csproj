@@ -18,12 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Cert\ext-key.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Cert\ext-public-key.pem">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
 	  <None Update="SQL\**\*">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
