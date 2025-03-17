@@ -11,9 +11,6 @@ set
     @roles = '2,5,',
     @created_by = 'admon';
 --END_PARAM
-
-insert into fact_usuarios(usuario, identificacion, nombres, email, created_by)
-select @usuario, @identificacion, @nombres, @email, @created_by;
 update fact_usuarios set
     usuario = @usuario, 
     identificacion = @identificacion, 
@@ -22,10 +19,6 @@ update fact_usuarios set
 where id_usuario = @id_usuario;
 
 call fn_list(@roles, ',');
-insert into fact_roles_usuarios(id_rol, id_usuario)
-select distinct value, @id_usuario
-from fn_list_result;
-
 delete a
 from fact_roles_usuarios a
     left join fn_list_result b on a.id_rol = b.value

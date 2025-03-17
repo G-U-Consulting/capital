@@ -7,6 +7,7 @@
             seachUser: "",
             roles: [],
             accessList: [],
+            roleList: [],
             newRole: {
                 "rol": "",
                 "permisos": "",
@@ -55,25 +56,13 @@
                 tmpList.forEach(function (item) {
                     item.selected = false;
                 }.bind(this));
-                this.accessList = tmpList;
+                this.roleList = tmpList;
+                await this.loadAccess();
                 hideProgress();
             } else if (mode == 2) {
                 showProgress();
                 this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
-                this.accessList = [];
-                var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Permisos", {})).data;
-                var groups = {};
-                tmpList.forEach(function (item) {
-                    let cat = null;
-                    if (groups[item["grupo"]] == null) {
-                        cat = { "name": item["grupo"], "list": [] };
-                        groups[item["grupo"]] = cat;
-                        this.accessList.push(cat);
-                    } else
-                        cat = groups[item["grupo"]];
-                    item.selected = false;
-                    cat["list"].push(item);
-                }.bind(this));
+                await this.loadAccess();
                 hideProgress();
             }
             this.mainmode = mode;
@@ -104,7 +93,6 @@
             if (this.newRole["rol"] == "") return;
             showProgress();
             var resp = await httpFunc("/generic/genericDT/Usuarios:Ins_Rol", this.newRole);
-            console.log(resp);
             hideProgress();
             this.setMainMode(2);
         },
@@ -156,7 +144,7 @@
         },
         async insNewUser() {
             this.newUser["roles"] = "";
-            this.accessList.forEach(function (item) {
+            this.roleList.forEach(function (item) {
                 if (item.selected)
                     this.newUser["roles"] += item["id_rol"]+",";
             }.bind(this));
@@ -172,7 +160,7 @@
             var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Usuario", { "id_usuario": item["id_usuario"]});
             resp = resp.data;
             var tmpList = resp[1];
-            this.accessList.forEach(function (sitem) {
+            this.roleList.forEach(function (sitem) {
                 if (tmpList.find((ssitem) => { return sitem["id_rol"] == ssitem["id_rol"] }) == null)
                     sitem.selected = false;
                 else
@@ -189,7 +177,7 @@
         },
         async updateUser() {
             this.editUser["roles"] = "";
-            this.accessList.forEach(function (item) {
+            this.roleList.forEach(function (item) {
                 if (item.selected)
                     this.editUser["roles"] += item["id_rol"] + ",";
             }.bind(this));
@@ -203,6 +191,25 @@
         async selectUserInRole(item) {
             await this.setMainMode(1);
             this.selectUser(item);
+        },
+        async loadAccess() {
+            this.accessList = [];
+            var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Permisos", {})).data;
+            var groups = {};
+            tmpList.forEach(function (item) {
+                let cat = null;
+                if (groups[item["grupo"]] == null) {
+                    cat = { "name": item["grupo"], "list": [] };
+                    groups[item["grupo"]] = cat;
+                    this.accessList.push(cat);
+                } else
+                    cat = groups[item["grupo"]];
+                item.selected = false;
+                cat["list"].push(item);
+            }.bind(this));
+        },
+        async startNewException() {
+            this.mode = 3;
         }
     }
 }
