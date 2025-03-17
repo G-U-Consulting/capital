@@ -69,7 +69,6 @@ mainVue = {
         window.history.replaceState({}, document.title, url);
         showProgress();
         var data = await httpFunc("/auth/getUserProfile", {});
-        console.log(data.data);
         this.loginData = data;
         this.modules = GlobalVariables.modules;
         GlobalVariables.roles = data.roles;
@@ -107,6 +106,8 @@ mainVue = {
                 vm.unmount();
             if (name == "Index" || !this.checkAcces(name)) {
                 indexMainDiv.innerHTML = "";
+                document.getElementById("indexMenuDiv").style.display = "block";
+                //document.getElementById("mainFooter").style.display = "none";
                 this.moduleSelected = null;
 
                 document.title = "Inicio";
@@ -164,6 +165,9 @@ mainVue = {
                     return true;
             }
             return false;
+        },
+        logOut() {
+            window.location = "/login.html";
         }
     }
 };

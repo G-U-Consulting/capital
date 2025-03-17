@@ -3,10 +3,16 @@
 -- =============================================
 --START_PARAM
 set @id_rol = '2',
+    @rol = 'elrol',
+    @descripcion = 'ladesc',
     @permisos = '5,',
     @created_by = 'alejandros';
 --END_PARAM
 call fn_list(@permisos, ',');
+update fact_roles set
+    rol = @rol,
+    descripcion = @descripcion
+where id_rol = @id_rol;
 delete a
 from fact_permisos_roles a
     left join fn_list_result b on a.id_permiso = b.value

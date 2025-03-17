@@ -40,6 +40,7 @@ insert into dim_permiso(id_permiso, permiso, grupo) values
 create table fact_roles(
 	id_rol int not null auto_increment,
 	rol varchar(200),
+	descripcion varchar(1000),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,

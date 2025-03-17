@@ -29,13 +29,13 @@ div {
 
 .header {
     width: 100%;
-    color: #3197a0;
+    color: #00839C;
     height: 3.5rem;
     line-height: 3.5rem;
     font-size: 1em;
     vertical-align: middle;
     position: relative;
-    background-color: #3197a0;
+    background-color: #00839C;
     /*border-bottom: 1px solid #3C3C3C;*/
 }
 
@@ -50,7 +50,7 @@ div {
     height: 2em;
     width: 100%;
     /*background: #0e547d;*/
-    border-top: 0px solid #3197a0;
+    border-top: 0px solid #00839C;
 }
 .mainMenu {
     /*background-color: rgb(0, 151, 174);*/
@@ -133,8 +133,8 @@ div {
 }
 
 .selectedMenuCategory {
-    color: #3197a0;
-    border-color: #3197a0;
+    color: #00839C;
+    border-color: #00839C;
 }
 
 h3 {
@@ -154,7 +154,7 @@ h2 {
 
 .lateralMenu {
     background-color: #EEE;
-    height: calc(100vh - 5.5em);
+    min-height: calc(100vh - 3.5em);
     padding: 0.5rem;
 }
 
@@ -171,17 +171,26 @@ h2 {
     margin-right: 0.3rem;
 }
 .lateralMenuItemSelected {
-    border-color: #3197a0;
+    border-color: #00839C;
     background-color: #e5e5eb;
 }
 .listItem {
     padding: 0.3em;
     border-bottom: 1px solid rgb(224, 221, 221);
-}
-.hoverLink:hover {
-    text-decoration: underline;
     cursor: pointer;
-    text-decoration-color: rgb(224, 221, 221);
+}
+    .listItem > div {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .listItem img {
+        height: 0.8rem;
+        width: auto;
+        vertical-align: sub;
+    }
+.listItem:hover {
+    text-decoration:underline;
 }
 .searchBox {
     background-color: #EEE;
@@ -205,9 +214,9 @@ h2 {
 button, input[type=submit] {
     /*border: 2px solid #007ab3;
     color: #007ab3;*/
-    border: 2px solid #3197a0;
+    border: 2px solid #00839C;
     color: white;
-    background-color: #3197a0;
+    background-color: #00839C;
     padding: 0.2em 0.5em;
     display: inline;
     cursor: pointer;
@@ -221,3 +230,24 @@ button, input[type=submit] {
         background-color: #003848;
         outline: none;
     }
+
+.zone {
+    border: 1px solid rgb(231, 231, 231);
+    text-align: center;
+    border-radius: 0.3rem;
+    height: 2rem;
+    line-height: 2rem;
+    margin: 0.5rem auto;
+    cursor: pointer;
+}
+.zoneZASelected {
+    background-color: #00839C;
+    color: white;
+}
+.formInput{
+    padding: 0.5rem;
+}
+.hoverLink:hover {
+    text-decoration: underline;
+    cursor: pointer
+}

@@ -1,7 +1,6 @@
 using Newtonsoft.Json.Linq;
 using orca.Code.Api;
 using orca.Code.Auth;
-using orca.Code.Crypto;
 using orca.Code.Logger;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,26 +40,6 @@ WebBDUt.Init(rootPath, !app.Environment.IsDevelopment(), orca.ConfigurationManag
 /*****************************************************************************/
 /***************************** Servicios *************************************/
 /*****************************************************************************/
-app.Map("/crypto/{op}", async (HttpRequest request, HttpResponse response, string op) => {
-    string body = "";
-    try {
-        op = op.ToLower();
-        string? token = request.Headers.Authorization;
-        if (token != "Bearer l4e2wNsc7nWNvoPL2C1xzkxcZv1ks3LPJtG56Y61bSEv6h6XHWk66H6T2iCGmm43") {
-            response.StatusCode = 401;
-            return "";
-        }
-        using (var stream = new StreamReader(request.Body)) {
-            body = await stream.ReadToEndAsync();
-        }
-        return Crypto.ProcessRequest(request, response, op, body, rootPath);
-    } catch (Exception ex) {
-        Logger.Log("crypto/"+op +"    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
-        response.StatusCode = 500;
-        return ex.Message + Environment.NewLine + ex.StackTrace;
-    }
-    
-}).WithName("Crypto");
 app.Map("/api/{op}", async (HttpRequest request, HttpResponse response, string op) => {
     string body = "";
     try {
@@ -98,6 +77,10 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic");
+
+/*****************************************************************************/
+/***************************** Autenticacion *********************************/
+/*****************************************************************************/
 app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string op) => {
     string body = "";
     try {
@@ -110,33 +93,4 @@ app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string 
     }
 
 }).WithName("Auth");
-app.Map("/test/{op}", async (HttpRequest request, HttpResponse response, string op) => {
-    string body = "";
-    try {
-        op = op.ToLower();
-        if (op == "last")
-            return Logger.LastError;
-        string? token = request.Headers.Authorization;
-        if (token != "Bearer l4e2wNsc7nWNvoPL2C1xzkxcZv1ks3LPJtG56Y61bSEv6h6XHWk66H6T2iCGmm43") {
-            response.StatusCode = 401;
-            return "";
-        }
-        using (var stream = new StreamReader(request.Body)) {
-            body = await stream.ReadToEndAsync();
-        }
-        if (op == "getclient") {
-            response.ContentType = "application/json";
-            return Api.GetClient(JObject.Parse(body)).ToString();
-        }
-        return Crypto.ProcessRequest(request, response, op, body, rootPath);
-    } catch (Exception ex) {
-        Logger.Log("test/" + op + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
-        response.StatusCode = 500;
-        return ex.Message;
-    }
-}).WithName("Test");
-/*****************************************************************************/
-/***************************** Autenticacion *********************************/
-/*****************************************************************************/
-
 app.Run();
