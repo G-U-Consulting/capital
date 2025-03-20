@@ -6,6 +6,7 @@
             seachRole: "",
             seachUser: "",
             roles: [],
+            cargos: [],
             accessList: [],
             roleList: [],
             newRole: {
@@ -27,6 +28,7 @@
                 "identificacion": "",
                 "nombres": "",
                 "email": "",
+                "id_cargo": "",
                 "roles": "",
                 "created_by": ""
             },
@@ -36,22 +38,58 @@
                 "identificacion": "",
                 "nombres": "",
                 "email": "",
+                "id_cargo": "",
                 "roles": "",
                 "created_by": ""
-            }
+            },
+            hoy: "",
+            fechaDesde: "",
+            fechaHasta: "",
+            files: [],
+            previews: [],
+            message: "",
+       
         }
     }, 
     async mounted() {
+        this.inicializarFechas();
+        this.fetchCarouselImages();
         //await this.setMainMode(1);
         //this.startNewUser();
         //await this.setMainMode(2);
         //this.startNewRole();
     },
     methods: {
+        agregarCargo() {
+            if (this.nuevoCargo.trim() && !this.cargos.includes(this.nuevoCargo)) {
+                this.cargos.push(this.nuevoCargo);
+                this.newUser.cargo = this.nuevoCargo; // Asigna el nuevo cargo al usuario
+                this.nuevoCargo = ''; // Limpia el campo de entrada
+            }
+        },
+        inicializarFechas() {
+            this.hoy = new Date().toISOString().split("T")[0];
+            this.fechaDesde = this.hoy;
+            this.fechaHasta = this.hoy;
+        },
+        validarDesde() {
+            if (this.fechaDesde < this.hoy) {
+                this.fechaDesde = this.hoy;
+            }
+            if (this.fechaHasta < this.fechaDesde) {
+                this.fechaHasta = this.fechaDesde;
+            }
+        },
+        validarHasta() {
+            if (this.fechaHasta < this.fechaDesde) {
+                this.fechaHasta = this.fechaDesde;
+            }
+        },
         async setMainMode(mode) {
             if (mode == 1) {
                 showProgress();
                 this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", { "usuario": this.seachUser })).data;
+                this.cargos = (await httpFunc("/generic/genericDT/Usuarios:Get_Cargo", { })).data;
                 var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": "" })).data;
                 tmpList.forEach(function (item) {
                     item.selected = false;
@@ -139,6 +177,7 @@
             this.newUser["identificacion"] = "";
             this.newUser["nombres"] = "";
             this.newUser["email"] = "";
+            this.newUser["id_cargo"] = "";
             this.newUser["roles"] = "";
             hideProgress();
         },
@@ -172,6 +211,7 @@
             this.editUser["identificacion"] = resp[0][0]["identificacion"];
             this.editUser["nombres"] = resp[0][0]["nombres"];
             this.editUser["email"] = resp[0][0]["email"];
+            this.editUser["id_cargo"] = resp[0][0]["id_cargo"];
             this.editUser["roles"] = resp[0][0]["roles"];
             hideProgress();
         },
@@ -210,6 +250,71 @@
         },
         async startNewException() {
             this.mode = 3;
+        },
+        async fetchCarouselImages() {
+            try {
+                let response = await axios.get("/img/carrusel");
+
+                if (response.data.images) {
+                    this.previews = response.data.images;
+
+                } else {
+                    this.message = "❌ No se encontraron imágenes en el servidor.";
+                }
+            } catch (error) {
+                this.message = "❌ Error al cargar imágenes.";
+            }
+        },
+        async removeImage(index) {
+            console.log(index)
+            this.previews.splice(index, 1);
+        },
+        async handleFileChange(event) {
+            this.files = Array.from(event.target.files);
+            this.files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.previews.unshift(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+        },
+        async uploadFiles() {
+            let formData = new FormData();
+            for (const preview of this.previews) {
+                if (typeof preview === "string") {
+                    let file = await this.urlToFile(preview);
+                    if (file) formData.append("file", file);
+                } else {
+                    formData.append("file", preview);
+                }
+            }
+            this.files.forEach(file => formData.append("file", file));
+            if (formData.has("file")) {
+                try {
+                    let response = await httpFunc("/api/upload", formData);
+                    this.message = response.message;
+                    this.files = [];
+                    this.previews = [];
+                    await this.fetchCarouselImages();
+
+                } catch (error) {
+                    this.message = "❌ Ocurrió un error.";
+                }
+            } else {
+                this.message = "⚠️ No hay imágenes para subir.";
+            }
+        },
+        async urlToFile(imageUrl) {
+            try {
+                let response = await fetch(imageUrl);
+                let blob = await response.blob();
+                let fileName = imageUrl.split("/").pop();
+                return new File([blob], fileName, { type: blob.type });
+            } catch (error) {
+                console.error("Error al convertir imagen:", error);
+                return null;
+            }
         }
     }
 }

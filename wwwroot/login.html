@@ -8,109 +8,60 @@
     <link href="./css/lib/grids-responsive-min.css" rel="stylesheet" />
     <link href="./css/own/main.css?v=4" rel="stylesheet" />
     <link href="./css/own/base.css" rel="stylesheet" />
+    
 </head>
 <body>
-        <div class="pure-g mainContent" style="background-image: url('./img/background/abstract-1851115_1280.jpg');background-attachment: fixed;background-repeat: no-repeat;background-size: cover;" id="pDiv" >
-            <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 1em;">
-                <div class="pure-hidden-sm pure-hidden-xs" >
-                    <div style="background-color: #00839c; border-radius: 0.5rem; display: inline-block; color:white; text-align:center;padding: 0.5rem 1rem;">
-                        <img src="img/cli/logo01.png" style="width:10rem; height:auto" /><br />
-                        Zona Asesores 2.0
+    <div class="pure-g mainContent">
+        <div class="pure-u-1 pure-u-md-3-4 carousel-section" id="pDiv">
+        </div>
+        <div class="pure-u-1 pure-u-md-1-4 login-section">
+            <div class="login-card">
+                <figure>
+                    <img src="img/cli/logo.svg" alt="Logo Zona Asesores" class="logo">
+                </figure>
+                <h3>Zona Asesores 2.0</h3>
+                <span class="failureNotification" style="color:red">
+                    <span id="FailureText"></span>
+                </span>
+                <div class="container">
+                    <div class="login-form">
+                        <input type="text" id="UserName" placeholder="Usuario" tabindex="1">
+                        <input type="password" id="Password" placeholder="Contraseña" tabindex="2">
+                        <a href="#" class="forgot-password" tabindex="3">Olvidé mi contraseña</a>
+                        <button id="LoginButton" onclick="window.location = '/';">Acceder</button>
                     </div>
                 </div>
-            </div>
-            <div class="pure-u-1-1 pure-u-md-2-3" id="mainDiv" style="min-height: calc(100vh - 2.0em);">
-                <div class="pure-u-1-1 pure-u-md-1-3 pure-hidden-sm pure-hidden-xs">
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-2">
-                    <div class="pure-hidden-sm pure-hidden-xs" style="min-height: 10vh" ></div>
-                    <div class="cardColor contentDiv shadow" style="padding: 2em 2em; background-color: rgba(255, 255, 255, 0.5); backdrop-filter: blur(5px);" >
-                        <div ID="LoginUser">
-                            <div>
-                                <p style="text-align:center">
-                                    <img style="height:6em; width:auto" src="../IMG/cliente/logoInicio.png" alt=""/>
-                                </p>
-                                <h3 style="text-align:center; margin-top: 1em">Inicio de Sesión<br /></h3>
-                                <span class="failureNotification" style="color:red">
-                                    <span id="FailureText"></span>
-                                </span>
-                                <div style="width: 100%; min-height: 5vh;color:red">
-                                    <br />
-                                    <span id="LoginUserValidationSummary" />
-                                </div>
-                                <div style="width: 100%">
-                                    <table style="margin: 0px auto; width: 100%">
-                                        <tr>
-                                            <td>
-                                                <input id="UserName" type="text" placeholder="Usuario" TabIndex="1"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <input id="Password" type="password" placeholder="Contraseña" TabIndex="2">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <label TabIndex="4" style="text-decoration: underline">Olvidé la contraseña</label>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2">
-                                                <div style="text-align:center">
-                                                    <button id="LoginButton" style="margin:0 auto" TabIndex="3" onclick="window.location = '/';" >
-                                                        Acceder
-                                                    </button>
-                                                    <br />
-                                                    <br />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                    <br />
-                                    <br />
-                                </div>
-                            </div>
-                        </div>
-                        <div style="text-align:center">
-                            <label id="lbError" style="color:red"></label>
-                        </div>
-                    </div>
-                </div>
-                <div class="pure-u-md-1-6"></div>
-            </div>
-            <div id="divPasswordReset" style="display:none">
-                <div class="progressBackgroundFilter">
-                </div>
-                <div class="mdialogo2 pure-g" style="top: 0px">
-                    <div class="pure-u-1-1 pure-u-md-1-3"></div>
-                    <div class="pure-u-1-1 pure-u-md-1-3 mdialogoContent">
-                        <div class="mdialogoHead">
-                            <img src="../IMG/cerrar.png" onclick="document.getElementById('divPasswordReset').style.display = 'none';" />
-                        </div>
-                        <div style="padding: 0em 2em; max-height: 90vh; overflow: auto">
-                            <h2>Reinicio de contraseña</h2>
-                            <p>
-                                Se le enviará un correo con las instrucciones para recuperar la contraseña a 
-                                <b><label id="spEmail"></label></b>
-                            </p>
-                            <div style="text-align: center;">
-                                <button style="margin: 0.5em 0.5em; width: 7em;" >Aceptar</button>
-                                <button onclick="document.getElementById('divPasswordReset').style.display = 'none'; return false;" style="margin: 0.5em 0.5em; width: 7em;">Cancelar</button>
-                            </div>
-                            <br />
-                        </div>
-                        <br />
-                    </div>
-                    <div class="pure-u-1-1 pure-u-md-1-3"></div>
-                </div>
-            </div>
-            <div class="pure-u-1-1 pure-u-md-1-1 footer" id="mainFooter">
-                <div class="rightImg" style="color: white">
-                    <span style="font-size: 0.8em;color:white" >Copyright &#169; 2025. All Rights Reserved Serlefin BPO&O</span>
-                </div>
+                <label id="lbError" style="color:red"></label>
             </div>
         </div>
-    
+    </div>
+    <script src="/js/lib/axios.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const carouselImages = document.getElementById("pDiv");
+            async function fetchImages() {
+                try {
+                    let { data } = await axios.get("/img/carrusel");
+                    return data.images;
+                } catch (err) {
+                    console.error("Error:", err);
+                    return [];
+                }
+            }
+            let images = await fetchImages();
+            let index = 0;
+            function updateImage() {
+                carouselImages.style.backgroundImage = `url('${images[index]}')`;
+                carouselImages.style.backgroundSize = "cover";
+                carouselImages.style.backgroundPosition = "center";
+                carouselImages.style.transition = "background-image 0.5s";
+                index = (index + 1) % images.length;
+            }
+            if (images.length) {
+                updateImage();
+                setInterval(updateImage, 3000);
+            }
+        });
+    </script>
 </body>
 </html>

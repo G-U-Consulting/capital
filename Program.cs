@@ -1,4 +1,4 @@
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using orca.Code.Api;
 using orca.Code.Auth;
 using orca.Code.Logger;
@@ -93,4 +93,55 @@ app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string 
     }
 
 }).WithName("Auth");
+
+/*****************************************************************************/
+/***************************** Carrusel  *************************************/
+/*****************************************************************************/
+app.Map("/img/carrusel", (HttpRequest request) =>
+{
+    var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "carrusel");
+
+    if (!Directory.Exists(wwwrootPath))
+    {
+        return Results.NotFound("La carpeta de imágenes no existe.");
+    }
+    var files = Directory.GetFiles(wwwrootPath)
+                         .Where(file => file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                        file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                                        file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                         .Select(file => $"/img/carrusel/{Path.GetFileName(file)}")
+                         .ToList();
+
+    return Results.Ok(new { images = files });
+});
+
+app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
+{
+    var form = await context.Request.ReadFormAsync();
+    var files = form.Files;
+    var uploadsFolder = Path.Combine(env.WebRootPath, "img", "carrusel");
+
+    if (!Directory.Exists(uploadsFolder))
+        Directory.CreateDirectory(uploadsFolder);
+    var existingImages = form["existingImages"].ToString().Split(",").Select(i => i.Trim()).ToList();
+    var currentFiles = Directory.GetFiles(uploadsFolder)
+                                .Select(f => Path.GetFileName(f))
+                                .ToList();
+    foreach (var file in currentFiles)
+    {
+        if (!existingImages.Contains(file))
+        {
+            File.Delete(Path.Combine(uploadsFolder, file));
+        }
+    }
+    foreach (var file in files)
+    {
+        var filePath = Path.Combine(uploadsFolder, file.FileName);
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+    }
+    return Results.Ok(new { message = "✅ Imágenes actualizadas correctamente!" });
+});
 app.Run();

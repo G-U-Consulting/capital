@@ -14,6 +14,7 @@ create table fact_usuarios(
 	identificacion varchar(20),
 	nombres varchar(200),
 	email varchar(200),
+	id_cargo int,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
@@ -76,3 +77,18 @@ select *
 from fact_roles
 truncate table fact_permisos_roles
 delete from fact_roles
+
+CREATE TABLE fact_cargo (
+    id_cargo INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    cargo VARCHAR(100),
+    is_active BIT DEFAULT 1,
+    created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(200) DEFAULT CURRENT_USER
+);
+
+INSERT INTO fact_cargo (cargo) VALUES
+('Gerente'),
+('Analista'),
+('Desarrollador'),
+('Administrador'),
+('Soporte');
