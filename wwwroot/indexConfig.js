@@ -44,6 +44,7 @@ const zones = {
     "ZA": {
         name: "ZA",
         title: "Zona Asesores",
+        img: "./img/ico/menu/za.png",
         categories: [
             { key: "PROYECTOS", name: "Proyectos" },
             { key: "INFORMES", name: "Informes" },
@@ -53,6 +54,7 @@ const zones = {
     "ZO": {
         name: "ZO",
         title: "Zona Obras",
+        img: "./img/ico/menu/zo.png",
         categories: []
     }
 };
