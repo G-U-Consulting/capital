@@ -10,8 +10,8 @@
         allow: ["*"]
     },
     "Seguridad": {
-        templateUrl: "./web/Usuarios/Usuarios.html",
-        jsUrl: "./web/Usuarios/Usuarios.js",
+        templateUrl: "./web/Seguridad/Seguridad.html",
+        jsUrl: "./web/Seguridad/Seguridad.js",
         title: "Seguridad",
         desc: "Administra las configuraciones de seguridad",
         imgSrc: "./img/ico/menu/006-group.png",
