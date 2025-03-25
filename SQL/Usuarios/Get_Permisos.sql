@@ -3,6 +3,7 @@
 -- =============================================
 --START_PARAM
 --END_PARAM
-select id_permiso, permiso, grupo
-from dim_permiso
-where is_active = 1;
+select a.id_permiso, a.permiso, a.grupo, b.zona, b.id_zona
+from dim_permiso a
+    join dim_zona b on a.id_zona = b.id_zona
+where a.is_active = 1;

@@ -37,6 +37,7 @@ div {
     position: relative;
     background-color: #00839C;
     /*border-bottom: 1px solid #3C3C3C;*/
+    z-index: 2;
 }
 
     .header .userLabel {
@@ -54,7 +55,7 @@ div {
 }
 .mainMenu {
     /*background-color: rgb(0, 151, 174);*/
-    background-color: rgba(255,255,255,0.95);
+    /*background-color: rgba(255,255,255,0.95);*/
     max-height: 100vh;
     overflow-y: auto;
 }
@@ -127,11 +128,15 @@ div {
     -ms-user-select: none; /* Internet Explorer/Edge */
     user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome and Opera */
-    border-right: 0.3em solid #EEE;
-    text-align: right;
+    border-left: 0.3em solid #EEE;
+    text-align: left;
     padding-right: 1em;
 }
-
+    .menuCategory img {
+        width: 1.0rem;
+        height: auto;
+        vertical-align: bottom;
+    }
 .selectedMenuCategory {
     color: #00839C;
     border-color: #00839C;
@@ -251,3 +256,112 @@ button, input[type=submit] {
     text-decoration: underline;
     cursor: pointer
 }
+.sidenav {
+    height: 100%;
+    width: 5rem;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    background-color: #666666;
+    overflow-x: hidden;
+    padding: 4rem 0.5rem 0.5rem 0.5rem;
+}
+.zone {
+    border: 1px solid white;
+    color:white;
+}
+.zone img{
+    width:1.2rem;
+    height:1.2rem;
+    vertical-align:sub; 
+    margin-right: 0.5rem;
+}
+.preSelectedZone {
+    background-color: #898989;
+}
+.selectedZone {
+    background-color: #00839C;
+    border: 1px solid #00839C;
+    color: white;
+}
+.sidecontent {
+    margin-left: 5rem;
+}
+.contentHeight {
+    min-height: calc(100vh - 3.5em)
+}
+.mdialogo2 {
+    position: fixed;
+    top: 3.5rem;
+    right: 0px;
+    left: 5rem;
+    z-index: 1002;
+}
+
+    .mdialogo2 .mdialogoContent {
+        background-color: white;
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    }
+
+        .mdialogo2 .mdialogoContent .mdialogoHead {
+            background: rgb(77,77,77);
+            height: 1.8em;
+        }
+
+            .mdialogo2 .mdialogoContent .mdialogoHead > img {
+                height: 1.8em;
+                width: 1.8em;
+                cursor: pointer;
+                padding: 0px;
+                float: right;
+            }
+.closeButton {
+    cursor: pointer;
+    display: inline-block;
+    padding:0.1rem;
+    line-height: 0.8rem;
+}
+.closeButton > img{
+    height: 0.8rem;
+    width: 0.8rem;
+    vertical-align:top;
+}
+.selectedAcces {
+    color: white;
+    background-color: #032B44;
+}
+
+.dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0px auto;
+}
+
+    .dataTable th {
+        color: white;
+        background-color: #00839C;
+        font-weight: normal;
+        border: 1px solid #cccccc;
+        border-top: 2px solid #00839C;
+        border-bottom: 2px solid #00839C;
+        font-weight: normal;
+    }
+
+    .dataTable th, .dataTable td {
+        border: 1px solid #cccccc;
+        padding: 0.2em 0.5em;
+    }
+
+    .dataTable tr:nth-child(even) {
+        background: #f7f7f7;
+    }
+
+    .dataTable tr:nth-child(odd) {
+        background: #FFF;
+    }
+
+    .dataTable img {
+        width: 1.5em;
+        height: auto;
+    }

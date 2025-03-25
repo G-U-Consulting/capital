@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="./css/lib/grids-min.css" rel="stylesheet" />
     <link href="./css/lib/grids-responsive-min.css" rel="stylesheet" />
-    <link href="css/own/base.css" rel="stylesheet" />
+    <link href="css/own/base.css?v=2" rel="stylesheet" />
     <link href="css/own/main.css" rel="stylesheet" />
     <script src="./js/lib/vue.global.js"></script>
     <script src="./js/lib/axios.min.js"></script>
@@ -19,10 +19,7 @@
     <div id="indexMainDiv" style="display:none">
         <div>
             <div class="header noSelect">
-                <div v-on:click="showMobileMenu = true" style="position: absolute; left: 1em;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;cursor: pointer" alt="">
-                    <div style="display: inline-block">
-                        <img style="height: 2.5em;width: auto;vertical-align: middle;margin-bottom: 0.8em;" src="./img/ico/menu.png" />
-                    </div>
+                <div style="position: absolute; left: 1em;white-space: nowrap;overflow: hidden;text-overflow: ellipsis" alt="">
                     <span class="pure-hidden-sm pure-hidden-xs" style="color: white; font-size: 2em;">{{moduleSelected == null ? "Menú principal": moduleSelected.title}}</span>
                     <span v-if="loginData.devDB || loginData.debug" class="pure-hidden-sm pure-hidden-xs" style="color: #ffff00; font-size: 1em; margin-left: 2em">
                         {{loginData.debug?" Portal de pruebas ":""}}
@@ -32,89 +29,56 @@
                 <img class="pure-hidden-sm pure-hidden-xs" style="height: 3em; position: absolute; right: 1em; margin: 0.25em 2em;" alt="" src="./img/cli/logo01.png" />
             </div>
         </div>
-        <div v-show="showMobileMenu" class="mdialogo2" style="top: 0px; display:none">
-            <div class="pure-g mainMenu shadow">
-                <div class="pure-u-1-1 pure-u-md-4-5 noSelect" v-on:click="showMobileMenu = false" style="background-color: #00839C; color: white; cursor: pointer; padding-top: 0.5rem; padding-left: 1rem; ">
-                    <div style="display: inline-block">
-                        <img style="height: 2.5em;width: auto;vertical-align: middle;margin-bottom: 0.5rem;" src="../IMG/ico/menu.png" />
-                    </div>
-                    <span style="font-size: 1.8rem">Bienvenido</span> <span style="margin-left:1em;font-size: 1.8rem">|</span> <span style="color:#FFF5C2;margin-left:1em;font-size: 1.8em">{{loginData.user}}</span>
+        <div>
+            <div class="sidenav">
+                <div v-for="(item, key) in zones" class="zone noSelect" v-bind:class="{preSelectedZone: zonePreSelected == item, selectedZone: zoneSelected == item}" v-on:click="openZone(item)">
+                    <img v-bind:src="item.img" />
+                    {{key}}
                 </div>
-                <div class="pure-u-1-1 pure-u-md-1-5 menuOption" v-on:click="logOut();" style="background-color: #00839C; color: white; cursor: pointer; padding-top: 0.8rem ">
-                    <img style="height: 1.5em;width: auto;vertical-align: top;" src="./img/ico/cerrar-sesion.png" /><span style="font-size: 1.2em;">Cerrar sesión</span>
-                </div>
-                <div class="pure-u-1-1 pure-u-md-6-24 pure-hidden-sm pure-hidden-xs pure-g">
-                    <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 1rem 1rem">
-                        <div style="height:1rem"></div>
-                        <div >
-                            <div class="zone noSelect zoneZASelected">
-                                Zona Usuarios
+            </div>
+            <div v-show="showMobileMenu" class="mdialogo2">
+                <div class="pure-g mainMenu contentHeight">
+                    <div class="pure-u-1-1 pure-u-md-4-24" style="background-color: rgba(250,250,250,0.95);">
+                        <div style="text-align:right; padding: 0.2rem;">
+                            <div class="closeButton" v-on:click="closeMenu()">
+                                <img v-show="!showModuleMenu" src="img/ico/svg/cerrar-negro.svg" />
+                                <img v-show="showModuleMenu" src="img/ico/svg/cerrar-blanco.svg" />
                             </div>
                         </div>
-                        <div >
-                            <div class="zone noSelect">
-                                Zona Asesores
+                        <div style="padding: 1rem 2em;">
+                            <div class="menuCategory" v-on:click="openCategory(null)" v-bind:class="{ selectedMenuCategory:  categorySelected == null}">
+                                Todo
                             </div>
-                        </div>
-                        <div >
-                            <div class="zone noSelect">
-                                Zona Obras
+                            <div v-for="item in categories" class="menuCategory" v-on:click="openCategory(item)" v-bind:class="{ selectedMenuCategory:  categorySelected == item}">
+                                {{item.name}}
                             </div>
                         </div>
                     </div>
-                    <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 2rem 0em;">
-                        
-                        <div class="menuCategory" v-on:click="category = ''" v-bind:class="{ selectedMenuCategory:  category == ''}">
-                            Todo
+                    <div v-show="showModuleMenu" class="pure-u-1-1 pure-u-md-4-24 contentHeight shadow" style="background-color: rgba(255,255,255,0.95);" v-if="mostrarMenu">
+                        <div style="text-align:right; padding: 0.2rem;">
+                            <div class="closeButton" v-on:click="closeMenu()">
+                                <img src="img/ico/svg/cerrar-negro.svg" />
+                            </div>
                         </div>
-                        <div class="menuCategory" v-on:click="category = 'PROYECTOS'" v-bind:class="{ selectedMenuCategory:  category == 'PROYECTOS'}">
-                            Proyectos
-                        </div>
-                        <div class="menuCategory" v-on:click="category = 'INFORMES'" v-bind:class="{ selectedMenuCategory:  category == 'INFORMES'}">
-                            Informes
-                        </div>
-                        <div class="menuCategory" v-on:click="category = 'CONFIGURACION'" v-bind:class="{ selectedMenuCategory:  category == 'CONFIGURACION'}">
-                            Configuración
-                        </div>
-                    </div>
-                </div>
-                <div class="pure-u-1-1 pure-u-md-18-24" style="padding: 2em 0em" v-if="mostrarMenu">
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-1-4 menuOption" v-for="(value, key) in modules">
-                            <div v-if="checkAcces(key) && modules[key].hidden != true && (value.category == null || value.category == category || category == '')"
-                                 v-on:click="loadModule(key, null); showMobileMenu = false;" v-bind:class="{ selectedMenuOption: isActiveModule(key) }">
-                                <div class="innerMenuOption">
-                                    <div>{{value.title}}</div>
-                                    <div>
-                                        <table>
-                                            <tr>
-                                                <td style="vertical-align:top">
-                                                    <img v-bind:src="value.imgSrc" />
-                                                </td>
-                                                <td style="width: 100%">
-                                                    {{value.desc}}
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
+                        <div style="padding: 2rem 2rem">
+                            <div v-for="(value, key) in modules">
+                                <div v-if="modules[key].hidden != true && zonePreSelected != null && zonePreSelected.name == value.zone && (categorySelected == null || value.category == categorySelected.key)"
+                                     v-on:click="loadModule(key, null); showMobileMenu = false;" v-bind:class="{ selectedMenuCategory: isActiveModule(key) }" class="menuCategory">
+                                    {{value.title}}
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="pure-u-1-1 pure-u-md-16-24 contentHeight" style="cursor: pointer" v-on:click="closeMenu()"></div>
                 </div>
-                <div class="pure-u-1-1" style="text-align:center">
-                    <div style="height: 3em; width: 3em; cursor: pointer; display: inline-block; background-color: #00839C; padding: 0.5rem; border-radius: 2rem;" 
-                         v-on:click="showMobileMenu = false">
-                        <img src="./img/ico/svg/close.svg" style="width: 100%; height:100%; margin: 0px auto; color:white" />
-                    </div>
+            </div>
+            <div class="sidecontent">
+                <div id="indexMenuDiv" style="display: none; background-image: url('./img/background/floor-plan-1857175_1280.jpg'); background-attachment: fixed; background-repeat: no-repeat; background-size: cover;" class="contentHeight">
                 </div>
-
+                <div id="mainContentDiv">
+                </div>
             </div>
         </div>
-        <div id="indexMenuDiv" style="display: none; min-height: calc(100vh - 3.5em); background-image: url('./img/background/floor-plan-1857175_1280.jpg'); background-attachment: fixed; background-repeat: no-repeat; background-size: cover;">
-        </div>
-    </div>
-    <div id="mainContentDiv">
     </div>
     <!--<div id="mainFooter" class="footer">
         <div style="width: 50%; float: left">

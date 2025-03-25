@@ -8,7 +8,9 @@ set @usuario = '';
 set @pusuario = concat('%', @usuario, '%');
 
 select a.id_usuario, a.usuario, a.nombres, date_format(a.created_on, '%Y-%m-%d %T') as created_on,
-    (select count(*) from fact_roles_usuarios aa where a.id_usuario = aa.id_usuario) as cuenta
+    (select count(*) from fact_roles_usuarios aa where a.id_usuario = aa.id_usuario) as cuenta,
+    b.cargo, a.identificacion
 from fact_usuarios a
+    left join dim_cargo b on a.id_cargo = b.id_cargo
 where a.usuario like @pusuario collate utf8mb4_unicode_ci
     or a.nombres like @pusuario collate utf8mb4_unicode_ci;

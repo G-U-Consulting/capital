@@ -20,7 +20,7 @@
         <!--USUARIOS-->
         <div v-if="mainmode == 1">
             <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <span style="color: #89888d" class="hoverLink" v-on:click="mainmode = 0">Accesos  /</span>
+                <!--<span style="color: #89888d" class="hoverLink" v-on:click="mainmode = 0">Accesos  /</span>-->
                 <span class="hoverLink" v-on:click="mode = 0">Usuarios</span>
                 <span v-if="mode == 1">  /  Nuevo Usuario</span>
                 <span v-if="mode == 2">  /  Edición de Usuario</span>
@@ -44,8 +44,26 @@
                         </div>
                     </div>
                 </div>
-                <div v-for="item in users" class="pure-g listItem" v-on:click="selectUser(item)">
-                    <div class="pure-u-2-3" style="margin: auto; font-size: 0.8em">
+                <div class="searchBox">
+                    <table class="dataTable">
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Nombres</th>
+                            <th>Cargo</th>
+                            <th>Identificación</th>
+                            <th>Roles Asignados</th>
+                            <th>Fecha de Creación</th>
+                        </tr>
+                        <tr v-for="item in users" v-on:click="selectUser(item)">
+                            <td>{{item.usuario}}</td>
+                            <td>{{item.nombres}}</td>
+                            <td>{{item.cargo}}</td>
+                            <td>{{item.identificacion}}</td>
+                            <td style="text-align: center; width: 10rem;">{{item.cuenta}}</td>
+                            <td style="text-align:center; width: 10rem;">{{item.created_on}}</td>
+                        </tr>
+                    </table>
+                    <!--<div class="pure-u-2-3" style="margin: auto; font-size: 0.8em">
                         <b>{{item.usuario}}</b> / {{item.nombres}}
                     </div>
                     <div class="pure-u-1-3" style="text-align: right;">
@@ -56,7 +74,7 @@
                         <div style="display: inline-block;font-size: 0.6em; background-color: rgb(244, 244, 244); border-radius: 0.5em; padding: 0.5em">
                             {{item.created_on}}
                         </div>
-                    </div>
+                    </div>-->
                 </div>
             </div>
             <!--NUEVO USUARIO-->
@@ -197,7 +215,7 @@
         <!--ROLES-->
         <div v-if="mainmode == 2">
             <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <span style="color: #89888d" class="hoverLink" v-on:click="mainmode = 0">Accesos  /</span>
+                <!--<span style="color: #89888d" class="hoverLink" v-on:click="mainmode = 0">Accesos  /</span>-->
                 <span class="hoverLink" v-on:click="mode = 0">Roles</span>
                 <span v-if="mode == 1">  /  Nuevo Rol</span>
                 <span v-if="mode == 2">  /  Editar Rol</span>
@@ -239,31 +257,86 @@
             <div v-if="mode == 1" style="padding: 1em">
                 <h2>Nuevo Rol</h2>
                 <br />
-                <div class="formInput">
-                    Nombre del rol
-                    <input type="text" v-model="newRole.rol" placeholder="Nombre" maxlength="1000" />
-                </div>
-                <div class="formInput">
-                    Descripción
-                    <textarea v-model="newRole.descripcion" placeholder="Descripción" maxlength="1000" style="height: 4rem;"></textarea>
-                </div>
-                <br />
-                <div>
-                    Accesos
-                    <div class="pure-g">
-                        <div class="pure-u-1-4" v-for="cat in accessList" style="padding: 1rem">
-                            <div style="border: 1px solid #CCCCCC; border-radius: 0.1rem ">
-                                <div style="text-align: center; background-color: #EEE; padding: 0.3rem">{{cat.name}}</div>
-                                <div v-for="item in cat.list" class="noSelect">
-                                    <label><input type="checkbox" v-model="item.selected" />{{item.permiso}}</label>
+                <div class="pure-g">
+                    <div class="pure-u-1-1 pure-u-md-1-3">
+                        <div class="formInput">
+                            Nombre del rol
+                            <input type="text" v-model="newRole.rol" placeholder="Nombre" maxlength="1000" />
+                        </div>
+                        <div class="formInput">
+                            Descripción
+                            <textarea v-model="newRole.descripcion" placeholder="Descripción" maxlength="1000" style="height: 4rem;"></textarea>
+                        </div>
+                        <div style="text-align:center">
+                            <br />
+                            <button v-on:click="insNewRole()">Guardar</button>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-1 pure-u-md-2-3">
+                        <div>
+                            Accesos
+                            <div class="pure-g">
+                                <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem">
+                                    <div style="text-align:center; font-size: 1em">Disponibles</div>
+                                    <div style="padding: 0.5rem; border: 1px solid black; border-radius: 0.5rem; height: calc(100vh - 15rem); overflow: auto;">
+                                        <div v-for="zone in accessList">
+                                            <div>
+                                                <div v-on:click="zone.expanded = !zone.expanded" class="noSelect" style="cursor: pointer">
+                                                    <span v-show="!zone.expanded">&boxplus;</span>
+                                                    <span v-show="zone.expanded">&boxminus;</span>
+                                                    <span >{{zone.name}}</span>
+                                                </div>
+                                                <div v-show="zone.expanded" v-for="group in zone.groups">
+                                                    <div style="padding-left: 1rem; cursor: pointer" v-on:click="group.expanded = !group.expanded" class="noSelect">
+                                                        <span v-show="!group.expanded">&boxplus;</span>
+                                                        <span v-show="group.expanded">&boxminus;</span>
+                                                        <span >{{group.name}}</span>
+                                                    </div>
+                                                    <div v-for="item in group.list" class="noSelect" v-show="group.expanded && !item.selected">
+                                                        <div style="padding-left: 2rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.item == item}" v-on:click="selectAccess(item, group, zone)">{{item.permiso}}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pure-u-1-1 pure-u-md-2-24">
+                                    <div style="text-align: center;">
+                                        <br />
+                                        <br />
+                                        <br />
+                                        <br />
+                                        <button v-show="selectedAccess != null && !selectedAccess.item.selected" style="width: 2em;min-width: 0;" v-on:click="asignAccess()">&RightArrow;</button>
+                                        <button v-show="selectedAccess != null && selectedAccess.item.selected" style="width: 2em;min-width: 0;" v-on:click="asignAccess()">&LeftArrow;</button>
+                                    </div>
+                                </div>
+                                <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem">
+                                    <div style="text-align:center; font-size: 1em">Asignados</div>
+                                    <div style="padding: 0.5rem; border: 1px solid black; border-radius: 0.5rem; height: calc(100vh - 15rem); overflow: auto;">
+                                        <div v-for="zone in accessList" v-show="zone.selectedItems > 0">
+                                            <div>
+                                                <div v-on:click="zone.expanded = !zone.expanded" class="noSelect" style="cursor: pointer">
+                                                    <span v-show="!zone.expanded">&boxplus;</span>
+                                                    <span v-show="zone.expanded">&boxminus;</span>
+                                                    <span>{{zone.name}}</span>
+                                                </div>
+                                                <div v-show="zone.expanded && group.selectedItems > 0" v-for="group in zone.groups">
+                                                    <div style="padding-left: 1rem; cursor: pointer" v-on:click="group.expanded = !group.expanded" class="noSelect">
+                                                        <span v-show="!group.expanded">&boxplus;</span>
+                                                        <span v-show="group.expanded">&boxminus;</span>
+                                                        <span >{{group.name}}</span>
+                                                    </div>
+                                                    <div v-for="item in group.list" class="noSelect" v-show="group.expanded && item.selected" >
+                                                        <div style="padding-left: 2rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.item == item}" v-on:click="selectAccess(item, group, zone)">{{item.permiso}}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div style="text-align:center">
-                    <br /><br /><br />
-                    <button v-on:click="insNewRole()">Guardar</button>
                 </div>
             </div>
             <!--EDITAR ROL-->

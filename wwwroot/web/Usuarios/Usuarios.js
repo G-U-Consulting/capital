@@ -8,6 +8,7 @@
             roles: [],
             cargos: [],
             accessList: [],
+            selectedAccess: null,
             roleList: [],
             newRole: {
                 "rol": "",
@@ -54,7 +55,7 @@
     async mounted() {
         this.inicializarFechas();
         this.fetchCarouselImages();
-        //await this.setMainMode(1);
+        await this.setMainMode(1);
         //this.startNewUser();
         //await this.setMainMode(2);
         //this.startNewRole();
@@ -109,9 +110,10 @@
         async startNewRole() {
             showProgress();
             this.accessList.forEach(function (item) {
-                item["list"].forEach(function (sitem) {
-                    sitem.selected = false;
-                });
+                for (var key in item["groups"])
+                    item["groups"][key]["list"].forEach(function (sitem) {
+                        sitem.selected = false;
+                    });
             });
             this.mode = 1;
             this.newRole["rol"] = "";
@@ -122,10 +124,11 @@
         async insNewRole() {
             this.newRole["permisos"] = "";
             this.accessList.forEach(function (item) {
-                item["list"].forEach(function (sitem) {
-                    if (sitem.selected)
-                        this.newRole["permisos"] += sitem["id_permiso"]+",";
-                }.bind(this));
+                for (var key in item["groups"])
+                    item["groups"][key]["list"].forEach(function (sitem) {
+                        if (sitem.selected)
+                            this.newRole["permisos"] += sitem["id_permiso"]+",";
+                    }.bind(this));
             }.bind(this));
             if (this.newRole["permisos"] == "") return;
             if (this.newRole["rol"] == "") return;
@@ -140,12 +143,13 @@
             resp = resp.data;
             var tmpList = resp[1];
             this.accessList.forEach(function (item) {
-                item["list"].forEach(function (sitem) {
-                    if (tmpList.find((ssitem) => { return sitem["id_permiso"] == ssitem["id_permiso"] }) == null)
-                        sitem.selected = false;
-                    else
-                        sitem.selected = true;
-                });
+                for (var key in item["groups"])
+                    item["groups"][key]["list"].forEach(function (sitem) {
+                        if (tmpList.find((ssitem) => { return sitem["id_permiso"] == ssitem["id_permiso"] }) == null)
+                            sitem.selected = false;
+                        else
+                            sitem.selected = true;
+                    });
             });
             this.mode = 2;
             this.editRole["id_rol"] = resp[0][0]["id_rol"];
@@ -158,10 +162,11 @@
         async updateRole() {
             this.editRole["permisos"] = "";
             this.accessList.forEach(function (item) {
-                item["list"].forEach(function (sitem) {
-                    if (sitem.selected)
-                        this.editRole["permisos"] += sitem["id_permiso"] + ",";
-                }.bind(this));
+                for (var key in item["groups"])
+                    item["groups"][key]["list"].forEach(function (sitem) {
+                        if (sitem.selected)
+                            this.editRole["permisos"] += sitem["id_permiso"] + ",";
+                    }.bind(this));
             }.bind(this));
             if (this.editRole["permisos"] == "") return;
             if (this.editRole["rol"] == "") return;
@@ -235,18 +240,37 @@
         async loadAccess() {
             this.accessList = [];
             var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Permisos", {})).data;
-            var groups = {};
+            var zones = {};
             tmpList.forEach(function (item) {
-                let cat = null;
-                if (groups[item["grupo"]] == null) {
-                    cat = { "name": item["grupo"], "list": [] };
-                    groups[item["grupo"]] = cat;
-                    this.accessList.push(cat);
-                } else
-                    cat = groups[item["grupo"]];
+                let zone = zones[item["zona"]];
+                if (zone == null) {
+                    zone = {"name": item["zona"], "groups": {}, expanded: false, selectedItems: 0 };
+                    zones[item["zona"]] = zone;
+                    this.accessList.push(zone);
+                }
+                let group = zone["groups"][item["grupo"]];
+                if (group == null) {
+                    group = { "name": item["grupo"], "list": [], expanded: false, selectedItems: 0 };
+                    zone["groups"][item["grupo"]] = group;
+                }
                 item.selected = false;
-                cat["list"].push(item);
+                group["list"].push(item);
             }.bind(this));
+        },
+        selectAccess(item, group, zone) {
+            this.selectedAccess = { item, group, zone };
+        },
+        asignAccess() {
+            if (!this.selectedAccess.item.selected) {
+                this.selectedAccess.item.selected = true;
+                this.selectedAccess.group.selectedItems++;
+                this.selectedAccess.zone.selectedItems++;
+            } else {
+                this.selectedAccess.item.selected = false;
+                this.selectedAccess.group.selectedItems--;
+                this.selectedAccess.zone.selectedItems--;
+            }
+            
         },
         async startNewException() {
             this.mode = 3;

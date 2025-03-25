@@ -51,9 +51,14 @@ mainVue = {
             loginData: { user: "", roles: [], debug: false },
             modules: null,
             showMobileMenu: true,
-            category: "",
+            showModuleMenu: false,
             mostrarMenu: false,
-            modules: null
+            modules: null,
+            zones: null,
+            zoneSelected: null,
+            zonePreSelected: null,
+            categories: null,
+            categorySelected: null
         }
     },
     async mounted() {
@@ -70,7 +75,8 @@ mainVue = {
         showProgress();
         var data = await httpFunc("/auth/getUserProfile", {});
         this.loginData = data;
-        this.modules = GlobalVariables.modules;
+        this.modules = GlobalVariables.modules["modules"];
+        this.zones = GlobalVariables.modules["zones"];
         GlobalVariables.roles = data.roles;
         GlobalVariables.username = data.user;
         GlobalVariables.loadModule = this.loadModule;
@@ -79,6 +85,7 @@ mainVue = {
             if (pars.id != null)
                 inpParamter = { "data": { "id": pars.id } };
             await this.loadModule(pars.loc, inpParamter);
+            this.mostrarMenu = true;
         } else {
             await this.loadModule("Index");
             this.mostrarMenu = true;
@@ -118,7 +125,7 @@ mainVue = {
                 if (url.indexOf("?") > 0)
                     url = url.substring(0, url.indexOf("?"))
                 if (name == "Index")
-                    this.showMobileMenu = true;
+                    this.showMobileMenu = false;
                 window.history.pushState({ moduleName: name }, document.title, url);
                 return;
             }
@@ -136,7 +143,10 @@ mainVue = {
                 this.moduleSelected.moduleObj = this.moduleSelected.moduleObj.default;
             }
             if (this.moduleSelected.moduleObj.template == null || this.moduleSelected.moduleObj.template == "")
-                this.moduleSelected.moduleObj.template = await(await fetch(this.moduleSelected.templateUrl)).text();
+                this.moduleSelected.moduleObj.template = await (await fetch(this.moduleSelected.templateUrl)).text();
+            this.zoneSelected = this.zones[this.moduleSelected["zone"]];
+            if(this.zoneSelected != null)
+                this.categorySelected = this.zoneSelected.categories.find(function (item) { return this.moduleSelected["category"] == item["key"] }.bind(this));
             this.loadVueModule(inputParameter);
         },
         loadVueModule(inputParameter) {
@@ -168,6 +178,20 @@ mainVue = {
         },
         logOut() {
             window.location = "/login.html";
+        },
+        openZone(item) {
+            this.zonePreSelected = item;
+            this.showMobileMenu = true;
+            this.showModuleMenu = false;
+            this.categories = item.categories;
+        },
+        openCategory(item) {
+            this.categorySelected = item;
+            this.showModuleMenu = true;
+        },
+        closeMenu() {
+            this.showMobileMenu = false;
+            this.zonePreSelected = null;
         }
     }
 };
@@ -178,7 +202,6 @@ mainVue = {
 initVueInstance();
 async function initVueInstance() {
     var moduleMap = await import("./indexConfig.js");
-    moduleMap = moduleMap.default;
     GlobalVariables.modules = moduleMap;
     mainVue = createApp(mainVue);
     mainVue.mount("#indexMainDiv");

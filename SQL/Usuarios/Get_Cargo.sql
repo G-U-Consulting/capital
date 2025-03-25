@@ -6,5 +6,6 @@
 --END_PARAM
 
 select a.id_cargo, a.cargo
-from fact_cargo a
+from dim_cargo a
+where a.is_active = 1
 
