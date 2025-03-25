@@ -1,0 +1,45 @@
+﻿<div class="pure-g">
+    <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
+        <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.75rem;">
+            Presentación
+        </div>
+        <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
+            <img src="./img/ico/svg/screen.svg" />
+            Fondo Pantalla
+        </div>
+    </div>
+    <div class="pure-u-1-1 pure-u-md-4-5">
+        <!--FONDO PANTALLA-->
+        <div v-if="mainmode == 3">
+            <div id="app">
+                <div class="container-fondopantalla">
+                    <div class="left-panel" style="text-align:center">
+                        <h2>Subir imágenes</h2>
+                        <label class="custom-file-upload">
+                            Seleccionar Imágenes
+                            <input type="file" multiple accept="image/*" v-on:change="handleFileChange">
+                        </label>
+
+                        <button class="buttonFP" v-on:click="uploadFiles" :disabled="previews.length === 0">Subir Imágenes</button>
+                        <div class="message">{{ message }}</div>
+                    </div>
+
+                    <div class="right-panel">
+                        <h3>Vista Previa</h3>
+                        <div class="preview-container">
+                            <div class="image-card" v-for="(src, index) in previews" :key="index">
+                                <img :src="src">
+                                <div class="delete-btn" v-on:click="removeImage(index)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="12" height="12" fill="white">
+                                        <path d="M6 6L18 18M6 18L18 6" stroke="red" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>

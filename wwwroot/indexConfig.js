@@ -20,8 +20,8 @@
         allow: ["*"]
     },
     "Presentacion": {
-        templateUrl: "./web/Usuarios/Usuarios.html",
-        jsUrl: "./web/Usuarios/Usuarios.js",
+        templateUrl: "./web/Presentacion/Presentacion.html",
+        jsUrl: "./web/Presentacion/Presentacion.js",
         title: "Presentación",
         desc: "Administra las configuraciones de seguridad",
         imgSrc: "./img/ico/menu/006-group.png",
