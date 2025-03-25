@@ -19,11 +19,21 @@
                             Seleccionar Imágenes
                             <input type="file" multiple accept="image/*" v-on:change="handleFileChange">
                         </label>
+                        <div style="margin-top:1rem">
+                            <label for="carouselTime">Tiempo de transición (segundos):</label>
+                            <select v-model="intervalTime" style="width: 50%; margin-top:0.5rem">
+                                <option value="3000">3s</option>
+                                <option value="5000">5s</option>
+                                <option value="7000">7s</option>
+                                <option value="10000">10s</option>
+                            </select>
+                        </div>
+                        <div style="margin-top:1rem">
+                            <button class="buttonFP" v-on:click="uploadFiles" :disabled="previews.length === 0">Subir Imágenes</button>
+                            <div class="message">{{ message }}</div>
 
-                        <button class="buttonFP" v-on:click="uploadFiles" :disabled="previews.length === 0">Subir Imágenes</button>
-                        <div class="message">{{ message }}</div>
+                        </div>
                     </div>
-
                     <div class="right-panel">
                         <h3>Vista Previa</h3>
                         <div class="preview-container">
@@ -40,6 +50,5 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 </div>

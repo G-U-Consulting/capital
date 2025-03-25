@@ -184,7 +184,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #4bafb7;
+    background: #00839C;
     color: white;
     padding: 10px;
     font-size: 14px;
@@ -206,7 +206,7 @@
 .buttonFP {
     margin-top: 15px;
     width: 100%;
-    background: #4bafb7;
+    background: #00839C;
     color: white;
     font-size: 14px;
     font-weight: 600;

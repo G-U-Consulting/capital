@@ -108,7 +108,8 @@ app.Map("/img/carrusel", (HttpRequest request) =>
     var files = Directory.GetFiles(wwwrootPath)
                          .Where(file => file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
                                         file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                        file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+                                        file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+                                        file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
                          .Select(file => $"/img/carrusel/{Path.GetFileName(file)}")
                          .ToList();
 
