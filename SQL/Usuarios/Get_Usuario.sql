@@ -5,7 +5,7 @@
 set @id_usuario = '6';
 --END_PARAM
 
-select a.id_usuario, a.usuario, a.identificacion, a.nombres, a.email, b.id_cargo 
+select a.id_usuario, a.usuario, a.identificacion, a.nombres, a.email, b.id_cargo, a.id_tipo_usuario
 from fact_usuarios a
     left join dim_cargo b on a.id_cargo = b.id_cargo
 where id_usuario = @id_usuario;

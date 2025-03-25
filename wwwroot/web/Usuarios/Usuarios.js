@@ -7,6 +7,7 @@
             seachUser: "",
             roles: [],
             cargos: [],
+            tiposUsuario: [],
             accessList: [],
             selectedAccess: null,
             roleList: [],
@@ -30,6 +31,7 @@
                 "nombres": "",
                 "email": "",
                 "id_cargo": "",
+                "id_tipo_usuario": "",
                 "roles": "",
                 "created_by": ""
             },
@@ -40,6 +42,7 @@
                 "nombres": "",
                 "email": "",
                 "id_cargo": "",
+                "id_tipo_usuario": "",
                 "roles": "",
                 "created_by": ""
             },
@@ -53,7 +56,7 @@
         this.inicializarFechas();
         //await this.setMainMode(1);
         //this.startNewUser();
-        await this.setMainMode(2);
+        //await this.setMainMode(2);
         //this.startNewRole();
     },
     methods: {
@@ -86,7 +89,9 @@
             if (mode == 1) {
                 showProgress();
                 this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", { "usuario": this.seachUser })).data;
-                this.cargos = (await httpFunc("/generic/genericDT/Usuarios:Get_Cargo", { })).data;
+                var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
+                this.cargos = variables[0];
+                this.tiposUsuario = variables[1];
                 var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": "" })).data;
                 tmpList.forEach(function (item) {
                     item.selected = false;
@@ -220,6 +225,7 @@
             this.editUser["nombres"] = resp[0][0]["nombres"];
             this.editUser["email"] = resp[0][0]["email"];
             this.editUser["id_cargo"] = resp[0][0]["id_cargo"];
+            this.editUser["id_tipo_usuario"] = resp[0][0]["id_tipo_usuario"];
             this.editUser["roles"] = resp[0][0]["roles"];
             hideProgress();
         },
