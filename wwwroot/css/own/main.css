@@ -10,30 +10,58 @@
 }
 */
 
+/************************************* Pantalla login *******************************************/
+
+.header-login {
+    background-color: #fff !important;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 1em;
+    height: 88px !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+    .header-login .logo {
+        height: 50px;
+    }
+
+    .header-login .title {
+        font-size: 18px;
+        font-weight: bold;
+        color: #007c9d;
+    }
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
 
 .carousel-section {
-    width: 70%;
-    height: 100vh;
+    width: 75%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    text-align: center;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     transition: background-image 0.5s ease-in-out;
 }
 
-.carousel-overlay {
-    background: rgba(0, 0, 0, 0.4);
-    padding: 20px;
-    border-radius: 10px;
-}
-
 .login-section {
-    width: 30%;
-    height: 100vh;
+    width: 25%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -41,21 +69,26 @@
 }
 
 .login-card {
-    background: white;
-    padding: 2em;
     text-align: center;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    width: 80%;
-    max-width: 350px;
 }
 
 .login-form input {
-    width: 100%;
+    width: 80% !important;
     padding: 10px;
     margin: 8px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
+}
+
+.footer-login {
+    height: 85px !important;
+    background: #fff;
+    color: #222 !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 20px;
+    width: 100%;
 }
 
 @media (max-width: 900px) {
@@ -68,14 +101,43 @@
     }
 }
 
-
 @media (max-width: 600px) {
+    .header-login .title {
+        display: none;
+    }
+
+    .header-login {
+        justify-content: center;
+    }
+
+    .header-login {
+        flex-direction: column;
+        text-align: center;
+    }
+
+        .header-login .logo {
+            height: 40px;
+        }
+
+        .header-login .title {
+            font-size: 16px;
+        }
+
+    .mainContent {
+        flex-direction: column;
+    }
+
     .carousel-section {
         display: none;
     }
 
     .login-section {
         width: 100%;
+    }
+
+    .footer-login {
+        justify-content: center;
+        padding-right: 0;
     }
 }
 
@@ -88,7 +150,7 @@
     justify-content: center;
     align-items: center;
     height: calc(100vh - 3.5rem);
-    background: #f4f4f4;
+        
 }
 
 .container-fondopantalla {
@@ -106,7 +168,6 @@
 }
 
 .left-panel {
-
     padding: 20px;
     flex: 1;
     min-height: 100%;
@@ -199,8 +260,8 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     background: #fcfcfc;
-
 }
+
     .preview-container::-webkit-scrollbar {
         display: none;
     }
@@ -262,6 +323,7 @@
         height: 120px;
     }
 }
+
 @media (max-width: 480px) {
     .left-panel h2, .right-panel h3 {
         font-size: 14px;
@@ -319,8 +381,10 @@
     }
 }
 
-/**********************************/
-.zona-asesores {
+
+    /***********************************************/
+
+    .zona-asesores {
     background-color: #4bafb7;
     border-radius: 0.5rem;
     display: flex;
@@ -336,7 +400,7 @@
         transform: scale(1.05);
     }
 .logo {
-    width: 10rem;
+    width: 15rem;
     height: auto;
     margin-right: 0.5rem;
 }
@@ -345,6 +409,7 @@
     display: block;
     margin-top: 10px;
     margin-bottom: 10px;
+    margin-left: 33px;
     color: #4bafb7;
     text-decoration: none;
     font-size: 14px;
@@ -378,10 +443,6 @@
     padding: 0px 14px;
     color: #ffffff;
     transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.login-form input:hover {
-    /*background-color: rgba(255, 255, 255, 0.5);*/
 }
 
 .login-form button:hover {
@@ -435,7 +496,6 @@
 .footer {
     height: 2em;
     width: 100%;
-    /*background: #0e547d;*/
     border-top: 0px solid #3C3C3C;
 }
 
@@ -848,6 +908,13 @@ text-overflow: ellipsis;*/
                             supported by Chrome and Opera */
         }
 
+.mdialogo2 {
+    position: fixed;
+    top: 5%;
+    right: 0px;
+    left: 0px;
+    z-index: 1002;
+}
 
 /***************************************************************************** CAMARA **********************************************/
 .camaraBacground {
