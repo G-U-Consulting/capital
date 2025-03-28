@@ -49,11 +49,11 @@
             hoy: "",
             fechaDesde: "",
             fechaHasta: "",
-       
         }
     }, 
     async mounted() {
         this.inicializarFechas();
+
         //await this.setMainMode(1);
         //this.startNewUser();
         //await this.setMainMode(2);
@@ -270,19 +270,67 @@
             this.selectedAccess = { item, group, zone };
         },
         asignAccess() {
-            if (!this.selectedAccess.item.selected) {
-                this.selectedAccess.item.selected = true;
-                this.selectedAccess.group.selectedItems++;
-                this.selectedAccess.zone.selectedItems++;
-            } else {
-                this.selectedAccess.item.selected = false;
-                this.selectedAccess.group.selectedItems--;
-                this.selectedAccess.zone.selectedItems--;
+            const { item, group, zone } = this.selectedAccess;
+
+            if (item) {
+                item.selected = !item.selected;
+                group.selectedItems += item.selected ? 1 : -1;
+                zone.selectedItems += item.selected ? 1 : -1;
+                return;
             }
-            
+            if (group) {
+                this.asignAccessGrupo();
+                return;
+            }
+            if (zone) {
+                this.asignAccessZona();
+            }
+        },
+        asignAccessGrupo() {
+            const { group, zone } = this.selectedAccess;
+            console.log(group.list)
+            if (!group || !zone ) return;
+
+            const selectedCount = group.list.filter(i => i.selected).length;
+
+            if (selectedCount > 0) {
+                group.list.forEach(i => {
+                    if (i.selected) {
+                        i.selected = false;
+                    }
+                });
+                group.selectedItems -= selectedCount;
+                zone.selectedItems -= selectedCount;
+            } else {
+                group.list.forEach(i => {
+                    if (!i.selected) {
+                        i.selected = true;
+                    }
+                });
+                group.selectedItems = group.list.length;
+                zone.selectedItems += group.list.length;
+            }
+        },
+        asignAccessZona() {
+            const { zone } = this.selectedAccess;
+            if (!zone?.groups) return;
+
+            const groupsArray = Array.isArray(zone.groups) ? zone.groups : Object.values(zone.groups);
+            let selectedCount = groupsArray.reduce((sum, group) => sum + group.list.filter(i => i.selected).length, 0);
+            let totalItems = groupsArray.reduce((sum, group) => sum + group.list.length, 0);
+
+            const isAssigning = selectedCount !== totalItems;
+
+            groupsArray.forEach(group => {
+                group.list.forEach(i => i.selected = isAssigning);
+                group.selectedItems = isAssigning ? group.list.length : 0;
+            });
+
+            zone.selectedItems = isAssigning ? totalItems : 0;
         },
         async startNewException() {
             this.mode = 3;
         },
+
     }
 }

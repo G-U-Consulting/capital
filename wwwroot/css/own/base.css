@@ -145,7 +145,7 @@ div {
 h3 {
     color: #0097AE;
     font-size: 1.5em;
-    margin: 20px 0;
+    margin: 10px 0;
     position: relative;
     font-weight: 100;
 }
@@ -263,13 +263,14 @@ button, input[type=submit] {
     z-index: 1;
     left: 0;
     top: 0;
-    background-color: #666666;
+    background-color: #969696;
     overflow-x: hidden;
     padding: 4rem 0.5rem 0.5rem 0.5rem;
 }
 .zone {
     border: 1px solid white;
     color:white;
+    background-color: #666666;
 }
 .zone img{
     width:1.2rem;
@@ -278,7 +279,7 @@ button, input[type=submit] {
     margin-right: 0.5rem;
 }
 .preSelectedZone {
-    background-color: #898989;
+    background-color: #00839C;
 }
 .selectedZone {
     background-color: #00839C;
@@ -365,11 +366,16 @@ button, input[type=submit] {
         width: 1.5em;
         height: auto;
     }
-
+.parentMenuCard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .menuCard {
     background: #ffffff;
     border-radius: 8px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
     padding: 1rem;
+    width:80%;
 }
