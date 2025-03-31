@@ -10,6 +10,7 @@ var AxiosMethods = {
     loginMethod: null,
     autoErrorFunction: null
 };
+
 var AxiosConst = {
     GENERIC_DT: "genericDT",
     GENERIC_DS: "genericDS",
@@ -39,7 +40,8 @@ var GlobalVariables = {
     username: null,
     roles: null,
     loadModule: null,
-    modules: null
+    modules: null,
+    ruta: null
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null;
@@ -58,7 +60,8 @@ mainVue = {
             zoneSelected: null,
             zonePreSelected: null,
             categories: null,
-            categorySelected: null
+            categorySelected: null,
+            
         }
     },
     async mounted() {
@@ -71,7 +74,7 @@ mainVue = {
             url = url.substring(0, url.indexOf("?"));
         if (pars.loc != null)
             url += "?loc=" + pars.loc;
-        window.history.replaceState({}, document.title, url);
+        //window.history.replaceState({}, document.title, url);
         showProgress();
         var data = await httpFunc("/auth/getUserProfile", {});
         this.loginData = data;
@@ -80,6 +83,7 @@ mainVue = {
         GlobalVariables.roles = data.roles;
         GlobalVariables.username = data.user;
         GlobalVariables.loadModule = this.loadModule;
+        GlobalVariables.ruta = localStorage.getItem('ruta');
         if (pars.loc != null && this.modules[pars.loc] != null) {
             var inpParamter = null;
             if (pars.id != null)
@@ -184,6 +188,8 @@ mainVue = {
             this.showMobileMenu = true;
             this.showModuleMenu = false;
             this.categories = item.categories;
+            GlobalVariables.ruta = item.name;
+            localStorage.setItem('ruta', item.name);
         },
         openCategory(item) {
             this.categorySelected = item;

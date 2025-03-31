@@ -10,6 +10,7 @@
             tiposUsuario: [],
             accessList: [],
             selectedAccess: null,
+            selectedAcces: null,
             roleList: [],
             newRole: {
                 "rol": "",
@@ -49,17 +50,41 @@
             hoy: "",
             fechaDesde: "",
             fechaHasta: "",
+            ruta: GlobalVariables.ruta ,
         }
     }, 
     async mounted() {
         this.inicializarFechas();
-
         //await this.setMainMode(1);
         //this.startNewUser();
         //await this.setMainMode(2);
         //this.startNewRole();
     },
+    computed: {
+
+        getArrowDirection() {
+            if (!this.selectedAccess) return '';
+
+            if (this.selectedAccess.item) {
+                console.log(this.selectedAccess.item.selected)
+                return this.selectedAccess.item.selected ? '←' : '→';
+            }
+            if (this.selectedAccess.group) {
+                console.log(this.selectedAccess.group.selected)
+                return this.selectedAccess.group.selected ? '←' : '→';
+            }
+            if (this.selectedAccess.zone) {
+                console.log(this.selectedAccess.zone.selected)
+                return this.selectedAccess.zone.selected ? '←' : '→';
+            }
+
+            return '→';
+        }
+    },
     methods: {
+        setRuta(...segments) {
+            this.ruta = [GlobalVariables.ruta, ...segments].join(" / ");
+        },
         agregarCargo() {
             if (this.nuevoCargo.trim() && !this.cargos.includes(this.nuevoCargo)) {
                 this.cargos.push(this.nuevoCargo);
@@ -87,6 +112,7 @@
         },
         async setMainMode(mode) {
             if (mode == 1) {
+                this.setRuta("Usuarios");
                 showProgress();
                 this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", { "usuario": this.seachUser })).data;
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
@@ -95,12 +121,14 @@
                 var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": "" })).data;
                 tmpList.forEach(function (item) {
                     item.selected = false;
+                    
                 }.bind(this));
                 this.roleList = tmpList;
                 await this.loadAccess();
                 hideProgress();
             } else if (mode == 2) {
                 showProgress();
+                this.setRuta("Roles");
                 this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
                 await this.loadAccess();
                 hideProgress();
@@ -110,18 +138,29 @@
         },
         async startNewRole() {
             showProgress();
-            this.accessList.forEach(function (item) {
-                for (var key in item["groups"])
-                    item["groups"][key]["list"].forEach(function (sitem) {
+            this.setRuta("Roles", "Nuevo Rol");
+            this.accessList.forEach(function (zone) {
+                zone.selected = false;
+
+                for (var key in zone["groups"]) {
+                    let group = zone["groups"][key];
+                    group.selected = false;
+
+                    group["list"].forEach(function (sitem) {
                         sitem.selected = false;
                     });
+                }
             });
             this.mode = 1;
-            this.newRole["rol"] = "";
-            this.newRole["permisos"] = "";
-            this.newRole["descripcion"] = "";
+            this.newRole = {
+                rol: "",
+                permisos: "",
+                descripcion: ""
+            };
+
             hideProgress();
         },
+
         async insNewRole() {
             this.newRole["permisos"] = "";
             this.accessList.forEach(function (item) {
@@ -185,6 +224,7 @@
         },
         async startNewUser() {
             showProgress();
+            this.setRuta("Usuarios", "Nuevo Usuario");
             this.mode = 1;
             this.newUser["usuario"] = "";
             this.newUser["identificacion"] = "";
@@ -218,6 +258,7 @@
                 else
                     sitem.selected = true;
             });
+            this.setRuta("Usuarios" ,"Edición de Usuario");
             this.mode = 2;
             this.editUser["id_usuario"] = resp[0][0]["id_usuario"];
             this.editUser["usuario"] = resp[0][0]["usuario"];
@@ -268,9 +309,14 @@
         },
         selectAccess(item, group, zone) {
             this.selectedAccess = { item, group, zone };
+            this.selectedAcces = { item, group, zone };
+
+            if (item) { return this.selectedAccess.zone = null, this.selectedAccess.group = null; } 
+            if (group) { return this.selectedAccess.zone = null; }
+        
         },
         asignAccess() {
-            const { item, group, zone } = this.selectedAccess;
+            const { item, group, zone } = this.selectedAcces;
 
             if (item) {
                 item.selected = !item.selected;
@@ -279,16 +325,18 @@
                 return;
             }
             if (group) {
+                group.selected = !group.selected;
                 this.asignAccessGrupo();
                 return;
             }
             if (zone) {
+                zone.selected = !zone.selected; 
                 this.asignAccessZona();
             }
         },
         asignAccessGrupo() {
-            const { group, zone } = this.selectedAccess;
-            console.log(group.list)
+            const { group, zone } = this.selectedAcces;
+
             if (!group || !zone ) return;
 
             const selectedCount = group.list.filter(i => i.selected).length;
@@ -312,23 +360,28 @@
             }
         },
         asignAccessZona() {
-            const { zone } = this.selectedAccess;
+            const { zone } = this.selectedAcces;
             if (!zone?.groups) return;
 
             const groupsArray = Array.isArray(zone.groups) ? zone.groups : Object.values(zone.groups);
-            let selectedCount = groupsArray.reduce((sum, group) => sum + group.list.filter(i => i.selected).length, 0);
-            let totalItems = groupsArray.reduce((sum, group) => sum + group.list.length, 0);
 
-            const isAssigning = selectedCount !== totalItems;
+            let selectedGroupsCount = groupsArray.filter(group => group.selected).length;
+            let totalGroups = groupsArray.length;
+
+            const isAssigning = selectedGroupsCount !== totalGroups;
 
             groupsArray.forEach(group => {
+                group.selected = isAssigning;
                 group.list.forEach(i => i.selected = isAssigning);
                 group.selectedItems = isAssigning ? group.list.length : 0;
             });
 
-            zone.selectedItems = isAssigning ? totalItems : 0;
+            zone.selected = isAssigning;
+            zone.selectedItems = isAssigning ? groupsArray.reduce((sum, group) => sum + group.list.length, 0) : 0;
         },
+
         async startNewException() {
+            this.setRuta("Usuarios", "Permisos Temporales");
             this.mode = 3;
         },
 

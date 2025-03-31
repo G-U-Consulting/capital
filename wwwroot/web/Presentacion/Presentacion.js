@@ -7,7 +7,7 @@
             files: [],
             previews: [],
             message: "",
-       
+            ruta: GlobalVariables.ruta,
         }
     }, 
     async mounted() {
@@ -15,10 +15,13 @@
         //await this.setMainMode(2);
     },
     methods: {
+        setRuta(...segments) {
+            this.ruta = [GlobalVariables.ruta, ...segments].join(" / ");
+        },
         async setMainMode(mode) {
             if (mode == 1) {
                 showProgress();
-        
+                this.setRuta("Fondo Pantalla");
                 hideProgress();
             } 
             this.mainmode = mode;
