@@ -243,7 +243,6 @@
             if (this.newUser["usuario"] == "") return;
             showProgress();
             var resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
-            console.log(resp);
             hideProgress();
             this.setMainMode(1);
         },

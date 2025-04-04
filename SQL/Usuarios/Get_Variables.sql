@@ -4,7 +4,7 @@
 --START_PARAM
 --END_PARAM
 
-select a.id_cargo, a.cargo
+select a.id_cargo, a.cargo , a.Descripcion
 from dim_cargo a
 where a.is_active = 1;
 

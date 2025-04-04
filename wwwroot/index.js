@@ -152,6 +152,12 @@ mainVue = {
             if(this.zoneSelected != null)
                 this.categorySelected = this.zoneSelected.categories.find(function (item) { return this.moduleSelected["category"] == item["key"] }.bind(this));
             this.loadVueModule(inputParameter);
+
+            if(!GlobalVariables.ruta.includes(name)){
+                GlobalVariables.ruta = GlobalVariables.ruta + " / " + name;
+                console.log(GlobalVariables.ruta)
+                localStorage.setItem('ruta', GlobalVariables.ruta);
+            }
         },
         loadVueModule(inputParameter) {
             document.getElementById("indexMenuDiv").style.display = "none";
@@ -180,6 +186,13 @@ mainVue = {
             }
             return false;
         },
+        handleClick(item) {
+            if (item.isLogOut) {
+                this.logOut();
+            } else {
+                this.openZone(item);
+            }
+        },
         logOut() {
             window.location = "/login.html";
         },
@@ -189,7 +202,6 @@ mainVue = {
             this.showModuleMenu = false;
             this.categories = item.categories;
             GlobalVariables.ruta = item.name;
-            localStorage.setItem('ruta', item.name);
         },
         openCategory(item) {
             this.categorySelected = item;

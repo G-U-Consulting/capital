@@ -8,10 +8,11 @@
             previews: [],
             message: "",
             ruta: GlobalVariables.ruta,
+            duracion: "3",
         }
     }, 
     async mounted() {
-        this.fetchCarouselImages();
+        this.fetchCarouselImages();                                                      
         //await this.setMainMode(2);
     },
     methods: {
@@ -91,6 +92,9 @@
             if (formData.has("file")) {
                 try {
                     showProgress();
+                    await httpFunc("/generic/genericST/Presentacion:Upd_Presentacion", {
+                        duracion: this.duracion,
+                    });
                     let response = await httpFunc("/api/upload", formData);
                     this.message = response.message;
                     this.files = [];

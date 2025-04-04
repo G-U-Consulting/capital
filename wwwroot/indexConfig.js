@@ -28,6 +28,16 @@
         zone: "ZU",
         category: "CONFIGURACION",
         allow: ["*"]
+    },
+    "EdicionMaestro": {
+        templateUrl: "./web/EdicionMaestro/EdicionMaestro.html",
+        jsUrl: "./web/EdicionMaestro/EdicionMaestro.js",
+        title: "Edición Maestro",
+        desc: "Administra las configuraciones de seguridad",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZU",
+        category: "CONFIGURACION",
+        allow: ["*"]
     }
 };
 const zones = {
@@ -56,6 +66,12 @@ const zones = {
         title: "Zona Obras",
         img: "./img/ico/menu/zo.png",
         categories: []
+    },
+    "OUT": {
+        name: "OUT",
+        title: "logOut",
+        img: "./img/ico/menu/out.png",
+        isLogOut: true,
     }
 };
 export { modules, zones};
