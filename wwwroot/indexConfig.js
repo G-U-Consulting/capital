@@ -2,11 +2,21 @@
     "Usuarios": {
         templateUrl: "./web/Usuarios/Usuarios.html",
         jsUrl: "./web/Usuarios/Usuarios.js",
-        title: "Usuarios y Roles",
+        title: "Usuarios",
         desc: "Permite administrar los usuarios y roles de la aplicación",
         imgSrc: "./img/ico/menu/006-group.png",
         zone: "ZU",
         category: "USUARIOS",
+        allow: ["*"]
+    },   
+     "Roles": {
+        templateUrl: "./web/Roles/Roles.html",
+        jsUrl: "./web/Roles/Roles.js",
+        title: "Roles",
+        desc: "Permite administrar los usuarios y roles de la aplicación",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZU",
+        category: "ROLES",
         allow: ["*"]
     },
     "Seguridad": {
@@ -47,6 +57,7 @@ const zones = {
         img: "./img/ico/menu/zu.png",
         categories: [
             { key:"USUARIOS", name: "Usuarios"},
+            { key:"ROLES", name: "Roles"},
             { key:"CONFIGURACION", name: "Configuración"},
             { key:"Informes", name: "Informes"}
         ]

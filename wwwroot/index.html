@@ -64,9 +64,9 @@
                             </div>
                         </div>
                         <div style="padding: 1rem 2em;">
-                            <div class="menuCategory" v-on:click="openCategory(null)" v-bind:class="{ selectedMenuCategory:  categorySelected == null}">
+                            <!-- <div class="menuCategory" v-on:click="openCategory(null)" v-bind:class="{ selectedMenuCategory:  categorySelected == null}">
                                 Todo
-                            </div>
+                            </div> -->
                             <div v-for="item in categories" class="menuCategory" v-on:click="openCategory(item)" v-bind:class="{ selectedMenuCategory:  categorySelected == item}">
                                 {{item.name}}
                             </div>

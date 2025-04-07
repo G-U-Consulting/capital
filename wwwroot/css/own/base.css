@@ -342,7 +342,13 @@ button, input[type=submit] {
     color: white;
     background-color: #032B44;
 }
-
+table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #00839C;
+    color: white;
+    z-index: 2;
+  }
 .table-container {
     max-height: 50vh;
     overflow-y: auto;
@@ -353,7 +359,6 @@ button, input[type=submit] {
     border-collapse: collapse;
     margin: 0px auto;
 }
-
     .dataTable th {
         color: white;
         background-color: #00839C;
@@ -449,4 +454,18 @@ button, input[type=submit] {
     .cargo-item {
         width: 100%;
     }
+}
+.col-rol {
+    width: 30%;
+}
+
+.col-descripcion {
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.col-eliminar {
+    width: 20%;
 }
