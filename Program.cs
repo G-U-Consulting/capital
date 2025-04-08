@@ -1,31 +1,42 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using orca.Code.Api;
 using orca.Code.Auth;
 using orca.Code.Logger;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+//builder.Services.AddOpenApi();
+builder.Services.AddDbContext<AuthDBContext>();
+builder.Services.AddAuthorization();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<AuthDBContext>();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()){
     app.MapOpenApi();
 }
+app.MapIdentityApi<IdentityUser>();
 app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles(new StaticFileOptions() {
     OnPrepareResponse = (context) => {
-        if (context.File.Name.EndsWith(".html") || context.File.Name.EndsWith(".js")) {
+        string fileName = context.File.Name.ToLower();
+        string filePath = (context.File.PhysicalPath??"").ToLower();
+        if (filePath.Contains("/web/")) {
             context.Context.Response.Headers["Cache-Control"] = "no-cache, no-store";
             context.Context.Response.Headers["Pragma"] = "no-cache";
             context.Context.Response.Headers["Expires"] = "-1";
         }
-        if (false) { 
+        if (filePath.Contains("/css/") || filePath.Contains("/js/") || fileName == "login.html" || fileName == "login.js") 
+            return;
+        if (fileName != "login.html" && !(context.Context.User?.Identity?.IsAuthenticated??false)) {
             context.Context.Response.Clear();
             context.Context.Response.Body = new MemoryStream();
-            context.Context.Response.StatusCode = 403;
+            context.Context.Response.StatusCode = 302;
+            context.Context.Response.Headers.Location = "/login.html";
         }
     }
 });
@@ -40,27 +51,6 @@ WebBDUt.Init(rootPath, !app.Environment.IsDevelopment(), orca.ConfigurationManag
 /*****************************************************************************/
 /***************************** Servicios *************************************/
 /*****************************************************************************/
-app.Map("/api/{op}", async (HttpRequest request, HttpResponse response, string op) => {
-    string body = "";
-    try {
-        op = op.ToLower();
-        string? token = request.Headers.Authorization;
-        if (token != "Bearer l4e2wNsc7nWNvoPL2C1xzkxcZv1ks3LPJtG56Y61bSEv6h6XHWk66H6T2iCGmm43") {
-            response.StatusCode = 401;
-            return "";
-        }
-        using (var stream = new StreamReader(request.Body)) {
-            body = await stream.ReadToEndAsync();
-        }
-        return await Api.ProcessRequest(request, response, op, body, rootPath);
-    } catch (Exception ex) {
-        Logger.Log("api/" + op + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
-        response.StatusCode = 500;
-        return ex.Message + Environment.NewLine + ex.StackTrace;
-    }
-
-}).WithName("Api");
-
 app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response, string op, string sp) => {
     string body = "";
     try {
@@ -76,7 +66,7 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
 
-}).WithName("Generic");
+}).WithName("Generic").RequireAuthorization();
 
 /*****************************************************************************/
 /***************************** Autenticacion *********************************/
