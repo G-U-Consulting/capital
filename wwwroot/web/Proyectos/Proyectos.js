@@ -64,8 +64,8 @@
         };
     }, 
     async mounted() {
-        await this.setMainMode(1);
-        this.mode = 1;
+        //await this.setMainMode(1);
+        //this.mode = 1;
     },
     methods: {
         async setMainMode(mode) {
