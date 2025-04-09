@@ -129,3 +129,13 @@ create table fact_roles_usuarios(
 	constraint fk_fru_id_rol foreign key(id_rol) references fact_roles(id_rol),
 	constraint fk_fru_id_usuario foreign key(id_usuario) references fact_usuarios(id_usuario)
 );
+
+/*
+drop table fact_roles_usuarios;
+drop table fact_permisos_roles;
+drop table fact_roles;
+drop table dim_permiso;
+drop table fact_usuarios;
+drop table dim_cargo;
+drop table dim_zona;
+*/
