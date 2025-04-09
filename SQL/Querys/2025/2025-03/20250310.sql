@@ -139,3 +139,13 @@ create table dim_variables_globales (
     editable boolean default 1,
     primary key (nombre_variable)
 );
+
+/*
+drop table fact_roles_usuarios;
+drop table fact_permisos_roles;
+drop table fact_roles;
+drop table dim_permiso;
+drop table fact_usuarios;
+drop table dim_cargo;
+drop table dim_zona;
+*/
