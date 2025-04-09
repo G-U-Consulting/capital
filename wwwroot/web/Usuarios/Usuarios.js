@@ -3,27 +3,12 @@
         return {
             mainmode: 0,
             mode: 0,
-            seachRole: "",
             seachUser: "",
-            roles: [],
             cargos: [],
             tiposUsuario: [],
+            selectedRolId: "",
+            rolesAsignados: [],
             accessList: [],
-            selectedAccess: null,
-            roleList: [],
-            newRole: {
-                "rol": "",
-                "permisos": "",
-                "descripcion": "",
-                "created_by": ""
-            },
-            editRole: {
-                "id_rol": "",
-                "rol": "",
-                "permisos": "",
-                "descripcion": "",
-                "created_by": ""
-            },
             users: [],
             newUser: {
                 "usuario": "",
@@ -49,7 +34,13 @@
             hoy: "",
             fechaDesde: "",
             fechaHasta: "",
-       
+            ruta: GlobalVariables.ruta ,
+            editCargo: {
+                "id_cargo": "",
+            },
+            nuevoCargo: "",
+            actulCargo: false,
+            nuevoDescripcion: "",
         }
     }, 
     async mounted() {
@@ -60,6 +51,9 @@
         //this.startNewRole();
     },
     methods: {
+        setRuta(...segments) {
+            this.ruta = [GlobalVariables.ruta, ...segments].join(" / ");
+        },
         agregarCargo() {
             if (this.nuevoCargo.trim() && !this.cargos.includes(this.nuevoCargo)) {
                 this.cargos.push(this.nuevoCargo);
@@ -87,6 +81,7 @@
         },
         async setMainMode(mode) {
             if (mode == 1) {
+                this.setRuta("Usuarios");
                 showProgress();
                 this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", { "usuario": this.seachUser })).data;
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
@@ -95,96 +90,24 @@
                 var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": "" })).data;
                 tmpList.forEach(function (item) {
                     item.selected = false;
+                    
                 }.bind(this));
                 this.roleList = tmpList;
                 await this.loadAccess();
                 hideProgress();
             } else if (mode == 2) {
                 showProgress();
-                this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
-                await this.loadAccess();
+                this.setRuta("Editar Cargos");
+                var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
+                this.cargos = variables[0];
                 hideProgress();
-            }
+            } 
             this.mainmode = mode;
             this.mode = 0;
         },
-        async startNewRole() {
-            showProgress();
-            this.accessList.forEach(function (item) {
-                for (var key in item["groups"])
-                    item["groups"][key]["list"].forEach(function (sitem) {
-                        sitem.selected = false;
-                    });
-            });
-            this.mode = 1;
-            this.newRole["rol"] = "";
-            this.newRole["permisos"] = "";
-            this.newRole["descripcion"] = "";
-            hideProgress();
-        },
-        async insNewRole() {
-            this.newRole["permisos"] = "";
-            this.accessList.forEach(function (item) {
-                for (var key in item["groups"])
-                    item["groups"][key]["list"].forEach(function (sitem) {
-                        if (sitem.selected)
-                            this.newRole["permisos"] += sitem["id_permiso"]+",";
-                    }.bind(this));
-            }.bind(this));
-            if (this.newRole["permisos"] == "") return;
-            if (this.newRole["rol"] == "") return;
-            showProgress();
-            var resp = await httpFunc("/generic/genericDT/Usuarios:Ins_Rol", this.newRole);
-            hideProgress();
-            this.setMainMode(2);
-        },
-        async selectRole(item) {
-            showProgress();
-            var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Rol", item);
-            resp = resp.data;
-            var tmpList = resp[1];
-            this.accessList.forEach(function (item) {
-                for (var key in item["groups"])
-                    item["groups"][key]["list"].forEach(function (sitem) {
-                        if (tmpList.find((ssitem) => { return sitem["id_permiso"] == ssitem["id_permiso"] }) == null)
-                            sitem.selected = false;
-                        else {
-                            item["groups"][key].selectedItems++;
-                            item["groups"][key].expanded = true;
-                            item.selectedItems++;
-                            item.expanded = true;
-
-                            sitem.selected = true;
-                        }
-                    });
-            });
-            this.mode = 2;
-            this.editRole["id_rol"] = resp[0][0]["id_rol"];
-            this.editRole["rol"] = resp[0][0]["rol"];
-            this.editRole["permisos"] = "";
-            this.editRole["descripcion"] = resp[0][0]["descripcion"];
-            this.users = resp[2];
-            this.selectedAccess = null;
-            hideProgress();
-        },
-        async updateRole() {
-            this.editRole["permisos"] = "";
-            this.accessList.forEach(function (item) {
-                for (var key in item["groups"])
-                    item["groups"][key]["list"].forEach(function (sitem) {
-                        if (sitem.selected)
-                            this.editRole["permisos"] += sitem["id_permiso"] + ",";
-                    }.bind(this));
-            }.bind(this));
-            if (this.editRole["permisos"] == "") return;
-            if (this.editRole["rol"] == "") return;
-            showProgress();
-            var resp = await httpFunc("/generic/genericDO/Usuarios:Upd_Rol", this.editRole);
-            hideProgress();
-            this.setMainMode(2);
-        },
         async startNewUser() {
             showProgress();
+            this.setRuta("Usuarios", "Nuevo Usuario");
             this.mode = 1;
             this.newUser["usuario"] = "";
             this.newUser["identificacion"] = "";
@@ -192,59 +115,75 @@
             this.newUser["email"] = "";
             this.newUser["id_cargo"] = "";
             this.newUser["roles"] = "";
+            this.rolesAsignados = [];
             hideProgress();
         },
         async insNewUser() {
-            this.newUser["roles"] = "";
-            this.roleList.forEach(function (item) {
-                if (item.selected)
-                    this.newUser["roles"] += item["id_rol"]+",";
-            }.bind(this));
+            // Se deben agregar validaciones previas a la inserción
             if (this.newUser["usuario"] == "") return;
+        
+            const rolesSeleccionados = this.roleList
+                .filter(item => item.selected)         
+                .map(item => item.id_rol)              
+                .join(",");        
+              
+            this.newUser["roles"] = rolesSeleccionados+",";
             showProgress();
-            var resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
-            console.log(resp);
+            const resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
             hideProgress();
+
             this.setMainMode(1);
+        },
+        async asignarRol() {
+            if (!this.selectedRolId) return;
+        
+            const rol = this.roleList.find(r => r.id_rol === this.selectedRolId);
+            const yaAsignado = this.rolesAsignados.find(r => r.id_rol === this.selectedRolId);
+        
+            if (rol && !yaAsignado) {
+              rol.selected = true;
+              this.rolesAsignados.push(rol);
+              this.selectedRolId = '';
+            }
+          },
+        async eliminarRol(index) {
+            const rolEliminado = this.rolesAsignados.splice(index, 1)[0];
+            const itemEnLista = this.roleList.find(r => r.id_rol === rolEliminado.id_rol);
+            if (itemEnLista) itemEnLista.selected = false;
         },
         async selectUser(item) {
             showProgress();
-            var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Usuario", { "id_usuario": item["id_usuario"]});
+        
+            var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Usuario", { "id_usuario": item["id_usuario"] });
             resp = resp.data;
-            var tmpList = resp[1];
+        
+            var tmpList = resp[1]; // Roles asignados
+            this.rolesAsignados = tmpList; // Guardamos para mostrarlos en la tabla
+        
+            // Marcar roles seleccionados en checkboxes
             this.roleList.forEach(function (sitem) {
-                if (tmpList.find((ssitem) => { return sitem["id_rol"] == ssitem["id_rol"] }) == null)
-                    sitem.selected = false;
-                else
+                if (tmpList.find((ssitem) => sitem["id_rol"] == ssitem["id_rol"])) {
                     sitem.selected = true;
+                } else {
+                    sitem.selected = false;
+                }
             });
+        
+            // Set user data
+            const user = resp[0][0];
+            this.setRuta("Usuarios", "Edición de Usuario");
             this.mode = 2;
-            this.editUser["id_usuario"] = resp[0][0]["id_usuario"];
-            this.editUser["usuario"] = resp[0][0]["usuario"];
-            this.editUser["identificacion"] = resp[0][0]["identificacion"];
-            this.editUser["nombres"] = resp[0][0]["nombres"];
-            this.editUser["email"] = resp[0][0]["email"];
-            this.editUser["id_cargo"] = resp[0][0]["id_cargo"];
-            this.editUser["id_tipo_usuario"] = resp[0][0]["id_tipo_usuario"];
-            this.editUser["roles"] = resp[0][0]["roles"];
+        
+            this.editUser["id_usuario"] = user["id_usuario"];
+            this.editUser["usuario"] = user["usuario"];
+            this.editUser["identificacion"] = user["identificacion"];
+            this.editUser["nombres"] = user["nombres"];
+            this.editUser["email"] = user["email"];
+            this.editUser["id_cargo"] = user["id_cargo"];
+            this.editUser["id_tipo_usuario"] = user["id_tipo_usuario"];
+            this.editUser["roles"] = user["roles"];
+        
             hideProgress();
-        },
-        async updateUser() {
-            this.editUser["roles"] = "";
-            this.roleList.forEach(function (item) {
-                if (item.selected)
-                    this.editUser["roles"] += item["id_rol"] + ",";
-            }.bind(this));
-            if (this.editUser["usuario"] == "") return;
-            showProgress();
-            var resp = await httpFunc("/generic/genericST/Usuarios:Upd_Usuario", this.editUser);
-            console.log(resp);
-            hideProgress();
-            this.setMainMode(1);
-        },
-        async selectUserInRole(item) {
-            await this.setMainMode(1);
-            this.selectUser(item);
         },
         async loadAccess() {
             this.accessList = [];
@@ -266,23 +205,87 @@
                 group["list"].push(item);
             }.bind(this));
         },
-        selectAccess(item, group, zone) {
-            this.selectedAccess = { item, group, zone };
+        async updateUser() {
+            this.editUser["roles"] = "";
+            this.roleList.forEach(function (item) {
+                if (item.selected)
+                    this.editUser["roles"] += item["id_rol"] + ",";
+            }.bind(this));
+            if (this.editUser["usuario"] == "") return;
+            showProgress();
+            var resp = await httpFunc("/generic/genericST/Usuarios:Upd_Usuario", this.editUser);
+            console.log(resp);
+            hideProgress();
+            this.setMainMode(1);
         },
-        asignAccess() {
-            if (!this.selectedAccess.item.selected) {
-                this.selectedAccess.item.selected = true;
-                this.selectedAccess.group.selectedItems++;
-                this.selectedAccess.zone.selectedItems++;
-            } else {
-                this.selectedAccess.item.selected = false;
-                this.selectedAccess.group.selectedItems--;
-                this.selectedAccess.zone.selectedItems--;
-            }
-            
+        async selectUserInRole(item) {
+            await this.setMainMode(1);
+            this.selectUser(item);
         },
         async startNewException() {
+            this.setRuta("Usuarios", "Permisos Temporales");
             this.mode = 3;
         },
+        /////  Edición Cargos
+        async agregarCargo() {
+            if (this.nuevoCargo.trim()) {
+                try {
+                    var resp = await httpFunc("/generic/genericST/Cargos:Ins_Cargo", { cargo: this.nuevoCargo , Descripcion: this.nuevoDescripcion });
+        
+                    if (resp.data === "OK") {
+                        this.setMainMode(2);
+                    } else {
+                        console.log("No se pudo agregar el cargo. Puede que ya exista.");
+                    }
+                } catch (error) {
+                    if (error.response && error.response.status === 400) {
+                        console.log("El cargo ya existe. Intenta con otro nombre.");
+                    } else {
+                        ("Ocurrió un error inesperado. Inténtalo de nuevo.");
+                    }
+                }
+            } else {
+                console.log("El nombre del cargo no puede estar vacío.");
+            }
+        },
+        async eliminarCargo(item) {
+            try {
+                var resp = await httpFunc("/generic/genericST/Cargos:Del_Cargo", { "id_cargo": item });
+        
+                if (resp.data == "OK") {
+                    this.setMainMode(2);
+                } else {
+                    console.log("No se pudo eliminar el cargo. Puede haber usuarios asignados a este cargo.");
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 400) {
+                    console.log("No se puede eliminar el cargo porque hay usuarios asignados.");
+                } else {
+                    console.log("Ocurrió un error inesperado. Inténtalo de nuevo.");
+                }
+            }
+        },
+        async actualizarCargo() {
+            if (!this.nuevoCargo.trim() || !this.editCargo.id_cargo.trim()) {
+                console.log("El cargo no puede estar vacío.");
+                return;
+            }
+            let resp = await httpFunc("/generic/genericST/Cargos:Upd_Cargo", {
+                id_cargo: this.editCargo.id_cargo,
+                cargo: this.nuevoCargo,
+                Descripcion: this.nuevoDescripcion,
+            });
+            if (resp.data === "OK") {
+                this.setMainMode(2);
+            } else {
+                console.log("Error al actualizar el cargo.");
+            }
+        },
+        seleccionarCargo(cargo, id_cargo,Descripcion ) {
+            this.nuevoDescripcion = Descripcion;
+            this.nuevoCargo = cargo;
+            this.editCargo.id_cargo = id_cargo;
+            this.actulCargo = true;
+        }
     }
 }

@@ -7,19 +7,22 @@
             files: [],
             previews: [],
             message: "",
-       
+            ruta: GlobalVariables.ruta,
+            duracion: "3",
         }
     }, 
     async mounted() {
-        this.fetchCarouselImages();
-        console.log("aqui")
+        this.fetchCarouselImages();                                                      
         //await this.setMainMode(2);
     },
     methods: {
+        setRuta(...segments) {
+            this.ruta = [GlobalVariables.ruta, ...segments].join(" / ");
+        },
         async setMainMode(mode) {
             if (mode == 1) {
                 showProgress();
-        
+                this.setRuta("Fondo Pantalla");
                 hideProgress();
             } 
             this.mainmode = mode;
@@ -41,8 +44,30 @@
                 this.message = "❌ Error al cargar imágenes.";
             }
         },
+        async handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add("drag-over");
+        },
+        async handleDragLeave(event) {
+            event.currentTarget.classList.remove("drag-over");
+        },
+        async handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove("drag-over");
+
+            const files = Array.from(event.dataTransfer.files);
+            files.forEach(file => {
+                if (file.type.startsWith("image/")) {
+                    this.files.push(file);
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.previews.push(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        },
         async removeImage(index) {
-            console.log(index)
             this.previews.splice(index, 1);
         },
         async handleFileChange(event) {
@@ -57,18 +82,19 @@
         },
         async uploadFiles() {
             let formData = new FormData();
-            for (const preview of this.previews) {
-                if (typeof preview === "string") {
-                    let file = await this.urlToFile(preview);
+            for (let i = 0; i < this.previews.length; i++) {
+                if (typeof this.previews[i] === "string") {
+                    let file = await this.urlToFile(this.previews[i]);
                     if (file) formData.append("file", file);
-                } else {
-                    formData.append("file", preview);
                 }
             }
             this.files.forEach(file => formData.append("file", file));
             if (formData.has("file")) {
                 try {
                     showProgress();
+                    await httpFunc("/generic/genericST/Presentacion:Upd_Presentacion", {
+                        duracion: this.duracion,
+                    });
                     let response = await httpFunc("/api/upload", formData);
                     this.message = response.message;
                     this.files = [];

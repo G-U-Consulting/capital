@@ -19,24 +19,42 @@
     <div id="indexMainDiv" style="display:none">
         <div>
             <div class="header noSelect">
-                <div style="position: absolute; left: 1em;white-space: nowrap;overflow: hidden;text-overflow: ellipsis" alt="">
-                    <span class="pure-hidden-sm pure-hidden-xs" style="color: white; font-size: 2em;">{{moduleSelected == null ? "Menú principal": moduleSelected.title}}</span>
-                    <span v-if="loginData.devDB || loginData.debug" class="pure-hidden-sm pure-hidden-xs" style="color: #ffff00; font-size: 1em; margin-left: 2em">
-                        {{loginData.debug?" Portal de pruebas ":""}}
+                <div style="position: absolute; left: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
+                    <span class="pure-hidden-sm pure-hidden-xs" style="color: white; font-size: 1.5em;">
+                        {{ moduleSelected == null ? "Menú principal" : moduleSelected.title }}
                     </span>
-                    <span class="pure-hidden-md pure-hidden-lg pure-hidden-xl" style="color: white; font-size: 1.5em;">{{moduleSelected == null ? "Menú principal": moduleSelected.title}}</span>
+                    <span v-if="loginData.devDB || loginData.debug" class="pure-hidden-sm pure-hidden-xs"
+                          style="color: #ffff00; font-size: 1em; margin-left: 2em">
+                        {{ loginData.debug ? " Portal de pruebas " : "" }}
+                    </span>
+                    <span class="pure-hidden-md pure-hidden-lg pure-hidden-xl" style="color: white; font-size: 1.5em;">
+                        {{ moduleSelected == null ? "Menú principal" : moduleSelected.title }}
+                    </span>
                 </div>
-                <img class="pure-hidden-sm pure-hidden-xs" style="height: 3em; position: absolute; right: 1em; margin: 0.25em 2em;" alt="" src="./img/cli/logo01.png" />
+                <div style="display: flex; align-items: center; position: absolute; right: 1em;">
+                    <span style="color: white; font-size: 1em; margin-right: 0.5em;">Alejandro Salcedo</span>
+                    <img class="pure-hidden-sm pure-hidden-xs" 
+                         style="height: 2em; margin: 0 0.2em 0.2em 0.5em;" 
+                         alt="" src="./img/cli/logo01.png" />
+                </div>
             </div>
         </div>
+        
         <div>
             <div class="sidenav">
-                <div v-for="(item, key) in zones" class="zone noSelect" v-bind:class="{preSelectedZone: zonePreSelected == item, selectedZone: zoneSelected == item}" v-on:click="openZone(item)">
-                    <img v-bind:src="item.img" />
-                    {{key}}
+                <div v-for="(item, key) in zones" 
+                     :key="key"
+                     :class="['zone', 'noSelect', { 
+                         preSelectedZone: zonePreSelected == item, 
+                         selectedZone: zoneSelected == item, 
+                         logOut: item.isLogOut 
+                     }]" 
+                     @click="handleClick(item)">
+                    <img :src="item.img" />
+                    {{ key }}
                 </div>
             </div>
-            <div v-show="showMobileMenu" class="mdialogo2">
+            <div v-show="showMobileMenu" class="mdialogo2" style="padding-left: 1em;">
                 <div class="pure-g mainMenu contentHeight">
                     <div class="pure-u-1-1 pure-u-md-4-24" style="background-color: rgba(250,250,250,0.95);">
                         <div style="text-align:right; padding: 0.2rem;">
@@ -46,9 +64,9 @@
                             </div>
                         </div>
                         <div style="padding: 1rem 2em;">
-                            <div class="menuCategory" v-on:click="openCategory(null)" v-bind:class="{ selectedMenuCategory:  categorySelected == null}">
+                            <!-- <div class="menuCategory" v-on:click="openCategory(null)" v-bind:class="{ selectedMenuCategory:  categorySelected == null}">
                                 Todo
-                            </div>
+                            </div> -->
                             <div v-for="item in categories" class="menuCategory" v-on:click="openCategory(item)" v-bind:class="{ selectedMenuCategory:  categorySelected == item}">
                                 {{item.name}}
                             </div>

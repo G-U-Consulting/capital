@@ -25,6 +25,7 @@ insert into dim_zona(id_zona, zona, alias) values
 create table dim_cargo (
     id_cargo int auto_increment,
     cargo varchar(100),
+	descripcion varchar(250),
     is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
@@ -128,6 +129,15 @@ create table fact_roles_usuarios(
 	constraint pk_id_rol_usuario primary key(id_rol_usuario),
 	constraint fk_fru_id_rol foreign key(id_rol) references fact_roles(id_rol),
 	constraint fk_fru_id_usuario foreign key(id_usuario) references fact_usuarios(id_usuario)
+);
+
+create table dim_variables_globales (
+    nombre_variable varchar(50) not null,
+    valor json null,
+    created_on datetime default current_timestamp,
+    updated_on datetime default current_timestamp on update current_timestamp,
+    editable boolean default 1,
+    primary key (nombre_variable)
 );
 
 /*

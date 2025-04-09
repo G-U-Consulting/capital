@@ -145,7 +145,7 @@ div {
 h3 {
     color: #0097AE;
     font-size: 1.5em;
-    margin: 20px 0;
+    margin: 10px 0;
     position: relative;
     font-weight: 100;
 }
@@ -160,7 +160,7 @@ h2 {
 .lateralMenu {
     background-color: #EEE;
     min-height: calc(100vh - 3.5em);
-    padding: 0.5rem;
+    padding: 0.5rem 2rem;
 }
 
 .lateralMenuItem {
@@ -258,18 +258,25 @@ button, input[type=submit] {
 }
 .sidenav {
     height: 100%;
-    width: 5rem;
+    width: 6rem;
     position: fixed;
     z-index: 1;
     left: 0;
     top: 0;
-    background-color: #666666;
+    background-color: #969696;
     overflow-x: hidden;
     padding: 4rem 0.5rem 0.5rem 0.5rem;
+
+    display: flex;
+    flex-direction: column; /* Organiza los elementos en columna */
 }
 .zone {
+    padding: 10px;
+    display: flex;
+    align-items: center;
     border: 1px solid white;
     color:white;
+    background-color: #666666;
 }
 .zone img{
     width:1.2rem;
@@ -277,8 +284,12 @@ button, input[type=submit] {
     vertical-align:sub; 
     margin-right: 0.5rem;
 }
+
+.zone.logOut {
+    margin-top: auto; 
+}
 .preSelectedZone {
-    background-color: #898989;
+    background-color: #00839C;
 }
 .selectedZone {
     background-color: #00839C;
@@ -331,13 +342,23 @@ button, input[type=submit] {
     color: white;
     background-color: #032B44;
 }
+table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #00839C;
+    color: white;
+    z-index: 2;
+  }
+.table-container {
+    max-height: 50vh;
+    overflow-y: auto;
+}
 
 .dataTable {
     width: 100%;
     border-collapse: collapse;
     margin: 0px auto;
 }
-
     .dataTable th {
         color: white;
         background-color: #00839C;
@@ -365,11 +386,86 @@ button, input[type=submit] {
         width: 1.5em;
         height: auto;
     }
-
+.parentMenuCard {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .menuCard {
     background: #ffffff;
     border-radius: 8px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
     padding: 1rem;
+   
+}
+.cargo-container {
+    max-height: 50vh; 
+    overflow-y: auto; 
+    padding-right: 10px;
+}
+.cargo-grid {
+    display: flex;
+}
+.cargo-item {
+    padding: 10px;
+}
+.cargo-card {
+    display: flex;
+    align-items: center;
+    background: #f9f9f9;
+    padding: 12px;
+    border-radius: 8px;
+    gap: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+.cargo-card:hover {
+    background: #e6e6e6;
+}
+.cargo-text span {
+    display: block;
+    width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cargo-text input {
+    width: 100%;
+    padding: 5px;
+    border: none;
+    font-size: 16px;
+}
+.delete {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+@media (max-width: 1024px) {
+    .cargo-item {
+        width: 48%; 
+    }
+}
+@media (max-width: 600px) {
+    .cargo-item {
+        width: 100%;
+    }
+}
+.col-rol {
+    width: 30%;
+}
+
+.col-descripcion {
+    width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.col-eliminar {
+    width: 20%;
 }
