@@ -7,10 +7,6 @@
             <img src="./img/ico/svg/user.svg" />
             Usuarios
         </div>
-        <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
-            <img src="./img/ico/svg/user.svg" />
-            Editar Cargos
-        </div>
     </div>
     <div class="pure-u-1-1 pure-u-md-4-5">
         <!--USUARIOS-->
@@ -48,6 +44,7 @@
                                 <th>Cargo</th>
                                 <th>Identificación</th>
                                 <th>Roles Asignados</th>
+                                <th>Estado</th>
                                 <th>Fecha de Creación</th>
                             </tr>
                         </thead>
@@ -58,6 +55,7 @@
                                 <td>{{item.cargo}}</td>
                                 <td>{{item.identificacion}}</td>
                                 <td style="text-align: center; width: 10rem;">{{item.cuenta}}</td>
+                                <td style="text-align: center; width: 10rem;">Activo</td>
                                 <td style="text-align:center; width: 10rem;">{{item.created_on}}</td>
                             </tr>
                         </tbody>
@@ -74,12 +72,12 @@
                             <h2 style="text-align: center;">Nuevo Usuario</h2>
                             <br />
                             <div class="pure-g" style="margin-bottom: 1rem;">
-                                <div class="pure-u-7-24" style="padding-right: 0.5rem;">
+                                <div class="pure-u-1-4" style="padding-right: 0.5rem;">
                                     <label for="idUsuario" style="display: block; margin-bottom: 0.3rem;">ID Usuario</label>
                                     <input id="idUsuario" type="text" v-model="newUser.usuario" placeholder="Escriba un id de usuario"
                                         class="pure-input-1" />
                                 </div>
-                                <div class="pure-u-17-24" style="padding-left: 0.5rem;">
+                                <div class="pure-u-3-4" style="padding: 0 0.25rem;">
                                     <label for="nombres" style="display: block; margin-bottom: 0.3rem;">Nombres y Apellidos</label>
                                     <input id="nombres" type="text" v-model="newUser.nombres"
                                         placeholder="Escriba los nombres y apellidos" class="pure-input-1" />
@@ -176,12 +174,12 @@
                         <div class="pure-u-1-1">
                             <br />
                             <div class="pure-g" style="margin-bottom: 1rem;">
-                                <div class="pure-u-7-24" style="padding-right: 0.5rem;">
+                                <div class="pure-u-1-4" style="padding-right: 0.5rem;">
                                     <label for="editUsuario" style="display: block; margin-bottom: 0.3rem;">ID Usuario</label>
                                     <input id="editUsuario" type="text" v-model="editUser.usuario" placeholder="Usuario"
                                         class="pure-input-1" />
                                 </div>
-                                <div class="pure-u-17-24" style="padding-left: 0.5rem;">
+                                <div class="pure-u-3-4" style="padding: 0 0.25rem;">
                                     <label for="editNombres" style="display: block; margin-bottom: 0.3rem;">Nombres y
                                         Apellidos</label>
                                     <input id="editNombres" type="text" v-model="editUser.nombres" placeholder="Nombres"
@@ -302,56 +300,15 @@
                 <div class="pure-u-1-12"></div>
             </div>
         </div>
-        <div v-if="mainmode == 2">
-            <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
-                <span class="hoverLink" v-on:click="mode = 0">Editar Cargos</span>
-            </div>
-            <div v-if="mode == 0" style="padding-top: 2em;height: 85vh;" @click="actulCargo = false;">
-                <div class="pure-u-1-12"></div>
-                <div class="pure-u-5-6 menuCard">
-                    <div class="pure-u-1-1">
-                        <h2>Editar Cargos</h2>
-                        <div class="pure-g" style="padding: 1em 0;">
-                            <div class="pure-u-1 pure-u-md-8-24" style="padding-right: 0.5em;">
-                                <input type="text" v-model="nuevoCargo" placeholder="Ingrese un nuevo cargo">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-12-24" style="padding-right: 0.5em;">
-                                <input type="text" v-model="nuevoDescripcion" placeholder="Ingrese la descripción">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-4-24">
-                                <button class="pure-button pure-button-primary"
-                                    @click="actulCargo ? actualizarCargo() : agregarCargo()">
-                                    {{ actulCargo ? 'Actualizar' : 'Insertar' }}
-                                </button>
-                            </div>
-                        </div>
-                         <div class="table-container">
-                            <table class="dataTable">
-                                <thead>
-                                  <tr>
-                                    <th>Cargo</th>
-                                    <th>Descripción</th>
-                                    <th>Acciones</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(item, index) in cargos" :key="item.id_cargo">
-                                        <td @click.stop="seleccionarCargo(item.cargo, item.id_cargo , item.Descripcion)">
-                                            {{ item.cargo }}
-                                        </td>
-                                        <td @click.stop="seleccionarCargo(item.cargo, item.id_cargo , item.Descripcion)">
-                                            {{ item.Descripcion }}
-                                        </td>
-                                        <td style="text-align: center;">
-                                            <span class="delete" @click.stop="eliminarCargo(item.id_cargo)">✖</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="pure-u-1-12"></div>
+    </div>
+    <!-- Modal para eliminar-->
+    <div v-if="mostrarModal" class="modal-overlay">
+        <div class="modal">
+            <h3>Eliminar Ítem {{valorEliminar}}</h3>
+            <p>¿Deseas continuar?</p>
+            <div class="modal-buttons">
+                <button @click="confirmarEliminacion">Sí</button>
+                <button @click="cancelarEliminacion">No</button>
             </div>
         </div>
     </div>

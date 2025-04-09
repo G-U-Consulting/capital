@@ -19,6 +19,16 @@
         category: "ROLES",
         allow: ["*"]
     },
+    "Categorias": {
+        templateUrl: "./web/Categorias/Categorias.html",
+        jsUrl: "./web/Categorias/Categorias.js",
+        title: "Categorias Adm",
+        desc: "Permite administrar los usuarios y roles de la aplicación",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZU",
+        category: "CATEGORIAS",
+        allow: ["*"]
+    },
     "Seguridad": {
         templateUrl: "./web/Seguridad/Seguridad.html",
         jsUrl: "./web/Seguridad/Seguridad.js",
@@ -68,6 +78,7 @@ const zones = {
         categories: [
             { key:"USUARIOS", name: "Usuarios"},
             { key:"ROLES", name: "Roles"},
+            { key:"CATEGORIAS", name: "Categorias Adm"},
             { key:"CONFIGURACION", name: "Configuración"},
             { key:"Informes", name: "Informes"}
         ]

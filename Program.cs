@@ -106,12 +106,13 @@ app.Map("/img/carrusel", (HttpRequest request) =>
         return Results.NotFound("La carpeta de imágenes no existe.");
     }
     var files = Directory.GetFiles(wwwrootPath)
-                         .Where(file => file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                        file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                        file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
-                                        file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
-                         .Select(file => $"/img/carrusel/{Path.GetFileName(file)}")
-                         .ToList();
+    .Where(file => file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                   file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                   file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
+                   file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+    .OrderBy(file => file)
+    .Select(file => $"/img/carrusel/{Path.GetFileName(file)}")
+    .ToList();
 
     return Results.Ok(new { images = files });
 });
@@ -124,25 +125,25 @@ app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
 
     if (!Directory.Exists(uploadsFolder))
         Directory.CreateDirectory(uploadsFolder);
-    var existingImages = form["existingImages"].ToString().Split(",").Select(i => i.Trim()).ToList();
-    var currentFiles = Directory.GetFiles(uploadsFolder)
-                                .Select(f => Path.GetFileName(f))
-                                .ToList();
-    foreach (var file in currentFiles)
+
+    foreach (var file in Directory.GetFiles(uploadsFolder))
     {
-        if (!existingImages.Contains(file))
-        {
-            File.Delete(Path.Combine(uploadsFolder, file));
-        }
+        File.Delete(file);
     }
-    foreach (var file in files)
+
+    var uploadTasks = files.Select(async (file, index) =>
     {
-        var filePath = Path.Combine(uploadsFolder, file.FileName);
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-    }
-    return Results.Ok(new { message = "✅ Imágenes actualizadas correctamente!" });
+        var extension = Path.GetExtension(file.FileName);
+        var orderedFileName = $"{index:D2}_{Path.GetFileNameWithoutExtension(file.FileName)}{extension}";
+        var filePath = Path.Combine(uploadsFolder, orderedFileName);
+
+        using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+    });
+
+    await Task.WhenAll(uploadTasks);
+
+    return Results.Ok(new { message = "✅ Imágenes actualizadas !" });
 });
+
 app.Run();

@@ -4,7 +4,6 @@
             mainmode: 0,
             mode: 0,
             seachUser: "",
-            cargos: [],
             tiposUsuario: [],
             selectedRolId: "",
             rolesAsignados: [],
@@ -35,12 +34,9 @@
             fechaDesde: "",
             fechaHasta: "",
             ruta: GlobalVariables.ruta ,
-            editCargo: {
-                "id_cargo": "",
-            },
-            nuevoCargo: "",
-            actulCargo: false,
-            nuevoDescripcion: "",
+            mostrarModal: false,
+            indiceAEliminar: null,
+            valorEliminar: ""
         }
     }, 
     async mounted() {
@@ -146,11 +142,6 @@
               this.selectedRolId = '';
             }
           },
-        async eliminarRol(index) {
-            const rolEliminado = this.rolesAsignados.splice(index, 1)[0];
-            const itemEnLista = this.roleList.find(r => r.id_rol === rolEliminado.id_rol);
-            if (itemEnLista) itemEnLista.selected = false;
-        },
         async selectUser(item) {
             showProgress();
         
@@ -226,66 +217,22 @@
             this.setRuta("Usuarios", "Permisos Temporales");
             this.mode = 3;
         },
-        /////  Edición Cargos
-        async agregarCargo() {
-            if (this.nuevoCargo.trim()) {
-                try {
-                    var resp = await httpFunc("/generic/genericST/Cargos:Ins_Cargo", { cargo: this.nuevoCargo , Descripcion: this.nuevoDescripcion });
-        
-                    if (resp.data === "OK") {
-                        this.setMainMode(2);
-                    } else {
-                        console.log("No se pudo agregar el cargo. Puede que ya exista.");
-                    }
-                } catch (error) {
-                    if (error.response && error.response.status === 400) {
-                        console.log("El cargo ya existe. Intenta con otro nombre.");
-                    } else {
-                        ("Ocurrió un error inesperado. Inténtalo de nuevo.");
-                    }
-                }
-            } else {
-                console.log("El nombre del cargo no puede estar vacío.");
-            }
+        async eliminarRol(index) {
+            this.indiceAEliminar = index;
+            this.mostrarModal = true;
+            this.valorEliminar = "Rol"
         },
-        async eliminarCargo(item) {
-            try {
-                var resp = await httpFunc("/generic/genericST/Cargos:Del_Cargo", { "id_cargo": item });
-        
-                if (resp.data == "OK") {
-                    this.setMainMode(2);
-                } else {
-                    console.log("No se pudo eliminar el cargo. Puede haber usuarios asignados a este cargo.");
-                }
-            } catch (error) {
-                if (error.response && error.response.status === 400) {
-                    console.log("No se puede eliminar el cargo porque hay usuarios asignados.");
-                } else {
-                    console.log("Ocurrió un error inesperado. Inténtalo de nuevo.");
-                }
-            }
+        async confirmarEliminacion() {
+            const index = this.indiceAEliminar;
+            const rolEliminado = this.rolesAsignados.splice(index, 1)[0];
+            const itemEnLista = this.roleList.find(r => r.id_rol === rolEliminado.id_rol);
+            if (itemEnLista) itemEnLista.selected = false;
+            this.mostrarModal = false;
+            this.indiceAEliminar = null;
         },
-        async actualizarCargo() {
-            if (!this.nuevoCargo.trim() || !this.editCargo.id_cargo.trim()) {
-                console.log("El cargo no puede estar vacío.");
-                return;
-            }
-            let resp = await httpFunc("/generic/genericST/Cargos:Upd_Cargo", {
-                id_cargo: this.editCargo.id_cargo,
-                cargo: this.nuevoCargo,
-                Descripcion: this.nuevoDescripcion,
-            });
-            if (resp.data === "OK") {
-                this.setMainMode(2);
-            } else {
-                console.log("Error al actualizar el cargo.");
-            }
-        },
-        seleccionarCargo(cargo, id_cargo,Descripcion ) {
-            this.nuevoDescripcion = Descripcion;
-            this.nuevoCargo = cargo;
-            this.editCargo.id_cargo = id_cargo;
-            this.actulCargo = true;
+        async cancelarEliminacion() {
+            this.mostrarModal = false;
+            this.indiceAEliminar = null;
         }
     }
 }
