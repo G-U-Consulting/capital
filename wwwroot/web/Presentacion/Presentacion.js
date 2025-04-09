@@ -19,12 +19,42 @@
         setRuta(...segments) {
             this.ruta = [GlobalVariables.ruta, ...segments].join(" / ");
         },
+        async dragStart(index) {
+            this.dragIndex = index;
+        },
+        async dragOver(index) {
+            // Esto permite que el drop funcione
+        },
+        async drop(index) {
+            if (this.dragIndex === null || this.dragIndex === index) return;
+
+            const draggedItem = this.previews[this.dragIndex];
+            this.previews.splice(this.dragIndex, 1);
+            this.previews.splice(index, 0, draggedItem);
+            this.dragIndex = null;
+        },
+        async removeImage(index) {
+            this.previews.splice(index, 1);
+        },
+        async handleFileChange(event) {
+            const selectedFiles = event.target.files;
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                this.files.push(file);
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.previews.push(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        },
         async setMainMode(mode) {
             if (mode == 1) {
                 showProgress();
                 this.setRuta("Fondo Pantalla");
                 hideProgress();
-            } 
+            }
             this.mainmode = mode;
             this.mode = 0;
         },
@@ -32,10 +62,8 @@
             try {
                 showProgress();
                 let response = await axios.get("/img/carrusel");
-
                 if (response.data.images) {
-                    this.previews = response.data.images;
-
+                    this.previews = await response.data.images;
                 } else {
                     this.message = "❌ No se encontraron imágenes en el servidor.";
                 }
@@ -43,10 +71,6 @@
             } catch (error) {
                 this.message = "❌ Error al cargar imágenes.";
             }
-        },
-        async handleDragOver(event) {
-            event.preventDefault();
-            event.currentTarget.classList.add("drag-over");
         },
         async handleDragLeave(event) {
             event.currentTarget.classList.remove("drag-over");
@@ -67,55 +91,53 @@
                 }
             });
         },
-        async removeImage(index) {
-            this.previews.splice(index, 1);
-        },
-        async handleFileChange(event) {
-            this.files = Array.from(event.target.files);
-            this.files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.previews.unshift(e.target.result);
-                };
-                reader.readAsDataURL(file);
-            });
-        },
         async uploadFiles() {
             let formData = new FormData();
+
             for (let i = 0; i < this.previews.length; i++) {
-                if (typeof this.previews[i] === "string") {
-                    let file = await this.urlToFile(this.previews[i]);
-                    if (file) formData.append("file", file);
+                const preview = this.previews[i];
+                const filename = `image_${i}.jpg`;
+                let file;
+                if (preview.startsWith("data:image")) {
+                    file = await this.urlToFile(preview, filename);
+                } else if (preview.startsWith("/img/carrusel/")) {
+                    const fetchedBlob = await fetch(preview).then(r => r.blob());
+                    file = new File([fetchedBlob], filename, { type: fetchedBlob.type });
+                }
+                if (file) {
+                    formData.append("file", file);
                 }
             }
-            this.files.forEach(file => formData.append("file", file));
-            if (formData.has("file")) {
-                try {
-                    showProgress();
-                    await httpFunc("/generic/genericST/Presentacion:Upd_Presentacion", {
-                        duracion: this.duracion,
-                    });
-                    let response = await httpFunc("/api/upload", formData);
-                    this.message = response.message;
-                    this.files = [];
-                    this.previews = [];
-                    await this.fetchCarouselImages();
-                    hideProgress();
-                } catch (error) {
-                    this.message = "❌ Ocurrió un error.";
-                }
-            } else {
-                this.message = "⚠️ No hay imágenes para subir.";
+            if (!formData.has("file")) {
+                this.message = "No hay imágenes para subir.";
+                return;
+            }
+            try {
+                showProgress();
+                await httpFunc("/generic/genericST/Presentacion:Upd_Presentacion", {
+                    duracion: this.duracion,
+                });
+                const response = await httpFunc("/api/upload", formData);
+                await new Promise(resolve => setTimeout(resolve, 4000));
+                this.message = response.message;
+                await this.fetchCarouselImages();
+                hideProgress();
+            } catch (error) {
+                console.error("Upload error:", error);
+                this.message = "❌ Error al subir las imágenes.";
             }
         },
-        async urlToFile(imageUrl) {
+        async getFilenameFromDataURL(dataUrl) {
+            const match = dataUrl.match(/name=([^;]*)/);
+            return match ? match[1] : `image_${Date.now()}.jpg`;
+        },
+        async urlToFile(dataUrl, filename = "temp.png") {
             try {
-                let response = await fetch(imageUrl);
-                let blob = await response.blob();
-                let fileName = imageUrl.split("/").pop();
-                return new File([blob], fileName, { type: blob.type });
-            } catch (error) {
-                console.error("Error al convertir imagen:", error);
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                return new File([blob], filename, { type: blob.type });
+            } catch (e) {
+                console.error("Error al convertir a archivo:", e);
                 return null;
             }
         }

@@ -456,16 +456,53 @@ table thead th {
     }
 }
 .col-rol {
-    width: 30%;
+    width: 23%;
 }
-
 .col-descripcion {
     width: 50%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 .col-eliminar {
-    width: 20%;
+    width: 23%;
 }
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  .modal {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+  .modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+    gap: 1em;
+  }
+  .modal-buttons button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .modal-buttons button:first-child {
+    background-color: #e74c3c;
+    color: white;
+  }
+  .modal-buttons button:last-child {
+    background-color: #ccc;
+    color: #333;
+  }

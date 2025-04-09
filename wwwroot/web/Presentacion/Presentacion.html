@@ -19,16 +19,20 @@
                 <div class="pure-u-5-6 menuCard">
                     <div class="pure-u-1">
                         <h3>Imágenes Subidas</h3>
-                        <div class="preview-container"
-                             @dragover.prevent="handleDragOver"
-                             @dragleave="handleDragLeave"
-                             @drop="handleDrop">
-                            <div class="image-card" v-for="(src, index) in previews" :key="index">
-                                <img :src="src">
-        
-                                <div class="delete-btn" @click="removeImage(index)">✖</div>
-                            </div>
-                        </div>
+                        <div class="preview-container" style="height: 80vh;"
+                        @dragover.prevent
+                        @drop.prevent>
+                     <div class="image-card"
+                          v-for="(src, index) in previews"
+                          :key="index"
+                          draggable="true"
+                          @dragstart="dragStart(index)"
+                          @dragover.prevent="dragOver(index)"
+                          @drop="drop(index)">
+                       <img :src="src" />
+                       <div class="delete-btn" @click="removeImage(index)">✖</div>
+                     </div>
+                   </div>
                         <div class="message" v-if="message">{{ message }}</div>
                     </div>
                     <div class="pure-u-1" style="min-height:calc(350px - 38vh);"></div>
@@ -44,7 +48,7 @@
                         <div class="button-group">
                             <label class="file-upload-label">
                                 Elegir imágenes
-                                <input type="file" multiple accept="image/*" v-on:change="handleFileChange">
+                                <input  type="file" multiple accept="image/*" @change="handleFileChange">
                             </label>
                             <button class="custom-button" v-on:click="uploadFiles" :disabled="previews.length === 0">
                                 Aceptar
