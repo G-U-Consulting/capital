@@ -3,7 +3,8 @@
 	sede varchar(100),
 	alias varchar(3),
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint pk_dim_sede primary key(id_sede)
 );
 insert into dim_sede(id_sede, sede, alias) values
 (1, 'Bogotá','BOG'),
@@ -137,8 +138,17 @@ create table dim_variables_globales (
     created_on datetime default current_timestamp,
     updated_on datetime default current_timestamp on update current_timestamp,
     editable boolean default 1,
-    primary key (nombre_variable)
+    constraint pk_variables_globales primary key (nombre_variable)
 );
+
+create table fact_proyectos(
+	id_proyecto int not null auto_increment,
+	
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user,
+	constraint pk_id_proyecto primary key(id_proyecto)
+)
 
 /*
 drop table fact_roles_usuarios;

@@ -48,6 +48,16 @@
         zone: "ZU",
         category: "CONFIGURACION",
         allow: ["*"]
+    },
+    "Proyectos": {
+        templateUrl: "./web/Proyectos/Proyectos.html",
+        jsUrl: "./web/Proyectos/Proyectos.js",
+        title: "Proyectos",
+        desc: "Administra las configuraciones de seguridad",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZA",
+        category: "PROYECTOS",
+        allow: ["*"]
     }
 };
 const zones = {

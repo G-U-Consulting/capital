@@ -252,10 +252,41 @@ button, input[type=submit] {
 .formInput{
     padding: 0.5rem;
 }
-.hoverLink:hover {
-    text-decoration: underline;
-    cursor: pointer
+.formInputStandard {
+    padding: 0.5rem;
 }
+    .formInputStandard > span {
+        display: block;
+        margin-bottom: 0.3rem;
+    }
+.formDivision {
+    color: #00839C;
+    font-size: 1.0rem;
+    border-bottom: 1px solid #00839C;
+}
+.wizarTab {
+    color: #032B44;
+    border-radius: 0.3rem;
+    font-size: 0.8rem;
+    padding: 0.3rem;
+    margin-left: 0.3rem;
+    text-align: center;
+    border: 1px solid #032B44;
+    background-color : #FFF;
+    cursor: pointer;
+}
+.wizarTabActive {
+    background-color: #00839C;
+    color: white;
+    border-color: #00839C;
+}
+.wizarTabError {
+    color: #cc0000;
+}
+    .hoverLink:hover {
+        text-decoration: underline;
+        cursor: pointer
+    }
 .sidenav {
     height: 100%;
     width: 6rem;
