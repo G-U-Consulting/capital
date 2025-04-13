@@ -14,63 +14,103 @@
             <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
                 <span class="hoverLink" v-on:click="mode = 0">Categorias Adm</span>
             </div>
-            <div v-if="mode == 0" style="padding-top: 2em;height: 85vh;" @click="actulCargo = false;">
-                <div class="pure-u-1-12"></div>
-                <div class="pure-u-5-6 menuCard">
-                    <div class="pure-u-1-1">
-                        <h2>Editar Categorias Adm</h2>
-                        <div class="pure-g" style="padding: 1em 0;">
-                            <div class="pure-u-1 pure-u-md-8-24" style="padding-right: 0.5em;">
-                                <input type="text" v-model="nuevoCargo" placeholder="Ingrese un nuevo cargo">
+            <div v-if="mode == 0" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Categorias Adm</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-18-24">
+                                <input type="text" placeholder="Categoria" v-model="seachCargo" @keyup.enter="seachCargos"/>
                             </div>
-                            <div class="pure-u-1 pure-u-md-12-24" style="padding-right: 0.5em;">
-                                <input type="text" v-model="nuevoDescripcion" placeholder="Ingrese la descripción">
+                            <div class="pure-u-1-1 pure-u-md-1-24">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/svg/search.svg" @click="seachCargos"/>
+                                </div>
                             </div>
-                            <div class="pure-u-1 pure-u-md-4-24">
-                                <button class="pure-button pure-button-primary"
-                                    @click="actulCargo ? actualizarCargo() : agregarCargo()">
-                                    {{ actulCargo ? 'Actualizar' : 'Insertar' }}
-                                </button>
+                            <div class="pure-u-1-1 pure-u-md-5-24">
+                                <button v-on:click="startNewUser()" style="width:100%">Nueva Categoria</button>
                             </div>
                         </div>
-                        <div class="table-container">
-                            <table class="dataTable">
-                                <thead>
-                                    <tr>
-                                        <th>Cargo</th>
-                                        <th>Descripción</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(item, index) in cargos" :key="item.id_cargo">
-                                        <td @click.stop="seleccionarCargo(item.cargo, item.id_cargo , item.Descripcion)">
-                                            {{ item.cargo }}
-                                        </td>
-                                        <td @click.stop="seleccionarCargo(item.cargo, item.id_cargo , item.Descripcion)">
-                                            {{ item.Descripcion }}
-                                        </td>
-                                        <td style="text-align: center;">
-                                            <span class="delete" @click.stop="eliminarCargo(item.id_cargo)">✖</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    </div>
+                    <div style="height: 63vh; overflow-y: auto;">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Categoria</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in cargos" :key="item.id_cargo" @click.stop="selectUser(item)">
+                                    <td style="width: 15rem;">
+                                        {{ item.cargo }}
+                                    </td>
+                                    <td>
+                                        {{ item.descripcion }}
+                                    </td>
+                                    <td style="text-align: center; width: 12rem;">
+                                        <span class="delete" @click.stop="eliminarCargo(item)">✖</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+            <!--Nuevo Cargo-->
+            <div v-if="mode == 1" style="padding-top: 1em">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Nueva Categoria</h2>
+                    <br />
+                    <div class="pure-g">
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <input type="text" v-model="createCargo.cargo" placeholder="Ingrese nueva categoria">
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                            <div class='formInputStandard'>
+                                <input type="text" v-model="createCargo.descripcion" placeholder="Ingrese la descripción">
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <button @click="agregarCargo">Insertar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="pure-u-1-12"></div>
+                <div class="pure-u-1-24"></div>
             </div>
-        </div>
-        <!-- Modal para eliminar -->
-        <div v-if="mostrarModal" class="modal-overlay">
-            <div class="modal">
-                <h3>Eliminar Ítem {{valorEliminar}}</h3>
-                <p>¿Deseas continuar?</p>
-                <div class="modal-buttons">
-                    <button @click="confirmarEliminacion">Sí</button>
-                    <button @click="cancelarEliminacion">No</button>
+            <!--Edit Cargo-->
+            <div v-if="mode == 2" style="padding-top: 1em">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Nueva Categoria</h2>
+                    <br />
+                    <div class="pure-g">
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <input type="text" v-model="editCargo.cargo">
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                            <div class='formInputStandard'>
+                                <input type="text" v-model="editCargo.descripcion">
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <button @click="actualizarCargo">Actualizar</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <div class="pure-u-1-24"></div>
             </div>
         </div>
     </div>

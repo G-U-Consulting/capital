@@ -142,6 +142,15 @@ div {
     border-color: #00839C;
 }
 
+h4 {
+    color: #0097AE;
+    font-size: 1.2em;
+    margin: 10px 0;
+    position: relative;
+    font-weight: 500;
+
+}
+
 h3 {
     color: #0097AE;
     font-size: 1.5em;
@@ -417,11 +426,7 @@ table thead th {
         width: 1.5em;
         height: auto;
     }
-.parentMenuCard {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+
 .menuCard {
     background: #ffffff;
     border-radius: 8px;
@@ -429,43 +434,6 @@ table thead th {
     border: 1px solid #ddd;
     padding: 1rem;
    
-}
-.cargo-container {
-    max-height: 50vh; 
-    overflow-y: auto; 
-    padding-right: 10px;
-}
-.cargo-grid {
-    display: flex;
-}
-.cargo-item {
-    padding: 10px;
-}
-.cargo-card {
-    display: flex;
-    align-items: center;
-    background: #f9f9f9;
-    padding: 12px;
-    border-radius: 8px;
-    gap: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: 0.3s;
-}
-.cargo-card:hover {
-    background: #e6e6e6;
-}
-.cargo-text span {
-    display: block;
-    width: 140px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.cargo-text input {
-    width: 100%;
-    padding: 5px;
-    border: none;
-    font-size: 16px;
 }
 .delete {
     background: none;
@@ -512,22 +480,27 @@ table thead th {
   }
   .modal {
     background: white;
-    padding: 20px 30px;
+    padding: 5px 20px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    text-align: center;
+    text-align: right;
+    color: red;
+  }
+  .modal span {
+    color: red;
+    cursor: pointer;
   }
   .modal-buttons {
-    margin-top: 20px;
     display: flex;
-    justify-content: space-around;
-    gap: 1em;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
   }
   .modal-buttons button {
-    padding: 8px 20px;
+    min-width: 100px;
+    text-align: center;
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
+    outline: none;
   }
   .modal-buttons button:first-child {
     background-color: #e74c3c;
@@ -537,3 +510,27 @@ table thead th {
     background-color: #ccc;
     color: #333;
   }
+  .btn-inactivo {
+    background-color: #e0e0e0;
+    color: #888;
+    cursor: not-allowed;
+  }
+  @media (max-width: 600px) {
+    .modal {
+      width: 90%;
+      padding: 15px;
+      text-align: center;
+    }
+  
+    .modal-buttons {
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+  
+    .modal-buttons button {
+      width: 120px;
+    }
+  }
+  
+  

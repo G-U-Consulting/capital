@@ -28,15 +28,13 @@
                 "id_cargo": "",
                 "id_tipo_usuario": "",
                 "roles": "",
-                "created_by": ""
+                "created_by": "",
+                "is_active": 0
             },
             hoy: "",
             fechaDesde: "",
             fechaHasta: "",
-            ruta: GlobalVariables.ruta ,
-            mostrarModal: false,
-            indiceAEliminar: null,
-            valorEliminar: ""
+            ruta: GlobalVariables.ruta,
         }
     }, 
     async mounted() {
@@ -148,10 +146,8 @@
             var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Usuario", { "id_usuario": item["id_usuario"] });
             resp = resp.data;
         
-            var tmpList = resp[1]; // Roles asignados
-            this.rolesAsignados = tmpList; // Guardamos para mostrarlos en la tabla
-        
-            // Marcar roles seleccionados en checkboxes
+            var tmpList = resp[1];
+            this.rolesAsignados = tmpList;
             this.roleList.forEach(function (sitem) {
                 if (tmpList.find((ssitem) => sitem["id_rol"] == ssitem["id_rol"])) {
                     sitem.selected = true;
@@ -160,7 +156,6 @@
                 }
             });
         
-            // Set user data
             const user = resp[0][0];
             this.setRuta("Usuarios", "Edición de Usuario");
             this.mode = 2;
@@ -173,6 +168,7 @@
             this.editUser["id_cargo"] = user["id_cargo"];
             this.editUser["id_tipo_usuario"] = user["id_tipo_usuario"];
             this.editUser["roles"] = user["roles"];
+            this.editUser["is_active"] = user["is_active"];
         
             hideProgress();
         },
@@ -205,7 +201,6 @@
             if (this.editUser["usuario"] == "") return;
             showProgress();
             var resp = await httpFunc("/generic/genericST/Usuarios:Upd_Usuario", this.editUser);
-            console.log(resp);
             hideProgress();
             this.setMainMode(1);
         },
@@ -217,22 +212,17 @@
             this.setRuta("Usuarios", "Permisos Temporales");
             this.mode = 3;
         },
-        async eliminarRol(index) {
-            this.indiceAEliminar = index;
-            this.mostrarModal = true;
-            this.valorEliminar = "Rol"
+        async eliminarRol(item) {
+            showConfirm("El Rol <b>"+item.rol+"</b> se eliminará permanentemente.", this.delRol, null, item);
         },
-        async confirmarEliminacion() {
-            const index = this.indiceAEliminar;
+        async delRol(item) {
+            const index = item;
             const rolEliminado = this.rolesAsignados.splice(index, 1)[0];
             const itemEnLista = this.roleList.find(r => r.id_rol === rolEliminado.id_rol);
             if (itemEnLista) itemEnLista.selected = false;
-            this.mostrarModal = false;
-            this.indiceAEliminar = null;
         },
-        async cancelarEliminacion() {
-            this.mostrarModal = false;
-            this.indiceAEliminar = null;
+        async toggleUserActive() {
+            this.editUser.is_active = Number(this.editUser.is_active) === 1 ? 0 : 1;
         }
     }
 }
