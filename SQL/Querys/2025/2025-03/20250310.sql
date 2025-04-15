@@ -150,6 +150,13 @@ create table fact_proyectos(
 	constraint pk_id_proyecto primary key(id_proyecto)
 )
 
+create table dim_carrusel_imagenes (
+    id int auto_increment primary key,
+    nombre_archivo varchar(255),
+    orden int,
+    created_on datetime default current_timestamp
+);
+
 /*
 drop table fact_roles_usuarios;
 drop table fact_permisos_roles;

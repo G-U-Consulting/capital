@@ -2,6 +2,7 @@
 using orca.Code.Api;
 using orca.Code.Auth;
 using orca.Code.Logger;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,26 +98,6 @@ app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string 
 /*****************************************************************************/
 /***************************** Carrusel  *************************************/
 /*****************************************************************************/
-app.Map("/img/carrusel", (HttpRequest request) =>
-{
-    var wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "carrusel");
-
-    if (!Directory.Exists(wwwrootPath))
-    {
-        return Results.NotFound("La carpeta de imágenes no existe.");
-    }
-    var files = Directory.GetFiles(wwwrootPath)
-    .Where(file => file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                   file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                   file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) ||
-                   file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
-    .OrderBy(file => file)
-    .Select(file => $"/img/carrusel/{Path.GetFileName(file)}")
-    .ToList();
-
-    return Results.Ok(new { images = files });
-});
-
 app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
 {
     var form = await context.Request.ReadFormAsync();
@@ -124,26 +105,28 @@ app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
     var uploadsFolder = Path.Combine(env.WebRootPath, "img", "carrusel");
 
     if (!Directory.Exists(uploadsFolder))
+    {
         Directory.CreateDirectory(uploadsFolder);
-
+    }
     foreach (var file in Directory.GetFiles(uploadsFolder))
     {
         File.Delete(file);
     }
-
-    var uploadTasks = files.Select(async (file, index) =>
+    string connectionString = WebBDUt.DefaultDBConnetionString;
+    await WebBDUt.ExecuteLocalSQLJson<DataSet>("Presentacion/Del_Presentacion", new JObject(), connectionString);
+    int orden = 0;
+    foreach (var file in files)
     {
         var extension = Path.GetExtension(file.FileName);
-        var orderedFileName = $"{index:D2}_{Path.GetFileNameWithoutExtension(file.FileName)}{extension}";
-        var filePath = Path.Combine(uploadsFolder, orderedFileName);
-
-        using var stream = new FileStream(filePath, FileMode.Create);
-        await file.CopyToAsync(stream);
-    });
-
-    await Task.WhenAll(uploadTasks);
-
-    return Results.Ok(new { message = "✅ Imágenes actualizadas !" });
+        var fileName = $"{orden:D2}_{Guid.NewGuid().ToString().Substring(0, 6)}{extension}";
+        var filePath = Path.Combine(uploadsFolder, fileName);
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+        await WebBDUt.ExecuteLocalSQLJson<DataSet>("Presentacion/Ins_Presentacion", new JObject { ["nombre_archivo"] = fileName, ["orden"] = orden }, connectionString);
+        orden++;
+    }
+    return Results.Ok(new { message = "✅ ¡Imágenes actualizadas!" });
 });
-
 app.Run();
