@@ -5,6 +5,7 @@ export default {
             mode: 0,
             seachRole: "",
             roles: [],
+            sedes:[],
             selectedRolId: "",
             rolesAsignados: [],
             accessList: [],
@@ -15,12 +16,14 @@ export default {
                 "rol": "",
                 "permisos": "",
                 "descripcion": "",
+                "id_sede": "",
                 "created_by": ""
             },
             editRole: {
                 "id_rol": "",
                 "rol": "",
                 "permisos": "",
+                "id_sede": "",
                 "descripcion": "",
                 "created_by": ""
             },
@@ -28,7 +31,10 @@ export default {
         }
     }, 
     async mounted() {
-
+        showProgress();
+        this.sedes = (await httpFunc("/generic/genericDT/General:Get_Sedes", {})).data;
+        hideProgress();
+        this.setMainMode(1);
     },
     computed: {
         getArrowDirection() {
@@ -60,6 +66,7 @@ export default {
                 this.setRuta("Roles");
                 console.log(this.seachRole)
                 this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
+                console.log(this.sedes);
                 await this.loadAccess();
                 hideProgress();
             }

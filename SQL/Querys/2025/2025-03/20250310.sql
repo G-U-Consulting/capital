@@ -102,11 +102,13 @@ insert into dim_permiso(id_permiso, permiso, grupo, id_zona) values
 create table fact_roles(
 	id_rol int not null auto_increment,
 	rol varchar(200),
+	id_sede int,
 	descripcion varchar(1000),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
-	constraint pk_id_rol primary key(id_rol)
+	constraint pk_id_rol primary key(id_rol),
+	constraint fk_id_sede_fact_roles foreign key(id_sede) references dim_sede(id_sede)
 );
 create table fact_permisos_roles(
 	id_permiso_rol int not null auto_increment,

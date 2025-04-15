@@ -39,7 +39,7 @@
     }, 
     async mounted() {
         this.inicializarFechas();
-        //await this.setMainMode(1);
+        await this.setMainMode(1);
         //this.startNewUser();
         //await this.setMainMode(2);
         //this.startNewRole();

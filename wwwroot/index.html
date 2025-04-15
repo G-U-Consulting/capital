@@ -56,7 +56,7 @@
             </div>
             <div v-show="showMobileMenu" class="mdialogo2" style="padding-left: 1em;">
                 <div class="pure-g mainMenu contentHeight">
-                    <div class="pure-u-1-1 pure-u-md-4-24" style="background-color: rgba(250,250,250,0.95);">
+                    <!--<div class="pure-u-1-1 pure-u-md-4-24" style="background-color: rgba(250,250,250,0.95);">
                         <div style="text-align:right; padding: 0.2rem;">
                             <div class="closeButton" v-on:click="closeMenu()">
                                 <img v-show="!showModuleMenu" src="img/ico/svg/cerrar-negro.svg" />
@@ -64,14 +64,11 @@
                             </div>
                         </div>
                         <div style="padding: 1rem 2em;">
-                            <!-- <div class="menuCategory" v-on:click="openCategory(null)" v-bind:class="{ selectedMenuCategory:  categorySelected == null}">
-                                Todo
-                            </div> -->
                             <div v-for="item in categories" class="menuCategory" v-on:click="openCategory(item)" v-bind:class="{ selectedMenuCategory:  categorySelected == item}">
                                 {{item.name}}
                             </div>
                         </div>
-                    </div>
+                    </div>-->
                     <div v-show="showModuleMenu" class="pure-u-1-1 pure-u-md-4-24 contentHeight shadow" style="background-color: rgba(255,255,255,0.95);" v-if="mostrarMenu">
                         <div style="text-align:right; padding: 0.2rem;">
                             <div class="closeButton" v-on:click="closeMenu()">
@@ -80,7 +77,7 @@
                         </div>
                         <div style="padding: 2rem 2rem">
                             <div v-for="(value, key) in modules">
-                                <div v-if="modules[key].hidden != true && zonePreSelected != null && zonePreSelected.name == value.zone && (categorySelected == null || value.category == categorySelected.key)"
+                                <div v-if="modules[key].hidden != true && zonePreSelected != null && zonePreSelected.name == value.zone"
                                      v-on:click="loadModule(key, null); showMobileMenu = false;" v-bind:class="{ selectedMenuCategory: isActiveModule(key) }" class="menuCategory">
                                     {{value.title}}
                                 </div>

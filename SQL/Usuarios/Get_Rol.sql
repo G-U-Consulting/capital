@@ -5,7 +5,7 @@
 set @id_rol = 9;
 --END_PARAM
 
-select a.id_rol, a.rol, a.descripcion
+select a.id_rol, a.rol, a.descripcion, a.id_sede
 from fact_roles a
 where id_rol = @id_rol;
 

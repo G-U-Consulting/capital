@@ -22,41 +22,11 @@
     "Categorias": {
         templateUrl: "./web/Categorias/Categorias.html",
         jsUrl: "./web/Categorias/Categorias.js",
-        title: "Categorias Adm",
+        title: "Configuración",
         desc: "Permite administrar los usuarios y roles de la aplicación",
         imgSrc: "./img/ico/menu/006-group.png",
         zone: "ZU",
         category: "CATEGORIAS",
-        allow: ["*"]
-    },
-    "Seguridad": {
-        templateUrl: "./web/Seguridad/Seguridad.html",
-        jsUrl: "./web/Seguridad/Seguridad.js",
-        title: "Seguridad",
-        desc: "Administra las configuraciones de seguridad",
-        imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZU",
-        category: "CONFIGURACION",
-        allow: ["*"]
-    },
-    "Presentacion": {
-        templateUrl: "./web/Presentacion/Presentacion.html",
-        jsUrl: "./web/Presentacion/Presentacion.js",
-        title: "Presentación",
-        desc: "Administra las configuraciones de seguridad",
-        imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZU",
-        category: "CONFIGURACION",
-        allow: ["*"]
-    },
-    "EdicionMaestro": {
-        templateUrl: "./web/EdicionMaestro/EdicionMaestro.html",
-        jsUrl: "./web/EdicionMaestro/EdicionMaestro.js",
-        title: "Edición Maestro",
-        desc: "Administra las configuraciones de seguridad",
-        imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZU",
-        category: "CONFIGURACION",
         allow: ["*"]
     },
     "Proyectos": {

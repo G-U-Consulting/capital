@@ -201,6 +201,7 @@ mainVue = {
             this.showMobileMenu = true;
             this.showModuleMenu = false;
             this.categories = item.categories;
+            this.showModuleMenu = true;
             GlobalVariables.ruta = item.name;
         },
         openCategory(item) {

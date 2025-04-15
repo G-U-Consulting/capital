@@ -16,6 +16,19 @@ export default {
                 "descripcion": "",
             },
             seachCargo: "",
+            /*SEGURIDAD*/
+            passwordPolicy: {
+                minLength: 15,
+                minNumbers: 1,
+                minSpecialChars: 1,
+                history: 3,
+                maxDaysChange: 60
+            },
+            files: [],
+            previews: [],
+            message: "",
+            duracion: "3",
+            intervalTime: 3000
         }
     }, 
     async mounted() {
@@ -38,7 +51,40 @@ export default {
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 hideProgress();
-            } 
+            } else if (mode == 2) {
+                showProgress();
+                this.setRuta("Política de Contraseña");
+                try {
+                    const response = await httpFunc("/generic/genericDS/Seguridad:Get_Seguridad", {});
+                    const variables = response.data;
+
+                    if (Array.isArray(variables) && variables.length > 0 && Array.isArray(variables[0]) && variables[0].length > 0) {
+                        const data = variables[0][0];
+                        if (typeof data.valor === "string") {
+                            try {
+                                data.valor = JSON.parse(data.valor);
+                            } catch (error) {
+                                console.log("Error al parsear JSON de valor:", error);
+                                return;
+                            }
+                        }
+                        this.passwordPolicy = {
+                            minLength: data.valor?.minLength,
+                            minNumbers: data.valor?.minNumbers,
+                            minSpecialChars: data.valor?.minSpecialChars,
+                            history: data.valor?.history,
+                            maxDaysChange: data.valor?.maxDaysChange
+                        };
+                    } else {
+                        console.log("No se encontraron datos en Seguridad:Get_Seguridad");
+                    }
+                } catch (error) {
+                    console.log("Error al obtener datos de Seguridad:Get_Seguridad:", error);
+                }
+                hideProgress();
+            } else if (mode == 3) {
+                this.fetchCarouselImages();
+            }
             this.mainmode = mode;
             this.mode = 0;
         },
@@ -100,6 +146,135 @@ export default {
         },
         async seachCargos(){
             this.cargos = (await httpFunc("/generic/genericDT/Cargos:Get_Cargos", { "cargo": this.seachCargo })).data;
+        },
+        /*SEGURIDAD*/
+        async updatePolicy() {
+            try {
+                const jsonData = JSON.stringify(this.passwordPolicy, null, 2);
+                console.log(jsonData);
+                var resp = await httpFunc("/generic/genericST/Seguridad:Upd_Seguridad", { valor: jsonData });
+                if (resp.data === "OK") {
+                    console.log("Política de seguridad actualizada correctamente");
+                } else {
+                    console.error("Error al actualizar la política:", resp.data);
+                }
+            } catch (error) {
+                console.error("Error en la actualización:", error);
+            }
+        },
+        /*PRESENTACION*/
+        async dragStart(index) {
+            this.dragIndex = index;
+        },
+        async dragOver(index) {
+            // Esto permite que el drop funcione
+        },
+        async drop(index) {
+            if (this.dragIndex === null || this.dragIndex === index) return;
+
+            const draggedItem = this.previews[this.dragIndex];
+            this.previews.splice(this.dragIndex, 1);
+            this.previews.splice(index, 0, draggedItem);
+            this.dragIndex = null;
+        },
+        async removeImage(index) {
+            this.previews.splice(index, 1);
+        },
+        async handleFileChange(event) {
+            const selectedFiles = event.target.files;
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                this.files.push(file);
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.previews.push(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+        async fetchCarouselImages() {
+            try {
+                showProgress();
+                let response = await axios.get("/img/carrusel");
+                if (response.data.images) {
+                    this.previews = await response.data.images;
+                } else {
+                    this.message = "❌ No se encontraron imágenes en el servidor.";
+                }
+                hideProgress();
+            } catch (error) {
+                this.message = "❌ Error al cargar imágenes.";
+            }
+        },
+        async handleDragLeave(event) {
+            event.currentTarget.classList.remove("drag-over");
+        },
+        async handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove("drag-over");
+
+            const files = Array.from(event.dataTransfer.files);
+            files.forEach(file => {
+                if (file.type.startsWith("image/")) {
+                    this.files.push(file);
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.previews.push(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        },
+        async uploadFiles() {
+            let formData = new FormData();
+
+            for (let i = 0; i < this.previews.length; i++) {
+                const preview = this.previews[i];
+                const filename = `image_${i}.jpg`;
+                let file;
+                if (preview.startsWith("data:image")) {
+                    file = await this.urlToFile(preview, filename);
+                } else if (preview.startsWith("/img/carrusel/")) {
+                    const fetchedBlob = await fetch(preview).then(r => r.blob());
+                    file = new File([fetchedBlob], filename, { type: fetchedBlob.type });
+                }
+                if (file) {
+                    formData.append("file", file);
+                }
+            }
+            if (!formData.has("file")) {
+                this.message = "No hay imágenes para subir.";
+                return;
+            }
+            try {
+                showProgress();
+                await httpFunc("/generic/genericST/Presentacion:Upd_Presentacion", {
+                    duracion: this.duracion,
+                });
+                const response = await httpFunc("/api/upload", formData);
+                await new Promise(resolve => setTimeout(resolve, 4000));
+                this.message = response.message;
+                await this.fetchCarouselImages();
+                hideProgress();
+            } catch (error) {
+                console.error("Upload error:", error);
+                this.message = "❌ Error al subir las imágenes.";
+            }
+        },
+        async getFilenameFromDataURL(dataUrl) {
+            const match = dataUrl.match(/name=([^;]*)/);
+            return match ? match[1] : `image_${Date.now()}.jpg`;
+        },
+        async urlToFile(dataUrl, filename = "temp.png") {
+            try {
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                return new File([blob], filename, { type: blob.type });
+            } catch (e) {
+                console.error("Error al convertir a archivo:", e);
+                return null;
+            }
         }
     }
 }
