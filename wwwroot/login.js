@@ -1,4 +1,4 @@
-const { createApp } = Vue;
+﻿const { createApp } = Vue;
 const mainDivId = "#loginContentDiv";
 var vm = null, loginVue = null;
 loginVue = {
@@ -23,8 +23,10 @@ loginVue = {
         async fetchImages() {
             
             try {
-                let { data } = await axios.get("/img/carrusel");
-                this.images = data.images || [];
+                const { data } = await axios.post("/generic/genericDS/Presentacion:Get_Presentacion", {});
+                if (data.data[1]) {
+                    this.images = data.data[1].map(x => `/img/carrusel/${x.a}`);
+                }
             } catch (err) {
                 console.error("Error:", err);
                 this.images = [];
