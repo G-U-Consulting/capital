@@ -27,20 +27,8 @@
                     <h2>Usuarios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-14-24">
+                            <div class="pure-u-1-1 pure-u-md-12-24">
                                 <input type="text" placeholder="Usuario o Nombre" v-model="filtro.seachUser" />
-                            </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <select v-model="filtro.id_cargo" v-on:change="getUsuarios()">
-                                    <option value="">[Todas los cargos]</option>
-                                    <option v-for="item in cargos" v-bind:value="item.id_cargo">{{item.cargo}}</option>
-                                </select>
-                            </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <select v-model="filtro.id_sede" v-on:change="getUsuarios()">
-                                    <option value="">[Todas las sedes]</option>
-                                    <option v-for="item in sedes" v-bind:value="item.id_sede">{{item.sede}}</option>
-                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24">
                                 <div class="imgGraybutton" v-on:click="getUsuarios()">
@@ -48,7 +36,19 @@
                                 </div>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-3-24">
-                                <button v-on:click="startNewUser()" style="width:100%">Nuevo Usuario</button>
+                                <select style="margin: 0em 0em 0em 0em;" v-model="filtro.id_cargo" v-on:change="getUsuarios()">
+                                    <option value="">[Todos los cargos]</option>
+                                    <option v-for="item in cargos" v-bind:value="item.id_cargo">{{item.cargo}}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select style="margin: 0em 0em 0em 1em;" v-model="filtro.id_sede" v-on:change="getUsuarios()">
+                                    <option value="">[Todas las sedes]</option>
+                                    <option v-for="item in sedes" v-bind:value="item.id_sede">{{item.sede}}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <button v-on:click="startNewUser()" style="width: 100%; margin: 0em 0em 0em 7em;">Nuevo Usuario</button>
                             </div>
                         </div>
                     </div>
@@ -59,21 +59,21 @@
                                     <th>Usuario</th>
                                     <th>Nombres</th>
                                     <th>Cargo</th>
-                                    <th>Identificación</th>
                                     <th>Roles Asignados</th>
+                                    <th>Identificación</th>
                                     <th>Estado</th>
                                     <th>Fecha de Creación</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="item in users" v-on:click="selectUser(item)">
-                                    <td>{{item.usuario}}</td>
+                                    <td style="width: 15rem">{{item.usuario}}</td>
                                     <td>{{item.nombres}}</td>
                                     <td>{{item.cargo}}</td>
-                                    <td>{{item.identificacion}}</td>
                                     <td style="text-align: center; width: 5rem;">{{item.cuenta}}</td>
-                                    <td style="text-align: center; width: 8rem;">{{ item.is_active == 1 ? 'Activo' : 'Desactivado' }}</td>
-                                    <td style="text-align:center; width: 10rem;">{{item.created_on}}</td>
+                                    <td style="width: 8rem">{{item.identificacion}}</td>
+                                    <td style="text-align: center; width: 8rem">{{ item.is_active == 1 ? 'Activo' : 'Desactivado' }}</td>
+                                    <td style="text-align:center; width: 10rem">{{item.created_on}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -93,28 +93,41 @@
                             <div class='formInputStandard'>
                                 <label for="idUsuario" style="display: block; margin-bottom: 0.3rem;">ID Usuario</label>
                                 <input id="idUsuario" type="text" v-model="newUser.usuario" placeholder="Usuario"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-3-4'>
                             <div class='formInputStandard'>
                                 <label for="nombres" style="display: block; margin-bottom: 0.3rem;">Nombres y Apellidos</label>
                                 <input id="nombres" type="text" v-model="newUser.nombres" placeholder="Nombres"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="cedula" style="display: block; margin-bottom: 0.3rem;">Número de Cédula</label>
                                 <input id="cedula" type="text" v-model="newUser.identificacion"
-                                    placeholder="Identificación" class="pure-input-1" />
+                                       placeholder="Identificación" class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="email" style="display: block; margin-bottom: 0.3rem;">Email</label>
                                 <input id="email" type="email" v-model="newUser.email" placeholder="Correo electrónico"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
+                                <input id="contraseña" type="text" v-model="newUser.contraseña" placeholder="Contraseña"
+                                       class="pure-input-1" />
+                            </div>
+                        </div>
+                        <div class='pure-u-2-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button @click="asignarRol">Proponer Contraseña</button>
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
@@ -134,7 +147,7 @@
                                 <select id="tipoUsuario" v-model="newUser.id_tipo_usuario" class="pure-input-1">
                                     <option value="" disabled selected>Seleccione Tipo</option>
                                     <option v-for="item in tiposUsuario" :key="item.id_tipo_usuario"
-                                        :value="item.id_tipo_usuario">
+                                            :value="item.id_tipo_usuario">
                                         {{ item.tipo_usuario }}
                                     </option>
                                 </select>
@@ -276,7 +289,7 @@
                             </div>
                         </div>
                         <div class="pure-u-1-1">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;"> <b>Roles
+                            <div style="display: block; margin-top: 0.7rem; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;"> <b>Roles
                                     Asigandos al Usuario</b></div>
                             <div style="height: 30vh; overflow-y: auto;">
                                 <table class="dataTable">
@@ -284,14 +297,14 @@
                                         <tr>
                                             <th class="col-rol">Rol</th>
                                             <th class="col-descripcion">Descripción Rol</th>
-                                            <th class="col-eliminar">Eliminar Asignación</th>
+                                            <th class="col-eliminar" >Eliminar Asignación</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(rol, index) in rolesAsignados" :key="rol.id_rol">
-                                            <td>{{ rol.rol }}</td>
-                                            <td>{{ rol.descripcion || 'Sin descripción' }}</td>
-                                            <td style="text-align: center;">
+                                        <tr v-for="(rol, index) in rolesAsignados" :key="rol.id_rol" >
+                                            <td >{{ rol.rol }}</td>
+                                            <td >{{ rol.descripcion || 'Sin descripción' }}</td>
+                                            <td style="text-align: center">
                                                 <span class="delete" @click.stop="eliminarRol(rol)">✖</span>
                                             </td>
                                         </tr>
