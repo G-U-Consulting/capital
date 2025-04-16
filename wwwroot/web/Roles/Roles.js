@@ -32,7 +32,9 @@ export default {
     }, 
     async mounted() {
         showProgress();
-        this.sedes = (await httpFunc("/generic/genericDT/General:Get_Sedes", {})).data;
+        var sedes = (await httpFunc("/generic/genericDT/General:Get_Sedes", {})).data;
+        sedes.forEach(item => item.checked = false);
+        this.sedes = sedes;
         hideProgress();
         this.setMainMode(1);
     },
@@ -64,9 +66,7 @@ export default {
             if (mode == 1) {
                 showProgress();
                 this.setRuta("Roles");
-                console.log(this.seachRole)
                 this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
-                console.log(this.sedes);
                 await this.loadAccess();
                 hideProgress();
             }
@@ -90,15 +90,21 @@ export default {
             });
             this.mode = 1;
             this.newRole = {
-                rol: "",
-                permisos: "",
-                descripcion: ""
+                "rol": "",
+                "permisos": "",
+                "descripcion": "",
+                "id_sede": "",
+                "created_by": ""
             };
-
+            this.sedes.forEach(item => item.checked = false);
             hideProgress();
         },
         async insNewRole() {
             this.newRole["permisos"] = "";
+            this.newRole.id_sede = "";
+            var sede = this.sedes.find(item => { return item.checked });
+            if (sede != null)
+                this.newRole.id_sede = sede.id_sede;
             this.accessList.forEach(function (item) {
                 for (var key in item["groups"])
                     item["groups"][key]["list"].forEach(function (sitem) {
@@ -144,6 +150,10 @@ export default {
         },
         async updateRole() {
             this.editRole["permisos"] = "";
+            var sede = this.sedes.find(item => { return item.checked });
+            this.newRole.id_sede = "";
+            if (sede != null)
+                this.newRole.id_sede = sede.id_sede;
             this.accessList.forEach(function (item) {
                 for (var key in item["groups"])
                     item["groups"][key]["list"].forEach(function (sitem) {

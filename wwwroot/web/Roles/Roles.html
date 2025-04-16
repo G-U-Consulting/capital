@@ -45,6 +45,7 @@
                                 <tr>
                                     <th>Rol</th>
                                     <th>Descripción</th>
+                                    <th>Sede</th>
                                     <th>Usuarios</th>
                                     <th>Fecha de Creación</th>
                                 </tr>
@@ -53,6 +54,7 @@
                                 <tr v-for="item in roles" v-on:click="selectRole(item)">
                                     <td style="width: 15rem;">{{item.rol}}</td>
                                     <td>{{item.descripcion}}</td>
+                                    <td style="text-align: center; width: 5rem;">{{item.sede}}</td>
                                     <td style="text-align: center; width: 5rem;">{{item.cuenta}}</td>
                                     <td style="text-align:center; width: 10rem;">{{item.created_on}}</td>
                                 </tr>
@@ -94,10 +96,8 @@
                                             <input type="text" v-model="newRole.rol" maxlength="1000" />
                                         </div>
                                         <div style="text-align:center; font-size: 1em">Sede</div>
-                                        <div>
-                                            <select v-model="newRole.id_sede">
-                                                <option>[Seleccione uno ...]</option>
-                                            </select>
+                                        <div style="text-align:center">
+                                            <label v-for="item in sedes" style="margin:0.5rem;"><input type="checkbox" v-model="item.checked"/>{{item.sede}}</label> 
                                         </div>
                                     </div>
                                     <div class="pure-u-1-1 pure-u-md-2-24" style="padding: 0rem 0.5rem;">

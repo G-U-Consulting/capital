@@ -3,7 +3,7 @@
         return {
             mainmode: 0,
             mode: 0,
-            seachUser: "",
+            filtro: { id_sede: "", seachUser: "", id_cargo: "" },
             tiposUsuario: [],
             selectedRolId: "",
             rolesAsignados: [],
@@ -34,10 +34,15 @@
             hoy: "",
             fechaDesde: "",
             fechaHasta: "",
+            sedes: [],
             ruta: GlobalVariables.ruta,
         }
     }, 
     async mounted() {
+        var sedes = (await httpFunc("/generic/genericDT/General:Get_Sedes", {})).data;
+        sedes.forEach(item => item.checked = false);
+        this.sedes = sedes;
+
         this.inicializarFechas();
         await this.setMainMode(1);
         //this.startNewUser();
@@ -77,7 +82,7 @@
             if (mode == 1) {
                 this.setRuta("Usuarios");
                 showProgress();
-                this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", { "usuario": this.seachUser })).data;
+                await this.getUsuarios();
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 this.tiposUsuario = variables[1];
@@ -111,6 +116,9 @@
             this.newUser["roles"] = "";
             this.rolesAsignados = [];
             hideProgress();
+        },
+        async getUsuarios() {
+            this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", this.filtro)).data;
         },
         async insNewUser() {
             // Se deben agregar validaciones previas a la inserción
