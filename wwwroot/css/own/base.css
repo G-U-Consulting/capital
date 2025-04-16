@@ -239,7 +239,7 @@ button, input[type=submit] {
     min-width: 10em;
 }
 
-    button:hover, button:focus, input[type=submit]:focus, input[type=submit]:hover {
+    button:hover, input[type=submit]:focus, input[type=submit]:hover {
         color: white;
         background-color: #003848;
         outline: none;
@@ -268,7 +268,8 @@ button, input[type=submit] {
         display: block;
         margin-bottom: 0.3rem;
     }
-.formDivision {
+
+    .formDivision {
     color: #00839C;
     font-size: 1.0rem;
     border-bottom: 1px solid #00839C;
@@ -426,7 +427,10 @@ table thead th {
         width: 1.5em;
         height: auto;
     }
-
+    .dataTable tr:hover{
+        background-color: #dddddd;
+    }
+    
 .menuCard {
     background: #ffffff;
     border-radius: 8px;
@@ -510,6 +514,7 @@ table thead th {
     background-color: #ccc;
     color: #333;
   }
+ 
   .btn-inactivo {
     background-color: #e0e0e0;
     color: #888;
@@ -532,5 +537,4 @@ table thead th {
       width: 120px;
     }
   }
-  
   

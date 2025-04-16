@@ -261,7 +261,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='pure-u-2-1 pure-u-md-1-6'>
+                        <div class='pure-u-2-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                                 <button @click="asignarRol">Asignar Rol</button>
@@ -273,12 +273,6 @@
                                 <button :class="editUser.is_active == 0 ? 'btn-inactivo' : null" @click="toggleUserActive">
                                     {{ Number(editUser.is_active) === 0 ? 'Activar' : 'Desactivar' }}
                                 </button>
-                            </div>
-                        </div>
-                        <div class='pure-u-2-1 pure-u-md-1-6'>
-                            <div class='formInputStandard'>
-                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button @click="startNewException">Permisos temporales</button>
                             </div>
                         </div>
                         <div class="pure-u-1-1">
@@ -306,8 +300,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
-                        <button @click="updateUser()">Actualizar</button>
+                    <div class="pure-u-1-1" style="padding-top: 1em;">
+                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                            <button @click="startNewException" style="text-align: right;">Asignar Permisos temporales</button>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-2' style="text-align: right;">
+                            <button @click="updateUser()">Actualizar</button>
+                        </div>
                     </div>
                 </div>
                 <div class="pure-u-1-24"></div>
