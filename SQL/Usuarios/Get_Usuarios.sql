@@ -4,7 +4,7 @@
 --START_PARAM
 set @seachUser = '',
     @id_sede = '2',
-    @id_cargo = '1';
+    @id_cargo = '2';
 --END_PARAM
 
 set @pusuario = concat('%', @seachUser, '%');
