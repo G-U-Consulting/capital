@@ -13,7 +13,7 @@
         <div v-if="mainmode == 1">
             <div class="pure-u-1-24"></div>
             <div class="pure-u-22-24">
-                <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="font-size: 1rem; font-weight:500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                     <span class="hoverLink" v-on:click="mode = 0">Usuarios</span>
                     <span v-if="mode == 1">  /  Nuevo Usuario</span>
                     <span v-if="mode == 2">  /  Edición de Usuario</span>
@@ -117,6 +117,8 @@
                                        class="pure-input-1" />
                             </div>
                         </div>
+
+                        <!--TODO CONTRASEÑA-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
@@ -124,12 +126,13 @@
                                        class="pure-input-1" />
                             </div>
                         </div>
-                        <div class='pure-u-2-1 pure-u-md-1-6'>
+                        <div class='pure-u-2-1 pure-u-md-4-6'>
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                                 <button @click="asignarRol">Proponer Contraseña</button>
                             </div>
                         </div>
+                        <!--FIN TODO-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="cargo" style="display: block; margin-bottom: 0.3rem;">Cargo</label>
@@ -196,12 +199,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
+                    <!--TODO ENVIAR DATOS-->
+                    <!--Hacer el proceso automático o seleccionar al enviar impresora, email, ...-->                    
+                    <!--Incluirlo en Edición de usuario-->
+                    <!--Hace falta un email alterno para enviar datos-->
+                    <!--Agregar opción de autogestión-->
+                    <div class="pure-u-1-1 pure-u-md-1-4" style="text-align:left;padding-top: 2em;">
+                        <button @click="insNewUser()">Enviar Datos</button>
+                    </div>
+
+                    <!--FIN TODO-->
+                    <div class="pure-u-1-1 pure-u-md-3-4" style="text-align:right;padding-top: 2em;">
                         <button @click="insNewUser()">Crear Usuario</button>
                     </div>
                 </div>
-                <div class="pure-u-1-24"></div>
             </div>
+            <div class="pure-u-1-24"></div>
             <!--EDICIÓN DE USUARIO-->
             <div v-if="mode == 2" style="padding-top: 1em">
                 <div class="pure-u-1-24"></div>
@@ -214,31 +227,48 @@
                             <div class='formInputStandard'>
                                 <label for="editUsuario" style="display: block; margin-bottom: 0.3rem;">ID Usuario</label>
                                 <input id="editUsuario" type="text" v-model="editUser.usuario" placeholder="Usuario"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-3-4'>
                             <div class='formInputStandard'>
-                                <label for="editNombres" style="display: block; margin-bottom: 0.3rem;">Nombres y
-                                    Apellidos</label>
+                                <label for="editNombres" style="display: block; margin-bottom: 0.3rem;">
+                                    Nombres y
+                                    Apellidos
+                                </label>
                                 <input id="editNombres" type="text" v-model="editUser.nombres" placeholder="Nombres"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="editCedula" style="display: block; margin-bottom: 0.3rem;">Número de Cédula</label>
                                 <input id="editCedula" type="text" v-model="editUser.identificacion"
-                                    placeholder="Identificación" class="pure-input-1" />
+                                       placeholder="Identificación" class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="editEmail" style="display: block; margin-bottom: 0.3rem;">Email</label>
                                 <input id="editEmail" type="email" v-model="editUser.email" placeholder="Correo electrónico"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
                             </div>
                         </div>
+                        <!--TODO CONTRASEÑA-->
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
+                                <input id="contraseña" type="text" v-model="newUser.contraseña" placeholder="Contraseña"
+                                       class="pure-input-1" />
+                            </div>
+                        </div>
+                        <div class='pure-u-2-1 pure-u-md-4-6'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button @click="asignarRol">Proponer Contraseña</button>
+                            </div>
+                        </div>
+                        <!--FIN TODO-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="editCargo" style="display: block; margin-bottom: 0.3rem;">Cargo</label>
@@ -252,12 +282,14 @@
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
-                                <label for="editTipoUsuario" style="display: block; margin-bottom: 0.3rem;">Tipo de
-                                    Usuario</label>
+                                <label for="editTipoUsuario" style="display: block; margin-bottom: 0.3rem;">
+                                    Tipo de
+                                    Usuario
+                                </label>
                                 <select id="editTipoUsuario" v-model="editUser.id_tipo_usuario" class="pure-input-1">
                                     <option value="" disabled selected>Seleccione Tipo</option>
                                     <option v-for="item in tiposUsuario" :key="item.id_tipo_usuario"
-                                        :value="item.id_tipo_usuario">
+                                            :value="item.id_tipo_usuario">
                                         {{ item.tipo_usuario }}
                                     </option>
                                 </select>
@@ -274,36 +306,32 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='pure-u-2-1 pure-u-md-1-4'>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                                 <button @click="asignarRol">Asignar Rol</button>
                             </div>
                         </div>
-                        <div class="pure-u-2-1 pure-u-md-1-6">
-                            <div class="formInputStandard">
-                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button :class="editUser.is_active == 0 ? 'btn-inactivo' : null" @click="toggleUserActive">
-                                    {{ Number(editUser.is_active) === 0 ? 'Activar' : 'Desactivar' }}
-                                </button>
-                            </div>
-                        </div>
                         <div class="pure-u-1-1">
-                            <div style="display: block; margin-top: 0.7rem; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;"> <b>Roles
-                                    Asigandos al Usuario</b></div>
+                            <div style="display: block; margin-top: 0.7rem; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;">
+                                <b>
+                                    Roles
+                                    Asigandos al Usuario
+                                </b>
+                            </div>
                             <div style="height: 30vh; overflow-y: auto;">
                                 <table class="dataTable">
                                     <thead>
                                         <tr>
                                             <th class="col-rol">Rol</th>
                                             <th class="col-descripcion">Descripción Rol</th>
-                                            <th class="col-eliminar" >Eliminar Asignación</th>
+                                            <th class="col-eliminar">Eliminar Asignación</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(rol, index) in rolesAsignados" :key="rol.id_rol" >
-                                            <td >{{ rol.rol }}</td>
-                                            <td >{{ rol.descripcion || 'Sin descripción' }}</td>
+                                        <tr v-for="(rol, index) in rolesAsignados" :key="rol.id_rol">
+                                            <td>{{ rol.rol }}</td>
+                                            <td>{{ rol.descripcion || 'Sin descripción' }}</td>
                                             <td style="text-align: center">
                                                 <span class="delete" @click.stop="eliminarRol(rol)">✖</span>
                                             </td>
@@ -313,17 +341,32 @@
                             </div>
                         </div>
                     </div>
-                    <div class="pure-u-1-1" style="padding-top: 1em;">
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
-                            <button @click="startNewException" style="text-align: right;">Asignar Permisos temporales</button>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-2' style="text-align: right;">
-                            <button @click="updateUser()">Actualizar</button>
+                    <!--TODO ACTIVAR / DESACTIVAR, PERMISOS TEMPORALES-->
+                    <div class="pure-u-1-1 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button :class="editUser.is_active == 0 ? 'btn-inactivo' : null" @click="toggleUserActive">
+                                {{ Number(editUser.is_active) === 0 ? 'Activar Usuario' : 'Desactivar Usuario' }}
+                            </button>
                         </div>
                     </div>
+                    <div class="pure-u-1-1 pure-u-md-1-4">
+                        <div class='formInputStandard'>
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button @click="startNewException">Asignar Permisos Temporales</button>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-1 pure-u-md-1-4"></div>
+                    <div class="pure-u-1-1 pure-u-md-1-4" style="text-align:right;padding-top: 2em;">
+                        <div class='formInputStandard'>
+                            <button @click="updateUser()">Actualizar Usuario</button>
+                        </div>
+                    </div>
+                    <!--FIN TODO-->
+
+                    </div>
+                    <div class="pure-u-1-24"></div>
                 </div>
-                <div class="pure-u-1-24"></div>
-            </div>
             <!--PERMISOS TEMPORALES-->
             <div v-if="mode == 3" style="padding-top: 1em">
                 <div class="pure-u-1-24"></div>

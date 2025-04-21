@@ -140,11 +140,11 @@ drop table dim_fiduciaria;
 
 insert into dim_estado_pubicacion(estado_publicacion, codigo) values
 ('Publicado', 'PUB'),
-('Estado 2', 'ES2'),
-('Estado 3', 'ES3'),
-('Estado 4', 'ES4'),
-('Estado 5', 'ES5'),
-('Estado 6', 'ES6');
+('Excluir de Ad@', 'EXC'),
+('Rot. Mostar Imágenes Generales', 'IGE'),
+('Rot. Mostar Imágenes Sostenibilidad', 'ISO'),
+('Próxima Certificación Edge', 'PED'),
+('Vigente Certificación Edge', 'VED');
 
 insert into dim_tipo_vis(tipo_vis) values
 ('VIS'),
@@ -152,14 +152,13 @@ insert into dim_tipo_vis(tipo_vis) values
 ('Aplica subsidios VIS');
 
 insert into dim_tipo_financiacion(tipo_financiacion)values
-('Acabados Checked'),
-('Reformas Checked'),
+('Acabados'),
+('Reformas'),
 ('Aplica Crédito 40-60'),
 ('Aplica Crédito 50-50'),
 ('Aplica Crédito 20-80'),
 ('Aplica Leasing 20-80'),
 ('Aplica Leasing 10-90'),
-('Acplica FNA');
 
 insert into dim_opcion_visual(opcion_visual) values
 ('Aumento automático PATE'),
