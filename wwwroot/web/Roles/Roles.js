@@ -136,6 +136,7 @@ export default {
                             item.expanded = true;
 
                             sitem.selected = true;
+                           
                         }
                     });
             });
@@ -146,14 +147,22 @@ export default {
             this.editRole["descripcion"] = resp[0][0]["descripcion"];
             this.users = resp[2];
             this.selectedAccess = null;
+            var sedeSeleccionada = resp[3][0];
+            this.sedes.forEach(item => {
+                if (sedeSeleccionada) {
+                    item.checked = (item.id_sede == sedeSeleccionada.id_sede);
+                } else {
+                    item.checked = false;
+                }
+            });
             hideProgress();
         },
         async updateRole() {
             this.editRole["permisos"] = "";
             var sede = this.sedes.find(item => { return item.checked });
-            this.newRole.id_sede = "";
+            this.editRole.id_sede = "";
             if (sede != null)
-                this.newRole.id_sede = sede.id_sede;
+                this.editRole.id_sede = sede.id_sede;
             this.accessList.forEach(function (item) {
                 for (var key in item["groups"])
                     item["groups"][key]["list"].forEach(function (sitem) {
@@ -281,6 +290,8 @@ export default {
             zone.selected = isAssigning;
             zone.selectedItems = isAssigning ? groupsArray.reduce((sum, group) => sum + group.list.length, 0) : 0;
         },
-
+        async exportExcel(){
+            const res = await httpFunc("/exportExcel/");
+        }
     }
 }

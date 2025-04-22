@@ -20,7 +20,7 @@
                 </div>
             </div>
             <!--LISTA DE ROLES-->
-            <div v-if="mode == 0" style="padding-top: 0.5rem">
+            <div v-if="mode == 0" style="padding-top: 1em">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
                     <h2>Roles</h2>
@@ -34,8 +34,11 @@
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
-                                <button v-on:click="startNewRole()" style="width:50%; margin: 0em 0em 0em 7em">Nuevo Rol</button>
+                            <div class="pure-u-1-1 pure-u-md-1-24">
+                                <img src="../../img/cli/excel.png" alt="Excel" class="logoExcel" @click="exportExcel">
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-4-24">
+                                <button v-on:click="startNewRole()" style="width:50%; margin: 0em 0em 0em 3em">Nuevo Rol</button>
                             </div>
                         </div>
                     </div>
@@ -60,6 +63,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
                         <!--<div class="pure-u-2-3" style="margin: auto; font-size: 0.8em">
                     <b>{{item.rol}}</b> / {{item.descripcion}}
                 </div>
@@ -72,9 +76,6 @@
                         {{item.created_on}}
                     </div>
                 </div>-->
-                    </div>
-                    
-
                 </div>
                 <div class="pure-u-1-24"></div>
             </div>
@@ -88,18 +89,21 @@
                         <div class="pure-u-1-1 pure-u-md-3-1" style="margin-top: 1rem">
                             <div>
                                 <div class="pure-g">
-                                    <!--TODO-->
-                                    <div class="pure-u-1-1 pure-u-md-7-24" style="padding: 0rem 0.5rem;">
-                                        <div style="text-align:center; font-size: 1em">Nombre del Rol</div>
-                                        <div>
-                                            <input type="text" v-model="newRole.rol" maxlength="1000" />
+                                    <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem;">
+                                        <div class="pure-u-1-1 pure-u-md-1-2">
+                                            <div style="text-align:center; font-size: 1em">Nombre del rol</div>
+                                            <div>
+                                                <input type="text" v-model="newRole.rol" maxlength="1000" />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="pure-u-1-1 pure-u-md-4-24" style="padding: 0rem 0.5rem ;">
-                                        <div style="text-align:center; font-size: 1em">Sede</div>
-                                        <div style="text-align: center; margin: 0.5rem 0rem 0rem 0rem;">
-                                            <label v-for="item in sedes" style="margin: 0rem 0rem 0rem 0.5rem;" >
-                                            <input type="checkbox" v-model="item.checked" />{{item.sede}}</label>
+                                        <div class="pure-u-1-1 pure-u-md-1-2">
+                                            <div style="text-align:center; font-size: 1em">Sede</div>
+                                            <div style="text-align:center">
+                                                <label v-for="item in sedes" style="margin:0.5rem;" class="check">
+                                                    <input type="checkbox" v-model="item.checked" />{{item.sede}}
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="pure-u-1-1 pure-u-md-2-24" style="padding: 0rem 0.5rem;"></div>
@@ -204,16 +208,29 @@
                         <div class="pure-u-1-1 pure-u-md-3-1" style="margin-top: 1rem">
                             <div>
                                 <div class="pure-g">
-                                    <div class="pure-u-1-1 pure-u-md-11-24 formInput" style="padding: 0rem 0.5rem;">
-                                        <div style="text-align:center; font-size: 1em">Nombre del rol</div>
-                                        <textarea type="text" v-model="editRole.rol" placeholder="Nombre" maxlength="1000" style="height: 4rem;"></textarea>
+                                    <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem;">
+                                        <div class="pure-u-1-1 pure-u-md-1-2">
+                                            <div style="text-align:center; font-size: 1em">Nombre del rol</div>
+                                            <div>
+                                                <textarea type="text" v-model="editRole.rol" placeholder="Nombre" maxlength="1000"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="pure-u-1-1 pure-u-md-1-2">
+                                            <div style="text-align:center; font-size: 1em">Sede</div>
+                                            <div style="text-align:center">
+                                                <label v-for="item in sedes" style="margin:0.5rem;" class="check">
+                                                    <input type="checkbox" v-model="item.checked" />{{item.sede}}
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="pure-u-1-1 pure-u-md-2-24" style="padding: 0rem 0.5rem;">
 
                                     </div>
                                     <div class="formInput  pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem;">
                                         <div style="text-align:center; font-size: 1em">Descripción</div>
-                                        <textarea v-model="editRole.descripcion" placeholder="Descripción" maxlength="1000" style="height: 4rem;"></textarea>
+                                        <textarea v-model="editRole.descripcion" placeholder="Descripción" maxlength="1000"></textarea>
                                     </div>
                                 </div>
                             </div>

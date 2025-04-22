@@ -129,4 +129,10 @@ app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
     }
     return Results.Ok(new { message = "✅ ¡Imágenes actualizadas!" });
 });
+app.Map("/exportExcel", async (HttpContext context, IWebHostEnvironment env) => { 
+    
+    return Results.Ok(new { message = "OK" });
+
+ });
 app.Run();
+        

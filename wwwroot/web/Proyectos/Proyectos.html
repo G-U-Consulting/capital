@@ -1,7 +1,7 @@
 ﻿<div class="pure-g">
     <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
         <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.75rem;">
-            {{ ruta }}
+            <!-- {{ ruta }} -->
         </div>
         <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
             <img src="./img/ico/svg/user.svg" />
@@ -15,7 +15,7 @@
     <div class="pure-u-1-1 pure-u-md-4-5">
         <!--PROYECTOS-->
         <div v-if="mainmode == 1">
-            <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="mode = 0">Proyectos</span>
                 <span v-if="mode == 1">  /  Nuevo</span>
                 <span v-if="mode == 2">  /  Edición</span>
@@ -66,41 +66,14 @@
             <div v-if="mode == 1" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <div class="wizarTab noSelect" v-on:click="submode = 0" v-bind:class="{wizarTabActive: submode == 0, wizarTabError: submode != 0}" 
-                                 style="font-size: 1em; margin-top: .3em">
-                                Datos Generales
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <div class="wizarTab noSelect" v-on:click="submode = 1" v-bind:class="{wizarTabActive: submode == 1, wizarTabError: submode != 1}" 
-                                 style="font-size: 1em; margin-top: .3em">
-                                VIS y Financiación
-                            </div>
-                         </div>
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <div class="wizarTab noSelect" v-on:click="submode = 2" v-bind:class="{wizarTabActive: submode == 2, wizarTabError: submode != 2}" 
-                                 style="font-size: 1em; margin-top: .3em">
-                                Pagos y Cotizaciones
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <div class="wizarTab noSelect" v-on:click="submode = 3" v-bind:class="{wizarTabActive: submode == 3, wizarTabError: submode != 3}" 
-                                 style="font-size: 1em; margin-top: .3em">
-                                C. de Costos y Fiduciaria
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <div class="wizarTab noSelect" v-on:click="submode = 4" v-bind:class="{wizarTabActive: submode == 4, wizarTabError: submode != 4}" 
-                                 style="font-size: 1em; margin-top: .3em">
-                                Información Adicional
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <div class="wizarTab noSelect" v-on:click="submode = 5" v-bind:class="{wizarTabActive: submode == 5, wizarTabError: submode != 5}" 
-                                 style="font-size: 1em; margin-top: .3em">
-                                Enlaces
+                    <div class="pure-g steps">
+                        <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-6">
+                            <div class="wizarTab noSelect" :class="{
+                                wizarTabActive: submode === index,
+                                wizarTabCompleted: submode !== index && !tabsIncomplete.includes(index),
+                                wizarTabIncomplete: submode !== index && tabsIncomplete.includes(index)}" 
+                                @click="setSubmode(index)">
+                                {{ tab }}
                             </div>
                         </div>
                     </div>
@@ -125,7 +98,6 @@
                                 <input type='text' v-model='objProyecto.direccion' maxlen='100' />
                             </div>
                         </div>
-
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>Sede</span>
@@ -140,9 +112,9 @@
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>Zona</span>
-                                <select v-model='objProyecto.NA'>
+                                <select v-model='objProyecto.zona'>
                                     <option value='' disabled selected>Seleccione</option>
-                                    <option v-for='item in []' v-bind:value='item.NA'>
+                                    <option v-for='item in []' v-bind:value='item.zona'>
                                         {{ item.NA }}
                                     </option>
                                 </select>
@@ -181,7 +153,6 @@
                             Archivos
                         </div>
                         <!--Logo, Slide y Planta Gral-->
-
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Estado del Proyecto
                         </div>
@@ -189,8 +160,9 @@
                             <div class='formInputStandard'>
                                 <div class='pure-g'>
                                     <div v-for='item in estadosPublicacion' class='pure-u-1-4'>
-                                        <label>
+                                        <label class="check">
                                             <input type='checkbox' value='1' v-model='item.checked' />
+                                            <span class="checkmark"></span>
                                             {{item.estado_publicacion}}
                                         </label>
                                     </div>
@@ -211,8 +183,9 @@
                             <div class='formInputStandard'>
                                 <div class='pure-g'>
                                     <div v-for='item in tiposVIS' class='pure-u-1-6'>
-                                        <label>
+                                        <label class="check">
                                             <input type='checkbox' value='1' v-model='item.checked' />
+                                            <span class="checkmark"></span>
                                             {{item.tipo_vis}}
                                         </label>
                                     </div>
@@ -254,8 +227,9 @@
                             <div class='formInputStandard'>
                                 <div class='pure-g'>
                                     <div class='pure-u-1-2'>
-                                        <label>
+                                        <label class="check">
                                             <input type='checkbox' value='0' v-model='objProyecto.acabados' name='acabados' />
+                                            <span class="checkmark"></span>
                                             Acabados
                                         </label>
                                     </div>
@@ -266,8 +240,9 @@
                             <div class='formInputStandard'>
                                 <div class='pure-g'>
                                     <div class='pure-u-1-2'>
-                                        <label>
+                                        <label class="check">
                                             <input type='checkbox' value='0' v-model='objProyecto.reformas' name='reformas' />
+                                            <span class="checkmark"></span>
                                             Reformas
                                         </label>
                                     </div>
@@ -282,8 +257,9 @@
                             <div class='formInputStandard'>
                                 <div class='pure-g'>
                                     <div v-for='item in tiposFinanciacion' class='pure-u-1-6'>
-                                        <label>
+                                        <label class="check">
                                             <input type='checkbox' value='1' v-model='item.checked' />
+                                            <span class="checkmark"></span>
                                             {{item.tipo_financiacion}}
                                         </label>
                                     </div>
@@ -296,7 +272,6 @@
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                             Información para Pagos y Cotizaciones
                         </div>
-
                         <!--Fechas límite-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Días límite para el pago
@@ -313,24 +288,23 @@
                                 <input type='number' v-model='objProyecto.dias_cierre_sala' maxlen='100' />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
                             <div class='formInputStandard'>
                                 <span>Máximo meses para pago Cuota Inicial</span>
                                 <input type='number' v-model='objProyecto.meses_ci' maxlen='100' />
                             </div>
                         </div>
-
                         <!--Datos Sala: Coordinación y cotizaciones-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Coordinación de Sala de Ventas
                         </div>
                         <!--TODO Cambiar email de coordinado de sala por coordinador de sala-->
                         <!--<div class='pure-u-1-1 pure-u-md-1-4'>
-            <div class='formInputStandard'>
-                <span>E-mail coordiandor de Sala</span>
-                <input type='email' v-model='objProyecto.email_coordinador_sala' maxlen='100' />
-            </div>
-        </div>-->
+                                    <div class='formInputStandard'>
+                                        <span>E-mail coordiandor de Sala</span>
+                                        <input type='email' v-model='objProyecto.email_coordinador_sala' maxlen='100' />
+                                    </div>
+                                </div>-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="coordinacion" style="display: block; margin-bottom: 0.3rem;">Coordinación</label>
@@ -341,25 +315,24 @@
                             </div>
                         </div>
                         <!--Fin TODO-->
-
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
-                                <span>Meta VentasUnidades / Mes<</span>
+                                <span>Meta VentasUnidades / Mes</span>
                                 <input type='number' v-model='objProyecto.meta_ventas' maxlen='100' />
                             </div>
                         </div>
                         <!--<div class='pure-u-1-1 pure-u-md-1-4'>
-            <div class='formInputStandard'>
-                <span title="Días antes de la fecha de Pago CI BankAmig">Días pago Banco Amigo</span>
-                <input type='number' v-model='objProyecto.dias_pago_ci_banco_amigo' maxlen='100' />
-            </div>
-        </div>
-        <div class='pure-u-1-1 pure-u-md-1-4'>
-            <div class='formInputStandard'>
-                <span title="Días antes de la fecha de Pago CI BankNoAmig">Días pago Banco no Amigo</span>
-                <input type='number' v-model='objProyecto.dias_pago_ci_banco_no_amigo' maxlen='100' />
-            </div>
-        </div>-->
+                                    <div class='formInputStandard'>
+                                        <span title="Días antes de la fecha de Pago CI BankAmig">Días pago Banco Amigo</span>
+                                        <input type='number' v-model='objProyecto.dias_pago_ci_banco_amigo' maxlen='100' />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-4'>
+                                    <div class='formInputStandard'>
+                                        <span title="Días antes de la fecha de Pago CI BankNoAmig">Días pago Banco no Amigo</span>
+                                        <input type='number' v-model='objProyecto.dias_pago_ci_banco_no_amigo' maxlen='100' />
+                                    </div>
+                                </div>-->
                         <!--Datos Cotizaciones-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Cotizaciones
@@ -415,8 +388,9 @@
                             <div class='formInputStandard'>
                                 <div class='pure-g'>
                                     <div v-for='item in opcionesVisuales' class='pure-u-1-2'>
-                                        <label>
+                                        <label class="check">
                                             <input type='checkbox' value='1' v-model='item.checked' />
+                                            <span class="checkmark"></span>
                                             {{item.opcion_visual}}
                                         </label>
                                     </div>
@@ -435,21 +409,18 @@
                         <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
                                 <span>Es Lanzamiento</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.lanzamiento' name='lanzamiento' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.lanzamiento' name='lanzamiento' />No
-                                        </label>
+                                <div class='pure-g switch'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.lanzamiento) === 0}">
+                                            <input id="lanzamiento-toggle" type="checkbox" :checked="Number(objProyecto.lanzamiento) === 1"
+                                                @click="objProyecto.lanzamiento = Number(objProyecto.lanzamiento) === 0 ? 1 : 0" class="toggle-input">
+                                            <label class="toggle-label" for="lanzamiento-toggle"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                        <div class='pure-u-1-1 pure-u-md-1-5'>
                             <div class='formInputStandard'>
                                 <span>Ciudad de Lanzamiento</span>
                                 <input type='text' v-model='objProyecto.ciudad_lanzamiento' maxlen='100' />
@@ -467,7 +438,6 @@
                                 <input type='text' v-model='objProyecto.latitud' maxlen='100' />
                             </div>
                         </div>
-
                         <!--Lanzamiento VIP-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Lanzamiento VIP
@@ -477,38 +447,35 @@
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6' style="margin-top: 0.2em">
                             <div class='formInputStandard'>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.bloqueo_libres' name='bloqueo_libres' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.bloqueo_libres' name='bloqueo_libres' />No
-                                        </label>
+                                <div class='pure-g switch'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.bloqueo_libres) === 0}">
+                                            <input id="bloqueo_libres-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.bloqueo_libres) === 1"
+                                                @click="objProyecto.bloqueo_libres = Number(objProyecto.bloqueo_libres) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="bloqueo_libres-toggle"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-6' style="margin-top: 0.7em">
+                        <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
                             Límite Unds opcionadas
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
-                            <div class='formInputStandard'>
+                            <div class='formInputStandard positTex'>
                                 <input type='number' v-model='objProyecto.inmuebles_opcionados' maxlen='100' />
                             </div>
                         </div>
-
-                        <div class='pure-u-1-1 pure-u-md-1-6' style="margin-top: 0.7em; margin-left: 1em">
+                        <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
                             Tipos excluidos
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-6'>
-                            <div class='formInputStandard' style="width: 200%">
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard positTex'>
                                 <input type='text' v-model='objProyecto.tipos_excluidos' maxlen='100' />
                             </div>
                         </div>
-
                         <!--Waze, Whatsapp y Otros-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Waze, Whatsapp y Otros
@@ -525,12 +492,6 @@
                                 <input type='tel' v-model='objProyecto.linea_whatsapp' maxlen='100' />
                             </div>
                         </div>
-                        <!--<div class='pure-u-1-1 pure-u-md-1-1'>
-        <div class='formInputStandard'>
-            <span>Emails para reporte de atención / CRM</span>
-            <span>???multiadd</span>
-        </div>
-    </div>-->
                         <!--Email receptores-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Emails receptores
@@ -538,25 +499,25 @@
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>E-mail receptor 1</span>
-                                <input type='email' maxlen='100' />
+                                <input type='email' v-model='objProyecto.email_receptor_1' maxlen='100' />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>E-mail receptor 2</span>
-                                <input type='email' maxlen='100' />
+                                <input type='email' v-model='objProyecto.email_receptor_2' maxlen='100' />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>E-mail receptor 3</span>
-                                <input type='email' maxlen='100' />
+                                <input type='email' v-model='objProyecto.email_receptor_3' maxlen='100' />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>E-mail receptor 4</span>
-                                <input type='email' maxlen='100' />
+                                <input type='email' v-model='objProyecto.email_receptor_4' maxlen='100' />
                             </div>
                         </div>
                     </div>
@@ -592,12 +553,17 @@
                             <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                                     <span>Incluir</span>
-                                    <div class='pure-g'>
-                                        <input type='checkbox' value='1' 
-                                               style="margin-left: 1em; margin-top: 0.5em;" 
-                                               v-model='objProyecto.incluir_especificaciones_tecnicias' 
-                                               name='incluir_especificaciones_tecnicias'
-                                               title="Incluir especificaciones técnicas."/>
+                                    <div class='pure-g switch-box'>
+                                        <div class='pure-u-1-1'>
+                                            <div class="toggle-switch"
+                                                :class="{'inactive': Number(objProyecto.incluir_especificaciones_tecnicias) === 0}">
+                                                <input id="incluir_especificaciones_tecnicias-toggle" type="checkbox"
+                                                    :checked="Number(objProyecto.incluir_especificaciones_tecnicias) === 1"
+                                                    @click="objProyecto.incluir_especificaciones_tecnicias = Number(objProyecto.incluir_especificaciones_tecnicias) === 0 ? 1 : 0"
+                                                    class="toggle-input">
+                                                <label class="toggle-label" for="incluir_especificaciones_tecnicias-toggle"></label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-5-6'>
@@ -607,27 +573,36 @@
                                     </div>
                                 </div>
                             </div>
-                            
                             <!--Links de Cartilla Negocios-->
                             <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                                     <span>Cotización</span>
-                                    <div class='pure-g'>
-                                        <input type='checkbox' value='1' 
-                                               style="margin-left: 1em; margin-top: 0.5em;" 
-                                               v-model='objProyecto.incluir_cartilla_negocios_cotizacion' 
-                                               name='incluir_cartilla_negocios_cotizacion'
-                                               title="Incluir cartilla de negocio fiduciario en la cotización de la compra"/>
+                                    <div class="pure-g switch-box">
+                                        <div class='pure-u-1-1'>
+                                            <div class="toggle-switch"
+                                                :class="{'inactive': Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 0}">
+                                                <input id="incluir_cotizacion-toggle" type="checkbox"
+                                                    :checked="Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 1"
+                                                    @click="objProyecto.incluir_cartilla_negocios_cotizacion = Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 0 ? 1 : 0"
+                                                    class="toggle-input">
+                                                <label class="toggle-label" for="incluir_cotizacion-toggle"></label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                                     <span>Opción</span>
-                                    <div class='pure-g'>
-                                        <input type='checkbox' value='1' 
-                                               style="margin-left: 1em; margin-top: 0.5em;" 
-                                               v-model='objProyecto.incluir_cartilla_negocios_opcion' 
-                                               name='incluir_cartilla_negocios_opcion'
-                                               title="Incluir cartilla de negocio fiduciario en la opción de compra"/>
+                                    <div class='pure-g switch-box'>
+                                        <div class='pure-u-1-1'>
+                                            <div class="toggle-switch"
+                                                :class="{'inactive': Number(objProyecto.incluir_cartilla_negocios_opcion) === 0}">
+                                                <input id="incluir_opcion-toggle" type="checkbox"
+                                                    :checked="Number(objProyecto.incluir_cartilla_negocios_opcion) === 1"
+                                                    @click="objProyecto.incluir_cartilla_negocios_opcion = Number(objProyecto.incluir_cartilla_negocios_opcion) === 0 ? 1 : 0"
+                                                    class="toggle-input">
+                                                <label class="toggle-label" for="incluir_opcion-toggle"></label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-2-3'>
@@ -644,11 +619,19 @@
                             Otros Links
                         </div>
                         <!--Seguimiento Leads-->
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                        <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                                 <span>Leads</span>
-                                <div class='pure-g'>
-                                    <input type='checkbox' value='1' v-model='objProyecto.frame_seguimiento_visible' style="margin-left: 1em; margin-top: 0.5em;"  name='frame_seguimiento_visible' />
+                                <div class='pure-g switch-box'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.frame_seguimiento_visible) === 0}">
+                                            <input id="seguimiento_leads-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.frame_seguimiento_visible) === 1"
+                                                @click="objProyecto.frame_seguimiento_visible = Number(objProyecto.frame_seguimiento_visible) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="seguimiento_leads-toggle"></label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-5-6'>
@@ -658,17 +641,21 @@
                                 </div>
                             </div>
                         </div>
-
                         <!--Evaluación de Conocimientos-->
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                        <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                                 <span>Evaluación</span>
-                                <div class='pure-g'>
-                                    <input type='checkbox' value='1' 
-                                           v-model='objProyecto.frame_evaluacion_conocimiento' 
-                                           style="margin-left: 1em; margin-top: 0.5em;" 
-                                           name='frame_evaluacion_conocimiento'
-                                           title="Habilitar evaluación de conocmiento del proyecto."/>
+                                <div class='pure-g switch-box'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch"
+                                            :class="{'inactive': Number(objProyecto.frame_evaluacion_conocimiento) === 0}">
+                                            <input id="evaluacion_conocimientos-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.frame_evaluacion_conocimiento) === 1"
+                                                @click="objProyecto.frame_evaluacion_conocimiento = Number(objProyecto.frame_evaluacion_conocimiento) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="evaluacion_conocimientos-toggle"></label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-5-6'>
@@ -678,17 +665,20 @@
                                 </div>
                             </div>
                         </div>
-
                         <!--Avance externo obra-->
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                        <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                                 <span>Avance</span>
-                                <div class='pure-g'>
-                                    <input type='checkbox' value='1' 
-                                           v-model='objProyecto.avance_obra_visible' 
-                                           style="margin-left: 1em; margin-top: 0.5em;" 
-                                           name='avance_obra_visible' 
-                                           title="Habilitar visualización del avance de obra."/>
+                                <div class='pure-g switch-box'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.avance_obra_visible) === 0}">
+                                            <input id="avance_obra_visible-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.avance_obra_visible) === 1"
+                                                @click="objProyecto.avance_obra_visible = Number(objProyecto.avance_obra_visible) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="avance_obra_visible-toggle"></label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-5-6'>
@@ -698,30 +688,36 @@
                                 </div>
                             </div>
                         </div>
-
                         <!--Brochure PDF-->
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                        <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                                 <span>Brochure</span>
-                                <div class='pure-g'>
-                                    <input type='checkbox' value='1' 
-                                           v-model='objProyecto.incluir_brochure' 
-                                           style="margin-left: 1em; margin-top: 0.5em;" 
-                                           name='incluir_brochure' 
-                                           title="Habilitar Brochure del proyecto en PDF"/>
+                                <div class='pure-g switch-box'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.incluir_brochure) === 0}">
+                                            <input id="incluir_brochure-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.incluir_brochure) === 1"
+                                                @click="objProyecto.incluir_brochure = Number(objProyecto.incluir_brochure) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="incluir_brochure-toggle"></label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class='pure-u-1-1 pure-u-md-2-3'>
+                            <div class='pure-u-1-1 pure-u-md-5-6'>
                                 <div class='formInputStandard'>
                                     <span>Link a brochure PDF web</span>
                                     <input type='text' v-model='objProyecto.link_brochure' maxlen='100' />
                                 </div>
                             </div>
                         </div>
+                        <div class="pure-u-1-1" style="text-align:right;padding-top: 1em;">
+                            <button>Guardar</button>
+                        </div>
                     </div>
-                    <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
+                    <!-- <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
                         <button>Guardar</button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

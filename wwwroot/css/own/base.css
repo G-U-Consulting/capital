@@ -274,25 +274,7 @@ button, input[type=submit] {
     font-size: 1.0rem;
     border-bottom: 1px solid #00839C;
 }
-.wizarTab {
-    color: #032B44;
-    border-radius: 0.3rem;
-    font-size: 0.8rem;
-    padding: 0.3rem;
-    margin-left: 0.3rem;
-    text-align: center;
-    border: 1px solid #032B44;
-    background-color : #FFF;
-    cursor: pointer;
-}
-.wizarTabActive {
-    background-color: #00839C;
-    color: white;
-    border-color: #00839C;
-}
-.wizarTabError {
-    color: #cc0000;
-}
+
     .hoverLink:hover {
         text-decoration: underline;
         cursor: pointer
@@ -437,7 +419,6 @@ table thead th {
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
     padding: 1rem;
-   
 }
 .delete {
     background: none;
@@ -537,4 +518,283 @@ table thead th {
       width: 120px;
     }
   }
+  /* switch */
+  .switch-box {
+    padding: 3px 0px;
+  }
+  .switch {
+    text-align: center;
+    padding: 3px 5px;
+  }
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 17px;
+    margin-top: .3em;
+  }
+  .toggle-switch .toggle-input {
+    display: none;
+  }
+  .toggle-switch .toggle-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 17px;
+    background-color: #00839C;
+    border-radius: 34px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .toggle-switch .toggle-label::before {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 13px;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    background-color: #fff;
+    box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s;
+  }
+  .toggle-switch .toggle-input:checked + .toggle-label {
+    background-color: #dc3545;
+
+  }
+  .toggle-switch .toggle-input:checked + .toggle-label::before {
+    transform: translateX(16px);
+  }
+  .toggle-switch.light .toggle-label {
+    background-color: #BEBEBE;
+  }
+  .toggle-switch.light .toggle-input:checked + .toggle-label {
+    background-color: #9B9B9B;
+  }
+  .toggle-switch.light .toggle-input:checked + .toggle-label::before {
+    transform: translateX(6px);
+  }
   
+ /* loader */
+.loader {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+  
+  .jimu-primary-loading:before,
+  .jimu-primary-loading:after {
+    position: absolute;
+    top: 0;
+    content: '';
+  }
+  
+  .jimu-primary-loading:before {
+    left: -19.992px;
+  }
+  
+  .jimu-primary-loading:after {
+    left: 19.992px;
+    -webkit-animation-delay: 0.32s !important;
+    animation-delay: 0.32s !important;
+  }
+  
+  .jimu-primary-loading:before,
+  .jimu-primary-loading:after,
+  .jimu-primary-loading {
+    background: #00839C;
+    -webkit-animation: loading-keys-app-loading 0.8s infinite ease-in-out;
+    animation: loading-keys-app-loading 0.8s infinite ease-in-out;
+    width: 13.6px;
+    height: 32px;
+  }
+  
+  .jimu-primary-loading {
+    text-indent: -9999em;
+    margin: auto;
+    position: absolute;
+    right: calc(50% - 6.8px);
+    top: calc(50% - 16px);
+    -webkit-animation-delay: 0.16s !important;
+    animation-delay: 0.16s !important;
+  }
+  
+  @-webkit-keyframes loading-keys-app-loading {
+  
+    0%,
+    80%,
+    100% {
+      opacity: .75;
+      box-shadow: 0 0 #00839C;
+      height: 32px;
+    }
+  
+    40% {
+      opacity: 1;
+      box-shadow: 0 -8px #00839C;
+      height: 40px;
+    }
+  }
+  
+  @keyframes loading-keys-app-loading {
+  
+    0%,
+    80%,
+    100% {
+      opacity: .75;
+      box-shadow: 0 0 #00839C;
+      height: 32px;
+    }
+  
+    40% {
+      opacity: 1;
+      box-shadow: 0 -8px #00839C;
+      height: 40px;
+    }
+  }
+ /* Tabs */
+
+ .wizarTab {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    min-height: 40px;
+    transition: background 0.3s, color 0.3s, border 0.3s;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-top: 0.5em;
+}
+
+ .wizarTab::after {
+     content: '';
+     position: absolute;
+     top: 0;
+     right: -12px;
+     width: 0;
+     height: 0; 
+     border-top: 25px solid transparent;
+     border-bottom: 25px solid transparent;
+     z-index: 2;
+ }
+
+ .wizarTabActive {
+    border-color: #032B44;
+    background: #032B44;
+    color: white;
+    z-index: 2;
+}
+
+ .wizarTabActive::after,
+ .wizarTabCompleted::after {
+     border-left-color: #00839C;
+ }
+
+.wizarTab:last-child{
+    clip-path: polygon(94% 0%,100% 51%,94% 100%,0% 100%,6% 50%,0% 0%);
+    border-radius: 0 10px 10px 0;
+}
+
+ .wizarTabCompleted {
+     border-color: #00839C;
+     background: #00839C;
+     color: white;
+     opacity: 0.7;
+ }
+
+ .wizarTabIncomplete {
+    border-color: #ff4d4d;
+    background: #ffe5e5;
+    color: #000;
+}
+ .noSelect {
+     user-select: none;
+ }
+
+ /* check */
+ .check {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 14px;
+  }
+
+  .check input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  .checkmark {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 15px;
+    width: 15px;
+    border: 2px solid #d6d6d6;
+    background-color: transparent;
+    border-radius: 4px;
+    transition: 0.3s;
+  }
+  
+  .checkmark::after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  .check input:checked ~ .checkmark {
+    border: 2px solid #d6d6d6;
+  }
+  
+  .check input:checked ~ .checkmark::after {
+    display: block;
+  }
+  .check .checkmark::after {
+    left: 3px;
+    top: -1px;
+    width: 5px;
+    height: 10px;
+    border: solid #00839C;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  .campo-bloqueado,
+  .campo-bloqueado input,
+  .campo-bloqueado select,
+  .campo-bloqueado textarea {
+      font-style: italic;
+      background-color: #ccc !important;
+      cursor: not-allowed;
+      border: 1px solid #ccc;
+      opacity: 1;
+      filter: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+  }
+  .logoExcel{
+    position: relative;
+    top: 3px;
+    width: 25px;
+    height: 25px; 
+    margin-left: 2em; 
+    cursor: pointer;
+    object-fit: cover;
+  }
+.positTex{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: .3em;
+}

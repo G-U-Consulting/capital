@@ -253,7 +253,6 @@ export default {
                     duracion: this.duracion,
                 });
                 const response = await httpFunc("/api/upload", formData);
-                await new Promise(resolve => setTimeout(resolve, 4000));
                 this.message = response.message;
                 await this.fetchCarouselImages();
                 hideProgress();
