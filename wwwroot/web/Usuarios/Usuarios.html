@@ -41,18 +41,19 @@
                                     <option v-for="item in cargos" v-bind:value="item.id_cargo">{{item.cargo}}</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24" style="padding-left: 1em;" >
+                            <div class="pure-u-1-1 pure-u-md-3-24" style="padding-left: 1em;">
                                 <select v-model="filtro.id_sede" v-on:change="getUsuarios()" class="pure-input-1">
                                     <option value="">[Todas las sedes]</option>
                                     <option v-for="item in sedes" v-bind:value="item.id_sede">{{item.sede}}</option>
                                 </select>
                             </div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
-                                <img src="../../img/cli/excel.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel" />
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel"
+                                     title="Descargar datos a Excel" />
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <button v-on:click="startNewUser()" class="pure-button pure-button-primary pure-u-1">
+                            <div class="pure-u-1-1 pure-u-md-1-24">
+                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()">
                                     Nuevo Usuario
                                 </button>
                             </div>
