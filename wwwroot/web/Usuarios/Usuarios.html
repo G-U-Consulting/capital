@@ -338,12 +338,12 @@
                                             <th class="col-eliminar">Eliminar Asignación</th>
                                         </tr>
                                     </thead>
-                                    <tbody v-if="isusaurioEdit">
+                                    <tbody :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }">
                                         <tr v-for="(rol, index) in rolesAsignados" :key="rol.id_rol">
                                             <td>{{ rol.rol }}</td>
                                             <td>{{ rol.descripcion || 'Sin descripción' }}</td>
                                             <td style="text-align: center">
-                                                <span class="delete" @click.stop="eliminarRol(rol)">✖</span>
+                                                <span class="delete" v-if="isusaurioEdit" @click.stop="eliminarRol(rol)">✖</span>
                                             </td>
                                         </tr>
                                     </tbody>

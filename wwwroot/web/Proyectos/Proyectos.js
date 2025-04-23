@@ -104,11 +104,20 @@
         };
     },
     computed: {
-        progressWidth() {
-          return (this.submode / (this.tabs.length - 1)) * 100 + '%';
+        tabClasses() {
+          return this.tabs.map((_, index) => {
+            if (this.submode === index) {
+              return 'wizarTabActive';
+            } else if (!this.tabsIncomplete.includes(index)) {
+              return 'wizarTabCompleted';
+            } else {
+              return 'wizarTabIncomplete';
+            }
+          });
         }
     },
     async mounted() {
+        this.tabsIncomplete = this.tabs.map((_, index) => index);
         //await this.setMainMode(1);
         //this.mode = 1;
     },
@@ -134,6 +143,7 @@
         },
         setSubmode(index) {
             const anteriorIndex = this.submode;
+            console.log(this.submode)
             const validarSubmode = (submodeIndex) => {
                 const camposAValidar = this.camposPorSubmode[submodeIndex] || [];
                 let submodeIncompleto = camposAValidar.some(campo => {

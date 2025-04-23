@@ -68,11 +68,7 @@
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
                     <div class="pure-g steps">
                         <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-6">
-                            <div class="wizarTab noSelect" :class="{
-                                wizarTabActive: submode === index,
-                                wizarTabCompleted: submode !== index && !tabsIncomplete.includes(index),
-                                wizarTabIncomplete: submode !== index && tabsIncomplete.includes(index)}" 
-                                @click="setSubmode(index)">
+                            <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]" @click="setSubmode(index)">
                                 {{ tab }}
                             </div>
                         </div>
@@ -80,7 +76,7 @@
                 </div>
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-22-24 menuCard" style="height: 70vh; overflow-y: auto;">
                     <!--Datos generales-->
                     <div class="pure-g" v-show="submode == 0 ">
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
@@ -149,28 +145,10 @@
                                 <textarea type='text' v-model='objProyecto.otra_info' style="height:5rem"></textarea>
                             </div>
                         </div>
-
-                        <!--Logo, Slide y Planta Gral-->
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1em; margin-bottom:0.5em">
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                             Archivos
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4' style="padding-left:0.5em">
-                            <label>Logo (< 2Mb)</label>
-                            <input class='pure-u-1-1 pure-u-md-1-1' type="file" accept=".png,.jpg,.jpeg" 
-                                   style="border-style:solid; border-width:1px; border-color: lightgray;"/>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4' style="padding-left:0.5em">
-                            <label>Slide 1 (< 2Mb)</label>
-                            <input class='pure-u-1-1 pure-u-md-1-1' type="file" accept=".png,.jpg,.jpeg"
-                                   style="border-style:solid; border-width:1px; border-color: lightgray;"/>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4' style="padding-left:0.5em">
-                            <label>Planta General Termómetro (< 2Mb)</label>
-                            <input class='pure-u-1-1 pure-u-md-1-1' type="file" accept=".png,.jpg,.jpeg"
-                                   style="border-style:solid; border-width:1px; border-color: lightgray;"/>
-                        </div>
-
-                        <!--Estado del Proyecto-->
+                        <!--Logo, Slide y Planta Gral-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Estado del Proyecto
                         </div>
@@ -563,7 +541,7 @@
                         </div>
 
                         <!--Links de especificaciones y Cartilla Negocios-->
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
                             Link Especificaciones Técnicas y Cartilla de Negocio
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-1'>
@@ -729,13 +707,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="pure-u-1-1" style="text-align:right;padding-top: 1em;">
+                        <!-- <div class="pure-u-1-1" style="text-align:right;padding-top: 1em;">
                             <button>Guardar</button>
-                        </div>
+                        </div> -->
                     </div>
-                    <!-- <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
-                        <button>Guardar</button>
-                    </div> -->
+                  
+                </div>
+                <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
+                    <button>Guardar</button>
                 </div>
             </div>
         </div>

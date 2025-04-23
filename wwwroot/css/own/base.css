@@ -666,7 +666,7 @@ table thead th {
     min-height: 40px;
     transition: background 0.3s, color 0.3s, border 0.3s;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     margin-top: 0.5em;
 }
 
@@ -711,9 +711,6 @@ table thead th {
     background: #ffe5e5;
     color: #000;
 }
- .noSelect {
-     user-select: none;
- }
 
  /* check */
  .check {
@@ -774,7 +771,7 @@ table thead th {
   .campo-bloqueado select,
   .campo-bloqueado textarea {
       font-style: italic;
-      background-color: #ccc !important;
+      background-color: white !important;
       cursor: not-allowed;
       border: 1px solid #ccc;
       opacity: 1;

@@ -155,7 +155,6 @@ mainVue = {
 
             if(!GlobalVariables.ruta.includes(name)){
                 GlobalVariables.ruta = GlobalVariables.ruta + " / " + name;
-                console.log(GlobalVariables.ruta)
                 localStorage.setItem('ruta', GlobalVariables.ruta);
             }
         },
