@@ -13,7 +13,7 @@
         <div v-if="mainmode == 1">
             <div class="pure-u-1-24"></div>
             <div class="pure-u-22-24">
-                <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="font-size: 1rem; font-weight:500; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.5rem 1rem; ">
                     <span class="hoverLink" v-on:click="mode = 0">Usuarios</span>
                     <span v-if="mode == 1">  /  Nuevo Usuario</span>
                     <span v-if="mode == 2">  /  Edición de Usuario</span>
@@ -27,28 +27,35 @@
                     <h2>Usuarios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-14-24">
-                                <input type="text" placeholder="Usuario o Nombre" v-model="filtro.seachUser" />
+                            <div class="pure-u-1-1 pure-u-md-1-2">
+                                <input type="text" placeholder="Usuario o Nombre" v-model="filtro.seachUser" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <div class="imgGraybutton" v-on:click="getUsuarios()">
+                                    <img src="./img/ico/svg/search.svg" class="pure-img" />
+                                </div>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-3-24">
-                                <select v-model="filtro.id_cargo" v-on:change="getUsuarios()">
-                                    <option value="">[Todas los cargos]</option>
+                                <select v-model="filtro.id_cargo" v-on:change="getUsuarios()" class="pure-input-1">
+                                    <option value="">[Todos los cargos]</option>
                                     <option v-for="item in cargos" v-bind:value="item.id_cargo">{{item.cargo}}</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <select v-model="filtro.id_sede" v-on:change="getUsuarios()">
+                            <div class="pure-u-1-1 pure-u-md-3-24" style="padding-left: 1em;">
+                                <select v-model="filtro.id_sede" v-on:change="getUsuarios()" class="pure-input-1">
                                     <option value="">[Todas las sedes]</option>
                                     <option v-for="item in sedes" v-bind:value="item.id_sede">{{item.sede}}</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
-                                <div class="imgGraybutton" v-on:click="getUsuarios()">
-                                    <img src="./img/ico/svg/search.svg" />
-                                </div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel"
+                                     title="Descargar datos a Excel" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <button v-on:click="startNewUser()" style="width:100%">Nuevo Usuario</button>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-24">
+                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()">
+                                    Nuevo Usuario
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -59,21 +66,21 @@
                                     <th>Usuario</th>
                                     <th>Nombres</th>
                                     <th>Cargo</th>
-                                    <th>Identificación</th>
                                     <th>Roles Asignados</th>
+                                    <th>Identificación</th>
                                     <th>Estado</th>
                                     <th>Fecha de Creación</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="item in users" v-on:click="selectUser(item)">
-                                    <td>{{item.usuario}}</td>
+                                    <td style="width: 15rem">{{item.usuario}}</td>
                                     <td>{{item.nombres}}</td>
                                     <td>{{item.cargo}}</td>
-                                    <td>{{item.identificacion}}</td>
                                     <td style="text-align: center; width: 5rem;">{{item.cuenta}}</td>
-                                    <td style="text-align: center; width: 8rem;">{{ item.is_active == 1 ? 'Activo' : 'Desactivado' }}</td>
-                                    <td style="text-align:center; width: 10rem;">{{item.created_on}}</td>
+                                    <td style="width: 8rem">{{item.identificacion}}</td>
+                                    <td style="text-align: center; width: 8rem">{{ item.is_active == 1 ? 'Activo' : 'Desactivado' }}</td>
+                                    <td style="text-align:center; width: 10rem">{{item.created_on}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -93,30 +100,45 @@
                             <div class='formInputStandard'>
                                 <label for="idUsuario" style="display: block; margin-bottom: 0.3rem;">ID Usuario</label>
                                 <input id="idUsuario" type="text" v-model="newUser.usuario" placeholder="Usuario"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-3-4'>
                             <div class='formInputStandard'>
                                 <label for="nombres" style="display: block; margin-bottom: 0.3rem;">Nombres y Apellidos</label>
                                 <input id="nombres" type="text" v-model="newUser.nombres" placeholder="Nombres"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="cedula" style="display: block; margin-bottom: 0.3rem;">Número de Cédula</label>
                                 <input id="cedula" type="text" v-model="newUser.identificacion"
-                                    placeholder="Identificación" class="pure-input-1" />
+                                       placeholder="Identificación" class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="email" style="display: block; margin-bottom: 0.3rem;">Email</label>
                                 <input id="email" type="email" v-model="newUser.email" placeholder="Correo electrónico"
-                                    class="pure-input-1" />
+                                       class="pure-input-1" />
                             </div>
                         </div>
+                        <!--TODO CONTRASEÑA-->
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
+                                <input id="contraseña" type="text" v-model="newUser.contraseña" placeholder="Contraseña"
+                                       class="pure-input-1" />
+                            </div>
+                        </div>
+                        <div class='pure-u-2-1 pure-u-md-4-6'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button @click="asignarRol">Proponer Contraseña</button>
+                            </div>
+                        </div>
+                        <!--FIN TODO-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="cargo" style="display: block; margin-bottom: 0.3rem;">Cargo</label>
@@ -134,7 +156,7 @@
                                 <select id="tipoUsuario" v-model="newUser.id_tipo_usuario" class="pure-input-1">
                                     <option value="" disabled selected>Seleccione Tipo</option>
                                     <option v-for="item in tiposUsuario" :key="item.id_tipo_usuario"
-                                        :value="item.id_tipo_usuario">
+                                            :value="item.id_tipo_usuario">
                                         {{ item.tipo_usuario }}
                                     </option>
                                 </select>
@@ -183,53 +205,90 @@
                             </div>
                         </div>
                     </div>
-                    <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
+                    <!--TODO ENVIAR DATOS-->
+                    <!--Hacer el proceso automático o seleccionar al enviar impresora, email, ...-->                    
+                    <!--Incluirlo en Edición de usuario-->
+                    <!--Hace falta un email alterno para enviar datos-->
+                    <!--Agregar opción de autogestión-->
+                    <div class="pure-u-1-1 pure-u-md-1-4" style="text-align:left;padding-top: 2em;">
+                        <button @click="insNewUser()">Enviar Datos</button>
+                    </div>
+
+                    <!--FIN TODO-->
+                    <div class="pure-u-1-1 pure-u-md-3-4" style="text-align:right;padding-top: 2em;">
                         <button @click="insNewUser()">Crear Usuario</button>
                     </div>
                 </div>
-                <div class="pure-u-1-24"></div>
             </div>
+            <div class="pure-u-1-24"></div>
             <!--EDICIÓN DE USUARIO-->
             <div v-if="mode == 2" style="padding-top: 1em">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
                     <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-1-1">
+                        <div class="pure-u-1-1 pure-u-md-1-2">
                             <h2>Editar Usuario</h2>
                         </div>
+                        <div class="pure-u-2-1 pure-u-md-1-2" style="text-align: right;">
+                            <div class="formInputStandard" style="display: flex; align-items: center; justify-content: flex-end;">
+                                <div style="margin-right: 10px;">
+                                    {{ Number(editUser.is_active) === 0 ? 'Usuario Inactivo' : 'Usuario Activo' }}
+                                </div>
+                                <div class="toggle-switch">
+                                    <input id="toggle" type="checkbox" :checked="Number(editUser.is_active) !== 1" @click="toggleUserActive"
+                                        class="toggle-input">
+                                    <label class="toggle-label" for="toggle"></label>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="editUsuario" style="display: block; margin-bottom: 0.3rem;">ID Usuario</label>
-                                <input id="editUsuario" type="text" v-model="editUser.usuario" placeholder="Usuario"
-                                    class="pure-input-1" />
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editUsuario" type="text" v-model="editUser.usuario" placeholder="Usuario"
+                                       class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-3-4'>
                             <div class='formInputStandard'>
-                                <label for="editNombres" style="display: block; margin-bottom: 0.3rem;">Nombres y
-                                    Apellidos</label>
-                                <input id="editNombres" type="text" v-model="editUser.nombres" placeholder="Nombres"
-                                    class="pure-input-1" />
+                                <label for="editNombres" style="display: block; margin-bottom: 0.3rem;">Nombres y Apellidos</label>
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editNombres" type="text" v-model="editUser.nombres" placeholder="Nombres"
+                                       class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="editCedula" style="display: block; margin-bottom: 0.3rem;">Número de Cédula</label>
-                                <input id="editCedula" type="text" v-model="editUser.identificacion"
-                                    placeholder="Identificación" class="pure-input-1" />
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editCedula" type="text" v-model="editUser.identificacion"
+                                       placeholder="Identificación" class="pure-input-1" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="editEmail" style="display: block; margin-bottom: 0.3rem;">Email</label>
-                                <input id="editEmail" type="email" v-model="editUser.email" placeholder="Correo electrónico"
-                                    class="pure-input-1" />
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editEmail" type="email" v-model="editUser.email" placeholder="Correo electrónico"
+                                       class="pure-input-1" />
                             </div>
                         </div>
+                        <!--TODO CONTRASEÑA-->
+                        <div class='pure-u-1-1 pure-u-md-1-4' >
+                            <div class='formInputStandard'>
+                                <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="contraseña" type="text" v-model="newUser.contraseña" placeholder="Contraseña"
+                                       class="pure-input-1" />
+                            </div>
+                        </div>
+                        <div class='pure-u-2-1 pure-u-md-4-6'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button v-if="isusaurioEdit" @click="asignarRol">Proponer Contraseña</button>
+                            </div>
+                        </div>
+                        <!--FIN TODO-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="editCargo" style="display: block; margin-bottom: 0.3rem;">Cargo</label>
-                                <select id="editCargo" v-model="editUser.id_cargo" class="pure-input-1">
+                                <select :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editCargo" v-model="editUser.id_cargo" class="pure-input-1">
                                     <option value="" disabled selected>Seleccione Cargo</option>
                                     <option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo">
                                         {{ item.cargo }}
@@ -239,12 +298,11 @@
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
-                                <label for="editTipoUsuario" style="display: block; margin-bottom: 0.3rem;">Tipo de
-                                    Usuario</label>
-                                <select id="editTipoUsuario" v-model="editUser.id_tipo_usuario" class="pure-input-1">
+                                <label for="editTipoUsuario" style="display: block; margin-bottom: 0.3rem;">Tipo de Usuario</label>
+                                <select :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editTipoUsuario" v-model="editUser.id_tipo_usuario" class="pure-input-1">
                                     <option value="" disabled selected>Seleccione Tipo</option>
                                     <option v-for="item in tiposUsuario" :key="item.id_tipo_usuario"
-                                        :value="item.id_tipo_usuario">
+                                            :value="item.id_tipo_usuario">
                                         {{ item.tipo_usuario }}
                                     </option>
                                 </select>
@@ -253,7 +311,7 @@
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <label for="rol" style="display: block; margin-bottom: 0.3rem;">Seleccionar Rol</label>
-                                <select id="rol" v-model="selectedRolId" class="pure-input-1">
+                                <select :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="rol" v-model="selectedRolId" class="pure-input-1">
                                     <option disabled value="">Seleccione un rol</option>
                                     <option v-for="item in roleList" :key="item.id_rol" :value="item.id_rol">
                                         {{ item.rol }}
@@ -261,29 +319,16 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='pure-u-2-1 pure-u-md-1-6'>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button @click="asignarRol">Asignar Rol</button>
-                            </div>
-                        </div>
-                        <div class="pure-u-2-1 pure-u-md-1-6">
-                            <div class="formInputStandard">
-                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button :class="editUser.is_active == 0 ? 'btn-inactivo' : null" @click="toggleUserActive">
-                                    {{ Number(editUser.is_active) === 0 ? 'Activar' : 'Desactivar' }}
-                                </button>
-                            </div>
-                        </div>
-                        <div class='pure-u-2-1 pure-u-md-1-6'>
-                            <div class='formInputStandard'>
-                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button @click="startNewException">Permisos temporales</button>
+                                <button v-if="isusaurioEdit" @click="asignarRol">Asignar Rol</button>
                             </div>
                         </div>
                         <div class="pure-u-1-1">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;"> <b>Roles
-                                    Asigandos al Usuario</b></div>
+                            <div style="display: block; margin-top: 0.7rem; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;">
+                                <b>Roles Asigandos al Usuario</b>
+                            </div>
                             <div style="height: 30vh; overflow-y: auto;">
                                 <table class="dataTable">
                                     <thead>
@@ -293,11 +338,11 @@
                                             <th class="col-eliminar">Eliminar Asignación</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody v-if="isusaurioEdit">
                                         <tr v-for="(rol, index) in rolesAsignados" :key="rol.id_rol">
                                             <td>{{ rol.rol }}</td>
                                             <td>{{ rol.descripcion || 'Sin descripción' }}</td>
-                                            <td style="text-align: center;">
+                                            <td style="text-align: center">
                                                 <span class="delete" @click.stop="eliminarRol(rol)">✖</span>
                                             </td>
                                         </tr>
@@ -306,12 +351,31 @@
                             </div>
                         </div>
                     </div>
-                    <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
-                        <button @click="updateUser()">Actualizar</button>
+                    <!--TODO ACTIVAR / DESACTIVAR, PERMISOS TEMPORALES-->
+                    <!-- <div class="pure-u-1-1 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button :class="editUser.is_active == 0 ? 'btn-inactivo' : null" @click="toggleUserActive">
+                                {{ Number(editUser.is_active) === 0 ? 'Activar Usuario' : 'Desactivar Usuario' }}
+                            </button>
+                        </div>
+                    </div> -->
+                    <div class="pure-u-1-1 pure-u-md-1-3">
+                        <div class='formInputStandard'>
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-if="isusaurioEdit" @click="startNewException">Asignar Permisos Temporales</button>
+                        </div>
                     </div>
+                    <div class="pure-u-1-1 pure-u-md-1-3"></div>
+                    <div class="pure-u-1-1 pure-u-md-1-3" style="text-align:right;padding-top: 2em;">
+                        <div class='formInputStandard'>
+                            <button @click="updateUser()">Actualizar Usuario</button>
+                        </div>
+                    </div>
+                    <!--FIN TODO-->
+                    </div>
+                    <div class="pure-u-1-24"></div>
                 </div>
-                <div class="pure-u-1-24"></div>
-            </div>
             <!--PERMISOS TEMPORALES-->
             <div v-if="mode == 3" style="padding-top: 1em">
                 <div class="pure-u-1-24"></div>

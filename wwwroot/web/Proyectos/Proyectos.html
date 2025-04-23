@@ -1,21 +1,21 @@
 ﻿<div class="pure-g">
     <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
         <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.75rem;">
-            {{ ruta }}
+            <!-- {{ ruta }} -->
         </div>
         <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
             <img src="./img/ico/svg/user.svg" />
-            Editar Proyectos
+            Lista de Proyectos
         </div>
         <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
             <img src="./img/ico/svg/user.svg" />
-            Menú de Proyectos
+            Rotafolio de Proyectos
         </div>
     </div>
     <div class="pure-u-1-1 pure-u-md-4-5">
         <!--PROYECTOS-->
         <div v-if="mainmode == 1">
-            <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="mode = 0">Proyectos</span>
                 <span v-if="mode == 1">  /  Nuevo</span>
                 <span v-if="mode == 2">  /  Edición</span>
@@ -24,6 +24,9 @@
             <div v-if="mode == 0" style="padding: 1em">
                 <h2>Proyectos</h2>
                 <div class="searchBox">
+                    <!--TODO-->
+                    <!--Hacer igual que usuarios agregando los filtros-->
+                    <!--Falta incluir Loo, Slide y Planta general Termómetro-->
                     <div class="pure-g">
                         <div class="pure-u-1-1 pure-u-md-18-24">
                             <input type="text" placeholder="o Nombre" />
@@ -60,30 +63,39 @@
                 </div>
             </div>
             <!--NUEVO PROYECTO-->
-            <div v-if="mode == 1" class="pure-g">
+            <div v-if="mode == 1" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24" style="padding: 0.2rem 0rem;">
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-1-6"><div class="wizarTab noSelect" v-on:click="submode = 0" v-bind:class="{wizarTabActive: submode == 0, wizarTabError: submode != 0}">Datos generales</div></div>
-                        <div class="pure-u-1-1 pure-u-md-1-6"><div class="wizarTab noSelect" v-on:click="submode = 1" v-bind:class="{wizarTabActive: submode == 1, wizarTabError: submode != 1}">VIS y financiación</div></div>
-                        <div class="pure-u-1-1 pure-u-md-1-6"><div class="wizarTab noSelect" v-on:click="submode = 2" v-bind:class="{wizarTabActive: submode == 2, wizarTabError: submode != 2}">Datos de pago</div></div>
-                        <div class="pure-u-1-1 pure-u-md-1-6"><div class="wizarTab noSelect" v-on:click="submode = 3" v-bind:class="{wizarTabActive: submode == 3, wizarTabError: submode != 3}">C. de costos y fiduciaria</div></div>
-                        <div class="pure-u-1-1 pure-u-md-1-6"><div class="wizarTab noSelect" v-on:click="submode = 4" v-bind:class="{wizarTabActive: submode == 4, wizarTabError: submode != 4}">Información adicional</div></div>
-                        <div class="pure-u-1-1 pure-u-md-1-6"><div class="wizarTab noSelect" v-on:click="submode = 5" v-bind:class="{wizarTabActive: submode == 5, wizarTabError: submode != 5}">Enlaces</div></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <div class="pure-g steps">
+                        <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-6">
+                            <div class="wizarTab noSelect" :class="{
+                                wizarTabActive: submode === index,
+                                wizarTabCompleted: submode !== index && !tabsIncomplete.includes(index),
+                                wizarTabIncomplete: submode !== index && tabsIncomplete.includes(index)}" 
+                                @click="setSubmode(index)">
+                                {{ tab }}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
                     <!--Datos generales-->
-                    <div class="pure-g" v-show="submode == 0">
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
+                    <div class="pure-g" v-show="submode == 0 ">
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                             Datos generales
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1'>
+                        <div class='pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard'>
                                 <span>Nombre</span>
                                 <input type='text' v-model='objProyecto.nombre' maxlen='100' />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                            <div class='formInputStandard'>
+                                <span>Dirección del Proyecto</span>
+                                <input type='text' v-model='objProyecto.direccion' maxlen='100' />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
@@ -100,9 +112,9 @@
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>Zona</span>
-                                <select v-model='objProyecto.NA'>
+                                <select v-model='objProyecto.zona'>
                                     <option value='' disabled selected>Seleccione</option>
-                                    <option v-for='item in []' v-bind:value='item.NA'>
+                                    <option v-for='item in []' v-bind:value='item.zona'>
                                         {{ item.NA }}
                                     </option>
                                 </select>
@@ -130,51 +142,142 @@
                                 </select>
                             </div>
                         </div>
+
                         <div class='pure-u-1-1 pure-u-md-1-1'>
                             <div class='formInputStandard'>
-                                <span>Estados Proyecto</span>
+                                <span>Información adicional / Otros / Zonas Comunes</span>
+                                <textarea type='text' v-model='objProyecto.otra_info' style="height:5rem"></textarea>
+                            </div>
+                        </div>
+
+                        <!--Logo, Slide y Planta Gral-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1em; margin-bottom:0.5em">
+                            Archivos
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4' style="padding-left:0.5em">
+                            <label>Logo (< 2Mb)</label>
+                            <input class='pure-u-1-1 pure-u-md-1-1' type="file" accept=".png,.jpg,.jpeg" 
+                                   style="border-style:solid; border-width:1px; border-color: lightgray;"/>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4' style="padding-left:0.5em">
+                            <label>Slide 1 (< 2Mb)</label>
+                            <input class='pure-u-1-1 pure-u-md-1-1' type="file" accept=".png,.jpg,.jpeg"
+                                   style="border-style:solid; border-width:1px; border-color: lightgray;"/>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4' style="padding-left:0.5em">
+                            <label>Planta General Termómetro (< 2Mb)</label>
+                            <input class='pure-u-1-1 pure-u-md-1-1' type="file" accept=".png,.jpg,.jpeg"
+                                   style="border-style:solid; border-width:1px; border-color: lightgray;"/>
+                        </div>
+
+                        <!--Estado del Proyecto-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Estado del Proyecto
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-1'>
+                            <div class='formInputStandard'>
                                 <div class='pure-g'>
                                     <div v-for='item in estadosPublicacion' class='pure-u-1-4'>
-                                        <label>
+                                        <label class="check">
                                             <input type='checkbox' value='1' v-model='item.checked' />
+                                            <span class="checkmark"></span>
                                             {{item.estado_publicacion}}
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <div class='pure-u-1-1 pure-u-md-1-1'> </div>
                     </div>
                     <!--VIS y financiación-->
                     <div class="pure-g" v-show="submode == 1">
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                             VIS y financiación
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Tipología VIS
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-1'>
                             <div class='formInputStandard'>
-                                <span>Tipos VIS</span>
                                 <div class='pure-g'>
-                                    <div v-for='item in tiposVIS' class='pure-u-1-4'>
-                                        <label>
+                                    <div v-for='item in tiposVIS' class='pure-u-1-6'>
+                                        <label class="check">
                                             <input type='checkbox' value='1' v-model='item.checked' />
+                                            <span class="checkmark"></span>
                                             {{item.tipo_vis}}
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1'>
+                        <!--TODO Excluir Torre Tipo-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Unidades (Torre/Tipo;) a excluir de subsidios VIS
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
-                                <span>Omite tipologías esp. Subsidios VIS</span>
-                                <input type='text' v-model='objProyecto.subsidios_vis' maxlen='100' />
+                                <select id="torre" class="pure-input-1">
+                                    <option value="" disabled selected>Torre</option>
+                                    <!--<option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo"> {{ item.cargo }} </option>-->
+                                </select>
                             </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <select id="tipo" class="pure-input-1">
+                                    <option value="" disabled selected>Tipo</option>
+                                    <!--<option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo"> {{ item.cargo }} </option>-->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-6">
+                            <button style="margin-top: 0.4rem;" v-on:click="mode = 1">Agregar</button>
+                        </div>
+                        <div class='pure-u-3-4 pure-u-md-12-24'>
+                            <input style="margin-top: 0.4rem;" type='text' v-model='objProyecto.subsidios_vis' maxlen='100' />
+                        </div>
+                        <!--Fin TODO-->
+                        <!--TODO Acabados y reformas-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Acabados y reformas
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <div class='pure-g'>
+                                    <div class='pure-u-1-2'>
+                                        <label class="check">
+                                            <input type='checkbox' value='0' v-model='objProyecto.acabados' name='acabados' />
+                                            <span class="checkmark"></span>
+                                            Acabados
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <div class='pure-g'>
+                                    <div class='pure-u-1-2'>
+                                        <label class="check">
+                                            <input type='checkbox' value='0' v-model='objProyecto.reformas' name='reformas' />
+                                            <span class="checkmark"></span>
+                                            Reformas
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Fin TODO-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Tipos de financiación
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-1'>
                             <div class='formInputStandard'>
-                                <span>Tipos de financiación</span>
                                 <div class='pure-g'>
-                                    <div v-for='item in tiposFinanciacion' class='pure-u-1-4'>
-                                        <label>
+                                    <div v-for='item in tiposFinanciacion' class='pure-u-1-6'>
+                                        <label class="check">
                                             <input type='checkbox' value='1' v-model='item.checked' />
+                                            <span class="checkmark"></span>
                                             {{item.tipo_financiacion}}
                                         </label>
                                     </div>
@@ -184,8 +287,12 @@
                     </div>
                     <!--Datos de pago-->
                     <div class="pure-g" v-show="submode == 2">
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
-                            Datos de pago
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                            Información para Pagos y Cotizaciones
+                        </div>
+                        <!--Fechas límite-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Días límite para el pago
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
@@ -199,69 +306,63 @@
                                 <input type='number' v-model='objProyecto.dias_cierre_sala' maxlen='100' />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
                             <div class='formInputStandard'>
-                                <span>Máximo meses CI</span>
+                                <span>Máximo meses para pago Cuota Inicial</span>
                                 <input type='number' v-model='objProyecto.meses_ci' maxlen='100' />
                             </div>
                         </div>
+                        <!--Datos Sala: Coordinación y cotizaciones-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Coordinación de Sala de Ventas
+                        </div>
+                        <!--TODO Cambiar email de coordinado de sala por coordinador de sala-->
+                        <!--<div class='pure-u-1-1 pure-u-md-1-4'>
+                                    <div class='formInputStandard'>
+                                        <span>E-mail coordiandor de Sala</span>
+                                        <input type='email' v-model='objProyecto.email_coordinador_sala' maxlen='100' />
+                                    </div>
+                                </div>-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
-                                <span>Meta Ventas Unidades / Mes</span>
+                                <label for="coordinacion" style="display: block; margin-bottom: 0.3rem;">Coordinación</label>
+                                <select id="coordinacion" class="pure-input-1">
+                                    <option value="" disabled selected>Seleccione Coordinacion</option>
+                                    <!--<option v-for="item in usuarios" :key="item.id_cargo" :value="item.id_cargo">{{ item.cargo }}</option>-->
+                                </select>
+                            </div>
+                        </div>
+                        <!--Fin TODO-->
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <span>Meta VentasUnidades / Mes</span>
                                 <input type='number' v-model='objProyecto.meta_ventas' maxlen='100' />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span title="Días antes de la fecha de Pago CI BankAmig">Días pago Banco Amigo</span>
-                                <input type='number' v-model='objProyecto.dias_pago_ci_banco_amigo' maxlen='100' />
-                            </div>
+                        <!--<div class='pure-u-1-1 pure-u-md-1-4'>
+                                    <div class='formInputStandard'>
+                                        <span title="Días antes de la fecha de Pago CI BankAmig">Días pago Banco Amigo</span>
+                                        <input type='number' v-model='objProyecto.dias_pago_ci_banco_amigo' maxlen='100' />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-4'>
+                                    <div class='formInputStandard'>
+                                        <span title="Días antes de la fecha de Pago CI BankNoAmig">Días pago Banco no Amigo</span>
+                                        <input type='number' v-model='objProyecto.dias_pago_ci_banco_no_amigo' maxlen='100' />
+                                    </div>
+                                </div>-->
+                        <!--Datos Cotizaciones-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Cotizaciones
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
-                                <span title="Días antes de la fecha de Pago CI BankNoAmig">Días pago Banco no Amigo</span>
-                                <input type='number' v-model='objProyecto.dias_pago_ci_banco_no_amigo' maxlen='100' />
-                            </div>
-                        </div>
-
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>E-mail cotizaciones y opciones</span>
+                                <span>E-mail para cotizaciones y opciones</span>
                                 <input type='email' v-model='objProyecto.email_cotizaciones' maxlen='100' />
                             </div>
                         </div>
+                        <!--TODO incluir opción sibn pie legal-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>E-mail coordiandor de Sala</span>
-                                <input type='email' v-model='objProyecto.email_coordinador_sala' maxlen='100' />
-                            </div>
-                        </div>
-                    </div>
-                    <!--C. de costos y fiduciaria-->
-                    <div class="pure-g" v-show="submode == 3">
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
-                            Centro de costos y fiduciaria
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1'>
-                            <div class='formInputStandard'>
-                                <span>Opciones visuales</span>
-                                <div class='pure-g'>
-                                    <div v-for='item in opcionesVisuales' class='pure-u-1-2'>
-                                        <label>
-                                            <input type='checkbox' value='1' v-model='item.checked' />
-                                            {{item.opcion_visual}}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
-                            <div class='formInputStandard'>
-                                <span>Centro Costos</span>
-                                <input type='text' v-model='objProyecto.centro_costos' maxlen='100' />
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard'>
                                 <span>Pie Legal Cotizaciones</span>
                                 <select v-model='objProyecto.id_pie_legal'>
@@ -272,323 +373,370 @@
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <!--C. de costos y fiduciaria-->
+                    <div class="pure-g" v-show="submode == 3">
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                            Centro de costos y fiduciaria
+                        </div>
                         <div class='pure-u-1-1 pure-u-md-1-1'>
+                            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                                Centro de costos y fiduciaria
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-2'>
+                                <div class='formInputStandard'>
+                                    <span>Centro Costos</span>
+                                    <input type='text' v-model='objProyecto.centro_costos' maxlen='100' />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-2'>
+                                <div class='formInputStandard'>
+                                    <span>Fiduciaria</span>
+                                    <select v-model='objProyecto.id_fiduciaria'>
+                                        <option value='' disabled selected>Seleccione</option>
+                                        <option v-for='item in []' v-bind:value='item.id_fiduciaria'>
+                                            {{ item.fiduciaria }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                                Opciones visuales
+                            </div>
                             <div class='formInputStandard'>
-                                <span>Fiduciaria</span>
-                                <select v-model='objProyecto.id_fiduciaria'>
-                                    <option value='' disabled selected>Seleccione</option>
-                                    <option v-for='item in []' v-bind:value='item.id_fiduciaria'>
-                                        {{ item.fiduciaria }}
-                                    </option>
-                                </select>
+                                <div class='pure-g'>
+                                    <div v-for='item in opcionesVisuales' class='pure-u-1-2'>
+                                        <label class="check">
+                                            <input type='checkbox' value='1' v-model='item.checked' />
+                                            <span class="checkmark"></span>
+                                            {{item.opcion_visual}}
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <!--Información adicional-->
                     <div class="pure-g" v-show="submode == 4">
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                             Información adicional
                         </div>
-
-                        <div class='pure-u-1-1 pure-u-md-1-1'>
-                            <div class='formInputStandard'>
-                                <span>Dirección</span>
-                                <input type='text' v-model='objProyecto.direccion' maxlen='100' />
-                            </div>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Lanzamiento del Proyecto
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
-                                <span>Lanzamiento</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.lanzamiento' name='lanzamiento' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.lanzamiento' name='lanzamiento' />No
-                                        </label>
+                                <span>Es Lanzamiento</span>
+                                <div class='pure-g switch'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.lanzamiento) === 0}">
+                                            <input id="lanzamiento-toggle" type="checkbox" :checked="Number(objProyecto.lanzamiento) === 1"
+                                                @click="objProyecto.lanzamiento = Number(objProyecto.lanzamiento) === 0 ? 1 : 0" class="toggle-input">
+                                            <label class="toggle-label" for="lanzamiento-toggle"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='pure-u-1-1 pure-u-md-1-5'>
                             <div class='formInputStandard'>
-                                <span>Ciudad Lanzamiento</span>
+                                <span>Ciudad de Lanzamiento</span>
                                 <input type='text' v-model='objProyecto.ciudad_lanzamiento' maxlen='100' />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
                                 <span>Fecha Lanzamiento</span>
                                 <input type='date' v-model='objProyecto.fecha_lanzamiento' maxlen='100' />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
-                                <span>Coordenadas geográficas</span>
+                                <span>Coord. geográficas</span>
                                 <input type='text' v-model='objProyecto.latitud' maxlen='100' />
                             </div>
                         </div>
+                        <!--Lanzamiento VIP-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Lanzamiento VIP
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-1'>
+                            <label>Bloquear libres al alcanzar X opciones (BOG por torre, MED por Torre/Tipo)</label>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6' style="margin-top: 0.2em">
+                            <div class='formInputStandard'>
+                                <div class='pure-g switch'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.bloqueo_libres) === 0}">
+                                            <input id="bloqueo_libres-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.bloqueo_libres) === 1"
+                                                @click="objProyecto.bloqueo_libres = Number(objProyecto.bloqueo_libres) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="bloqueo_libres-toggle"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
+                            Límite Unds opcionadas
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard positTex'>
+                                <input type='number' v-model='objProyecto.inmuebles_opcionados' maxlen='100' />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
+                            Tipos excluidos
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard positTex'>
+                                <input type='text' v-model='objProyecto.tipos_excluidos' maxlen='100' />
+                            </div>
+                        </div>
+                        <!--Waze, Whatsapp y Otros-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Waze, Whatsapp y Otros
+                        </div>
                         <div class='pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard'>
-                                <span>Link Waze</span>
+                                <span>Link a la ruta con navegador Waze</span>
                                 <input type='text' v-model='objProyecto.link_waze' maxlen='100' />
                             </div>
                         </div>
-                        <!--<div class='pure-u-1-1 pure-u-md-1-1'>
-                <div class='formInputStandard'>
-                    <span>Emails para reporte de atención / CRM</span>
-                    <span>???multiadd</span>
-                </div>
-            </div>-->
                         <div class='pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard'>
-                                <span>Línea Whatsapp</span>
+                                <span>Línea de contacto de Whatsapp</span>
                                 <input type='tel' v-model='objProyecto.linea_whatsapp' maxlen='100' />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1'>
-                            <div class='formInputStandard'>
-                                <span>Otra info / Zonas Comunes</span>
-                                <textarea type='text' v-model='objProyecto.otra_info' style="height:5rem"></textarea>
-                            </div>
+                        <!--Email receptores-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Emails receptores
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>E-mail receptor 1</span>
-                                <input type='email' maxlen='100' />
+                                <input type='email' v-model='objProyecto.email_receptor_1' maxlen='100' />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>E-mail receptor 2</span>
-                                <input type='email' maxlen='100' />
+                                <input type='email' v-model='objProyecto.email_receptor_2' maxlen='100' />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>E-mail receptor 3</span>
-                                <input type='email' maxlen='100' />
+                                <input type='email' v-model='objProyecto.email_receptor_3' maxlen='100' />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <span>E-mail receptor 4</span>
-                                <input type='email' maxlen='100' />
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
-                            Lanzamiento VIP
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Bloquear LIBRES</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.bloqueo_libres' name='bloqueo_libres' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.bloqueo_libres' name='bloqueo_libres' />No
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Inmuebles opcionados</span>
-                                <input type='number' v-model='objProyecto.inmuebles_opcionados' maxlen='100' />
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
-                            <div class='formInputStandard'>
-                                <span>Tipos excluidos</span>
-                                <input type='text' v-model='objProyecto.tipos_excluidos' maxlen='100' />
+                                <input type='email' v-model='objProyecto.email_receptor_4' maxlen='100' />
                             </div>
                         </div>
                     </div>
+                    <!--Enlaces-->
                     <div class="pure-g" v-show="submode == 5">
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                             Enlaces
                         </div>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Links de Inventario
+                        </div>
+                        <!--Link General de inventario-->
                         <div class='pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard'>
                                 <span>Link General de inventario</span>
                                 <input type='text' v-model='objProyecto.link_general_onelink' maxlen='100' />
                             </div>
                         </div>
+                        <!--Link específico de inventario-->
                         <div class='pure-u-1-1 pure-u-md-1-2'>
                             <div class='formInputStandard'>
                                 <span>Link específico de inventario</span>
                                 <input type='text' v-model='objProyecto.link_especifico_onelink' maxlen='100' />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Seguimiento Leads</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.frame_seguimiento_visible' name='frame_seguimiento_visible' />Sí
-                                        </label>
+
+                        <!--Links de especificaciones y Cartilla Negocios-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Link Especificaciones Técnicas y Cartilla de Negocio
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-1'>
+                            <!--Links de especificaciones-->
+                            <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+                                <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                                    <span>Incluir</span>
+                                    <div class='pure-g switch-box'>
+                                        <div class='pure-u-1-1'>
+                                            <div class="toggle-switch"
+                                                :class="{'inactive': Number(objProyecto.incluir_especificaciones_tecnicias) === 0}">
+                                                <input id="incluir_especificaciones_tecnicias-toggle" type="checkbox"
+                                                    :checked="Number(objProyecto.incluir_especificaciones_tecnicias) === 1"
+                                                    @click="objProyecto.incluir_especificaciones_tecnicias = Number(objProyecto.incluir_especificaciones_tecnicias) === 0 ? 1 : 0"
+                                                    class="toggle-input">
+                                                <label class="toggle-label" for="incluir_especificaciones_tecnicias-toggle"></label>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.frame_seguimiento_visible' name='frame_seguimiento_visible' />No
-                                        </label>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-5-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Link a especificaciones Técnicas PDF web</span>
+                                        <input type='text' v-model='objProyecto.link_especificaciones_tecnicias' maxlen='100' />
+                                    </div>
+                                </div>
+                            </div>
+                            <!--Links de Cartilla Negocios-->
+                            <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+                                <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                                    <span>Cotización</span>
+                                    <div class="pure-g switch-box">
+                                        <div class='pure-u-1-1'>
+                                            <div class="toggle-switch"
+                                                :class="{'inactive': Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 0}">
+                                                <input id="incluir_cotizacion-toggle" type="checkbox"
+                                                    :checked="Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 1"
+                                                    @click="objProyecto.incluir_cartilla_negocios_cotizacion = Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 0 ? 1 : 0"
+                                                    class="toggle-input">
+                                                <label class="toggle-label" for="incluir_cotizacion-toggle"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                                    <span>Opción</span>
+                                    <div class='pure-g switch-box'>
+                                        <div class='pure-u-1-1'>
+                                            <div class="toggle-switch"
+                                                :class="{'inactive': Number(objProyecto.incluir_cartilla_negocios_opcion) === 0}">
+                                                <input id="incluir_opcion-toggle" type="checkbox"
+                                                    :checked="Number(objProyecto.incluir_cartilla_negocios_opcion) === 1"
+                                                    @click="objProyecto.incluir_cartilla_negocios_opcion = Number(objProyecto.incluir_cartilla_negocios_opcion) === 0 ? 1 : 0"
+                                                    class="toggle-input">
+                                                <label class="toggle-label" for="incluir_opcion-toggle"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-2-3'>
+                                    <div class='formInputStandard'>
+                                        <span>Link a Cartilla de Negocios Fiduciarios</span>
+                                        <input type='text' v-model='objProyecto.link_cartilla_negocios' maxlen='100' 
+                                               title="Link a Cartilla de Negocios Fiduciarios en emails de cotización y Opción" />
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-3-4'>
-                            <div class='formInputStandard'>
-                                <span>Link iFrame</span>
-                                <input type='text' v-model='objProyecto.link_seguimiento_leads' maxlen='100' />
-                            </div>
+                        <!--Otros Links-->
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                            Otros Links
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Evaluación de Conocimientos</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.frame_evaluacion_conocimiento' name='frame_evaluacion_conocimiento' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.frame_evaluacion_conocimiento' name='frame_evaluacion_conocimiento' />No
-                                        </label>
+                        <!--Seguimiento Leads-->
+                        <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+                            <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                                <span>Leads</span>
+                                <div class='pure-g switch-box'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.frame_seguimiento_visible) === 0}">
+                                            <input id="seguimiento_leads-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.frame_seguimiento_visible) === 1"
+                                                @click="objProyecto.frame_seguimiento_visible = Number(objProyecto.frame_seguimiento_visible) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="seguimiento_leads-toggle"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-3-4'>
-                            <div class='formInputStandard'>
-                                <span>Link iFrame</span>
-                                <input type='text' v-model='objProyecto.link_evaluacion_conocimiento' maxlen='100' />
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Avance externo obra</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.avance_obra_visible' name='avance_obra_visible' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.avance_obra_visible' name='avance_obra_visible' />No
-                                        </label>
-                                    </div>
+                            <div class='pure-u-1-1 pure-u-md-5-6'>
+                                <div class='formInputStandard'>
+                                    <span>Link a Leads de iFrame</span>
+                                    <input type='text' v-model='objProyecto.link_seguimiento_leads' maxlen='100' />
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-3-4'>
-                            <div class='formInputStandard'>
-                                <span>Link externo</span>
-                                <input type='text' v-model='objProyecto.link_avance_obra' maxlen='100' />
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Incluir brochure PDF</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.incluir_brochure' name='incluir_brochure' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.incluir_brochure' name='incluir_brochure' />No
-                                        </label>
+                        <!--Evaluación de Conocimientos-->
+                        <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+                            <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                                <span>Evaluación</span>
+                                <div class='pure-g switch-box'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch"
+                                            :class="{'inactive': Number(objProyecto.frame_evaluacion_conocimiento) === 0}">
+                                            <input id="evaluacion_conocimientos-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.frame_evaluacion_conocimiento) === 1"
+                                                @click="objProyecto.frame_evaluacion_conocimiento = Number(objProyecto.frame_evaluacion_conocimiento) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="evaluacion_conocimientos-toggle"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-3-4'>
-                            <div class='formInputStandard'>
-                                <span>Link brochure PDF web</span>
-                                <input type='text' v-model='objProyecto.link_brochure' maxlen='100' />
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Incluir Link especificaciones</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.incluir_especificaciones_tecnicias' name='incluir_especificaciones_tecnicias' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.incluir_especificaciones_tecnicias' name='incluir_especificaciones_tecnicias' />No
-                                        </label>
-                                    </div>
+                            <div class='pure-u-1-1 pure-u-md-5-6'>
+                                <div class='formInputStandard'>
+                                    <span>Link acceso a evaluación de conocimientos</span>
+                                    <input type='text' v-model='objProyecto.link_evaluacion_conocimiento' maxlen='100' />
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-3-4'>
-                            <div class='formInputStandard'>
-                                <span>Link especificaciones PDF web</span>
-                                <input type='text' v-model='objProyecto.link_especificaciones_tecnicias' maxlen='100' />
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Incluir en Contización</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.incluir_cartilla_negocios_cotizacion' name='incluir_cartilla_negocios_cotizacion' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.incluir_cartilla_negocios_cotizacion' name='incluir_cartilla_negocios_cotizacion' />No
-                                        </label>
+                        <!--Avance externo obra-->
+                        <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+                            <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                                <span>Avance</span>
+                                <div class='pure-g switch-box'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.avance_obra_visible) === 0}">
+                                            <input id="avance_obra_visible-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.avance_obra_visible) === 1"
+                                                @click="objProyecto.avance_obra_visible = Number(objProyecto.avance_obra_visible) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="avance_obra_visible-toggle"></label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <span>Incluir en Opción</span>
-                                <div class='pure-g'>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='1' v-model='objProyecto.incluir_cartilla_negocios_opcion' name='incluir_cartilla_negocios_opcion' />Sí
-                                        </label>
-                                    </div>
-                                    <div class='pure-u-1-2'>
-                                        <label>
-                                            <input type='radio' value='0' v-model='objProyecto.incluir_cartilla_negocios_opcion' name='incluir_cartilla_negocios_opcion' />No
-                                        </label>
-                                    </div>
+                            <div class='pure-u-1-1 pure-u-md-5-6'>
+                                <div class='formInputStandard'>
+                                    <span>Link a avance externo de obra</span>
+                                    <input type='text' v-model='objProyecto.link_avance_obra' maxlen='100' />
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
-                            <div class='formInputStandard'>
-                                <span>Link contización PDF</span>
-                                <input type='text' v-model='objProyecto.link_cartilla_negocios' maxlen='100' />
+                        <!--Brochure PDF-->
+                        <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+                            <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                                <span>Brochure</span>
+                                <div class='pure-g switch-box'>
+                                    <div class='pure-u-1-1'>
+                                        <div class="toggle-switch" :class="{'inactive': Number(objProyecto.incluir_brochure) === 0}">
+                                            <input id="incluir_brochure-toggle" type="checkbox"
+                                                :checked="Number(objProyecto.incluir_brochure) === 1"
+                                                @click="objProyecto.incluir_brochure = Number(objProyecto.incluir_brochure) === 0 ? 1 : 0"
+                                                class="toggle-input">
+                                            <label class="toggle-label" for="incluir_brochure-toggle"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-5-6'>
+                                <div class='formInputStandard'>
+                                    <span>Link a brochure PDF web</span>
+                                    <input type='text' v-model='objProyecto.link_brochure' maxlen='100' />
+                                </div>
                             </div>
                         </div>
-                        <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
+                        <div class="pure-u-1-1" style="text-align:right;padding-top: 1em;">
                             <button>Guardar</button>
                         </div>
                     </div>
+                    <!-- <div class="pure-u-1-1" style="text-align:right;padding-top: 2em;">
+                        <button>Guardar</button>
+                    </div> -->
                 </div>
-                <div class="pure-u-1-24"></div>
             </div>
         </div>
     </div>

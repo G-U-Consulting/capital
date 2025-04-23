@@ -36,6 +36,8 @@
             fechaHasta: "",
             sedes: [],
             ruta: GlobalVariables.ruta,
+            isLocked: false,
+            isusaurioEdit: false,
         }
     }, 
     async mounted() {
@@ -154,7 +156,7 @@
           },
         async selectUser(item) {
             showProgress();
-        
+          
             var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Usuario", { "id_usuario": item["id_usuario"] });
             resp = resp.data;
         
@@ -181,7 +183,8 @@
             this.editUser["id_tipo_usuario"] = user["id_tipo_usuario"];
             this.editUser["roles"] = user["roles"];
             this.editUser["is_active"] = user["is_active"];
-        
+            
+            await this.toggleUserActive(false);
             hideProgress();
         },
         async loadAccess() {
@@ -233,8 +236,15 @@
             const itemEnLista = this.roleList.find(r => r.id_rol === rolEliminado.id_rol);
             if (itemEnLista) itemEnLista.selected = false;
         },
-        async toggleUserActive() {
-            this.editUser.is_active = Number(this.editUser.is_active) === 1 ? 0 : 1;
+        async toggleUserActive(item) {
+            if(item){
+                this.editUser.is_active = Number(this.editUser.is_active) === 1 ? 0 : 1;
+            }
+            this.isLocked = (Number(this.editUser.is_active) === 0);
+            this.isusaurioEdit = (Number(this.editUser.is_active) !== 0);
+        },
+        async exportExcel(){
+            const res = await httpFunc("/exportExcel/");
         }
     }
 }

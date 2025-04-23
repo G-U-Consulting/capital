@@ -18,3 +18,8 @@ select a.id_usuario, a.usuario
 from fact_usuarios a
     join fact_roles_usuarios b on a.id_usuario = b.id_usuario
 where b.id_rol = @id_rol;
+
+select b.id_sede, b.sede
+from fact_roles a
+join dim_sede b on a.id_sede = b.id_sede
+where id_rol = @id_rol;

@@ -196,9 +196,9 @@ export default {
         async fetchCarouselImages() {
             try {
                 showProgress();
-                let response = await axios.get("/img/carrusel");
-                if (response.data.images) {
-                    this.previews = await response.data.images;
+                let response = (await httpFunc("/generic/genericDS/Presentacion:Get_Presentacion", {})).data;
+                if (response[1]) {
+                    this.previews = response[1].map(x => `/img/carrusel/${x.a}`);
                 } else {
                     this.message = "❌ No se encontraron imágenes en el servidor.";
                 }
@@ -253,7 +253,6 @@ export default {
                     duracion: this.duracion,
                 });
                 const response = await httpFunc("/api/upload", formData);
-                await new Promise(resolve => setTimeout(resolve, 4000));
                 this.message = response.message;
                 await this.fetchCarouselImages();
                 hideProgress();
