@@ -38,7 +38,7 @@ namespace orca.Code.Api {
                             if (fileType == "csv")
                                 return await WebBDUt.ExecuteSpToCSV(sp, data, delimiter, true, false, null, connectionString);
                             else
-                                return WebBDUt.SetToFile(await WebBDUt.ExecuteSP<DataSet>(sp, data, connectionString), sp.ToLower().Contains("txt"));
+                                return WebBDUt.SetToFile(await WebBDUt.ExecuteLocalSQL<DataSet>(sp, data, connectionString), sp.ToLower().Contains("txt"));
 
                         } else if (op == "executeSP") {
                             return WebBDUt.setToJObject(await WebBDUt.ExecuteSP<DataSet>(sp, data, connectionString));

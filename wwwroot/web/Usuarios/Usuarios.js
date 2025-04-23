@@ -45,6 +45,7 @@
 
         this.inicializarFechas();
         await this.setMainMode(1);
+
         //this.startNewUser();
         //await this.setMainMode(2);
         //this.startNewRole();
@@ -119,6 +120,9 @@
         },
         async getUsuarios() {
             this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", this.filtro)).data;
+            var archivo = (await httpFunc("/generic/exportDataSP/Usuarios:Get_Usuarios", this.filtro)).data;
+            window.open("./docs/" + archivo, "_blank");
+            console.log(archivo);
         },
         async insNewUser() {
             // Se deben agregar validaciones previas a la inserción

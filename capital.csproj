@@ -29,4 +29,8 @@
 	  </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\web\docs\" />
+  </ItemGroup>
+
 </Project>
