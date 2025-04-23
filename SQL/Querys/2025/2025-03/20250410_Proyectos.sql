@@ -147,13 +147,14 @@ insert into dim_estado_pubicacion(estado_publicacion, codigo) values
 ('Vigente Certificación Edge', 'VED');
 
 insert into dim_tipo_vis(tipo_vis) values
+('No VIS'),
 ('VIS'),
 ('VIS de renovación'),
 ('Aplica subsidios VIS');
 
 insert into dim_tipo_financiacion(tipo_financiacion)values
-('Acabados'),
-('Reformas'),
+/*('Acabados'),
+('Reformas'),*/
 ('Aplica Crédito 40-60'),
 ('Aplica Crédito 50-50'),
 ('Aplica Crédito 20-80'),

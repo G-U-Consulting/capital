@@ -666,7 +666,7 @@ table thead th {
     min-height: 40px;
     transition: background 0.3s, color 0.3s, border 0.3s;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 1rem;
     margin-top: 0.5em;
 }
 
