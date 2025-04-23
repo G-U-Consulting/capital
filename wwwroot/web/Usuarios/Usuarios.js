@@ -122,9 +122,6 @@
         },
         async getUsuarios() {
             this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", this.filtro)).data;
-            var archivo = (await httpFunc("/generic/exportDataSP/Usuarios:Get_Usuarios", this.filtro)).data;
-            window.open("./docs/" + archivo, "_blank");
-            console.log(archivo);
         },
         async insNewUser() {
             // Se deben agregar validaciones previas a la inserción
@@ -244,7 +241,8 @@
             this.isusaurioEdit = (Number(this.editUser.is_active) !== 0);
         },
         async exportExcel(){
-            const res = await httpFunc("/exportExcel/");
+            var archivo = (await httpFunc("/generic/exportDataSP/Usuarios:Get_Usuarios", this.filtro)).data;
+            window.open("./docs/" + archivo, "_blank");
         }
     }
 }
