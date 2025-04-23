@@ -95,7 +95,7 @@
             tabsIncomplete: [],
             tabs: [
                 "Datos generales",
-                "VIS y financiación",
+                "Tipología y financiación",
                 "Pagos y Cotizaciones",
                 "C. de costos y fiduciaria",
                 "Información adicional",
