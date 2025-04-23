@@ -240,8 +240,11 @@
             this.isLocked = (Number(this.editUser.is_active) === 0);
             this.isusaurioEdit = (Number(this.editUser.is_active) !== 0);
         },
-        async exportExcel(){
+        async exportExcel() {
+            showProgress();
             var archivo = (await httpFunc("/generic/exportDataSP/Usuarios:Get_Usuarios", this.filtro)).data;
+            var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoUsuarios" })).data;
+            hideProgress();
             window.open("./docs/" + archivo, "_blank");
         }
     }

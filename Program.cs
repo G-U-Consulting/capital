@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using capital.Code.Util;
+using Newtonsoft.Json.Linq;
 using orca.Code.Api;
 using orca.Code.Auth;
 using orca.Code.Logger;
@@ -78,6 +79,24 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic");
+app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
+    string body = "";
+    try {
+        response.ContentType = "application/json";
+        using (var stream = new StreamReader(request.Body)) {
+            body = await stream.ReadToEndAsync();
+        }
+        string ret = "";
+        if(ut == "ExcelFormater")
+            ret = ExcelFormater.Format(JObject.Parse(body), rootPath);
+        return ret;
+    } catch (Exception ex) {
+        Logger.Log("util/" + ut + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+
+}).WithName("Util");
 
 /*****************************************************************************/
 /***************************** Autenticacion *********************************/
