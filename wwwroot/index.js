@@ -155,7 +155,6 @@ mainVue = {
 
             if(!GlobalVariables.ruta.includes(name)){
                 GlobalVariables.ruta = GlobalVariables.ruta + " / " + name;
-                console.log(GlobalVariables.ruta)
                 localStorage.setItem('ruta', GlobalVariables.ruta);
             }
         },
@@ -201,6 +200,7 @@ mainVue = {
             this.showMobileMenu = true;
             this.showModuleMenu = false;
             this.categories = item.categories;
+            this.showModuleMenu = true;
             GlobalVariables.ruta = item.name;
         },
         openCategory(item) {
@@ -270,8 +270,8 @@ function showConfirm(msg, okCallback, cancelCallback, event, textOk, textCancel)
             cancelCallback(event);
         document.getElementById("divConfirm").style.display = "none";
     };
-    confirm.innerText = textOk != null ? textOk : "Aceptar";
-    cancel.innerText = textCancel != null ? textCancel : "Cancelar";
+    confirm.innerText = textOk != null ? textOk : "SI";
+    cancel.innerText = textCancel != null ? textCancel : "NO";
     document.getElementById("btConfirmAccept").focus();
 
     return false;

@@ -8,10 +8,12 @@ set
     @identificacion = '1019054739',
     @nombres = 'Alejandro Salcedo Bernal',
     @email = 'alejandro.salcedo@serlefin.com',
-    @id_cargo = '1'
+    @id_cargo = '2',
     @id_tipo_usuario = '1',
     @roles = '2,5,',
+    @is_active = 0,
     @created_by = 'admon';
+    
 --END_PARAM
 update fact_usuarios set
     usuario = @usuario, 
@@ -19,7 +21,8 @@ update fact_usuarios set
     nombres = @nombres, 
     email = @email,
     id_cargo = @id_cargo,
-    id_tipo_usuario = @id_tipo_usuario
+    id_tipo_usuario = @id_tipo_usuario,
+    is_active = @is_active
 where id_usuario = @id_usuario;
 
 call fn_list(@roles, ',');

@@ -1,5 +1,5 @@
 ﻿-- =============================================
--- Proceso: Usuarios/Upd_Presentacion
+-- Proceso: Presentacion/Upd_Presentacion
 -- =============================================
 --START_PARAM
 set @duracion = "3";

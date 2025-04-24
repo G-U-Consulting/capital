@@ -3,28 +3,11 @@
         return {
             mainmode: 0,
             mode: 0,
-            seachRole: "",
-            seachUser: "",
-            roles: [],
-            cargos: [],
+            filtro: { id_sede: "", seachUser: "", id_cargo: "" },
             tiposUsuario: [],
+            selectedRolId: "",
+            rolesAsignados: [],
             accessList: [],
-            selectedAccess: null,
-            selectedAcces: null,
-            roleList: [],
-            newRole: {
-                "rol": "",
-                "permisos": "",
-                "descripcion": "",
-                "created_by": ""
-            },
-            editRole: {
-                "id_rol": "",
-                "rol": "",
-                "permisos": "",
-                "descripcion": "",
-                "created_by": ""
-            },
             users: [],
             newUser: {
                 "usuario": "",
@@ -45,41 +28,29 @@
                 "id_cargo": "",
                 "id_tipo_usuario": "",
                 "roles": "",
-                "created_by": ""
+                "created_by": "",
+                "is_active": 0
             },
             hoy: "",
             fechaDesde: "",
             fechaHasta: "",
-            ruta: GlobalVariables.ruta ,
+            sedes: [],
+            ruta: GlobalVariables.ruta,
+            isLocked: false,
+            isusaurioEdit: false,
         }
     }, 
     async mounted() {
+        var sedes = (await httpFunc("/generic/genericDT/General:Get_Sedes", {})).data;
+        sedes.forEach(item => item.checked = false);
+        this.sedes = sedes;
+
         this.inicializarFechas();
-        //await this.setMainMode(1);
+        await this.setMainMode(1);
+
         //this.startNewUser();
         //await this.setMainMode(2);
         //this.startNewRole();
-    },
-    computed: {
-
-        getArrowDirection() {
-            if (!this.selectedAccess) return '';
-
-            if (this.selectedAccess.item) {
-                console.log(this.selectedAccess.item.selected)
-                return this.selectedAccess.item.selected ? '←' : '→';
-            }
-            if (this.selectedAccess.group) {
-                console.log(this.selectedAccess.group.selected)
-                return this.selectedAccess.group.selected ? '←' : '→';
-            }
-            if (this.selectedAccess.zone) {
-                console.log(this.selectedAccess.zone.selected)
-                return this.selectedAccess.zone.selected ? '←' : '→';
-            }
-
-            return '→';
-        }
     },
     methods: {
         setRuta(...segments) {
@@ -114,7 +85,7 @@
             if (mode == 1) {
                 this.setRuta("Usuarios");
                 showProgress();
-                this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", { "usuario": this.seachUser })).data;
+                await this.getUsuarios();
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 this.tiposUsuario = variables[1];
@@ -128,99 +99,13 @@
                 hideProgress();
             } else if (mode == 2) {
                 showProgress();
-                this.setRuta("Roles");
-                this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
-                await this.loadAccess();
+                this.setRuta("Editar Cargos");
+                var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
+                this.cargos = variables[0];
                 hideProgress();
-            }
+            } 
             this.mainmode = mode;
             this.mode = 0;
-        },
-        async startNewRole() {
-            showProgress();
-            this.setRuta("Roles", "Nuevo Rol");
-            this.accessList.forEach(function (zone) {
-                zone.selected = false;
-
-                for (var key in zone["groups"]) {
-                    let group = zone["groups"][key];
-                    group.selected = false;
-
-                    group["list"].forEach(function (sitem) {
-                        sitem.selected = false;
-                    });
-                }
-            });
-            this.mode = 1;
-            this.newRole = {
-                rol: "",
-                permisos: "",
-                descripcion: ""
-            };
-
-            hideProgress();
-        },
-
-        async insNewRole() {
-            this.newRole["permisos"] = "";
-            this.accessList.forEach(function (item) {
-                for (var key in item["groups"])
-                    item["groups"][key]["list"].forEach(function (sitem) {
-                        if (sitem.selected)
-                            this.newRole["permisos"] += sitem["id_permiso"]+",";
-                    }.bind(this));
-            }.bind(this));
-            if (this.newRole["permisos"] == "") return;
-            if (this.newRole["rol"] == "") return;
-            showProgress();
-            var resp = await httpFunc("/generic/genericDT/Usuarios:Ins_Rol", this.newRole);
-            hideProgress();
-            this.setMainMode(2);
-        },
-        async selectRole(item) {
-            showProgress();
-            var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Rol", item);
-            resp = resp.data;
-            var tmpList = resp[1];
-            this.accessList.forEach(function (item) {
-                for (var key in item["groups"])
-                    item["groups"][key]["list"].forEach(function (sitem) {
-                        if (tmpList.find((ssitem) => { return sitem["id_permiso"] == ssitem["id_permiso"] }) == null)
-                            sitem.selected = false;
-                        else {
-                            item["groups"][key].selectedItems++;
-                            item["groups"][key].expanded = true;
-                            item.selectedItems++;
-                            item.expanded = true;
-
-                            sitem.selected = true;
-                        }
-                    });
-            });
-            this.mode = 2;
-            this.editRole["id_rol"] = resp[0][0]["id_rol"];
-            this.editRole["rol"] = resp[0][0]["rol"];
-            this.editRole["permisos"] = "";
-            this.editRole["descripcion"] = resp[0][0]["descripcion"];
-            this.users = resp[2];
-            this.selectedAccess = null;
-            hideProgress();
-        },
-        async updateRole() {
-            this.editRole["permisos"] = "";
-            this.accessList.forEach(function (item) {
-                for (var key in item["groups"])
-                    item["groups"][key]["list"].forEach(function (sitem) {
-                        if (sitem.selected)
-                            this.editRole["permisos"] += sitem["id_permiso"] + ",";
-                    }.bind(this));
-            }.bind(this));
-            if (this.editRole["permisos"] == "") return;
-            if (this.editRole["rol"] == "") return;
-            showProgress();
-            var resp = await httpFunc("/generic/genericDO/Usuarios:Upd_Rol", this.editRole);
-            hideProgress();
-            this.setMainMode(2);
         },
         async startNewUser() {
             showProgress();
@@ -232,59 +117,72 @@
             this.newUser["email"] = "";
             this.newUser["id_cargo"] = "";
             this.newUser["roles"] = "";
+            this.rolesAsignados = [];
             hideProgress();
+        },
+        async getUsuarios() {
+            this.users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", this.filtro)).data;
         },
         async insNewUser() {
-            this.newUser["roles"] = "";
-            this.roleList.forEach(function (item) {
-                if (item.selected)
-                    this.newUser["roles"] += item["id_rol"]+",";
-            }.bind(this));
+            // Se deben agregar validaciones previas a la inserción
             if (this.newUser["usuario"] == "") return;
+        
+            const rolesSeleccionados = this.roleList
+                .filter(item => item.selected)         
+                .map(item => item.id_rol)              
+                .join(",");        
+              
+            this.newUser["roles"] = rolesSeleccionados+",";
             showProgress();
-            var resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
+            const resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
             hideProgress();
+
             this.setMainMode(1);
         },
+        async asignarRol() {
+            if (!this.selectedRolId) return;
+        
+            const rol = this.roleList.find(r => r.id_rol === this.selectedRolId);
+            const yaAsignado = this.rolesAsignados.find(r => r.id_rol === this.selectedRolId);
+        
+            if (rol && !yaAsignado) {
+              rol.selected = true;
+              this.rolesAsignados.push(rol);
+              this.selectedRolId = '';
+            }
+          },
         async selectUser(item) {
             showProgress();
-            var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Usuario", { "id_usuario": item["id_usuario"]});
+          
+            var resp = await httpFunc("/generic/genericDS/Usuarios:Get_Usuario", { "id_usuario": item["id_usuario"] });
             resp = resp.data;
+        
             var tmpList = resp[1];
+            this.rolesAsignados = tmpList;
             this.roleList.forEach(function (sitem) {
-                if (tmpList.find((ssitem) => { return sitem["id_rol"] == ssitem["id_rol"] }) == null)
-                    sitem.selected = false;
-                else
+                if (tmpList.find((ssitem) => sitem["id_rol"] == ssitem["id_rol"])) {
                     sitem.selected = true;
+                } else {
+                    sitem.selected = false;
+                }
             });
-            this.setRuta("Usuarios" ,"Edición de Usuario");
+        
+            const user = resp[0][0];
+            this.setRuta("Usuarios", "Edición de Usuario");
             this.mode = 2;
-            this.editUser["id_usuario"] = resp[0][0]["id_usuario"];
-            this.editUser["usuario"] = resp[0][0]["usuario"];
-            this.editUser["identificacion"] = resp[0][0]["identificacion"];
-            this.editUser["nombres"] = resp[0][0]["nombres"];
-            this.editUser["email"] = resp[0][0]["email"];
-            this.editUser["id_cargo"] = resp[0][0]["id_cargo"];
-            this.editUser["id_tipo_usuario"] = resp[0][0]["id_tipo_usuario"];
-            this.editUser["roles"] = resp[0][0]["roles"];
+        
+            this.editUser["id_usuario"] = user["id_usuario"];
+            this.editUser["usuario"] = user["usuario"];
+            this.editUser["identificacion"] = user["identificacion"];
+            this.editUser["nombres"] = user["nombres"];
+            this.editUser["email"] = user["email"];
+            this.editUser["id_cargo"] = user["id_cargo"];
+            this.editUser["id_tipo_usuario"] = user["id_tipo_usuario"];
+            this.editUser["roles"] = user["roles"];
+            this.editUser["is_active"] = user["is_active"];
+            
+            await this.toggleUserActive(false);
             hideProgress();
-        },
-        async updateUser() {
-            this.editUser["roles"] = "";
-            this.roleList.forEach(function (item) {
-                if (item.selected)
-                    this.editUser["roles"] += item["id_rol"] + ",";
-            }.bind(this));
-            if (this.editUser["usuario"] == "") return;
-            showProgress();
-            var resp = await httpFunc("/generic/genericST/Usuarios:Upd_Usuario", this.editUser);
-            console.log(resp);
-            hideProgress();
-            this.setMainMode(1);
-        },
-        async selectUserInRole(item) {
-            await this.setMainMode(1);
-            this.selectUser(item);
         },
         async loadAccess() {
             this.accessList = [];
@@ -306,83 +204,48 @@
                 group["list"].push(item);
             }.bind(this));
         },
-        selectAccess(item, group, zone) {
-            this.selectedAccess = { item, group, zone };
-            this.selectedAcces = { item, group, zone };
-
-            if (item) { return this.selectedAccess.zone = null, this.selectedAccess.group = null; } 
-            if (group) { return this.selectedAccess.zone = null; }
-        
+        async updateUser() {
+            this.editUser["roles"] = "";
+            this.roleList.forEach(function (item) {
+                if (item.selected)
+                    this.editUser["roles"] += item["id_rol"] + ",";
+            }.bind(this));
+            if (this.editUser["usuario"] == "") return;
+            showProgress();
+            var resp = await httpFunc("/generic/genericST/Usuarios:Upd_Usuario", this.editUser);
+            hideProgress();
+            this.setMainMode(1);
         },
-        asignAccess() {
-            const { item, group, zone } = this.selectedAcces;
-
-            if (item) {
-                item.selected = !item.selected;
-                group.selectedItems += item.selected ? 1 : -1;
-                zone.selectedItems += item.selected ? 1 : -1;
-                return;
-            }
-            if (group) {
-                group.selected = !group.selected;
-                this.asignAccessGrupo();
-                return;
-            }
-            if (zone) {
-                zone.selected = !zone.selected; 
-                this.asignAccessZona();
-            }
+        async selectUserInRole(item) {
+            await this.setMainMode(1);
+            this.selectUser(item);
         },
-        asignAccessGrupo() {
-            const { group, zone } = this.selectedAcces;
-
-            if (!group || !zone ) return;
-
-            const selectedCount = group.list.filter(i => i.selected).length;
-
-            if (selectedCount > 0) {
-                group.list.forEach(i => {
-                    if (i.selected) {
-                        i.selected = false;
-                    }
-                });
-                group.selectedItems -= selectedCount;
-                zone.selectedItems -= selectedCount;
-            } else {
-                group.list.forEach(i => {
-                    if (!i.selected) {
-                        i.selected = true;
-                    }
-                });
-                group.selectedItems = group.list.length;
-                zone.selectedItems += group.list.length;
-            }
-        },
-        asignAccessZona() {
-            const { zone } = this.selectedAcces;
-            if (!zone?.groups) return;
-
-            const groupsArray = Array.isArray(zone.groups) ? zone.groups : Object.values(zone.groups);
-
-            let selectedGroupsCount = groupsArray.filter(group => group.selected).length;
-            let totalGroups = groupsArray.length;
-
-            const isAssigning = selectedGroupsCount !== totalGroups;
-
-            groupsArray.forEach(group => {
-                group.selected = isAssigning;
-                group.list.forEach(i => i.selected = isAssigning);
-                group.selectedItems = isAssigning ? group.list.length : 0;
-            });
-
-            zone.selected = isAssigning;
-            zone.selectedItems = isAssigning ? groupsArray.reduce((sum, group) => sum + group.list.length, 0) : 0;
-        },
-
         async startNewException() {
             this.setRuta("Usuarios", "Permisos Temporales");
             this.mode = 3;
         },
-
+        async eliminarRol(item) {
+            showConfirm("El Rol <b>"+item.rol+"</b> se eliminará permanentemente.", this.delRol, null, item);
+        },
+        async delRol(item) {
+            const index = item;
+            const rolEliminado = this.rolesAsignados.splice(index, 1)[0];
+            const itemEnLista = this.roleList.find(r => r.id_rol === rolEliminado.id_rol);
+            if (itemEnLista) itemEnLista.selected = false;
+        },
+        async toggleUserActive(item) {
+            if(item){
+                this.editUser.is_active = Number(this.editUser.is_active) === 1 ? 0 : 1;
+            }
+            this.isLocked = (Number(this.editUser.is_active) === 0);
+            this.isusaurioEdit = (Number(this.editUser.is_active) !== 0);
+        },
+        async exportExcel() {
+            showProgress();
+            var archivo = (await httpFunc("/generic/exportDataSP/Usuarios:Get_Usuarios", this.filtro)).data;
+            var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoUsuarios" })).data;
+            hideProgress();
+            window.open("./docs/" + archivo, "_blank");
+        }
     }
 }

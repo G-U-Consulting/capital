@@ -23,7 +23,7 @@
         async setMainMode(mode) {
             if (mode == 1) {
                 showProgress();
-                this.setRuta("Edición Cargos");
+                this.setRuta("Editar Cargos");
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 hideProgress();
