@@ -24,9 +24,31 @@ axios.defaults.withCredentials = true;
 axios.defaults.maxRedirects = true;
 axios.defaults.validateStatus = function (status) { return true; };
 async function httpFunc(path, data) {
+    let operacion = null, registro = null;
     var resp = await axios.post(path, data);
-    if (resp.status == 200)
+    if (resp.status == 200){
+        
+        if(path.includes('/genericST/')){ 
+            operacion = path.split(':')[1];
+            if (operacion.includes('Upd') || operacion.includes('Ins') || operacion.includes('Del')){
+                registro = {
+                    operacion,
+                    datos: JSON.stringify(data),
+                    username: GlobalVariables.username
+                };
+                let res = operacion.includes('Ins') && resp.data.data.split('-')[1] ? resp.data.data.split('-')[1] : null;
+                if (res) {
+                    resp.data.data = 'OK';
+                    let datos = {...data};
+                    datos[res.split(':')[0]] = res.split(':')[1];
+                    registro.datos = JSON.stringify(datos);
+                }
+                await axios.post('/generic/genericST/Auditoria:Ins_Auditoria', registro);
+            }
+        }
+        
         return resp.data;
+    }
     console.log(resp);
     //if (resp.status == 401)
     //if (resp.status == 403) 
@@ -76,7 +98,7 @@ mainVue = {
             url += "?loc=" + pars.loc;
         //window.history.replaceState({}, document.title, url);
         showProgress();
-        var data = await httpFunc("/auth/getUserProfile", {});
+        var data = (await httpFunc("/auth/getUserProfile", {})).data;
         this.loginData = data;
         this.modules = GlobalVariables.modules["modules"];
         this.zones = GlobalVariables.modules["zones"];

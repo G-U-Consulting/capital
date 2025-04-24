@@ -159,6 +159,14 @@ create table dim_carrusel_imagenes (
     created_on datetime default current_timestamp
 );
 
+create table AuditoriaSQL (
+	id bigint auto_increment primary key,
+	operacion varchar(50) not null,
+	datos text not null,
+	fecha datetime default current_timestamp,
+	username varchar(255)
+);
+
 /*
 drop table fact_roles_usuarios;
 drop table fact_permisos_roles;
@@ -167,4 +175,5 @@ drop table dim_permiso;
 drop table fact_usuarios;
 drop table dim_cargo;
 drop table dim_zona;
+drop table AuditoriaSQL;
 */

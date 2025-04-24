@@ -21,4 +21,4 @@ insert into fact_roles_usuarios(id_rol, id_usuario)
 select distinct value, @id_usuario
 from fn_list_result;
 
-select 'OK' as result;
+select concat('OK-id_usuario:', @id_usuario) as result;
