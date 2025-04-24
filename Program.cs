@@ -25,19 +25,21 @@ app.UseStaticFiles(new StaticFileOptions() {
     OnPrepareResponse = (context) => {
         string fileName = context.File.Name.ToLower();
         string filePath = (context.File.PhysicalPath??"").ToLower();
-        if (filePath.Contains("/web/")) {
+        if (filePath.Contains("/web/") || filePath.Contains("\\web\\")) {
             context.Context.Response.Headers["Cache-Control"] = "no-cache, no-store";
             context.Context.Response.Headers["Pragma"] = "no-cache";
             context.Context.Response.Headers["Expires"] = "-1";
         }
-        if (filePath.Contains("/css/") || filePath.Contains("/js/") || fileName == "login.html" || fileName == "login.js") 
-            return;
-        if (fileName != "login.html" && !(context.Context.User?.Identity?.IsAuthenticated??false)) {
-            context.Context.Response.Clear();
-            context.Context.Response.Body = new MemoryStream();
-            context.Context.Response.StatusCode = 302;
-            context.Context.Response.Headers.Location = "/login.html";
-        }
+        //if (filePath.Contains("/css/") || filePath.Contains("/js/") || filePath.Contains("/img/") || 
+        //    filePath.Contains("\\css\\") || filePath.Contains("\\js\\") || filePath.Contains("\\img\\") || 
+        //    fileName == "login.html" || fileName == "login.js") 
+        //    return;
+        //if (fileName != "login.html" && !(context.Context.User?.Identity?.IsAuthenticated??false)) {
+        //    context.Context.Response.Clear();
+        //    context.Context.Response.Body = new MemoryStream();
+        //    context.Context.Response.StatusCode = 302;
+        //    context.Context.Response.Headers.Location = "/login.html";
+        //}
     }
 });
 
