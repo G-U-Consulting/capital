@@ -1,5 +1,5 @@
 ﻿<div class="pure-g">
-    <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
+    <!--<div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
         <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.75rem;">
             {{ ruta }}
         </div>
@@ -7,221 +7,379 @@
             <img src="./img/ico/svg/user.svg" />
             Usuarios
         </div>
-        <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
-            <img src="./img/ico/svg/briefcase.svg" />
-            Roles
-        </div>
-    </div>
-    <div class="pure-u-1-1 pure-u-md-4-5">
+    </div>-->
+    <div class="pure-u-1-1 pure-u-md-1-1">
         <!--USUARIOS-->
         <div v-if="mainmode == 1">
-            <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <!--<span style="color: #89888d" class="hoverLink" v-on:click="mainmode = 0">Accesos  /</span>-->
-                <span class="hoverLink" v-on:click="mode = 0">Usuarios</span>
-                <span v-if="mode == 1">  /  Nuevo Usuario</span>
-                <span v-if="mode == 2">  /  Edición de Usuario</span>
-                <span v-if="mode == 3">  /  Permisos Temporales</span>
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24">
+                <div style="font-size: 1rem; font-weight:500; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.5rem 1rem; ">
+                    <span class="hoverLink" v-on:click="mode = 0">Usuarios</span>
+                    <span v-if="mode == 1">  /  Nuevo Usuario</span>
+                    <span v-if="mode == 2">  /  Edición de Usuario</span>
+                    <span v-if="mode == 3">  /  Permisos Temporales</span>
+                </div>
             </div>
             <!--LISTA USUARIOS-->
-            <div v-if="mode == 0" style="padding: 1em">
-                <h2>Usuarios</h2>
-                <div class="searchBox">
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-18-24">
-                            <input type="text" placeholder="Usuario o Nombre" v-model="seachUser" />
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-24">
-                            <div class="imgGraybutton">
-                                <img src="./img/ico/svg/search.svg" />
+            <div v-if="mode == 0" style="padding-top: 1em">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Usuarios</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-1-2">
+                                <input type="text" placeholder="Usuario o Nombre" v-model="filtro.seachUser" class="pure-input-1" />
                             </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-5-24">
-                            <button v-on:click="startNewUser()" style="width:100%">Nuevo Usuario</button>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <div class="imgGraybutton" v-on:click="getUsuarios()">
+                                    <img src="./img/ico/svg/search.svg" class="pure-img" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtro.id_cargo" v-on:change="getUsuarios()" class="pure-input-1">
+                                    <option value="">[Todos los cargos]</option>
+                                    <option v-for="item in cargos" v-bind:value="item.id_cargo">{{item.cargo}}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24" style="padding-left: 1em;">
+                                <select v-model="filtro.id_sede" v-on:change="getUsuarios()" class="pure-input-1">
+                                    <option value="">[Todas las sedes]</option>
+                                    <option v-for="item in sedes" v-bind:value="item.id_sede">{{item.sede}}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel"
+                                     title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-24">
+                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()">
+                                    Nuevo Usuario
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    <div style="height: 63vh; overflow-y: auto;">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Nombres</th>
+                                    <th>Cargo</th>
+                                    <th>Roles Asignados</th>
+                                    <th>Identificación</th>
+                                    <th>Estado</th>
+                                    <th>Fecha de Creación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in users" v-on:click="selectUser(item)">
+                                    <td style="width: 15rem">{{item.usuario}}</td>
+                                    <td>{{item.nombres}}</td>
+                                    <td>{{item.cargo}}</td>
+                                    <td style="text-align: center; width: 5rem;">{{item.cuenta}}</td>
+                                    <td style="width: 8rem">{{item.identificacion}}</td>
+                                    <td style="text-align: center; width: 8rem">{{ item.is_active == 1 ? 'Activo' : 'Desactivado' }}</td>
+                                    <td style="text-align:center; width: 10rem">{{item.created_on}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="searchBox">
-                    <table class="dataTable">
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Nombres</th>
-                                <th>Cargo</th>
-                                <th>Identificación</th>
-                                <th>Roles Asignados</th>
-                                <th>Fecha de Creación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in users" v-on:click="selectUser(item)">
-                                <td>{{item.usuario}}</td>
-                                <td>{{item.nombres}}</td>
-                                <td>{{item.cargo}}</td>
-                                <td>{{item.identificacion}}</td>
-                                <td style="text-align: center; width: 10rem;">{{item.cuenta}}</td>
-                                <td style="text-align:center; width: 10rem;">{{item.created_on}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!--<div class="pure-u-2-3" style="margin: auto; font-size: 0.8em">
-                <b>{{item.usuario}}</b> / {{item.nombres}}
-            </div>
-            <div class="pure-u-1-3" style="text-align: right;">
-                <div style="display: inline-block;font-size: 0.7em; padding: 0.5em">
-                    {{item.cuenta}}
-                    <img src="./img/ico/svg/briefcase.svg" />
-                </div>
-                <div style="display: inline-block;font-size: 0.6em; background-color: rgb(244, 244, 244); border-radius: 0.5em; padding: 0.5em">
-                    {{item.created_on}}
-                </div>
-            </div>-->
-                </div>
+                <div class="pure-u-1-24"></div>
             </div>
             <!--NUEVO USUARIO-->
-            <div v-if="mode == 1" style="padding-top: 2rem">
-                <div class="pure-u-1-12">
-
-                </div>
-                <div class="pure-u-5-6 menuCard">
+            <div v-if="mode == 1" style="padding-top: 1em">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
                     <div class="pure-g">
-                        <div class="pure-u-1-1"></div>
-                        <div class="pure-u-1-1" style="text-align:center">
+                        <div class="pure-u-1-1 pure-u-md-1-1">
                             <h2>Nuevo Usuario</h2>
-                            <br />
-                            <div class="pure-u-1-2 formInput">
-                                Usuario
-                                <input type="text" v-model="newUser.usuario" placeholder="Usuario" />
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="idUsuario" style="display: block; margin-bottom: 0.3rem;">ID Usuario</label>
+                                <input id="idUsuario" type="text" v-model="newUser.usuario" placeholder="Usuario"
+                                       class="pure-input-1" />
                             </div>
-                            <div class="pure-u-1-2 formInput">
-                                Nombres
-                                <input type="text" v-model="newUser.nombres" placeholder="Nombres" />
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-3-4'>
+                            <div class='formInputStandard'>
+                                <label for="nombres" style="display: block; margin-bottom: 0.3rem;">Nombres y Apellidos</label>
+                                <input id="nombres" type="text" v-model="newUser.nombres" placeholder="Nombres"
+                                       class="pure-input-1" />
                             </div>
-                            <div class="pure-u-1-2 formInput">
-                                Identificación
-                                <input type="text" v-model="newUser.identificacion" placeholder="Identificación" />
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="cedula" style="display: block; margin-bottom: 0.3rem;">Número de Cédula</label>
+                                <input id="cedula" type="text" v-model="newUser.identificacion"
+                                       placeholder="Identificación" class="pure-input-1" />
                             </div>
-                            <div class="pure-u-1-2 formInput">
-                                Email
-                                <input type="email" v-model="newUser.email" placeholder="Correo electrónico" />
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="email" style="display: block; margin-bottom: 0.3rem;">Email</label>
+                                <input id="email" type="email" v-model="newUser.email" placeholder="Correo electrónico"
+                                       class="pure-input-1" />
                             </div>
-                            <div class="pure-u-1-2 formInput">
-                                <label for="cargo">Cargo</label>
-                                <select id="cargo" v-model="newUser.id_cargo">
+                        </div>
+                        <!--TODO CONTRASEÑA-->
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
+                                <input id="contraseña" type="text" v-model="newUser.contraseña" placeholder="Contraseña"
+                                       class="pure-input-1" />
+                            </div>
+                        </div>
+                        <div class='pure-u-2-1 pure-u-md-4-6'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button @click="asignarRol">Proponer Contraseña</button>
+                            </div>
+                        </div>
+                        <!--FIN TODO-->
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="cargo" style="display: block; margin-bottom: 0.3rem;">Cargo</label>
+                                <select id="cargo" v-model="newUser.id_cargo" class="pure-input-1">
                                     <option value="" disabled selected>Seleccione Cargo</option>
                                     <option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo">
                                         {{ item.cargo }}
                                     </option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-2 formInput">
-                                <label for="cargo">Tipo de Usuarios</label>
-                                <select id="cargo" v-model="newUser.id_tipo_usuario">
-                                    <option value="" disabled selected>Seleccione Cargo</option>
-                                    <option v-for="item in tiposUsuario" v-bind:value="item.id_tipo_usuario">
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="tipoUsuario" style="display: block; margin-bottom: 0.3rem;">Tipo de Usuario</label>
+                                <select id="tipoUsuario" v-model="newUser.id_tipo_usuario" class="pure-input-1">
+                                    <option value="" disabled selected>Seleccione Tipo</option>
+                                    <option v-for="item in tiposUsuario" :key="item.id_tipo_usuario"
+                                            :value="item.id_tipo_usuario">
                                         {{ item.tipo_usuario }}
                                     </option>
                                 </select>
                             </div>
-                            <div v-if="newUser.cargo === 'otro'" class="pure-u-1-2 formInput">
-                                Nuevo Cargo
-                                <input type="text" v-model="nuevoCargo" placeholder="Ingrese el nuevo cargo" />
-                                <button @click="agregarCargo">Agregar</button>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="rolNuevo" style="display: block; margin-bottom: 0.3rem;">Seleccionar Rol</label>
+                                <select id="rolNuevo" v-model="selectedRolId" class="pure-input-1">
+                                    <option disabled value="">Seleccione un rol</option>
+                                    <option v-for="item in roleList" :key="item.id_rol" :value="item.id_rol">
+                                        {{ item.rol }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='pure-u-2-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button @click="asignarRol">Asignar Rol</button>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;">
+                                <b>Roles Asignados al Usuario</b>
+                            </div>
+                            <div style="height: 30vh; overflow-y: auto;">
+                                <table class="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-rol">Rol</th>
+                                            <th class="col-descripcion">Descripción Rol</th>
+                                            <th class="col-eliminar">Eliminar Asignación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(rol, index) in rolesAsignados" :key="rol.id_rol">
+                                            <td>{{ rol.rol }}</td>
+                                            <td>{{ rol.descripcion || 'Sin descripción' }}</td>
+                                            <td style="text-align: center;">
+                                                <span class="delete" @click.stop="eliminarRol(rol)">✖</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                    <br />
-                    <div class="pure-u-1-1" style="text-align:center">
-                        Roles
-                        <div class="pure-g">
-                            <div class="pure-u-1-4" v-for="item in roleList" style="padding: 1rem">
-                                <label><input type="checkbox" v-model="item.selected" />{{item.rol}}</label>
-                            </div>
-                        </div>
+                    <!--TODO ENVIAR DATOS-->
+                    <!--Hacer el proceso automático o seleccionar al enviar impresora, email, ...-->                    
+                    <!--Incluirlo en Edición de usuario-->
+                    <!--Hace falta un email alterno para enviar datos-->
+                    <!--Agregar opción de autogestión-->
+                    <div class="pure-u-1-1 pure-u-md-1-4" style="text-align:left;padding-top: 2em;">
+                        <button @click="insNewUser()">Enviar Datos</button>
                     </div>
-                    <div class="pure-u-1-1" style="text-align:right">
-                        <br /><br /><br />
-                        <button v-on:click="insNewUser()">Guardar</button>
-                    </div>
-                </div>
-                <div class="pure-u-1-12">
 
+                    <!--FIN TODO-->
+                    <div class="pure-u-1-1 pure-u-md-3-4" style="text-align:right;padding-top: 2em;">
+                        <button @click="insNewUser()">Crear Usuario</button>
+                    </div>
                 </div>
             </div>
+            <div class="pure-u-1-24"></div>
             <!--EDICIÓN DE USUARIO-->
-            <div v-if="mode == 2" style="padding-top: 2rem">
-                <div class="pure-u-1-12">
-
-                </div>
-                <div class="pure-u-5-6 menuCard">
+            <div v-if="mode == 2" style="padding-top: 1em">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
                     <div class="pure-g">
                         <div class="pure-u-1-1 pure-u-md-1-2">
                             <h2>Editar Usuario</h2>
                         </div>
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="text-align:right">
-                            <span style="text-decoration: underline; color: blue; cursor: pointer" v-on:click="startNewException()">Permisos temporales >></span>
+                        <div class="pure-u-2-1 pure-u-md-1-2" style="text-align: right;">
+                            <div class="formInputStandard" style="display: flex; align-items: center; justify-content: flex-end;">
+                                <div style="margin-right: 10px;">
+                                    {{ Number(editUser.is_active) === 0 ? 'Usuario Inactivo' : 'Usuario Activo' }}
+                                </div>
+                                <div class="toggle-switch">
+                                    <input id="toggle" type="checkbox" :checked="Number(editUser.is_active) !== 1" @click="toggleUserActive"
+                                        class="toggle-input">
+                                    <label class="toggle-label" for="toggle"></label>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <br />
-                    <div class="pure-g">
-                        <div class="pure-u-1-2 formInput">
-                            Usuario
-                            <input type="text" v-model="editUser.usuario" placeholder="Usuario" />
+                        
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="editUsuario" style="display: block; margin-bottom: 0.3rem;">ID Usuario</label>
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editUsuario" type="text" v-model="editUser.usuario" placeholder="Usuario"
+                                       class="pure-input-1" />
+                            </div>
                         </div>
-                        <div class="pure-u-1-2 formInput">
-                            Nombres
-                            <input type="text" v-model="editUser.nombres" placeholder="Nombres" />
+                        <div class='pure-u-1-1 pure-u-md-3-4'>
+                            <div class='formInputStandard'>
+                                <label for="editNombres" style="display: block; margin-bottom: 0.3rem;">Nombres y Apellidos</label>
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editNombres" type="text" v-model="editUser.nombres" placeholder="Nombres"
+                                       class="pure-input-1" />
+                            </div>
                         </div>
-                        <div class="pure-u-1-2 formInput">
-                            Identificación
-                            <input type="text" v-model="editUser.identificacion" placeholder="Identificación" />
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="editCedula" style="display: block; margin-bottom: 0.3rem;">Número de Cédula</label>
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editCedula" type="text" v-model="editUser.identificacion"
+                                       placeholder="Identificación" class="pure-input-1" />
+                            </div>
                         </div>
-                        <div class="pure-u-1-2 formInput">
-                            Email
-                            <input type="email" v-model="editUser.email" placeholder="Correo electrónico" />
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="editEmail" style="display: block; margin-bottom: 0.3rem;">Email</label>
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editEmail" type="email" v-model="editUser.email" placeholder="Correo electrónico"
+                                       class="pure-input-1" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="pure-u-1-2 formInput">
-                        <label for="cargo">Cargo</label>
-                        <select id="cargo" v-model="editUser.id_cargo">
-                            <option value="" disabled selected>Seleccione Cargo</option>
-                            <option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo">
-                                {{ item.cargo }}
-                            </option>
-                        </select>
-                    </div>
-                    <div class="pure-u-1-2 formInput">
-                        <label for="cargo">Tipo de Usuarios</label>
-                        <select id="cargo" v-model="editUser.id_tipo_usuario">
-                            <option value="" disabled selected>Seleccione Cargo</option>
-                            <option v-for="item in tiposUsuario" v-bind:value="item.id_tipo_usuario">
-                                {{ item.tipo_usuario }}
-                            </option>
-                        </select>
-                    </div>
-                    <br />
-                    <div>
-                        Roles
-                        <div class="pure-g">
-                            <div class="pure-u-1-4" v-for="item in roleList" style="padding: 1rem">
-                                <label><input type="checkbox" v-model="item.selected" />{{item.rol}}</label>
+                        <!--TODO CONTRASEÑA-->
+                        <div class='pure-u-1-1 pure-u-md-1-4' >
+                            <div class='formInputStandard'>
+                                <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
+                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="contraseña" type="text" v-model="newUser.contraseña" placeholder="Contraseña"
+                                       class="pure-input-1" />
+                            </div>
+                        </div>
+                        <div class='pure-u-2-1 pure-u-md-4-6'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button v-if="isusaurioEdit" @click="asignarRol">Proponer Contraseña</button>
+                            </div>
+                        </div>
+                        <!--FIN TODO-->
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="editCargo" style="display: block; margin-bottom: 0.3rem;">Cargo</label>
+                                <select :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editCargo" v-model="editUser.id_cargo" class="pure-input-1">
+                                    <option value="" disabled selected>Seleccione Cargo</option>
+                                    <option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo">
+                                        {{ item.cargo }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="editTipoUsuario" style="display: block; margin-bottom: 0.3rem;">Tipo de Usuario</label>
+                                <select :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editTipoUsuario" v-model="editUser.id_tipo_usuario" class="pure-input-1">
+                                    <option value="" disabled selected>Seleccione Tipo</option>
+                                    <option v-for="item in tiposUsuario" :key="item.id_tipo_usuario"
+                                            :value="item.id_tipo_usuario">
+                                        {{ item.tipo_usuario }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="rol" style="display: block; margin-bottom: 0.3rem;">Seleccionar Rol</label>
+                                <select :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="rol" v-model="selectedRolId" class="pure-input-1">
+                                    <option disabled value="">Seleccione un rol</option>
+                                    <option v-for="item in roleList" :key="item.id_rol" :value="item.id_rol">
+                                        {{ item.rol }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button v-if="isusaurioEdit" @click="asignarRol">Asignar Rol</button>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1">
+                            <div style="display: block; margin-top: 0.7rem; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;">
+                                <b>Roles Asigandos al Usuario</b>
+                            </div>
+                            <div style="height: 30vh; overflow-y: auto;">
+                                <table class="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-rol">Rol</th>
+                                            <th class="col-descripcion">Descripción Rol</th>
+                                            <th class="col-eliminar">Eliminar Asignación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }">
+                                        <tr v-for="(rol, index) in rolesAsignados" :key="rol.id_rol">
+                                            <td>{{ rol.rol }}</td>
+                                            <td>{{ rol.descripcion || 'Sin descripción' }}</td>
+                                            <td style="text-align: center">
+                                                <span class="delete" v-if="isusaurioEdit" @click.stop="eliminarRol(rol)">✖</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                    <div style="text-align:right">
-                        <br /><br /><br />
-                        <button v-on:click="updateUser()">Actualizar</button>
+                    <!--TODO ACTIVAR / DESACTIVAR, PERMISOS TEMPORALES-->
+                    <!-- <div class="pure-u-1-1 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button :class="editUser.is_active == 0 ? 'btn-inactivo' : null" @click="toggleUserActive">
+                                {{ Number(editUser.is_active) === 0 ? 'Activar Usuario' : 'Desactivar Usuario' }}
+                            </button>
+                        </div>
+                    </div> -->
+                    <div class="pure-u-1-1 pure-u-md-1-3">
+                        <div class='formInputStandard'>
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-if="isusaurioEdit" @click="startNewException">Asignar Permisos Temporales</button>
+                        </div>
                     </div>
+                    <div class="pure-u-1-1 pure-u-md-1-3"></div>
+                    <div class="pure-u-1-1 pure-u-md-1-3" style="text-align:right;padding-top: 2em;">
+                        <div class='formInputStandard'>
+                            <button @click="updateUser()">Actualizar Usuario</button>
+                        </div>
+                    </div>
+                    <!--FIN TODO-->
+                    </div>
+                    <div class="pure-u-1-24"></div>
                 </div>
-                <div class="pure-u-1-12">
-
-                </div>
-            </div>
             <!--PERMISOS TEMPORALES-->
-            <div v-if="mode == 3" style="padding-top: 2em">
-                <div class="pure-u-1-12">
-
-                </div>
-                <div class="pure-u-5-6 menuCard">
+            <div v-if="mode == 3" style="padding-top: 1em">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
                     <h2>Permisos temporales</h2>
                     <br />
                     <div class="pure-g">
@@ -252,291 +410,7 @@
                         <button v-on:click="updateUser()">Agregar</button>
                     </div>
                 </div>
-                <div class="pure-u-1-12">
-
-                </div>
-            </div>
-        </div>
-        <!--ROLES-->
-        <div v-if="mainmode == 2">
-            <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <!--<span style="color: #89888d" class="hoverLink" v-on:click="mainmode = 0">Accesos  /</span>-->
-                <span class="hoverLink" v-on:click="mode = 0">Roles</span>
-                <span v-if="mode == 1">  /  Nuevo Rol</span>
-                <span v-if="mode == 2">  /  Editar Rol</span>
-            </div>
-            <!--LISTA DE ROLES-->
-            <div v-if="mode == 0" style="padding: 1em">
-                <h2>Roles</h2>
-                <div class="searchBox">
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-18-24">
-                            <input type="text" placeholder="Rol" />
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-24">
-                            <div class="imgGraybutton">
-                                <img src="./img/ico/svg/search.svg" />
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-5-24">
-                            <button v-on:click="startNewRole()" style="width:100%">Nuevo Rol</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="searchBox" >
-                    <table class="dataTable">
-                        <thead>
-                            <tr>
-                                <th>Rol</th>
-                                <th>Descripción</th>
-                                <th>Usuarios</th>
-                                <th>Fecha de Creación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in roles" v-on:click="selectRole(item)">
-                                <td style="text-align: center; width: 20rem;">{{item.rol}}</td>
-                                <td>{{item.descripcion}}</td>
-                                <td style="text-align: center; width: 10rem;">{{item.cuenta}}</td>
-                                <td style="text-align:center; width: 10rem;">{{item.created_on}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!--<div class="pure-u-2-3" style="margin: auto; font-size: 0.8em">
-                        <b>{{item.rol}}</b> / {{item.descripcion}}
-                    </div>
-                    <div class="pure-u-1-3" style="text-align: right;">
-                        <div style="display: inline-block;font-size: 0.7em; padding: 0.5em">
-                            {{item.cuenta}}
-                            <img src="./img/ico/svg/user.svg" />
-                        </div>
-                        <div style="display: inline-block;font-size: 0.7em; background-color: rgb(244, 244, 244); border-radius: 0.5em; padding: 0.5em">
-                            {{item.created_on}}
-                        </div>
-                    </div>-->
-                </div>
-            </div>
-            <!--NEUVO ROL-->
-            <div v-if="mode == 1" style="padding-top: 2em">
-                <div class="pure-u-1-12">
-
-                </div>
-                <div class="pure-u-5-6 menuCard">
-                    <h2>Nuevo Rol</h2>
-                    <br />
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-3-1" style="margin-top: 1rem">
-                            <div>
-                                <div class="pure-g">
-                                    <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem;">
-                                        <div style="text-align:center; font-size: 1em">Nombre del rol</div>
-                                        <div>
-                                            <textarea type="text" v-model="newRole.rol" maxlength="1000" style="height: 4rem;"></textarea>
-                                        </div>
-                                    </div>
-                                    <div class="pure-u-1-1 pure-u-md-2-24" style="padding: 0rem 0.5rem;">
-
-                                    </div>
-                                    <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem;">
-                                        <div style="text-align:center; font-size: 1em">Descripción</div>
-                                        <div>
-                                            <textarea v-model="newRole.descripcion" maxlength="1000" style="height: 4rem;"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-2-1" style="margin-top: 1rem">
-                            <div>
-                                <div class="pure-g">
-                                    <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem">
-                                        <div style="text-align:center; font-size: 1em">Accesos Disponibles</div>
-                                        <div style="padding: 0.5rem; border: 1px solid #898989; border-radius: 0.5rem; height: calc(100vh - 27rem); overflow: auto;">
-                                            <div v-for="zone in accessList">
-                                                <div>
-                                                    <div style="cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.zone == zone}" v-on:click="selectAccess(null, null, zone)">
-                                                        <span v-show="!zone.expanded" v-on:click="zone.expanded = !zone.expanded">&boxplus;</span>
-                                                        <span v-show="zone.expanded" v-on:click="zone.expanded = !zone.expanded">&boxminus;</span>
-                                                        <span>{{zone.name}}</span>
-                                                    </div>
-                                                    <div v-for="group in zone.groups">
-                                                        <div style="padding-left: 1rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.group == group}" v-on:click="selectAccess( null, group, zone)">
-                                                            <span v-show="!group.expanded" v-on:click="group.expanded = !group.expanded">&boxplus;</span>
-                                                            <span v-show="group.expanded" v-on:click="group.expanded = !group.expanded">&boxminus;</span>
-                                                            <span>{{group.name}}</span>
-
-                                                        </div>
-                                                        <div v-for="item in group.list" class="noSelect" v-show="group.expanded && !item.selected">
-                                                            <div style="padding-left: 2rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.item == item}" v-on:click="selectAccess(item, group, zone)">{{item.permiso}}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="pure-u-1-1 pure-u-md-2-24">
-                                        <div style="text-align: center;">
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <button v-show="selectedAccess != null"
-                                                    style="width: 2em; min-width: 0;"
-                                                    @click="asignAccess()">
-                                                {{ getArrowDirection }}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem">
-                                        <div style="text-align:center; font-size: 1em">Accesos Asignados</div>
-                                        <div style="padding: 0.5rem; border: 1px solid #898989; border-radius: 0.5rem; height: calc(100vh - 27rem); overflow: auto;">
-                                            <div v-for="zone in accessList" v-show="zone.selectedItems > 0">
-                                                <div>
-                                                    <div style="cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.zone == zone}" v-on:click="selectAccess(null, null, zone)">
-                                                        <span v-show="!zone.expanded" v-on:click="zone.expanded = !zone.expanded">&boxplus;</span>
-                                                        <span v-show="zone.expanded" v-on:click="zone.expanded = !zone.expanded">&boxminus;</span>
-                                                        <span>{{zone.name}}</span>
-                                                    </div>
-                                                    <div v-show="zone.expanded && group.selectedItems > 0" v-for="group in zone.groups">
-                                                        <div style="padding-left: 1rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.group == group}" v-on:click="selectAccess(null, group, zone)">
-                                                            <span v-show="!group.expanded" v-on:click="group.expanded = !group.expanded">&boxplus;</span>
-                                                            <span v-show="group.expanded" v-on:click="group.expanded = !group.expanded">&boxminus;</span>
-                                                            <span>{{group.name}}</span>
-                                                        </div>
-                                                        <div v-for="item in group.list" class="noSelect" v-show="group.expanded && item.selected">
-                                                            <div style="padding-left: 2rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.item == item}" v-on:click="selectAccess(item, group, zone)">{{item.permiso}}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="text-align:right;" class="pure-u-1-1 pure-u-md-1-1">
-                            <div>
-                                <div class="pure-g">
-                                    <div class="pure-u-1-1 pure-u-md-24-24" style="padding: 1rem 0.5rem 0 0">
-                                        <button v-on:click="insNewRole()">Guardar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pure-u-1-12">
-
-                </div>
-            </div>
-            <!--EDITAR ROL-->
-            <div v-if="mode == 2" style="padding-top: 2em">
-                <div class="pure-u-1-12">
-
-                </div>
-                <div class="pure-u-5-6 menuCard">
-                    <h2>Edición de Rol</h2>
-                    <br />
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-3-1" style="margin-top: 1rem">
-                            <div>
-                                <div class="pure-g">
-                                    <div class="pure-u-1-1 pure-u-md-11-24 formInput" style="padding: 0rem 0.5rem;">
-                                        <div style="text-align:center; font-size: 1em">Nombre del rol</div>
-                                        <textarea type="text" v-model="editRole.rol" placeholder="Nombre" maxlength="1000" style="height: 4rem;"></textarea>
-                                    </div>
-                                    <div class="pure-u-1-1 pure-u-md-2-24" style="padding: 0rem 0.5rem;">
-
-                                    </div>
-                                    <div class="formInput  pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem;">
-                                        <div style="text-align:center; font-size: 1em">Descripción</div>
-                                        <textarea v-model="editRole.descripcion" placeholder="Descripción" maxlength="1000" style="height: 4rem;"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-2-1" style="margin-top: 1rem">
-                            <div>
-                                <div class="pure-g">
-                                    <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem">
-                                        <div style="text-align:center; font-size: 1em">Accesos Disponibles</div>
-                                        <div style="padding: 0.5rem; border: 1px solid #898989; border-radius: 0.5rem; height: calc(100vh - 27rem); overflow: auto;">
-                                            <div v-for="zone in accessList">
-                                                <div>
-                                                    <div style="cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.zone == zone}" v-on:click="selectAccess(null, null, zone)">
-                                                        <span v-show="!zone.expanded" v-on:click="zone.expanded = !zone.expanded">&boxplus;</span>
-                                                        <span v-show="zone.expanded" v-on:click="zone.expanded = !zone.expanded">&boxminus;</span>
-                                                        <span>{{zone.name}}</span>
-                                                    </div>
-                                                    <div v-for="group in zone.groups">
-                                                        <div style="padding-left: 1rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.group == group}" v-on:click="selectAccess( null, group, zone)">
-                                                            <span v-show="!group.expanded" v-on:click="group.expanded = !group.expanded">&boxplus;</span>
-                                                            <span v-show="group.expanded" v-on:click="group.expanded = !group.expanded">&boxminus;</span>
-                                                            <span>{{group.name}}</span>
-
-                                                        </div>
-                                                        <div v-for="item in group.list" class="noSelect" v-show="group.expanded && !item.selected">
-                                                            <div style="padding-left: 2rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.item == item}" v-on:click="selectAccess(item, group, zone)">{{item.permiso}}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="pure-u-1-1 pure-u-md-2-24">
-                                        <div style="text-align: center;">
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <button v-show="selectedAccess != null"
-                                                    style="width: 2em; min-width: 0;"
-                                                    @click="asignAccess()">
-                                                {{ getArrowDirection }}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="pure-u-1-1 pure-u-md-11-24" style="padding: 0rem 0.5rem">
-                                        <div style="text-align:center; font-size: 1em">Accesos Asignados</div>
-                                        <div style="padding: 0.5rem; border: 1px solid #898989; border-radius: 0.5rem; height: calc(100vh - 27rem); overflow: auto;">
-                                            <div v-for="zone in accessList" v-show="zone.selectedItems > 0">
-                                                <div>
-                                                    <div style="cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.zone == zone}" v-on:click="selectAccess(null, null, zone)">
-                                                        <span v-show="!zone.expanded" v-on:click="zone.expanded = !zone.expanded">&boxplus;</span>
-                                                        <span v-show="zone.expanded" v-on:click="zone.expanded = !zone.expanded">&boxminus;</span>
-                                                        <span>{{zone.name}}</span>
-                                                    </div>
-                                                    <div v-show="zone.expanded && group.selectedItems > 0" v-for="group in zone.groups">
-                                                        <div style="padding-left: 1rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.group == group}" v-on:click="selectAccess(null, group, zone)">
-                                                            <span v-show="!group.expanded" v-on:click="group.expanded = !group.expanded">&boxplus;</span>
-                                                            <span v-show="group.expanded" v-on:click="group.expanded = !group.expanded">&boxminus;</span>
-                                                            <span>{{group.name}}</span>
-                                                        </div>
-                                                        <div v-for="item in group.list" class="noSelect" v-show="group.expanded && item.selected">
-                                                            <div style="padding-left: 2rem; cursor: pointer" v-bind:class="{selectedAcces: selectedAccess!= null && selectedAccess.item == item}" v-on:click="selectAccess(item, group, zone)">{{item.permiso}}</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="text-align:right;" class="pure-u-1-1 pure-u-md-1-1">
-                            <div>
-                                <div class="pure-g">
-                                    <div class="pure-u-1-1 pure-u-md-24-24" style="padding: 1rem 0.5rem 0 0">
-                                        <button v-on:click="updateRole()">Actualizar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="pure-u-1-12">
-
-                </div>
+                <div class="pure-u-1-24"></div>
             </div>
         </div>
     </div>

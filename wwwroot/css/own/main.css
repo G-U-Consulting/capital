@@ -534,7 +534,7 @@
             padding-top: 40vh;
         }
 
-input[type=text], input[type=password], select, textarea, input[type^=date], input[type=number], input[type=email], input[type=time] {
+input[type=text], input[type=password], select, textarea, input[type^=date], input[type=number], input[type=email], input[type=time], input[type=tel] {
     width: 100%;
     border: 1px solid #CCCCCC;
     padding: 3px 5px;

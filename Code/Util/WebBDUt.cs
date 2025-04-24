@@ -618,7 +618,7 @@ public static class WebBDUt {
             message = ds.Tables[0].Rows[0][0].ToString();
         else if (isTxt) {
             string url = Guid.NewGuid().ToString() + ".txt";
-            string fileUri = Path.Combine(RootPath, "Docs", url);
+            string fileUri = Path.Combine(RootPath, "wwwroot", "docs", url);
             using (StreamWriter file = new StreamWriter(fileUri,false,Encoding.UTF8)) {
                 DataTable dt = ds.Tables[0];
                 String Data = ToCsv(dt);
@@ -634,7 +634,7 @@ public static class WebBDUt {
                 wp.AddWorksheet(dt);
             }
             string url = Guid.NewGuid().ToString() + ".xlsx";
-            wp.SaveAs(Path.Combine(RootPath, "Docs", url));
+            wp.SaveAs(Path.Combine(RootPath, "wwwroot", "docs", url));
             retUrl = url;
         }
         ret[DATA] = retUrl;

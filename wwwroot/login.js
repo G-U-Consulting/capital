@@ -1,4 +1,4 @@
-const { createApp } = Vue;
+﻿const { createApp } = Vue;
 const mainDivId = "#loginContentDiv";
 var vm = null, loginVue = null;
 loginVue = {
@@ -13,29 +13,20 @@ loginVue = {
         let response = await axios.post("/generic/genericDS/Presentacion:Get_Presentacion", {});
         this.duracion = response.data.data[0][0].valor;
         await this.fetchImages();
+        console.log(this.images)
         if (this.images.length) {
             this.updateImage();
             setInterval(this.updateImage, this.duracion * 1000);
         }
-
-    },
-    computed: {
-        carouselStyle() {
-            return this.images.length
-                ? {
-                      backgroundImage: `url('${this.images[this.index]}')`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      transition: "background-image 0.5s"
-                  }
-                : {};
-        }
     },
     methods: {
         async fetchImages() {
+            
             try {
-                let { data } = await axios.get("/img/carrusel");
-                this.images = data.images || [];
+                const { data } = await axios.post("/generic/genericDS/Presentacion:Get_Presentacion", {});
+                if (data.data[1]) {
+                    this.images = data.data[1].map(x => `/img/carrusel/${x.a}`);
+                }
             } catch (err) {
                 console.error("Error:", err);
                 this.images = [];

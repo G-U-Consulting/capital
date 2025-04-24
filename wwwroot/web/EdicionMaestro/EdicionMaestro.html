@@ -3,11 +3,7 @@
         <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.75rem;">
             {{ ruta }}
         </div>
-        <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect"
-            v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
-            <img src="./img/ico/svg/screen.svg" />
-            Edición Cargos
-        </div>
+       
     </div>
     <div class="pure-u-1-1 pure-u-md-4-5">
         <!--EDICION CARGOS-->
@@ -20,22 +16,28 @@
                 <div class="pure-u-5-6 menuCard">
                     <div class="pure-u-1-1">
                         <h2>Gestión de Cargos</h2>
-                        <br />
-                        <div class="pure-u-1-1 pure-u-md-11-24 input-group" style="padding-top: 1em">
-                            <input type="text" v-model="nuevoCargo" placeholder="Ingrese un nuevo cargo">
+                        <div class="pure-g" style="padding: 1em 0;">
+                            <div class="pure-u-1 pure-u-md-8-24" style="padding-right: 0.5em;">
+                                <input type="text" v-model="nuevoCargo" placeholder="Ingrese un nuevo cargo">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-12-24" style="padding-right: 0.5em;">
+                                <input type="text" v-model="nuevoDescripcion" placeholder="Ingrese la descripción">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-4-24">
+                                <button class="pure-button pure-button-primary"
+                                    @click="actulCargo ? actualizarCargo() : agregarCargo()">
+                                    {{ actulCargo ? 'Actualizar' : 'Insertar' }}
+                                </button>
+                            </div>
                         </div>
-                        <div class="pure-u-1-1 pure-u-md-2-24 input-group"></div>
-                        <div class="pure-u-1-1 pure-u-md-11-24 input-group" style="padding:1em 0 1em">
-                            <input type="text" v-model="nuevoDescripcion" placeholder="Ingrese la descripcion">
-                        </div>
-                        <div class="table-container">
+                         <div class="table-container">
                             <table class="dataTable">
                                 <thead>
-                                    <tr>
-                                        <th>Cargo</th>
-                                        <th>Descripción</th>
-                                        <th>Acciones</th>
-                                    </tr>
+                                  <tr>
+                                    <th>Cargo</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                  </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(item, index) in cargos" :key="item.id_cargo">
@@ -51,11 +53,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
-                        <div style="text-align: right; padding-top:2em;">
-                            <button @click="actulCargo ? actualizarCargo() : agregarCargo()">
-                                {{ actulCargo ? 'Actualizar' : 'Insertar' }}
-                            </button>
                         </div>
                     </div>
                 </div>

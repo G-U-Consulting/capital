@@ -3,7 +3,8 @@
 	sede varchar(100),
 	alias varchar(3),
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint pk_dim_sede primary key(id_sede)
 );
 insert into dim_sede(id_sede, sede, alias) values
 (1, 'Bogotá','BOG'),
@@ -101,11 +102,13 @@ insert into dim_permiso(id_permiso, permiso, grupo, id_zona) values
 create table fact_roles(
 	id_rol int not null auto_increment,
 	rol varchar(200),
+	id_sede int,
 	descripcion varchar(1000),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
-	constraint pk_id_rol primary key(id_rol)
+	constraint pk_id_rol primary key(id_rol),
+	constraint fk_id_sede_fact_roles foreign key(id_sede) references dim_sede(id_sede)
 );
 create table fact_permisos_roles(
 	id_permiso_rol int not null auto_increment,
@@ -137,5 +140,31 @@ create table dim_variables_globales (
     created_on datetime default current_timestamp,
     updated_on datetime default current_timestamp on update current_timestamp,
     editable boolean default 1,
-    primary key (nombre_variable)
+    constraint pk_variables_globales primary key (nombre_variable)
 );
+
+create table fact_proyectos(
+	id_proyecto int not null auto_increment,
+	
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user,
+	constraint pk_id_proyecto primary key(id_proyecto)
+)
+
+create table dim_carrusel_imagenes (
+    id int auto_increment primary key,
+    nombre_archivo varchar(255),
+    orden int,
+    created_on datetime default current_timestamp
+);
+
+/*
+drop table fact_roles_usuarios;
+drop table fact_permisos_roles;
+drop table fact_roles;
+drop table dim_permiso;
+drop table fact_usuarios;
+drop table dim_cargo;
+drop table dim_zona;
+*/
