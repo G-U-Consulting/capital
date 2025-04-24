@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using capital.Code.Util;
+using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json.Linq;
 using orca.Code.Api;
 using orca.Code.Auth;
 using orca.Code.Logger;
@@ -28,16 +30,16 @@ app.UseStaticFiles(new StaticFileOptions() {
             context.Context.Response.Headers["Pragma"] = "no-cache";
             context.Context.Response.Headers["Expires"] = "-1";
         }
-        //if (filePath.Contains("/css/") || filePath.Contains("/js/") || filePath.Contains("/img/") || 
-        //    filePath.Contains("\\css\\") || filePath.Contains("\\js\\") || filePath.Contains("\\img\\") || 
-        //    fileName == "login.html" || fileName == "login.js") 
-        //    return;
-        //if (fileName != "login.html" && !(context.Context.User?.Identity?.IsAuthenticated??false)) {
-        //    context.Context.Response.Clear();
-        //    context.Context.Response.Body = new MemoryStream();
-        //    context.Context.Response.StatusCode = 302;
-        //    context.Context.Response.Headers.Location = "/login.html";
-        //}
+        if (filePath.Contains("/css/") || filePath.Contains("/js/") || filePath.Contains("/img/") ||
+            filePath.Contains("\\css\\") || filePath.Contains("\\js\\") || filePath.Contains("\\img\\") ||
+            fileName == "login.html" || fileName == "login.js")
+            return;
+        if (fileName != "login.html" && !(context.Context.User?.Identity?.IsAuthenticated ?? false)) {
+            context.Context.Response.Clear();
+            context.Context.Response.Body = new MemoryStream();
+            context.Context.Response.StatusCode = 302;
+            context.Context.Response.Headers.Location = "/login.html";
+        }
     }
 });
 
@@ -66,7 +68,7 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
 
-}).WithName("Generic");
+}).WithName("Generic").RequireAuthorization();
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";
     try {
@@ -77,6 +79,8 @@ app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string 
         string ret = "";
         if(ut == "ExcelFormater")
             ret = ExcelFormater.Format(JObject.Parse(body), rootPath);
+        if (ut == "Presentacion")
+            ret = (await WebBDUt.ExecuteLocalSQLJson<DataSet>("Presentacion/Get_Presentacion", new JObject())).ToString();
         return ret;
     } catch (Exception ex) {
         Logger.Log("util/" + ut + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
@@ -89,13 +93,16 @@ app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string 
 /*****************************************************************************/
 /***************************** Autenticacion *********************************/
 /*****************************************************************************/
-app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string op) => {
+app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string op, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager) => {
     string body = "";
     try {
         response.ContentType = "application/json";
-        return Auth.ProcessRequest(request, response, op, body).ToString(Newtonsoft.Json.Formatting.None);
+        using (var stream = new StreamReader(request.Body)) {
+            body = await stream.ReadToEndAsync();
+        }
+        return (await Auth.ProcessRequest(request, response, op, body, userManager, signInManager)).ToString(Newtonsoft.Json.Formatting.None);
     } catch (Exception ex) {
-        Logger.Log("generic/" + op + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        Logger.Log("auth/" + op + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
