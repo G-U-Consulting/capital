@@ -100,7 +100,7 @@ app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string 
         using (var stream = new StreamReader(request.Body)) {
             body = await stream.ReadToEndAsync();
         }
-        return (await Auth.ProcessRequest(request, response, op, body, userManager, signInManager)).ToString(Newtonsoft.Json.Formatting.None);
+        return await Auth.ProcessRequest(request, response, op, body, userManager, signInManager);
     } catch (Exception ex) {
         Logger.Log("auth/" + op + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;

@@ -11,7 +11,8 @@ loginVue = {
                 username: "",
                 password: ""
             },
-            errorMessage: ""
+            errorMessage: "",
+            autType: "",
         };
     },
     async mounted() {
@@ -49,6 +50,13 @@ loginVue = {
                 this.index = (this.index + 1) % this.images.length;
             }
         }, 
+        validateUser: function () {
+            if (this.loginData.username.indexOf("@serlefin.com") >= 0) {
+                this.autType = "azure";
+                window.location = "./auth/getADRedirectPage"
+            } else
+                this.autType = "local";
+        },
         async login() {
             this.errorMessage = "";
             showProgress();

@@ -32,13 +32,18 @@
                     </span>
                     <div class="container">
                         <div class="login-form">
-                            <input type="text" id="UserName" placeholder="Usuario" tabindex="1" v-model="loginData.username">
-                            <input type="password" id="Password" placeholder="Contraseña" tabindex="2"  v-model="loginData.password" v-on:keyup.enter="login()">
-                            <div style="height:1.0em; color: red">
-                                {{errorMessage}}
+                            <input type="text" id="UserName" placeholder="Usuario" tabindex="1" v-model="loginData.username" v-on:keyup.enter="validateUser()">
+                            <div v-show="autType == ''">
+                                <button id="LoginButton" v-on:click="validateUser()">Validar</button>
                             </div>
-                            <a href="#" class="forgot-password" tabindex="3">Olvidé mi contraseña</a>
-                            <button id="LoginButton" v-on:click="login()">Acceder</button>
+                            <div v-show="autType == 'local'">
+                                <input type="password" id="Password" placeholder="Contraseña" tabindex="2" v-model="loginData.password" v-on:keyup.enter="login()">
+                                <div style="height:1.0em; color: red">
+                                    {{errorMessage}}
+                                </div>
+                                <a href="#" class="forgot-password" tabindex="3">Olvidé mi contraseña</a>
+                                <button id="LoginButton" v-on:click="login()">Acceder</button>
+                            </div>
                         </div>
                     </div>
                     <label id="lbError" style="color:red"></label>
