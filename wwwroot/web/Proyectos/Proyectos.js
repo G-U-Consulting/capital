@@ -100,6 +100,8 @@
                 "C. de costos y fiduciaria",
                 "Información adicional",
                 "Enlaces",
+                "Unidades",
+                "Imágenes"
             ]
         };
     },

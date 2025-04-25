@@ -6,11 +6,18 @@ loginVue = {
         return {
             duracion: "",
             images: [],
-            index: 0
+            index: 0,
+            loginData: {
+                username: "",
+                password: ""
+            },
+            errorMessage: "",
+            autType: "",
         };
     },
     async mounted() {
-        let response = await axios.post("/generic/genericDS/Presentacion:Get_Presentacion", {});
+        hideProgress();
+        let response = await axios.post("/util/Presentacion", {});
         this.duracion = response.data.data[0][0].valor;
         await this.fetchImages();
         console.log(this.images)
@@ -23,7 +30,7 @@ loginVue = {
         async fetchImages() {
             
             try {
-                const { data } = await axios.post("/generic/genericDS/Presentacion:Get_Presentacion", {});
+                const { data } = await axios.post("/util/Presentacion", {});
                 if (data.data[1]) {
                     this.images = data.data[1].map(x => `/img/carrusel/${x.a}`);
                 }
@@ -42,7 +49,35 @@ loginVue = {
                 el.style.transition = "background-image 0.5s";
                 this.index = (this.index + 1) % this.images.length;
             }
+        }, 
+        validateUser: function () {
+            if (this.loginData.username.indexOf("@serlefin.com") >= 0) {
+                this.autType = "azure";
+                window.location = "./auth/getADRedirectPage"
+            } else
+                this.autType = "local";
+        },
+        async login() {
+            this.errorMessage = "";
+            showProgress();
+            var data = await httpFunc("/auth/login", this.loginData);
+            if (data.isError == false)
+                window.location = "./";
+            else {
+                this.errorMessage = data.errorMessage;
+                hideProgress();
+            }
+            
         }
     }
 };
 vm = createApp(loginVue).mount(mainDivId);
+
+function showProgress() {
+    document.getElementById("divProcess").style.display = "block";
+    return false;
+}
+function hideProgress() {
+    document.getElementById("divProcess").style.display = "none";
+    return false;
+}
