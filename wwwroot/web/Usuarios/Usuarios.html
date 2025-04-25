@@ -18,6 +18,7 @@
                     <span v-if="mode == 1">  /  Nuevo Usuario</span>
                     <span v-if="mode == 2">  /  Edición de Usuario</span>
                     <span v-if="mode == 3">  /  Permisos Temporales</span>
+                    <span v-if="mode == 4">  /  Restablecer Contraseña</span>
                 </div>
             </div>
             <!--LISTA USUARIOS-->
@@ -273,16 +274,12 @@
                         <!--TODO CONTRASEÑA-->
                         <div class='pure-u-1-1 pure-u-md-1-4' >
                             <div class='formInputStandard'>
-                                <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
-                                <input :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="contraseña" type="text" v-model="newUser.contraseña" placeholder="Contraseña"
-                                       class="pure-input-1" />
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button v-if="isusaurioEdit && editUser.id_tipo_usuario != 2" @click="mode = 4">Restablecer Contraseña</button>
                             </div>
                         </div>
                         <div class='pure-u-2-1 pure-u-md-4-6'>
-                            <div class='formInputStandard'>
-                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button v-if="isusaurioEdit" @click="asignarRol">Proponer Contraseña</button>
-                            </div>
+                            <div class='formInputStandard'></div>
                         </div>
                         <!--FIN TODO-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
@@ -411,6 +408,60 @@
                     </div>
                 </div>
                 <div class="pure-u-1-24"></div>
+            </div>
+            <div v-if="mode == 4" style="padding-top: 1em">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-1-1">
+                            <h2>Restablecer Contraseña</h2>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <label for="newPassword" style="display: block; margin-bottom: 0.3rem;">Nueva Contraseña</label>
+                                <input id="newPassword" type="text" placeholder="Contraseña" class="pure-input-1" v-model="newPassword"/>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button style="display: block; margin: 0 auto;" @click="randomPassword">Proponer Contraseña</button>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-2 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <label class="check" for="sendSMSPassword">
+                                    <input type='checkbox' value='0' v-model='sendSMSPassword' id='sendSMSPassword' />
+                                    <span class="checkmark"></span>
+                                    Notificar Contraseña por SMS
+                                </label>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-2 pure-u-md-1-4'>
+                            <div class='formInputStandard'>
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <label class="check" for="sendEmailPassword">
+                                    <input type='checkbox' value='0' v-model='sendEmailPassword' id='sendEmailPassword' />
+                                    <span class="checkmark"></span>
+                                    Notificar Contraseña por Email
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-2-3">
+                            <div>
+                                <div class="pure-g">
+                                    <div class="pure-u-1-2 pure-u-md-1-3" style="padding: 1rem 0.5rem 0 0">
+                                        <button @click="cancelPassword">Cancelar</button>
+                                    </div>
+                                    <div class="pure-u-1-2 pure-u-md-1-3" style="padding: 1rem 0.5rem 0 0">
+                                        <button @click="changePassword">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
