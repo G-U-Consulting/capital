@@ -105,7 +105,7 @@ app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string 
     string body = "";
     try {
         response.ContentType = "application/json";
-        return Auth.ProcessRequest(request, response, op, body).ToString(Newtonsoft.Json.Formatting.None);
+        return (await Auth.ProcessRequest(request, response, op, body, rootPath)).ToString(Newtonsoft.Json.Formatting.None);
     } catch (Exception ex) {
         Logger.Log("generic/" + op + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;

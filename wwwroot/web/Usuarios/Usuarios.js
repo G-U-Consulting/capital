@@ -31,6 +31,9 @@
                 "created_by": "",
                 "is_active": 0
             },
+            newPassword: "",
+            sendSMSPassword: 0,
+            sendEmailPassword: 0,
             hoy: "",
             fechaDesde: "",
             fechaHasta: "",
@@ -246,6 +249,60 @@
             var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoUsuarios" })).data;
             hideProgress();
             window.open("./docs/" + archivo, "_blank");
+        },
+        randomPassword() {
+            if (GlobalVariables.passwordPolicy) {
+              let {
+                history,
+                maxDaysChange,
+                minLength,
+                minNumbers,
+                minSpecialChars,
+              } = GlobalVariables.passwordPolicy;
+              let SpecialChars = ['~','@','#','_','*','%','+',':',';','='], password = [];
+              for (let x = 0; x < minLength - minNumbers - minSpecialChars; x++) {
+                password.push(String.fromCharCode(Math.floor(Math.random() * 26) + 65));
+                if (Math.random() > 0.5) password[x] = password[x].toLowerCase();
+              }
+              for (let x = 0; x < minNumbers; x++)
+                password.push(String.fromCharCode(Math.floor(Math.random() * 10) + 48));
+              for (let x = 0; x < minSpecialChars; x++)
+                password.push(SpecialChars[Math.floor(Math.random() * SpecialChars.length)]);
+              for (let i = password.length - 1; i > 0; i--) {
+                const randomIndex = Math.floor(Math.random() * (i + 1));
+                [password[i], password[randomIndex]] = [password[randomIndex], password[i]];
+              }
+              this.newPassword = password.join('');
+            }
+        },
+        async changePassword() {
+            if (this.editUser && this.newPassword){
+              var resp = await httpFunc("/auth/resetPassword", {
+                Email: this.editUser.email,
+                PasswordHash: this.hashPassword(this.newPassword),
+              });
+
+              if (resp.data === "OK") {
+                this.sendEmailPassword && this.notifyPassEmail(this.newPassword);
+                this.sendSMSPassword && this.notifyPassSMS(this.newPassword);
+              } else throw new Error({ message: resp.statusText, path: path, data: data });
+            }
+            if (this.newPassword) this.cancelPassword;
+        },
+        cancelPassword() {
+            this.newPassword = "";
+            this.sendEmailPassword = 0;
+            this.sendSMSPassword = 0;
+            this.mode = 2;
+        },
+        notifyPassSMS(password) {
+            
+        },
+        notifyPassEmail(password) {
+            
+        },
+        hashPassword(password) {
+            return password;
         }
     }
 }

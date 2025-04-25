@@ -63,7 +63,9 @@ var GlobalVariables = {
     roles: null,
     loadModule: null,
     modules: null,
-    ruta: null
+    ruta: null,
+    passwordPolicy: null
+
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null;
@@ -106,6 +108,7 @@ mainVue = {
         GlobalVariables.username = data.user;
         GlobalVariables.loadModule = this.loadModule;
         GlobalVariables.ruta = localStorage.getItem('ruta');
+        GlobalVariables.passwordPolicy = await this.getSeguridad();
         if (pars.loc != null && this.modules[pars.loc] != null) {
             var inpParamter = null;
             if (pars.id != null)
@@ -232,6 +235,35 @@ mainVue = {
         closeMenu() {
             this.showMobileMenu = false;
             this.zonePreSelected = null;
+        },
+        async getSeguridad() {
+            try {
+                const response = await httpFunc("/generic/genericDS/Seguridad:Get_Seguridad", {});
+                const variables = response.data;
+
+                if (Array.isArray(variables) && variables.length > 0 && Array.isArray(variables[0]) && variables[0].length > 0) {
+                    const data = variables[0][0];
+                    if (typeof data.valor === "string") {
+                        try {
+                            data.valor = JSON.parse(data.valor);
+                        } catch (error) {
+                            console.log("Error al parsear JSON de valor:", error);
+                            return;
+                        }
+                    }
+                    return {
+                        minLength: data.valor?.minLength,
+                        minNumbers: data.valor?.minNumbers,
+                        minSpecialChars: data.valor?.minSpecialChars,
+                        history: data.valor?.history,
+                        maxDaysChange: data.valor?.maxDaysChange
+                    };
+                } else {
+                    console.log("No se encontraron datos en Seguridad:Get_Seguridad");
+                }
+            } catch (error) {
+                console.log("Error al obtener datos de Seguridad:Get_Seguridad:", error);
+            }
         }
     }
 };
