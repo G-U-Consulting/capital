@@ -30,6 +30,8 @@ namespace orca.Code.Auth {
                 result = GetADRedirectPage(response);
             else if (op == "adlogin")
                 result = await ADLoginCallback(response, signInManager, body);
+            else if (op == "resetPassword")
+                result = (await ResetPassword(JObject.Parse(body), userManager)).ToString();
 
             if (result == null) {
                 response.StatusCode = 404;
@@ -143,11 +145,27 @@ namespace orca.Code.Auth {
             return ret;
         }
         public static async Task<JObject> CreateUser(JObject data, UserManager<IdentityUser> userManager) {
+            Console.WriteLine(data.ToString());
             string username = data["username"].Value<string>();
             IdentityUser iuser = userManager.Users.Where(user => user.UserName == username).FirstOrDefault();
             if (iuser == null) {
                 iuser = new IdentityUser(username);
                 IdentityResult ir = await userManager.CreateAsync(iuser, data["password"].Value<string>());
+                if (ir.Succeeded)
+                    return WebBDUt.NewBasicResponse(false, "OK");
+                else 
+                    return WebBDUt.NewBasicResponse(true, ir.Errors.First().Description);
+            }
+            return WebBDUt.NewBasicResponse(true, "El usuario ya existe");
+        }
+        public static async Task<JObject> ResetPassword(JObject data, UserManager<IdentityUser> userManager) {
+            Console.WriteLine(data.ToString());
+            string? username = data["username"]?.Value<string>();
+            string? newPassword = data["newPassword"]?.Value<string>();
+            IdentityUser? iuser = userManager.Users.Where(user => user.UserName == username).FirstOrDefault();
+            if (iuser != null && username != null && newPassword != null) {
+                string token = await userManager.GeneratePasswordResetTokenAsync(iuser);
+                IdentityResult ir = await userManager.ResetPasswordAsync(iuser, token, newPassword);
                 if (ir.Succeeded)
                     return WebBDUt.NewBasicResponse(false, "OK");
                 else 

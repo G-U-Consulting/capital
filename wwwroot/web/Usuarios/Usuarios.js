@@ -278,10 +278,10 @@
         async changePassword() {
             if (this.editUser && this.newPassword){
               var resp = await httpFunc("/auth/resetPassword", {
-                Email: this.editUser.email,
-                PasswordHash: this.hashPassword(this.newPassword),
+                username: this.editUser.usuario,
+                newPassword: this.hashPassword(this.newPassword),
               });
-
+              console.log(resp);
               if (resp.data === "OK") {
                 this.sendEmailPassword && this.notifyPassEmail(this.newPassword);
                 this.sendSMSPassword && this.notifyPassSMS(this.newPassword);
