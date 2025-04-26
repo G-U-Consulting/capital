@@ -127,7 +127,7 @@
                         </div>
                         <!--TODO CONTRASEÑA-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
+                            <div class='formInputStandard' v-if="newUser.id_tipo_usuario != 2">
                                 <label for="email" style="display: block; margin-bottom: 0.3rem;">Contraseña</label>
                                 <input id="contraseña" type="text" v-model="newUser.contraseña" placeholder="Contraseña"
                                        class="pure-input-1" />
@@ -136,7 +136,7 @@
                         <div class='pure-u-2-1 pure-u-md-4-6'>
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button @click="asignarRol">Proponer Contraseña</button>
+                                <button @click="randomPassword(newUser)" v-if="newUser.id_tipo_usuario != 2">Proponer Contraseña</button>
                             </div>
                         </div>
                         <!--FIN TODO-->
@@ -425,7 +425,7 @@
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button style="display: block; margin: 0 auto;" @click="randomPassword">Proponer Contraseña</button>
+                                <button style="display: block; margin: 0 auto;" @click="randomPassword(null)">Proponer Contraseña</button>
                             </div>
                         </div>
                         <div class='pure-u-1-2 pure-u-md-1-4'>

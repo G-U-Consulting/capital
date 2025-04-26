@@ -145,7 +145,6 @@ namespace orca.Code.Auth {
             return ret;
         }
         public static async Task<JObject> CreateUser(JObject data, UserManager<IdentityUser> userManager) {
-            Console.WriteLine(data.ToString());
             string username = data["username"].Value<string>();
             IdentityUser iuser = userManager.Users.Where(user => user.UserName == username).FirstOrDefault();
             if (iuser == null) {
@@ -159,7 +158,6 @@ namespace orca.Code.Auth {
             return WebBDUt.NewBasicResponse(true, "El usuario ya existe");
         }
         public static async Task<JObject> ResetPassword(JObject data, UserManager<IdentityUser> userManager) {
-            Console.WriteLine(data.ToString());
             string? username = data["username"]?.Value<string>();
             string? newPassword = data["newPassword"]?.Value<string>();
             IdentityUser? iuser = userManager.Users.Where(user => user.UserName == username).FirstOrDefault();
@@ -171,7 +169,7 @@ namespace orca.Code.Auth {
                 else 
                     return WebBDUt.NewBasicResponse(true, ir.Errors.First().Description);
             }
-            return WebBDUt.NewBasicResponse(true, "El usuario ya existe");
+            return WebBDUt.NewBasicResponse(true, "Datos incorrectos");
         }
     }
 }

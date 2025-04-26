@@ -250,7 +250,7 @@
             hideProgress();
             window.open("./docs/" + archivo, "_blank");
         },
-        randomPassword() {
+        randomPassword(newUser) {
             if (GlobalVariables.passwordPolicy) {
               let {
                 history,
@@ -272,16 +272,16 @@
                 const randomIndex = Math.floor(Math.random() * (i + 1));
                 [password[i], password[randomIndex]] = [password[randomIndex], password[i]];
               }
-              this.newPassword = password.join('');
+              if (newUser) newUser.contraseña = password.join('');
+              else this.newPassword = password.join('');
             }
         },
         async changePassword() {
             if (this.editUser && this.newPassword){
               var resp = await httpFunc("/auth/resetPassword", {
                 username: this.editUser.usuario,
-                newPassword: this.hashPassword(this.newPassword),
+                newPassword: this.newPassword,
               });
-              console.log(resp);
               if (resp.data === "OK") {
                 this.sendEmailPassword && this.notifyPassEmail(this.newPassword);
                 this.sendSMSPassword && this.notifyPassSMS(this.newPassword);
@@ -300,9 +300,6 @@
         },
         notifyPassEmail(password) {
             
-        },
-        hashPassword(password) {
-            return password;
         }
     }
 }
