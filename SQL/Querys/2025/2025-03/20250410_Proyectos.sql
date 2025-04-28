@@ -125,7 +125,9 @@ create table fact_proyectos(
 	link_cartilla_negocios varchar(200),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	id_banco_constructor int,
+	constraint fk_id_banco_fact_proyectos foreign key(id_banco_constructor) references dim_banco_constructor(id_banco)
 );
 /*
 drop table fact_proyectos;

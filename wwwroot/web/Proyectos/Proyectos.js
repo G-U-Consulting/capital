@@ -59,7 +59,8 @@
                 email_receptor_1: "",
                 email_receptor_2: "",
                 email_receptor_3: "",
-                email_receptor_4: ""
+                email_receptor_4: "",
+                id_banco_constructor: ""
             },
             camposPorSubmode: {
                 0: ["nombre","direccion"],
@@ -91,6 +92,7 @@
             estadosPublicacion: [],
             tiposVIS: [],
             tiposFinanciacion: [], 
+            bancos: [],
             opcionesVisuales: [],
             tabsIncomplete: [],
             tabs: [
@@ -122,6 +124,7 @@
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         //await this.setMainMode(1);
         //this.mode = 1;
+        this.bancos = (await httpFunc("/generic/genericDT/General:Get_Bancos", {})).data;
     },
     methods: {
         async setMainMode(mode) {
