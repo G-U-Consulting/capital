@@ -62,6 +62,14 @@
                 email_receptor_4: "",
                 id_banco_constructor: ""
             },
+            logoPreview: null,
+            slidePreview: null,
+            plantaPreview: null,
+            isExpanded: {
+              logo: false,
+              slide: false,
+              planta: false
+            },
             camposPorSubmode: {
                 0: ["nombre","direccion"],
                 1: ["subsidios_vis"],
@@ -201,5 +209,38 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         },
+        previewImage(event, type) {
+            const file = event.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = () => {
+                if (type === 'logoPreview') {
+                  this.logoPreview = reader.result;
+                } else if (type === 'slidePreview') {
+                  this.slidePreview = reader.result;
+                } else if (type === 'plantaPreview') {
+                  this.plantaPreview = reader.result;
+                }
+              };
+              reader.readAsDataURL(file);
+            }
+          },
+        expandImage(type) {
+            this.isExpanded[type] = true;
+        },
+        closeModal() {
+            this.isExpanded.logo = false;
+            this.isExpanded.slide = false;
+            this.isExpanded.planta = false;
+        },
+        removePreview(type) {
+            if (type === 'logo') {
+                this.logoPreview = null;
+            } else if (type === 'slide') {
+                this.slidePreview = null;
+            } else if (type === 'planta') {
+                this.plantaPreview = null;
+            }
+        }
     }
 };
