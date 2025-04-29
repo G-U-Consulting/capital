@@ -66,7 +66,7 @@ export default {
             if (mode == 1) {
                 showProgress();
                 this.setRuta("Roles");
-                this.hasPermission(6) && await this.getRoles();
+                await this.getRoles();
                 await this.loadAccess();
                 hideProgress();
             }
@@ -100,7 +100,8 @@ export default {
             hideProgress();
         },
         async getRoles() {
-            this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", this.filtro)).data;
+            if (this.hasPermission(6))
+                this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", this.filtro)).data;
         },
         async insNewRole() {
             this.newRole["permisos"] = "";

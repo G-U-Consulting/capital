@@ -161,10 +161,13 @@
                     { tipo: 'email', campo: 'email_receptor_4' }
                 ],
             },
-            isFormularioCompleto: false, 
+            isFormularioCompleto: false,
+            agrupamientoImg: [], 
+            categoriasMedios: [],
             tiposVIS: [],
             tiposFinanciacion: [], 
             bancos: [],
+            fiduciaria: [],
             opcionesVisuales: [],
             tabsIncomplete: [],
             tabs: [
@@ -445,6 +448,10 @@
         },
         hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
+        },
+        onUpdate(lista) {
+            console.log(lista);
+            this.mode = 2;
         }
     },    
 };
