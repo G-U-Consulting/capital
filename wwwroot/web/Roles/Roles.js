@@ -3,7 +3,7 @@ export default {
         return {
             mainmode: 0,
             mode: 0,
-            seachRole: "",
+            filtro: { rol: "", id_sede: "" },
             roles: [],
             sedes:[],
             selectedRolId: "",
@@ -66,8 +66,7 @@ export default {
             if (mode == 1) {
                 showProgress();
                 this.setRuta("Roles");
-                if(this.hasPermission(6))
-                    this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
+                this.hasPermission(6) && await this.getRoles();
                 await this.loadAccess();
                 hideProgress();
             }
@@ -99,6 +98,9 @@ export default {
             };
             this.sedes.forEach(item => item.checked = false);
             hideProgress();
+        },
+        async getRoles() {
+            this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", this.filtro)).data;
         },
         async insNewRole() {
             this.newRole["permisos"] = "";

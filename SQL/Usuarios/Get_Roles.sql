@@ -2,7 +2,9 @@
 -- Proceso: Usuarios/Get_Roles
 -- =============================================
 --START_PARAM
-set @rol = '';
+set @rol = '',
+    @id_sede = '';
+
 --END_PARAM
 
 set @prol = concat('%', @rol, '%');
@@ -12,5 +14,6 @@ select a.id_rol, a.rol, a.descripcion,date_format(a.created_on, '%Y-%m-%d %T') a
 from fact_roles a
     left join dim_sede b on a.id_sede = b.id_sede
 where a.rol like @prol collate utf8mb4_unicode_ci
+and (@id_sede = '' or b.id_sede = @id_sede)
 order by a.id_rol desc;
 

@@ -26,19 +26,28 @@
                     <h2>Roles</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
-                                <input type="text" placeholder="Rol" />
+                            <div class="pure-u-1-1 pure-u-md-1-2">
+                                <input type="text" placeholder="Rol" v-model="filtro.rol" @keydown.enter="getRoles"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24">
                                 <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                                    <img src="./img/ico/svg/search.svg" @click="getRoles"/>
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24" style="padding-left: 1em;">
+                                <select v-model="filtro.id_sede" @change="getRoles()" class="pure-input-1">
+                                    <option value="">[Todas las sedes]</option>
+                                    <option v-for="item in sedes" v-bind:value="item.id_sede">{{item.sede}}</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24">
                                 <img src="../../img/cli/excel_02.png" alt="Excel" class="logoExcel" @click="exportExcel" 
                                      title="Descargar datos a Excel">
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-4-24">
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-4-24" >
                                 <button v-on:click="startNewRole()" style="width:50%; margin: 0em 0em 0em 3em" v-if="hasPermission(7)">Nuevo Rol</button>
                             </div>
                         </div>
