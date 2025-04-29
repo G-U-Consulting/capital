@@ -1,4 +1,5 @@
-﻿create table dim_ubicacion_proyecto(
+﻿----validar si se debe agregar---
+create table dim_ubicacion_proyecto(
 	id_ubicacion_proyecto int not null auto_increment,
 	constraint pk_dim_ubicacion_proyecto primary key (id_ubicacion_proyecto),
 	ubicacion varchar(200),
@@ -73,6 +74,32 @@ create table dim_opcion_visual(
 	created_by varchar(200) default current_user
 );
 
+create table dim_zona_proyecto (
+    id_zona_proyecto INT NOT NULL auto_increment,
+    constraint pk_dim_zona_proyecto primary key (id_zona_proyecto),
+    zona_proyecto varchar(200),
+    codigo varchar(10),
+    is_active BIT default 1,
+    created_on DATETIME default current_timestamp,
+    created_by varchar(200) default CURRENT_USER
+);
+create table dim_ciudadela (
+    id_ciudadela int not null auto_increment,
+    constraint pk_ciudadela primary key (id_ciudadela),
+    ciudadela varchar(200),
+    codigo varchar(10),
+    is_active bit default 1,
+    created_on datetime default current_timestamp,
+    created_by varchar(200) default current_user
+);
+create table dim_banco_constructor(
+	id_banco int not null auto_increment,
+	banco varchar(100),
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user,
+	constraint pk_dim_banco_constructor primary key(id_banco)
+);
+
 create table fact_proyectos(
 	id_proyecto int not null auto_increment,
 	constraint pk_fact_proyectos primary key (id_proyecto),
@@ -80,16 +107,22 @@ create table fact_proyectos(
 	constraint fk_id_sede_fact_proyectos foreign key(id_sede) references dim_sede(id_sede),
 	id_estado_publicacion int,
 	constraint fk_id_estado_publicacion_fact_proyectos foreign key(id_estado_publicacion) references dim_estado_pubicacion(id_estado_publicacion), 
-	id_ubicacion_proyecto int,
-	constraint fk_id_ubicacion_proyecto_fact_proyectos foreign key(id_ubicacion_proyecto) references dim_ubicacion_proyecto(id_ubicacion_proyecto),
 	nombre varchar(200),
 	id_tipo_proyecto int,
 	constraint fk_id_tipo_proyecto_fact_proyectos foreign key(id_tipo_proyecto) references dim_tipo_proyecto(id_tipo_proyecto),
+	id_ciudadela int,
+	constraint fk_id_ciudadela_fact_proyectos foreign key(id_ciudadela) references dim_ciudadela(id_ciudadela),
 	subsidios_vis varchar(200),
 	dias_separacion int,
+	id_opcion_visual int,
+	constraint fk_id_opcion_visual_fact_proyectos foreign key(id_opcion_visual) references dim_opcion_visual(id_opcion_visual),
 	dias_cierre_sala int,
 	meses_ci int,
 	dias_pago_ci_banco_amigo int,
+	id_tipo_vis int,
+	constraint fk_id_tipo_vis_fact_proyectos foreign key(id_tipo_vis) references dim_tipo_vis(id_tipo_vis),
+	id_tipo_financiacion int,
+	constraint fk_id_tipo_financiacion_fact_proyectos foreign key(id_tipo_financiacion) references dim_tipo_financiacion(id_tipo_financiacion),
 	dias_pago_ci_banco_no_amigo int,
 	email_cotizaciones varchar(200),
 	email_coordinador_sala varchar(200),
@@ -103,8 +136,8 @@ create table fact_proyectos(
     email_receptor_2 varchar(50),
     email_receptor_3 varchar(50),
     email_receptor_4 varchar(50),
-	id_zona int,
-	constraint fk_id_zona_fact_proyectos foreign key(id_zona) references dim_zona(id_zona),
+	id_zona_proyecto int,
+	constraint fk_id_zona_proyecto_fact_proyectos foreign key(id_zona_proyecto) references dim_zona_proyecto(id_zona_proyecto),
 	link_waze varchar(200),
 	latitud double,
 	otra_info text,
@@ -177,3 +210,84 @@ insert into dim_opcion_visual(opcion_visual) values
 ('Oculat info Separación'),
 ('Mostrar Botón "Link de Pagos"'),
 ('Mostrar Precio como smmlv');
+
+insert into dim_pie_legal (pie_legal) values
+('General Davivienda'),
+('General Bancolombia'),
+('Banco Colpatria'),
+('General Davivienda NO VIS'),
+('General Bancolombia NO VIS'),
+('Banco Colpatria NO VIS'),
+('General BBVA NO VIS'),
+('General Davivienda NO VIS en SMMLV');
+
+
+insert into dim_fiduciaria (fiduciaria) values
+('Alianza Fiduciaria'),
+('BNP Paribas'),
+('BTG Pactual'),
+('Citi'),
+('Colmena Fiduciaria'),
+('Credicorp Capital Fiduciaria'),
+('Davivienda Fiduciaria'),
+('Fidugraria'),
+('Fiduciaria Bancolombia'),
+('Fiduciaria BBVA'),
+('Fiduciaria Bogotá'),
+('Fiduciaria Central'),
+('Fiduciaria Corficolombiana'),
+('Fiduciaria Popular'),
+('Fiduciaria Sura'),
+('Fiducoldex'),
+('Fiducoomeva'),
+('Fiduoccidente'),
+('Fiduprevisora'),
+('GNB Sudameris'),
+('Itaú Fiduciaria'),
+('Renta 4 Global'),
+('Santander Caceis'),
+('Scotia Colpatria Fiduciaria'),
+('Skandia');
+
+insert into dim_zona_proyecto (zona_proyecto) values
+('Bogotá (Fontibón, Bosa, Centro, Sur-Occidente, Puente Aranda, Usaquén)'),
+('Pruebas'),
+('Sabana Norte (Chía, Zipaquirá, Tocancipá)'),
+('Sabana Occidente (Mosquera, Madrid)');
+
+insert into dim_ciudadela (ciudadela) values
+('alameda de zipaquirá'),
+('alegra'),
+('belari'),
+('ciudad del sol'),
+('fontibón'),
+('la arboleda'),
+('la prosperidad'),
+('la toscana'),
+('los maderos'),
+('novaterra'),
+('urbania');
+
+insert into dim_tipo_proyecto (tipo_proyecto) values
+('Apartamentos'),
+('Casas'),
+('Oficina'),
+('Local'),
+('Consultorio'),
+('Parqueadero');
+
+insert into dim_banco_constructor (banco) values
+('Davivienda'),
+('Bancolombia'),
+('Banco de Bogotá'),
+('Banco Popular'),
+('BBVA Colombia'),
+('Banco de Occidente'),
+('Banco AV Villas'),
+('Scotiabank Colpatria'),
+('Banco Itaú'),
+('Banco Caja Social'),
+('Banco GNB Sudameris'),
+('Banco Pichincha'),
+('Bancoomeva'),
+('Banco Finandina');
