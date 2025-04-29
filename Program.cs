@@ -1,4 +1,5 @@
-﻿using capital.Code.Util;
+﻿using capital.Code.Inte;
+using capital.Code.Util;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json.Linq;
 using orca.Code.Api;
@@ -50,6 +51,7 @@ string rootPath = builder.Environment.ContentRootPath;
 Logger.Init(rootPath);
 Logger.Log("INIT");
 WebBDUt.Init(rootPath, !app.Environment.IsDevelopment(), orca.ConfigurationManager.AppSetting["DefaultDB"]);
+string defaultDB = WebBDUt.GetConnectionStringByName(orca.ConfigurationManager.AppSetting["DefaultDB"]);
 /*****************************************************************************/
 /***************************** Servicios *************************************/
 /*****************************************************************************/
@@ -89,7 +91,6 @@ app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string 
     }
 
 }).WithName("Util");
-
 /*****************************************************************************/
 /***************************** Autenticacion *********************************/
 /*****************************************************************************/
@@ -108,9 +109,8 @@ app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string 
     }
 
 }).WithName("Auth");
-
 /*****************************************************************************/
-/***************************** Carrusel  *************************************/
+/***************************** API  ******************************************/
 /*****************************************************************************/
 app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
 {
@@ -143,5 +143,20 @@ app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
     }
     return Results.Ok(new { message = "✅ ¡Imágenes actualizadas!" });
 });
+app.Map("/api/internal/{op}", async (HttpRequest request, HttpResponse response, string op) => {
+    string body = "";
+    try {
+        response.ContentType = "application/json";
+        using (var stream = new StreamReader(request.Body)) {
+            body = await stream.ReadToEndAsync();
+        }
+        return await Api.ProcessRequest(request, response, op, body, defaultDB, rootPath);
+    } catch (Exception ex) {
+        Logger.Log("api/internal/" + op + "\t" + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message;
+    }
+
+}).WithName("ApiInternal");
 app.Run();
-        
+
