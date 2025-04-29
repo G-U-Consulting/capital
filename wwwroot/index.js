@@ -5,6 +5,7 @@ const { createApp } = Vue;
 var GlobalVariables = {
     username: null,
     roles: null,
+    permisos: null,
     loadModule: null,
     modules: null,
     ruta: null,
@@ -18,18 +19,17 @@ mainVue = {
     data() {
         return {
             moduleSelected: null,
-            loginData: { user: "", roles: [], debug: false },
+            loginData: { user: "", roles: [], permisos: [], debug: false },
             modules: null,
             showMobileMenu: true,
             showModuleMenu: false,
             mostrarMenu: false,
-            modules: null,
             zones: null,
             zoneSelected: null,
             zonePreSelected: null,
             categories: null,
             categorySelected: null,
-            
+
         }
     },
     async mounted() {
@@ -48,7 +48,9 @@ mainVue = {
         this.loginData = data;
         this.modules = GlobalVariables.modules["modules"];
         this.zones = GlobalVariables.modules["zones"];
+        this.hideModules(this.modules);
         GlobalVariables.roles = data.roles;
+        GlobalVariables.permisos = data.permisos;
         GlobalVariables.username = data.user;
         GlobalVariables.loadModule = this.loadModule;
         GlobalVariables.ruta = localStorage.getItem('ruta');
@@ -149,10 +151,15 @@ mainVue = {
             if (name == "Index" || this.modules[name].allow.indexOf("*") >= 0)
                 return true;
             for (var i = 0; i < this.loginData.roles.length; i++) {
-                if (this.modules[name].allow.indexOf(this.loginData.roles[i]) >= 0)
+                if (this.modules[name].allow.indexOf(this.loginData.roles[i].rol) >= 0)
                     return true;
             }
             return false;
+        },
+        hideModules(modules) {
+            for (const name in modules) 
+                if (!this.checkAcces(name))
+                    modules[name].hidden = true;
         },
         handleClick(item) {
             if (item.isLogOut) {

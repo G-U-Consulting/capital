@@ -101,6 +101,7 @@ app.Map("/auth/{op}", async (HttpRequest request, HttpResponse response, string 
         using (var stream = new StreamReader(request.Body)) {
             body = await stream.ReadToEndAsync();
         }
+        if (Auth.rootPath == null) Auth.rootPath = rootPath;
         return await Auth.ProcessRequest(request, response, op, body, userManager, signInManager);
     } catch (Exception ex) {
         Logger.Log("auth/" + op + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);

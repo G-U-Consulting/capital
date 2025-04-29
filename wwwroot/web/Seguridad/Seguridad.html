@@ -28,7 +28,7 @@
                   </div>
                   <div class="pure-u-1-1">
                     <div class="pure-u-1-2">
-                      <input type="number" v-model="passwordPolicy.minLength"/>
+                      <input :readonly="!hasPermission(9)" type="number" v-model="passwordPolicy.minLength"/>
                     </div>
                   </div>
                 </div>
@@ -38,7 +38,7 @@
                   </div>
                   <div class="pure-u-1-1">
                     <div class="pure-u-1-2">
-                      <input type="number" v-model="passwordPolicy.minNumbers" />
+                      <input :readonly="!hasPermission(9)" type="number" v-model="passwordPolicy.minNumbers" />
                     </div>
                   </div>
                 </div>
@@ -48,7 +48,7 @@
                   </div>
                   <div class="pure-u-1-1">
                     <div class="pure-u-1-2">
-                      <input type="text" v-model="passwordPolicy.minSpecialChars" />
+                      <input :readonly="!hasPermission(9)" type="text" v-model="passwordPolicy.minSpecialChars" />
                     </div>
                   </div>
                 </div>
@@ -58,7 +58,7 @@
                   </div>
                   <div class="pure-u-1-1">
                     <div class="pure-u-1-2">
-                      <input type="number" v-model="passwordPolicy.history" />
+                      <input :readonly="!hasPermission(9)" type="number" v-model="passwordPolicy.history" />
                     </div>
                   </div>
                 </div>
@@ -68,13 +68,13 @@
                   </div>
                   <div class="pure-u-1-1">
                     <div class="pure-u-1-2">
-                      <input type="number" v-model="passwordPolicy.maxDaysChange" />
+                      <input :readonly="!hasPermission(9)" type="number" v-model="passwordPolicy.maxDaysChange" />
                     </div>
                   </div>
                 </div>
                 <div style="text-align:right">
                   <br /><br /><br />
-                  <button @click="updatePolicy">Actualizar</button>
+                  <button @click="updatePolicy" v-if="hasPermission(9)">Actualizar</button>
                 </div>
               </div>
             </div>

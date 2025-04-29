@@ -66,7 +66,8 @@ export default {
             if (mode == 1) {
                 showProgress();
                 this.setRuta("Roles");
-                this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
+                if(this.hasPermission(6))
+                    this.roles = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": this.seachRole })).data;
                 await this.loadAccess();
                 hideProgress();
             }
@@ -292,6 +293,9 @@ export default {
         },
         async exportExcel(){
             const res = await httpFunc("/exportExcel/");
+        },
+        hasPermission(id) {
+            return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         }
     }
 }

@@ -54,7 +54,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-24">
-                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()">
+                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()" v-if="hasPermission(2)">
                                     Nuevo Usuario
                                 </button>
                             </div>
@@ -74,7 +74,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in users" v-on:click="selectUser(item)">
+                                <tr v-for="item in users" v-on:click="hasPermission(3) && selectUser(item)">
                                     <td style="width: 15rem">{{item.usuario}}</td>
                                     <td>{{item.nombres}}</td>
                                     <td>{{item.cargo}}</td>
@@ -231,7 +231,7 @@
                             <h2>Editar Usuario</h2>
                         </div>
                         <div class="pure-u-2-1 pure-u-md-1-2" style="text-align: right;">
-                            <div class="formInputStandard" style="display: flex; align-items: center; justify-content: flex-end;">
+                            <div class="formInputStandard" style="display: flex; align-items: center; justify-content: flex-end;" v-if="hasPermission(5)">
                                 <div style="margin-right: 10px;">
                                     {{ Number(editUser.is_active) === 0 ? 'Usuario Inactivo' : 'Usuario Activo' }}
                                 </div>
@@ -275,7 +275,7 @@
                         <div class='pure-u-1-1 pure-u-md-1-4' >
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button v-if="isusaurioEdit && editUser.id_tipo_usuario != 2" @click="mode = 4">Restablecer Contraseña</button>
+                                <button v-if="hasPermission(4) && editUser.id_tipo_usuario != 2" @click="mode = 4">Restablecer Contraseña</button>
                             </div>
                         </div>
                         <div class='pure-u-2-1 pure-u-md-4-6'>
@@ -409,6 +409,7 @@
                 </div>
                 <div class="pure-u-1-24"></div>
             </div>
+            <!--RESTABLECER CONTRASEÑA-->
             <div v-if="mode == 4" style="padding-top: 1em">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
@@ -416,48 +417,46 @@
                         <div class="pure-u-1-1 pure-u-md-1-1">
                             <h2>Restablecer Contraseña</h2>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <label for="newPassword" style="display: block; margin-bottom: 0.3rem;">Nueva Contraseña</label>
-                                <input id="newPassword" type="text" placeholder="Contraseña" class="pure-input-1" v-model="newPassword"/>
-                            </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button style="display: block; margin: 0 auto;" @click="randomPassword(null)">Proponer Contraseña</button>
-                            </div>
-                        </div>
-                        <div class='pure-u-1-2 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <label class="check" for="sendSMSPassword">
-                                    <input type='checkbox' value='0' v-model='sendSMSPassword' id='sendSMSPassword' />
-                                    <span class="checkmark"></span>
-                                    Notificar Contraseña por SMS
-                                </label>
-                            </div>
-                        </div>
-                        <div class='pure-u-1-2 pure-u-md-1-4'>
-                            <div class='formInputStandard'>
-                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <label class="check" for="sendEmailPassword">
-                                    <input type='checkbox' value='0' v-model='sendEmailPassword' id='sendEmailPassword' />
-                                    <span class="checkmark"></span>
-                                    Notificar Contraseña por Email
-                                </label>
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-2-3">
-                            <div>
-                                <div class="pure-g">
-                                    <div class="pure-u-1-2 pure-u-md-1-3" style="padding: 1rem 0.5rem 0 0">
-                                        <button @click="cancelPassword">Cancelar</button>
-                                    </div>
-                                    <div class="pure-u-1-2 pure-u-md-1-3" style="padding: 1rem 0.5rem 0 0">
-                                        <button @click="changePassword">Guardar</button>
-                                    </div>
+                        <div class='pure-u-1-1 pure-u-md-1-2'>
+                            <div class='pure-u-1-1 pure-u-md-1-2'>
+                                <div class='formInputStandard'>
+                                    <label for="newPassword" style="display: block; margin-bottom: 0.3rem;">Nueva Contraseña</label>
+                                    <input id="newPassword" type="text" placeholder="Contraseña" class="pure-input-1"
+                                        v-model="newPassword" />
                                 </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-2'>
+                                <div class='formInputStandard'>
+                                    <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                    <button style="display: block; margin: 0 auto;" @click="randomPassword(null)">Proponer
+                                        Contraseña</button>
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-1'>
+                                <div class='formInputStandard'>
+                                    <label class="check" for="sendSMSPassword">
+                                        <input type='checkbox' value='0' v-model='sendSMSPassword' id='sendSMSPassword' />
+                                        <span class="checkmark"></span>
+                                        Notificar Contraseña por SMS
+                                    </label>
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-1'>
+                                <div class='formInputStandard'>
+                                    <label class="check" for="sendEmailPassword">
+                                        <input type='checkbox' value='0' v-model='sendEmailPassword' id='sendEmailPassword' />
+                                        <span class="checkmark"></span>
+                                        Notificar Contraseña por Email
+                                    </label>
+                                    <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="pure-u-1-2 pure-u-md-1-2">
+                                <button @click="cancelPassword" style="display: block; margin: 0px auto;">Cancelar</button>
+                            </div>
+                            <div class="pure-u-1-2 pure-u-md-1-2">
+                                <button @click="changePassword" style="display: block; margin: 0px auto;">Guardar</button>
                             </div>
                         </div>
                     </div>

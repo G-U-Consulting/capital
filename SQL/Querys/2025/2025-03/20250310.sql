@@ -159,13 +159,7 @@ create table dim_carrusel_imagenes (
     created_on datetime default current_timestamp
 );
 
-create table dim_banco_constructor(
-	id_banco int not null,
-	banco varchar(100),
-	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user,
-	constraint pk_dim_banco_constructor primary key(id_banco)
-);
+
 
 create table AuditoriaSQL (
 	id bigint auto_increment primary key,

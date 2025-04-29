@@ -39,7 +39,7 @@
                                      title="Descargar datos a Excel">
                             </div>
                             <div class="pure-u-1-1 pure-u-md-4-24">
-                                <button v-on:click="startNewRole()" style="width:50%; margin: 0em 0em 0em 3em">Nuevo Rol</button>
+                                <button v-on:click="startNewRole()" style="width:50%; margin: 0em 0em 0em 3em" v-if="hasPermission(7)">Nuevo Rol</button>
                             </div>
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in roles" v-on:click="selectRole(item)">
+                                <tr v-for="item in roles" v-on:click="hasPermission(8) && selectRole(item)">
                                     <td style="width: 15rem;">{{item.rol}}</td>
                                     <td>{{item.descripcion}}</td>
                                     <td style="text-align: center; width: 5rem;">{{item.sede}}</td>

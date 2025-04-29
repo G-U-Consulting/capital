@@ -10,14 +10,16 @@ using Microsoft.AspNetCore.Html;
 using DocumentFormat.OpenXml.InkML;
 using System.Xml;
 using System.Web;
+using orca.Code.Api;
 
 namespace orca.Code.Auth {
     public static class Auth {
+        public static string? rootPath = null;
         public static async Task<string> ProcessRequest(HttpRequest request, HttpResponse response, string op, string body, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager) {
             response.ContentType = "application/json";
             string result = null;
             if (op == "getUserProfile") 
-                result = GetUserProfile(request, response).ToString();
+                result = (await GetUserProfile(request, response)).ToString();
             else if (op == "createUser") 
                 result = (await CreateUser(JObject.Parse(body), userManager)).ToString();
             else if (op == "createUsers")
@@ -98,16 +100,19 @@ namespace orca.Code.Auth {
                 }
             return ret;
         }
-        public static JObject GetUserProfile(HttpRequest request, HttpResponse response) {
+        public static async Task<JObject> GetUserProfile(HttpRequest request, HttpResponse response) {
             var user = request.HttpContext.User;
-            if(user == null || !user.Identity.IsAuthenticated) {
+            if (user == null || !user.Identity.IsAuthenticated)
+            {
                 response.StatusCode = 401;
                 return WebBDUt.NewBasicResponse(true, "El usuario no está autenticado");
             }
             JObject result = WebBDUt.NewBasicResponse(false, null);
             JObject tmp = new JObject();
-            tmp["user"] = "administrador";
-            tmp["roles"] = new JArray();
+            var res = await Generic.ProcessRequest(request, response, "genericDS", "Usuarios/Get_RolesUsuario", "{username:'" + user.Identity.Name + "'}", rootPath);
+            tmp["user"] = user.Identity.Name;
+            tmp["roles"] = res["data"]?[0];
+            tmp["permisos"] = res["data"]?[1];
             tmp["debug"] = true;
             result[WebBDUt.DATA] = tmp;
             return result;

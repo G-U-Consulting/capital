@@ -88,7 +88,7 @@
             if (mode == 1) {
                 this.setRuta("Usuarios");
                 showProgress();
-                await this.getUsuarios();
+                this.hasPermission(1) && await this.getUsuarios();
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 this.tiposUsuario = variables[1];
@@ -139,6 +139,7 @@
             showProgress();
             const resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
             hideProgress();
+            showConfirm("¿Desea enviar un email con los datos?", this.notifyEmail, null, this.newUser);
 
             this.setMainMode(1);
         },
@@ -283,8 +284,9 @@
                 newPassword: this.newPassword,
               });
               if (resp.data === "OK") {
-                this.sendEmailPassword && this.notifyPassEmail(this.newPassword);
-                this.sendSMSPassword && this.notifyPassSMS(this.newPassword);
+                this.editUser.contraseña = this.newPassword;
+                this.sendEmailPassword && this.notifyEmail(this.editUser);
+                this.sendSMSPassword && this.notifySMS(this.editUser);
               } else throw new Error({ message: resp.statusText, path: path, data: data });
             }
             if (this.newPassword) this.cancelPassword;
@@ -295,11 +297,14 @@
             this.sendSMSPassword = 0;
             this.mode = 2;
         },
-        notifyPassSMS(password) {
+        notifySMS(user) {
             
         },
-        notifyPassEmail(password) {
+        notifyEmail(user) {
             
+        },
+        hasPermission(id) {
+            return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         }
     }
 }
