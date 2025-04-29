@@ -16,3 +16,18 @@ where is_active = 1;
 select id_opcion_visual, opcion_visual
 from dim_opcion_visual
 where is_active = 1;
+
+select id_sede , sede
+from dim_sede;
+
+select id_zona, zona
+from dim_zona;
+
+select id_tipo_proyecto, tipo_proyecto 
+from dim_tipo_proyecto
+where is_active = 1;
+
+select id_ubicacion_proyecto, ubicacion
+from dim_ubicacion_proyecto 
+where is_active = 1;
+
