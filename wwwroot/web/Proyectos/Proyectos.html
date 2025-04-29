@@ -37,7 +37,7 @@
                             </div>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-5-24">
-                            <button style="width:100%" v-on:click="mode = 1">Nuevo Proyecto</button>
+                            <button style="width:100%" v-on:click="mode = 1" v-if="hasPermission(12)">Nuevo Proyecto</button>
                         </div>
                     </div>
                 </div>

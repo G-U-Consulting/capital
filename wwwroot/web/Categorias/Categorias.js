@@ -274,6 +274,9 @@ export default {
                 console.error("Error al convertir a archivo:", e);
                 return null;
             }
+        },
+        hasPermission(id) {
+            return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         }
     }
 }

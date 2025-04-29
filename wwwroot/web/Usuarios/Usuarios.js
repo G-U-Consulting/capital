@@ -88,7 +88,7 @@
             if (mode == 1) {
                 this.setRuta("Usuarios");
                 showProgress();
-                await this.getUsuarios();
+                this.hasPermission(1) && await this.getUsuarios();
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 this.tiposUsuario = variables[1];
@@ -302,6 +302,9 @@
         },
         notifyEmail(user) {
             
+        },
+        hasPermission(id) {
+            return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         }
     }
 }

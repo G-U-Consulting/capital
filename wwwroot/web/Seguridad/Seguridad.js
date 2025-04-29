@@ -69,6 +69,9 @@
             } catch (error) {
                 console.error("Error en la actualización:", error);
             }
+        },
+        hasPermission(id) {
+            return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         }
     }
 };

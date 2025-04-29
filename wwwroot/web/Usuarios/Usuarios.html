@@ -54,7 +54,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-24">
-                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()">
+                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()" v-if="hasPermission(2)">
                                     Nuevo Usuario
                                 </button>
                             </div>
@@ -74,7 +74,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in users" v-on:click="selectUser(item)">
+                                <tr v-for="item in users" v-on:click="hasPermission(3) && selectUser(item)">
                                     <td style="width: 15rem">{{item.usuario}}</td>
                                     <td>{{item.nombres}}</td>
                                     <td>{{item.cargo}}</td>
@@ -231,7 +231,7 @@
                             <h2>Editar Usuario</h2>
                         </div>
                         <div class="pure-u-2-1 pure-u-md-1-2" style="text-align: right;">
-                            <div class="formInputStandard" style="display: flex; align-items: center; justify-content: flex-end;">
+                            <div class="formInputStandard" style="display: flex; align-items: center; justify-content: flex-end;" v-if="hasPermission(5)">
                                 <div style="margin-right: 10px;">
                                     {{ Number(editUser.is_active) === 0 ? 'Usuario Inactivo' : 'Usuario Activo' }}
                                 </div>
@@ -275,7 +275,7 @@
                         <div class='pure-u-1-1 pure-u-md-1-4' >
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button v-if="isusaurioEdit && editUser.id_tipo_usuario != 2" @click="mode = 4">Restablecer Contraseña</button>
+                                <button v-if="hasPermission(4) && editUser.id_tipo_usuario != 2" @click="mode = 4">Restablecer Contraseña</button>
                             </div>
                         </div>
                         <div class='pure-u-2-1 pure-u-md-4-6'>
