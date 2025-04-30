@@ -166,10 +166,40 @@ create table AuditoriaSQL (
 	operacion varchar(50) not null,
 	datos text not null,
 	fecha datetime default current_timestamp,
-	username varchar(255)
+	username varchar(255);
+);
+create table dim_procedimientos_informes (
+    id_procedimiento_informe int auto_increment primary key,
+    procedimiento varchar(100),
+    nombre varchar(50),
+    is_active bit default 1,
+    tipo varchar(20),
+    created_by varchar(200),
+    created_on datetime default current_timestamp
 );
 
+---Ejemplos--
+insert into dim_procedimientos_informes (procedimiento, nombre, tipo)
+values 
+('Atenciones Con Cédula', 'Atenciones Con Cédula', 'Informes'),
+('Inventario Apartamentos', 'Inventario Apartamentos', 'Informes'),
+('Trazabilidad Estatus', 'Trazabilidad Estatus', 'Informes'),
+('Tipos Atención vs. Estatus Trazados', 'Tipos Atención vs. Estatus Trazados', 'Informes'),
+('Consolidado Resúmenes Generales', 'Consolidado Resúmenes Generales', 'Informes'),
+('Resúmenes por TIPO', 'Resúmenes por TIPO', 'Informes'),
+('CSV backup contactos Hubspot', 'CSV backup contactos Hubspot', 'Informes');
+
+insert into dim_procedimientos_informes (procedimiento, nombre, tipo)
+values 
+('Base de Datos Clientes Interesados', 'Clientes Interesados Proyectos', 'Archivos'),
+('Seguimiento Visitas Sala de Ventas', 'Registro Visitas Sala_Ventas', 'Archivos'),
+('Inventario General de Unidades', 'Inventario Unidades Disponibles', 'Archivos'),
+('Cierre Mensual de Ventas', 'Ventas Mensuales Resumen', 'Archivos'),
+('Consolidado de Costos de Obra', 'Costos Obra Consolidado', 'Archivos');
+-------------------------------------------
+
 /*
+
 drop table fact_roles_usuarios;
 drop table fact_permisos_roles;
 drop table fact_roles;
