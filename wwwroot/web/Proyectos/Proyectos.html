@@ -18,7 +18,7 @@
         </div>
         <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
             <img src="./img/ico/svg/user.svg" />
-            Unidades
+            Torres y Unidades
         </div>
     </div>
     <div class="pure-u-1-1 pure-u-md-4-5">
@@ -1615,7 +1615,7 @@
         <!--UNIDADES-->
         <div v-if="mainmode == 3">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <span class="hoverLink" v-on:click="mode = 1">Unidades</span>
+                <span class="hoverLink" v-on:click="mode = 1">Torres y Unidades</span>
                 <span class="hoverLink" v-if="mode >= 2" v-on:click="mode = 2">  /  {{sinco.company.Nombre}}</span>
                 <span class="hoverLink" v-if="mode >= 3" v-on:click="mode = 3">  /  {{sinco.macroProject.nombre}}</span>
                 <span v-if="mode >= 4" >  /  {{sinco.project.nombre}}</span>

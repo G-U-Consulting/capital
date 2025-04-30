@@ -196,8 +196,7 @@
                 ],
                 parsLen: 2,
                 resultadoEjecucion: null
-              }
-            casoValidator: [],
+            },
             sinco: {
                 companies: [],
                 company: null,
