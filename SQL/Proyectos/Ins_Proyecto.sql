@@ -177,4 +177,5 @@ select
     @incluir_brochure,
     @link_brochure;
 
-select 'OK' as resp;
+set @id_proyecto = last_insert_id();
+select concat('OK-id_proyecto:', @id_proyecto) as resp;

@@ -92,7 +92,7 @@
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 this.tiposUsuario = variables[1];
-                var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": "" })).data;
+                var tmpList = (await httpFunc("/generic/genericDT/Usuarios:Get_Roles", { "rol": "", "id_sede" : ""})).data;
                 tmpList.forEach(function (item) {
                     item.selected = false;
                     
@@ -139,7 +139,7 @@
             showProgress();
             const resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
             hideProgress();
-            showConfirm("¿Desea enviar un email con los datos?", this.notifyEmail, null, this.newUser);
+            resp.data === 'OK' && showConfirm("¿Desea enviar un email con los datos?", this.notifyEmail, null, this.newUser);
 
             this.setMainMode(1);
         },
@@ -218,6 +218,7 @@
             showProgress();
             var resp = await httpFunc("/generic/genericST/Usuarios:Upd_Usuario", this.editUser);
             hideProgress();
+            resp.data === 'OK' && showConfirm("¿Desea enviar un email con los datos actualizados?", this.notifyEmail, null, this.editUser);
             this.setMainMode(1);
         },
         async selectUserInRole(item) {
@@ -298,10 +299,20 @@
             this.mode = 2;
         },
         notifySMS(user) {
-            
+            if (user) {
+                // Datos de usuario
+            }
+            else {
+                // Reestablecer contraseña
+            }
         },
         notifyEmail(user) {
-            
+            if (user) {
+                // Datos de usuario
+            }
+            else {
+                // Reestablecer contraseña
+            }
         },
         hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
