@@ -142,7 +142,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1'> 
+                         <!-- <div class='pure-u-1-1 pure-u-md-1-1'> 
                             <div class='formInputStandard'>
                                 <span>Información adicional / Otros / Zonas Comunes</span>
                                 <textarea type='text' v-model='objProyecto.otra_info' style="height:4rem" v-bind:class="{errorInput:casoValidator.otra_info != null}"></textarea>
@@ -151,7 +151,7 @@
                                 Archivos
                             </div>
                              <div class="image-upload-container">
-                                <!-- Logo -->
+                               
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Logo (< 2Mb) <label class="file-upload-label">
                                         Elegir imágenes
@@ -163,7 +163,7 @@
                                             <div class="delete-btn" @click="removePreview('logo')">X</div>
                                         </div>
                                 </div>
-                                <!-- Slide -->
+                             
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Slide 1 (< 2Mb)<label class="file-upload-label">
                                         Elegir imágenes
@@ -175,7 +175,7 @@
                                             <div class="delete-btn" @click="removePreview('slide')">X</div>
                                         </div>
                                 </div>
-                                <!-- Planta General Termómetro -->
+                
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Planta General Termómetro (< 2Mb)<label class="file-upload-label">
                                         Elegir imágenes
@@ -187,14 +187,14 @@
                                             <div class="delete-btn" @click="removePreview('planta')">X</div>
                                         </div>
                                 </div>
-                                <!-- Modal de imagen expandida -->
+                             
                                 <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal" @click="closeModal">
                                     <img v-if="isExpanded.logo" :src="logoPreview" class="expanded-image" />
                                     <img v-if="isExpanded.slide" :src="slidePreview" class="expanded-image" />
                                     <img v-if="isExpanded.planta" :src="plantaPreview" class="expanded-image" />
                                 </div>
                              </div>
-                        </div>
+                        </div> -->
                         <!--Estado del Proyecto-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Estado del Proyecto
@@ -861,7 +861,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1'> 
+                        <!-- <div class='pure-u-1-1 pure-u-md-1-1'> 
                             <div class='formInputStandard'>
                                 <span>Información adicional / Otros / Zonas Comunes</span>
                                 <textarea type='text' v-model='editObjProyecto.otra_info' style="height:4rem"></textarea>
@@ -869,7 +869,7 @@
                             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
                                 Archivos
                             </div>
-                            <!-- Logo -->
+                            
                             <div class="image-upload-container">
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Logo (< 2Mb) <label class="file-upload-label">
@@ -882,7 +882,7 @@
                                         <div class="delete-btn" @click="removePreview('logo')">X</div>
                                     </div>
                                 </div>
-                                <!-- Slide -->
+                                
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Slide 1 (< 2Mb)<label class="file-upload-label">
                                         Elegir imágenes
@@ -894,7 +894,7 @@
                                         <div class="delete-btn" @click="removePreview('slide')">X</div>
                                     </div>
                                 </div>
-                                <!-- Planta General Termómetro -->
+                                
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Planta General Termómetro (< 2Mb)<label class="file-upload-label">
                                         Elegir imágenes
@@ -906,14 +906,14 @@
                                         <div class="delete-btn" @click="removePreview('planta')">X</div>
                                     </div>
                                 </div>
-                                <!-- Modal de imagen expandida -->
+                             
                                 <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal" @click="closeModal">
                                     <img v-if="isExpanded.logo" :src="logoPreview" class="expanded-image" />
                                     <img v-if="isExpanded.slide" :src="slidePreview" class="expanded-image" />
                                     <img v-if="isExpanded.planta" :src="plantaPreview" class="expanded-image" />
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!--Estado del Proyecto-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Estado del Proyecto

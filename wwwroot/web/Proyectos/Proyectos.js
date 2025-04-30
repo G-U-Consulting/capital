@@ -138,7 +138,7 @@
             },
             camposPorSubmode: {
                 0: ["nombre","direccion"],
-                1: ["subsidios_vis"],
+                1: ["id_banco_constructor"],
                 2: ["dias_separacion", "dias_cierre_sala", "meses_ci", "meta_ventas"],
                 3: ["centro_costos"],
                 4: ["ciudad_lanzamiento", "fecha_lanzamiento", "latitud", "link_waze", "linea_whatsapp", "inmuebles_opcionados", "tipos_excluidos"],
@@ -148,7 +148,7 @@
                 // 0: [{ tipo: 'checkbox_group', campo: 'ciudadela', requerimiento: { tipo: 'minimo', valor: 1 } }],
                 1: [
                     { tipo: 'checkbox_group', campo: 'tiposVIS', requerimiento: { tipo: 'minimo', valor: 1 } },
-                    { tipo: 'checkbox_group', campo: 'tiposFinanciacion', requerimiento: { tipo: 'minimo', valor: 3 } }
+                    { tipo: 'checkbox_group', campo: 'tiposFinanciacion', requerimiento: { tipo: 'minimo', valor: 1 } }
                 ],
                 2: [
                     { tipo: 'email', campo: 'email_cotizaciones' }
@@ -252,14 +252,17 @@
         },
         async setSubmode(index) {
             const anteriorIndex = this.submode;
-
+            
+            console.log(anteriorIndex)
             const validarSubmode = (submodeIndex) => {
                 const camposAValidar = this.camposPorSubmode[submodeIndex] || [];
                 let submodeIncompleto = camposAValidar.some(campo => {
-                    const valor = this.objProyecto[campo];
-                    return !valor || valor.toString().trim() === '';
+                    const valor1 = this.objProyecto[campo];
+                    const valor2 = this.editObjProyecto[campo];
+                    return (!valor1 || valor1.toString().trim() === '') &&
+                           (!valor2 || valor2.toString().trim() === '');
                 });
-
+        
                 const validacionesEspecialesSubmode = this.validacionEspecial[submodeIndex] || [];
                 validacionesEspecialesSubmode.forEach(validacion => {
                     if (validacion.tipo === 'checkbox_group') {
@@ -271,13 +274,16 @@
                             }
                         }
                     } else if (validacion.tipo === 'email') {
-                        const emailValue = this.objProyecto[validacion.campo];
-                        if (!emailValue || !this.validarEmail(emailValue)) {
+                        const email1 = this.objProyecto[validacion.campo];
+                        const email2 = this.editObjProyecto[validacion.campo];
+                        const valido1 = email1 && this.validarEmail(email1);
+                        const valido2 = email2 && this.validarEmail(email2);
+                        if (!valido1 && !valido2) {
                             submodeIncompleto = true;
                         }
                     }
-                   
                 });
+        
                 if (submodeIncompleto) {
                     if (!this.tabsIncomplete.includes(submodeIndex)) {
                         this.tabsIncomplete.push(submodeIndex);
@@ -289,6 +295,7 @@
                     }
                 }
             };
+        
             if (anteriorIndex !== null) {
                 validarSubmode(anteriorIndex);
             }
@@ -380,6 +387,13 @@
                     item.checked = false;
                 }
             });
+            for (const key of Object.keys(this.camposPorSubmode)) {
+                const numericKey = parseInt(key, 10);
+                this.submode = numericKey;
+                await this.setSubmode();
+        
+            }
+            this.submode = 0;
             this.mode = 2;
             hideProgress();
         },
