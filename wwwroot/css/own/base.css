@@ -860,3 +860,69 @@ table thead th {
     height: 100%;
     object-fit: cover;
 }
+
+.cardColor {
+  display: flex;
+  flex-direction: column;     
+  justify-content: center;    
+  align-items: center;         
+  text-align: center;
+  height: 60vh;      
+  background-color: #fcfcfc;   
+  border: 1px solid #ddd;
+  border-radius: 3px;  
+  padding: 1em;   
+  height: 75vh;
+}
+.cardColor div{
+  width: 100%;
+}
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.upload-label {
+  color: #777;
+  text-align: center;
+}
+.upload-icon {
+  width: 24px;
+  height: 5px;
+  margin-bottom: 10px;
+}
+.hidden-input {
+  display: none;
+}
+.editTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0px auto;
+}
+  .editTable td, .editTable th {
+      font-size: 0.9em;
+  }
+    .editTable th{
+      background-color: transparent;
+    }
+  .editTable td {
+      border: 1px solid #cccccc;
+      padding: 0em 0em !important;
+  }
+  .editTable th {
+      text-align: center;
+      border: 1px solid #cccccc;
+      border-top: 2px solid rgb(0,104,162) !important; 
+      border-bottom: 2px solid rgb(0,104,162) !important;
+      color: rgb(0,104,162);
+      font-weight: normal;
+  }
+
+.errorInput {
+  border: 1px solid red !important;
+}

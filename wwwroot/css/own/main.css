@@ -857,6 +857,7 @@ text-overflow: ellipsis;*/
     }
 
     .editTable th {
+        text-align: center;
         border: 1px solid #cccccc;
         border-top: 2px solid rgb(0,104,162);
         border-bottom: 2px solid rgb(0,104,162);
