@@ -26,6 +26,18 @@
             </div>
         </div>
 
+        <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
+            <img src="./img/ico/svg/user.svg" />
+            Rotafolio de Proyectos
+        </div>
+        <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
+            <img src="./img/ico/svg/download.svg" />
+            Informes y Cargues
+        </div>
+        <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
+            <img src="./img/ico/svg/user.svg" />
+            Torres y Unidades
+        </div>
     </div>
     <div class="pure-u-1-1 pure-u-md-4-5">
         <!--PROYECTOS-->
@@ -52,7 +64,7 @@
                             </div>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-5-24">
-                            <button style="width:100%" v-on:click="mode = 1" v-if="hasPermission(12)">Nuevo Proyecto</button>
+                            <button style="width:100%" v-on:click="mode = 1" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
                         </div>
                     </div>
                 </div>
@@ -135,7 +147,7 @@
                             <div class='formInputStandard'>
                                 <span>Ciudadela</span>
                                 <select v-model='objProyecto.id_ciudadela'>
-                                    <option value='' disabled selected>Seleccione</option>
+                                    <option value=''>Seleccione</option>
                                     <option v-for='item in ciudadela' v-bind:value='item.id_ciudadela'>
                                         {{ item.ciudadela }}
                                     </option>
@@ -153,7 +165,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1'> 
+                         <!-- <div class='pure-u-1-1 pure-u-md-1-1'> 
                             <div class='formInputStandard'>
                                 <span>Información adicional / Otros / Zonas Comunes</span>
                                 <textarea type='text' v-model='objProyecto.otra_info' style="height:4rem" v-bind:class="{errorInput:casoValidator.otra_info != null}"></textarea>
@@ -162,7 +174,7 @@
                                 Archivos
                             </div>
                              <div class="image-upload-container">
-                                <!-- Logo -->
+                               
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Logo (< 2Mb) <label class="file-upload-label">
                                         Elegir imágenes
@@ -174,7 +186,7 @@
                                             <div class="delete-btn" @click="removePreview('logo')">X</div>
                                         </div>
                                 </div>
-                                <!-- Slide -->
+                             
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Slide 1 (< 2Mb)<label class="file-upload-label">
                                         Elegir imágenes
@@ -186,7 +198,7 @@
                                             <div class="delete-btn" @click="removePreview('slide')">X</div>
                                         </div>
                                 </div>
-                                <!-- Planta General Termómetro -->
+                
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Planta General Termómetro (< 2Mb)<label class="file-upload-label">
                                         Elegir imágenes
@@ -198,14 +210,14 @@
                                             <div class="delete-btn" @click="removePreview('planta')">X</div>
                                         </div>
                                 </div>
-                                <!-- Modal de imagen expandida -->
+                             
                                 <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal" @click="closeModal">
                                     <img v-if="isExpanded.logo" :src="logoPreview" class="expanded-image" />
                                     <img v-if="isExpanded.slide" :src="slidePreview" class="expanded-image" />
                                     <img v-if="isExpanded.planta" :src="plantaPreview" class="expanded-image" />
                                 </div>
                              </div>
-                        </div>
+                        </div> -->
                         <!--Estado del Proyecto-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Estado del Proyecto
@@ -854,7 +866,7 @@
                             <div class='formInputStandard'>
                                 <span>Ciudadela</span>
                                 <select v-model='editObjProyecto.id_ciudadela'>
-                                    <option value='' disabled selected>Seleccione</option>
+                                    <option value=''>Seleccione</option>
                                     <option v-for='item in ciudadela' v-bind:value='item.id_ciudadela'>
                                         {{ item.ciudadela }}
                                     </option>
@@ -872,7 +884,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-1'> 
+                        <!-- <div class='pure-u-1-1 pure-u-md-1-1'> 
                             <div class='formInputStandard'>
                                 <span>Información adicional / Otros / Zonas Comunes</span>
                                 <textarea type='text' v-model='editObjProyecto.otra_info' style="height:4rem"></textarea>
@@ -880,7 +892,7 @@
                             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
                                 Archivos
                             </div>
-                            <!-- Logo -->
+                            
                             <div class="image-upload-container">
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Logo (< 2Mb) <label class="file-upload-label">
@@ -893,7 +905,7 @@
                                         <div class="delete-btn" @click="removePreview('logo')">X</div>
                                     </div>
                                 </div>
-                                <!-- Slide -->
+                                
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Slide 1 (< 2Mb)<label class="file-upload-label">
                                         Elegir imágenes
@@ -905,7 +917,7 @@
                                         <div class="delete-btn" @click="removePreview('slide')">X</div>
                                     </div>
                                 </div>
-                                <!-- Planta General Termómetro -->
+                                
                                 <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                                     Planta General Termómetro (< 2Mb)<label class="file-upload-label">
                                         Elegir imágenes
@@ -917,14 +929,14 @@
                                         <div class="delete-btn" @click="removePreview('planta')">X</div>
                                     </div>
                                 </div>
-                                <!-- Modal de imagen expandida -->
+                             
                                 <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal" @click="closeModal">
                                     <img v-if="isExpanded.logo" :src="logoPreview" class="expanded-image" />
                                     <img v-if="isExpanded.slide" :src="slidePreview" class="expanded-image" />
                                     <img v-if="isExpanded.planta" :src="plantaPreview" class="expanded-image" />
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <!--Estado del Proyecto-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Estado del Proyecto
@@ -934,8 +946,10 @@
                                 <div class='pure-g'>
                                     <div v-for='item in estado_publicacion' class='pure-u-1-4'>
                                         <label class="check">
-                                            <input type="checkbox" v-model="item.checked" /> {{ item.estado_publicacion }}
+                                            <input type="radio" v-bind:value="item.id_estado_publicacion"
+                                                v-model="editObjProyecto.id_estado_publicacion" name="estado_publicacion" />
                                             <span class="checkmark"></span>
+                                            {{ item.estado_publicacion }}
                                         </label>
                                     </div>
                                 </div>
@@ -965,9 +979,10 @@
                         <div class='pure-u-1-1 pure-u-md-1-1'>
                             <div class='formInputStandard'>
                                 <div class='pure-g'>
+                                    <div class='pure-u-1-1 pure-u-1-6'></div>
                                     <div v-for='item in tiposVIS' class='pure-u-1-6'>
                                         <label class="check">
-                                            <input type='checkbox' value='1' v-model='item.checked' />
+                                            <input type='checkbox' value='1' v-model='item.checked'  />
                                             <span class="checkmark"></span>
                                             {{item.tipo_vis}}
                                         </label>
@@ -1132,7 +1147,7 @@
                                 <span>Pie Legal Cotizaciones</span>
                                 <select v-model='editObjProyecto.id_pie_legal'>
                                     <option value='' disabled selected>Seleccione</option>
-                                    <option v-for='item in []' v-bind:value='item.id_pie_legal'>
+                                    <option v-for='item in pie_legal' v-bind:value='item.id_pie_legal'>
                                         {{ item.pie_legal }}
                                     </option>
                                 </select>
@@ -1508,7 +1523,7 @@
                     </div>
                 </div>
                 <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
-                    <button>Guardar</button>
+                    <button @click="updateProject">Actualizar</button>
                 </div>
             </div>
         </div>
@@ -1622,7 +1637,7 @@
         <!--UNIDADES-->
         <div v-if="mainmode == 3">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <span class="hoverLink" v-on:click="mode = 1">Unidades</span>
+                <span class="hoverLink" v-on:click="mode = 1">Torres y Unidades</span>
                 <span class="hoverLink" v-if="mode >= 2" v-on:click="mode = 2">  /  {{sinco.company.Nombre}}</span>
                 <span class="hoverLink" v-if="mode >= 3" v-on:click="mode = 3">  /  {{sinco.macroProject.nombre}}</span>
                 <span v-if="mode >= 4" >  /  {{sinco.project.nombre}}</span>
@@ -1634,16 +1649,14 @@
                 <div v-if="mode == 1" >
                     <div style="padding: 3rem;"> Por favor seleccione una <b>Empresa</b></div>
                     <div style="text-align:center">
-                        <div v-for="item in sinco.companies" v-on:click="sincoMacroProjects(item)"
-                         style="display: inline-block;padding: 0.5rem 1rem;
-                        margin: 0.5rem;border: 1px solid black; border-radius: 0.2rem; cursor: pointer">
+                        <div v-for="item in sinco.companies" v-on:click="sincoMacroProjects(item)" class="buttonItem">
                         {{item.Nombre}}
                     </div>
                     </div>
                 </div>
                 <!-- SELECCION DE MACROPROYECTO -->
                 <div v-if="mode == 2">
-                    <div> Por favor seleccione un Macroproyecto</div>
+                    <div style="padding: 3rem;"> Por favor seleccione un <b>Macroproyecto</b></div>
                     <table class="dataTable">
                         <tr v-for="item in this.sinco.macroProjects" style="cursor: pointer;" v-on:click="sincoProjects(item)">
                             <td style="width: 3rem; height: 2rem;">
@@ -1655,70 +1668,73 @@
                 </div>
                 <!-- SELECCION DE PROYECTO -->
                 <div v-if="mode == 3">
-                    <div> Por favor seleccione un Proyecto</div>
+                    <div style="padding: 3rem;">Por favor seleccione un <b>Proyecto</b></div>
                     <div style="text-align:center">
-                        <div v-for="item in sinco.projects" v-on:click="sincoGroups(item)"
-                            style="display: inline-block;padding: 0.5rem 1rem;
-                            margin: 0.5rem;border: 1px solid black; border-radius: 0.2rem; cursor: pointer">
+                        <div v-for="item in sinco.projects" v-on:click="sincoGroups(item)" class="buttonItem">
                             {{item.nombre}}
                         </div>
                     </div>
                 </div>
-                <div v-if="mode == 4">
-                    <div> Unidades</div>
-                    <div class="gridTable">
-                        <div class="pure-g gridHeader" >
-                            <div class="pure-u-3-24">Nombre</div>
-                            <div class="pure-u-2-24">Unidades</div>
-                            <div class="pure-u-3-24">Valor Sub Total</div>
-                            <div class="pure-u-3-24">Valor Total Neto</div>
-                            <div class="pure-u-3-24">Fecha Creación</div>
-                            <div class="pure-u-2-24">Estado</div>
-                            <div class="pure-u-8-24">Observaciones</div>
-                        </div>
-                        <div v-for="item in sinco.groups">
-                            <div class="pure-g gridRow" >
-                                <div class="pure-u-3-24">
-                                    <span v-show="!item.expanded" style="cursor: pointer;" v-on:click="item.expanded = true" class="noSelect">&boxplus;</span>
-                                    <span v-show="item.expanded" style="cursor: pointer;" v-on:click="item.expanded = false" class="noSelect">&boxminus;</span>
-                                    {{item.nombre}}
-                                </div>
-                                <div class="pure-u-2-24" style="text-align: center;">{{item.unidades.length}}</div>
-                                <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(item.valorSubTotal)}}</div>
-                                <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(item.valorTotalNeto)}}</div>
-                                <div class="pure-u-3-24" style="text-align: center;">{{item.fechaCreacion.substring(0, 16).replace("T", " ")}}</div>
-                                <div class="pure-u-2-24" style="text-align: center;">{{item.estado}}</div>
-                                <div class="pure-u-8-24 maxLenEllipsis" v-bind:title="item.observaciones">{{item.observaciones}}</div>
+            <div v-if="mode == 4">
+                <div style="padding: 3rem;" class="pure-g">
+                    <div class="pure-u-1-1 pure-u-md-1-2"><b>Agrupaciones y Unidades</b></div>
+                    <div class="pure-u-1-1 pure-u-md-1-2" style="text-align: right">
+                        <button>Importar</button>
+                    </div>
+                </div>
+                <div class="gridTable">
+                    <div class="pure-g gridHeader">
+                        <div class="pure-u-3-24">Nombre</div>
+                        <div class="pure-u-2-24">Unidades</div>
+                        <div class="pure-u-3-24">Valor Sub Total</div>
+                        <div class="pure-u-3-24">Valor Total Neto</div>
+                        <div class="pure-u-3-24">Fecha Creación</div>
+                        <div class="pure-u-2-24">Estado</div>
+                        <div class="pure-u-8-24">Observaciones</div>
+                    </div>
+                    <div v-for="item in sinco.groups">
+                        <div class="pure-g gridRow">
+                            <div class="pure-u-3-24">
+                                <span v-show="!item.expanded" style="cursor: pointer;" v-on:click="item.expanded = true" class="noSelect">&boxplus;</span>
+                                <span v-show="item.expanded" style="cursor: pointer;" v-on:click="item.expanded = false" class="noSelect">&boxminus;</span>
+                                {{item.nombre}}
                             </div>
-                            <div v-if="item.expanded" style="border-bottom: 3px solid #00839C;">
-                                <div class="pure-g gridHeader" >
-                                    <div class="pure-u-3-24">Nombre</div>
-                                    <div class="pure-u-2-24">Tipo Unidad</div>
-                                    <div class="pure-u-3-24">Principal</div>
-                                    <div class="pure-u-3-24">Valor</div>
-                                    <div class="pure-u-3-24">Fecha</div>
-                                    <div class="pure-u-2-24">Estado</div>
-                                    <div class="pure-u-2-24">A. Privada</div>
-                                    <div class="pure-u-2-24">A. Construida</div>
-                                    <div class="pure-u-2-24">Piso</div>
-                                    <div class="pure-u-2-24">Alcobas</div>
-                                </div>
-                                <div v-for="(sitem, index) in item.unidades" class="pure-g gridRow" >
-                                    <div class="pure-u-3-24" style="border-left: 3px solid #00839C;">{{sitem.nombre}}</div>
-                                    <div class="pure-u-2-24">{{sitem.tipoUnidad}}</div>
-                                    <div class="pure-u-3-24" style="text-align: center;">{{sitem.esPrincipal?"Si": "No"}}</div>
-                                    <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(sitem.valor)}}</div>
-                                    <div class="pure-u-3-24" style="text-align: center;">{{sitem.fechaCreacion.substring(0, 16).replace("T", " ")}}</div>
-                                    <div class="pure-u-2-24" style="text-align: center;">{{sitem.estado}}</div>
-                                    <div class="pure-u-2-24">{{sitem.areaPrivada}}</div>
-                                    <div class="pure-u-2-24">{{sitem.areaConstruida}}</div>
-                                    <div class="pure-u-2-24">{{sitem.numeroPiso}}</div>
-                                    <div class="pure-u-2-24" style="border-right: 3px solid #00839C;">{{sitem.cantidadAlcobas}}</div>
-                                </div>
+                            <div class="pure-u-2-24" style="text-align: center;">{{item.unidades.length}}</div>
+                            <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(item.valorSubTotal)}}</div>
+                            <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(item.valorTotalNeto)}}</div>
+                            <div class="pure-u-3-24" style="text-align: center;">{{item.fechaCreacion.substring(0, 16).replace("T", " ")}}</div>
+                            <div class="pure-u-2-24" style="text-align: center;">{{item.estado}}</div>
+                            <div class="pure-u-8-24 maxLenEllipsis" v-bind:title="item.observaciones">{{item.observaciones}}</div>
+                        </div>
+                        <div v-if="item.expanded" style="border-bottom: 3px solid #00839C;">
+                            <div class="pure-g gridHeader">
+                                <div class="pure-u-3-24">Nombre</div>
+                                <div class="pure-u-2-24">Tipo Unidad</div>
+                                <div class="pure-u-3-24">Principal</div>
+                                <div class="pure-u-3-24">Valor</div>
+                                <div class="pure-u-3-24">Fecha</div>
+                                <div class="pure-u-2-24">Estado</div>
+                                <div class="pure-u-2-24">A. Privada</div>
+                                <div class="pure-u-2-24">A. Construida</div>
+                                <div class="pure-u-2-24">Piso</div>
+                                <div class="pure-u-2-24">Alcobas</div>
+                            </div>
+                            <div v-for="(sitem, index) in item.unidades" class="pure-g gridRow">
+                                <div class="pure-u-3-24" style="border-left: 3px solid #00839C;">{{sitem.nombre}}</div>
+                                <div class="pure-u-2-24">{{sitem.tipoUnidad}}</div>
+                                <div class="pure-u-3-24" style="text-align: center;">{{sitem.esPrincipal?"Si": "No"}}</div>
+                                <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(sitem.valor)}}</div>
+                                <div class="pure-u-3-24" style="text-align: center;">{{sitem.fechaCreacion.substring(0, 16).replace("T", " ")}}</div>
+                                <div class="pure-u-2-24" style="text-align: center;">{{sitem.estado}}</div>
+                                <div class="pure-u-2-24">{{sitem.areaPrivada}}</div>
+                                <div class="pure-u-2-24">{{sitem.areaConstruida}}</div>
+                                <div class="pure-u-2-24">{{sitem.numeroPiso}}</div>
+                                <div class="pure-u-2-24" style="border-right: 3px solid #00839C;">{{sitem.cantidadAlcobas}}</div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </div>

@@ -979,3 +979,17 @@ table thead th {
   .gridRow:hover{
       background-color: #dddddd;
   }
+.buttonItem {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem;
+    border: 1px solid #a6a6a6;
+    border-radius: 0.2rem;
+    cursor: pointer;
+    width: 30rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: #f1f9fa;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
