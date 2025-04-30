@@ -7,13 +7,14 @@ var GlobalVariables = {
     roles: null,
     permisos: null,
     loadModule: null,
+    loadMiniModule: null,
     modules: null,
     ruta: null,
     passwordPolicy: null
 
 };
 const mainDivId = "#mainContentDiv";
-var vm = null, mainVue = null;
+var vm = null, mainVue = null, mvm = null;
 var indexMainDiv = document.getElementById("mainContentDiv");
 mainVue = {
     data() {
@@ -53,6 +54,7 @@ mainVue = {
         GlobalVariables.permisos = data.permisos;
         GlobalVariables.username = data.user;
         GlobalVariables.loadModule = this.loadModule;
+        GlobalVariables.loadMiniModule = this.loadMiniModule;
         GlobalVariables.ruta = localStorage.getItem('ruta');
         GlobalVariables.passwordPolicy = await this.getSeguridad();
         if (pars.loc != null && this.modules[pars.loc] != null) {
@@ -143,6 +145,32 @@ mainVue = {
                 url = url.substring(0, url.indexOf("?"))
             url += "?loc=" + this.moduleSelected.moduleName;
             window.history.pushState({ moduleName: this.moduleSelected.moduleName }, this.moduleSelected.title, url);
+        },
+        async loadMiniModule(name, inputParameter, elementId) {
+            showProgress();
+            var miniModule = this.modules[name];
+            miniModule.moduleName = name;
+            if (miniModule.title != null)
+                document.title = miniModule.title;
+            if (miniModule.moduleObj == null) {
+                miniModule.moduleObj = await import(miniModule.jsUrl);
+                miniModule.moduleObj = miniModule.moduleObj.default;
+            }
+            if (miniModule.moduleObj.template == null || miniModule.moduleObj.template == "")
+                miniModule.moduleObj.template = await(await fetch(miniModule.templateUrl)).text();
+
+            //delete miniModule.data.inputParameter;
+            //if (inputParameter != null)
+            //miniModule.moduleObj.data.inputParameter = inputParameter;
+            if (mvm != null) mvm.unmount();
+            mvm = createApp(miniModule.moduleObj);
+            mvm.mount(elementId);
+            hideProgress();
+            //var url = window.location.href;
+            //if (url.indexOf("?") > 0)
+            //    url = url.substring(0, url.indexOf("?"))
+            //url += "?loc=" + this.moduleSelected.moduleName;
+            //window.history.pushState({ moduleName: this.moduleSelected.moduleName }, this.moduleSelected.title, url);
         },
         isActiveModule(name) {
             return this.modules[name] == this.moduleSelected || (this.moduleSelected == null && name == "Index");

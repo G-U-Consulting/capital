@@ -38,7 +38,23 @@
         zone: "ZA",
         category: "PROYECTOS",
         allow: ["*"]
+    },
+    "EdicionProyectos": {
+        templateUrl: "./web/Proyectos/Edicion.html",
+        jsUrl: "./web/Proyectos/Edicion.js",
+        allow: ["*"]
+    },
+    "Unidades": {
+        templateUrl: "./web/Proyectos/Unidades.html",
+        jsUrl: "./web/Proyectos/Unidades.js",
+        allow: ["*"]
+    },
+    "InformesProyectos": {
+        templateUrl: "./web/Proyectos/Informes.html",
+        jsUrl: "./web/Proyectos/Informes.js",
+        allow: ["*"]
     }
+
 };
 const zones = {
     "ZU": {
