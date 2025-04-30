@@ -1,4 +1,4 @@
-﻿export default {
+export default {
     data() {
         return {
             mainmode: 0,
@@ -160,10 +160,11 @@
                     // { tipo: 'email', campo: 'email_receptor_4' }
                 ],
             },
-            isFormularioCompleto: false, 
+            isFormularioCompleto: false,
             tiposVIS: [],
             tiposFinanciacion: [], 
             bancos: [],
+            fiduciaria: [],
             opcionesVisuales: [],
             tabsIncomplete: [],
             tabs: [
@@ -592,10 +593,12 @@
             }
         }, 
         hasPermission(id) {
-            return true;
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         },
-        /************************************** SINCO *************************************/
+        onUpdate(lista) {
+            console.log(lista);
+            this.mode = 2;
+        },
         async sincoCompanies() {
             showProgress();
             var result = (await httpFunc("/api/internal/SincoGetEmpresas", {}));
