@@ -8,6 +8,16 @@
         zone: "ZU",
         category: "USUARIOS",
         allow: ["*"]
+    },
+    "Maestros": {
+        templateUrl: "./web/Maestros/Maestros.html",
+        jsUrl: "./web/Maestros/Maestros.js",
+        title: "Maestros",
+        desc: "Permite administrar las listas de maestros",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZU",
+        category: "USUARIOS",
+        allow: ["*"]
     },   
      "Roles": {
         templateUrl: "./web/Roles/Roles.html",

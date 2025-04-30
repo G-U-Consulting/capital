@@ -162,8 +162,6 @@ export default {
                 ],
             },
             isFormularioCompleto: false,
-            agrupamientoImg: [], 
-            categoriasMedios: [],
             tiposVIS: [],
             tiposFinanciacion: [], 
             bancos: [],
@@ -261,16 +259,6 @@ export default {
                 this.informes = resp[0];
                 this.cargues = resp[1];
 
-            }
-            if (mode == 8) {
-                var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
-                resp = resp.data;
-                this.bancos = resp[10];
-            }
-            if (mode == 9) {
-                var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
-                resp = resp.data;
-                this.fiduciaria = resp[9];;
             }
             this.mainmode = mode;
             this.mode = 0;
