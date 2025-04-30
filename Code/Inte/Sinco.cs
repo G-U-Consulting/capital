@@ -29,6 +29,7 @@ namespace capital.Code.Inte {
             }
         }
         public async Task<JArray> GetEmpresas() {
+            await UpdToken();
             Dictionary<string, string> headers = new Dictionary<string, string>();
             headers.Add("Authorization", AutToken1);
             string sdata = await WebUt.WebRequest(Url + "V3/API/Cliente/Empresas", HttpMethod.Get, null, null, headers);

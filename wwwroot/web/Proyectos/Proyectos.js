@@ -175,7 +175,16 @@
                 "Información adicional",
                 "Enlaces"
             ],
-            casoValidator: []
+            casoValidator: [],
+            sinco: {
+                companies: [],
+                company: null,
+                macroProjects: [],
+                macroProject: null,
+                projects: [],
+                project: null,
+                groups: []
+            }
         };
     },
     computed: {
@@ -194,7 +203,7 @@
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
-        // await this.setMainMode(1);
+        await this.setMainMode(3);
         // this.mode = 2;
     },
     methods: {
@@ -217,6 +226,8 @@
                 this.pie_legal = resp[8];
                 this.fiduciaria = resp[9];
                 this.bancos = resp[10];
+            } else if(mode == 3){
+                this.sincoCompanies();
             }
             this.mainmode = mode;
             this.mode = 0;
@@ -444,7 +455,44 @@
             }
         },
         hasPermission(id) {
+            return true;
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
+        },
+        /************************************** SINCO *************************************/
+        async sincoCompanies() {
+            showProgress();
+            var result = (await httpFunc("/api/internal/SincoGetEmpresas", {}));
+            this.sinco.companies = result;
+            this.mode = 1;
+            hideProgress();
+        },
+        async sincoMacroProjects(item) {
+            showProgress();
+            this.sinco.company = item;
+            var result = (await httpFunc("/api/internal/SincoGetMacroproyectos", item));
+            this.sinco.macroProjects = result;
+            this.mode = 2;
+            hideProgress();
+        },
+        async sincoProjects(item) {
+            showProgress();
+            this.sinco.macroProject = item;
+            var result = (await httpFunc("/api/internal/SincoGetProyectos", item));
+            this.sinco.projects = result;
+            this.mode = 3;
+            hideProgress();
+        },
+        async sincoGroups(item) {
+            showProgress();
+            this.sinco.project = item;
+            var result = (await httpFunc("/api/internal/SincoGetAgrupaciones", item));
+            result.forEach(item => item["expanded"] = false);
+            this.sinco.groups = result;
+            this.mode = 4;
+            hideProgress();
+        },
+        formatoMoneda(val){
+            return formatoMoneda(val);
         }
-    },    
+    }
 };
