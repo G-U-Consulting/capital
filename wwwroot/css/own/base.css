@@ -926,3 +926,49 @@ table thead th {
 .errorInput {
   border: 1px solid red !important;
 }
+
+.maxLenEllipsis{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.gridTable{
+  width: 100%;
+}
+
+.gridHeader {
+    color: white;
+    background-color: #00839C;
+    font-weight: normal;
+    text-align: center;
+}
+.gridHeader > div{
+  border: 1px solid #00839C;
+  padding: 0.2em 0.5em;
+  margin: -1px 0 0 -1px;
+}
+.gridRow {
+  width: 100%;
+}
+.gridRow > div {
+    border: 1px solid #cccccc;
+    padding: 0.2em 0.5em;
+    margin: -1px 0 0 -1px;
+}
+
+  .gridTable > div:nth-child(even):not(.gridHeader) {
+    background: #FFF;
+  }
+
+  .gridTable > div:nth-child(odd):not(.gridHeader) {
+    background: #f7f7f7;
+  } 
+
+  .gridRow img {
+      width: 1.5em;
+      height: auto;
+  }
+  .gridRow:hover{
+      background-color: #dddddd;
+  }
