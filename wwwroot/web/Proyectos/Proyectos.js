@@ -224,8 +224,6 @@
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
-        await this.setMainMode(3);
-        // this.mode = 2;
     },
     methods: {
         async setMainMode(mode) {
