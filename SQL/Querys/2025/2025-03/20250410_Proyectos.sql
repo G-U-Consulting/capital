@@ -49,6 +49,8 @@ create table dim_pie_legal(
 	id_pie_legal int not null auto_increment,
 	constraint pk_dim_pie_legal primary key (id_pie_legal),
 	pie_legal varchar(200),
+	texto text,
+	notas_extra text,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,

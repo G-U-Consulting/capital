@@ -8,10 +8,11 @@ export default {
             ciudadelas: [],
             bancos: [],
             fiduciarias: [],
-            zAgrupamientoPro: [],
+            zAgrupamientosPro: [],
             banco: { id_banco: null, banco: null },
             fiduciaria: { id_fiduciaria: null, fiduciaria: null },
             ciudadela: { id_ciudadela: null, ciudadela: null },
+            zAgrupamientoPro: {}
         };
     },
     async mounted() {
@@ -38,17 +39,15 @@ export default {
             console.log(selected, item);
         },
         async onCreate() {
-            let item = this.getItem();
             showProgress();
-            const resp = await httpFunc(`/generic/genericST/Maestros:Ins_${this.getItemName()}`, item);
+            const resp = await httpFunc(`/generic/genericST/Maestros:Ins_${this.getItemName()}`, this.getItem());
             hideProgress();
             if (resp.data === 'OK') this.setMode(0);
             console.log(resp);
         },
         async onUpdate() {
-            let item = this.getItem();
             showProgress();
-            const resp = await httpFunc(`/generic/genericST/Maestros:Upd_${this.getItemName()}`, item);
+            const resp = await httpFunc(`/generic/genericST/Maestros:Upd_${this.getItemName()}`, this.getItem());
             hideProgress();
             if (resp.data === 'OK') this.setMode(0);
             console.log(resp);
