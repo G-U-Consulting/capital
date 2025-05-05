@@ -17,13 +17,13 @@
             <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
                 <img src="./img/ico/svg/notebook.svg" />
-                Imágenes Generales
+                Generales Capital
                 <span class="tooltip-text">Imágenes generales capital</span>
             </div>
             <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
                 <img src="./img/ico/svg/notebook.svg" />
-                Imágenes Sostenibilidad
+                Sostenibilidad
                 <span class="tooltip-text">Imágenes sostenibilidad</span>
             </div>
             <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect tooltip"
@@ -35,7 +35,7 @@
         </div>
 
         <div class="lateralMenuGroup">
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect group">
+            <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect group">
                 Medios de Comunicación
             </div>
             <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect tooltip"
@@ -53,7 +53,7 @@
         </div>
 
         <div class="lateralMenuGroup">
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect group">
+            <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect group">
                 Entidades
             </div>
             <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect tooltip"
@@ -77,7 +77,7 @@
         </div>
 
         <div class="lateralMenuGroup">
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect group">
+            <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect group">
                 Configuración
             </div>
             <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect tooltip"
@@ -149,6 +149,7 @@
             </div>
         </div>
 
+        <!-- Imágenes Sostenibilidad -->
         <div v-if="mainmode == 2">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Imágenes Sostenibilidad</span>
@@ -162,7 +163,7 @@
             </div>
         </div>
 
-        <!-- Imágenes Sostenibilidad -->
+        <!-- Agrupamiento de Imágenes -->
         <div v-if="mainmode == 3">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Agrupamiento de Imágenes</span>
@@ -171,37 +172,37 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Agrupamiento de Imágenes</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
-                                <button style="width:100%" v-on:click="setMode(1)">Nuevo Agrupamiento</button>
+                            <div class="pure-u-1-1 pure-u-md-1-5">
+                                <button style="width:100%" v-on:click="setMode(1)">Nuevo Grupo</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
-                            <table class="dataTable" v-if="agrupamientosImg && agrupamientosImg.length">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
+                            <table class="dataTable" v-if="gruposImg && gruposImg.length">
                                 <thead>
                                     <tr>
-                                        <th v-for="key in Object.keys(agrupamientosImg[0])">
+                                        <th v-for="key in Object.keys(gruposImg[0]).filter(k => !k.startsWith('id_'))">
                                             {{key.replaceAll("_"," ")}}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="ins in agrupamientosImg" @click="onSelect(ins)">
-                                        <td v-for="key in Object.keys(ins)">{{ins[key]}}</td>
+                                    <tr v-for="ins in gruposImg" @click="onSelect(ins)">
+                                        <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">{{ins[key]}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -210,16 +211,20 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Nuevo Agrupamiento</h2>
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nuevo Grupo de Imágenes</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
-                            <input type="text" v-model="agrupamientoImg.agrupamiento" />
+                            <input type="text" v-model="grupoImg.grupo" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <span>Orden</span>
+                            <input type="number" v-model="grupoImg.orden" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -227,18 +232,22 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Editar Agrupamiento</h2>
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Grupo</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
-                            <input type="text" v-model="agrupamientoImg.agrupamiento" />
+                            <input type="text" v-model="grupoImg.grupo" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <span>Orden</span>
+                            <input type="number" v-model="grupoImg.orden" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -254,15 +263,15 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Categorías de Medios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
@@ -273,18 +282,18 @@
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="categoriasMedios && categoriasMedios.length">
                                 <thead>
                                     <tr>
-                                        <th v-for="key in Object.keys(categoriasMedios[0])">
+                                        <th v-for="key in Object.keys(categoriasMedios[0]).filter(k => !k.startsWith('id_'))">
                                             {{key.replaceAll("_"," ")}}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="ins in categoriasMedios" @click="onSelect(ins)">
-                                        <td v-for="key in Object.keys(ins)">{{ins[key]}}</td>
+                                        <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">{{ins[key]}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -293,16 +302,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nueva Categoria</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="categoriaMedio.categoria" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -310,18 +319,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Categoria</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="categoriaMedio.categoria" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -337,37 +346,37 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Medios Publicitarios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nuevo Medio</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="mediosPublicitarios && mediosPublicitarios.length">
                                 <thead>
                                     <tr>
-                                        <th v-for="key in Object.keys(mediosPublicitarios[0])">
+                                        <th v-for="key in Object.keys(mediosPublicitarios[0]).filter(k => !k.startsWith('id_'))">
                                             {{key.replaceAll("_"," ")}}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="ins in mediosPublicitarios" @click="onSelect(ins)">
-                                        <td v-for="key in Object.keys(ins)">{{ins[key]}}</td>
+                                        <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">{{ins[key]}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -376,16 +385,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Medio</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="medioPublicitario.medio" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -393,18 +402,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Medio</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="medioPublicitario.medio" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -435,7 +444,7 @@
                                 </div>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-5">
-                                <button style="width:80%" v-on:click="setMode(1)">Nuevo Banco</button>
+                                <button style="width:100%" v-on:click="setMode(1)">Nuevo Banco</button>
                             </div>
                         </div>
                     </div>
@@ -461,16 +470,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Banco</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="banco.banco" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -498,18 +507,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Banco</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="banco.banco" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdateBanco()">Guardar</button>
+                            <button v-on:click="onUpdateBanco()">Editar</button>
                         </div>
                     </div>
 
@@ -528,7 +537,7 @@
                         <div class="pure-g">
                             <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button v-on:click="onUpdateBanco()">Guardar</button>
+                                <button v-on:click="onUpdateBanco()">Editar</button>
                             </div>
                         </div>
                     </div>
@@ -545,26 +554,26 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Fiduciarias</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nueva Fiduciaria</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="fiduciarias && fiduciarias.length">
                                 <thead>
                                     <tr>
@@ -586,16 +595,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nueva Fiduciaria</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="fiduciaria.fiduciaria" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -603,18 +612,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Fiduciaria</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="fiduciaria.fiduciaria" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -630,26 +639,26 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Zonas agrupamiento proyectos</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nueva Zona</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="zonasProyectos && zonasProyectos.length">
                                 <thead>
                                     <tr>
@@ -671,16 +680,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nueva Zona</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="zonaProyecto.zona_proyecto" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -688,18 +697,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Zona</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="zonaProyecto.zona_proyecto" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -715,26 +724,26 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Ciudadelas</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nueva Ciudadela</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="ciudadelas && ciudadelas.length">
                                 <thead>
                                     <tr>
@@ -755,16 +764,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nueva Ciudadela</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="ciudadela.ciudadela" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -772,18 +781,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Ciudadelas</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="ciudadela.ciudadela" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -799,37 +808,37 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Instructivos Consignación y cierre</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nuevo Instructivo</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="instructivos && instructivos.length">
                                 <thead>
                                     <tr>
-                                        <th v-for="key in Object.keys(instructivos[0])">
+                                        <th v-for="key in Object.keys(instructivos[0]).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
                                             {{key.replaceAll("_"," ")}}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="ins in instructivos" @click="onSelect(ins)">
-                                        <td v-for="key in Object.keys(ins)">{{ins[key]}}</td>
+                                        <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">{{ins[key]}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -838,16 +847,31 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Instructivo</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
                             <input type="text" v-model="instructivo.instructivo" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Procedimiento</span>
+                            <textarea class="editor" v-model="instructivo.procedimiento"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Documentación requerida para el cierre</span>
+                            <textarea class="editor" v-model="instructivo.documentacion_cierre"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Recuerda</span>
+                            <textarea class="editor" v-model="instructivo.notas"></textarea>
+                        </div>
+                    </div>
+                    <div class="pure-g">
+                        <div class="pure-u-md-2-5"></div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -855,18 +879,33 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Instructivo</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
                             <input type="text" v-model="instructivo.instructivo" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Procedimiento</span>
+                            <textarea class="editor" v-model="instructivo.procedimiento"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Documentación requerida para el cierre</span>
+                            <textarea class="editor" v-model="instructivo.documentacion_cierre"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Recuerda</span>
+                            <textarea class="editor" v-model="instructivo.notas"></textarea>
+                        </div>
+                    </div>
+                    <div class="pure-g">
+                        <div class="pure-u-md-2-5"></div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -882,31 +921,31 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Pies Legales Cotizaciones</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nuevo Pie Legal</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="pies_legales && pies_legales.length">
                                 <thead>
                                     <tr>
                                         <th
-                                            v-for="key in Object.keys(pies_legales[0]).filter(k => k != 'texto' && k != 'notas_extra')">
+                                            v-for="key in Object.keys(pies_legales[0]).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
                                             {{key.replaceAll("_"," ")}}
                                         </th>
                                     </tr>
@@ -914,7 +953,7 @@
                                 <tbody>
                                     <tr v-for="pie in pies_legales" @click="onSelect(pie)">
                                         <td
-                                            v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra')">
+                                            v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
                                             {{pie[key]}}</td>
                                     </tr>
                                 </tbody>
@@ -924,26 +963,27 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Pie Legal</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
                             <input type="text" v-model="pie_legal.pie_legal" />
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-18-24">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
                             <span>Pie legal</span>
                             <textarea class="editor" v-model="pie_legal.texto"></textarea>
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-18-24">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
                             <span>Notas Extra</span>
                             <textarea class="editor" v-model="pie_legal.notas_extra"></textarea>
                         </div>
                     </div>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="pure-u-md-2-5"></div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -951,28 +991,29 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Pie Legal</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
                             <input type="text" v-model="pie_legal.pie_legal" />
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-18-24">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
                             <span>Pie legal</span>
                             <textarea class="editor" v-model="pie_legal.texto"></textarea>
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-18-24">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
                             <span>Notas Extra</span>
                             <textarea class="editor" v-model="pie_legal.notas_extra"></textarea>
                         </div>
                     </div>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="pure-u-md-2-5"></div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -988,37 +1029,37 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Trámites</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nuevo Trámite</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="tramites && tramites.length">
                                 <thead>
                                     <tr>
-                                        <th v-for="key in Object.keys(tramites[0])">
+                                        <th v-for="key in Object.keys(tramites[0]).filter(k => !k.startsWith('id_'))">
                                             {{key.replaceAll("_"," ")}}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="ins in tramites" @click="onSelect(tra)">
-                                        <td v-for="key in Object.keys(tra)">{{tra[key]}}</td>
+                                        <td v-for="key in Object.keys(tra).filter(k => !k.startsWith('id_'))">{{tra[key]}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1027,16 +1068,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Trámite</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="tramite.tramite" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -1044,18 +1085,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Trámite</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="tramite.tramite" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -1069,18 +1110,27 @@
                 <span v-if="mode == 1"> / Editar</span>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Evaluación</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
                             <span>Link Evaluación</span>
                             <input type="text" v-model="evaluacion.link" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+
+                        <div class='formInputStandard pure-u-1-2 pure-u-md-1-5'>
+                            <label class="check" style="margin-top: 1.8rem;">
+                                <input type='checkbox' value='1' v-model='evaluacion.visible'/>
+                                <span class="checkmark"></span>
+                                Visible
+                            </label>
+                        </div>
+
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -1094,9 +1144,9 @@
                 <span v-if="mode == 1"> / Editar</span>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Evaluación</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-1 pure-u-md-1-3">
@@ -1117,9 +1167,9 @@
                         </div>
                     </div>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -1135,37 +1185,37 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Usuarios API REST</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nuevo Usuario</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="usuariosAPI && usuariosAPI.length">
                                 <thead>
                                     <tr>
-                                        <th v-for="key in Object.keys(usuariosAPI[0])">
+                                        <th v-for="key in Object.keys(usuariosAPI[0]).filter(k => !k.startsWith('id_'))">
                                             {{key.replaceAll("_"," ")}}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="usuario in usuariosAPI" @click="onSelect(usuario)">
-                                        <td v-for="key in Object.keys(usuario)">{{usuario[key]}}</td>
+                                        <td v-for="key in Object.keys(usuario).filter(k => !k.startsWith('id_'))">{{usuario[key]}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1174,16 +1224,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Usuario API REST</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="usuarioAPI.usuario" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -1191,18 +1241,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Usuario API REST</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="usuarioAPI.usuario" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -1218,37 +1268,37 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
                     <h2>Tipología de Documentos</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-3-5">
                                 <input type="text" placeholder="Nombre" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <div class="imgGraybutton">
                                     <img src="./img/ico/svg/search.svg" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
+                            <div class="pure-u-1-1 pure-u-md-1-5">
                                 <button style="width:100%" v-on:click="setMode(1)">Nuevo Documento</button>
                             </div>
                         </div>
                     </div>
                     <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
                             <table class="dataTable" v-if="documentos && documentos.length">
                                 <thead>
                                     <tr>
-                                        <th v-for="key in Object.keys(documentos[0])">
+                                        <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_'))">
                                             {{key.replaceAll("_"," ")}}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="doc in documentos" @click="onSelect(doc)">
-                                        <td v-for="key in Object.keys(doc)">{{doc[key]}}</td>
+                                        <td v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_'))">{{doc[key]}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1257,16 +1307,16 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Documento</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="documento.documento" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
@@ -1274,18 +1324,18 @@
                 </div>
             </div>
 
-            <div v-if="mode == 2"  style="padding: 1em" class="pure-g" style="height: max-content">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="margin: 0em 0em 0.5em 0em;">
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Documento</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
                             <span>Nombre</span>
                             <input type="text" v-model="documento.documento" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
                 </div>

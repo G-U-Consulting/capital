@@ -251,6 +251,20 @@ cross join
 	dim_factor f
 cross join 
 	dim_tipo_factor t;
+
+create table dim_grupo_img(
+	id_grupo_img int primary key auto_increment,
+	grupo varchar(50) not null unique,
+	orden int not null
+);
+create table dim_instructivo(
+	id_instructivo int primary key auto_increment,
+	instructivo varchar(50) not null unique,
+	procedimiento text,
+	documentacion_cierre text,
+	notas text
+);
+
 -- END
 /*
 

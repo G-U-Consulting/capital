@@ -3,7 +3,7 @@ export default {
         return {
             mainmode: 0,
             mode: 0,
-            agrupamientosImg: [],
+            gruposImg: [],
             mediosPublicitarios: [],
             categoriasMedios: [],
             ciudadelas: [],
@@ -19,7 +19,7 @@ export default {
             bancos_factores: [],
             tipos_factor: [],
 
-            agrupamientoImg: {},
+            grupoImg: {},
             categoriaMedio: {},
             medioPublicitario: {},
             banco: { id_banco: null, banco: null },
@@ -106,13 +106,14 @@ export default {
             hideProgress();
         },
         getItem() {
-            if (this.mainmode == 3) return [this.agrupamientoImg, 'Agrupamiento'];
+            if (this.mainmode == 3) return [this.grupoImg, 'GrupoImg'];
             if (this.mainmode == 4) return [this.categoriaMedio, 'Categoria'];
             if (this.mainmode == 5) return [this.medioPublicitario, 'Medio'];
             if (this.mainmode == 6) return [this.banco, 'Banco'];
             if (this.mainmode == 7) return [this.fiduciaria, 'Fiduciaria'];
             if (this.mainmode == 8) return [this.zonaProyecto, 'ZonaProyecto'];
             if (this.mainmode == 9) return [this.ciudadela, 'Ciudadela'];
+            if (this.mainmode == 10) return [this.instructivo, 'Instructivo'];
             if (this.mainmode == 11) return [this.pie_legal, 'PieLegal'];
             if (this.mainmode == 12) return [this.tramite, 'Tramites'];
             if (this.mainmode == 13) return [this.evaluacion, 'Evaluacion'];
@@ -127,6 +128,8 @@ export default {
         async loadData() {
             var resp = (await httpFunc("/generic/genericDS/Maestros:Get_Maestros", {})).data;
             console.log(resp);
+            this.gruposImg = resp[0];
+            this.instructivos = resp[1];
             this.zonasProyectos = resp[5];
             this.ciudadelas = resp[7];
             this.pies_legales = resp[8];

@@ -1003,7 +1003,7 @@ textarea.editor {
 }
 .tooltip-text {
   visibility: hidden;
-  background-color: black;
+  background-color: #444E;
   color: white;
   text-align: center;
   padding: 5px;

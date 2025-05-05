@@ -5,13 +5,12 @@
 
 --END_PARAM
 
-select id_estado_publicacion, estado_publicacion
-from dim_estado_pubicacion
-where is_active = 1;
+select id_grupo_img, orden, grupo
+from dim_grupo_img
+order by orden;
 
-select id_tipo_vis, tipo_vis
-from dim_tipo_vis
-where is_active = 1;
+select id_instructivo, instructivo, procedimiento, documentacion_cierre, notas
+from dim_instructivo;
 
 select id_tipo_financiacion, tipo_financiacion
 from dim_tipo_financiacion
