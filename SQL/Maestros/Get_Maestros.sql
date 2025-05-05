@@ -35,7 +35,7 @@ select id_ciudadela, ciudadela
 from dim_ciudadela 
 where is_active = 1;
 
-select id_pie_legal, pie_legal
+select id_pie_legal, pie_legal, texto, notas_extra
 from dim_pie_legal
 where is_active = 1;
 
@@ -45,3 +45,8 @@ where is_active = 1;
 
 select id_banco, banco
 from dim_banco_constructor;
+
+select id_factor, factor from dim_factor;
+select id_tipo_factor, tipo_factor from dim_tipo_factor;
+
+select id_banco, id_factor, id_tipo_factor, valor from dim_banco_factor;

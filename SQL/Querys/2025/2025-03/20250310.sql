@@ -198,6 +198,60 @@ values
 ('Consolidado de Costos de Obra', 'Costos Obra Consolidado', 'Archivos');
 -------------------------------------------
 
+create table dim_factor(
+	id_factor int auto_increment primary key,
+	factor varchar(50) not null
+);
+
+insert into dim_factor(factor) values('Factores por millón 5 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 10 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 15 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 20 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 25 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 30 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 5 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 10 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 15 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 20 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 25 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 30 años (UVR)');
+
+create table dim_tipo_factor(
+	id_tipo_factor int primary key auto_increment,
+	tipo_factor varchar(50) not null
+);
+
+insert into dim_tipo_factor(tipo_factor) values('VIS');
+insert into dim_tipo_factor(tipo_factor) values('NO VIS');
+insert into dim_tipo_factor(tipo_factor) values('VIS + Certificado EDGE');
+insert into dim_tipo_factor(tipo_factor) values('NO VIS + Certificado EDGE');
+
+create table dim_banco_factor(
+	id_banco_factor int primary key auto_increment,
+	id_banco int,
+	id_factor int,
+	id_tipo_factor int,
+	valor int not null,
+	constraint fk_id_banco foreign key(id_banco) references dim_banco_constructor(id_banco),
+	constraint fk_id_factor foreign key(id_factor) references dim_factor(id_factor),
+	constraint fk_id_tipo_factor foreign key(id_tipo_factor) references dim_tipo_factor(id_tipo_factor)
+);
+
+-- Llenado con valor inicial 0
+-- BEGIN
+insert into dim_banco_factor (id_banco, id_factor, id_tipo_factor, valor)
+select 
+	b.id_banco,
+	f.id_factor,
+	t.id_tipo_factor,
+	0 as valor
+from 
+	dim_banco_constructor b
+cross join 
+	dim_factor f
+cross join 
+	dim_tipo_factor t;
+-- END
 /*
 
 drop table fact_roles_usuarios;

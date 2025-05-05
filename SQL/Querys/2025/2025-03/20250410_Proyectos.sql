@@ -96,7 +96,7 @@ create table dim_ciudadela (
 );
 create table dim_banco_constructor(
 	id_banco int not null auto_increment,
-	banco varchar(100),
+	banco varchar(100) unique,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	constraint pk_dim_banco_constructor primary key(id_banco)

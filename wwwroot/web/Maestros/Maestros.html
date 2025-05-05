@@ -9,79 +9,84 @@
                 Listados Maestros
             </div>
             <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Imágenes Generales Capital
             </div>
             <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Imágenes Sostenibilidad
             </div>
             <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Agrupamiento de Imágenes
             </div>
             <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Categorías de Medios
             </div>
             <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Medios Publicitarios
             </div>
             <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Bancos
             </div>
             <div v-on:click="setMainMode(7)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Fiduciarias
             </div>
             <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 8}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 8}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Zonas agrupamiento proyectos
             </div>
             <div v-on:click="setMainMode(9)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 9}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 9}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Ciudadelas
             </div>
             <div v-on:click="setMainMode(10)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 10}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 10}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Instructivos Consignación y cierre
             </div>
             <div v-on:click="setMainMode(11)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 11}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 11}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Pies Legales Cotizaciones
             </div>
             <div v-on:click="setMainMode(12)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 12}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 12}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Trámites
             </div>
-            <div v-on:click="setMainMode(13)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 13}">
+            <div v-on:click="setMainMode(13); setMode(1);" class="lateralMenuItem noSelect"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 13}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Link Evaluación General
             </div>
-            <div v-on:click="setMainMode(14)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 14}">
+            <div v-on:click="setMainMode(14); setMode(1);" class="lateralMenuItem noSelect"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 14}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Subsidios VIS
             </div>
             <div v-on:click="setMainMode(15)" class="lateralMenuItem noSelect"
-                 v-bind:class="{'lateralMenuItemSelected': mainmode == 15}">
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 15}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Usuarios API REST
+            </div>
+            <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
+                <img src="./img/ico/svg/notebook.svg" />
+                Tipología de Documentos
             </div>
         </div>
 
@@ -90,7 +95,7 @@
 
     <div class="pure-u-1-1 pure-u-md-4-5">
 
-
+        <!-- Imágenes Generales Capital -->
         <div v-if="mainmode == 1">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Imágenes Generales Capital</span>
@@ -111,14 +116,14 @@
             </div>
         </div>
 
+        <!-- Imágenes Sostenibilidad -->
         <div v-if="mainmode == 3">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Agrupamiento de Imágenes</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
             </div>
 
-            <!--LISTA Agrupamiento de Imágenes-->
             <div v-if="mode == 0" style="padding: 1em">
                 <h2>Agrupamiento de Imágenes</h2>
                 <div class="searchBox">
@@ -137,44 +142,68 @@
                     </div>
                 </div>
                 <div class="searchBox">
-                    <table class="dataTable" v-if="agrupamientoImg && agrupamientoImg.length">
-                        <thead>
-                            <tr>
-                                <th v-for="key in Object.keys(agrupamientoImg[0])">
-                                    {{key.replaceAll("_"," ")}}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="cat in agrupamientoImg" @click="onSelect(agrupamientoImg)">
-                                <td v-for="key in Object.keys(cat)">{{cat[key]}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <table class="dataTable" v-if="agrupamientosImg && agrupamientosImg.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(agrupamientosImg[0])">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in agrupamientosImg" @click="onSelect(ins)">
+                                    <td v-for="key in Object.keys(ins)">{{ins[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <!--NUEVA Agrupamiento de Imágenes-->
+
             <div v-if="mode == 1" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nuevo Agrupamiento</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="agrupamientoImg.agrupamiento" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!--EDICIÓN Agrupamiento de Imágenes-->
+
             <div v-if="mode == 2" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Agrupamiento</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="agrupamientoImg.agrupamiento" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Categorías de Medios -->
         <div v-if="mainmode == 4">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Categorías de Medios</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
             </div>
 
-            <!--LISTA Categorías de Medios-->
             <div v-if="mode == 0" style="padding: 1em">
                 <h2>Categorías de Medios</h2>
                 <div class="searchBox">
@@ -188,46 +217,71 @@
                             </div>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-5-24">
-                            <button style="width:100%" v-on:click="setMode(1)">Nueva Categoría</button>
+                            <button style="width:100%" v-on:click="setMode(1)">Nueva Categoria</button>
                         </div>
                     </div>
                 </div>
                 <div class="searchBox">
-                    <table class="dataTable" v-if="categoriasMedios && categoriasMedios.length">
-                        <thead>
-                            <tr>
-                                <th v-for="key in Object.keys(categoriasMedios[0])">
-                                    {{key.replaceAll("_"," ")}}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="cat in categoriasMedios" @click="onSelect(categoriasMedios)">
-                                <td v-for="key in Object.keys(cat)">{{cat[key]}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <table class="dataTable" v-if="categoriasMedios && categoriasMedios.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(categoriasMedios[0])">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in categoriasMedios" @click="onSelect(ins)">
+                                    <td v-for="key in Object.keys(ins)">{{ins[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <!--NUEVA Categorías de Medios-->
+
             <div v-if="mode == 1" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nueva Categoria</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="categoriaMedio.categoria" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!--EDICIÓN Categorías de Medios-->
+
             <div v-if="mode == 2" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Categoria</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="categoriaMedio.categoria" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Medios Publicitarios -->
         <div v-if="mainmode == 5">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Medios Publicitarios</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
@@ -248,55 +302,67 @@
                     </div>
                 </div>
                 <div class="searchBox">
-                    <table class="dataTable" v-if="mediosPublicitarios && mediosPublicitarios.length">
-                        <thead>
-                            <tr>
-                                <th v-for="key in Object.keys(mediosPublicitarios[0])">
-                                    {{key.replaceAll("_"," ")}}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="medio in mediosPublicitarios" @click="onSelect(medio)">
-                                <td v-for="key in Object.keys(medio)">{{medio[key]}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <table class="dataTable" v-if="mediosPublicitarios && mediosPublicitarios.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(mediosPublicitarios[0])">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in mediosPublicitarios" @click="onSelect(ins)">
+                                    <td v-for="key in Object.keys(ins)">{{ins[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <div v-if="mode == 1" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Nuevo Medio Publicitario</h2>
-                    <div class="formInputStandard">
-                        <span>Nombre</span>
-                        <input type="text" />
+                    <h2>Nuevo Medio</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="medioPublicitario.medio" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
                     </div>
-                    <button v-on:click="onCreate()">Guardar</button>
                 </div>
             </div>
 
             <div v-if="mode == 2" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Editar Medio Publicitario</h2>
-                    <div class="formInputStandard">
-                        <span>Nombre</span>
-                        <input type="text" />
+                    <h2>Editar Medio</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="medioPublicitario.medio" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
                     </div>
-                    <button v-on:click="onUpdate()">Guardar</button>
                 </div>
             </div>
         </div>
 
 
-
+        <!-- Bancos -->
         <div v-if="mainmode == 6">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Bancos</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
@@ -343,7 +409,7 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text" v-model="banco.banco"/>
+                            <input type="text" v-model="banco.banco" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
@@ -360,22 +426,41 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text" v-model="banco.banco"/>
+                            <input type="text" v-model="banco.banco" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onUpdateBanco()">Guardar</button>
                         </div>
+                    </div>
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="margin-top: 3rem;" v-for="fac in factores">
+                            <h3>{{fac.factor}}</h3>
+                            <div class="pure-g" v-for="tf in tipos_factor">
+                                <div class="formInputStandard pure-u-1-2 pure-u-md-1-2" v-if="banco_factor[fac.id_factor+'-'+tf.id_tipo_factor]">
+                                    <span>{{tf.tipo_factor}}</span>
+                                    <input type="number" v-model="banco_factor[fac.id_factor+'-'+tf.id_tipo_factor].valor"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pure-g">
+                            <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                                <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                                <button v-on:click="onUpdateBanco()">Guardar</button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Fiduciarias -->
         <div v-if="mainmode == 7">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Fiduciarias</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
@@ -418,10 +503,11 @@
             <div v-if="mode == 1" class="pure-g" style="height: max-content">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Nueva Fiduciaria</h2><div class="pure-g">
+                    <h2>Nueva Fiduciaria</h2>
+                    <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text" v-model="fiduciaria.fiduciaria"/>
+                            <input type="text" v-model="fiduciaria.fiduciaria" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
@@ -438,7 +524,7 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text" v-model="fiduciaria.fiduciaria"/>
+                            <input type="text" v-model="fiduciaria.fiduciaria" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
@@ -449,15 +535,16 @@
             </div>
         </div>
 
+        <!-- Zonas agrupamiento proyectos -->
         <div v-if="mainmode == 8">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Zonas agrupamiento proyectos</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <h2>Fiduciarias</h2>
+                <h2>Zonas agrupamiento proyectos</h2>
                 <div class="searchBox">
                     <div class="pure-g">
                         <div class="pure-u-1-1 pure-u-md-18-24">
@@ -475,16 +562,16 @@
                 </div>
                 <div class="searchBox">
                     <div class="pure-u-1-1 pure-u-md-1-2">
-                        <table class="dataTable" v-if="zAgrupamientosPro && zAgrupamientosPro.length">
+                        <table class="dataTable" v-if="zonasProyectos && zonasProyectos.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(zAgrupamientosPro[0])">
+                                    <th v-for="key in Object.keys(zonasProyectos[0])">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="zap in zAgrupamientosPro" @click="onSelect(zap)">
+                                <tr v-for="zap in zonasProyectos" @click="onSelect(zap)">
                                     <td v-for="key in Object.keys(zap)">{{zap[key]}}</td>
                                 </tr>
                             </tbody>
@@ -500,7 +587,7 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text" v-model="fiduciaria.fiduciaria"/>
+                            <input type="text" v-model="zonaProyecto.zona_proyecto" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
@@ -517,7 +604,7 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text" v-model="fiduciaria.fiduciaria"/>
+                            <input type="text" v-model="zonaProyecto.zona_proyecto" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
@@ -528,11 +615,12 @@
             </div>
         </div>
 
+        <!-- Ciudadelas -->
         <div v-if="mainmode == 9">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Ciudadelas</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
@@ -579,7 +667,7 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text" v-model="ciudadela.ciudadela"/>
+                            <input type="text" v-model="ciudadela.ciudadela" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
@@ -596,7 +684,7 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text" v-model="ciudadela.ciudadela"/>
+                            <input type="text" v-model="ciudadela.ciudadela" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
@@ -607,13 +695,338 @@
             </div>
         </div>
 
+        <!-- Instructivos Consignación y cierre -->
+        <div v-if="mainmode == 10">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <span class="hoverLink" v-on:click="setMode(0)">Instructivos Consignación y cierre</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
+            </div>
 
+            <div v-if="mode == 0" style="padding: 1em">
+                <h2>Instructivos Consignación y cierre</h2>
+                <div class="searchBox">
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-18-24">
+                            <input type="text" placeholder="Nombre" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="imgGraybutton">
+                                <img src="./img/ico/svg/search.svg" />
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-5-24">
+                            <button style="width:100%" v-on:click="setMode(1)">Nuevo Instructivo</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="searchBox">
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <table class="dataTable" v-if="instructivos && instructivos.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(instructivos[0])">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in instructivos" @click="onSelect(ins)">
+                                    <td v-for="key in Object.keys(ins)">{{ins[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
+            <div v-if="mode == 1" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nuevo Instructivo</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="instructivo.instructivo" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 2" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Instructivo</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="instructivo.instructivo" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pies Legales Cotizaciones -->
+        <div v-if="mainmode == 11">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <span class="hoverLink" v-on:click="setMode(0)">Pies Legales Cotizaciones</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
+            </div>
+
+            <div v-if="mode == 0" style="padding: 1em">
+                <h2>Pies Legales Cotizaciones</h2>
+                <div class="searchBox">
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-18-24">
+                            <input type="text" placeholder="Nombre" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="imgGraybutton">
+                                <img src="./img/ico/svg/search.svg" />
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-5-24">
+                            <button style="width:100%" v-on:click="setMode(1)">Nuevo Pie Legal</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="searchBox">
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <table class="dataTable" v-if="pies_legales && pies_legales.length">
+                            <thead>
+                                <tr>
+                                    <th
+                                        v-for="key in Object.keys(pies_legales[0]).filter(k => k != 'texto' && k != 'notas_extra')">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="pie in pies_legales" @click="onSelect(pie)">
+                                    <td v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra')">
+                                        {{pie[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 1" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nuevo Pie Legal</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="pie_legal.pie_legal" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-18-24">
+                            <span>Pie legal</span>
+                            <textarea class="editor" v-model="pie_legal.texto"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-18-24">
+                            <span>Notas Extra</span>
+                            <textarea class="editor" v-model="pie_legal.notas_extra"></textarea>
+                        </div>
+                    </div>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 2" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Pie Legal</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="pie_legal.pie_legal" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-18-24">
+                            <span>Pie legal</span>
+                            <textarea class="editor" v-model="pie_legal.texto"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-18-24">
+                            <span>Notas Extra</span>
+                            <textarea class="editor" v-model="pie_legal.notas_extra"></textarea>
+                        </div>
+                    </div>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trámites -->
+        <div v-if="mainmode == 12">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <span class="hoverLink" v-on:click="setMode(0)">Trámites</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
+            </div>
+
+            <div v-if="mode == 0" style="padding: 1em">
+                <h2>Trámites</h2>
+                <div class="searchBox">
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-18-24">
+                            <input type="text" placeholder="Nombre" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="imgGraybutton">
+                                <img src="./img/ico/svg/search.svg" />
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-5-24">
+                            <button style="width:100%" v-on:click="setMode(1)">Nuevo Trámite</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="searchBox">
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <table class="dataTable" v-if="tramites && tramites.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(tramites[0])">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in tramites" @click="onSelect(tra)">
+                                    <td v-for="key in Object.keys(tra)">{{tra[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 1" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nuevo Trámite</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="tramite.tramite" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 2" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Trámite</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="tramite.tramite" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Link Evaluación General -->
+        <div v-if="mainmode == 13">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <span class="hoverLink" v-on:click="setMode(0)">Evaluación General</span>
+                <span v-if="mode == 1"> / Editar</span>
+            </div>
+
+            <div v-if="mode == 1" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Evaluación</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
+                            <span>Link Evaluación</span>
+                            <input type="text" v-model="evaluacion.link" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subsidios VIS -->
+        <div v-if="mainmode == 14">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <span class="hoverLink" v-on:click="setMode(0)">Subsidios VIS</span>
+                <span v-if="mode == 1"> / Editar</span>
+            </div>
+
+            <div v-if="mode == 1" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Evaluación</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-3">
+                            <span>Valor smmlv</span>
+                            <input type="text" v-model="subsidio.smmlv" />
+                        </div>
+                    </div>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-3">
+                            <span>Subsidio entre 0 y 2 smmlv</span>
+                            <input type="text" v-model="subsidio.smmlv_0_2" />
+                        </div>
+                    </div>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-3">
+                            <span>Subsidio entre 2 y 4 smmlv</span>
+                            <input type="text" v-model="subsidio.smmlv_2_4" />
+                        </div>
+                    </div>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usuarios API -->
         <div v-if="mainmode == 15">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="setMode(0)">Usuarios API REST</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
@@ -634,20 +1047,22 @@
                     </div>
                 </div>
                 <div class="searchBox">
-                    <table class="dataTable" v-if="usuariosAPI && usuariosAPI.length">
-                        <thead>
-                            <tr>
-                                <th v-for="key in Object.keys(usuariosAPI[0])">
-                                    {{key.replaceAll("_"," ")}}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="usuario in usuariosAPI" @click="onSelect(usuario)">
-                                <td v-for="key in Object.keys(usuario)">{{usuario[key]}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <table class="dataTable" v-if="usuariosAPI && usuariosAPI.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(usuariosAPI[0])">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="usuario in usuariosAPI" @click="onSelect(usuario)">
+                                    <td v-for="key in Object.keys(usuario)">{{usuario[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -658,11 +1073,11 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text"/>
+                            <input type="text" v-model="usuarioAPI.usuario" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Guardar</button>
+                            <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
                 </div>
@@ -675,7 +1090,87 @@
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre</span>
-                            <input type="text"/>
+                            <input type="text" v-model="usuarioAPI.usuario" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tipología de Documentos -->
+        <div v-if="mainmode == 16">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <span class="hoverLink" v-on:click="setMode(0)">Tipología de Documentos</span>
+                <span v-if="mode == 1"> / Nuevo</span>
+                <span v-if="mode == 2"> / Edición</span>
+            </div>
+
+            <div v-if="mode == 0" style="padding: 1em">
+                <h2>Tipología de Documentos</h2>
+                <div class="searchBox">
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-18-24">
+                            <input type="text" placeholder="Nombre" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="imgGraybutton">
+                                <img src="./img/ico/svg/search.svg" />
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-5-24">
+                            <button style="width:100%" v-on:click="setMode(1)">Nuevo Documento</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="searchBox">
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <table class="dataTable" v-if="documentos && documentos.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(documentos[0])">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="doc in documentos" @click="onSelect(doc)">
+                                    <td v-for="key in Object.keys(doc)">{{doc[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 1" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nuevo Documento</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="documento.documento" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 2" class="pure-g" style="height: max-content">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Documento</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre</span>
+                            <input type="text" v-model="documento.documento" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
