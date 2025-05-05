@@ -67,12 +67,12 @@ export default {
         },
         async onCreate() {
             let [item, itemname] = this.getItem();
-            try{
+            try {
                 showProgress();
-            const resp = await httpFunc(`/generic/genericST/Maestros:Ins_${itemname}`, item);
-            hideProgress();
-            if (resp.data === 'OK') this.setMode(0);
-            console.log(resp);
+                const resp = await httpFunc(`/generic/genericST/Maestros:Ins_${itemname}`, item);
+                hideProgress();
+                if (resp.data === 'OK') this.setMode(0);
+                    console.log(resp);
             }
             catch(e){
                 console.log(e);
@@ -86,18 +86,24 @@ export default {
             if (resp.data === 'OK') this.setMode(0);
             console.log(resp);
         },
+        async onCreateBanco() {
+            showProgress();
+            const resp = await httpFunc(`/generic/genericST/Maestros:Ins_Banco`, this.banco, true),
+            bf = this.banco_factor;
+            console.log(resp.id);
+            for (const key in bf) 
+                if(typeof bf[key].valor === 'number')
+                    await httpFunc(`/generic/genericST/Maestros:Upd_BancoFactor`, bf[key]);
+            hideProgress();
+        },
         async onUpdateBanco() {
             showProgress();
-            const resp = await httpFunc(`/generic/genericST/Maestros:Upd_Banco`, this.banco);
-            if (resp.data == 'OK') {
-                this.banco_factor.forEach(bf => {
-                    if (bf.valor instanceof Number){
-
-                    }
-                });
-            }
+            const resp = await httpFunc(`/generic/genericST/Maestros:Upd_Banco`, this.banco),
+            bf = this.banco_factor;
+            for (const key in bf) 
+                if(typeof bf[key].valor === 'number')
+                    await httpFunc(`/generic/genericST/Maestros:Upd_BancoFactor`, bf[key]);
             hideProgress();
-            console.log(this.banco_factor);
         },
         getItem() {
             if (this.mainmode == 3) return [this.agrupamientoImg, 'Agrupamiento'];

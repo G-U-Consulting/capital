@@ -996,3 +996,27 @@ table thead th {
 textarea.editor {
   height: 100px;
 }
+.tooltip {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+.tooltip-text {
+  visibility: hidden;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  border-radius: 4px;
+  position: absolute;
+  top: -5px;
+  left: 105%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity .5s;
+}
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: .9;
+  z-index: 1;
+}
