@@ -993,3 +993,7 @@ table thead th {
     background-color: #f1f9fa;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
+.main-content{
+  height: calc(100vh - 17rem);
+  overflow-y: auto;
+}
