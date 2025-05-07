@@ -12,23 +12,31 @@ order by orden;
 select id_instructivo, instructivo, procedimiento, documentacion_cierre, notas
 from dim_instructivo;
 
-select id_tipo_financiacion, tipo_financiacion
-from dim_tipo_financiacion
+select id_tramite, tramite
+from dim_tramite
 where is_active = 1;
 
-select id_opcion_visual, opcion_visual
-from dim_opcion_visual
-where is_active = 1;
+select id_subsidio, smmlv, smmlv_0_2, smmlv_2_4, imagen
+from dim_subsidio_vis;
 
-select id_sede , sede
-from dim_sede;
+select id_categoria, categoria
+from dim_categoria_medio
+where is_active = 1
+order by categoria;
+
+select mp.id_medio, mp.medio, mp.id_categoria, cm.categoria, mp.is_active, 
+if(mp.is_active = 1, 'Sí', 'No') as 'Activo', id_sinco, id_sinco as 'ID Sinco'
+from dim_medio_publicitario mp 
+join dim_categoria_medio cm on mp.id_categoria = cm.id_categoria
+order by is_active desc;
+
+select id_documento, documento, descripcion
+from dim_documento
+where is_active = 1
+order by documento;
 
 select id_zona_proyecto, zona_proyecto
 from dim_zona_proyecto;
-
-select id_tipo_proyecto, tipo_proyecto 
-from dim_tipo_proyecto
-where is_active = 1;
 
 select id_ciudadela, ciudadela
 from dim_ciudadela 

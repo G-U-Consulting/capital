@@ -41,13 +41,13 @@
             <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
                 <img src="./img/ico/svg/notebook.svg" />
-                Categorías de Medios
+                Categorías
                 <span class="tooltip-text">Categorías de medios</span>
             </div>
             <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
                 <img src="./img/ico/svg/notebook.svg" />
-                Medios Publicitarios
+                Medios
                 <span class="tooltip-text">Medios publicitarios</span>
             </div>
         </div>
@@ -104,12 +104,6 @@
                 Trámites
                 <span class="tooltip-text">Trámites</span>
             </div>
-            <div v-on:click="setMainMode(13); setMode(1);" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 13}">
-                <img src="./img/ico/svg/notebook.svg" />
-                Link Evaluación General
-                <span class="tooltip-text">Link evaluación general</span>
-            </div>
             <div v-on:click="setMainMode(14); setMode(1);" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 14}">
                 <img src="./img/ico/svg/notebook.svg" />
@@ -125,7 +119,7 @@
             <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
                 <img src="./img/ico/svg/notebook.svg" />
-                Tipología Documentos
+                Documentos
                 <span class="tooltip-text">Tipología Documentos</span>
             </div>
         </div>
@@ -190,23 +184,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="gruposImg && gruposImg.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(gruposImg[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="ins in gruposImg" @click="onSelect(ins)">
-                                        <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">{{ins[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="gruposImg && gruposImg.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(gruposImg[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in gruposImg" @click="onSelect(ins)">
+                                    <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">{{ins[key]}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -281,23 +274,23 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="categoriasMedios && categoriasMedios.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(categoriasMedios[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="ins in categoriasMedios" @click="onSelect(ins)">
-                                        <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">{{ins[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="categoriasMedios && categoriasMedios.length">
+                            <thead>
+                                <tr>
+                                    <th
+                                        v-for="key in Object.keys(categoriasMedios[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in categoriasMedios" @click="onSelect(ins)">
+                                    <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">
+                                        {{ins[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -307,12 +300,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nueva Categoria</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="categoriaMedio.categoria" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -324,12 +315,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Categoria</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="categoriaMedio.categoria" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -364,23 +353,23 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="mediosPublicitarios && mediosPublicitarios.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(mediosPublicitarios[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="ins in mediosPublicitarios" @click="onSelect(ins)">
-                                        <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">{{ins[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="mediosPublicitarios && mediosPublicitarios.length">
+                            <thead>
+                                <tr>
+                                    <th
+                                        v-for="key in Object.keys(mediosPublicitarios[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in mediosPublicitarios" @click="onSelect(ins)">
+                                    <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{ins[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -390,12 +379,34 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Medio</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
                             <input type="text" v-model="medioPublicitario.medio" />
                         </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Categoria</span>
+                            <select v-model='medioPublicitario.id_categoria'>
+                                <option value='' disabled selected>Seleccione</option>
+                                <option v-for='cat in categoriasMedios' :value='cat.id_categoria'>
+                                    {{ cat.categoria }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>ID en Sinco</span>
+                            <input type="text" v-model="medioPublicitario.id_sinco" />
+                        </div>
+                        <div class='formInputStandard pure-u-1-2 pure-u-md-1-5'>
+                            <label class="check" style="margin-top: 1.8rem;">
+                                <input type='checkbox' value='1' v-model='medioPublicitario.is_active'/>
+                                <span class="checkmark"></span>
+                                Activo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <div style="display: block; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -407,12 +418,34 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Medio</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
                             <input type="text" v-model="medioPublicitario.medio" />
                         </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Categoria</span>
+                            <select v-model='medioPublicitario.id_categoria'>
+                                <option value='' disabled selected>Seleccione</option>
+                                <option v-for='cat in categoriasMedios' :value='cat.id_categoria'>
+                                    {{ cat.categoria }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>ID en Sinco</span>
+                            <input type="text" v-model="medioPublicitario.id_sinco" />
+                        </div>
+                        <div class='formInputStandard pure-u-1-2 pure-u-md-1-5'>
+                            <label class="check" style="margin-top: 1.8rem;">
+                                <input type='checkbox' value='1' v-model='medioPublicitario.is_active'/>
+                                <span class="checkmark"></span>
+                                Activo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
+                            <div style="display: block; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -448,24 +481,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="bancos && bancos.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(bancos[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="banco in bancos" @click="onSelect(banco)">
-                                        <td v-for="key in Object.keys(banco).filter(k => !k.startsWith('id_'))">
-                                            {{banco[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="bancos && bancos.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(bancos[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="banco in bancos" @click="onSelect(banco)">
+                                    <td v-for="key in Object.keys(banco).filter(k => !k.startsWith('id_'))">
+                                        {{banco[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -475,12 +506,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Banco</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="banco.banco" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -512,12 +541,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Banco</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="banco.banco" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdateBanco()">Editar</button>
                         </div>
                     </div>
@@ -572,25 +599,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="fiduciarias && fiduciarias.length">
-                                <thead>
-                                    <tr>
-                                        <th
-                                            v-for="key in Object.keys(fiduciarias[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="fid in fiduciarias" @click="onSelect(fid)">
-                                        <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_'))">
-                                            {{fid[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="fiduciarias && fiduciarias.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(fiduciarias[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="fid in fiduciarias" @click="onSelect(fid)">
+                                    <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_'))">
+                                        {{fid[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -600,12 +624,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nueva Fiduciaria</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="fiduciaria.fiduciaria" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -617,12 +639,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Fiduciaria</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="fiduciaria.fiduciaria" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -657,25 +677,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="zonasProyectos && zonasProyectos.length">
-                                <thead>
-                                    <tr>
-                                        <th
-                                            v-for="key in Object.keys(zonasProyectos[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="zap in zonasProyectos" @click="onSelect(zap)">
-                                        <td v-for="key in Object.keys(zap).filter(k => !k.startsWith('id_'))">
-                                            {{zap[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="zonasProyectos && zonasProyectos.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(zonasProyectos[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="zap in zonasProyectos" @click="onSelect(zap)">
+                                    <td v-for="key in Object.keys(zap).filter(k => !k.startsWith('id_'))">
+                                        {{zap[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -685,12 +702,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nueva Zona</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="zonaProyecto.zona_proyecto" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -702,12 +717,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Zona</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="zonaProyecto.zona_proyecto" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -742,24 +755,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="ciudadelas && ciudadelas.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(ciudadelas[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="ciu in ciudadelas" @click="onSelect(ciu)">
-                                        <td v-for="key in Object.keys(ciu).filter(k => !k.startsWith('id_'))">
-                                            {{ciu[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="ciudadelas && ciudadelas.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(ciudadelas[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ciu in ciudadelas" @click="onSelect(ciu)">
+                                    <td v-for="key in Object.keys(ciu).filter(k => !k.startsWith('id_'))">
+                                        {{ciu[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -769,12 +780,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nueva Ciudadela</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="ciudadela.ciudadela" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -786,12 +795,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Ciudadelas</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="ciudadela.ciudadela" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -826,34 +833,33 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="instructivos && instructivos.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(instructivos[0]).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="ins in instructivos" @click="onSelect(ins)">
-                                        <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">{{ins[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="instructivos && instructivos.length">
+                            <thead>
+                                <tr>
+                                    <th
+                                        v-for="key in Object.keys(instructivos[0]).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="ins in instructivos" @click="onSelect(ins)">
+                                    <td
+                                        v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
+                                        {{ins[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
             <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-5"></div>
-                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Instructivo</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
-                            <span>Nombre</span>
                             <input type="text" v-model="instructivo.instructivo" />
                         </div>
                         <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
@@ -872,7 +878,6 @@
                     <div class="pure-g">
                         <div class="pure-u-md-2-5"></div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -880,12 +885,10 @@
             </div>
 
             <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-5"></div>
-                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Instructivo</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
-                            <span>Nombre</span>
                             <input type="text" v-model="instructivo.instructivo" />
                         </div>
                         <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
@@ -904,7 +907,6 @@
                     <div class="pure-g">
                         <div class="pure-u-md-2-5"></div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -939,37 +941,33 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="pies_legales && pies_legales.length">
-                                <thead>
-                                    <tr>
-                                        <th
-                                            v-for="key in Object.keys(pies_legales[0]).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="pie in pies_legales" @click="onSelect(pie)">
-                                        <td
-                                            v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
-                                            {{pie[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="pies_legales && pies_legales.length">
+                            <thead>
+                                <tr>
+                                    <th
+                                        v-for="key in Object.keys(pies_legales[0]).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="pie in pies_legales" @click="onSelect(pie)">
+                                    <td
+                                        v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
+                                        {{pie[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
             <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-5"></div>
-                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Pie Legal</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
-                            <span>Nombre</span>
                             <input type="text" v-model="pie_legal.pie_legal" />
                         </div>
                         <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
@@ -984,7 +982,6 @@
                     <div class="pure-g">
                         <div class="pure-u-md-2-5"></div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -992,12 +989,10 @@
             </div>
 
             <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-5"></div>
-                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Pie Legal</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
-                            <span>Nombre</span>
                             <input type="text" v-model="pie_legal.pie_legal" />
                         </div>
                         <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
@@ -1012,7 +1007,6 @@
                     <div class="pure-g">
                         <div class="pure-u-md-2-5"></div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -1047,23 +1041,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="tramites && tramites.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(tramites[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="ins in tramites" @click="onSelect(tra)">
-                                        <td v-for="key in Object.keys(tra).filter(k => !k.startsWith('id_'))">{{tra[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="tramites && tramites.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(tramites[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="tra in tramites" @click="onSelect(tra)">
+                                    <td v-for="key in Object.keys(tra).filter(k => !k.startsWith('id_'))">
+                                        {{tra[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1073,12 +1066,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Trámite</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="tramite.tramite" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -1090,46 +1081,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Trámite</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="tramite.tramite" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Editar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Link Evaluación General -->
-        <div v-if="mainmode == 13">
-            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <span class="hoverLink" v-on:click="setMode(0)">Evaluación General</span>
-                <span v-if="mode == 1"> / Editar</span>
-            </div>
-
-            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-5"></div>
-                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Editar Evaluación</h2>
-                    <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Link Evaluación</span>
-                            <input type="text" v-model="evaluacion.link" />
-                        </div>
-
-                        <div class='formInputStandard pure-u-1-2 pure-u-md-1-5'>
-                            <label class="check" style="margin-top: 1.8rem;">
-                                <input type='checkbox' value='1' v-model='evaluacion.visible'/>
-                                <span class="checkmark"></span>
-                                Visible
-                            </label>
-                        </div>
-
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -1140,36 +1095,43 @@
         <!-- Subsidios VIS -->
         <div v-if="mainmode == 14">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <span class="hoverLink" v-on:click="setMode(0)">Subsidios VIS</span>
+                <span class="hoverLink" v-on:click="setMode(1)">Subsidios VIS</span>
                 <span v-if="mode == 1"> / Editar</span>
             </div>
 
             <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-5"></div>
-                <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Editar Evaluación</h2>
+                <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Subsidio VIS</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-3">
-                            <span>Valor smmlv</span>
-                            <input type="text" v-model="subsidio.smmlv" />
+                        <div class="pure-u-1-1 pure-u-md-1-3">
+                            <div class="formInputStandard">
+                                <span>Valor smmlv</span>
+                                <input type="number" v-model="subsidio.smmlv" min="0"/>
+                            </div>
+                            <div class="formInputStandard">
+                                <span>Subsidio entre 0 y 2 smmlv</span>
+                                <input type="number" v-model="subsidio.smmlv_0_2" min="0"/>
+                            </div>
+                            <div class="formInputStandard">
+                                <span>Subsidio entre 2 y 4 smmlv</span>
+                                <input type="number" v-model="subsidio.smmlv_2_4" min="0"/>
+                            </div>
                         </div>
-                    </div>
-                    <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-3">
-                            <span>Subsidio entre 0 y 2 smmlv</span>
-                            <input type="text" v-model="subsidio.smmlv_0_2" />
-                        </div>
-                    </div>
-                    <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-3">
-                            <span>Subsidio entre 2 y 4 smmlv</span>
-                            <input type="text" v-model="subsidio.smmlv_2_4" />
+                        <div class="pure-u-1-1 pure-u-md-2-3">
+                            <div class="formInputStandard">
+                                <span>Imagen</span>
+                                <img :src="subsidio.imagen" style="max-width: 100%; max-height: calc(100vh - 20rem);
+                                   display: block; margin: 0 auto; border: 1px solid #ccc;" alt="imagen">
+                                <div style="margin-top: 1rem;">
+                                    <label for="sub-image" class="file">Subir Imagen</label>
+                                    <input id="sub-image" type="file" @change="fileUpload" style="display: none;" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-on:click="onUpdate()">Editar</button>
+                            <button v-on:click="onUpdateSubsidio()">Editar</button>
                         </div>
                     </div>
                 </div>
@@ -1203,23 +1165,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="usuariosAPI && usuariosAPI.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(usuariosAPI[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="usuario in usuariosAPI" @click="onSelect(usuario)">
-                                        <td v-for="key in Object.keys(usuario).filter(k => !k.startsWith('id_'))">{{usuario[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="usuariosAPI && usuariosAPI.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(usuariosAPI[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="usuario in usuariosAPI" @click="onSelect(usuario)">
+                                    <td v-for="key in Object.keys(usuario).filter(k => !k.startsWith('id_'))">
+                                        {{usuario[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1229,12 +1190,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Usuario API REST</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="usuarioAPI.usuario" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -1246,12 +1205,10 @@
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Usuario API REST</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="usuarioAPI.usuario" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>
@@ -1286,23 +1243,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="searchBox">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="display: block; margin: 0 auto;">
-                            <table class="dataTable" v-if="documentos && documentos.length">
-                                <thead>
-                                    <tr>
-                                        <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_'))">
-                                            {{key.replaceAll("_"," ")}}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="doc in documentos" @click="onSelect(doc)">
-                                        <td v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_'))">{{doc[key]}}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                        <table class="dataTable" v-if="documentos && documentos.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="doc in documentos" @click="onSelect(doc)">
+                                    <td v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_'))">
+                                        {{doc[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1310,14 +1266,16 @@
             <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
                 <div class="pure-u-1-5"></div>
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Nuevo Documento</h2>
+                    <h2>Nuevo Tipo Documento</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="documento.documento" />
                         </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Descripción</span>
+                            <textarea class="editor" v-model="documento.descripcion"></textarea>
+                        </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onCreate()">Guardar</button>
                         </div>
                     </div>
@@ -1327,14 +1285,16 @@
             <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
                 <div class="pure-u-1-5"></div>
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Editar Documento</h2>
+                    <h2>Editar Tipo Documento</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-18-24">
-                            <span>Nombre</span>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="documento.documento" />
                         </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Descripción</span>
+                            <textarea class="editor" v-model="documento.descripcion"></textarea>
+                        </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onUpdate()">Editar</button>
                         </div>
                     </div>

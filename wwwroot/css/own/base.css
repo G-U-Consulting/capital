@@ -232,7 +232,7 @@ h2 {
         height: 1.5rem;
     }
 
-button, input[type=submit] {
+button, input[type=submit], .file {
     /*border: 2px solid #007ab3;
     color: #007ab3;*/
     border: 2px solid #00839C;

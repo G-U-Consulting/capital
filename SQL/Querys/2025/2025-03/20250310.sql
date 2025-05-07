@@ -264,7 +264,68 @@ create table dim_instructivo(
 	documentacion_cierre text,
 	notas text
 );
+create table dim_categoria_medio(
+	id_categoria int primary key auto_increment,
+	categoria varchar(200) not null unique,
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+create table dim_medio_publicitario(
+	id_medio int primary key auto_increment,
+	medio varchar(200) not null unique,
+	id_categoria int,
+	id_sinco varchar(50) not null,
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user,
+	constraint fk_id_categoria foreign key(id_categoria) references dim_categoria_medio(id_categoria)
+);
+create table dim_tramite(
+	id_tramite int primary key auto_increment,
+	tramite varchar(200) not null unique,
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+insert into dim_tramite(tramite) values('Asesoría Firma Digital Documentos por Docusign');
+insert into dim_tramite(tramite) values('Asesoría Pago con Cupón');
+insert into dim_tramite(tramite) values('Asesoría Pago por PSE');
+insert into dim_tramite(tramite) values('Cesión');
+insert into dim_tramite(tramite) values('Consulta Fecha de Entrega del Apartamento');
+insert into dim_tramite(tramite) values('Créditos');
+insert into dim_tramite(tramite) values('Descargar cupón de pago');
+insert into dim_tramite(tramite) values('Entrega Documentos');
+insert into dim_tramite(tramite) values('Entrega Escritura Cliente');
+insert into dim_tramite(tramite) values('Estado de cuenta');
+insert into dim_tramite(tramite) values('Firma de Promesa');
+insert into dim_tramite(tramite) values('Otrosí');
+insert into dim_tramite(tramite) values('Solicitud Cliente Cambio Plan de Pagos');
+insert into dim_tramite(tramite) values('Solicitud de Reformas');
+insert into dim_tramite(tramite) values('Solicitud Posventa');
+insert into dim_tramite(tramite) values('Subsidio');
 
+create table dim_subsidio_vis(
+	id_subsidio int primary key auto_increment,
+	smmlv bigint not null,
+	smmlv_0_2 bigint not null,
+	smmlv_2_4 bigint not null,
+	imagen varchar(255)
+);
+insert into dim_subsidio_vis(smmlv,smmlv_0_2,smmlv_2_4) values(1423500,42705000,28470000);
+
+create table dim_documento(
+	id_documento int primary key auto_increment,
+	documento varchar(200) not null unique,
+	descripcion varchar(200),
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
 -- END
 /*
 

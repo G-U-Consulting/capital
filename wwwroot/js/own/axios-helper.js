@@ -35,7 +35,7 @@ async function httpFunc(path, data, getID = false) {
                     username: GlobalVariables.username
                 };
                 console.log(resp.data);
-                let res = operacion.includes('Ins') && resp.data.data.split('-')[1] ? resp.data.data.split('-')[1] : null;
+                let res = operacion.includes('Ins') && resp.data.data && resp.data.data.split('-')[1] ? resp.data.data.split('-')[1] : null;
                 if (res) {
                     resp.data.data = 'OK';
                     let datos = {...data};

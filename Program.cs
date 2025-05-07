@@ -142,8 +142,21 @@ app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
         await WebBDUt.ExecuteLocalSQLJson<DataSet>("Presentacion/Ins_Presentacion", new JObject { ["nombre_archivo"] = fileName, ["orden"] = orden }, connectionString);
         orden++;
     }
-    return Results.Ok(new { message = "✅ ¡Imágenes actualizadas!" });
+    return Results.BadRequest(new { message = "✅ ¡Imágenes actualizadas!" });
 });
+app.Map("/api/uploadfile/{path}", async (string path, IFormFile file, IWebHostEnvironment env) =>
+{
+    if (file == null || file.Length == 0)
+        return Results.BadRequest(new { message = "No se encontró ningún archivo.", data = "Error" });
+    path = Path.Combine(env.WebRootPath, "img", path);
+    if (!Directory.Exists(path))
+        Directory.CreateDirectory(path);
+    string extension = Path.GetExtension(file.FileName);
+    string fullPath = Path.Combine(path, file.FileName);
+    using var stream = new FileStream(fullPath, FileMode.Create);
+    await file.CopyToAsync(stream);
+    return Results.Ok(new { message = "✅ ¡Archivo actualizado!", data = "OK" });
+}).DisableAntiforgery();
 app.Map("/api/internal/{op}", async (HttpRequest request, HttpResponse response, string op) => {
     string body = "";
     try {
