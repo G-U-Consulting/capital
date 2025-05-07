@@ -70,16 +70,14 @@ export default {
       let item = this.getItem()[0];
       Object.keys(selected).forEach((key) => (item[key] = selected[key]));
       if (this.mainmode == 5) this.medioIsActive = item['is_active'] == 1;
-      if (this.mainmode == 6) {
-        this.bancos_factores
-          .filter((bf) => bf.id_banco === item.id_banco)
-          .forEach(
-            (bf) =>
-              (this.banco_factor[bf.id_factor + "-" + bf.id_tipo_factor] = bf)
-          );
-
-        console.log(this.banco_factor);
-      }
+    },
+    onSelectFactor(selected) {
+      console.log(selected);
+      this.setMode(3);
+      Object.keys(selected).forEach((key) => (this.factor[key] = selected[key]));
+      const bfs = this.bancos_factores.filter(bf => bf.id_banco == this.banco.id_banco && bf.id_factor == this.factor.id_factor);
+      this.banco_factor = {};
+      bfs.forEach(bf => this.banco_factor[bf.id_tipo_factor] = bf);
     },
     async onCreate() {
       let [item, itemname] = this.getItem();
@@ -124,20 +122,17 @@ export default {
           );
       hideProgress();
     },
-    async onUpdateBanco() {
+    async onUpdateFactor() {
       showProgress();
-      const resp = await httpFunc(
-        `/generic/genericST/Maestros:Upd_Banco`,
-        this.banco
-      ),
-        bf = this.banco_factor;
-      for (const key in bf)
-        if (typeof bf[key].valor === "number")
-          await httpFunc(
-            `/generic/genericST/Maestros:Upd_BancoFactor`,
-            bf[key]
-          );
+      const bf = this.banco_factor;
+      let error = false;
+      for (const key in bf) {
+        console.log(bf[key]);
+        let resp = await httpFunc(`/generic/genericST/Maestros:Upd_BancoFactor`, bf[key]);
+        if (resp.data !== 'OK') error = true;
+      }
       hideProgress();
+      if (!error) this.mode = 2;
     },
     async onUpdateSubsidio() {
       let name = null;
