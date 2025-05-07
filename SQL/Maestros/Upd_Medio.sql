@@ -3,11 +3,12 @@
 -- =============================================
 --START_PARAM
 set
-    @id_medio = '',
-    @medio = '',
-    @is_active = 1,
-    @id_categoria = '',
-    @id_sinco
+    @id_medio = '1',
+    @medio = 'Ad@ CAPITAL',
+    @is_active = 0,
+    @id_categoria = '1',
+    @id_sinco = '0'
+
 --END_PARAM
 
 UPDATE dim_medio_publicitario

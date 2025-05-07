@@ -436,8 +436,8 @@
                             <input type="text" v-model="medioPublicitario.id_sinco" />
                         </div>
                         <div class='formInputStandard pure-u-1-2 pure-u-md-1-5'>
-                            <label class="check" style="margin-top: 1.8rem;">
-                                <input type='checkbox' value='1' v-model='medioPublicitario.is_active'/>
+                            <label class="check" for="medioIsActive" style="margin-top: 1.8rem;">
+                                <input type='checkbox' value='0' v-model='medioIsActive' id='medioIsActive' />
                                 <span class="checkmark"></span>
                                 Activo
                             </label>
@@ -452,7 +452,6 @@
                 </div>
             </div>
         </div>
-
 
         <!-- Bancos -->
         <div v-if="mainmode == 6">
@@ -862,17 +861,20 @@
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <input type="text" v-model="instructivo.instructivo" />
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
-                            <span>Procedimiento</span>
-                            <textarea class="editor" v-model="instructivo.procedimiento"></textarea>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onCreate()">Guardar</button>
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
+                            <span>Procedimiento</span>
+                            <textarea class="editor" id="editor-pro" v-model="instructivo.procedimiento"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
                             <span>Documentación requerida para el cierre</span>
-                            <textarea class="editor" v-model="instructivo.documentacion_cierre"></textarea>
+                            <textarea class="editor" id="editor-cie" v-model="instructivo.documentacion_cierre"></textarea>
                         </div>
                         <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
                             <span>Recuerda</span>
-                            <textarea class="editor" v-model="instructivo.notas"></textarea>
+                            <textarea class="editor" id="editor-not" v-model="instructivo.notas"></textarea>
                         </div>
                     </div>
                     <div class="pure-g">
@@ -891,17 +893,20 @@
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <input type="text" v-model="instructivo.instructivo" />
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
-                            <span>Procedimiento</span>
-                            <textarea class="editor" v-model="instructivo.procedimiento"></textarea>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
+                            <span>Procedimiento</span>
+                            <textarea class="editor" id="editor-pro" v-model="instructivo.procedimiento"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
                             <span>Documentación requerida para el cierre</span>
-                            <textarea class="editor" v-model="instructivo.documentacion_cierre"></textarea>
+                            <textarea class="editor" id="editor-cie" v-model="instructivo.documentacion_cierre"></textarea>
                         </div>
                         <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
                             <span>Recuerda</span>
-                            <textarea class="editor" v-model="instructivo.notas"></textarea>
+                            <textarea class="editor" id="editor-not" v-model="instructivo.notas"></textarea>
                         </div>
                     </div>
                     <div class="pure-g">
@@ -970,13 +975,16 @@
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <input type="text" v-model="pie_legal.pie_legal" />
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
-                            <span>Pie legal</span>
-                            <textarea class="editor" v-model="pie_legal.texto"></textarea>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onUpdate()">Guardar</button>
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
+                            <span>Pie legal</span>
+                            <textarea class="editor" id="editor-tex" v-model="pie_legal.texto"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
                             <span>Notas Extra</span>
-                            <textarea class="editor" v-model="pie_legal.notas_extra"></textarea>
+                            <textarea class="editor" id="editor-not" v-model="pie_legal.notas_extra"></textarea>
                         </div>
                     </div>
                     <div class="pure-g">
@@ -995,13 +1003,16 @@
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <input type="text" v-model="pie_legal.pie_legal" />
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
-                            <span>Pie legal</span>
-                            <textarea class="editor" v-model="pie_legal.texto"></textarea>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onUpdate()">Editar</button>
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
+                            <span>Pie legal</span>
+                            <textarea class="editor" id="editor-tex" v-model="pie_legal.texto"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
                             <span>Notas Extra</span>
-                            <textarea class="editor" v-model="pie_legal.notas_extra"></textarea>
+                            <textarea class="editor" id="editor-not" v-model="pie_legal.notas_extra"></textarea>
                         </div>
                     </div>
                     <div class="pure-g">

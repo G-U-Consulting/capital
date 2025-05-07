@@ -41,6 +41,8 @@ export default {
       documento: {},
       factor: { id_factor: null, factor: null },
       banco_factor: {},
+
+      medioIsActive: 0
     };
   },
   async mounted() {
@@ -56,6 +58,7 @@ export default {
       if (mode == 0) this.loadData();
       if ((mode == 1 || mode == 2) && this.mainmode != 14)
         this.clearItem(this.getItem()[0]);
+      if ((mode == 1 || mode == 2) && (this.mainmode == 10 || this.mainmode == 11)) this.initTinyMce();
       this.mode = mode;
     },
     hasPermission(id) {
@@ -66,6 +69,7 @@ export default {
       this.setMode(2);
       let item = this.getItem()[0];
       Object.keys(selected).forEach((key) => (item[key] = selected[key]));
+      if (this.mainmode == 5) this.medioIsActive = item['is_active'] == 1;
       if (this.mainmode == 6) {
         this.bancos_factores
           .filter((bf) => bf.id_banco === item.id_banco)
@@ -76,10 +80,10 @@ export default {
 
         console.log(this.banco_factor);
       }
-      console.log(selected, item);
     },
     async onCreate() {
       let [item, itemname] = this.getItem();
+      if (this.mainmode == 5) item['is_active'] = this.medioIsActive ? 1 : null;
       try {
         showProgress();
         const resp = await httpFunc(
@@ -88,13 +92,13 @@ export default {
         );
         hideProgress();
         if (resp.data === "OK") this.setMode(0);
-        console.log(resp);
       } catch (e) {
         console.log(e);
       }
     },
     async onUpdate() {
       let [item, itemname] = this.getItem();
+      if (this.mainmode == 5) item['is_active'] = this.medioIsActive ? 1 : null;
       showProgress();
       const resp = await httpFunc(
         `/generic/genericST/Maestros:Upd_${itemname}`,
@@ -102,15 +106,14 @@ export default {
       );
       hideProgress();
       if (resp.data === "OK") this.setMode(0);
-      console.log(resp);
     },
     async onCreateBanco() {
       showProgress();
       const resp = await httpFunc(
-          `/generic/genericST/Maestros:Ins_Banco`,
-          this.banco,
-          true
-        ),
+        `/generic/genericST/Maestros:Ins_Banco`,
+        this.banco,
+        true
+      ),
         bf = this.banco_factor;
       console.log(resp.id);
       for (const key in bf)
@@ -124,9 +127,9 @@ export default {
     async onUpdateBanco() {
       showProgress();
       const resp = await httpFunc(
-          `/generic/genericST/Maestros:Upd_Banco`,
-          this.banco
-        ),
+        `/generic/genericST/Maestros:Upd_Banco`,
+        this.banco
+      ),
         bf = this.banco_factor;
       for (const key in bf)
         if (typeof bf[key].valor === "number")
@@ -174,6 +177,7 @@ export default {
     },
     clearItem(item) {
       Object.keys(item).forEach((key) => (item[key] = null));
+      if (this.mainmode == 5) this.medioIsActive = 0;
     },
     async loadData() {
       var resp = (
@@ -210,5 +214,31 @@ export default {
         this.subsidio.imagen = URL.createObjectURL(file);
       }
     },
+    initTinyMce() {
+      setTimeout(async () => {
+        let conf = {
+          language: 'es',
+          setup: (editor) => {
+            editor.on('change', () => {
+              editor.save();
+              editor.getElement().dispatchEvent(new Event('input'));
+            });
+          },
+          plugins: [
+            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'link', 'lists', 'searchreplace', 'table', 'visualblocks', 'wordcount',
+            'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'mentions', 'tableofcontents', 'footnotes', 'autocorrect', 'typography', 'inlinecss', 'markdown'
+          ],
+          toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link table | spellcheckdialog | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat code',
+          height: 300,
+          menubar: false
+        }, selectors = this.mainmode == 10 ? ['#editor-pro', '#editor-cie', '#editor-not'] : ['#editor-tex', '#editor-not'];
+
+        selectors.forEach(async s => {
+          let con = { ...conf, selector: s };
+          tinymce.remove(s);
+          await tinymce.init(con);
+        });
+      }, 100);
+    }
   },
 };
