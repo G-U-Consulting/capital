@@ -65,17 +65,6 @@ mainVue = {
             await this.loadModule("Index");
             this.mostrarMenu = true;
         }
-        var keys = (await httpFunc("/generic/genericDT/General:Get_Variable", { nombre_variable: 'ApiKeys' })).data;
-        if (keys && keys.length) {
-            this.apiKeys = JSON.parse(keys[0].valor);
-            let tinykey = this.apiKeys['tinymce'];
-            if (tinykey) {
-                let $script = document.createElement('script');
-                $script.src = `https://cdn.tiny.cloud/1/${tinykey}/tinymce/7/tinymce.min.js`;
-                $script.referrerPolicy = "origin";
-                document.head.insertAdjacentElement('beforeend', $script);
-            }
-        }
         hideProgress();
         window.onpopstate = function (e) {
             if (e.state != null && e.state.moduleName != null)

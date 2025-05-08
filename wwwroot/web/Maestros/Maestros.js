@@ -42,7 +42,10 @@ export default {
       factor: { id_factor: null, factor: null },
       banco_factor: {},
 
-      medioIsActive: 0
+      medioIsActive: 0,
+      insEditor: 1,
+      pieEditor: 1,
+      quills: {},
     };
   },
   async mounted() {
@@ -58,7 +61,8 @@ export default {
       if (mode == 0) this.loadData();
       if ((mode == 1 || mode == 2) && this.mainmode != 14)
         this.clearItem(this.getItem()[0]);
-      if ((mode == 1 || mode == 2) && (this.mainmode == 10 || this.mainmode == 11)) this.initTinyMce();
+      if ((mode == 1 || mode == 2) && (this.mainmode == 10 || this.mainmode == 11)) 
+        this.initQuill();
       this.mode = mode;
     },
     hasPermission(id) {
@@ -69,19 +73,27 @@ export default {
       this.setMode(2);
       let item = this.getItem()[0];
       Object.keys(selected).forEach((key) => (item[key] = selected[key]));
-      if (this.mainmode == 5) this.medioIsActive = item['is_active'] == 1;
+      if (this.mainmode == 5) this.medioIsActive = item["is_active"] == 1;
+      if (this.mainmode == 10) this.insEditor = 1;
+      if (this.mainmode == 11) this.pieEditor = 1;
     },
     onSelectFactor(selected) {
       console.log(selected);
       this.setMode(3);
-      Object.keys(selected).forEach((key) => (this.factor[key] = selected[key]));
-      const bfs = this.bancos_factores.filter(bf => bf.id_banco == this.banco.id_banco && bf.id_factor == this.factor.id_factor);
+      Object.keys(selected).forEach(
+        (key) => (this.factor[key] = selected[key])
+      );
+      const bfs = this.bancos_factores.filter(
+        (bf) =>
+          bf.id_banco == this.banco.id_banco &&
+          bf.id_factor == this.factor.id_factor
+      );
       this.banco_factor = {};
-      bfs.forEach(bf => this.banco_factor[bf.id_tipo_factor] = bf);
+      bfs.forEach((bf) => (this.banco_factor[bf.id_tipo_factor] = bf));
     },
     async onCreate() {
       let [item, itemname] = this.getItem();
-      if (this.mainmode == 5) item['is_active'] = this.medioIsActive ? 1 : null;
+      if (this.mainmode == 5) item["is_active"] = this.medioIsActive ? 1 : null;
       try {
         showProgress();
         const resp = await httpFunc(
@@ -96,22 +108,26 @@ export default {
     },
     async onUpdate() {
       let [item, itemname] = this.getItem();
-      if (this.mainmode == 5) item['is_active'] = this.medioIsActive ? 1 : null;
-      showProgress();
-      const resp = await httpFunc(
-        `/generic/genericST/Maestros:Upd_${itemname}`,
-        item
-      );
-      hideProgress();
-      if (resp.data === "OK") this.setMode(0);
+      if (this.mainmode == 5) item["is_active"] = this.medioIsActive ? 1 : null;
+      try {
+        showProgress();
+        const resp = await httpFunc(
+          `/generic/genericST/Maestros:Upd_${itemname}`,
+          item
+        );
+        hideProgress();
+        if (resp.data === "OK") this.setMode(0);
+      } catch (e) {
+        console.log(e);
+      }
     },
     async onCreateBanco() {
       showProgress();
       const resp = await httpFunc(
-        `/generic/genericST/Maestros:Ins_Banco`,
-        this.banco,
-        true
-      ),
+          `/generic/genericST/Maestros:Ins_Banco`,
+          this.banco,
+          true
+        ),
         bf = this.banco_factor;
       console.log(resp.id);
       for (const key in bf)
@@ -128,8 +144,11 @@ export default {
       let error = false;
       for (const key in bf) {
         console.log(bf[key]);
-        let resp = await httpFunc(`/generic/genericST/Maestros:Upd_BancoFactor`, bf[key]);
-        if (resp.data !== 'OK') error = true;
+        let resp = await httpFunc(
+          `/generic/genericST/Maestros:Upd_BancoFactor`,
+          bf[key]
+        );
+        if (resp.data !== "OK") error = true;
       }
       hideProgress();
       if (!error) this.mode = 2;
@@ -209,31 +228,66 @@ export default {
         this.subsidio.imagen = URL.createObjectURL(file);
       }
     },
-    initTinyMce() {
-      setTimeout(async () => {
-        let conf = {
-          language: 'es',
-          setup: (editor) => {
-            editor.on('change', () => {
-              editor.save();
-              editor.getElement().dispatchEvent(new Event('input'));
-            });
-          },
-          plugins: [
-            'anchor', 'autolink', 'charmap', 'codesample', 'emoticons', 'link', 'lists', 'searchreplace', 'table', 'visualblocks', 'wordcount',
-            'checklist', 'mediaembed', 'casechange', 'formatpainter', 'pageembed', 'tinymcespellchecker', 'permanentpen', 'powerpaste', 'advtable', 'advcode', 'editimage', 'advtemplate', 'mentions', 'tableofcontents', 'footnotes', 'autocorrect', 'typography', 'inlinecss', 'markdown'
-          ],
-          toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link table | spellcheckdialog | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat code',
-          height: 300,
-          menubar: false
-        }, selectors = this.mainmode == 10 ? ['#editor-pro', '#editor-cie', '#editor-not'] : ['#editor-tex', '#editor-not'];
-
-        selectors.forEach(async s => {
-          let con = { ...conf, selector: s };
-          tinymce.remove(s);
-          await tinymce.init(con);
-        });
+    initQuill() {
+      this.insEditor = 1;
+      this.pieEditor = 1;
+      setTimeout(() => {
+        this.quills =
+          this.mainmode == 10
+            ? {
+                "#editor-pro": {
+                  data: this.instructivo,
+                  field: "procedimiento",
+                },
+                "#editor-cie": {
+                  data: this.instructivo,
+                  field: "documentacion_cierre",
+                },
+                "#editor-not": {
+                  data: this.instructivo,
+                  field: "notas",
+                },
+              }
+            : {
+                "#editor-tex": {
+                  data: this.pie_legal,
+                  field: "texto",
+                },
+                "#editor-not": {
+                  data: this.pie_legal,
+                  field: "notas_extra",
+                },
+              };
+        const toolbarOptions = [
+          ["bold", "italic", "underline", "strike"], // toggled buttons
+          ["blockquote", "code-block"],
+          ["link", "image", "video"],
+          [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
+          [{ script: "sub" }, { script: "super" }], // superscript/subscript
+          [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+          [{ direction: "rtl" }], // text direction
+          [{ size: ["small", false, "large", "huge"] }], // custom dropdown
+          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+          [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+          [{ font: [] }],
+          [{ align: [] }],
+          ["clean"], // remove formatting button
+        ];
+        for (const key in this.quills) {
+          let quill = new Quill(key, {
+              modules: {
+                toolbar: toolbarOptions,
+              },
+              theme: "snow",
+            }),
+            item = this.quills[key];
+          quill.clipboard.dangerouslyPasteHTML(item.data[item.field]);
+          item.quill = quill;
+          quill.on("text-change", (delta, oldDelta, source) => {
+            item.data[item.field] = quill.getSemanticHTML(0, quill.getLength());
+          });
+        }
       }, 100);
-    }
+    },
   },
 };

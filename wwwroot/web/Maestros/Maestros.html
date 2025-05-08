@@ -581,8 +581,7 @@
                     <h2>Editar Factores</h2>
                     <div class="pure-g" style="align-items: flex-end;">
 
-                        <div class="pure-u-1-2 pure-u-md-1-2"
-                            v-for="bf in banco_factor">
+                        <div class="pure-u-1-2 pure-u-md-1-2" v-for="bf in banco_factor">
                             <div class="pure-g">
                                 <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                                     <span>{{tipos_factor.filter(tf => tf.id_tipo_factor ==
@@ -894,24 +893,34 @@
                 <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Instructivo</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <input type="text" v-model="instructivo.instructivo" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onCreate()">Guardar</button>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5"></div>
+                    </div>
+                    <div class="pure-g" style="margin: .5rem 0;">
+                        <div class="tab pure-u-1-3 pure-u-md-1-3" @click="insEditor = 1"
+                            v-bind:class="{'tab-selected': insEditor == 1}">
+                            Procedimiento
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Procedimiento</span>
-                            <textarea class="editor" id="editor-pro" v-model="instructivo.procedimiento"></textarea>
+                        <div class="tab pure-u-1-3 pure-u-md-1-3" @click="insEditor = 2"
+                            v-bind:class="{'tab-selected': insEditor == 2}">
+                            Documentación Cierre
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Documentación requerida para el cierre</span>
-                            <textarea class="editor" id="editor-cie"
-                                v-model="instructivo.documentacion_cierre"></textarea>
+                        <div class="tab pure-u-1-3 pure-u-md-1-3" @click="insEditor = 3"
+                            v-bind:class="{'tab-selected': insEditor == 3}">
+                            Recuerda
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
-                            <span>Recuerda</span>
-                            <textarea class="editor" id="editor-not" v-model="instructivo.notas"></textarea>
+                    </div>
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': insEditor != 1}">
+                            <div id="editor-pro"></div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': insEditor != 2}">
+                            <div id="editor-cie"></div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': insEditor != 3}">
+                            <div id="editor-not"></div>
                         </div>
                     </div>
                     <div class="pure-g">
@@ -927,24 +936,34 @@
                 <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Instructivo</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <input type="text" v-model="instructivo.instructivo" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onUpdate()">Editar</button>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5"></div>
+                    </div>
+                    <div class="pure-g" style="margin: .5rem 0;">
+                        <div class="tab pure-u-1-3 pure-u-md-1-3" @click="insEditor = 1"
+                            v-bind:class="{'tab-selected': insEditor == 1}">
+                            Procedimiento
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Procedimiento</span>
-                            <textarea class="editor" id="editor-pro" v-model="instructivo.procedimiento"></textarea>
+                        <div class="tab pure-u-1-3 pure-u-md-1-3" @click="insEditor = 2"
+                            v-bind:class="{'tab-selected': insEditor == 2}">
+                            Documentación Cierre
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Documentación requerida para el cierre</span>
-                            <textarea class="editor" id="editor-cie"
-                                v-model="instructivo.documentacion_cierre"></textarea>
+                        <div class="tab pure-u-1-3 pure-u-md-1-3" @click="insEditor = 3"
+                            v-bind:class="{'tab-selected': insEditor == 3}">
+                            Recuerda
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
-                            <span>Recuerda</span>
-                            <textarea class="editor" id="editor-not" v-model="instructivo.notas"></textarea>
+                    </div>
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': insEditor != 1}">
+                            <div id="editor-pro"></div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': insEditor != 2}">
+                            <div id="editor-cie"></div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': insEditor != 3}">
+                            <div id="editor-not"></div>
                         </div>
                     </div>
                     <div class="pure-g">
@@ -1010,19 +1029,26 @@
                 <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Nuevo Pie Legal</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <input type="text" v-model="pie_legal.pie_legal" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onUpdate()">Guardar</button>
+                    </div>
+                    <div class="pure-g" style="margin: .5rem 0;">
+                        <div class="tab pure-u-1-2 pure-u-md-1-2" @click="pieEditor = 1"
+                            v-bind:class="{'tab-selected': pieEditor == 1}">
+                            Pie legal
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Pie legal</span>
-                            <textarea class="editor" id="editor-tex" v-model="pie_legal.texto"></textarea>
+                        <div class="tab pure-u-1-2 pure-u-md-1-2" @click="pieEditor = 2"
+                            v-bind:class="{'tab-selected': pieEditor == 2}">
+                            Notas Extra
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Notas Extra</span>
-                            <textarea class="editor" id="editor-not" v-model="pie_legal.notas_extra"></textarea>
+                    </div>
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': pieEditor != 1}">
+                            <div id="editor-tex"></div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': pieEditor != 2}">
+                            <div id="editor-not"></div>
                         </div>
                     </div>
                     <div class="pure-g">
@@ -1038,19 +1064,26 @@
                 <div class="pure-u-1-1 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Pie Legal</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <input type="text" v-model="pie_legal.pie_legal" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onUpdate()">Editar</button>
+                    </div>
+                    <div class="pure-g" style="margin: .5rem 0;">
+                        <div class="tab pure-u-1-2 pure-u-md-1-2" @click="pieEditor = 1"
+                            v-bind:class="{'tab-selected': pieEditor == 1}">
+                            Pie legal
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Pie legal</span>
-                            <textarea class="editor" id="editor-tex" v-model="pie_legal.texto"></textarea>
+                        <div class="tab pure-u-1-2 pure-u-md-1-2" @click="pieEditor = 2"
+                            v-bind:class="{'tab-selected': pieEditor == 2}">
+                            Notas Extra
                         </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
-                            <span>Notas Extra</span>
-                            <textarea class="editor" id="editor-not" v-model="pie_legal.notas_extra"></textarea>
+                    </div>
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': pieEditor != 1}">
+                            <div id="editor-tex"></div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-1" v-bind:class="{'hide-editor': pieEditor != 2}">
+                            <div id="editor-not"></div>
                         </div>
                     </div>
                     <div class="pure-g">
