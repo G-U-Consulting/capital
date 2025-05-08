@@ -102,6 +102,20 @@ create table dim_banco_constructor(
 	constraint pk_dim_banco_constructor primary key(id_banco)
 );
 
+create trigger tr_insert_banco after insert on dim_banco_constructor for each row
+begin
+	insert into dim_banco_factor (id_banco, id_factor, id_tipo_factor, valor)
+	select 
+		new.id_banco as id_banco,
+		f.id_factor,
+		t.id_tipo_factor,
+		0 as valor
+	from 
+		dim_factor f
+	cross join 
+		dim_tipo_factor t;
+end;
+
 create table fact_proyectos(
 	id_proyecto int not null auto_increment,
 	constraint pk_fact_proyectos primary key (id_proyecto),

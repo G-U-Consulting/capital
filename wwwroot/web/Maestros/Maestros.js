@@ -78,7 +78,6 @@ export default {
       if (this.mainmode == 11) this.pieEditor = 1;
     },
     onSelectFactor(selected) {
-      console.log(selected);
       this.setMode(3);
       Object.keys(selected).forEach(
         (key) => (this.factor[key] = selected[key])
@@ -123,19 +122,22 @@ export default {
     },
     async onCreateBanco() {
       showProgress();
-      const resp = await httpFunc(
+      try {
+        showProgress();
+        const resp = await httpFunc(
           `/generic/genericST/Maestros:Ins_Banco`,
           this.banco,
           true
-        ),
-        bf = this.banco_factor;
-      console.log(resp.id);
-      for (const key in bf)
-        if (typeof bf[key].valor === "number")
-          await httpFunc(
-            `/generic/genericST/Maestros:Upd_BancoFactor`,
-            bf[key]
-          );
+        );
+        if (resp.data === "OK" && resp.id) {
+          this.banco.id_banco = resp.id;
+          this.loadData();
+          this.mode = 2;
+        }
+        hideProgress();
+      } catch (e) {
+        console.log(e);
+      }
       hideProgress();
     },
     async onUpdateFactor() {
@@ -143,7 +145,6 @@ export default {
       const bf = this.banco_factor;
       let error = false;
       for (const key in bf) {
-        console.log(bf[key]);
         let resp = await httpFunc(
           `/generic/genericST/Maestros:Upd_BancoFactor`,
           bf[key]
@@ -197,7 +198,6 @@ export default {
       var resp = (
         await httpFunc("/generic/genericDS/Maestros:Get_Maestros", {})
       ).data;
-      console.log(resp);
       let subsidio = {};
       [
         this.gruposImg,

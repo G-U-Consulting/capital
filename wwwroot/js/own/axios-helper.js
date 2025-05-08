@@ -34,13 +34,12 @@ async function httpFunc(path, data, getID = false) {
                     datos: JSON.stringify(data),
                     username: GlobalVariables.username
                 };
-                console.log(resp.data);
                 let res = operacion.includes('Ins') && resp.data.data && resp.data.data.split('-')[1] ? resp.data.data.split('-')[1] : null;
                 if (res) {
                     resp.data.data = 'OK';
                     let datos = {...data};
                     datos[res.split(':')[0]] = res.split(':')[1];
-                    getID && (resp.id = res.split(':')[1]);
+                    getID && (resp.data.id = res.split(':')[1]);
                     registro.datos = JSON.stringify(datos);
                 }
                 await axios.post('/generic/genericST/Auditoria:Ins_Auditoria', registro);
