@@ -28,10 +28,10 @@
                     <h2>Usuarios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-1-3">
                                 <input type="text" placeholder="Usuario o Nombre" v-model="filtro.seachUser" class="pure-input-1" @keydown.enter="getUsuarios"/>
                             </div>
-                            <div class="pure-u-1-2 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-1-24">
                                 <div class="imgGraybutton" v-on:click="getUsuarios()">
                                     <img src="./img/ico/svg/search.svg" class="pure-img" />
                                 </div>
@@ -42,19 +42,21 @@
                                     <option v-for="item in cargos" v-bind:value="item.id_cargo">{{item.cargo}}</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24" style="padding-left: 1em;">
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <select v-model="filtro.id_sede" v-on:change="getUsuarios()" class="pure-input-1">
                                     <option value="">[Todas las sedes]</option>
                                     <option v-for="item in sedes" v-bind:value="item.id_sede">{{item.sede}}</option>
                                 </select>
                             </div>
+                           <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                           <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
                                 <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel"
                                      title="Descargar datos a Excel" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
-                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()" v-if="hasPermission(2)">
+                            <div class="pure-u-1-1 pure-u-md-5-24" style="text-align: right;">
+                                <button v-on:click="startNewUser()" v-if="hasPermission(2)">
                                     Nuevo Usuario
                                 </button>
                             </div>

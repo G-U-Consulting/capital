@@ -28,7 +28,7 @@
                     <h2>Categorias Adm</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-18-24">
+                            <div class="pure-u-1-1 pure-u-md-16-24">
                                 <input type="text" placeholder="Categoria" v-model="seachCargo" @keyup.enter="seachCargos" />
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24">
@@ -36,8 +36,9 @@
                                     <img src="./img/ico/svg/search.svg" @click="seachCargos" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-5-24">
-                                <button v-on:click="startNewUser()" style="width:100%">Nueva Categoria</button>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-5-24" style="text-align: right;">
+                                <button v-on:click="startNewUser()">Nueva Categoria</button>
                             </div>
                         </div>
                     </div>
@@ -74,19 +75,17 @@
                 <div class="pure-u-22-24 menuCard">
                     <h2>Nueva Categoria</h2>
                     <br />
-                    <div class="pure-g">
-                        <div class='pure-u-1-1 pure-u-md-1-3'>
-                            <div class='formInputStandard'>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class='pure-u-1-1 pure-u-md-8-24'>
                                 <input type="text" v-model="createCargo.cargo" placeholder="Ingrese nueva categoria">
                             </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
-                            <div class='formInputStandard'>
+                            <div class='pure-u-1-1 pure-u-md-1-24'></div>
+                            <div class='pure-u-1-1 pure-u-md-8-24'>
                                 <input type="text" v-model="createCargo.descripcion" placeholder="Ingrese la descripción">
                             </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-6'>
-                            <div class='formInputStandard'>
+                            <div class='pure-u-1-1 pure-u-md-1-24'></div>
+                            <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: right;">
                                 <button @click="agregarCargo">Insertar</button>
                             </div>
                         </div>
@@ -100,22 +99,20 @@
                 <div class="pure-u-22-24 menuCard">
                     <h2>Nueva Categoria</h2>
                     <br />
-                    <div class="pure-g">
-                        <div class='pure-u-1-1 pure-u-md-1-3'>
-                            <div class='formInputStandard'>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class='pure-u-1-1 pure-u-md-8-24'>
                                 <input type="text" v-model="editCargo.cargo">
                             </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-2'>
-                            <div class='formInputStandard'>
+                            <div class='pure-u-1-1 pure-u-md-1-24'></div>
+                            <div class='pure-u-1-1 pure-u-md-8-24'>
                                 <input type="text" v-model="editCargo.descripcion">
                             </div>
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-6'>
-                            <div class='formInputStandard'>
+                            <div class='pure-u-1-1 pure-u-md-1-24'></div>
+                            <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: right;">
                                 <button @click="actualizarCargo">Actualizar</button>
                             </div>
-                        </div>
+                        </div>  
                     </div>
                 </div>
                 <div class="pure-u-1-24"></div>
