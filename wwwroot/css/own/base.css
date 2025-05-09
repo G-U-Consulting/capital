@@ -1026,17 +1026,20 @@ textarea.editor {
 .ql-container.ql-snow {
   min-height: 13rem;
   height: 50%;
-  max-height: calc(100vh - 27rem);
+  max-height: calc(100vh - 27.5rem);
+  overflow-y: auto;
 }
 .ql-snow.ql-toolbar button {
   min-width: auto;
 }
+.ql-editor.ql-blank{
+	max-height: calc(100vh - 27.5rem);
+}
 .tab{
   text-align: center;
   padding: 1rem 0;
-  border-bottom: 2px solid #ddd;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border: 1px solid #ccc;
+  padding-bottom: calc(1rem + 2px);
   transition: border .2s ease-in-out;
 }
 .tab:hover{
@@ -1045,8 +1048,26 @@ textarea.editor {
 }
 .tab-selected {
   font-weight: bold;
-  border-bottom: 2px solid #00839C;
+  border-bottom: 3px solid #00839C;
+  background-color: #f1f9fa9d;
+  margin-bottom: 0;
 }
 .hide-editor{
   display: none;
+}
+.tab-container{
+  margin-top: .5rem;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border: 1px solid #ccc;
+  border-bottom: 0;
+  overflow: hidden;
+}
+.editor-container{
+  border: 1px solid #ccc;
+  border-top: 0;
+  height: fit-content;
+}
+tr{
+  cursor: pointer;
 }

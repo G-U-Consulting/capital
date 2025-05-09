@@ -23,25 +23,21 @@ export default {
       grupoImg: {},
       categoriaMedio: {},
       medioPublicitario: {},
-      banco: { id_banco: null, banco: null },
-      fiduciaria: { id_fiduciaria: null, fiduciaria: null },
-      ciudadela: { id_ciudadela: null, ciudadela: null },
-      zonaProyecto: { id_zona_proyecto: null, zona_proyecto: null },
+      banco: {},
+      fiduciaria: {},
+      ciudadela: {},
+      zonaProyecto: {},
       instructivo: {},
-      pie_legal: {
-        id_pie_legal: null,
-        pie_legal: null,
-        texto: null,
-        notas_extra: null,
-      },
+      pie_legal: {},
       tramite: {},
       evaluacion: {},
       subsidio: {},
       usuarioAPI: {},
       documento: {},
-      factor: { id_factor: null, factor: null },
+      factor: {},
       banco_factor: {},
 
+      ruta: [],
       medioIsActive: 0,
       insEditor: 1,
       pieEditor: 1,
@@ -50,20 +46,39 @@ export default {
   },
   async mounted() {
     this.loadData();
-    this.setMainMode(1);
+    this.setMainMode(0);
   },
   methods: {
+    setRuta() {
+      let subpath = [this.getMainPath()];
+      if (this.mode == 1) subpath.push({ text: 'Nuevo', action: () => { this.mode = 1; this.setRuta() } });
+      if (this.mode == 2) subpath.push({ text: 'Edición', action: () => { this.mode = 2; this.setRuta() } });
+      if (this.mode == 3 && this.mainmode == 6) subpath = [...subpath,
+      { text: 'Edición', action: () => { this.mode = 2; this.setRuta() } },
+      { text: 'Factores', action: () => { this.mode = 3; this.setRuta() } }];
+      this.ruta = ['ZU', 'Maestros'];
+      this.ruta[0] = {
+        text: this.ruta[0], action: () => {
+          GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual);
+          this.setRuta();
+        }
+      }
+      this.ruta[1] = { text: this.ruta[1], action: () => { this.mainmode = 0; this.mode = 0; this.setRuta() } }
+      this.ruta = [...this.ruta, ...subpath];
+    },
     setMainMode(mode) {
       this.mainmode = mode;
       this.mode = 0;
+      this.setRuta();
     },
     setMode(mode) {
       if (mode == 0) this.loadData();
       if ((mode == 1 || mode == 2) && this.mainmode != 14)
         this.clearItem(this.getItem()[0]);
-      if ((mode == 1 || mode == 2) && (this.mainmode == 10 || this.mainmode == 11)) 
+      if ((mode == 1 || mode == 2) && (this.mainmode == 10 || this.mainmode == 11))
         this.initQuill();
       this.mode = mode;
+      this.setRuta();
     },
     hasPermission(id) {
       return !!GlobalVariables.permisos.filter((p) => p.id_permiso == id)
@@ -133,6 +148,7 @@ export default {
           this.banco.id_banco = resp.id;
           this.loadData();
           this.mode = 2;
+          this.setRuta();
         }
         hideProgress();
       } catch (e) {
@@ -152,7 +168,10 @@ export default {
         if (resp.data !== "OK") error = true;
       }
       hideProgress();
-      if (!error) this.mode = 2;
+      if (!error) {
+        this.mode = 2;
+        this.setRuta();
+      }
     },
     async onUpdateSubsidio() {
       let name = null;
@@ -169,6 +188,7 @@ export default {
       }
       let sub = { ...this.subsidio };
       if (resp.data === "OK" && name) sub.imagen = `/img/subsidio/${name}`;
+      Object.keys(sub).forEach(key => sub[key] = key.startsWith('smmlv') ? sub[key].toString().replace(',', '.') : sub[key]);
       resp = await httpFunc(`/generic/genericST/Maestros:Upd_Subsidio`, sub);
       hideProgress();
       if (resp.data === "OK") this.setMode(1);
@@ -189,6 +209,26 @@ export default {
       if (this.mainmode == 15) return [this.usuarioAPI, "UsuarioAPI"];
       if (this.mainmode == 16) return [this.documento, "Documento"];
       return null;
+    },
+    getMainPath() {
+      let path = {};
+      if (this.mainmode == 1) path.text = "Imágenes Generales Capital";
+      if (this.mainmode == 2) path.text = "Imágenes Sostenibilidad";
+      if (this.mainmode == 3) path.text = "Agrupamiento de imágenes";
+      if (this.mainmode == 4) path.text = "Categorías medios";
+      if (this.mainmode == 5) path.text = "Medios publicitarios";
+      if (this.mainmode == 6) path.text = "Bancos";
+      if (this.mainmode == 7) path.text = "Fiduciarias";
+      if (this.mainmode == 8) path.text = "Zonas agrupamiento proyectos";
+      if (this.mainmode == 9) path.text = "Ciudadelas";
+      if (this.mainmode == 10) path.text = "Instructivos consignación y cierre";
+      if (this.mainmode == 11) path.text = "Pies legales cotizaciones";
+      if (this.mainmode == 12) path.text = "Trámites";
+      if (this.mainmode == 14) path.text = "Subsidios VIS";
+      if (this.mainmode == 15) path.text = "Usuarios API";
+      if (this.mainmode == 16) path.text = "Tipología Documentos";
+      path.action = () => { this.mode = 0; this.setRuta(); this.loadData() };
+      return path;
     },
     clearItem(item) {
       Object.keys(item).forEach((key) => (item[key] = null));
@@ -217,7 +257,10 @@ export default {
         this.bancos_factores,
       ] = resp;
       let sub = subsidio[0];
-      if (sub) for (const key in sub) this.subsidio[key] = sub[key];
+      if (sub) for (const key in sub) this.subsidio[key] =
+        key.startsWith('smmlv')
+          ? parseFloat(sub[key].toString().replace(',', '.'))
+          : sub[key];
     },
     fileUpload(e) {
       let file = e.target.files[0];
@@ -235,29 +278,29 @@ export default {
         this.quills =
           this.mainmode == 10
             ? {
-                "#editor-pro": {
-                  data: this.instructivo,
-                  field: "procedimiento",
-                },
-                "#editor-cie": {
-                  data: this.instructivo,
-                  field: "documentacion_cierre",
-                },
-                "#editor-not": {
-                  data: this.instructivo,
-                  field: "notas",
-                },
-              }
+              "#editor-pro": {
+                data: this.instructivo,
+                field: "procedimiento",
+              },
+              "#editor-cie": {
+                data: this.instructivo,
+                field: "documentacion_cierre",
+              },
+              "#editor-not": {
+                data: this.instructivo,
+                field: "notas",
+              },
+            }
             : {
-                "#editor-tex": {
-                  data: this.pie_legal,
-                  field: "texto",
-                },
-                "#editor-not": {
-                  data: this.pie_legal,
-                  field: "notas_extra",
-                },
-              };
+              "#editor-tex": {
+                data: this.pie_legal,
+                field: "texto",
+              },
+              "#editor-not": {
+                data: this.pie_legal,
+                field: "notas_extra",
+              },
+            };
         const toolbarOptions = [
           ["bold", "italic", "underline", "strike"], // toggled buttons
           ["blockquote", "code-block"],
@@ -275,11 +318,11 @@ export default {
         ];
         for (const key in this.quills) {
           let quill = new Quill(key, {
-              modules: {
-                toolbar: toolbarOptions,
-              },
-              theme: "snow",
-            }),
+            modules: {
+              toolbar: toolbarOptions,
+            },
+            theme: "snow",
+          }),
             item = this.quills[key];
           quill.clipboard.dangerouslyPasteHTML(item.data[item.field]);
           item.quill = quill;
@@ -288,6 +331,6 @@ export default {
           });
         }
       }, 100);
-    },
+    }
   },
 };

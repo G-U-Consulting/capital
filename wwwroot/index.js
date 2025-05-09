@@ -9,8 +9,9 @@ var GlobalVariables = {
     loadModule: null,
     modules: null,
     ruta: null,
-    passwordPolicy: null
-
+    passwordPolicy: null,
+    zonaActual: null,
+    showModules: null
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null;
@@ -65,6 +66,7 @@ mainVue = {
             await this.loadModule("Index");
             this.mostrarMenu = true;
         }
+        GlobalVariables.showModules = this.openZone;
         hideProgress();
         window.onpopstate = function (e) {
             if (e.state != null && e.state.moduleName != null)
@@ -120,6 +122,7 @@ mainVue = {
             if (this.moduleSelected.moduleObj.template == null || this.moduleSelected.moduleObj.template == "")
                 this.moduleSelected.moduleObj.template = await (await fetch(this.moduleSelected.templateUrl)).text();
             this.zoneSelected = this.zones[this.moduleSelected["zone"]];
+            GlobalVariables.zonaActual = this.zoneSelected;
             if(this.zoneSelected != null)
                 this.categorySelected = this.zoneSelected.categories.find(function (item) { return this.moduleSelected["category"] == item["key"] }.bind(this));
             this.loadVueModule(inputParameter);
