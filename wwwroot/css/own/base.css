@@ -1,4 +1,4 @@
-﻿@font-face {
+@font-face {
     font-family: 'BodyFont';
     src: url(../fonts/sourcesanspro-regular.woff2)format('woff2'),url(../fonts/sourcesanspro-regular.woff)format('woff');
     font-weight: normal;
@@ -791,7 +791,6 @@ table thead th {
     top: 3px;
     width: 25px;
     height: 25px; 
-    margin-left: 2em; 
     cursor: pointer;
     object-fit: cover;
   }
@@ -992,6 +991,10 @@ table thead th {
     text-overflow: ellipsis;
     background-color: #f1f9fa;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+.main-content{
+  height: calc(100vh - 17rem);
+  overflow-y: auto;
 }
 textarea.editor {
   height: 100px;
