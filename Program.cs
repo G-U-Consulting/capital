@@ -1,4 +1,4 @@
-﻿using capital.Code.Inte;
+using capital.Code.Inte;
 using capital.Code.Util;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json.Linq;
@@ -142,7 +142,7 @@ app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
         await WebBDUt.ExecuteLocalSQLJson<DataSet>("Presentacion/Ins_Presentacion", new JObject { ["nombre_archivo"] = fileName, ["orden"] = orden }, connectionString);
         orden++;
     }
-    return Results.BadRequest(new { message = "✅ ¡Imágenes actualizadas!" });
+    return Results.Ok(new { message = "✅ ¡Imágenes actualizadas!" });
 });
 app.Map("/api/uploadfile/{path}", async (string path, IFormFile file, IWebHostEnvironment env) =>
 {
