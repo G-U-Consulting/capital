@@ -198,6 +198,135 @@ values
 ('Consolidado de Costos de Obra', 'Costos Obra Consolidado', 'Archivos');
 -------------------------------------------
 
+create table dim_factor(
+	id_factor int auto_increment primary key,
+	factor varchar(50) not null
+);
+
+insert into dim_factor(factor) values('Factores por millón 5 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 10 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 15 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 20 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 25 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 30 años (PESOS)');
+insert into dim_factor(factor) values('Factores por millón 5 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 10 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 15 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 20 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 25 años (UVR)');
+insert into dim_factor(factor) values('Factores por millón 30 años (UVR)');
+
+create table dim_tipo_factor(
+	id_tipo_factor int primary key auto_increment,
+	tipo_factor varchar(50) not null
+);
+
+insert into dim_tipo_factor(tipo_factor) values('VIS');
+insert into dim_tipo_factor(tipo_factor) values('NO VIS');
+insert into dim_tipo_factor(tipo_factor) values('VIS + Certificado EDGE');
+insert into dim_tipo_factor(tipo_factor) values('NO VIS + Certificado EDGE');
+
+create table dim_banco_factor(
+	id_banco_factor int primary key auto_increment,
+	id_banco int,
+	id_factor int,
+	id_tipo_factor int,
+	valor int not null,
+	constraint fk_id_banco foreign key(id_banco) references dim_banco_constructor(id_banco),
+	constraint fk_id_factor foreign key(id_factor) references dim_factor(id_factor),
+	constraint fk_id_tipo_factor foreign key(id_tipo_factor) references dim_tipo_factor(id_tipo_factor)
+);
+
+-- Llenado con valor inicial 0
+-- BEGIN
+insert into dim_banco_factor (id_banco, id_factor, id_tipo_factor, valor)
+select 
+	b.id_banco,
+	f.id_factor,
+	t.id_tipo_factor,
+	0 as valor
+from 
+	dim_banco_constructor b
+cross join 
+	dim_factor f
+cross join 
+	dim_tipo_factor t;
+
+create table dim_grupo_img(
+	id_grupo_img int primary key auto_increment,
+	grupo varchar(50) not null unique,
+	orden int not null
+);
+create table dim_instructivo(
+	id_instructivo int primary key auto_increment,
+	instructivo varchar(50) not null unique,
+	procedimiento text,
+	documentacion_cierre text,
+	notas text
+);
+create table dim_categoria_medio(
+	id_categoria int primary key auto_increment,
+	categoria varchar(200) not null unique,
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+create table dim_medio_publicitario(
+	id_medio int primary key auto_increment,
+	medio varchar(200) not null unique,
+	id_categoria int,
+	id_sinco varchar(50) not null,
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user,
+	constraint fk_id_categoria foreign key(id_categoria) references dim_categoria_medio(id_categoria)
+);
+create table dim_tramite(
+	id_tramite int primary key auto_increment,
+	tramite varchar(200) not null unique,
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+insert into dim_tramite(tramite) values('Asesoría Firma Digital Documentos por Docusign');
+insert into dim_tramite(tramite) values('Asesoría Pago con Cupón');
+insert into dim_tramite(tramite) values('Asesoría Pago por PSE');
+insert into dim_tramite(tramite) values('Cesión');
+insert into dim_tramite(tramite) values('Consulta Fecha de Entrega del Apartamento');
+insert into dim_tramite(tramite) values('Créditos');
+insert into dim_tramite(tramite) values('Descargar cupón de pago');
+insert into dim_tramite(tramite) values('Entrega Documentos');
+insert into dim_tramite(tramite) values('Entrega Escritura Cliente');
+insert into dim_tramite(tramite) values('Estado de cuenta');
+insert into dim_tramite(tramite) values('Firma de Promesa');
+insert into dim_tramite(tramite) values('Otrosí');
+insert into dim_tramite(tramite) values('Solicitud Cliente Cambio Plan de Pagos');
+insert into dim_tramite(tramite) values('Solicitud de Reformas');
+insert into dim_tramite(tramite) values('Solicitud Posventa');
+insert into dim_tramite(tramite) values('Subsidio');
+
+create table dim_subsidio_vis(
+	id_subsidio int primary key auto_increment,
+	smmlv bigint not null,
+	smmlv_0_2 bigint not null,
+	smmlv_2_4 bigint not null,
+	imagen varchar(255)
+);
+insert into dim_subsidio_vis(smmlv,smmlv_0_2,smmlv_2_4) values(1423500,42705000,28470000);
+
+create table dim_documento(
+	id_documento int primary key auto_increment,
+	documento varchar(200) not null unique,
+	descripcion varchar(200),
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+-- END
 /*
 
 drop table fact_roles_usuarios;

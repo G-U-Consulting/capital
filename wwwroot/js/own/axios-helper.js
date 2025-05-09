@@ -23,7 +23,7 @@ var AxiosConst = {
 axios.defaults.withCredentials = true;
 axios.defaults.maxRedirects = true;
 axios.defaults.validateStatus = function (status) { return true; };
-async function httpFunc(path, data) {
+async function httpFunc(path, data, getID = false) {
     var resp = await axios.post(path, data);
     if (resp.status == 200) {
         if(path.includes('/genericST/')){ 
@@ -34,11 +34,12 @@ async function httpFunc(path, data) {
                     datos: JSON.stringify(data),
                     username: GlobalVariables.username
                 };
-                let res = operacion.includes('Ins') && resp.data.data.split('-')[1] ? resp.data.data.split('-')[1] : null;
+                let res = operacion.includes('Ins') && resp.data.data && resp.data.data.split('-')[1] ? resp.data.data.split('-')[1] : null;
                 if (res) {
                     resp.data.data = 'OK';
                     let datos = {...data};
                     datos[res.split(':')[0]] = res.split(':')[1];
+                    getID && (resp.data.id = res.split(':')[1]);
                     registro.datos = JSON.stringify(datos);
                 }
                 await axios.post('/generic/genericST/Auditoria:Ins_Auditoria', registro);

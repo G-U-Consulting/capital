@@ -29,7 +29,7 @@ mainVue = {
             zonePreSelected: null,
             categories: null,
             categorySelected: null,
-
+            apiKeys: {},
         }
     },
     async mounted() {
@@ -157,7 +157,7 @@ mainVue = {
             return false;
         },
         hideModules(modules) {
-            for (const name in modules) 
+            for (const name in modules)
                 if (!this.checkAcces(name))
                     modules[name].hidden = true;
         },
@@ -306,7 +306,7 @@ function formatoMoneda(val) {
         if (val == "") return "-";
         val = parseFloat(val);
     }
-        
+
     val = Math.round(val) + "";
     for (var i = val.length - 1; i >= 0; i--) {
         ret = val[i] + ret;
