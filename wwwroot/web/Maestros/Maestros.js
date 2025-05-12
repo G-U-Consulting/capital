@@ -31,7 +31,6 @@ export default {
       pie_legal: {},
       tramite: {},
       evaluacion: {},
-      subsidio: {},
       usuarioAPI: {},
       documento: {},
       factor: {},
@@ -41,7 +40,16 @@ export default {
       medioIsActive: 0,
       insEditor: 1,
       pieEditor: 1,
+      traEditor: 1,
       quills: {},
+
+      subsidio: {
+        id_subsidio: null,
+        smmlv: "",
+        smmlv_0_2: "",
+        smmlv_2_4: "",
+        imagen: null
+      },
     };
   },
   async mounted() {
@@ -72,7 +80,7 @@ export default {
       if (mode == 0) this.loadData();
       if ((mode == 1 || mode == 2) && this.mainmode != 14)
         this.clearItem(this.getItem()[0]);
-      if ((mode == 1 || mode == 2) && (this.mainmode == 10 || this.mainmode == 11))
+      if ((mode == 1 || mode == 2) && (this.mainmode == 10 || this.mainmode == 11 || this.mainmode == 12))
         this.initQuill();
       this.mode = mode;
       this.setRuta();
@@ -88,6 +96,7 @@ export default {
       if (this.mainmode == 5) this.medioIsActive = item["is_active"] == 1;
       if (this.mainmode == 10) this.insEditor = 1;
       if (this.mainmode == 11) this.pieEditor = 1;
+      if (this.mainmode == 12) this.traEditor = 1;
     },
     onSelectFactor(selected) {
       this.setMode(3);
@@ -173,6 +182,7 @@ export default {
     async onUpdateSubsidio() {
       let name = null;
       let resp = {};
+      showProgress();
       if (this.subImg) {
         let file = this.subImg;
         const extension = file.name.split(".").pop();
@@ -180,12 +190,10 @@ export default {
         const newFile = new File([file], name, { type: file.type });
         const formData = new FormData();
         formData.append("file", newFile);
-        showProgress();
         resp = await httpFunc("/api/uploadfile/subsidio", formData);
       }
       let sub = { ...this.subsidio };
       if (resp.data === "OK" && name) sub.imagen = `/img/subsidio/${name}`;
-      Object.keys(sub).forEach(key => sub[key] = key.startsWith('smmlv') ? sub[key].toString().replace(',', '.') : sub[key]);
       resp = await httpFunc(`/generic/genericST/Maestros:Upd_Subsidio`, sub);
       hideProgress();
       if (resp.data === "OK") this.setMode(2);
@@ -223,7 +231,7 @@ export default {
       if (this.mainmode == 12) path.text = "Trámites";
       if (this.mainmode == 14) path.text = "Subsidios VIS";
       if (this.mainmode == 15) path.text = "Usuarios API";
-      if (this.mainmode == 16) path.text = "Tipología Documentos";
+      if (this.mainmode == 16) path.text = "Otros Documentos";
       path.action = () => { this.mode = 0; this.setRuta(); this.loadData() };
       return path;
     },
@@ -256,7 +264,7 @@ export default {
       let sub = subsidio[0];
       if (sub) for (const key in sub) this.subsidio[key] =
         key.startsWith('smmlv')
-          ? parseFloat(sub[key].toString().replace(',', '.'))
+          ? sub[key].toString().replace(',', '.')
           : sub[key];
     },
     fileUpload(e) {
@@ -271,6 +279,7 @@ export default {
     initQuill() {
       this.insEditor = 1;
       this.pieEditor = 1;
+      this.traEditor = 1;
       setTimeout(() => {
         this.quills =
           this.mainmode == 10
@@ -288,7 +297,8 @@ export default {
                 field: "notas",
               },
             }
-            : {
+            : this.mainmode == 11 
+            ? {
               "#editor-tex": {
                 data: this.pie_legal,
                 field: "texto",
@@ -296,6 +306,12 @@ export default {
               "#editor-not": {
                 data: this.pie_legal,
                 field: "notas_extra",
+              },
+            }
+            : {
+              "#editor-tex": {
+                data: this.tramite,
+                field: "texto",
               },
             };
         const toolbarOptions = [
@@ -328,6 +344,47 @@ export default {
           });
         }
       }, 100);
+    },
+    formatNumber(field) {
+      let value = this.subsidio[field];
+      if (!value) return "";
+      let [parteEntera, parteDecimal] = value.split(".");
+      parteEntera = parteEntera.replace(/\D/g, "");
+      parteDecimal = parteDecimal ? parteDecimal.replace(/\D/g, "") : "";
+      
+      let groups = [];
+      let len = parteEntera.length;
+      for (let i = len; i > 0; i -= 3)
+        groups.unshift(parteEntera.substring(Math.max(0, i - 3), i));
+
+      let formattedEntera = groups[0] || "";
+      for (let i = 1; i < groups.length; i++)
+        formattedEntera += '.' + groups[i];
+
+      let result = formattedEntera;
+      if (parteDecimal)
+        result += "," + parteDecimal;
+
+      return result;
+    },
+    cleanNumber(value) {
+      let cleaned = value.replace(/['.]/g, "");
+      cleaned = cleaned.replace(",", ".");
+      return cleaned;
     }
   },
+  computed: {
+      f_smmlv: {
+        get() { return this.formatNumber('smmlv'); },
+        set(val) { this.subsidio['smmlv'] = this.cleanNumber(val); }
+      },
+      f_smmlv_0_2: {
+        get() { return this.formatNumber('smmlv_0_2'); },
+        set(val) { this.subsidio['smmlv_0_2'] = this.cleanNumber(val); }
+      },
+      f_smmlv_2_4: {
+        get() { return this.formatNumber('smmlv_2_4'); },
+        set(val) { this.subsidio['smmlv_2_4'] = this.cleanNumber(val); }
+      }
+    },
 };

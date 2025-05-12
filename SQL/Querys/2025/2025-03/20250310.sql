@@ -286,6 +286,7 @@ create table dim_medio_publicitario(
 create table dim_tramite(
 	id_tramite int primary key auto_increment,
 	tramite varchar(200) not null unique,
+	texto text,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,

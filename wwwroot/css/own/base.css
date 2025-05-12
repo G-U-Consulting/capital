@@ -220,7 +220,7 @@ h2 {
 
 .imgGraybutton {
     cursor: pointer;
-    height: 100%;
+    height: fit-content;
     display: inline-block;
     vertical-align: middle;
     border: 1px solid #CCCCCC;

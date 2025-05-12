@@ -4,11 +4,13 @@
 --START_PARAM
 set
     @id_tramite = '',
-    @tramite = ''
+    @tramite = '',
+    @texto = ''
 --END_PARAM
 
 UPDATE dim_tramite
-    SET tramite = @tramite
+    SET tramite = @tramite,
+    texto = @texto
     WHERE id_tramite = @id_tramite;
 
 select 'OK' as result;

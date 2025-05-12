@@ -12,7 +12,7 @@ order by orden;
 select id_instructivo, instructivo, procedimiento, documentacion_cierre, notas
 from dim_instructivo;
 
-select id_tramite, tramite
+select id_tramite, tramite, texto
 from dim_tramite
 where is_active = 1;
 
@@ -24,8 +24,8 @@ from dim_categoria_medio
 where is_active = 1
 order by categoria;
 
-select mp.id_medio, mp.medio, mp.id_categoria, cm.categoria, mp.is_active, 
-if(mp.is_active = 1, 'Sí', 'No') as 'Activo', id_sinco, id_sinco as 'ID Sinco'
+select mp.id_medio, mp.medio, mp.id_categoria, mp.is_active, id_sinco, id_sinco as 'ID Sinco', 
+cm.categoria, if(mp.is_active = 1, 'Sí', 'No') as 'Activo'
 from dim_medio_publicitario mp 
 join dim_categoria_medio cm on mp.id_categoria = cm.id_categoria
 order by is_active desc;
