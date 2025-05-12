@@ -4,7 +4,7 @@ export default {
             mainmode: 0,
             mode: 0,
             cargos: [],
-            ruta: GlobalVariables.ruta ,
+            ruta: [],
             editCargo: {
                 "id_cargo": "",
                 "cargo": "",
@@ -32,28 +32,38 @@ export default {
         }
     }, 
     async mounted() {
-
+        this.setMainMode(0);
     },
     methods: {
-        setRuta(...segments) {
-            this.ruta = [GlobalVariables.ruta, ...segments].join(" / ");
+        setRuta() {
+            let subpath = [this.getMainPath()];
+            let nuevo = { text: 'Nuevo', action: () => this.setMode(1) },
+                editar = { text: 'Edición', action: () => this.setMode(2) };
+            if (this.mode == 1) subpath.push(nuevo);
+            if (this.mode == 2) subpath.push(editar);
+            this.ruta = [{
+                text: 'ZU', action: () => 
+                GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+            }, {text: 'Categorias', action: () => { this.mainmode = 0; this.setMode(0) }}];
+            this.ruta = [...this.ruta, ...subpath];
+        },
+        setMode(mode) {
+            this.mode = mode;
+            this.setRuta();
         },
         async startNewUser() {
             showProgress();
-            this.setRuta("Categorias Adm", "Nueva Categoria");
-            this.mode = 1;
+            this.setMode(1);
             hideProgress();
         },
         async setMainMode(mode) {
             if (mode == 1) {
                 showProgress();
-                this.setRuta("Categorias Adm");
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 hideProgress();
             } else if (mode == 2) {
                 showProgress();
-                this.setRuta("Política de Contraseña");
                 try {
                     const response = await httpFunc("/generic/genericDS/Seguridad:Get_Seguridad", {});
                     const variables = response.data;
@@ -87,14 +97,14 @@ export default {
             }
             this.mainmode = mode;
             this.mode = 0;
+            this.setRuta();
         },
         async selectUser(item) {
             showProgress();
             var resp = await httpFunc("/generic/genericDS/Cargos:Get_Cargo", { "id_cargo": item["id_cargo"] });
             resp = resp.data;
             const cargo = resp[0][0];
-            this.setRuta("Categorias Adm", "Edición Categoria");
-            this.mode = 2;
+            this.setMode(2);
             this.editCargo["id_cargo"] = cargo["id_cargo"];
             this.editCargo["cargo"] = cargo["cargo"];
             this.editCargo["descripcion"] = cargo["descripcion"];
@@ -277,6 +287,14 @@ export default {
         },
         hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
+        },
+        getMainPath() {
+            let path = {};
+            if (this.mainmode == 1) path.text = "Categorias Adm";
+            if (this.mainmode == 2) path.text = "Política de Contraseña";
+            if (this.mainmode == 3) path.text = "Fondo Pantalla";
+            path.action = () => this.setMode(0);
+            return path;
         }
     }
 }

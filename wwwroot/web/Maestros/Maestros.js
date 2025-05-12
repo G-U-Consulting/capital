@@ -51,19 +51,16 @@ export default {
   methods: {
     setRuta() {
       let subpath = [this.getMainPath()];
-      if (this.mode == 1) subpath.push({ text: 'Nuevo', action: () => { this.mode = 1; this.setRuta() } });
-      if (this.mode == 2) subpath.push({ text: 'Edición', action: () => { this.mode = 2; this.setRuta() } });
-      if (this.mode == 3 && this.mainmode == 6) subpath = [...subpath,
-      { text: 'Edición', action: () => { this.mode = 2; this.setRuta() } },
+      let nuevo = { text: 'Nuevo', action: () => { this.mode = 1; this.setRuta() } },
+        editar = { text: 'Edición', action: () => { this.mode = 2; this.setRuta() } };
+      if (this.mode == 1) subpath.push(nuevo);
+      if (this.mode == 2) subpath.push(editar);
+      if (this.mode == 3 && this.mainmode == 6) subpath = [...subpath, editar,
       { text: 'Factores', action: () => { this.mode = 3; this.setRuta() } }];
-      this.ruta = ['ZU', 'Maestros'];
-      this.ruta[0] = {
-        text: this.ruta[0], action: () => {
-          GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual);
-          this.setRuta();
-        }
-      }
-      this.ruta[1] = { text: this.ruta[1], action: () => { this.mainmode = 0; this.mode = 0; this.setRuta() } }
+      this.ruta = [{
+        text: 'ZU', action: () => 
+          GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+      }, {text: 'Maestros', action: () => { this.mainmode = 0; this.mode = 0; this.setRuta() }}];
       this.ruta = [...this.ruta, ...subpath];
     },
     setMainMode(mode) {

@@ -205,7 +205,8 @@ export default {
                 projects: [],
                 project: null,
                 groups: []
-            }
+            },
+            ruta: []
         };
     },
     computed: {
@@ -227,6 +228,22 @@ export default {
         // this.mode = 2;
     },
     methods: {
+        setRuta() {
+            let subpath = [this.getMainPath()];
+            let nuevo = { text: 'Nuevo', action: () => this.setMode(1) },
+                editar = { text: 'Edición', action: () => this.setMode(2) };
+            if (this.mode == 1) subpath.push(nuevo);
+            if (this.mode == 2) subpath.push(editar);
+            this.ruta = [{
+                text: 'ZA', action: () => 
+                GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+            }, {text: 'Proyectos', action: () => { this.mainmode = 0; this.setMode(0) }}];
+            this.ruta = [...this.ruta, ...subpath];
+        },
+        setMode(mode) {
+            this.mode = mode;
+            this.setRuta();
+        },
         async setMainMode(mode) {
             if (mode == 1) {
                 this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
@@ -665,6 +682,14 @@ export default {
 
             }
             this.submode = 0;
+        },
+        getMainPath() {
+            let path = {};
+            if (this.mainmode == 1) path.text = "Categorias Adm";
+            if (this.mainmode == 2) path.text = "Política de Contraseña";
+            if (this.mainmode == 3) path.text = "Fondo Pantalla";
+            path.action = () => this.setMode(0);
+            return path;
         }
     }
 };
