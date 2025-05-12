@@ -15,6 +15,11 @@
                 <img src="./img/ico/svg/user.svg" />
                 Información Básica
             </div>
+            <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
+                <img src="./img/ico/svg/user.svg" />
+                Imágenes y Vídeos
+            </div>
             <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
                 <img src="./img/ico/svg/user.svg" />
                 Rotafolio de Proyectos
@@ -29,7 +34,7 @@
             </div>
         </div>
 
-        <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
+        <!-- <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
             <img src="./img/ico/svg/user.svg" />
             Rotafolio de Proyectos
         </div>
@@ -40,7 +45,7 @@
         <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
             <img src="./img/ico/svg/user.svg" />
             Torres y Unidades
-        </div>
+        </div> -->
     </div>
     <div class="pure-u-1-1 pure-u-md-4-5">
         <!--PROYECTOS-->
@@ -68,8 +73,8 @@
                             </div>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                        <div class="pure-u-1-1 pure-u-md-5-24" style="text-align: right;">
-                            <button style="width:50%" v-on:click="setMode(1)" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
+                        <div class="pure-u-1-1 pure-u-md-6-24" style="text-align: right;">
+                            <button v-on:click="setMode(1)" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
                         </div>
                     </div>
                 </div>
@@ -170,59 +175,6 @@
                                 </select>
                             </div>
                         </div>
-                         <!-- <div class='pure-u-1-1 pure-u-md-1-1'> 
-                            <div class='formInputStandard'>
-                                <span>Información adicional / Otros / Zonas Comunes</span>
-                                <textarea type='text' v-model='objProyecto.otra_info' style="height:4rem" v-bind:class="{errorInput:casoValidator.otra_info != null}"></textarea>
-                            </div>
-                            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
-                                Archivos
-                            </div>
-                             <div class="image-upload-container">
-                               
-                                <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
-                                    Logo (< 2Mb) <label class="file-upload-label">
-                                        Elegir imágenes
-                                        <input type="file" @change="previewImage($event, 'logoPreview')" class="" />
-                                        </label>
-                            
-                                        <div v-if="logoPreview && !isExpanded.logo" class="image-card-preview">
-                                            <img :src="logoPreview" alt="Logo Preview" @click="expandImage('logo')" />
-                                            <div class="delete-btn" @click="removePreview('logo')">X</div>
-                                        </div>
-                                </div>
-                             
-                                <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
-                                    Slide 1 (< 2Mb)<label class="file-upload-label">
-                                        Elegir imágenes
-                                        <input type="file" @change="previewImage($event, 'slidePreview')" />
-                                        </label>
-                            
-                                        <div v-if="slidePreview && !isExpanded.slide" class="image-card-preview">
-                                            <img :src="slidePreview" alt="Slide 1 Preview" @click="expandImage('slide')" />
-                                            <div class="delete-btn" @click="removePreview('slide')">X</div>
-                                        </div>
-                                </div>
-                
-                                <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
-                                    Planta General Termómetro (< 2Mb)<label class="file-upload-label">
-                                        Elegir imágenes
-                                        <input type="file" @change="previewImage($event, 'plantaPreview')" />
-                                        </label>
-                            
-                                        <div v-if="plantaPreview && !isExpanded.planta" class="image-card-preview">
-                                            <img :src="plantaPreview" alt="Planta General Termómetro Preview" @click="expandImage('planta')" />
-                                            <div class="delete-btn" @click="removePreview('planta')">X</div>
-                                        </div>
-                                </div>
-                             
-                                <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal" @click="closeModal">
-                                    <img v-if="isExpanded.logo" :src="logoPreview" class="expanded-image" />
-                                    <img v-if="isExpanded.slide" :src="slidePreview" class="expanded-image" />
-                                    <img v-if="isExpanded.planta" :src="plantaPreview" class="expanded-image" />
-                                </div>
-                             </div>
-                        </div> -->
                         <!--Estado del Proyecto-->
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                             Estado del Proyecto
@@ -505,7 +457,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                        <div class='pure-u-1-1 pure-u-md-1-5'>
                             <div class='formInputStandard'>
                                 <span>Ciudad de Lanzamiento</span>
                                 <input type='text' v-model='objProyecto.ciudad_lanzamiento' maxlen='100' v-bind:class="{errorInput:casoValidator.ciudad_lanzamiento != null}"/>
@@ -827,7 +779,7 @@
                 </div>
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard" style="height: calc(100vh - 19rem); overflow-y: auto;">
+                <div class="pure-u-22-24 menuCard" style="height: calc(100vh - 14rem); overflow-y: auto;">
                     <!--Datos generales-->
                     <div class="pure-g" v-show="submode == 0 ">
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
@@ -1532,7 +1484,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Informes-->
         <div v-if="mainmode == 4">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
@@ -1747,6 +1698,376 @@
                     </div>
                 </div>
             </div>
+            </div>
+        </div>
+        <!--Imagenes y videos -->
+        <div v-if="mainmode == 5">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <span class="hoverLink" v-on:click="mode = 0">Imagenes y videos</span>
+                <span v-if="submode == 0"> / Principal</span>
+                <span v-if="submode == 1"> / Secuencia</span>
+                <span v-if="submode == 2"> / Imágenes</span>
+                <span v-if="submode == 3"> / Videos</span>
+                <span v-if="submode == 4"> / Recorridos Virt</span>
+                <span v-if="submode == 5"> / Avances de obra</span>
+            </div>
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-g steps">
+                    <div v-for="(tab, index) in mediaTabs" :key="index" class="pure-u-1-1 pure-u-md-1-6">
+                        <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]" @click="setSubmode(index)">
+                            {{ tab }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24 menuCard" style="height: calc(100vh - 14rem); overflow-y: auto;">
+                <div class="pure-g" v-show="submode == 0">
+                    <div class='pure-u-1-1 pure-u-md-1-1'>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                            Logo, Slide y Planta General de Proyecto
+                        </div>
+                        <div class="image-upload-container">
+                            <div class="pure-u-1-1 pure-u-md-1-3 image-upload-item">
+                              Logo (< 2Mb)
+                              <label v-if="!logoPreview" for="archivo-logo" class="upload-label upload-area-vimg">
+                                <samp> Elegir imagen</samp>
+                              </label>
+                              <input type="file" id="archivo-logo" class="hidden-input" @change="previewImage($event, 'logoPreview')" />
+                              <div v-if="logoPreview" class="image-card-preview">
+                                <img :src="logoPreview" alt="Logo Preview" @click="expandImage('logo')" />
+                                <div class="delete-btn" @click="removePreview('logo')">X</div>
+                              </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-3 image-upload-item">
+                              Slide 1 (< 2Mb)
+                              <label v-if="!slidePreview" for="archivo-slide" class="upload-label upload-area-vimg">
+                                <samp> Elegir imagen</samp>
+                              </label>
+                              <input type="file" id="archivo-slide" class="hidden-input" @change="previewImage($event, 'slidePreview')" />
+                              <div v-if="slidePreview" class="image-card-preview">
+                                <img :src="slidePreview" alt="Slide 1 Preview" @click="expandImage('slide')" />
+                                <div class="delete-btn" @click="removePreview('slide')">X</div>
+                              </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-3 image-upload-item">
+                              Planta General Termómetro (< 2Mb)
+                              <label v-if="!plantaPreview" for="archivo-planta" class="upload-label upload-area-vimg">
+                                <samp> Elegir imagen</samp>
+                              </label>
+                              <input type="file" id="archivo-planta" class="hidden-input" @change="previewImage($event, 'plantaPreview')" />
+                              <div v-if="plantaPreview" class="image-card-preview">
+                                <img :src="plantaPreview" alt="Planta Preview" @click="expandImage('planta')" />
+                                <div class="delete-btn" @click="removePreview('planta')">X</div>
+                              </div>
+                            </div>
+                            <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal" @click="closeModal">
+                              <img v-if="isExpanded.logo" :src="logoPreview" class="expanded-image" />
+                              <img v-if="isExpanded.slide" :src="slidePreview" class="expanded-image" />
+                              <img v-if="isExpanded.planta" :src="plantaPreview" class="expanded-image" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-g" v-show="submode == 1">
+                    <div class='pure-u-1-1 pure-u-md-1-1'>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                            Visualización y Secuencia de agrupaciones en el Carrusel del Proyecto
+                        </div>
+                        <div class="pure-u-1">
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                General de C. Capital
+                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
+                                    <div />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                Principal de Proyecto
+                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
+                                    <div />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                Imágenes de Proyecto
+                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
+                                    <div />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                Vídeos de Proyecto
+                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
+                                    <div />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                Recorridos Virtuales
+                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
+                                    <div />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                Avances de obra
+                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
+                                    <div />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pure-u-1 icon-buttons">
+                            <span class="icon-button" @click="moveRow('up')">
+                                <img src="../../img/ico/up.png" alt="">
+                                <span>Subir ítem</span>
+                            </span>
+                
+                            <span class="icon-button" @click="moveRow('down')">
+                                <img src="../../img/ico/down.png" alt="">
+                                <span>Bajar ítem</span>
+                            </span>
+                
+                            <span class="icon-button" @click="addRow">
+                                <img src="../../img/ico/addRow.png" alt="">
+                                <span>Insertar ítem</span>
+                            </span>
+                            <span class="icon-button" @click="addRow">
+                                <img src="../../img/ico/delete.png" alt="">
+                                <span>Eliminar ítem</span>
+                            </span>
+                            <span class="icon-button" @click="addRow">
+                                <img src="../../img/ico/import.png" alt="">
+                                <span>Importar ítems</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-g" v-show="submode == 2">
+                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                        Imágenes de proyecto
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
+                      <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages" alt="">
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
+                        Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-6'>
+                        <div class='formInputStandard positTex'>
+                            <select name="" id=""></select>
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
+                        Nueva Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        <input type="text">
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-24'></div>
+                    <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
+                        <button>Nueva agrupación</button>
+                    </div>
+                    <div class="pure-u-1">
+                        <label for="file-input" class="preview-container"
+                               style="height: 100dvh;cursor: pointer;"
+                               @dragover.prevent="handleDragOver"
+                               @drop.prevent="handleDrop">
+                            <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true" @dragstart="dragStart(index)"
+                                 style="position: relative;">
+                                <img :src="item.src" @click.stop.prevent="" />
+                                <div class="image-name-overlay">{{ item.file.name }}</div>
+                                <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
+                            </div>
+                        </label>
+                        <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="image/*" @change="handleFileChange" ref="fileInput" />
+                    </div>
+                </div>
+                <div class="pure-g" v-show="submode == 3">
+                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                        Vídeos de Proyecto
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5'>
+                        <div class='formInputStandard positTex'>
+                            <select name="" id=""></select>
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        Nueva Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        <input type="text">
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        <button>Nueva agrupación</button>
+                    </div>
+                    <div class="pure-u-1" style="height: calc(100vh - 25rem); overflow-y: auto;">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Video</th>
+                                    <th>Descripción</th>
+                                    <th>Link</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(video, index) in videos" :key="index" :class="{ selected: selectedRow === index }"
+                                    @click="selectRow(index)">
+                                    <td><input v-model="video.title" class="full-width-input" /></td>
+                                    <td><input v-model="video.description" class="full-width-input" /></td>
+                                    <td @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = null">
+                                        <input v-model="video.link" class="full-width-input" />
+                                        <div v-if="hoveredIndex === index && getVideoId(video.link)" class="video-preview">
+                                            <iframe :src="`https://www.youtube.com/embed/${getVideoId(video.link)}?autoplay=1&mute=1`"
+                                                frameborder="0" allowfullscreen>
+                                            </iframe>
+                                        </div>
+                                    </td>
+                                    <td class="center-delete-cell">
+                                        <span class="delete" @click.stop="removeRow(index)">✖</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pure-u-1 icon-buttons">
+                        <span class="icon-button" @click="moveRow('up')">
+                          <img src="../../img/ico/up.png" alt="">
+                          <span>Subir ítem</span>
+                        </span>
+                      
+                        <span class="icon-button" @click="moveRow('down')">
+                          <img src="../../img/ico/down.png" alt="">
+                          <span>Bajar ítem</span>
+                        </span>
+                      
+                        <span class="icon-button" @click="addRow">
+                          <img src="../../img/ico/addRow.png" alt="">
+                          <span>Insertar ítem</span>
+                        </span>
+                      </div>
+                </div>
+                <div class="pure-g" v-show="submode == 4">
+                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                        Recorridos Virtuales de Proyecto
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5'>
+                        <div class='formInputStandard positTex'>
+                            <select name="" id=""></select>
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        Nueva Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        <input type="text">
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        <button>Nueva agrupación</button>
+                    </div>
+                    <div class="pure-u-1" style="height: calc(100vh - 25rem); overflow-y: auto;">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Video</th>
+                                    <th>Descripción</th>
+                                    <th>Link</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(video, index) in videos" :key="index" :class="{ selected: selectedRow === index }"
+                                    @click="selectRow(index)">
+                                    <td><input v-model="video.title" class="full-width-input" /></td>
+                                    <td><input v-model="video.description" class="full-width-input" /></td>
+                                    <td @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = null">
+                                        <input v-model="video.link" class="full-width-input" />
+                                        <div v-if="hoveredIndex === index && getVideoId(video.link)" class="video-preview">
+                                            <iframe :src="`https://www.youtube.com/embed/${getVideoId(video.link)}?autoplay=1&mute=1`"
+                                                frameborder="0" allowfullscreen>
+                                            </iframe>
+                                        </div>
+                                    </td>
+                                    <td class="center-delete-cell">
+                                        <span class="delete" @click.stop="removeRow(index)">✖</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pure-u-1 icon-buttons">
+                        <span class="icon-button" @click="moveRow('up')">
+                            <img src="../../img/ico/up.png" alt="">
+                            <span>Subir ítem</span>
+                        </span>
+                    
+                        <span class="icon-button" @click="moveRow('down')">
+                            <img src="../../img/ico/down.png" alt="">
+                            <span>Bajar ítem</span>
+                        </span>
+                    
+                        <span class="icon-button" @click="addRow">
+                            <img src="../../img/ico/addRow.png" alt="">
+                            <span>Insertar ítem</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="pure-g" v-show="submode == 5">
+                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                        Avances de obra de Proyecto
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
+                      <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages" alt="">
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-8 positTex'>
+                        Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5'>
+                        <div class='formInputStandard positTex'>
+                            <select name="" id=""></select>
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
+                        Nueva Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        <input type="text">
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        <button>Nueva agrupación</button>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
+                    <div class='pure-u-1-1 pure-u-md-1-8 positTex'>
+                        Video
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-3 positTex'>
+                        <input type="text">
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        <button>Ver Video</button>
+                    </div>
+                    <div class="pure-u-1" style="padding-top: 1em;">
+                        <label for="file-input" class="preview-container"
+                               style="height: calc(100dvh - 25rem);cursor: pointer;"
+                               @dragover.prevent="handleDragOver"
+                               @drop.prevent="handleDrop">
+                            <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true" @dragstart="dragStart(index)"
+                                 style="position: relative;">
+                                <img :src="item.src" @click.stop.prevent="" />
+                                <div class="image-name-overlay">{{ item.file.name }}</div>
+                                <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
+                            </div>
+                        </label>
+                        <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="image/*" @change="handleFileChange" ref="fileInput" />
+                    </div>
+                </div>
+            </div>
+            <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
+                <button>Guardar</button>
             </div>
         </div>
     </div>
