@@ -167,6 +167,10 @@ export default {
             fiduciaria: [],
             opcionesVisuales: [],
             tabsIncomplete: [],
+            previews: [],
+            files: [],
+            draggedFile: null,
+            dragIndex: null,
             tabs: [
                 "Datos generales",
                 "Tipología y financiación",
@@ -174,6 +178,14 @@ export default {
                 "C. de costos y fiduciaria",
                 "Información adicional",
                 "Enlaces"
+            ],
+            mediaTabs: [
+                "Principal",
+                "Secuencia",
+                "Imágenes",
+                "Videos",
+                "Recorridos Virt",
+                "Avances de obra"
             ],
             casoValidator: [],
             //ejemplo informe cargue
@@ -206,7 +218,12 @@ export default {
                 project: null,
                 groups: []
             },
-            ruta: []
+            videos: [
+                { title: '', description: '', link: '' }
+              ],
+              hoveredIndex: null,
+              selectedRow: null,
+              ruta: []
         };
     },
     computed: {
@@ -228,6 +245,14 @@ export default {
         // this.mode = 2;
     },
     methods: {
+        getMainPath() {
+            let path = {};
+            if (this.mainmode == 1) path.text = "Categorias Adm";
+            if (this.mainmode == 2) path.text = "Política de Contraseña";
+            if (this.mainmode == 3) path.text = "Fondo Pantalla";
+            path.action = () => this.setMode(0);
+            return path;
+        },
         setRuta() {
             let subpath = [this.getMainPath()];
             let nuevo = { text: 'Nuevo', action: () => this.setMode(1) },
@@ -609,10 +634,10 @@ export default {
                 console.error("Error al insertar el proyecto:", error);
             }
         }, 
-        hasPermission(id) {
+        async hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         },
-        onUpdate(lista) {
+        async onUpdate(lista) {
             console.log(lista);
             this.mode = 2;
         },
@@ -648,17 +673,17 @@ export default {
             this.mode = 4;
             hideProgress();
         },
-        formatoMoneda(val){
+        async formatoMoneda(val){
             return formatoMoneda(val);
         },
         /////// Informes ////////////
-        handleFileUpload(event) {
+        async handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
                 this.fileSelected = file;
             }
         },
-        removeFile() {
+        async removeFile() {
             this.fileSelected = null;
         },
         async cleanObjectData(){
@@ -683,13 +708,100 @@ export default {
             }
             this.submode = 0;
         },
-        getMainPath() {
-            let path = {};
-            if (this.mainmode == 1) path.text = "Categorias Adm";
-            if (this.mainmode == 2) path.text = "Política de Contraseña";
-            if (this.mainmode == 3) path.text = "Fondo Pantalla";
-            path.action = () => this.setMode(0);
-            return path;
+        async dragStart(index) {
+            this.dragIndex = index;
+        },
+        async dragOver(event) {
+            // Necesario para permitir el "drop" en el contenedor
+        },
+        async handleDrop(event) {
+            if (this.dragIndex !== null) {
+                const dropTarget = event.target.closest('.image-card');
+                if (dropTarget) {
+                    const dropIndex = Array.from(event.currentTarget.querySelectorAll('.image-card')).indexOf(dropTarget);
+                    if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
+                        const draggedItem = this.previews[this.dragIndex];
+                        const draggedFile = this.files[this.dragIndex];
+
+                        this.previews.splice(this.dragIndex, 1);
+                        this.files.splice(this.dragIndex, 1);
+
+                        this.previews.splice(dropIndex, 0, draggedItem);
+                        this.files.splice(dropIndex, 0, draggedFile);
+                        this.dragIndex = null;
+                        return;
+                    }
+                }
+                this.dragIndex = null;
+                return;
+            }
+            if (event.dataTransfer.files.length > 0) {
+                const droppedFiles = event.dataTransfer.files;
+                this.processFiles(droppedFiles);
+            }
+        },
+        async removeImage(index) {
+            this.previews.splice(index, 1);
+            this.files.splice(index, 1);
+        },
+        async handleFileChange(event) {
+            const selectedFiles = event.target.files;
+            this.processFiles(selectedFiles);
+        },
+        async handleDragOver(event) {
+            event.preventDefault();
+        },
+        async processFiles(files) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/')) {
+                    const exists = this.files.some(existingFile => existingFile.name === file.name);
+                    if (!exists) {
+                        this.files.push(file);
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.previews.push({ src: e.target.result, file: file });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            }
+        },
+        async clearAllImages() {
+            this.previews = [];
+            this.files = [];
+        },
+        async triggerFileInput() {
+            this.$refs.fileInput.click();
+        },
+        async getVideoId(url) {
+            const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+            return match ? match[1] : null;
+        },
+        async addRow() {
+            this.videos.push({ title: '', description: '', link: '' });
+        },
+        async removeRow(index) {
+            this.videos.splice(index, 1);
+        },
+        async selectRow(index) {
+            this.selectedRow = index;
+        },
+        async moveRow(direction) {
+            const i = this.selectedRow;
+            if (i === null || i < 0 || i >= this.videos.length) return;
+          
+            if (direction === 'up' && i > 0) {
+              const temp = this.videos[i];
+              this.videos[i] = this.videos[i - 1];
+              this.videos[i - 1] = temp;
+              this.selectedRow = i - 1;
+            } else if (direction === 'down' && i < this.videos.length - 1) {
+              const temp = this.videos[i];
+              this.videos[i] = this.videos[i + 1];
+              this.videos[i + 1] = temp;
+              this.selectedRow = i + 1;
+            }
         }
     }
 };
