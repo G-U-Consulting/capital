@@ -188,7 +188,7 @@ export default {
       Object.keys(sub).forEach(key => sub[key] = key.startsWith('smmlv') ? sub[key].toString().replace(',', '.') : sub[key]);
       resp = await httpFunc(`/generic/genericST/Maestros:Upd_Subsidio`, sub);
       hideProgress();
-      if (resp.data === "OK") this.setMode(1);
+      if (resp.data === "OK") this.setMode(2);
     },
     getItem() {
       if (this.mainmode == 3) return [this.grupoImg, "GrupoImg"];

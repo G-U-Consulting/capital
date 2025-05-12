@@ -1,7 +1,10 @@
 <div class="pure-g">
     <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
         <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.75rem;">
-            <!-- {{ ruta }} -->
+            <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                <span class="hoverLink">{{ r.text }}</span>
+                <span v-if="i < ruta.length - 1"> / </span>
+            </div>
         </div>
         <div class="lateralMenuGroup">
             <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect group">
@@ -43,9 +46,10 @@
         <!--PROYECTOS-->
         <div v-if="mainmode == 1">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <span class="hoverLink" v-on:click="mode = 0">Proyectos</span>
-                <span v-if="mode == 1">  /  Nuevo</span>
-                <span v-if="mode == 2">  /  Edición</span>
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
             </div>
             <!--LISTA PROYECTOS-->
             <div v-if="mode == 0" style="padding: 1em">
@@ -65,7 +69,7 @@
                         </div>
                         <div class="pure-u-1-1 pure-u-md-1-24"></div>
                         <div class="pure-u-1-1 pure-u-md-5-24" style="text-align: right;">
-                            <button style="width:50%" v-on:click="mode = 1" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
+                            <button style="width:50%" v-on:click="setMode(1)" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
                         </div>
                     </div>
                 </div>
@@ -294,7 +298,7 @@
                             </div>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-1-6">
-                            <button style="margin-top: 0.4rem;" v-on:click="mode = 1">Agregar</button>
+                            <button style="margin-top: 0.4rem;" v-on:click="setMode(1)">Agregar</button>
                         </div>
                         <div class='pure-u-3-4 pure-u-md-12-24'>
                             <input style="margin-top: 0.4rem;" type='text' v-model='objProyecto.subsidios_vis' maxlen='100' v-bind:class="{errorInput:casoValidator.tipo_vis != null}"/>
@@ -1012,7 +1016,7 @@
                             </div>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-1-6">
-                            <button style="margin-top: 0.4rem;" v-on:click="mode = 1">Agregar</button>
+                            <button style="margin-top: 0.4rem;" v-on:click="setMode(1)">Agregar</button>
                         </div>
                         <div class='pure-u-3-4 pure-u-md-12-24'>
                             <input style="margin-top: 0.4rem;" type='text' v-model='editObjProyecto.subsidios_vis' maxlen='100' />
@@ -1532,7 +1536,10 @@
         <!-- Informes-->
         <div v-if="mainmode == 4">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
-                <span class="hoverLink" v-on:click="mode = 4">Informes y Cargues</span>
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
             </div>
             <div style="padding-top: 1em;">
                 <div class="pure-u-1-24"></div>
@@ -1638,9 +1645,13 @@
         <!--UNIDADES-->
         <div v-if="mainmode == 3">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <span class="hoverLink" v-on:click="mode = 1">Torres y Unidades</span>
-                <span class="hoverLink" v-if="mode >= 2" v-on:click="mode = 2">  /  {{sinco.company.Nombre}}</span>
-                <span class="hoverLink" v-if="mode >= 3" v-on:click="mode = 3">  /  {{sinco.macroProject.nombre}}</span>
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span> / </span>
+                </div>
+                <span class="hoverLink" v-on:click="setMode(1)">Torres y Unidades</span>
+                <span class="hoverLink" v-if="mode >= 2" v-on:click="setMode(2)">  /  {{sinco.company.Nombre}}</span>
+                <span class="hoverLink" v-if="mode >= 3" v-on:click="setMode(3)">  /  {{sinco.macroProject.nombre}}</span>
                 <span v-if="mode >= 4" >  /  {{sinco.project.nombre}}</span>
             </div>
             <div class="pure-u-1-24"></div>

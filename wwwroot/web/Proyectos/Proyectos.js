@@ -229,16 +229,23 @@ export default {
     },
     methods: {
         setRuta() {
-            let subpath = [this.getMainPath()];
-            let nuevo = { text: 'Nuevo', action: () => this.setMode(1) },
-                editar = { text: 'Edición', action: () => this.setMode(2) };
-            if (this.mode == 1) subpath.push(nuevo);
-            if (this.mode == 2) subpath.push(editar);
-            this.ruta = [{
-                text: 'ZA', action: () => 
-                GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, {text: 'Proyectos', action: () => { this.mainmode = 0; this.setMode(0) }}];
-            this.ruta = [...this.ruta, ...subpath];
+            console.log(this.mainmode, this.mode)
+            if (this.mainmode !== 3) {
+                let subpath = [this.getMainPath()];
+                let nuevo = { text: 'Nuevo', action: () => this.setMode(1) },
+                    editar = { text: 'Edición', action: () => this.setMode(2) };
+                if (this.mode == 1) subpath.push(nuevo);
+                if (this.mode == 2) subpath.push(editar);
+                this.ruta = [{
+                    text: 'ZA', action: () => 
+                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+                }, {text: 'Proyectos', action: () => { this.mainmode = 0; this.setMode(0) }}];
+                this.ruta = [...this.ruta, ...subpath];
+            }
+            else this.ruta = [{
+                    text: 'ZA', action: () => 
+                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+                }];
         },
         setMode(mode) {
             this.mode = mode;
@@ -277,6 +284,7 @@ export default {
             }
             this.mainmode = mode;
             this.mode = 0;
+            this.setRuta();
         },
         async setSubmode(index) {
             const anteriorIndex = this.submode;
@@ -426,7 +434,7 @@ export default {
         
             }
             this.submode = 0;
-            this.mode = 2;
+            this.setMode(2);
             hideProgress();
         },
         async newProject() {
@@ -614,13 +622,13 @@ export default {
         },
         onUpdate(lista) {
             console.log(lista);
-            this.mode = 2;
+            this.setMode(2);
         },
         async sincoCompanies() {
             showProgress();
             var result = (await httpFunc("/api/internal/SincoGetEmpresas", {}));
             this.sinco.companies = result;
-            this.mode = 1;
+            this.setMode(1);
             hideProgress();
         },
         async sincoMacroProjects(item) {
@@ -628,7 +636,7 @@ export default {
             this.sinco.company = item;
             var result = (await httpFunc("/api/internal/SincoGetMacroproyectos", item));
             this.sinco.macroProjects = result;
-            this.mode = 2;
+            this.setMode(2);
             hideProgress();
         },
         async sincoProjects(item) {
@@ -636,7 +644,7 @@ export default {
             this.sinco.macroProject = item;
             var result = (await httpFunc("/api/internal/SincoGetProyectos", item));
             this.sinco.projects = result;
-            this.mode = 3;
+            this.setMode(3);
             hideProgress();
         },
         async sincoGroups(item) {
@@ -645,7 +653,7 @@ export default {
             var result = (await httpFunc("/api/internal/SincoGetAgrupaciones", item));
             result.forEach(item => item["expanded"] = false);
             this.sinco.groups = result;
-            this.mode = 4;
+            this.setMode(4);
             hideProgress();
         },
         formatoMoneda(val){
@@ -685,9 +693,10 @@ export default {
         },
         getMainPath() {
             let path = {};
-            if (this.mainmode == 1) path.text = "Categorias Adm";
-            if (this.mainmode == 2) path.text = "Política de Contraseña";
-            if (this.mainmode == 3) path.text = "Fondo Pantalla";
+            if (this.mainmode == 1) path.text = "Información Básica";
+            if (this.mainmode == 2) path.text = "Rotafolio de Proyectos";
+            if (this.mainmode == 3) path.text = "Unidades";
+            if (this.mainmode == 4) path.text = "Informes y Cargues";
             path.action = () => this.setMode(0);
             return path;
         }
