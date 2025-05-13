@@ -119,8 +119,8 @@
                 Trámites
                 <span class="tooltip-text">Trámites</span>
             </div>
-            <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
+            <div v-on:click="setMainMode(13)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 13}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Otros
                 <span class="tooltip-text">Otros Documentos</span>
@@ -191,13 +191,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.gruposImg['grupo']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('gruposImg')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('gruposImg')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nuevo Grupo</button>
                             </div>
@@ -213,8 +219,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="ins in gruposImg" @click="onSelect(ins)">
-                                    <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">{{ins[key]}}
+                                <tr v-for="gru in getFilteredList('gruposImg')" @click="onSelect(gru)">
+                                    <td v-for="key in Object.keys(gru).filter(k => !k.startsWith('id_'))">{{gru[key]}}
                                     </td>
                                 </tr>
                             </tbody>
@@ -282,13 +288,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.categoriasMedios['categoria']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('categoriasMedios')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('categoriasMedios')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nueva Categoria</button>
                             </div>
@@ -305,9 +317,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="ins in categoriasMedios" @click="onSelect(ins)">
-                                    <td v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_'))">
-                                        {{ins[key]}}</td>
+                                <tr v-for="cat in getFilteredList('categoriasMedios')" @click="onSelect(cat)">
+                                    <td v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_'))">
+                                        {{cat[key]}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -360,14 +372,35 @@
                     <h2>Medios Publicitarios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                            <div class="pure-u-1-1 pure-u-md-5-24">
+                                <input type="text" placeholder="Nombre" v-model="filtros.mediosPublicitarios['medio']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('mediosPublicitarios')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-4-24">
+                                <select v-model="filtros.mediosPublicitarios['id_categoria']" class="pure-input-1">
+                                    <option value="">[Todas las categorias]</option>
+                                    <option v-for="item in categoriasMedios" :value="item.id_categoria">{{item.categoria}}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.mediosPublicitarios['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
+                            </div>
+                           <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('mediosPublicitarios')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nuevo Medio</button>
                             </div>
@@ -384,10 +417,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="ins in mediosPublicitarios" @click="onSelect(ins)">
+                                <tr v-for="med in getFilteredList('mediosPublicitarios')" @click="onSelect(med)">
                                     <td
-                                        v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
-                                        {{ins[key]}}</td>
+                                        v-for="key in Object.keys(med).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{med[key]}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -490,13 +523,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.bancos['banco']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('bancos')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('bancos')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nuevo Banco</button>
                             </div>
@@ -512,7 +551,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="banco in bancos" @click="onSelect(banco)">
+                                <tr v-for="banco in getFilteredList('bancos')" @click="onSelect(banco)">
                                     <td v-for="key in Object.keys(banco).filter(k => !k.startsWith('id_'))">
                                         {{banco[key]}}</td>
                                 </tr>
@@ -622,13 +661,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.fiduciarias['fiduciaria']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('fiduciarias')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('fiduciarias')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nueva Fiduciaria</button>
                             </div>
@@ -644,7 +689,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="fid in fiduciarias" @click="onSelect(fid)">
+                                <tr v-for="fid in getFilteredList('fiduciarias')" @click="onSelect(fid)">
                                     <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_'))">
                                         {{fid[key]}}</td>
                                 </tr>
@@ -701,13 +746,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.zonasProyectos['zona_proyecto']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('zonasProyectos')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('zonasProyectos')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nueva Zona</button>
                             </div>
@@ -723,7 +774,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="zap in zonasProyectos" @click="onSelect(zap)">
+                                <tr v-for="zap in getFilteredList('zonasProyectos')" @click="onSelect(zap)">
                                     <td v-for="key in Object.keys(zap).filter(k => !k.startsWith('id_'))">
                                         {{zap[key]}}</td>
                                 </tr>
@@ -780,13 +831,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.ciudadelas['ciudadela']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('ciudadelas')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('ciudadelas')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nueva Ciudadela</button>
                             </div>
@@ -802,7 +859,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="ciu in ciudadelas" @click="onSelect(ciu)">
+                                <tr v-for="ciu in getFilteredList('ciudadelas')" @click="onSelect(ciu)">
                                     <td v-for="key in Object.keys(ciu).filter(k => !k.startsWith('id_'))">
                                         {{ciu[key]}}</td>
                                 </tr>
@@ -859,13 +916,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.instructivos['instructivo']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('instructivos')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('instructivos')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nuevo Instructivo</button>
                             </div>
@@ -882,7 +945,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="ins in instructivos" @click="onSelect(ins)">
+                                <tr v-for="ins in getFilteredList('instructivos')" @click="onSelect(ins)">
                                     <td
                                         v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
                                         {{ins[key]}}</td>
@@ -1002,13 +1065,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.pies_legales['pie_legal']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('pies_legales')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('pies_legales')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nuevo Pie Legal</button>
                             </div>
@@ -1025,7 +1094,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="pie in pies_legales" @click="onSelect(pie)">
+                                <tr v-for="pie in getFilteredList('pies_legales')" @click="onSelect(pie)">
                                     <td
                                         v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
                                         {{pie[key]}}</td>
@@ -1127,13 +1196,19 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.tramites['tramite']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('tramites')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('tramites')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
                                 <button v-on:click="setMode(1)">Nuevo Trámite</button>
                             </div>
@@ -1149,7 +1224,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="tra in tramites" @click="onSelect(tra)">
+                                <tr v-for="tra in getFilteredList('tramites')" @click="onSelect(tra)">
                                     <td v-for="key in Object.keys(tra).filter(k => k != 'texto' && !k.startsWith('id_'))">
                                         {{tra[key]}}</td>
                                 </tr>
@@ -1218,6 +1293,99 @@
             </div>
         </div>
 
+        <!-- Documentos -->
+        <div v-if="mainmode == 13">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
+            </div>
+
+            <div v-if="mode == 0" style="padding: 1em">
+                <div class="pure-u-1-6"></div>
+                <div class="pure-u-2-3 menuCard">
+                    <h2>Otros Documentos</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-1-2">
+                                <input type="text" placeholder="Nombre" v-model="filtros.documentos['documento']"/>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('documentos')">
+                                    <img src="./img/ico/erase.jpg" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('documentos')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-4">
+                                <button v-on:click="setMode(1)">Nuevo Documento</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <table class="dataTable" v-if="documentos && documentos.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="doc in getFilteredList('documentos')" @click="onSelect(doc)">
+                                    <td v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_'))">
+                                        {{doc[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-6"></div>
+                <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nuevo Tipo Documento</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="documento.documento" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Descripción</span>
+                            <textarea class="editor" v-model="documento.descripcion"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-6"></div>
+                <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Tipo Documento</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="documento.documento" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
+                            <span>Descripción</span>
+                            <textarea class="editor" v-model="documento.descripcion"></textarea>
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Subsidios VIS -->
         <div v-if="mainmode == 14">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
@@ -1250,7 +1418,7 @@
                         <div class="pure-u-1-1 pure-u-md-2-3">
                             <div class="formInputStandard">
                                 <span>Imagen</span>
-                                <img :src="subsidio.imagen" style="max-width: 100%; max-height: calc(100vh - 20rem);
+                                <img :src="subsidio.imagen" style="max-width: 100%; max-height: calc(100vh - 21rem);
                                    display: block; margin: 0 auto; border: 1px solid #ccc;" alt="imagen">
                                 <div style="margin-top: 1rem;">
                                     <label for="sub-image" class="file" style="text-align: center;">Subir Imagen</label>
@@ -1287,8 +1455,8 @@
                                 <input type="text" placeholder="Nombre" />
                             </div>
                             <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
+                                <div class="imgGraybutton"  @click="onClear('')">
+                                    <img src="./img/ico/erase.jpg" />
                                 </div>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
@@ -1347,92 +1515,6 @@
             </div>
         </div>
 
-        <!-- Documentos -->
-        <div v-if="mainmode == 16">
-            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
-                </div>
-            </div>
-
-            <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-6"></div>
-                <div class="pure-u-2-3 menuCard">
-                    <h2>Otros Documentos</h2>
-                    <div class="searchBox">
-                        <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
-                            </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" />
-                                </div>
-                            </div>
-                            <div class="pure-u-1-1 pure-u-md-1-4">
-                                <button v-on:click="setMode(1)">Nuevo Documento</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="main-content">
-                        <table class="dataTable" v-if="documentos && documentos.length">
-                            <thead>
-                                <tr>
-                                    <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_'))">
-                                        {{key.replaceAll("_"," ")}}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="doc in documentos" @click="onSelect(doc)">
-                                    <td v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_'))">
-                                        {{doc[key]}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-6"></div>
-                <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Nuevo Tipo Documento</h2>
-                    <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="documento.documento" />
-                        </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
-                            <span>Descripción</span>
-                            <textarea class="editor" v-model="documento.descripcion"></textarea>
-                        </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onCreate()">Guardar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-6"></div>
-                <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Editar Tipo Documento</h2>
-                    <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="documento.documento" />
-                        </div>
-                        <div class="formInputStandard pure-u-1-1 pure-u-md-1-1">
-                            <span>Descripción</span>
-                            <textarea class="editor" v-model="documento.descripcion"></textarea>
-                        </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onUpdate()">Guardar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 

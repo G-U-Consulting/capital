@@ -15,6 +15,8 @@ namespace capital.Code.Util {
                 return FormatoUsuarios(file, rootPath);
             else if(format == "FormatoRoles")
                 return FormatoRoles(file, rootPath);
+            else if(format == "FormatoMaestros")
+                return FormatoMaestros(file, rootPath);
             else
                 return null;
         }
@@ -147,7 +149,58 @@ namespace capital.Code.Util {
 
             return file;
         }
+        
+        public static string FormatoMaestros(string file, string rootPath) {
+            string path = Path.Combine(rootPath, "wwwroot", "docs", file);
+            XLWorkbook workbook = new XLWorkbook(path);
 
+            IXLWorksheet ws = workbook.Worksheet(1);
+            ws.ShowGridLines = false;
+            
+            ws.Row(1).InsertRowsAbove(1);
+            ws.Row(1).Height = 30;
+            ws.Column(1).InsertColumnsBefore(1);
+
+            IXLTable table = ws.Table("Table1");
+            IXLTableField? tf = table.Fields.FirstOrDefault(f => f.Name == "is_active");
+            if (tf != null) {
+                IXLColumn? columna = table.Worksheet.Column(tf.Column.ColumnNumber());
+                columna?.Delete();
+            }
+            tf = table.Fields.FirstOrDefault(f => f.Name == "id_sinco");
+            if (tf != null) {
+                IXLColumn? columna = table.Worksheet.Column(tf.Column.ColumnNumber());
+                columna?.Delete();
+            }
+            table = ws.Table("Table1");
+
+            foreach(var field in table.Fields) {
+                int col = field.Column.ColumnNumber();
+                if(field.Name.StartsWith("id_")){
+                    ws.Column(col).Width = 15;
+                    ws.Column(col).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    string name = field.Name.Replace("id_", "");
+                    name = "# " + name[..1].ToUpper() + name[1..].ToLower();
+                    field.HeaderCell.Value = name.Replace("_", " ");
+                } else if(field.Name == "orden" || field.Name == "ID Sinco" || field.Name == "Activo") {
+                    ws.Column(col).Width = 15;
+                    ws.Column(col).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    string name = field.Name;
+                    name = name[..1].ToUpper() + name[1..];
+                    field.HeaderCell.Value = name;
+                } else {
+                    ws.Column(col).Width = field.Name == "zona_proyecto" ? 65 : 30;
+                    string name = field.Name;
+                    name = name[..1].ToUpper() + name[1..].ToLower();
+                    field.HeaderCell.Value = name.Replace("_", " ");
+                }
+            }
+
+            Common_Formats(ws, table);
+
+            workbook.Save();
+            return file;
+        }
 
         private static void Common_Formats(IXLWorksheet ws, IXLTable table) {
             // Header

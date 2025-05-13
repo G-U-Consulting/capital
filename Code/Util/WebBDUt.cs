@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using orca.Code.Logger;
 using System.IO.Compression;
 using MySqlConnector;
+using Newtonsoft.Json;
 
 public static class WebBDUt {
     private static Dictionary<string, LocalSQLInfo> SQLCache = new Dictionary<string, LocalSQLInfo>();
@@ -603,6 +604,13 @@ public static class WebBDUt {
         return dataSet;
     }
 
+    public static JObject SetJsonToFile(string json){
+        DataTable? dt = JsonConvert.DeserializeObject<DataTable>(json);
+        DataSet ds = new DataSet();
+        ds.Tables.Add(dt);
+        return SetToFile(ds, false);
+    }
+    
     public static JObject SetToFile(DataSet ds, bool isTxt) {
         JObject ret = new JObject();
         string message = null;

@@ -71,6 +71,21 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
+app.Map("/util/Json2Excel", async (HttpRequest request, HttpResponse response) => {
+    string body = "";
+    try {
+        response.ContentType = "application/json";
+        using (var stream = new StreamReader(request.Body)) {
+            body = await stream.ReadToEndAsync();
+        }
+        return WebBDUt.SetJsonToFile(body).ToString(Newtonsoft.Json.Formatting.None);
+    } catch (Exception ex) {
+        Logger.Log("util/Json2Excel    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+
+}).WithName("Json2Excel");
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";
     try {

@@ -14,7 +14,6 @@ export default {
       instructivos: [],
       pies_legales: [],
       tramites: [],
-      usuariosAPI: [],
       documentos: [],
       factores: [],
       bancos_factores: [],
@@ -30,8 +29,6 @@ export default {
       instructivo: {},
       pie_legal: {},
       tramite: {},
-      evaluacion: {},
-      usuarioAPI: {},
       documento: {},
       factor: {},
       banco_factor: {},
@@ -50,6 +47,22 @@ export default {
         smmlv_2_4: "",
         imagen: null
       },
+
+      copy: [],
+      searchQuery: '',
+      filtros: {
+        gruposImg: {},
+        mediosPublicitarios: {id_categoria: '', is_active: ''},
+        categoriasMedios: {},
+        ciudadelas: {},
+        bancos: {},
+        fiduciarias: {},
+        zonasProyectos: {},
+        instructivos: {},
+        pies_legales: {},
+        tramites: {},
+        documentos: {},
+      }
     };
   },
   async mounted() {
@@ -209,10 +222,8 @@ export default {
       if (this.mainmode == 10) return [this.instructivo, "Instructivo"];
       if (this.mainmode == 11) return [this.pie_legal, "PieLegal"];
       if (this.mainmode == 12) return [this.tramite, "Tramite"];
-      if (this.mainmode == 13) return [this.evaluacion, "Evaluacion"];
+      if (this.mainmode == 13) return [this.documento, "Documento"];
       if (this.mainmode == 14) return [this.subsidio, "Subsidio"];
-      if (this.mainmode == 15) return [this.usuarioAPI, "UsuarioAPI"];
-      if (this.mainmode == 16) return [this.documento, "Documento"];
       return null;
     },
     getMainPath() {
@@ -229,15 +240,25 @@ export default {
       if (this.mainmode == 10) path.text = "Instructivos consignación y cierre";
       if (this.mainmode == 11) path.text = "Pies legales cotizaciones";
       if (this.mainmode == 12) path.text = "Trámites";
+      if (this.mainmode == 13) path.text = "Otros Documentos";
       if (this.mainmode == 14) path.text = "Subsidios VIS";
-      if (this.mainmode == 15) path.text = "Usuarios API";
-      if (this.mainmode == 16) path.text = "Otros Documentos";
       path.action = () => { this.mode = 0; this.setRuta(); this.loadData() };
       return path;
     },
     clearItem(item) {
       Object.keys(item).forEach((key) => (item[key] = null));
       if (this.mainmode == 5) this.medioIsActive = 0;
+    },
+    onClear(table) {
+      this.filtros[table] = {};
+    },
+    async exportExcel(tabla) {
+      showProgress();
+      let datos = this.getFilteredList(tabla);
+      var archivo = (await httpFunc("/util/Json2Excel", datos)).data;
+      var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+      hideProgress();
+      window.open("./docs/" + archivo, "_blank");
     },
     async loadData() {
       var resp = (
@@ -246,21 +267,22 @@ export default {
       let subsidio = {};
       [
         this.gruposImg,
-        this.instructivos,
-        this.tramites,
-        subsidio,
         this.categoriasMedios,
         this.mediosPublicitarios,
-        this.documentos,
+        this.bancos,
+        this.fiduciarias,
         this.zonasProyectos,
         this.ciudadelas,
+        this.instructivos,
         this.pies_legales,
-        this.fiduciarias,
-        this.bancos,
+        this.tramites,
+        this.documentos,
+        subsidio,
         this.factores,
         this.tipos_factor,
         this.bancos_factores,
       ] = resp;
+      this.copy = [...resp];
       let sub = subsidio[0];
       if (sub) for (const key in sub) this.subsidio[key] =
         key.startsWith('smmlv')
@@ -374,17 +396,26 @@ export default {
     }
   },
   computed: {
-      f_smmlv: {
-        get() { return this.formatNumber('smmlv'); },
-        set(val) { this.subsidio['smmlv'] = this.cleanNumber(val); }
-      },
-      f_smmlv_0_2: {
-        get() { return this.formatNumber('smmlv_0_2'); },
-        set(val) { this.subsidio['smmlv_0_2'] = this.cleanNumber(val); }
-      },
-      f_smmlv_2_4: {
-        get() { return this.formatNumber('smmlv_2_4'); },
-        set(val) { this.subsidio['smmlv_2_4'] = this.cleanNumber(val); }
-      }
+    f_smmlv: {
+      get() { return this.formatNumber('smmlv'); },
+      set(val) { this.subsidio['smmlv'] = this.cleanNumber(val); }
     },
+    f_smmlv_0_2: {
+      get() { return this.formatNumber('smmlv_0_2'); },
+      set(val) { this.subsidio['smmlv_0_2'] = this.cleanNumber(val); }
+    },
+    f_smmlv_2_4: {
+      get() { return this.formatNumber('smmlv_2_4'); },
+      set(val) { this.subsidio['smmlv_2_4'] = this.cleanNumber(val); }
+    },
+    getFilteredList() {
+      return (tabla) => {
+        return this[tabla].filter(item => {
+          return this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => 
+            this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
+          ) : [];
+        });
+      };
+    }
+  },
 };
