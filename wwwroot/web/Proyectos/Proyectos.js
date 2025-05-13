@@ -257,7 +257,6 @@ export default {
             return path;
         },
         setRuta() {
-            console.log(this.mainmode, this.mode)
             if (this.mainmode !== 3) {
                 let subpath = [this.getMainPath()];
                 let nuevo = { text: 'Nuevo', action: () => this.setMode(1) },

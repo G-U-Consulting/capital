@@ -48,8 +48,6 @@ export default {
         imagen: null
       },
 
-      copy: [],
-      searchQuery: '',
       filtros: {
         gruposImg: {},
         mediosPublicitarios: {id_categoria: '', is_active: ''},
@@ -62,7 +60,15 @@ export default {
         pies_legales: {},
         tramites: {},
         documentos: {},
-      }
+      },
+
+      tooltipVisible: false,
+      tooltipX: 0,
+      tooltipY: 0,
+      previews: [],
+      files: [],
+      draggedFile: null,
+      dragIndex: null,
     };
   },
   async mounted() {
@@ -393,7 +399,71 @@ export default {
       let cleaned = value.replace(/['.]/g, "");
       cleaned = cleaned.replace(",", ".");
       return cleaned;
-    }
+    },
+    updateCursor(event) {
+      this.tooltipX = event.clientX + 10;
+      this.tooltipY = event.clientY + 10;
+    },
+    async handleDragOver(event) {
+        event.preventDefault();
+    },
+    async handleDrop(event) {
+      if (this.dragIndex !== null) {
+        const dropTarget = event.target.closest('.image-card');
+        if (dropTarget) {
+          const dropIndex = Array.from(event.currentTarget.querySelectorAll('.image-card')).indexOf(dropTarget);
+          if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
+            const draggedItem = this.previews[this.dragIndex];
+            const draggedFile = this.files[this.dragIndex];
+
+            this.previews.splice(this.dragIndex, 1);
+            this.files.splice(this.dragIndex, 1);
+
+            this.previews.splice(dropIndex, 0, draggedItem);
+            this.files.splice(dropIndex, 0, draggedFile);
+            this.dragIndex = null;
+            return;
+          }
+        }
+        this.dragIndex = null;
+        return;
+      }
+      if (event.dataTransfer.files.length > 0) {
+        const droppedFiles = event.dataTransfer.files;
+        this.processFiles(droppedFiles);
+      }
+    },
+    async removeImage(index) {
+      this.previews.splice(index, 1);
+      this.files.splice(index, 1);
+    },
+    async handleFileChange(event) {
+      const selectedFiles = event.target.files;
+      this.processFiles(selectedFiles);
+    },
+    async processFiles(files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (file.type.startsWith('image/')) {
+          const exists = this.files.some(existingFile => existingFile.name === file.name);
+          if (!exists) {
+            this.files.push(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              this.previews.push({ src: e.target.result, file: file });
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+      }
+    },
+    async dragStart(index) {
+      this.dragIndex = index;
+    },
+    async clearAllImages() {
+      this.previews = [];
+      this.files = [];
+    },
   },
   computed: {
     f_smmlv: {
