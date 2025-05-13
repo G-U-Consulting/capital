@@ -1145,7 +1145,6 @@ textarea.editor {
   line-height: 1;
 }
 
-
 .tab-container{
   margin-top: .5rem;
   border-top-left-radius: 5px;
@@ -1161,4 +1160,79 @@ textarea.editor {
 }
 tr{
   cursor: pointer;
+}
+.cursor-tooltip {
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 10000;
+  white-space: nowrap;
+  user-select: none;
+}
+.icon-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 0;
+}
+.icon-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background-color: #f8f8f8;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  user-select: none;
+  text-align: center;
+}
+.icon-button:hover {
+  background-color: #eaeaea;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+.icon-button:active {
+  background-color: #ddd;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(1px);
+}
+.icon-button img {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 0.3rem;
+}
+.icon-button span {
+  font-size: 12px;
+  color: #333;
+  line-height: 1.2;
+}
+.selected {
+  background-color: #eaf6ff !important;
+  border: 2px solid #00839C;           
+  box-shadow: inset 0 0 0 1px #00839C; 
+}
+.selected input {
+  background-color: #ffffff;
+  border: 1px solid #00839C;
+  box-shadow: 0 0 4px #00839C;
+}
+tr.selected input {
+  border: 2px solid #00839C;
+  box-shadow: 0 0 5px #00839C;
+  background-color: #f0faff;
+}
+.full-width-input:focus {
+  outline: none;
+  border: 2px solid #00839C;
+  box-shadow: 0 0 4px #00839C; 
+  border-radius: 4px;
 }

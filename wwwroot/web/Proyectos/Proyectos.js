@@ -124,6 +124,9 @@ export default {
                 incluir_brochure: 0,
                 link_brochure: ""
             },
+            tooltipVisible: false,
+            tooltipX: 0,
+            tooltipY: 0,
             logoPreview: null,
             slidePreview: null,
             plantaPreview: null,
@@ -819,6 +822,10 @@ export default {
             if (this.mainmode == 4) path.text = "Informes y Cargues";
             path.action = () => this.setMode(0);
             return path;
-        }
+        },
+        updateCursor(event) {
+            this.tooltipX = event.clientX + 10;
+            this.tooltipY = event.clientY + 10;
+          },
     }
 };
