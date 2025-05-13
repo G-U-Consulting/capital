@@ -1773,44 +1773,36 @@
                 </div>
                 <div class="pure-g" v-show="submode == 1">
                     <div class='pure-u-1-1 pure-u-md-1-1'>
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 1em">
                             Visualización y Secuencia de agrupaciones en el Carrusel del Proyecto
                         </div>
-                        <div class="pure-u-1">
-                            <div class='pure-u-1-1 pure-u-md-1-6'>
-                                General de C. Capital
-                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
-                                    <div />
-                                </div>
+                        <div v-for="(tabla, i) in tablas" :key="i" class="pure-u-1-1 pure-u-md-1-6" style="height: calc(100dvh - 25rem);">
+                            <div :class="{ deshabilitada: tabla.activo }">
+                                <table class="dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ tabla.titulo }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(item, j) in tabla.datos" :key="j"
+                                            :class="{ seleccionado: selected.tablaIndex === i && selected.itemIndex === j }" @click="selectItem(i, j)">
+                                            <td v-if="editando.tablaIndex === i && editando.itemIndex === j">
+                                                <input type="text" v-model="tabla.datos[j]" @blur="onItemEditFinish(i, j)" @keyup.enter="onItemEditFinish(i, j)"
+                                                    ref="editInput" />
+                                            </td>
+                                            <td v-else>
+                                                {{ item }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class='pure-u-1-1 pure-u-md-1-6'>
-                                Principal de Proyecto
-                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
-                                    <div />
-                                </div>
-                            </div>
-                            <div class='pure-u-1-1 pure-u-md-1-6'>
-                                Imágenes de Proyecto
-                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
-                                    <div />
-                                </div>
-                            </div>
-                            <div class='pure-u-1-1 pure-u-md-1-6'>
-                                Vídeos de Proyecto
-                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
-                                    <div />
-                                </div>
-                            </div>
-                            <div class='pure-u-1-1 pure-u-md-1-6'>
-                                Recorridos Virtuales
-                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
-                                    <div />
-                                </div>
-                            </div>
-                            <div class='pure-u-1-1 pure-u-md-1-6'>
-                                Avances de obra
-                                <div style="border: 1px solid black;height: calc(100dvh - 25rem); width: 100%;">
-                                    <div />
+                            <div class="pure-u-1-1" style="text-align: center; margin-top: 1em;">
+                                <div class="toggle-switch" :class="{ inactive: !tabla.activo }">
+                                    <input :id="'toggle-' + i" type="checkbox" v-model="tabla.activo" class="toggle-input"
+                                        :class="{ errorInput: tabla.error }" />
+                                    <label class="toggle-label" :for="'toggle-' + i"></label>
                                 </div>
                             </div>
                         </div>
@@ -1819,23 +1811,20 @@
                                 <img src="../../img/ico/up.png" alt="">
                                 <span>Subir ítem</span>
                             </span>
-                
+                        
                             <span class="icon-button" @click="moveRow('down')">
                                 <img src="../../img/ico/down.png" alt="">
                                 <span>Bajar ítem</span>
                             </span>
-                
+                        
                             <span class="icon-button" @click="addRow">
                                 <img src="../../img/ico/addRow.png" alt="">
                                 <span>Insertar ítem</span>
                             </span>
-                            <span class="icon-button" @click="addRow">
+                        
+                            <span class="icon-button" @click="deleteRow">
                                 <img src="../../img/ico/delete.png" alt="">
                                 <span>Eliminar ítem</span>
-                            </span>
-                            <span class="icon-button" @click="addRow">
-                                <img src="../../img/ico/import.png" alt="">
-                                <span>Importar ítems</span>
                             </span>
                         </div>
                     </div>
@@ -1886,27 +1875,32 @@
                     </div>
                 </div>
                 <div class="pure-g" v-show="submode == 3">
-                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
-                        Vídeos de Proyecto
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                        Agrupación
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5'>
-                        <div class='formInputStandard positTex'>
-                            <select name="" id=""></select>
+                    <div class="pure-u-1-1">
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                            Vídeos de Proyecto
+                        </div>
+                        <div class="pure-g">
+                            <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                                Agrupación
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-5'>
+                                <div class='formInputStandard positTex'>
+                                    <select name="" id=""></select>
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                                Nueva Agrupación
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                                <input type="text">
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                                <button>Nueva agrupación</button>
+                            </div>
                         </div>
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                        Nueva Agrupación
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                        <input type="text">
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                        <button>Nueva agrupación</button>
-                    </div>
-                    <div class="pure-u-1" style="height: calc(100vh - 27rem); overflow-y: auto; padding-top: 1em;">
+                    <div class="pure-u-1"></div>
+                    <div class="pure-u-1" style="height: calc(100vh - 28rem); overflow-y: auto; margin: 1px;">
                         <table class="dataTable">
                             <thead>
                                 <tr>
@@ -1920,21 +1914,21 @@
                                 <tr v-for="(video, index) in videos" :key="index" :class="{ selected: selectedRow === index }"
                                     @click="selectRow(index)">
                                     <td><input v-model="video.title" class="full-width-input" /></td>
-                                    <td><input v-model="video.description" class="full-width-input" /></td>
-                                    <td @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = null">
-                                        <input v-model="video.link" class="full-width-input" />
-                                        <div v-if="hoveredIndex === index && getVideoId(video.link)" class="video-preview">
-                                            <iframe :src="`https://www.youtube.com/embed/${getVideoId(video.link)}?autoplay=1&mute=1`"
-                                                frameborder="0" allowfullscreen>
-                                            </iframe>
-                                        </div>
-                                    </td>
+                                    <td><input v-model="video.description" class="full-width-input"/></td>
+                                    <td @click="openModal(video.link)"><input v-model="video.link" class="full-width-input"/></td>
                                     <td class="center-delete-cell">
                                         <span class="delete" @click.stop="removeRow(index)">✖</span>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                        <div v-if="modalVideoId" class="modal-overlay" @click.self="closeModal">
+                            <div class="modal-content">
+                                <iframe :src="`https://www.youtube.com/embed/${modalVideoId}?autoplay=1&mute=1`" allow="autoplay; encrypted-media"
+                                    frameborder="0" allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
                     </div>
                     <div class="pure-u-1 icon-buttons">
                         <span class="icon-button" @click="moveRow('up')">
@@ -1974,7 +1968,7 @@
                     <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
                         <button>Nueva agrupación</button>
                     </div>
-                    <div class="pure-u-1" style="height: calc(100vh - 27rem); overflow-y: auto;padding-top: 1em;">
+                    <div class="pure-u-1" style="height: calc(100vh - 28rem); overflow-y: auto;margin-top: 1px;">
                         <table class="dataTable">
                             <thead>
                                 <tr>
@@ -1989,13 +1983,9 @@
                                     @click="selectRow(index)">
                                     <td><input v-model="video.title" class="full-width-input" /></td>
                                     <td><input v-model="video.description" class="full-width-input" /></td>
-                                    <td @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = null">
-                                        <input v-model="video.link" class="full-width-input" />
-                                        <div v-if="hoveredIndex === index && getVideoId(video.link)" class="video-preview">
-                                            <iframe :src="`https://www.youtube.com/embed/${getVideoId(video.link)}?autoplay=1&mute=1`"
-                                                frameborder="0" allowfullscreen>
-                                            </iframe>
-                                        </div>
+                                    <td @click="openModal(video.link)">
+                                        <input v-model="video.link"
+                                               style="cursor: pointer; width: 100%;" />
                                     </td>
                                     <td class="center-delete-cell">
                                         <span class="delete" @click.stop="removeRow(index)">✖</span>
@@ -2003,6 +1993,12 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <div v-if="modalVideoId" class="modal-overlay" @click.self="closeModal">
+                            <div class="modal-content">
+                                <iframe :src="`https://www.youtube.com/embed/${modalVideoId}?autoplay=1&mute=1`" frameborder="0"
+                                    allowfullscreen></iframe>
+                            </div>
+                        </div>
                     </div>
                     <div class="pure-u-1 icon-buttons">
                         <span class="icon-button" @click="moveRow('up')">
@@ -2022,38 +2018,42 @@
                     </div>
                 </div>
                 <div class="pure-g" v-show="submode == 5">
-                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
-                        Avances de obra de Proyecto
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
-                      <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages" alt="">
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-8 positTex'>
-                        Agrupación
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5'>
-                        <div class='formInputStandard positTex'>
-                            <select name="" id=""></select>
+                    <div class="pure-u-1-1">
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                            Avances de obra de Proyecto
                         </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
-                        Nueva Agrupación
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
-                        <input type="text">
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                        <button>Nueva agrupación</button>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
-                    <div class='pure-u-1-1 pure-u-md-1-8 positTex'>
-                        Video
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3 positTex'>
-                        <input type="text">
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                        <button>Ver Video</button>
+                        <div class="pure-g">
+                            <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
+                                <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages" alt="">
+                              </div>
+                              <div class='pure-u-1-1 pure-u-md-1-8 positTex'>
+                                  Agrupación
+                              </div>
+                              <div class='pure-u-1-1 pure-u-md-1-5'>
+                                  <div class='formInputStandard positTex'>
+                                      <select name="" id=""></select>
+                                  </div>
+                              </div>
+                              <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
+                                  Nueva Agrupación
+                              </div>
+                              <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                                  <input type="text">
+                              </div>
+                              <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                                  <button>Nueva agrupación</button>
+                              </div>
+                              <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
+                              <div class='pure-u-1-1 pure-u-md-1-8 positTex'>
+                                  Video
+                              </div>
+                              <div class='pure-u-1-1 pure-u-md-1-3 positTex'>
+                                  <input type="text">
+                              </div>
+                              <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                                  <button>Ver Video</button>
+                              </div>
+                        </div>
                     </div>
                     <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false" style="position: relative;padding-top: 1em;">
                         <label for="file-input" class="preview-container" style="height: calc(100dvh - 25rem); cursor: pointer;"

@@ -226,7 +226,54 @@ export default {
               ],
               hoveredIndex: null,
               selectedRow: null,
-              ruta: []
+              ruta: [],
+              modalVideoId: null,
+              tablas: [
+                {
+                  titulo: 'General de C. Capital',
+                  datos: ['Item 1', 'Item 2'],
+                  activo: true,
+                  error: false
+                },
+                {
+                  titulo: 'Principal de Proyecto',
+                  datos: ['Item 1', 'Item 2'],
+                  activo: false,
+                  error: false
+                },
+                {
+                  titulo: 'Imágenes de Proyecto',
+                  datos: ['Item 1'],
+                  activo: true,
+                  error: false
+                },
+                {
+                  titulo: 'Vídeos de Proyecto',
+                  datos: ['Item 1', 'Item 2', 'Item 3'],
+                  activo: false,
+                  error: true
+                },
+                {
+                  titulo: 'Recorridos Virtuales',
+                  datos: ['Item 1'],
+                  activo: true,
+                  error: false
+                },
+                {
+                  titulo: 'Avances de obra',
+                  datos: ['Item 1', 'Item 2'],
+                  activo: false,
+                  error: false
+                }
+              ],
+              selected: {
+                tablaIndex: null,
+                itemIndex: null
+              },
+              editando: {
+                tablaIndex: null,
+                itemIndex: null,
+              },
         };
     },
     computed: {
@@ -244,6 +291,10 @@ export default {
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
+        this.$nextTick(() => {
+            const input = this.$refs[`editInput-${tablaIndex}-${itemIndex}`];
+            if (input && input.focus) input.focus();
+          });
         await this.setMainMode(1);
         // this.mode = 2;
     },
@@ -390,7 +441,7 @@ export default {
               };
               reader.readAsDataURL(file);
             }
-          },
+        },
         async expandImage(type) {
             this.isExpanded[type] = true;
         },
@@ -785,8 +836,17 @@ export default {
         async triggerFileInput() {
             this.$refs.fileInput.click();
         },
-        async getVideoId(url) {
-            const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+        openModal(link) {
+            const id = this.getVideoId(link);
+            if (id) {
+                this.modalVideoId = id;
+            }
+        },
+        closeModal() {
+            this.modalVideoId = null;
+        },
+        getVideoId(url) {
+            const match = url.match(/(?:v=|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
             return match ? match[1] : null;
         },
         async addRow() {
@@ -814,7 +874,7 @@ export default {
               this.selectedRow = i + 1;
             }
         },
-        getMainPath() {
+        async getMainPath() {
             let path = {};
             if (this.mainmode == 1) path.text = "Información Básica";
             if (this.mainmode == 2) path.text = "Rotafolio de Proyectos";
@@ -823,9 +883,64 @@ export default {
             path.action = () => this.setMode(0);
             return path;
         },
-        updateCursor(event) {
+        async updateCursor(event) {
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
-          },
+        },
+        async selectItem(tablaIdx, itemIdx) {
+            this.selected.tablaIndex = tablaIdx;
+            this.selected.itemIndex = itemIdx;
+        },
+        async moveRow(direction) {
+            const { tablaIndex, itemIndex } = this.selected;
+            if (tablaIndex === null || itemIndex === null) return;
+
+            const tabla = this.tablas[tablaIndex];
+            const datos = tabla.datos;
+
+            if (direction === 'up' && itemIndex > 0) {
+                [datos[itemIndex - 1], datos[itemIndex]] = [datos[itemIndex], datos[itemIndex - 1]];
+                this.selected.itemIndex--;
+            } else if (direction === 'down' && itemIndex < datos.length - 1) {
+                [datos[itemIndex + 1], datos[itemIndex]] = [datos[itemIndex], datos[itemIndex + 1]];
+                this.selected.itemIndex++;
+            }
+        },
+        async addRow() {
+            const { tablaIndex, itemIndex } = this.selected;
+            if (tablaIndex === null || itemIndex === null) return;
+          
+            const datos = this.tablas[tablaIndex].datos;
+            datos.splice(itemIndex + 1, 0, '');
+            this.selected.itemIndex = itemIndex + 1;
+            this.editando = { tablaIndex, itemIndex: itemIndex + 1 };
+        },
+        async deleteRow() {
+            const { tablaIndex, itemIndex } = this.selected;
+            if (tablaIndex === null || itemIndex === null) return;
+
+            const datos = this.tablas[tablaIndex].datos;
+            datos.splice(itemIndex, 1);
+
+            // Limpiar selección si no quedan ítems
+            if (datos.length === 0) {
+                this.selected.tablaIndex = null;
+                this.selected.itemIndex = null;
+            } else {
+                this.selected.itemIndex = Math.min(itemIndex, datos.length - 1);
+            }
+        },
+        async onItemEditFinish(i, j) {
+            const valor = this.tablas[i].datos[j].trim();
+            if (valor === '') {
+                this.tablas[i].datos.splice(j, 1);
+                if (this.tablas[i].datos.length === 0) {
+                    this.selected = { tablaIndex: null, itemIndex: null };
+                } else {
+                    this.selected.itemIndex = Math.min(j, this.tablas[i].datos.length - 1);
+                }
+            }
+            this.editando = { tablaIndex: null, itemIndex: null };
+        }
     }
 };
