@@ -168,8 +168,18 @@ h2 {
 
 .lateralMenu {
     background-color: #EEE;
-    min-height: calc(100vh - 3.5em);
-    padding: 0.5rem 2rem;
+    height: calc(100vh - 3.5em);
+    padding: 0 2rem 0.5rem 2rem;
+    overflow-y: auto;
+}
+.lateralMenuHeader {
+  font-size: 0.8rem;
+  border-bottom: 1px solid rgb(231, 231, 231);
+  padding: 0.75rem;
+  position: sticky;
+  top: 0;
+  background-color: #EEE;
+  z-index: 10;
 }
 
 .lateralMenuItem {
@@ -1031,7 +1041,7 @@ textarea.editor {
   border-radius: 4px;
   position: absolute;
   top: -5px;
-  left: 105%;
+  left: 75%;
   transform: translateX(-50%);
   opacity: 0;
   transition: opacity .5s;
