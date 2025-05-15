@@ -8,4 +8,5 @@ set @id_documento = ''
 
 select id_archivo, nombre, codigo, orden, id_documento
 from dim_documento_archivo
-where id_documento = @id_documento;
+where id_documento = @id_documento
+order by orden;

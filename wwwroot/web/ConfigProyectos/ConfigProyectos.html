@@ -1355,7 +1355,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
-                                <button v-on:click="setMode(1)">Nuevos Documentos</button>
+                                <button v-on:click="setMode(1)">Agregar</button>
                             </div>
                         </div>
                     </div>
@@ -1402,13 +1402,18 @@
                         @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
                         @mouseleave="tooltipVisible = false">
                 
-                        <div class="image-card tooltip" v-for="(item, index) in previews" :key="index" draggable="true"
+                        <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
                             @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false" @mouseleave="tooltipVisible = true"
-                            style="position: relative; overflow: unset;">
+                            style="position: relative;">
                             <img :src="item.src" @click.stop.prevent="" 
                             @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                             @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'"/>
                             <div class="image-name-overlay">{{ item.file.name }}</div>
+                            <div class="download-btn">
+                                <a :href="getURLFile(item.file)" :download="item.file.name">
+                                    <img src="../../img/ico/download.jpg">
+                                </a>
+                            </div>
                             <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
                         </div>
                         <div v-if="tooltipVisible" class="cursor-tooltip" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
@@ -1450,6 +1455,11 @@
                             @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                             @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'"/>
                             <div class="image-name-overlay">{{ item.file.name }}</div>
+                            <div class="download-btn">
+                                <a :href="getURLFile(item.file)" :download="item.file.name">
+                                    <img src="../../img/ico/download.jpg">
+                                </a>
+                            </div>
                             <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
                         </div>
                         <div v-if="tooltipVisible" class="cursor-tooltip" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
@@ -1766,7 +1776,6 @@
                 </div>
             </div>
         </div>
-
 
     </div>
 </div>

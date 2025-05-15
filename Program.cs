@@ -212,7 +212,7 @@ app.Map("/file/upload", async (HttpContext context) => {
     }
     return ret.ToString();
 });
-app.Map("/api/uploaddocs", async (HttpContext context, IWebHostEnvironment env) =>
+app.Map("/api/uploaddocs/{folder}", async (string folder, HttpContext context, IWebHostEnvironment env) =>
 {
     Dictionary<string, string> data = [];
     var form = await context.Request.ReadFormAsync();
@@ -220,7 +220,7 @@ app.Map("/api/uploaddocs", async (HttpContext context, IWebHostEnvironment env) 
     foreach(IFormFile file in files) {
         if (file == null || file.Length == 0)
             return Results.BadRequest(new { message = "No se encontró ningún archivo.", data = "Error" });
-        string path = Path.Combine(env.WebRootPath, "docs");
+        string path = Path.Combine(env.WebRootPath, "docs", folder);
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
         string extension = Path.GetExtension(file.FileName);

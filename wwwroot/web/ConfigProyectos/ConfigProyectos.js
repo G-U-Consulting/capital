@@ -227,8 +227,21 @@ export default {
             hideProgress();
             if (resp.data === "OK") this.setMode(2);
         },
-        onSelectDocument(doc) {
+        async onSelectDocument(doc) {
             this.setMode(2);
+            Object.keys(doc).forEach((key) => (this.documento[key] = doc[key]));
+            let base = `./docs/${doc.documento} [${doc.id_documento}]/`
+            var resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", {id_documento: doc.id_documento})).data;
+            let files = await this.openFiles(
+                resp.map(file => { 
+                    return {
+                        path: base + file.codigo,
+                        name: file.nombre, 
+                    }
+                })
+            );
+            console.log(files);
+            this.processFiles(files);
         },
         async onCreateDocument() {
             try {
@@ -245,7 +258,7 @@ export default {
                             id_documento: resp.id,
                         };
                     });
-                    resp = await httpFunc("/api/uploaddocs", formData);
+                    resp = await httpFunc(`/api/uploaddocs/${this.documento.documento} [${resp.id}]`, formData);
                     if(resp.data) {
                         for(let key in resp.data) {
                             files[key].codigo = resp.data[key];
@@ -253,8 +266,8 @@ export default {
                             if(r.data !== 'OK') throw r.data;
                         }
                     }
-                    console.log(files);
                 }
+                this.setMode(0);
             } catch (e) {
                 console.log(e);
             }
@@ -299,7 +312,10 @@ export default {
             if (this.mainmode == 15) path.text = "Tipos Financiación";
             if (this.mainmode == 17) path.text = "Estados Proyecto";
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
-            path.action = () => { this.mode = 0; this.setRuta(); this.loadData() };
+            path.action = () => { 
+                this.mode = 0; this.setRuta(); this.loadData();
+                if(this.mainmode == 13) { this.previews = []; this.files = []; }
+            };
             return path;
         },
         clearItem(item) {
@@ -526,6 +542,23 @@ export default {
                 }
                 //}
             }
+        },
+        getURLFile(file) {
+            return URL.createObjectURL(file);
+        },
+        async openFiles(paths) {
+            let files = [];
+            try {
+                files = await Promise.all(paths.map(async ({ path, name }) => {
+                    const res = await fetch(path);
+                    if (!res.ok) throw new Error(`Error al cargar ${path}: ${res.statusText}`);
+                    const blob = await res.blob();
+                    return new File([blob], name, { type: blob.type });
+                }));
+            } catch (error) {
+                console.error("Error al cargar archivos:", error);
+            }
+            return files;
         },
         getIcon(ext) {
             ext = ext.toLowerCase();
