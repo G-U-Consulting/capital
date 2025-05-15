@@ -37,7 +37,7 @@ select
     a.direccion,
     a.lanzamiento,
     a.ciudad_lanzamiento,
-    a.fecha_lanzamiento,
+    DATE_FORMAT(a.fecha_lanzamiento, '%Y-%m-%d') as fecha_lanzamiento,
     a.bloqueo_libres,
     a.inmuebles_opcionados,
     a.tipos_excluidos,

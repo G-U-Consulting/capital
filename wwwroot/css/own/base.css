@@ -1112,10 +1112,6 @@ textarea.editor {
   object-fit: cover;
 }
 
-.icon-buttons {
-  text-align: center;
-  padding-top: 1rem;
-}
 .icon-button {
   display: inline-flex;
   align-items: center;
@@ -1179,7 +1175,6 @@ tr{
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
-  padding: 1rem 0;
 }
 .icon-button {
   display: flex;
@@ -1236,3 +1231,90 @@ tr.selected input {
   box-shadow: 0 0 4px #00839C; 
   border-radius: 4px;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  width: 80%;
+  max-width: 800px;
+  aspect-ratio: 16 / 9;
+}
+
+.modal-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.deshabilitada {
+  font-style: italic;
+  background-color: white !important;
+  cursor: not-allowed;
+  color: #ccc;
+  opacity: 1;
+  filter: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.tabla-seleccionada {
+  border: 3px solid #000;
+}
+.tabla-contenedor {
+  width: 100%;
+  max-width: 136px;
+  margin: 1rem;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.tabla-scroll {
+  height: calc(100vh - 24.5rem);
+  overflow-y: auto;
+}
+
+.tabla-toggle {
+  text-align: center;
+}
+.center-delete-cell {
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.center-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 10px;
+}
+
+.center-content .delete {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.center-content .video-icon {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+  .scroll-container {
+    height: calc(100vh - 26rem);
+    overflow-y: auto;
+    border: 1px solid #ccc;
+
+  }

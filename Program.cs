@@ -98,6 +98,10 @@ app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string 
             ret = ExcelFormater.Format(JObject.Parse(body), rootPath);
         if (ut == "Presentacion")
             ret = (await WebBDUt.ExecuteLocalSQLJson<DataSet>("Presentacion/Get_Presentacion", new JObject())).ToString();
+        if (ut == "Test")
+            ret = (await Sinco.GetInstance(defaultDB).GetEmpresas()).ToString();
+        if (ut == "Test2")
+            ret = "OK";
         return ret;
     } catch (Exception ex) {
         Logger.Log("util/" + ut + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
@@ -187,5 +191,25 @@ app.Map("/api/internal/{op}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("ApiInternal");
-app.Run();
+app.Map("/file/upload", async (HttpContext context) => {
+    var form = await context.Request.ReadFormAsync();
+    var files = form.Files;
+    var uploadsFolder = Path.Combine(rootPath, "wwwroot", "upload");
 
+    if (!Directory.Exists(uploadsFolder)) 
+        Directory.CreateDirectory(uploadsFolder);
+    JArray ret = new JArray();
+    JObject tmp;
+    foreach (var file in files) {
+        tmp = new JObject();
+        string extension = Path.GetExtension(file.FileName);
+        string fileName = Guid.NewGuid().ToString() + extension;
+        string filePath = Path.Combine(uploadsFolder, fileName);
+        using (var stream = new FileStream(filePath, FileMode.Create)) {
+            await file.CopyToAsync(stream);
+        }
+        tmp["file"] = file.FileName;
+    }
+    return ret.ToString();
+});
+app.Run();

@@ -143,6 +143,16 @@ create table dim_variables_globales (
     constraint pk_variables_globales primary key (nombre_variable)
 );
 
+create table fact_documentos(
+	id_documento int not null,
+	documento varchar(200),
+	llave varchar(50),
+	cache_memoria bit,
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user,
+	constraint pk_fact_documentos primary key (id_documento)
+)
 create table fact_proyectos(
 	id_proyecto int not null auto_increment,
 	
@@ -150,7 +160,7 @@ create table fact_proyectos(
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	constraint pk_id_proyecto primary key(id_proyecto)
-)
+);
 
 create table dim_carrusel_imagenes (
     id int auto_increment primary key,

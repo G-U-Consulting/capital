@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using ClosedXML.Excel;
+using Newtonsoft.Json.Linq;
 
 namespace capital.Code.Inte {
     public class Sinco {
@@ -18,11 +19,13 @@ namespace capital.Code.Inte {
             if (Url == null || AutToken1 == null || LiveUntil < DateTime.Now) {
                 string sdata = await WebBDUt.ExecuteLocalSQL<string>("General/Get_Variable", ["@nombre_variable"], ["DatosSinco"], ConnectionString);
                 JObject jdata = JObject.Parse(sdata);
-                Url = jdata["Url"].Value<string>();
+                Url =  jdata["Url"].Value<string>();
                 JObject pdata = new JObject();
                 pdata["NomUsuario"] = jdata["NomUsuario"].Value<string>();
                 pdata["ClaveUsuario"] = jdata["ClaveUsuario"].Value<string>();
-                sdata = await WebUt.WebRequest(Url + "V3/API/Auth/Usuario", HttpMethod.Post, pdata.ToString(), "application/json");
+                Dictionary<string, string> headers = new Dictionary<string, string>();
+                //headers.Add("User-Agent", "PostmanRuntime/7.43.4");
+                sdata = await WebUt.WebRequest(Url + "V3/API/Auth/Usuario", HttpMethod.Post, pdata.ToString(), "application/json", headers);
                 jdata = JObject.Parse(sdata);
                 LiveUntil = DateTime.Now.AddSeconds(jdata["expires_in"].Value<int>() - 60);
                 AutToken1 = "Bearer " + jdata["access_token"];

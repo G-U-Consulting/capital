@@ -45,14 +45,11 @@
         
         <div>
             <div class="sidenav">
-                <div v-for="(item, key) in zones" 
-                     :key="key"
-                     :class="['zone', 'noSelect', { 
+                <div v-for="(item, key) in zones" :key="key" :class="['zone', 'noSelect', { 
                          preSelectedZone: zonePreSelected == item, 
                          selectedZone: zoneSelected == item, 
                          logOut: item.isLogOut 
-                     }]" 
-                     @click="handleClick(item)">
+                     }]" @click="handleClick(item)">
                     <img :src="item.img" />
                     {{ key }}
                 </div>

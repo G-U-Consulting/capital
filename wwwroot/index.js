@@ -7,6 +7,8 @@ var GlobalVariables = {
     roles: null,
     permisos: null,
     loadModule: null,
+    loadMiniModule: null,
+    miniModuleCallback: null,
     modules: null,
     ruta: null,
     passwordPolicy: null,
@@ -14,7 +16,7 @@ var GlobalVariables = {
     showModules: null
 };
 const mainDivId = "#mainContentDiv";
-var vm = null, mainVue = null;
+var vm = null, mainVue = null, mvm = null;
 var indexMainDiv = document.getElementById("mainContentDiv");
 mainVue = {
     data() {
@@ -54,6 +56,7 @@ mainVue = {
         GlobalVariables.permisos = data.permisos;
         GlobalVariables.username = data.user;
         GlobalVariables.loadModule = this.loadModule;
+        GlobalVariables.loadMiniModule = this.loadMiniModule;
         GlobalVariables.ruta = localStorage.getItem('ruta');
         GlobalVariables.passwordPolicy = await this.getSeguridad();
         if (pars.loc != null && this.modules[pars.loc] != null) {
@@ -80,7 +83,7 @@ mainVue = {
             if (this.modules[name] === this.moduleSelected) {
                 if (inputParameter != null) {
                     inputParameter.moduleAreadyLoaded = true;
-                    vm.inputParameter = inputParameter;
+                    vm.config.globalProperties.inputParameter = inputParameter;
                     vm.mount(mainDivId);
                 }
                 return;
@@ -135,10 +138,8 @@ mainVue = {
         loadVueModule(inputParameter) {
             document.getElementById("indexMenuDiv").style.display = "none";
 
-            delete this.moduleSelected.moduleObj.data.inputParameter;
-            if (inputParameter != null)
-                this.moduleSelected.moduleObj.data.inputParameter = inputParameter;
             vm = createApp(this.moduleSelected.moduleObj);
+            vm.config.globalProperties.inputParameter = inputParameter;
             vm.mount(mainDivId);
             hideProgress();
             var url = window.location.href;
@@ -146,6 +147,31 @@ mainVue = {
                 url = url.substring(0, url.indexOf("?"))
             url += "?loc=" + this.moduleSelected.moduleName;
             window.history.pushState({ moduleName: this.moduleSelected.moduleName }, this.moduleSelected.title, url);
+        },
+        async loadMiniModule(name, inputParameter, elementId) {
+            showProgress();
+            var miniModule = this.modules[name];
+            miniModule.moduleName = name;
+            if (miniModule.title != null)
+                document.title = miniModule.title;
+            if (miniModule.moduleObj == null) {
+                miniModule.moduleObj = await import(miniModule.jsUrl);
+                miniModule.moduleObj = miniModule.moduleObj.default;
+            }
+            if (miniModule.moduleObj.template == null || miniModule.moduleObj.template == "")
+                miniModule.moduleObj.template = await(await fetch(miniModule.templateUrl)).text();
+
+            if (mvm != null) mvm.unmount();
+            mvm = createApp(miniModule.moduleObj);
+            mvm.config.globalProperties.inputParameter = inputParameter;
+            hideProgress();
+            var mount = mvm.mount(elementId);
+            return mount;
+            //var url = window.location.href;
+            //if (url.indexOf("?") > 0)
+            //    url = url.substring(0, url.indexOf("?"))
+            //url += "?loc=" + this.moduleSelected.moduleName;
+            //window.history.pushState({ moduleName: this.moduleSelected.moduleName }, this.moduleSelected.title, url);
         },
         isActiveModule(name) {
             return this.modules[name] == this.moduleSelected || (this.moduleSelected == null && name == "Index");
@@ -166,11 +192,16 @@ mainVue = {
         },
         handleClick(item) {
             if (item.isLogOut) {
-                this.logOut();
+                return this.logOut();
+            }
+            const isZAZone = item.name === 'ZA';
+            if (isZAZone) {
+                this.loadModule('Proyectos', null);
+                this.closeMenu();
             } else {
                 this.openZone(item);
             }
-        },
+        },        
         async logOut() {
             showProgress();
             var data = await httpFunc("/auth/logout", {});

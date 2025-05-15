@@ -15,7 +15,7 @@
         title: "Maestros",
         desc: "Permite administrar las listas de maestros",
         imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZU",
+        zone: "",
         category: "USUARIOS",
         allow: ["*"]
     },   
@@ -35,7 +35,7 @@
         title: "Configuración",
         desc: "Permite administrar los usuarios y roles de la aplicación",
         imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZU",
+        zone: "",
         category: "CATEGORIAS",
         allow: ["*"]
     },
@@ -47,6 +47,61 @@
         imgSrc: "./img/ico/menu/006-group.png",
         zone: "ZA",
         category: "PROYECTOS",
+        allow: ["*"]
+    }, 
+    "EdicionProyectos": {
+        templateUrl: "./web/Proyectos/Edicion.html",
+        jsUrl: "./web/Proyectos/Edicion.js",
+        allow: ["*"]
+    },
+    "Medios": {
+        templateUrl: "./web/Proyectos/Medios.html",
+        jsUrl: "./web/Proyectos/Medios.js",
+        allow: ["*"]
+    },
+    "Unidades": {
+        templateUrl: "./web/Proyectos/Unidades.html",
+        jsUrl: "./web/Proyectos/Unidades.js",
+        allow: ["*"]
+    },
+    "Informes": {
+        templateUrl: "./web/Informes/Informes.html",
+        jsUrl: "./web/Informes/Informes.js",
+        title: "Informes y Exportación",
+        desc: "Administra las configuraciones de seguridad",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZU",
+        category: "INFORMES",
+        allow: ["*"]
+    },
+    "ConfigUsuarios": {
+        templateUrl: "./web/ConfigUsuario/ConfigUsuario.html",
+        jsUrl: "./web/ConfigUsuario/ConfigUsuario.js",
+        title: "Usuarios",
+        desc: "Administra las configuraciones de seguridad",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZC",
+        category: "CONFIGUSUARIOS",
+        allow: ["*"]
+    },
+    "ConfigProyectos": {
+        templateUrl: "./web/ConfigProyectos/ConfigProyectos.html",
+        jsUrl: "./web/ConfigProyectos/ConfigProyectos.js",
+        title: "Proyectos",
+        desc: "Administra las configuraciones de seguridad",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZC",
+        category: "ConfigProyectos",
+        allow: ["*"]
+    },
+    "ConfigGeneral": {
+        templateUrl: "./web/ConfigGeneral/ConfigGeneral.html",
+        jsUrl: "./web/ConfigGeneral/ConfigGeneral.js",
+        title: "General",
+        desc: "Administra las configuraciones de seguridad",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZC",
+        category: "ConfigGeneral",
         allow: ["*"]
     }
 };
@@ -60,7 +115,7 @@ const zones = {
             { key:"ROLES", name: "Roles"},
             { key:"CATEGORIAS", name: "Categorias Adm"},
             { key:"CONFIGURACION", name: "Configuración"},
-            { key:"Informes", name: "Informes"}
+            { key:" ", name: "Informes"}
         ]
     },
     "ZA": {
@@ -73,11 +128,18 @@ const zones = {
             { key: "CONFIGURACION", name: "Configuración" }
         ]
     },
-    "ZO": {
-        name: "ZO",
-        title: "Zona Obras",
-        img: "./img/ico/menu/zo.png",
-        categories: []
+    // "ZO": {
+    //     name: "ZO",
+    //     title: "Zona Obras",
+    //     img: "./img/ico/menu/zo.png",
+    //     categories: []
+    // },
+    "ZC": {
+        name: "ZC",
+        title: "Zona Configuracion",
+        img: "./img/ico/menu/zc.png",
+        categories: [
+        ]
     },
     "OUT": {
         name: "OUT",
