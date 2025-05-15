@@ -38,7 +38,7 @@
             fechaDesde: "",
             fechaHasta: "",
             sedes: [],
-            ruta: GlobalVariables.ruta,
+            ruta: [],
             isLocked: false,
             isusaurioEdit: false,
         }
@@ -56,8 +56,21 @@
         //this.startNewRole();
     },
     methods: {
-        setRuta(...segments) {
-            this.ruta = [GlobalVariables.ruta, ...segments].join(" / ");
+        setRuta() {
+            let subpath = [];
+            let nuevo = { text: 'Nuevo', action: () => this.setMode(1) },
+                editar = { text: 'Edición', action: () => this.setMode(2) };
+            if (this.mode == 1) subpath.push(nuevo);
+            if (this.mode == 2) subpath.push(editar);
+            if (this.mode == 3) subpath = [...subpath, editar,
+            { text: 'Permisos Temporales', action: () => this.setMode(3) }];
+            if (this.mode == 4) subpath = [...subpath, editar,
+            { text: 'Restablecer Contraseña', action: () => this.setMode(4) }];
+            this.ruta = [{
+                text: 'ZU', action: () => 
+                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)     
+            }, { text: 'Usuarios', action: () => { this.mainmode = 1; this.setMode(0) } }];
+            this.ruta = [...this.ruta, ...subpath];
         },
         agregarCargo() {
             if (this.nuevoCargo.trim() && !this.cargos.includes(this.nuevoCargo)) {
@@ -86,7 +99,6 @@
         },
         async setMainMode(mode) {
             if (mode == 1) {
-                this.setRuta("Usuarios");
                 showProgress();
                 this.hasPermission(1) && await this.getUsuarios();
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
@@ -102,18 +114,21 @@
                 hideProgress();
             } else if (mode == 2) {
                 showProgress();
-                this.setRuta("Editar Cargos");
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 hideProgress();
             } 
             this.mainmode = mode;
             this.mode = 0;
+            this.setRuta();
+        },
+        setMode(mode) {
+            this.mode = mode;
+            this.setRuta();
         },
         async startNewUser() {
             showProgress();
-            this.setRuta("Usuarios", "Nuevo Usuario");
-            this.mode = 1;
+            this.setMode(1);
             this.newUser["usuario"] = "";
             this.newUser["identificacion"] = "";
             this.newUser["nombres"] = "";
@@ -172,8 +187,7 @@
             });
         
             const user = resp[0][0];
-            this.setRuta("Usuarios", "Edición de Usuario");
-            this.mode = 2;
+            this.setMode(2);
         
             this.editUser["id_usuario"] = user["id_usuario"];
             this.editUser["usuario"] = user["usuario"];
@@ -226,8 +240,7 @@
             this.selectUser(item);
         },
         async startNewException() {
-            this.setRuta("Usuarios", "Permisos Temporales");
-            this.mode = 3;
+            this.setMode(3);
         },
         async eliminarRol(item) {
             showConfirm("El Rol <b>"+item.rol+"</b> se eliminará permanentemente.", this.delRol, null, item);
@@ -279,6 +292,7 @@
             }
         },
         async changePassword() {
+            showProgress();
             if (this.editUser && this.newPassword){
               var resp = await httpFunc("/auth/resetPassword", {
                 username: this.editUser.usuario,
@@ -288,15 +302,17 @@
                 this.editUser.contraseña = this.newPassword;
                 this.sendEmailPassword && this.notifyEmail(this.editUser);
                 this.sendSMSPassword && this.notifySMS(this.editUser);
+                this.setMode(2);
               } else throw new Error({ message: resp.statusText, path: path, data: data });
             }
             if (this.newPassword) this.cancelPassword;
+            hideProgress();
         },
         cancelPassword() {
             this.newPassword = "";
             this.sendEmailPassword = 0;
             this.sendSMSPassword = 0;
-            this.mode = 2;
+            this.setMode(2);
         },
         notifySMS(user) {
             if (user) {

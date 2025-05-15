@@ -10,8 +10,9 @@ var GlobalVariables = {
     loadMiniModule: null,
     modules: null,
     ruta: null,
-    passwordPolicy: null
-
+    passwordPolicy: null,
+    zonaActual: null,
+    showModules: null
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null, mvm = null;
@@ -30,7 +31,7 @@ mainVue = {
             zonePreSelected: null,
             categories: null,
             categorySelected: null,
-
+            apiKeys: {},
         }
     },
     async mounted() {
@@ -67,6 +68,7 @@ mainVue = {
             await this.loadModule("Index");
             this.mostrarMenu = true;
         }
+        GlobalVariables.showModules = this.openZone;
         hideProgress();
         window.onpopstate = function (e) {
             if (e.state != null && e.state.moduleName != null)
@@ -122,6 +124,7 @@ mainVue = {
             if (this.moduleSelected.moduleObj.template == null || this.moduleSelected.moduleObj.template == "")
                 this.moduleSelected.moduleObj.template = await (await fetch(this.moduleSelected.templateUrl)).text();
             this.zoneSelected = this.zones[this.moduleSelected["zone"]];
+            GlobalVariables.zonaActual = this.zoneSelected;
             if(this.zoneSelected != null)
                 this.categorySelected = this.zoneSelected.categories.find(function (item) { return this.moduleSelected["category"] == item["key"] }.bind(this));
             this.loadVueModule(inputParameter);
@@ -185,17 +188,22 @@ mainVue = {
             return false;
         },
         hideModules(modules) {
-            for (const name in modules) 
+            for (const name in modules)
                 if (!this.checkAcces(name))
                     modules[name].hidden = true;
         },
         handleClick(item) {
             if (item.isLogOut) {
-                this.logOut();
+                return this.logOut();
+            }
+            const isZAZone = item.name === 'ZA';
+            if (isZAZone) {
+                this.loadModule('Proyectos', null);
+                this.closeMenu();
             } else {
                 this.openZone(item);
             }
-        },
+        },        
         async logOut() {
             showProgress();
             var data = await httpFunc("/auth/logout", {});
@@ -334,7 +342,7 @@ function formatoMoneda(val) {
         if (val == "") return "-";
         val = parseFloat(val);
     }
-        
+
     val = Math.round(val) + "";
     for (var i = val.length - 1; i >= 0; i--) {
         ret = val[i] + ret;

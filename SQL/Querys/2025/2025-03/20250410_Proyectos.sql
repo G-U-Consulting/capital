@@ -49,6 +49,8 @@ create table dim_pie_legal(
 	id_pie_legal int not null auto_increment,
 	constraint pk_dim_pie_legal primary key (id_pie_legal),
 	pie_legal varchar(200),
+	texto text,
+	notas_extra text,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -94,11 +96,25 @@ create table dim_ciudadela (
 );
 create table dim_banco_constructor(
 	id_banco int not null auto_increment,
-	banco varchar(100),
+	banco varchar(100) unique,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	constraint pk_dim_banco_constructor primary key(id_banco)
 );
+
+create trigger tr_insert_banco after insert on dim_banco_constructor for each row
+begin
+	insert into dim_banco_factor (id_banco, id_factor, id_tipo_factor, valor)
+	select 
+		new.id_banco as id_banco,
+		f.id_factor,
+		t.id_tipo_factor,
+		0 as valor
+	from 
+		dim_factor f
+	cross join 
+		dim_tipo_factor t;
+end;
 
 create table fact_proyectos(
 	id_proyecto int not null auto_increment,

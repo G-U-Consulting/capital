@@ -1,0 +1,11 @@
+﻿-- =============================================
+-- Proceso: General/Ins_documento
+-- =============================================
+--START_PARAM
+set @documento = '',
+    @descripcion
+
+--END_PARAM
+
+INSERT INTO dim_documento (documento, descripcion) VALUES (@documento, @descripcion);
+SELECT concat('OK-id_documento:', (SELECT id_documento from dim_documento where documento = @documento)) AS result;

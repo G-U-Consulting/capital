@@ -27,7 +27,7 @@ export default {
                 "descripcion": "",
                 "created_by": ""
             },
-            ruta: GlobalVariables.ruta ,
+            ruta: [],
         }
     }, 
     async mounted() {
@@ -59,23 +59,35 @@ export default {
         }
     },
     methods: {
-        setRuta(...segments) {
-            this.ruta = [GlobalVariables.ruta, ...segments].join(" / ");
+        setRuta() {
+            let subpath = [];
+            let nuevo = { text: 'Nuevo', action: () => this.setMode(1) },
+                editar = { text: 'Edición', action: () => this.setMode(2) };
+            if (this.mode == 1) subpath.push(nuevo);
+            if (this.mode == 2) subpath.push(editar);
+            this.ruta = [{
+                text: 'ZU', action: () => 
+                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)     
+            }, { text: 'Roles', action: () => { this.mainmode = 1; this.setMode(0) } }];
+            this.ruta = [...this.ruta, ...subpath];
+        },
+        setMode(mode) {
+            this.mode = mode;
+            this.setRuta();
         },
         async setMainMode(mode) {
             if (mode == 1) {
                 showProgress();
-                this.setRuta("Roles");
                 await this.getRoles();
                 await this.loadAccess();
                 hideProgress();
             }
             this.mainmode = mode;
             this.mode = 0;
+            this.setRuta();
         },
         async startNewRole() {
             showProgress();
-            this.setRuta("Roles", "Nuevo Rol");
             this.accessList.forEach(function (zone) {
                 zone.selected = false;
 
@@ -88,7 +100,7 @@ export default {
                     });
                 }
             });
-            this.mode = 1;
+            this.setMode(1);
             this.newRole = {
                 "rol": "",
                 "permisos": "",
@@ -144,7 +156,7 @@ export default {
                         }
                     });
             });
-            this.mode = 2;
+            this.setMode(2);
             this.editRole["id_rol"] = resp[0][0]["id_rol"];
             this.editRole["rol"] = resp[0][0]["rol"];
             this.editRole["permisos"] = "";

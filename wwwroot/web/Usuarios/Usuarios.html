@@ -14,11 +14,10 @@
             <div class="pure-u-1-24"></div>
             <div class="pure-u-22-24">
                 <div style="font-size: 1rem; font-weight:500; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.5rem 1rem; ">
-                    <span class="hoverLink" v-on:click="mode = 0">Usuarios</span>
-                    <span v-if="mode == 1">  /  Nuevo Usuario</span>
-                    <span v-if="mode == 2">  /  Edición de Usuario</span>
-                    <span v-if="mode == 3">  /  Permisos Temporales</span>
-                    <span v-if="mode == 4">  /  Restablecer Contraseña</span>
+                    <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                        <span class="hoverLink">{{ r.text }}</span>
+                        <span v-if="i < ruta.length - 1"> / </span>
+                    </div>
                 </div>
             </div>
             <!--LISTA USUARIOS-->
@@ -28,10 +27,10 @@
                     <h2>Usuarios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-1-3">
                                 <input type="text" placeholder="Usuario o Nombre" v-model="filtro.seachUser" class="pure-input-1" @keydown.enter="getUsuarios"/>
                             </div>
-                            <div class="pure-u-1-2 pure-u-md-1-24">
+                            <div class="pure-u-1-1 pure-u-md-1-24">
                                 <div class="imgGraybutton" v-on:click="getUsuarios()">
                                     <img src="./img/ico/svg/search.svg" class="pure-img" />
                                 </div>
@@ -42,25 +41,27 @@
                                     <option v-for="item in cargos" v-bind:value="item.id_cargo">{{item.cargo}}</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24" style="padding-left: 1em;">
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
                                 <select v-model="filtro.id_sede" v-on:change="getUsuarios()" class="pure-input-1">
                                     <option value="">[Todas las sedes]</option>
                                     <option v-for="item in sedes" v-bind:value="item.id_sede">{{item.sede}}</option>
                                 </select>
                             </div>
+                           <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                           <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
                                 <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel"
                                      title="Descargar datos a Excel" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                            <div class="pure-u-1-1 pure-u-md-1-24">
-                                <button class="pure-button pure-button-primary pure-u-1" v-on:click="startNewUser()" v-if="hasPermission(2)">
+                            <div class="pure-u-1-1 pure-u-md-5-24" style="text-align: right;">
+                                <button v-on:click="startNewUser()" v-if="hasPermission(2)">
                                     Nuevo Usuario
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div style="height: 63vh; overflow-y: auto;">
+                    <div class="main-content">
                         <table class="dataTable">
                             <thead>
                                 <tr>
@@ -184,7 +185,7 @@
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;">
                                 <b>Roles Asignados al Usuario</b>
                             </div>
-                            <div style="height: 30vh; overflow-y: auto;">
+                            <div style="height: calc(100vh - 33rem); overflow-y: auto;">
                                 <table class="dataTable">
                                     <thead>
                                         <tr>
@@ -275,7 +276,7 @@
                         <div class='pure-u-1-1 pure-u-md-1-4' >
                             <div class='formInputStandard'>
                                 <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                                <button v-if="hasPermission(4) && editUser.id_tipo_usuario != 2" @click="mode = 4">Restablecer Contraseña</button>
+                                <button v-if="hasPermission(4) && editUser.id_tipo_usuario != 2" @click="setMode(4)">Restablecer Contraseña</button>
                             </div>
                         </div>
                         <div class='pure-u-2-1 pure-u-md-4-6'>
@@ -326,7 +327,7 @@
                             <div style="display: block; margin-top: 0.7rem; margin-bottom: 0.3rem; height: 1.3rem; text-align: center;">
                                 <b>Roles Asigandos al Usuario</b>
                             </div>
-                            <div style="height: 30vh; overflow-y: auto;">
+                            <div style="height: calc(100vh - 33rem); overflow-y: auto;">
                                 <table class="dataTable">
                                     <thead>
                                         <tr>
@@ -360,7 +361,7 @@
                     <div class="pure-u-1-1 pure-u-md-1-3">
                         <div class='formInputStandard'>
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
-                            <button v-if="isusaurioEdit" @click="startNewException">Asignar Permisos Temporales</button>
+                            <button v-if="isusaurioEdit" @click="startNewException">Permisos Temporales</button>
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-3"></div>
