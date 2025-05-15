@@ -159,5 +159,25 @@ app.Map("/api/internal/{op}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("ApiInternal");
-app.Run();
+app.Map("/file/upload", async (HttpContext context) => {
+    var form = await context.Request.ReadFormAsync();
+    var files = form.Files;
+    var uploadsFolder = Path.Combine(rootPath, "wwwroot", "upload");
 
+    if (!Directory.Exists(uploadsFolder)) 
+        Directory.CreateDirectory(uploadsFolder);
+    JArray ret = new JArray();
+    JObject tmp;
+    foreach (var file in files) {
+        tmp = new JObject();
+        string extension = Path.GetExtension(file.FileName);
+        string fileName = Guid.NewGuid().ToString() + extension;
+        string filePath = Path.Combine(uploadsFolder, fileName);
+        using (var stream = new FileStream(filePath, FileMode.Create)) {
+            await file.CopyToAsync(stream);
+        }
+        tmp["file"] = file.FileName;
+    }
+    return ret.ToString();
+});
+app.Run();

@@ -45,6 +45,7 @@
             showProgress();
             this.sinco.project = item;
             var result = (await httpFunc("/api/internal/SincoGetAgrupaciones", item));
+            console.log(result);
             result.forEach(item => item["expanded"] = false);
             this.sinco.groups = result;
             this.mode = 4;
