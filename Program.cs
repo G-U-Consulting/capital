@@ -212,4 +212,24 @@ app.Map("/file/upload", async (HttpContext context) => {
     }
     return ret.ToString();
 });
+app.Map("/api/uploaddocs", async (HttpContext context, IWebHostEnvironment env) =>
+{
+    Dictionary<string, string> data = [];
+    var form = await context.Request.ReadFormAsync();
+    var files = form.Files;
+    foreach(IFormFile file in files) {
+        if (file == null || file.Length == 0)
+            return Results.BadRequest(new { message = "No se encontró ningún archivo.", data = "Error" });
+        string path = Path.Combine(env.WebRootPath, "docs");
+        if (!Directory.Exists(path))
+            Directory.CreateDirectory(path);
+        string extension = Path.GetExtension(file.FileName);
+        var fileName = Guid.NewGuid() + extension;
+        string fullPath = Path.Combine(path, fileName);
+        data.Add(file.FileName, fileName);
+        using var stream = new FileStream(fullPath, FileMode.Create);
+        await file.CopyToAsync(stream);
+    }
+    return Results.Ok(new { message = "✅ ¡Archivos actualizados!", data });
+}).DisableAntiforgery();
 app.Run();
