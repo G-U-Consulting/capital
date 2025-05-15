@@ -175,18 +175,12 @@
                 this.modalVideoId = id;
             }
         },
-        closeModal() {
-            this.modalVideoId = null;
-        },
         getVideoId(url) {
             const match = url.match(/(?:v=|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
             return match ? match[1] : null;
         },
         async addRow() {
             this.videos.push({ title: '', description: '', link: '' });
-        },
-        async removeRow(index) {
-            this.videos.splice(index, 1);
         },
         async selectRow(index) {
             this.selectedRow = index;
@@ -357,7 +351,7 @@
                 this.selectedRowReco = this.videosReco.length - 1;
             }
         },
-        removeRow(index) {
+        removeRowReco(index) {
             this.videosReco.splice(index, 1);
             if (this.selectedRowReco === index) {
                 this.selectedRowReco = null;
@@ -388,6 +382,7 @@
             this.isExpanded.logo = false;
             this.isExpanded.slide = false;
             this.isExpanded.planta = false;
+            this.modalVideoId = null;
         },
         removePreview(type) {
             if (type === 'logo') {
@@ -397,6 +392,9 @@
             } else if (type === 'planta') {
                 this.plantaPreview = null;
             }
+        },
+        configclearAllImages(){
+            showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
         }
     }
 };

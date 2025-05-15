@@ -123,7 +123,7 @@
                 Imágenes de proyecto
             </div>
             <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
-                <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages" alt="">
+                <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="configclearAllImages" alt="">
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
                 Agrupación
@@ -278,7 +278,7 @@
                             <td><input v-model="video.link" class="full-width-input"/></td>
                             <td class="center-delete-cell">
                                 <div class="center-content" @click.stop>
-                                    <span class="delete" @click.stop="removeRow(index)">✖</span>
+                                    <span class="delete" @click.stop="removeRowReco(index)">✖</span>
                                     <img src="../../img/ico/menu/video.svg" class="video-icon" @click.stop="openModal(video.link)">
                                 </div>
                             </td>
@@ -316,7 +316,7 @@
                 </div>
                 <div class="pure-g">
                     <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
-                        <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages" alt="">
+                        <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="configclearAllImages" alt="">
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-8 positTex'>
                             Agrupación
