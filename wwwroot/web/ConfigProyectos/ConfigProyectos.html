@@ -1,10 +1,6 @@
 <div class="pure-g">
     <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
         <div class="lateralMenuHeader">
-            <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                <span class="hoverLink">{{ r.text }}</span>
-                <span v-if="i < ruta.length - 1"> / </span>
-            </div>
         </div>
 
         <div class="lateralMenuGroup">
@@ -77,8 +73,8 @@
                 Subsidios VIS
                 <span class="tooltip-text">Subsidios VIS</span>
             </div>
-            <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
+            <div v-on:click="setMainMode(15)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 15}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Tipos
                 <span class="tooltip-text">Tipos de Financiación</span>
@@ -104,29 +100,29 @@
         </div>
         
         <div class="lateralMenuGroup">
-            <div v-on:click="setMainMode(17)" class="lateralMenuItem noSelect group">
+            <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect group">
                 Proyectos
             </div>
-            <div v-on:click="setMainMode(17)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 17}">
+            <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Tipo Unidades
                 <span class="tooltip-text">Tipo Unidades y Ventas</span>
             </div>
-            <div v-on:click="setMainMode(18)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 18}">
+            <div v-on:click="setMainMode(17)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 17}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Estados
                 <span class="tooltip-text">Estados de Proyecto</span>
             </div>
-            <div v-on:click="setMainMode(19)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 19}">
+            <div v-on:click="setMainMode(18)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 18}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Tipologías
                 <span class="tooltip-text">Tipologías de Proyecto</span>
             </div>
-            <div v-on:click="setMainMode(20)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 20}">
+            <div v-on:click="setMainMode(19)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 19}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Emails receptores
                 <span class="tooltip-text">Emails receptores</span>
@@ -1516,7 +1512,7 @@
             </div>
         </div>
 
-        <!-- Usuarios API -->
+        <!-- Tipos Financiación -->
         <div v-if="mainmode == 15">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
@@ -1528,35 +1524,41 @@
             <div v-if="mode == 0" style="padding: 1em">
                 <div class="pure-u-1-6"></div>
                 <div class="pure-u-2-3 menuCard">
-                    <h2>Usuarios API REST</h2>
+                    <h2>Tipos de Financiación</h2>
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-1-2">
-                                <input type="text" placeholder="Nombre" />
+                                <input type="text" placeholder="Nombre" v-model="filtros.tipos_financiacion['tipo_financiacion']"/>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-3-24">
-                                <div class="imgGraybutton"  @click="onClear('')">
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('tipos_financiacion')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
                             </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('tipos_financiacion')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
-                                <button v-on:click="setMode(1)">Nuevo Usuario</button>
+                                <button v-on:click="setMode(1)">Nuevo Tipo</button>
                             </div>
                         </div>
                     </div>
                     <div class="main-content">
-                        <table class="dataTable" v-if="usuariosAPI && usuariosAPI.length">
+                        <table class="dataTable" v-if="tipos_financiacion && tipos_financiacion.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(usuariosAPI[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(tipos_financiacion[0]).filter(k => !k.startsWith('id_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="usuario in usuariosAPI" @click="onSelect(usuario)">
-                                    <td v-for="key in Object.keys(usuario).filter(k => !k.startsWith('id_'))">
-                                        {{usuario[key]}}</td>
+                                <tr v-for="fid in getFilteredList('tipos_financiacion')" @click="onSelect(fid)">
+                                    <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_'))">
+                                        {{fid[key]}}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1567,10 +1569,10 @@
             <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
                 <div class="pure-u-1-6"></div>
                 <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Nuevo Usuario API REST</h2>
+                    <h2>Nuevo Tipo Financiación</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="usuarioAPI.usuario" />
+                            <input type="text" v-model="tipo_financiacion.tipo_financiacion" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onCreate()">Guardar</button>
@@ -1582,10 +1584,10 @@
             <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
                 <div class="pure-u-1-6"></div>
                 <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
-                    <h2>Editar Usuario API REST</h2>
+                    <h2>Editar Tipo Financiación</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="usuarioAPI.usuario" />
+                            <input type="text" v-model="tipo_financiacion.tipo_financiacion" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onUpdate()">Guardar</button>
@@ -1594,6 +1596,177 @@
                 </div>
             </div>
         </div>
+
+        <!-- Estados Proyecto -->
+        <div v-if="mainmode == 17">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
+            </div>
+
+            <div v-if="mode == 0" style="padding: 1em">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
+                    <h2>Estados de Proyecto</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-1-2">
+                                <input type="text" placeholder="Nombre" v-model="filtros.estados_proyecto['estado_publicacion']"/>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('estados_proyecto')">
+                                    <img src="./img/ico/eraser.png" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('estados_proyecto')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-4">
+                                <button v-on:click="setMode(1)">Nuevo Estado</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <table class="dataTable" v-if="estados_proyecto && estados_proyecto.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(estados_proyecto[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="fid in getFilteredList('estados_proyecto')" @click="onSelect(fid)">
+                                    <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_'))">
+                                        {{fid[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-6"></div>
+                <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nuevo Estado Proyecto</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="estado_proyecto.estado_publicacion" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-6"></div>
+                <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Estado Proyecto</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="estado_proyecto.estado_publicacion" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tipologías VIS -->
+        <div v-if="mainmode == 18">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
+            </div>
+
+            <div v-if="mode == 0" style="padding: 1em">
+                <div class="pure-u-1-5"></div>
+                <div class="pure-u-3-5 menuCard">
+                    <h2>Tipologías de Proyecto</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-1-2">
+                                <input type="text" placeholder="Nombre" v-model="filtros.tipos_vis['tipo_vis']"/>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-2-24">
+                                <div class="imgGraybutton" @click="onClear('tipos_vis')">
+                                    <img src="./img/ico/eraser.png" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
+                                    @click="exportExcel('tipos_vis')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-4">
+                                <button v-on:click="setMode(1)">Nueva Tipología</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <table class="dataTable" v-if="tipos_vis && tipos_vis.length">
+                            <thead>
+                                <tr>
+                                    <th v-for="key in Object.keys(tipos_vis[0]).filter(k => !k.startsWith('id_'))">
+                                        {{key.replaceAll("_"," ")}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="vis in getFilteredList('tipos_vis')" @click="onSelect(vis)">
+                                    <td v-for="key in Object.keys(vis).filter(k => !k.startsWith('id_'))">
+                                        {{vis[key]}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-6"></div>
+                <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Nueva Tipología Proyecto</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="tipo_vis.tipo_vis" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onCreate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class="pure-u-1-6"></div>
+                <div class="pure-u-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Tipología Proyecto</h2>
+                    <div class="pure-g">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="tipo_vis.tipo_vis" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onUpdate()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
 </div>

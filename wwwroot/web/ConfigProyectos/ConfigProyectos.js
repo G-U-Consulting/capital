@@ -18,6 +18,9 @@ export default {
             factores: [],
             bancos_factores: [],
             tipos_factor: [],
+            tipos_financiacion: [],
+            estados_proyecto: [],
+            tipos_vis: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -32,6 +35,9 @@ export default {
             documento: {},
             factor: {},
             banco_factor: {},
+            tipo_financiacion: {},
+            estado_proyecto: {},
+            tipo_vis: {},
 
             ruta: [],
             medioIsActive: 0,
@@ -60,6 +66,9 @@ export default {
                 pies_legales: {},
                 tramites: {},
                 documentos: {},
+                tipos_financiacion: {},
+                estados_proyecto: {},
+                tipos_vis: {},
             },
 
             tooltipVisible: false,
@@ -266,6 +275,9 @@ export default {
             if (this.mainmode == 12) return [this.tramite, "Tramite"];
             if (this.mainmode == 13) return [this.documento, "Documento"];
             if (this.mainmode == 14) return [this.subsidio, "Subsidio"];
+            if (this.mainmode == 15) return [this.tipo_financiacion, "TipoFinanciacion"];
+            if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto"];
+            if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS"];
             return null;
         },
         getMainPath() {
@@ -284,6 +296,9 @@ export default {
             if (this.mainmode == 12) path.text = "Trámites";
             if (this.mainmode == 13) path.text = "Otros Documentos";
             if (this.mainmode == 14) path.text = "Subsidios VIS";
+            if (this.mainmode == 15) path.text = "Tipos Financiación";
+            if (this.mainmode == 17) path.text = "Estados Proyecto";
+            if (this.mainmode == 18) path.text = "Tipologías Proyecto";
             path.action = () => { this.mode = 0; this.setRuta(); this.loadData() };
             return path;
         },
@@ -295,12 +310,17 @@ export default {
             this.filtros[table] = {};
         },
         async exportExcel(tabla) {
-            showProgress();
-            let datos = this.getFilteredList(tabla);
-            var archivo = (await httpFunc("/util/Json2Excel", datos)).data;
-            var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+            try {
+                showProgress();
+                let datos = this.getFilteredList(tabla);
+                var archivo = (await httpFunc("/util/Json2Excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch(e) {
+                console.log(e);
+            }
             hideProgress();
-            window.open("./docs/" + archivo, "_blank");
         },
         async loadData() {
             var resp = (
@@ -320,11 +340,14 @@ export default {
                 this.tramites,
                 this.documentos,
                 subsidio,
+                this.tipos_financiacion,
+                this.estados_proyecto,
+                this.tipos_vis,
+
                 this.factores,
                 this.tipos_factor,
                 this.bancos_factores,
             ] = resp;
-            this.copy = [...resp];
             let sub = subsidio[0];
             if (sub) for (const key in sub) this.subsidio[key] =
                 key.startsWith('smmlv')
@@ -537,11 +560,11 @@ export default {
         },
         getFilteredList() {
             return (tabla) => {
-                return this[tabla].filter(item => {
+                return this[tabla] ? this[tabla].filter(item => {
                     return this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
                     ) : [];
-                });
+                }) : [];
             };
         }
     },

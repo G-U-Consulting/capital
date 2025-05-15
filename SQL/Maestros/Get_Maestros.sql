@@ -53,6 +53,18 @@ order by documento;
 select id_subsidio, smmlv, smmlv_0_2, smmlv_2_4, imagen
 from dim_subsidio_vis;
 
+select id_tipo_financiacion, tipo_financiacion 
+from dim_tipo_financiacion
+order by tipo_financiacion;
+
+select id_estado_publicacion, estado_publicacion 
+from dim_estado_pubicacion
+order by estado_publicacion;
+
+select id_tipo_vis, tipo_vis
+from dim_tipo_vis
+order by tipo_vis;
+
 select id_factor, factor from dim_factor;
 select id_tipo_factor, tipo_factor from dim_tipo_factor;
 

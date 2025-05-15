@@ -12,7 +12,7 @@ create table dim_ubicacion_proyecto(
 create table dim_estado_pubicacion(
 	id_estado_publicacion int not null auto_increment,
 	constraint pk_dim_estado_pubicacion primary key (id_estado_publicacion),
-	estado_publicacion varchar(200),
+	estado_publicacion varchar(200) unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -30,7 +30,7 @@ create table dim_tipo_proyecto(
 create table dim_tipo_vis(
 	id_tipo_vis int not null auto_increment,
 	constraint pk_dim_tipo_vis primary key (id_tipo_vis),
-	tipo_vis varchar(200),
+	tipo_vis varchar(200) unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -39,7 +39,7 @@ create table dim_tipo_vis(
 create table dim_tipo_financiacion(
 	id_tipo_financiacion int not null auto_increment,
 	constraint pk_dim_tipo_financiacion primary key (id_tipo_financiacion),
-	tipo_financiacion varchar(200),
+	tipo_financiacion varchar(200) unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
