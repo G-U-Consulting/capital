@@ -166,11 +166,16 @@ mainVue = {
         },
         handleClick(item) {
             if (item.isLogOut) {
-                this.logOut();
+                return this.logOut();
+            }
+            const isZAZone = item.name === 'ZA';
+            if (isZAZone) {
+                this.loadModule('Proyectos', null);
+                this.closeMenu();
             } else {
                 this.openZone(item);
             }
-        },
+        },        
         async logOut() {
             showProgress();
             var data = await httpFunc("/auth/logout", {});

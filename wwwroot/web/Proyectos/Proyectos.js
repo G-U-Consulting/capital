@@ -231,19 +231,19 @@ export default {
               tablas: [
                 {
                   titulo: 'General de C. Capital',
-                  datos: ['Item 1', 'Item 2'],
+                  datos: ['Grupo xx', 'Grupo xx', 'Grupo xx'],
                   activo: true,
                   error: false
                 },
                 {
                   titulo: 'Principal de Proyecto',
-                  datos: ['Item 1', 'Item 2'],
+                  datos: ['Item 1', 'Item 2', 'Item 3'],
                   activo: false,
                   error: false
                 },
                 {
                   titulo: 'Imágenes de Proyecto',
-                  datos: ['Item 1'],
+                  datos: ['Item 1','Item 2', 'Item 3'],
                   activo: true,
                   error: false
                 },
@@ -255,13 +255,13 @@ export default {
                 },
                 {
                   titulo: 'Recorridos Virtuales',
-                  datos: ['Item 1'],
+                  datos: ['Item 1','Item 2', 'Item 3'],
                   activo: true,
                   error: false
                 },
                 {
                   titulo: 'Avances de obra',
-                  datos: ['Item 1', 'Item 2'],
+                  datos: ['Item 1','Item 2', 'Item 3'],
                   activo: false,
                   error: false
                 }
@@ -274,6 +274,7 @@ export default {
                 tablaIndex: null,
                 itemIndex: null,
               },
+              lateralMenu: false,
         };
     },
     computed: {
@@ -291,10 +292,6 @@ export default {
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
-        this.$nextTick(() => {
-            const input = this.$refs[`editInput-${tablaIndex}-${itemIndex}`];
-            if (input && input.focus) input.focus();
-          });
         await this.setMainMode(1);
         // this.mode = 2;
     },
@@ -350,17 +347,24 @@ export default {
                 this.pie_legal = resp[8];
                 this.fiduciaria = resp[9];
                 this.bancos = resp[10];
-            } else if(mode == 3){
+            }else if(mode == 2){
+                this.selectProject(this.editObjProyecto)
+                this.mainmode = 1;
+                this.mode = 2;
+                this.setRuta();
+                return;
+            }
+            else if(mode == 4){
                 this.sincoCompanies();
             }
-            if(mode == 4){
+            else if(mode == 5){
                 var resp = await httpFunc("/generic/genericDS/General:Get_Informes", {});
                 resp = resp.data;
-
                 this.informes = resp[0];
                 this.cargues = resp[1];
 
             }
+            
             this.mainmode = mode;
             this.mode = 0;
             this.setRuta();
@@ -465,7 +469,10 @@ export default {
                 ...this.editObjProyecto,
                 id_proyecto: item["id_proyecto"] 
               };
-     
+
+             console.log(this.editObjProyecto)
+             console.log(this.editObjProyecto.id_proyecto)
+              
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": item["id_proyecto"] });
             resp = resp.data;
             const proyecto = resp[0][0];
@@ -514,6 +521,7 @@ export default {
             }
             this.submode = 0;
             this.setMode(2);
+            this.lateralMenu = true;
             hideProgress();
         },
         async newProject() {
@@ -906,7 +914,7 @@ export default {
                 this.selected.itemIndex++;
             }
         },
-        async addRow() {
+        async addRowSec() {
             const { tablaIndex, itemIndex } = this.selected;
             if (tablaIndex === null || itemIndex === null) return;
           

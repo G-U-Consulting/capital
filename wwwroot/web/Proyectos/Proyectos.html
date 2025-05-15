@@ -1,5 +1,5 @@
 <div class="pure-g">
-    <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
+    <div v-if="lateralMenu" class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
         <div class="lateralMenuHeader">
             <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
                 <span class="hoverLink">{{ r.text }}</span>
@@ -7,97 +7,168 @@
             </div>
         </div>
         <div class="lateralMenuGroup">
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect group">
-                Administración de Proyectos
+            <div  class="lateralMenuGroup">
+                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                    Administración de Proyectos
+                </div>
+                <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
+                    <img src="./img/ico/svg/user.svg" />
+                    Información Básica
+                </div>
+                <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
+                    <img src="./img/ico/svg/media.svg" />
+                    Imágenes y Vídeos
+                </div>
+                <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
+                    <img src="./img/ico/svg/user.svg" />
+                    Torres y Unidades
+                </div>
+                <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
+                    <img src="./img/ico/svg/user.svg" />
+                    Documentación
+                </div>
             </div>
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
-                <img src="./img/ico/svg/user.svg" />
-                Información Básica
+            <div class="lateralMenuGroup">
+                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                    Gestión Comercial
+                </div>
+                <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
+                    <img src="./img/ico/svg/user.svg" />
+                    Rotafolio de Proyectos
+                </div>
+                <div v-on:click="setMainMode(7)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
+                    <img src="./img/ico/svg/user.svg" />
+                    Proceso de negocio
+                </div>
+                <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 8}">
+                    <img src="./img/ico/svg/user.svg" />
+                    Clientes
+                </div>
             </div>
-            <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
-                <img src="./img/ico/svg/media.svg" />
-                Imágenes y Vídeos
+            <div class="lateralMenuGroup">
+                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                    Informes y Exportación
+                </div>
+                <div v-on:click="setMainMode(9)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 9}">
+                    <img src="./img/ico/svg/download.svg" />
+                    Informes y Cargues
+                </div>
             </div>
-            <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
-                <img src="./img/ico/svg/user.svg" />
-                Rotafolio de Proyectos
+            <div class="lateralMenuGroup">
+                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                    Agenda
+                </div>
+                <div v-on:click="setMainMode(10)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 10}">
+                    <img src="./img/ico/svg/download.svg" />
+                    Mis compromisos
+                </div>
+                <div v-on:click="setMainMode(11)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 11}">
+                    <img src="./img/ico/svg/download.svg" />
+                    Mi Calendario
+                </div>
+                <div v-on:click="setMainMode(12)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 12}">
+                    <img src="./img/ico/svg/download.svg" />
+                    Cambiar lugar de atención
+                </div>
+                <div v-on:click="setMainMode(13)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 13}">
+                    <img src="./img/ico/svg/download.svg" />
+                    Cambiar de tarea
+                </div>
             </div>
-            <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
-                <img src="./img/ico/svg/download.svg" />
-                Informes y Cargues
-            </div>
-            <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
-                <img src="./img/ico/svg/user.svg" />
-                Unidades
+            <div class="lateralMenuGroup">
+                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                    Sala de ventas
+                </div>
+                <div v-on:click="setMainMode(14)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 14}">
+                    <img src="./img/ico/svg/download.svg" />
+                    Gestión de Personal
+                </div>
+                <div v-on:click="setMainMode(15)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 15}">
+                    <img src="./img/ico/svg/download.svg" />
+                    Calendario
+                </div>
+                <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
+                    <img src="./img/ico/svg/download.svg" />
+                    Programación mensual
+                </div>
             </div>
         </div>
-
-        <!-- <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
-            <img src="./img/ico/svg/user.svg" />
-            Rotafolio de Proyectos
-        </div>
-        <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
-            <img src="./img/ico/svg/download.svg" />
-            Informes y Cargues
-        </div>
-        <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
-            <img src="./img/ico/svg/user.svg" />
-            Torres y Unidades
-        </div> -->
     </div>
-    <div class="pure-u-1-1 pure-u-md-4-5">
+    <div  :class="['pure-u-1-1', lateralMenu ? 'pure-u-md-4-5' : 'pure-u-md-1-1']">
         <!--PROYECTOS-->
         <div v-if="mainmode == 1">
-            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24">
+                <div style="font-size: 1rem; font-weight:500; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.5rem 1rem; ">
+                    <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                        <span class="hoverLink">{{ r.text }}</span>
+                        <span v-if="i < ruta.length - 1"> / </span>
+                    </div>
                 </div>
             </div>
             <!--LISTA PROYECTOS-->
-            <div v-if="mode == 0" style="padding: 1em">
-                <h2>Proyectos</h2>
-                <div class="searchBox">
-                    <!--TODO-->
-                    <!--Hacer igual que usuarios agregando los filtros-->
-                    <!--Falta incluir Loo, Slide y Planta general Termómetro-->
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-16-24">
-                            <input type="text" placeholder="Nombre" />
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-24">
-                            <div class="imgGraybutton">
-                                <img src="./img/ico/svg/search.svg" />
+            <div v-if="mode == 0" style="padding-top: 1em">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Proyectos</h2>
+                    <div class="searchBox">
+                        <!--TODO-->
+                        <!--Hacer igual que usuarios agregando los filtros-->
+                        <!--Falta incluir Loo, Slide y Planta general Termómetro-->
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-16-24">
+                                <input type="text" placeholder="Nombre" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/svg/search.svg" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-6-24" style="text-align: right;">
+                                <button v-on:click="setMode(1)" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
                             </div>
                         </div>
-                        <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                        <div class="pure-u-1-1 pure-u-md-6-24" style="text-align: right;">
-                            <button v-on:click="setMode(1)" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
+                    </div>
+                    <div>
+                        <div class="main-content">
+                            <table class="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Sede</th>
+                                        <th>Zona</th>
+                                        <th>Ciudadela</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in proyectos" @click="selectProject(item)">
+                                        <td>{{item.nombre}}</td>
+                                        <td>{{item.sede}}</td>
+                                        <td>{{item.zona_proyecto}}</td>
+                                        <td>{{item.ciudadela}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div class="searchBox">
-                    <table class="dataTable">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Sede</th>
-                                <th>Zona</th>
-                                <th>Ciudadela</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="item in proyectos" @click="selectProject(item)">
-                                <td>{{item.nombre}}</td>
-                                <td>{{item.sede}}</td>
-                                <td>{{item.zona_proyecto}}</td>
-                                <td>{{item.ciudadela}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="pure-u-1-24"></div>
             </div>
             <!--NUEVO PROYECTO-->
             <div v-if="mode == 1" class="pure-g" style="height: max-content">
@@ -1484,224 +1555,8 @@
                 </div>
             </div>
         </div>
-        <!-- Informes-->
-        <div v-if="mainmode == 4">
-            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
-                </div>
-            </div>
-            <div style="padding-top: 1em;">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24" style="height: 80vh;">
-                    <div class="pure-g">
-                        <!-- Columna Informes -->
-                        <div class="pure-u-1-1 pure-u-md-11-24 menuCard">
-                            <div class="cardColor">
-                                <h2>Informes</h2>
-                                <div style="margin-top: 3em;">
-                                    <div class='pure-u-1-1 pure-u-md-1-1'>
-                                        <div style="margin-bottom: 1em;">
-                                            <select v-model="selectInfo">
-                                                <option value='' disabled selected>[Seleccione uno ...]</option>
-                                                <option v-for='item in informes' v-bind:value='item.id_procedimiento_informe'>
-                                                    {{ item.nombre }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div style="display: flex; flex-direction: column;min-height: 9vh;">
-                                        <div v-show="selectInfo != ''">
-                                            <table class="editTable" style="width: 96%; background-color: white;margin-top: 1em;">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Parámetro</th>
-                                                        <th>Valor</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr v-for="item in parsInforme.pars">
-                                                        <td v-if="item && item.visible">{{ item.parametro }}</td>
-                                                        <td v-if="item && item.visible">
-                                                            <select v-if="item.tipo === 'select'" v-model="item.valor" style="padding: 1px;">
-                                                                <option v-for="op in item.opciones" :key="op" :value="op">{{ op }}
-                                                                </option>
-                                                            </select>
-                                                            <input v-else :type="item.tipo" v-model="item.valor" style="border:0px;" />
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div style="padding-top: 2em;">
-                                        <button>Generar Informe</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-2-24"></div>
-                        <!-- Columna Cargues -->
-                        <div class="pure-u-1-1 pure-u-md-11-24 menuCard">
-                            <div class="cardColor">
-                                <h2>Cargues</h2>
-                                <div style="margin-top: 3em;">
-                                    <div class='pure-u-1-1 pure-u-md-1-1'>
-                                        <div style="margin-bottom: 1em;">
-                                            <select v-model="selectCarg">
-                                                <option value='' disabled selected>[Seleccione uno ...]</option>
-                                                <option v-for='item in cargues' v-bind:value='item.id_procedimiento_informe'>
-                                                    {{ item.nombre }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div style="text-align: center;">
-                                        <div v-if="!fileSelected">
-                                            <label for="archivo-cargue" class="upload-label upload-area">
-                                                <samp> Seleccionar Archivo</samp>
-                                            </label>
-                                            <input type="file" id="archivo-cargue" class="hidden-input"
-                                                @change="handleFileUpload">
-                                        </div>
-                                        <div v-if="fileSelected">
-                                            <table style="border-collapse: collapse;width: 86%">
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="buttonTd" style="width: 1.5em" @click="removeFile">
-                                                            <span style="color:red">&#x02717;</span>
-                                                        </td>
-                                                        <td class="upload-label" style="padding-left:1em; text-align: left;padding: 20px;">
-                                                            <!-- Nombre de archivo -->
-                                                            <span v-if="fileSelected">{{ fileSelected.name }}</span>
-                                                            <span v-else>No se ha seleccionado un archivo</span>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div style="margin-top: 2em;">
-                                        <button>Cargar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="pure-u-1-24"></div>
-                </div>
-            </div>
-        </div>
-        <!--UNIDADES-->
-        <div v-if="mainmode == 3">
-            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span> / </span>
-                </div>
-                <span class="hoverLink" v-on:click="setMode(1)">Torres y Unidades</span>
-                <span class="hoverLink" v-if="mode >= 2" v-on:click="setMode(2)">  /  {{sinco.company.Nombre}}</span>
-                <span class="hoverLink" v-if="mode >= 3" v-on:click="setMode(3)">  /  {{sinco.macroProject.nombre}}</span>
-                <span v-if="mode >= 4" >  /  {{sinco.project.nombre}}</span>
-            </div>
-            <div class="pure-u-1-24"></div>
-            <div class="pure-u-22-24 menuCard" style="height: calc(100vh  - 8rem); overflow-y: auto;">
-                <div v-if="mode == 0" style="padding: 3rem;">Trayendo los datos de <b>SINCO</b></div>
-                <!-- SELECCION DE EMPRESA -->
-                <div v-if="mode == 1" >
-                    <div style="padding: 3rem;"> Por favor seleccione una <b>Empresa</b></div>
-                    <div style="text-align:center">
-                        <div v-for="item in sinco.companies" v-on:click="sincoMacroProjects(item)" class="buttonItem">
-                        {{item.Nombre}}
-                    </div>
-                    </div>
-                </div>
-                <!-- SELECCION DE MACROPROYECTO -->
-                <div v-if="mode == 2">
-                    <div style="padding: 3rem;"> Por favor seleccione un <b>Macroproyecto</b></div>
-                    <table class="dataTable">
-                        <tr v-for="item in this.sinco.macroProjects" style="cursor: pointer;" v-on:click="sincoProjects(item)">
-                            <td style="width: 3rem; height: 2rem;">
-                                <img v-bind:src="item.logo" style="height: 100%; width: 100%" />
-                            </td>
-                            <td>{{item.id}}/{{item.nombre}}</td>
-                        </tr>
-                    </table>
-                </div>
-                <!-- SELECCION DE PROYECTO -->
-                <div v-if="mode == 3">
-                    <div style="padding: 3rem;">Por favor seleccione un <b>Proyecto</b></div>
-                    <div style="text-align:center">
-                        <div v-for="item in sinco.projects" v-on:click="sincoGroups(item)" class="buttonItem">
-                            {{item.nombre}}
-                        </div>
-                    </div>
-                </div>
-            <div v-if="mode == 4">
-                <div style="padding: 3rem;" class="pure-g">
-                    <div class="pure-u-1-1 pure-u-md-1-2"><b>Agrupaciones y Unidades</b></div>
-                    <div class="pure-u-1-1 pure-u-md-1-2" style="text-align: right">
-                        <button>Importar</button>
-                    </div>
-                </div>
-                <div class="gridTable">
-                    <div class="pure-g gridHeader">
-                        <div class="pure-u-3-24">Nombre</div>
-                        <div class="pure-u-2-24">Unidades</div>
-                        <div class="pure-u-3-24">Valor Sub Total</div>
-                        <div class="pure-u-3-24">Valor Total Neto</div>
-                        <div class="pure-u-3-24">Fecha Creación</div>
-                        <div class="pure-u-2-24">Estado</div>
-                        <div class="pure-u-8-24">Observaciones</div>
-                    </div>
-                    <div v-for="item in sinco.groups">
-                        <div class="pure-g gridRow">
-                            <div class="pure-u-3-24">
-                                <span v-show="!item.expanded" style="cursor: pointer;" v-on:click="item.expanded = true" class="noSelect">&boxplus;</span>
-                                <span v-show="item.expanded" style="cursor: pointer;" v-on:click="item.expanded = false" class="noSelect">&boxminus;</span>
-                                {{item.nombre}}
-                            </div>
-                            <div class="pure-u-2-24" style="text-align: center;">{{item.unidades.length}}</div>
-                            <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(item.valorSubTotal)}}</div>
-                            <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(item.valorTotalNeto)}}</div>
-                            <div class="pure-u-3-24" style="text-align: center;">{{item.fechaCreacion.substring(0, 16).replace("T", " ")}}</div>
-                            <div class="pure-u-2-24" style="text-align: center;">{{item.estado}}</div>
-                            <div class="pure-u-8-24 maxLenEllipsis" v-bind:title="item.observaciones">{{item.observaciones}}</div>
-                        </div>
-                        <div v-if="item.expanded" style="border-bottom: 3px solid #00839C;">
-                            <div class="pure-g gridHeader">
-                                <div class="pure-u-3-24">Nombre</div>
-                                <div class="pure-u-2-24">Tipo Unidad</div>
-                                <div class="pure-u-3-24">Principal</div>
-                                <div class="pure-u-3-24">Valor</div>
-                                <div class="pure-u-3-24">Fecha</div>
-                                <div class="pure-u-2-24">Estado</div>
-                                <div class="pure-u-2-24">A. Privada</div>
-                                <div class="pure-u-2-24">A. Construida</div>
-                                <div class="pure-u-2-24">Piso</div>
-                                <div class="pure-u-2-24">Alcobas</div>
-                            </div>
-                            <div v-for="(sitem, index) in item.unidades" class="pure-g gridRow">
-                                <div class="pure-u-3-24" style="border-left: 3px solid #00839C;">{{sitem.nombre}}</div>
-                                <div class="pure-u-2-24">{{sitem.tipoUnidad}}</div>
-                                <div class="pure-u-3-24" style="text-align: center;">{{sitem.esPrincipal?"Si": "No"}}</div>
-                                <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(sitem.valor)}}</div>
-                                <div class="pure-u-3-24" style="text-align: center;">{{sitem.fechaCreacion.substring(0, 16).replace("T", " ")}}</div>
-                                <div class="pure-u-2-24" style="text-align: center;">{{sitem.estado}}</div>
-                                <div class="pure-u-2-24">{{sitem.areaPrivada}}</div>
-                                <div class="pure-u-2-24">{{sitem.areaConstruida}}</div>
-                                <div class="pure-u-2-24">{{sitem.numeroPiso}}</div>
-                                <div class="pure-u-2-24" style="border-right: 3px solid #00839C;">{{sitem.cantidadAlcobas}}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </div>
         <!--Imagenes y videos -->
-        <div v-if="mainmode == 5">
+        <div v-if="mainmode == 3">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <span class="hoverLink" v-on:click="mode = 0">Imagenes y videos</span>
                 <span v-if="submode == 0"> / Principal</span>
@@ -1776,8 +1631,8 @@
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 1em">
                             Visualización y Secuencia de agrupaciones en el Carrusel del Proyecto
                         </div>
-                        <div v-for="(tabla, i) in tablas" :key="i" class="pure-u-1-1 pure-u-md-1-6" style="height: calc(100dvh - 25rem);">
-                            <div :class="{ deshabilitada: tabla.activo }">
+                        <div v-for="(tabla, i) in tablas" :key="i" class="pure-u-1-1 pure-u-md-1-6">
+                            <div :class="{ deshabilitada: tabla.activo }" style="height: calc(100vh - 28rem); overflow-y: auto;margin-top: 1px;">
                                 <table class="dataTable">
                                     <thead>
                                         <tr>
@@ -1791,7 +1646,7 @@
                                                 <input type="text" v-model="tabla.datos[j]" @blur="onItemEditFinish(i, j)" @keyup.enter="onItemEditFinish(i, j)"
                                                     ref="editInput" />
                                             </td>
-                                            <td v-else>
+                                            <td v-else style="height: 30px;">
                                                 {{ item }}
                                             </td>
                                         </tr>
@@ -1817,7 +1672,7 @@
                                 <span>Bajar ítem</span>
                             </span>
                         
-                            <span class="icon-button" @click="addRow">
+                            <span class="icon-button" @click="addRowSec">
                                 <img src="../../img/ico/addRow.png" alt="">
                                 <span>Insertar ítem</span>
                             </span>
@@ -2078,6 +1933,288 @@
             </div>
             <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
                 <button>Guardar</button>
+            </div>
+        </div>
+        <!--Torres y Unidades-->
+        <div v-if="mainmode == 4">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span> / </span>
+                </div>
+                <span class="hoverLink" v-on:click="setMode(1)">Torres y Unidades</span>
+                <span class="hoverLink" v-if="mode >= 2" v-on:click="setMode(2)">  /  {{sinco.company.Nombre}}</span>
+                <span class="hoverLink" v-if="mode >= 3" v-on:click="setMode(3)">  /  {{sinco.macroProject.nombre}}</span>
+                <span v-if="mode >= 4" >  /  {{sinco.project.nombre}}</span>
+            </div>
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24 menuCard" style="height: calc(100vh  - 8rem); overflow-y: auto;">
+                <div v-if="mode == 0" style="padding: 3rem;">Trayendo los datos de <b>SINCO</b></div>
+                <!-- SELECCION DE EMPRESA -->
+                <div v-if="mode == 1" >
+                    <div style="padding: 3rem;"> Por favor seleccione una <b>Empresa</b></div>
+                    <div style="text-align:center">
+                        <div v-for="item in sinco.companies" v-on:click="sincoMacroProjects(item)" class="buttonItem">
+                        {{item.Nombre}}
+                    </div>
+                    </div>
+                </div>
+                <!-- SELECCION DE MACROPROYECTO -->
+                <div v-if="mode == 2">
+                    <div style="padding: 3rem;"> Por favor seleccione un <b>Macroproyecto</b></div>
+                    <table class="dataTable">
+                        <tr v-for="item in this.sinco.macroProjects" style="cursor: pointer;" v-on:click="sincoProjects(item)">
+                            <td style="width: 3rem; height: 2rem;">
+                                <img v-bind:src="item.logo" style="height: 100%; width: 100%" />
+                            </td>
+                            <td>{{item.id}}/{{item.nombre}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <!-- SELECCION DE PROYECTO -->
+                <div v-if="mode == 3">
+                    <div style="padding: 3rem;">Por favor seleccione un <b>Proyecto</b></div>
+                    <div style="text-align:center">
+                        <div v-for="item in sinco.projects" v-on:click="sincoGroups(item)" class="buttonItem">
+                            {{item.nombre}}
+                        </div>
+                    </div>
+                </div>
+            <div v-if="mode == 4">
+                <div style="padding: 3rem;" class="pure-g">
+                    <div class="pure-u-1-1 pure-u-md-1-2"><b>Agrupaciones y Unidades</b></div>
+                    <div class="pure-u-1-1 pure-u-md-1-2" style="text-align: right">
+                        <button>Importar</button>
+                    </div>
+                </div>
+                <div class="gridTable">
+                    <div class="pure-g gridHeader">
+                        <div class="pure-u-3-24">Nombre</div>
+                        <div class="pure-u-2-24">Unidades</div>
+                        <div class="pure-u-3-24">Valor Sub Total</div>
+                        <div class="pure-u-3-24">Valor Total Neto</div>
+                        <div class="pure-u-3-24">Fecha Creación</div>
+                        <div class="pure-u-2-24">Estado</div>
+                        <div class="pure-u-8-24">Observaciones</div>
+                    </div>
+                    <div v-for="item in sinco.groups">
+                        <div class="pure-g gridRow">
+                            <div class="pure-u-3-24">
+                                <span v-show="!item.expanded" style="cursor: pointer;" v-on:click="item.expanded = true" class="noSelect">&boxplus;</span>
+                                <span v-show="item.expanded" style="cursor: pointer;" v-on:click="item.expanded = false" class="noSelect">&boxminus;</span>
+                                {{item.nombre}}
+                            </div>
+                            <div class="pure-u-2-24" style="text-align: center;">{{item.unidades.length}}</div>
+                            <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(item.valorSubTotal)}}</div>
+                            <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(item.valorTotalNeto)}}</div>
+                            <div class="pure-u-3-24" style="text-align: center;">{{item.fechaCreacion.substring(0, 16).replace("T", " ")}}</div>
+                            <div class="pure-u-2-24" style="text-align: center;">{{item.estado}}</div>
+                            <div class="pure-u-8-24 maxLenEllipsis" v-bind:title="item.observaciones">{{item.observaciones}}</div>
+                        </div>
+                        <div v-if="item.expanded" style="border-bottom: 3px solid #00839C;">
+                            <div class="pure-g gridHeader">
+                                <div class="pure-u-3-24">Nombre</div>
+                                <div class="pure-u-2-24">Tipo Unidad</div>
+                                <div class="pure-u-3-24">Principal</div>
+                                <div class="pure-u-3-24">Valor</div>
+                                <div class="pure-u-3-24">Fecha</div>
+                                <div class="pure-u-2-24">Estado</div>
+                                <div class="pure-u-2-24">A. Privada</div>
+                                <div class="pure-u-2-24">A. Construida</div>
+                                <div class="pure-u-2-24">Piso</div>
+                                <div class="pure-u-2-24">Alcobas</div>
+                            </div>
+                            <div v-for="(sitem, index) in item.unidades" class="pure-g gridRow">
+                                <div class="pure-u-3-24" style="border-left: 3px solid #00839C;">{{sitem.nombre}}</div>
+                                <div class="pure-u-2-24">{{sitem.tipoUnidad}}</div>
+                                <div class="pure-u-3-24" style="text-align: center;">{{sitem.esPrincipal?"Si": "No"}}</div>
+                                <div class="pure-u-3-24" style="text-align: center;">{{formatoMoneda(sitem.valor)}}</div>
+                                <div class="pure-u-3-24" style="text-align: center;">{{sitem.fechaCreacion.substring(0, 16).replace("T", " ")}}</div>
+                                <div class="pure-u-2-24" style="text-align: center;">{{sitem.estado}}</div>
+                                <div class="pure-u-2-24">{{sitem.areaPrivada}}</div>
+                                <div class="pure-u-2-24">{{sitem.areaConstruida}}</div>
+                                <div class="pure-u-2-24">{{sitem.numeroPiso}}</div>
+                                <div class="pure-u-2-24" style="border-right: 3px solid #00839C;">{{sitem.cantidadAlcobas}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <!--Documentacións-->
+        <div v-if="mainmode == 5" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!--Rotafolio de Proyectos-->
+        <div v-if="mainmode == 6" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!--Proceso de negocio-->
+        <div v-if="mainmode == 7" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!--Clientes-->
+        <div v-if="mainmode == 8" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!-- Informes y Cargues-->
+        <div v-if="mainmode == 9">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
+            </div>
+            <div style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="height: 80vh;">
+                    <div class="pure-g">
+                        <!-- Columna Informes -->
+                        <div class="pure-u-1-1 pure-u-md-11-24 menuCard">
+                            <div class="cardColor">
+                                <h2>Informes</h2>
+                                <div style="margin-top: 3em;">
+                                    <div class='pure-u-1-1 pure-u-md-1-1'>
+                                        <div style="margin-bottom: 1em;">
+                                            <select v-model="selectInfo">
+                                                <option value='' disabled selected>[Seleccione uno ...]</option>
+                                                <option v-for='item in informes' v-bind:value='item.id_procedimiento_informe'>
+                                                    {{ item.nombre }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;min-height: 9vh;">
+                                        <div v-show="selectInfo != ''">
+                                            <table class="editTable" style="width: 96%; background-color: white;margin-top: 1em;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Parámetro</th>
+                                                        <th>Valor</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="item in parsInforme.pars">
+                                                        <td v-if="item && item.visible">{{ item.parametro }}</td>
+                                                        <td v-if="item && item.visible">
+                                                            <select v-if="item.tipo === 'select'" v-model="item.valor" style="padding: 1px;">
+                                                                <option v-for="op in item.opciones" :key="op" :value="op">{{ op }}
+                                                                </option>
+                                                            </select>
+                                                            <input v-else :type="item.tipo" v-model="item.valor" style="border:0px;" />
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div style="padding-top: 2em;">
+                                        <button>Generar Informe</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-2-24"></div>
+                        <!-- Columna Cargues -->
+                        <div class="pure-u-1-1 pure-u-md-11-24 menuCard">
+                            <div class="cardColor">
+                                <h2>Cargues</h2>
+                                <div style="margin-top: 3em;">
+                                    <div class='pure-u-1-1 pure-u-md-1-1'>
+                                        <div style="margin-bottom: 1em;">
+                                            <select v-model="selectCarg">
+                                                <option value='' disabled selected>[Seleccione uno ...]</option>
+                                                <option v-for='item in cargues' v-bind:value='item.id_procedimiento_informe'>
+                                                    {{ item.nombre }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <div v-if="!fileSelected">
+                                            <label for="archivo-cargue" class="upload-label upload-area">
+                                                <samp> Seleccionar Archivo</samp>
+                                            </label>
+                                            <input type="file" id="archivo-cargue" class="hidden-input"
+                                                @change="handleFileUpload">
+                                        </div>
+                                        <div v-if="fileSelected">
+                                            <table style="border-collapse: collapse;width: 86%">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="buttonTd" style="width: 1.5em" @click="removeFile">
+                                                            <span style="color:red">&#x02717;</span>
+                                                        </td>
+                                                        <td class="upload-label" style="padding-left:1em; text-align: left;padding: 20px;">
+                                                            <!-- Nombre de archivo -->
+                                                            <span v-if="fileSelected">{{ fileSelected.name }}</span>
+                                                            <span v-else>No se ha seleccionado un archivo</span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 2em;">
+                                        <button>Cargar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-24"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Mis compromisos-->
+        <div v-if="mainmode == 10" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!--  Mi Calendario-->
+        <div v-if="mainmode == 11" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!-- Cambiar lugar de atención -->
+        <div v-if="mainmode == 12" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!-- Cambiar de tarea -->
+        <div v-if="mainmode == 13" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!-- Gestión de Personal -->
+        <div v-if="mainmode == 14" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!-- Calendario -->
+        <div v-if="mainmode == 15" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!-- Programación mensual -->
+        <div v-if="mainmode == 16" style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
+            <div>
+              <img src="../../img/background/MEN AT WORK.JPG" alt="">
             </div>
         </div>
     </div>
