@@ -1,4 +1,4 @@
-﻿using capital.Code.Inte;
+using capital.Code.Inte;
 using capital.Code.Util;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json.Linq;
@@ -71,6 +71,21 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
+app.Map("/util/Json2Excel", async (HttpRequest request, HttpResponse response) => {
+    string body = "";
+    try {
+        response.ContentType = "application/json";
+        using (var stream = new StreamReader(request.Body)) {
+            body = await stream.ReadToEndAsync();
+        }
+        return WebBDUt.SetJsonToFile(body).ToString(Newtonsoft.Json.Formatting.None);
+    } catch (Exception ex) {
+        Logger.Log("util/Json2Excel    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+
+}).WithName("Json2Excel");
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";
     try {
@@ -144,6 +159,19 @@ app.Map("/api/upload", async (HttpContext context, IWebHostEnvironment env) =>
     }
     return Results.Ok(new { message = "✅ ¡Imágenes actualizadas!" });
 });
+app.Map("/api/uploadfile/{path}", async (string path, IFormFile file, IWebHostEnvironment env) =>
+{
+    if (file == null || file.Length == 0)
+        return Results.BadRequest(new { message = "No se encontró ningún archivo.", data = "Error" });
+    path = Path.Combine(env.WebRootPath, "img", path);
+    if (!Directory.Exists(path))
+        Directory.CreateDirectory(path);
+    string extension = Path.GetExtension(file.FileName);
+    string fullPath = Path.Combine(path, file.FileName);
+    using var stream = new FileStream(fullPath, FileMode.Create);
+    await file.CopyToAsync(stream);
+    return Results.Ok(new { message = "✅ ¡Archivo actualizado!", data = "OK" });
+}).DisableAntiforgery();
 app.Map("/api/internal/{op}", async (HttpRequest request, HttpResponse response, string op) => {
     string body = "";
     try {

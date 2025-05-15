@@ -1,7 +1,126 @@
 -- =============================================
 -- Proceso: Proyectos/Upd_Proyecto
 -- =============================================
-
 --START_PARAM
+set 
+    @id_proyecto = 0,
 
+    @nombre = '',
+    @direccion = '',
+    @id_sede = 0,
+    @id_zona_proyecto = 0,
+    @id_ciudadela = 0,
+    @id_tipo_proyecto = 0,
+    @otra_info = '',
+    @id_estado_publicacion = 0,
+
+    @subsidios_vis = '',
+    @dias_separacion = '',
+    @dias_cierre_sala = '',
+    @meses_ci = '',
+    @dias_pago_ci_banco_amigo = '',
+    @dias_pago_ci_banco_no_amigo = '',
+    @email_cotizaciones = '',
+    @meta_ventas = '',
+    @id_pie_legal = 0,
+    @id_banco_constructor = 0,
+    @id_tipo_financiacion = 0,
+    @id_tipo_vis = 0,
+
+    @centro_costos = '',
+    @id_fiduciaria = 0,
+    @id_opcion_visual = 0,
+
+    @lanzamiento = '',
+    @ciudad_lanzamiento = '',
+    @fecha_lanzamiento = '',
+    @latitud = '',
+    @bloqueo_libres = '',
+    @inmuebles_opcionados = '',
+    @tipos_excluidos = '',
+    @link_waze = '',
+    @linea_whatsapp = '',
+
+    @email_receptor_1 = '',
+    @email_receptor_2 = '',
+    @email_receptor_3 = '',
+    @email_receptor_4 = '',
+
+    @link_general_onelink = '',
+    @link_especifico_onelink = '',
+    @incluir_especificaciones_tecnicias = '',
+    @link_especificaciones_tecnicias = '',
+    @incluir_cartilla_negocios_cotizacion = '',
+    @incluir_cartilla_negocios_opcion = '',
+    @link_cartilla_negocios = '',
+    @frame_seguimiento_visible = '',
+    @link_seguimiento_leads = '',
+    @frame_evaluacion_conocimiento = '',
+    @link_evaluacion_conocimiento = '',
+    @avance_obra_visible = '',
+    @link_avance_obra = '',
+    @incluir_brochure = '',
+    @link_brochure = '';
 --END_PARAM
+
+update fact_proyectos
+set 
+    nombre = @nombre,
+    direccion = @direccion,
+    id_sede = nullif(@id_sede, 0),
+    id_zona_proyecto = nullif(@id_zona_proyecto, 0),
+    id_ciudadela = nullif(@id_ciudadela, 0),
+    id_tipo_proyecto = nullif(@id_tipo_proyecto, 0),
+    otra_info = @otra_info,
+    id_estado_publicacion = nullif(@id_estado_publicacion, 0),
+
+    subsidios_vis = @subsidios_vis,
+    dias_separacion = @dias_separacion,
+    dias_cierre_sala = @dias_cierre_sala,
+    meses_ci = @meses_ci,
+    dias_pago_ci_banco_amigo = @dias_pago_ci_banco_amigo,
+    dias_pago_ci_banco_no_amigo = @dias_pago_ci_banco_no_amigo,
+    email_cotizaciones = @email_cotizaciones,
+    meta_ventas = @meta_ventas,
+    id_pie_legal = nullif(@id_pie_legal, 0),
+    id_banco_constructor = nullif(@id_banco_constructor, 0),
+    id_tipo_financiacion = nullif(@id_tipo_financiacion, 0),
+    id_tipo_vis = nullif(@id_tipo_vis, 0),
+
+    centro_costos = @centro_costos,
+    id_fiduciaria = nullif(@id_fiduciaria, 0),
+    id_opcion_visual = nullif(@id_opcion_visual, 0),
+
+    lanzamiento = @lanzamiento,
+    ciudad_lanzamiento = @ciudad_lanzamiento,
+    fecha_lanzamiento = @fecha_lanzamiento,
+    latitud = @latitud,
+    bloqueo_libres = @bloqueo_libres,
+    inmuebles_opcionados = @inmuebles_opcionados,
+    tipos_excluidos = @tipos_excluidos,
+    link_waze = @link_waze,
+    linea_whatsapp = @linea_whatsapp,
+
+    email_receptor_1 = @email_receptor_1,
+    email_receptor_2 = @email_receptor_2,
+    email_receptor_3 = @email_receptor_3,
+    email_receptor_4 = @email_receptor_4,
+
+    link_general_onelink = @link_general_onelink,
+    link_especifico_onelink = @link_especifico_onelink,
+    incluir_especificaciones_tecnicias = @incluir_especificaciones_tecnicias,
+    link_especificaciones_tecnicias = @link_especificaciones_tecnicias,
+    incluir_cartilla_negocios_cotizacion = @incluir_cartilla_negocios_cotizacion,
+    incluir_cartilla_negocios_opcion = @incluir_cartilla_negocios_opcion,
+    link_cartilla_negocios = @link_cartilla_negocios,
+    frame_seguimiento_visible = @frame_seguimiento_visible,
+    link_seguimiento_leads = @link_seguimiento_leads,
+    frame_evaluacion_conocimiento = @frame_evaluacion_conocimiento,
+    link_evaluacion_conocimiento = @link_evaluacion_conocimiento,
+    avance_obra_visible = @avance_obra_visible,
+    link_avance_obra = @link_avance_obra,
+    incluir_brochure = @incluir_brochure,
+    link_brochure = @link_brochure
+where id_proyecto = @id_proyecto;
+
+select 'OK' as resp;
