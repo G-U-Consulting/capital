@@ -223,45 +223,49 @@ export default {
             },
             videos: [
                 { title: '', description: '', link: '' }
-              ],
+            ],
+            videosReco: [
+                { title: '', description: '', link: '' }
+            ],
               hoveredIndex: null,
               selectedRow: null,
+              selectedRowReco: null,
               ruta: [],
               modalVideoId: null,
               tablas: [
                 {
                   titulo: 'General de C. Capital',
-                  datos: ['Grupo xx', 'Grupo xx', 'Grupo xx'],
+                  datos: ['Grupo xx', 'Grupo xx', 'Grupo xx','','','','','',''],
                   activo: true,
                   error: false
                 },
                 {
                   titulo: 'Principal de Proyecto',
-                  datos: ['Item 1', 'Item 2', 'Item 3'],
+                  datos: ['Item 1', 'Item 2', 'Item 3','','','','','',''],
                   activo: false,
                   error: false
                 },
                 {
                   titulo: 'Imágenes de Proyecto',
-                  datos: ['Item 1','Item 2', 'Item 3'],
+                  datos: ['Item 1','Item 2', 'Item 3','','','','','',''],
                   activo: true,
                   error: false
                 },
                 {
                   titulo: 'Vídeos de Proyecto',
-                  datos: ['Item 1', 'Item 2', 'Item 3'],
+                  datos: ['Item 1', 'Item 2', 'Item 3','','','','','',''],
                   activo: false,
                   error: true
                 },
                 {
                   titulo: 'Recorridos Virtuales',
-                  datos: ['Item 1','Item 2', 'Item 3'],
+                  datos: ['Item 1','Item 2', 'Item 3','','','','','',''],
                   activo: true,
                   error: false
                 },
                 {
-                  titulo: 'Avances de obra',
-                  datos: ['Item 1','Item 2', 'Item 3'],
+                  titulo: 'Avances de las Obras',
+                  datos: ['Item 1','Item 2', 'Item 3','','','','','',''],
                   activo: false,
                   error: false
                 }
@@ -315,9 +319,10 @@ export default {
                 this.ruta = [{
                     text: 'ZA', action: () => 
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-                }, {text: 'Proyectos', action: () => { this.mainmode = 0; this.setMode(0) }}];
+                }, {text: 'Proyectos', action: () => { this.mainmode = 1; this.setMode(0) ; this.lateralMenu = false }}];
                 this.ruta = [...this.ruta, ...subpath];
             }
+      
             else this.ruta = [{
                     text: 'ZA', action: () => 
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
@@ -470,9 +475,6 @@ export default {
                 id_proyecto: item["id_proyecto"] 
               };
 
-             console.log(this.editObjProyecto)
-             console.log(this.editObjProyecto.id_proyecto)
-              
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": item["id_proyecto"] });
             resp = resp.data;
             const proyecto = resp[0][0];
@@ -866,6 +868,9 @@ export default {
         async selectRow(index) {
             this.selectedRow = index;
         },
+        async selectRowReco(index) {
+            this.selectedRowReco = index;
+        },
         async moveRow(direction) {
             const i = this.selectedRow;
             if (i === null || i < 0 || i >= this.videos.length) return;
@@ -949,6 +954,102 @@ export default {
                 }
             }
             this.editando = { tablaIndex: null, itemIndex: null };
-        }
+        },
+        selectItem(i, j) {
+            const tabla = this.tablas[i];
+            if (tabla.titulo === 'General de C. Capital' || tabla.activo) return;
+
+            this.selected.tablaIndex = i;
+            this.selected.itemIndex = j;
+
+            this.editando.tablaIndex = i;
+            this.editando.itemIndex = j;
+
+            this.$nextTick(() => {
+                this.$refs.editInput?.focus?.();
+            });
+        },
+        onItemEditFinish(i, j) {
+            this.editando.tablaIndex = null;
+            this.editando.itemIndex = null;
+        },
+        moveRowVid(direction) {
+            if (this.selectedRow === null) return;
+
+            const index = this.selectedRow;
+            const max = this.videos.length - 1;
+
+            if (direction === 'up' && index > 0) {
+                const temp = this.videos[index];
+                this.videos.splice(index, 1);
+                this.videos.splice(index - 1, 0, temp);
+                this.selectedRow = index - 1;
+            }
+
+            if (direction === 'down' && index < max) {
+                const temp = this.videos[index];
+                this.videos.splice(index, 1);
+                this.videos.splice(index + 1, 0, temp);
+                this.selectedRow = index + 1;
+            }
+        },
+        addRowVid() {
+            const newRow = { title: '', description: '', link: '' };
+
+            if (this.selectedRow !== null) {
+                this.videos.splice(this.selectedRow + 1, 0, newRow);
+                this.selectedRow += 1;
+            } else {
+                this.videos.push(newRow);
+                this.selectedRow = this.videos.length - 1;
+            }
+        },
+        removeRow(index) {
+            this.videos.splice(index, 1);
+            if (this.selectedRow === index) {
+                this.selectedRow = null;
+            } else if (this.selectedRow > index) {
+                this.selectedRow--;
+            }
+        },
+        moveRowReco(direction) {
+            if (this.selectedRowReco === null) return;
+
+            const index = this.selectedRowReco;
+            const max = this.videosReco.length - 1;
+
+            if (direction === 'up' && index > 0) {
+                const temp = this.videosReco[index];
+                this.videosReco.splice(index, 1);
+                this.videosReco.splice(index - 1, 0, temp);
+                this.selectedRowReco = index - 1;
+            }
+
+            if (direction === 'down' && index < max) {
+                const temp = this.videosReco[index];
+                this.videosReco.splice(index, 1);
+                this.videosReco.splice(index + 1, 0, temp);
+                this.selectedRowReco = index + 1;
+            }
+        },
+        addRowReco() {
+            const newRow = { title: '', description: '', link: '' };
+
+            if (this.selectedRowReco !== null) {
+                this.videosReco.splice(this.selectedRowReco + 1, 0, newRow);
+                this.selectedRowReco += 1;
+            } else {
+                this.videosReco.push(newRow);
+                this.selectedRowReco = this.videosReco.length - 1;
+            }
+        },
+        removeRow(index) {
+            this.videosReco.splice(index, 1);
+            if (this.selectedRowReco === index) {
+                this.selectedRowReco = null;
+            } else if (this.selectedRowReco > index) {
+                this.selectedRowReco--;
+            }
+        },
     }
 };
