@@ -18,7 +18,7 @@ select mp.id_medio, mp.medio, mp.id_categoria, mp.is_active, id_sinco, id_sinco 
 cm.categoria, if(mp.is_active = 1, 'Sí', 'No') as 'Activo'
 from dim_medio_publicitario mp 
 join dim_categoria_medio cm on mp.id_categoria = cm.id_categoria
-order by is_active desc;
+order by is_active desc, mp.medio asc;
 
 select id_banco, banco
 from dim_banco_constructor;
@@ -45,7 +45,7 @@ select id_tramite, tramite, texto
 from dim_tramite
 where is_active = 1;
 
-select id_documento, documento, descripcion
+select id_documento, documento
 from dim_documento
 where is_active = 1
 order by documento;

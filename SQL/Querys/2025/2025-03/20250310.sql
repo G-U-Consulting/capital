@@ -331,11 +331,22 @@ insert into dim_subsidio_vis(smmlv,smmlv_0_2,smmlv_2_4) values(1423500.00,427050
 create table dim_documento(
 	id_documento int primary key auto_increment,
 	documento varchar(200) not null unique,
-	descripcion varchar(200),
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
+);
+
+create table dim_documento_archivo(
+	id_archivo int primary key auto_increment,
+	nombre varchar(200) not null,
+	codigo varchar(50) not null unique,
+	orden int not null,
+	id_documento int,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user,
+	constraint fk_id_documento foreign key(id_documento) references dim_documento(id_documento),
+	unique(nombre, id_documento)
 );
 -- END
 /*
