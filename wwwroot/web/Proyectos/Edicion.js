@@ -1,7 +1,7 @@
 ﻿export default {
     data() {
         return {
-            mode: 0,
+            mode: -1,
             submode: 0,
             proyectos: [],
             estado_publicacion: [],
@@ -65,6 +65,7 @@
                 link_brochure: ""
             },
             editObjProyecto: {
+                id_proyecto: 0,
                 nombre: "",
                 direccion: "",
                 id_sede: 0 ,
@@ -73,8 +74,6 @@
                 id_tipo_proyecto: 0,
                 otra_info: "",
                 id_estado_publicacion: 0,
-                id_tipo_financiacion: 0,
-                id_tipo_vis: 0,
 
                 subsidios_vis: "",
                 dias_separacion: "",
@@ -85,8 +84,9 @@
                 email_cotizaciones: "",
                 meta_ventas: "",
                 id_pie_legal: 0,
-                id_fiduciaria: 0,
-                id_banco_constructor: "",
+                id_banco_constructor: 0,
+                id_tipo_financiacion: 0,
+                id_tipo_vis: 0,
 
                 centro_costos: "",
                 id_fiduciaria: 0,
@@ -109,10 +109,6 @@
 
                 link_general_onelink: "",
                 link_especifico_onelink: "",
-                avance_obra_visible: "",
-                link_avance_obra: "",
-                incluir_brochure: "",
-                link_brochure: "",
                 incluir_especificaciones_tecnicias: "",
                 link_especificaciones_tecnicias: "",
                 incluir_cartilla_negocios_cotizacion: "",
@@ -127,45 +123,44 @@
                 incluir_brochure: 0,
                 link_brochure: ""
             },
-            logoPreview: null,
-            slidePreview: null,
-            plantaPreview: null,
-            isExpanded: {
-              logo: false,
-              slide: false,
-              planta: false
-            },
+            
             camposPorSubmode: {
-                0: ["nombre","direccion"],
+                0: ["nombre"],
                 1: ["id_banco_constructor"],
-                2: ["dias_separacion", "dias_cierre_sala", "meses_ci", "meta_ventas"],
-                3: ["centro_costos"],
-                4: ["ciudad_lanzamiento", "fecha_lanzamiento", "latitud", "link_waze", "linea_whatsapp", "inmuebles_opcionados", "tipos_excluidos"],
-                5: ["link_general_onelink", "link_especifico_onelink", "link_seguimiento_leads", "link_evaluacion_conocimiento", "link_avance_obra", "link_brochure", "link_especificaciones_tecnicias", "link_cartilla_negocios"],
+                2: ["id_pie_legal"],
+                3: ['id_fiduciaria'],
+                4: ["ciudad_lanzamiento"],
+                5: ["link_general_onelink"],
             },
             validacionEspecial: {
                 // 0: [{ tipo: 'checkbox_group', campo: 'ciudadela', requerimiento: { tipo: 'minimo', valor: 1 } }],
                 1: [
-                    { tipo: 'checkbox_group', campo: 'tiposVIS', requerimiento: { tipo: 'minimo', valor: 1 } },
-                    { tipo: 'checkbox_group', campo: 'tiposFinanciacion', requerimiento: { tipo: 'minimo', valor: 1 } }
+                    // { tipo: 'checkbox_group', campo: 'tiposVIS', requerimiento: { tipo: 'minimo', valor: 1 } },
+                    // { tipo: 'checkbox_group', campo: 'tiposFinanciacion', requerimiento: { tipo: 'minimo', valor: 1 } }
                 ],
                 2: [
-                    { tipo: 'email', campo: 'email_cotizaciones' }
+                    // { tipo: 'email', campo: 'email_cotizaciones' }
                 ],
-                3: [{ tipo: 'checkbox_group', campo: 'opcionesVisuales', requerimiento: { tipo: 'minimo', valor: 1 } }],
+                3: [
+                    // { tipo: 'checkbox_group', campo: 'opcionesVisuales', requerimiento: { tipo: 'minimo', valor: 1 } }
+
+                ],
                 4: [
-                    { tipo: 'email', campo: 'email_receptor_1' },
-                    { tipo: 'email', campo: 'email_receptor_2' },
-                    { tipo: 'email', campo: 'email_receptor_3' },
-                    { tipo: 'email', campo: 'email_receptor_4' }
+                    // { tipo: 'email', campo: 'email_receptor_1' },
+                    // { tipo: 'email', campo: 'email_receptor_2' },
+                    // { tipo: 'email', campo: 'email_receptor_3' },
+                    // { tipo: 'email', campo: 'email_receptor_4' }
                 ],
             },
-            isFormularioCompleto: false, 
+            isFormularioCompleto: false,
             tiposVIS: [],
             tiposFinanciacion: [], 
             bancos: [],
+            fiduciaria: [],
             opcionesVisuales: [],
             tabsIncomplete: [],
+            draggedFile: null,
+            dragIndex: null,
             tabs: [
                 "Datos generales",
                 "Tipología y financiación",
@@ -174,28 +169,7 @@
                 "Información adicional",
                 "Enlaces"
             ],
-            casoValidator: [],
-            //ejemplo informe cargue
-            selectCarg: "",
-            fileSelected: null,
-            selectInfo: "",
-            parsInforme: {
-                pars: [
-                  { parametro: 'Fecha Desde', tipo: 'date', valor: '', visible: true },
-                  { parametro: 'Fecha Hasta', tipo: 'date', valor: '', visible: true },
-                  { parametro: 'Sala de Negocios:', tipo: 'select', valor: '', opciones: [
-                    'Alameda de Zipaquirá',
-                    'Mystique 106',
-                    'Porto Hayuelos',
-                    'Urbania',
-                    'Serralta'
-                  ], visible: true },
-                  { parametro: 'Asesor:', tipo: 'select', valor: '', opciones: ['Asesor1', 'Aesor2'], visible: true },
-                  
-                ],
-                parsLen: 2,
-                resultadoEjecucion: null
-            }
+            casoValidator: []
         };
     },
     computed: {
@@ -212,6 +186,7 @@
         },
     },
     async mounted() {
+        showProgress();
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
         var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
@@ -231,12 +206,23 @@
         this.pie_legal = resp[8];
         this.fiduciaria = resp[9];
         this.bancos = resp[10];
+        if(this.inputParameter != null)
+            this.selectProject(this.inputParameter);
+        else    
+            this.setMode(0);
+        hideProgress();
     },
     methods: {
-        async setSubmode(index) {
+        setMode(mode) {
+            this.mode = mode;
+            if(mode == 0)
+                GlobalVariables.miniModuleCallback("SartProjectModule", null)
+            if(mode == 1)
+                GlobalVariables.miniModuleCallback("NewProject", null)
+        },
+        setSubmode(index) {
             const anteriorIndex = this.submode;
             
-            console.log(anteriorIndex)
             const validarSubmode = (submodeIndex) => {
                 const camposAValidar = this.camposPorSubmode[submodeIndex] || [];
                 let submodeIncompleto = camposAValidar.some(campo => {
@@ -291,45 +277,17 @@
             this.submode = index;
             this.isFormularioCompleto = this.tabsIncomplete.length === 0;
         },
-        async validarEmail(email) {
+        validarEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         },
-        async previewImage(event, type) {
-            const file = event.target.files[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = () => {
-                if (type === 'logoPreview') {
-                  this.logoPreview = reader.result;
-                } else if (type === 'slidePreview') {
-                  this.slidePreview = reader.result;
-                } else if (type === 'plantaPreview') {
-                  this.plantaPreview = reader.result;
-                }
-              };
-              reader.readAsDataURL(file);
-            }
-          },
-        async expandImage(type) {
-            this.isExpanded[type] = true;
-        },
-        async closeModal() {
-            this.isExpanded.logo = false;
-            this.isExpanded.slide = false;
-            this.isExpanded.planta = false;
-        },
-        async removePreview(type) {
-            if (type === 'logo') {
-                this.logoPreview = null;
-            } else if (type === 'slide') {
-                this.slidePreview = null;
-            } else if (type === 'planta') {
-                this.plantaPreview = null;
-            }
-        },
         async selectProject(item) {
             showProgress();
+            this.editObjProyecto = {
+                ...this.editObjProyecto,
+                id_proyecto: item["id_proyecto"] 
+              };
+
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": item["id_proyecto"] });
             resp = resp.data;
             const proyecto = resp[0][0];
@@ -377,7 +335,8 @@
         
             }
             this.submode = 0;
-            this.mode = 2;
+            this.setMode(2);
+            GlobalVariables.miniModuleCallback("SelectedProject", item)
             hideProgress();
         },
         async newProject() {
@@ -469,9 +428,121 @@
                 console.error("Error al insertar el proyecto:", error);
             }
         },
-        hasPermission(id) {
-            return true;
+        async updateProject(){
+            this.casoValidator = [];
+            /*
+            const validarCampos = (fields) => {
+                fields.forEach((campo) => {
+                    const valor = this.objProyecto[campo];
+                    const invalido = valor == null || (typeof valor === 'string' && valor.trim() === '');
+                    if (invalido) {
+                        this.casoValidator[campo] = `Error - El valor del campo ${campo} es inválido`;
+                    }
+                });
+            };
+            */
+            const updates = {
+                0: {
+                    fields: [
+                        "nombre", "direccion", "id_sede", "id_zona",
+                        "id_ubicacion_proyecto", "id_tipo_proyecto",
+                        "otra_info", "id_estado_publicacion"
+                    ]
+                },
+                1: {
+                    fields: [
+                        "id_sede", "subsidios_vis", "acabados",
+                        "reformas", "id_tipo", "id_torre"
+                    ]
+                },
+                2: {
+                    fields: [
+                        "dias_separacion", "dias_cierre_sala", "meses_ci",
+                        "email_cotizaciones", "meta_ventas",
+                        "id_pie_legal", "id_coordinacion"
+                    ]
+                },
+                3: {
+                    fields: ["centro_costos", "id_fiduciaria"]
+                },
+                4: {
+                    fields: [
+                        "ciudad_lanzamiento", "fecha_lanzamiento",
+                        "latitud", "inmuebles_opcionados",
+                        "tipos_excluidos", "link_waze", "linea_whatsapp",
+                        "email_receptor_1", "email_receptor_2",
+                        "email_receptor_3", "email_receptor_4"
+                    ]
+                },
+                5: {
+                    fields: [
+                        "link_general_onelink", "link_especifico_onelink",
+                        "incluir_especificaciones_tecnicias", "link_especificaciones_tecnicias",
+                        "incluir_cartilla_negocios_cotizacion", "incluir_cartilla_negocios_opcion",
+                        "link_cartilla_negocios", "frame_seguimiento_visible",
+                        "link_seguimiento_leads", "frame_evaluacion_conocimiento",
+                        "avance_obra_visible", "link_avance_obra",
+                        "incluir_brochure", "link_brochure"
+                    ]
+                }
+            };
+            const update = updates[this.submode];
+            if (!update) {
+                console.error('Submodo no válido:', this.submode);
+                return { status: 'Error', message: 'Submodo no válido' };
+            }
+            // validarCampos(update.fields);
+            /*
+            if (Object.keys(this.casoValidator).length > 0) {
+                console.error('Errores de validación:', this.casoValidator);
+                return { status: 'Error', message: 'Hay errores de validación', errors: this.casoValidator };
+            }
+            */
+ 
+            var tVis = this.tiposVIS.find(item => { return item.checked });
+            if (tVis != null)
+                this.editObjProyecto.id_tipo_vis = tVis.id_tipo_vis;
+            var oVs = this.opcionesVisuales.find(item => { return item.checked });
+            if (oVs != null)
+                this.editObjProyecto.id_opcion_visual = oVs.id_opcion_visual;
+            var tFn = this.tiposFinanciacion.find(item => { return item.checked });
+            if (tFn != null)
+                this.editObjProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
+
+
+            try {
+                showProgress();
+                const result = await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", this.editObjProyecto);
+                hideProgress();
+                this.setMainMode(1);
+            } catch (error) {
+                console.error("Error al insertar el proyecto:", error);
+            }
+        }, 
+        async cleanObjectData(){
+            await this.cleanObject(this.editObjProyecto);
+            await this.cleanObject(this.objProyecto);
+        },
+        async cleanObject(obj) {
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    if (typeof obj[key] === 'string') {
+                        obj[key] = "";
+                    } else if (typeof obj[key] === 'number') {
+                        obj[key] = 0;
+                    }
+                }
+            }
+            for (const key of Object.keys(this.camposPorSubmode)) {
+                const numericKey = parseInt(key, 10);
+                this.submode = numericKey;
+                await this.setSubmode();
+
+            }
+            this.submode = 0;
+        },
+        async hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
-        }
+        },
     }
 };

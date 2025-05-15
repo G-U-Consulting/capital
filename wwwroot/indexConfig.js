@@ -49,6 +49,21 @@
         category: "PROYECTOS",
         allow: ["*"]
     }, 
+    "EdicionProyectos": {
+        templateUrl: "./web/Proyectos/Edicion.html",
+        jsUrl: "./web/Proyectos/Edicion.js",
+        allow: ["*"]
+    },
+    "Medios": {
+        templateUrl: "./web/Proyectos/Medios.html",
+        jsUrl: "./web/Proyectos/Medios.js",
+        allow: ["*"]
+    },
+    "Unidades": {
+        templateUrl: "./web/Proyectos/Unidades.html",
+        jsUrl: "./web/Proyectos/Unidades.js",
+        allow: ["*"]
+    },
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",

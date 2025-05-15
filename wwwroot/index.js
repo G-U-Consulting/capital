@@ -8,6 +8,7 @@ var GlobalVariables = {
     permisos: null,
     loadModule: null,
     loadMiniModule: null,
+    miniModuleCallback: null,
     modules: null,
     ruta: null,
     passwordPolicy: null,
@@ -82,7 +83,7 @@ mainVue = {
             if (this.modules[name] === this.moduleSelected) {
                 if (inputParameter != null) {
                     inputParameter.moduleAreadyLoaded = true;
-                    vm.inputParameter = inputParameter;
+                    vm.config.globalProperties.inputParameter = inputParameter;
                     vm.mount(mainDivId);
                 }
                 return;
@@ -137,10 +138,8 @@ mainVue = {
         loadVueModule(inputParameter) {
             document.getElementById("indexMenuDiv").style.display = "none";
 
-            delete this.moduleSelected.moduleObj.data.inputParameter;
-            if (inputParameter != null)
-                this.moduleSelected.moduleObj.data.inputParameter = inputParameter;
             vm = createApp(this.moduleSelected.moduleObj);
+            vm.config.globalProperties.inputParameter = inputParameter;
             vm.mount(mainDivId);
             hideProgress();
             var url = window.location.href;
@@ -162,13 +161,12 @@ mainVue = {
             if (miniModule.moduleObj.template == null || miniModule.moduleObj.template == "")
                 miniModule.moduleObj.template = await(await fetch(miniModule.templateUrl)).text();
 
-            //delete miniModule.data.inputParameter;
-            //if (inputParameter != null)
-            //miniModule.moduleObj.data.inputParameter = inputParameter;
             if (mvm != null) mvm.unmount();
             mvm = createApp(miniModule.moduleObj);
-            mvm.mount(elementId);
+            mvm.config.globalProperties.inputParameter = inputParameter;
             hideProgress();
+            var mount = mvm.mount(elementId);
+            return mount;
             //var url = window.location.href;
             //if (url.indexOf("?") > 0)
             //    url = url.substring(0, url.indexOf("?"))

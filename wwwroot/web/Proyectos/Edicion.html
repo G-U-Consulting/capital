@@ -1,50 +1,51 @@
-﻿
-<div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-    <span class="hoverLink" v-on:click="mode = 0">Proyectos</span>
-    <span v-if="mode == 1">  /  Nuevo</span>
-    <span v-if="mode == 2">  /  Edición</span>
-</div>
+﻿<!--PROYECTOS-->
 <!--LISTA PROYECTOS-->
-<div v-if="mode == 0" style="padding: 1em">
-    <h2>Proyectos</h2>
-    <div class="searchBox">
-        <!--TODO-->
-        <!--Hacer igual que usuarios agregando los filtros-->
-        <!--Falta incluir Loo, Slide y Planta general Termómetro-->
-        <div class="pure-g">
-            <div class="pure-u-1-1 pure-u-md-18-24">
-                <input type="text" placeholder="Nombre" />
-            </div>
-            <div class="pure-u-1-1 pure-u-md-1-24">
-                <div class="imgGraybutton">
-                    <img src="./img/ico/svg/search.svg" />
+<div v-if="mode == 0" style="padding-top: 1em">
+    <div class="pure-u-1-24"></div>
+    <div class="pure-u-22-24 menuCard">
+        <div class="searchBox">
+            <!--TODO-->
+            <!--Hacer igual que usuarios agregando los filtros-->
+            <!--Falta incluir Loo, Slide y Planta general Termómetro-->
+            <div class="pure-g">
+                <div class="pure-u-1-1 pure-u-md-16-24">
+                    <input type="text" placeholder="Nombre" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-24">
+                    <div class="imgGraybutton">
+                        <img src="./img/ico/svg/search.svg" />
+                    </div>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                <div class="pure-u-1-1 pure-u-md-6-24" style="text-align: right;">
+                    <button v-on:click="setMode(1)" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
                 </div>
             </div>
-            <div class="pure-u-1-1 pure-u-md-5-24">
-                <button style="width:100%" v-on:click="mode = 1" v-if="hasPermission(12)">Nuevo Proyecto</button>
+        </div>
+        <div>
+            <div class="main-content">
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Sede</th>
+                            <th>Zona</th>
+                            <th>Ciudadela</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in proyectos" @click="selectProject(item)">
+                            <td>{{item.nombre}}</td>
+                            <td>{{item.sede}}</td>
+                            <td>{{item.zona_proyecto}}</td>
+                            <td>{{item.ciudadela}}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <div class="searchBox">
-        <table class="dataTable">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Sede</th>
-                    <th>Zona</th>
-                    <th>Ciudadela</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in proyectos" @click="selectProject(item)">
-                    <td>{{item.nombre}}</td>
-                    <td>{{item.sede}}</td>
-                    <td>{{item.zona_proyecto}}</td>
-                    <td>{{item.ciudadela}}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <div class="pure-u-1-24"></div>
 </div>
 <!--NUEVO PROYECTO-->
 <div v-if="mode == 1" class="pure-g" style="height: max-content">
@@ -60,7 +61,7 @@
     </div>
     <div class="pure-u-1-24"></div>
     <div class="pure-u-1-24"></div>
-    <div class="pure-u-22-24 menuCard" style="height: 70vh; overflow-y: auto;">
+    <div class="pure-u-22-24 menuCard" style="height: calc(100vh - 14rem); overflow-y: auto;">
         <!--Datos generales-->
         <div class="pure-g" v-show="submode == 0 ">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
@@ -104,7 +105,7 @@
                 <div class='formInputStandard'>
                     <span>Ciudadela</span>
                     <select v-model='objProyecto.id_ciudadela'>
-                        <option value='' disabled selected>Seleccione</option>
+                        <option value=''>Seleccione</option>
                         <option v-for='item in ciudadela' v-bind:value='item.id_ciudadela'>
                             {{ item.ciudadela }}
                         </option>
@@ -122,59 +123,6 @@
                     </select>
                 </div>
             </div>
-                <!-- <div class='pure-u-1-1 pure-u-md-1-1'> 
-                <div class='formInputStandard'>
-                    <span>Información adicional / Otros / Zonas Comunes</span>
-                    <textarea type='text' v-model='objProyecto.otra_info' style="height:4rem" v-bind:class="{errorInput:casoValidator.otra_info != null}"></textarea>
-                </div>
-                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
-                    Archivos
-                </div>
-                    <div class="image-upload-container">
-                               
-                    <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
-                        Logo (< 2Mb) <label class="file-upload-label">
-                            Elegir imágenes
-                            <input type="file" @change="previewImage($event, 'logoPreview')" class="" />
-                            </label>
-                            
-                            <div v-if="logoPreview && !isExpanded.logo" class="image-card-preview">
-                                <img :src="logoPreview" alt="Logo Preview" @click="expandImage('logo')" />
-                                <div class="delete-btn" @click="removePreview('logo')">X</div>
-                            </div>
-                    </div>
-                             
-                    <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
-                        Slide 1 (< 2Mb)<label class="file-upload-label">
-                            Elegir imágenes
-                            <input type="file" @change="previewImage($event, 'slidePreview')" />
-                            </label>
-                            
-                            <div v-if="slidePreview && !isExpanded.slide" class="image-card-preview">
-                                <img :src="slidePreview" alt="Slide 1 Preview" @click="expandImage('slide')" />
-                                <div class="delete-btn" @click="removePreview('slide')">X</div>
-                            </div>
-                    </div>
-                
-                    <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
-                        Planta General Termómetro (< 2Mb)<label class="file-upload-label">
-                            Elegir imágenes
-                            <input type="file" @change="previewImage($event, 'plantaPreview')" />
-                            </label>
-                            
-                            <div v-if="plantaPreview && !isExpanded.planta" class="image-card-preview">
-                                <img :src="plantaPreview" alt="Planta General Termómetro Preview" @click="expandImage('planta')" />
-                                <div class="delete-btn" @click="removePreview('planta')">X</div>
-                            </div>
-                    </div>
-                             
-                    <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal" @click="closeModal">
-                        <img v-if="isExpanded.logo" :src="logoPreview" class="expanded-image" />
-                        <img v-if="isExpanded.slide" :src="slidePreview" class="expanded-image" />
-                        <img v-if="isExpanded.planta" :src="plantaPreview" class="expanded-image" />
-                    </div>
-                    </div>
-            </div> -->
             <!--Estado del Proyecto-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                 Estado del Proyecto
@@ -250,7 +198,7 @@
                 </div>
             </div>
             <div class="pure-u-1-1 pure-u-md-1-6">
-                <button style="margin-top: 0.4rem;" v-on:click="mode = 1">Agregar</button>
+                <button style="margin-top: 0.4rem;" v-on:click="setMode(1)">Agregar</button>
             </div>
             <div class='pure-u-3-4 pure-u-md-12-24'>
                 <input style="margin-top: 0.4rem;" type='text' v-model='objProyecto.subsidios_vis' maxlen='100' v-bind:class="{errorInput:casoValidator.tipo_vis != null}"/>
@@ -457,7 +405,7 @@
                     </div>
                 </div>
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-6'>
+            <div class='pure-u-1-1 pure-u-md-1-5'>
                 <div class='formInputStandard'>
                     <span>Ciudad de Lanzamiento</span>
                     <input type='text' v-model='objProyecto.ciudad_lanzamiento' maxlen='100' v-bind:class="{errorInput:casoValidator.ciudad_lanzamiento != null}"/>
@@ -779,7 +727,7 @@
     </div>
     <div class="pure-u-1-24"></div>
     <div class="pure-u-1-24"></div>
-    <div class="pure-u-22-24 menuCard" style="height: 70vh; overflow-y: auto;">
+    <div class="pure-u-22-24 menuCard" style="height: calc(100vh - 14rem); overflow-y: auto;">
         <!--Datos generales-->
         <div class="pure-g" v-show="submode == 0 ">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
@@ -823,7 +771,7 @@
                 <div class='formInputStandard'>
                     <span>Ciudadela</span>
                     <select v-model='editObjProyecto.id_ciudadela'>
-                        <option value='' disabled selected>Seleccione</option>
+                        <option value=''>Seleccione</option>
                         <option v-for='item in ciudadela' v-bind:value='item.id_ciudadela'>
                             {{ item.ciudadela }}
                         </option>
@@ -849,44 +797,44 @@
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
                     Archivos
                 </div>
-                            
+                
                 <div class="image-upload-container">
                     <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                         Logo (< 2Mb) <label class="file-upload-label">
                             Elegir imágenes
                             <input type="file" @change="previewImage($event, 'logoPreview')" class="" />
                         </label>
-                    
+        
                         <div v-if="logoPreview && !isExpanded.logo" class="image-card-preview">
                             <img :src="logoPreview" alt="Logo Preview" @click="expandImage('logo')" />
                             <div class="delete-btn" @click="removePreview('logo')">X</div>
                         </div>
                     </div>
-                                
+                    
                     <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                         Slide 1 (< 2Mb)<label class="file-upload-label">
                             Elegir imágenes
                             <input type="file" @change="previewImage($event, 'slidePreview')" />
                         </label>
-                    
+        
                         <div v-if="slidePreview && !isExpanded.slide" class="image-card-preview">
                             <img :src="slidePreview" alt="Slide 1 Preview" @click="expandImage('slide')" />
                             <div class="delete-btn" @click="removePreview('slide')">X</div>
                         </div>
                     </div>
-                                
+                    
                     <div class='pure-u-1-1 pure-u-md-1-3 image-upload-item'>
                         Planta General Termómetro (< 2Mb)<label class="file-upload-label">
                             Elegir imágenes
                             <input type="file" @change="previewImage($event, 'plantaPreview')" />
                         </label>
-                    
+        
                         <div v-if="plantaPreview && !isExpanded.planta" class="image-card-preview">
                             <img :src="plantaPreview" alt="Planta General Termómetro Preview" @click="expandImage('planta')" />
                             <div class="delete-btn" @click="removePreview('planta')">X</div>
                         </div>
                     </div>
-                             
+                    
                     <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal" @click="closeModal">
                         <img v-if="isExpanded.logo" :src="logoPreview" class="expanded-image" />
                         <img v-if="isExpanded.slide" :src="slidePreview" class="expanded-image" />
@@ -903,8 +851,10 @@
                     <div class='pure-g'>
                         <div v-for='item in estado_publicacion' class='pure-u-1-4'>
                             <label class="check">
-                                <input type="checkbox" v-model="item.checked" /> {{ item.estado_publicacion }}
+                                <input type="radio" v-bind:value="item.id_estado_publicacion"
+                                    v-model="editObjProyecto.id_estado_publicacion" name="estado_publicacion" />
                                 <span class="checkmark"></span>
+                                {{ item.estado_publicacion }}
                             </label>
                         </div>
                     </div>
@@ -934,9 +884,10 @@
             <div class='pure-u-1-1 pure-u-md-1-1'>
                 <div class='formInputStandard'>
                     <div class='pure-g'>
+                        <div class='pure-u-1-1 pure-u-1-6'></div>
                         <div v-for='item in tiposVIS' class='pure-u-1-6'>
                             <label class="check">
-                                <input type='checkbox' value='1' v-model='item.checked' />
+                                <input type='checkbox' value='1' v-model='item.checked'  />
                                 <span class="checkmark"></span>
                                 {{item.tipo_vis}}
                             </label>
@@ -965,7 +916,7 @@
                 </div>
             </div>
             <div class="pure-u-1-1 pure-u-md-1-6">
-                <button style="margin-top: 0.4rem;" v-on:click="mode = 1">Agregar</button>
+                <button style="margin-top: 0.4rem;" v-on:click="setMode(1)">Agregar</button>
             </div>
             <div class='pure-u-3-4 pure-u-md-12-24'>
                 <input style="margin-top: 0.4rem;" type='text' v-model='editObjProyecto.subsidios_vis' maxlen='100' />
@@ -1101,7 +1052,7 @@
                     <span>Pie Legal Cotizaciones</span>
                     <select v-model='editObjProyecto.id_pie_legal'>
                         <option value='' disabled selected>Seleccione</option>
-                        <option v-for='item in []' v-bind:value='item.id_pie_legal'>
+                        <option v-for='item in pie_legal' v-bind:value='item.id_pie_legal'>
                             {{ item.pie_legal }}
                         </option>
                     </select>
@@ -1295,7 +1246,7 @@
                     <input type='text' v-model='editObjProyecto.link_especifico_onelink' maxlen='100' />
                 </div>
             </div>
-                    
+        
             <!--Links de especificaciones y Cartilla Negocios-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
                 Link Especificaciones Técnicas y Cartilla de Negocio
@@ -1477,6 +1428,6 @@
         </div>
     </div>
     <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
-        <button>Guardar</button>
+        <button @click="updateProject">Actualizar</button>
     </div>
 </div>
