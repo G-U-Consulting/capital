@@ -14,11 +14,13 @@ export default {
             instructivos: [],
             pies_legales: [],
             tramites: [],
+            subsidios: [],
             documentos: [],
             factores: [],
             bancos_factores: [],
             tipos_factor: [],
             tipos_financiacion: [],
+            tipos_proyecto: [],
             estados_proyecto: [],
             tipos_vis: [],
 
@@ -36,16 +38,9 @@ export default {
             factor: {},
             banco_factor: {},
             tipo_financiacion: {},
+            tipo_proyecto: {},
             estado_proyecto: {},
             tipo_vis: {},
-
-            ruta: [],
-            medioIsActive: 0,
-            insEditor: 1,
-            pieEditor: 1,
-            traEditor: 1,
-            quills: {},
-
             subsidio: {
                 id_subsidio: null,
                 smmlv: "",
@@ -53,6 +48,13 @@ export default {
                 smmlv_2_4: "",
                 imagen: null
             },
+
+            ruta: [],
+            medioIsActive: 0,
+            insEditor: 1,
+            pieEditor: 1,
+            traEditor: 1,
+            quills: {},
 
             filtros: {
                 gruposImg: {},
@@ -67,8 +69,10 @@ export default {
                 tramites: {},
                 documentos: {},
                 tipos_financiacion: {},
+                tipos_proyecto: {},
                 estados_proyecto: {},
                 tipos_vis: {},
+                subsidios: {},
             },
 
             tooltipVisible: false,
@@ -107,7 +111,7 @@ export default {
         },
         setMode(mode) {
             if (mode == 0) this.loadData();
-            if ((mode == 1 || mode == 2) && this.mainmode != 14)
+            if ((mode == 1 || mode == 2))
                 this.clearItem(this.getItem()[0]);
             if ((mode == 1 || mode == 2) && (this.mainmode == 10 || this.mainmode == 11 || this.mainmode == 12))
                 this.initQuill();
@@ -121,7 +125,11 @@ export default {
         async onSelect(selected) {
             this.setMode(2);
             let item = this.getItem()[0];
-            Object.keys(selected).forEach((key) => (item[key] = selected[key]));
+            if (this.mainmode == 14) for (const key in selected)
+                this.subsidio[key] = key.startsWith('smmlv')
+                    ? selected[key].toString().replace(',', '.')
+                    : selected[key];
+            else Object.keys(selected).forEach((key) => (item[key] = selected[key]));
             if (this.mainmode == 5) this.medioIsActive = item["is_active"] == 1;
             if (this.mainmode == 10) this.insEditor = 1;
             if (this.mainmode == 11) this.pieEditor = 1;
@@ -129,43 +137,21 @@ export default {
         },
         onSelectFactor(selected) {
             this.setMode(3);
-            Object.keys(selected).forEach(
-                (key) => (this.factor[key] = selected[key])
-            );
-            const bfs = this.bancos_factores.filter(
-                (bf) =>
-                    bf.id_banco == this.banco.id_banco &&
-                    bf.id_factor == this.factor.id_factor
-            );
+            Object.keys(selected).forEach((key) => (this.factor[key] = selected[key]));
+            const bfs = this.bancos_factores.filter((bf) =>
+                bf.id_banco == this.banco.id_banco && bf.id_factor == this.factor.id_factor);
             this.banco_factor = {};
             bfs.forEach((bf) => (this.banco_factor[bf.id_tipo_factor] = bf));
         },
-        async onCreate() {
+        async onSave() {
             let [item, itemname] = this.getItem();
             if (this.mainmode == 5) item["is_active"] = this.medioIsActive ? 1 : null;
             try {
                 showProgress();
-                const resp = await httpFunc(
-                    `/generic/genericST/Maestros:Ins_${itemname}`,
-                    item
-                );
+                const resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_${itemname}`, item);
                 hideProgress();
                 if (resp.data === "OK") this.setMode(0);
-            } catch (e) {
-                console.log(e);
-            }
-        },
-        async onUpdate() {
-            let [item, itemname] = this.getItem();
-            if (this.mainmode == 5) item["is_active"] = this.medioIsActive ? 1 : null;
-            try {
-                showProgress();
-                const resp = await httpFunc(
-                    `/generic/genericST/Maestros:Upd_${itemname}`,
-                    item
-                );
-                hideProgress();
-                if (resp.data === "OK") this.setMode(0);
+                else throw resp;
             } catch (e) {
                 console.log(e);
             }
@@ -174,11 +160,7 @@ export default {
             showProgress();
             try {
                 showProgress();
-                const resp = await httpFunc(
-                    `/generic/genericST/Maestros:Ins_Banco`,
-                    this.banco,
-                    true
-                );
+                const resp = await httpFunc(`/generic/genericST/Maestros:Ins_Banco`, this.banco, true);
                 if (resp.data === "OK" && resp.id) {
                     this.banco.id_banco = resp.id;
                     this.loadData();
@@ -187,7 +169,7 @@ export default {
                 }
                 hideProgress();
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
             hideProgress();
         },
@@ -196,10 +178,7 @@ export default {
             const bf = this.banco_factor;
             let error = false;
             for (const key in bf) {
-                let resp = await httpFunc(
-                    `/generic/genericST/Maestros:Upd_BancoFactor`,
-                    bf[key]
-                );
+                let resp = await httpFunc(`/generic/genericST/Maestros:Upd_BancoFactor`, bf[key]);
                 if (resp.data !== "OK") error = true;
             }
             hideProgress();
@@ -209,38 +188,43 @@ export default {
             }
         },
         async onUpdateSubsidio() {
-            let name = null;
+            let name = this.subImg 
+                ? `subsidio_${this.mode == 1 ? '#' : this.subsidio.id_subsidio}.${this.subImg.name.split(".").pop()}` 
+                : null;
             let resp = {};
             showProgress();
-            if (this.subImg) {
-                let file = this.subImg;
-                const extension = file.name.split(".").pop();
-                name = `subsidio_${this.subsidio.id_subsidio}.${extension}`;
-                const newFile = new File([file], name, { type: file.type });
-                const formData = new FormData();
-                formData.append("file", newFile);
-                resp = await httpFunc("/api/uploadfile/subsidio", formData);
+            try {
+                let sub = { ...this.subsidio };
+                if (name) sub.imagen = `/img/subsidio/${name}`;
+                resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Subsidio`, sub, this.mode == 1);
+                if (resp.data === "OK" && this.subImg) {
+                    let file = this.subImg;
+                    const newFile = new File([file], resp.id ? name.replace('#', resp.id) : name, { type: file.type });
+                    const formData = new FormData();
+                    formData.append("file", newFile);
+                    resp = await httpFunc("/api/uploadfile/subsidio", formData);
+                    this.setMode(0);
+                }
+                else if (resp.data !== "OK") throw resp;
             }
-            let sub = { ...this.subsidio };
-            if (resp.data === "OK" && name) sub.imagen = `/img/subsidio/${name}`;
-            resp = await httpFunc(`/generic/genericST/Maestros:Upd_Subsidio`, sub);
+            catch (e) {
+                console.error(e);
+            }
             hideProgress();
-            if (resp.data === "OK") this.setMode(2);
         },
         async onSelectDocument(doc) {
             this.setMode(2);
             Object.keys(doc).forEach((key) => (this.documento[key] = doc[key]));
             let base = `./docs/${doc.documento} [${doc.id_documento}]/`
-            var resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", {id_documento: doc.id_documento})).data;
+            var resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", { id_documento: doc.id_documento })).data;
             let files = await this.openFiles(
-                resp.map(file => { 
+                resp.map(file => {
                     return {
                         path: base + file.codigo,
-                        name: file.nombre, 
+                        name: file.nombre,
                     }
                 })
             );
-            console.log(files);
             this.processFiles(files);
         },
         async onCreateDocument() {
@@ -259,21 +243,23 @@ export default {
                         };
                     });
                     resp = await httpFunc(`/api/uploaddocs/${this.documento.documento} [${resp.id}]`, formData);
-                    if(resp.data) {
-                        for(let key in resp.data) {
+                    if (resp.data) {
+                        for (let key in resp.data) {
                             files[key].codigo = resp.data[key];
                             let r = await httpFunc("/generic/genericST/Maestros:Ins_Archivos", files[key]);
-                            if(r.data !== 'OK') throw r.data;
+                            if (r.data !== 'OK') throw r.data;
                         }
-                    }
-                }
+                    } else throw resp;
+                } else throw resp;
                 this.setMode(0);
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
         },
         async onUpdateDocument() {
-
+            console.log(this.documento);
+            console.log(this.previews);
+            console.log(this.files);
         },
         getItem() {
             if (this.mainmode == 3) return [this.grupoImg, "GrupoImg"];
@@ -289,6 +275,7 @@ export default {
             if (this.mainmode == 13) return [this.documento, "Documento"];
             if (this.mainmode == 14) return [this.subsidio, "Subsidio"];
             if (this.mainmode == 15) return [this.tipo_financiacion, "TipoFinanciacion"];
+            if (this.mainmode == 16) return [this.tipo_proyecto, "TipoProyecto"];
             if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto"];
             if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS"];
             return null;
@@ -310,11 +297,12 @@ export default {
             if (this.mainmode == 13) path.text = "Otros Documentos";
             if (this.mainmode == 14) path.text = "Subsidios VIS";
             if (this.mainmode == 15) path.text = "Tipos Financiación";
+            if (this.mainmode == 16) path.text = "Tipo Unidades y Ventas";
             if (this.mainmode == 17) path.text = "Estados Proyecto";
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
-            path.action = () => { 
+            path.action = () => {
                 this.mode = 0; this.setRuta(); this.loadData();
-                if(this.mainmode == 13) { this.previews = []; this.files = []; }
+                if (this.mainmode == 13) { this.previews = []; this.files = []; }
             };
             return path;
         },
@@ -333,16 +321,12 @@ export default {
                 var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
                 window.open("./docs/" + archivo, "_blank");
             }
-            catch(e) {
+            catch (e) {
                 console.log(e);
             }
             hideProgress();
         },
         async loadData() {
-            var resp = (
-                await httpFunc("/generic/genericDS/Maestros:Get_Maestros", {})
-            ).data;
-            let subsidio = {};
             [
                 this.gruposImg,
                 this.categoriasMedios,
@@ -355,26 +339,21 @@ export default {
                 this.pies_legales,
                 this.tramites,
                 this.documentos,
-                subsidio,
+                this.subsidios,
                 this.tipos_financiacion,
+                this.tipos_proyecto,
                 this.estados_proyecto,
                 this.tipos_vis,
 
                 this.factores,
                 this.tipos_factor,
                 this.bancos_factores,
-            ] = resp;
-            let sub = subsidio[0];
-            if (sub) for (const key in sub) this.subsidio[key] =
-                key.startsWith('smmlv')
-                    ? sub[key].toString().replace(',', '.')
-                    : sub[key];
+            ] = (await httpFunc("/generic/genericDS/Maestros:Get_Maestros", {})).data;
         },
         fileUpload(e) {
             let file = e.target.files[0];
-            if (file && !file.type.startsWith("image/")) {
-                e.target.value = "";
-            } else if (file) {
+            if (file && !file.type.startsWith("image/")) e.target.value = "";
+            else if (file) {
                 this.subImg = file;
                 this.subsidio.imagen = URL.createObjectURL(file);
             }
@@ -448,8 +427,7 @@ export default {
                 }
             }, 100);
         },
-        formatNumber(field) {
-            let value = this.subsidio[field];
+        formatNumber(value) {
             if (!value) return "";
             let [parteEntera, parteDecimal] = value.split(".");
             parteEntera = parteEntera.replace(/\D/g, "");
@@ -522,10 +500,10 @@ export default {
         async processFiles(files) {
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                //if (file.type.startsWith('image/')) {
                 const exists = this.files.some(existingFile => existingFile.name === file.name);
                 if (!exists) {
                     this.files.push(file);
+                    let ext = file.name.split('.').pop();
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         if (file.type.startsWith('image/')) {
@@ -533,14 +511,18 @@ export default {
                             Object.defineProperty(f, 'content', {
                                 get() { return this.src; },
                                 set(val) { this.src = val; }
-                            })
+                            });
                             this.previews.push(f);
                         }
-                        else this.previews.push({ file: file, src: this.getIcon(file.name.split('.').pop()), content: e.target.result });
+                        else if (this.getIcon(ext))
+                            this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result });
+                        else {
+                            this.files.pop();
+                            console.error(`Documento no soportado: ${file.name}`);
+                        }
                     };
                     reader.readAsDataURL(file);
                 }
-                //}
             }
         },
         getURLFile(file) {
@@ -568,7 +550,7 @@ export default {
             if (['ppt', 'pptx', 'pptm', 'pot', 'potx', 'potm'].includes(ext)) return base + 'PowerPoint.png';
             if (['pdf'].includes(ext)) return base + 'PDF.png';
             if (['txt'].includes(ext)) return base + 'Txt.png';
-            else return base + 'File.png';
+            else return false;
         },
         async dragStart(index) {
             this.dragIndex = index;
@@ -580,15 +562,15 @@ export default {
     },
     computed: {
         f_smmlv: {
-            get() { return this.formatNumber('smmlv'); },
+            get() { return this.formatNumber(this.subsidio['smmlv']); },
             set(val) { this.subsidio['smmlv'] = this.cleanNumber(val); }
         },
         f_smmlv_0_2: {
-            get() { return this.formatNumber('smmlv_0_2'); },
+            get() { return this.formatNumber(this.subsidio['smmlv_0_2']); },
             set(val) { this.subsidio['smmlv_0_2'] = this.cleanNumber(val); }
         },
         f_smmlv_2_4: {
-            get() { return this.formatNumber('smmlv_2_4'); },
+            get() { return this.formatNumber(this.subsidio['smmlv_2_4']); },
             set(val) { this.subsidio['smmlv_2_4'] = this.cleanNumber(val); }
         },
         getFilteredList() {

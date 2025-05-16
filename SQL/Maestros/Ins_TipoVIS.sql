@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_TipoVIS
 -- =============================================
 --START_PARAM
-set @tipo_vis = ''
+set @tipo_vis = NULL
 
 --END_PARAM
 

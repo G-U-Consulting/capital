@@ -4,7 +4,7 @@
 --START_PARAM
 set 
     @medio = '',
-    @is_active = 1,
+    @is_active = 0,
     @id_categoria = '',
     @id_sinco
 --END_PARAM

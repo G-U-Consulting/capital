@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_PieLegal
 -- =============================================
 --START_PARAM
-set @pie_legal = '',
+set @pie_legal = NULL,
     @texto = '',
     @notas_extra = ''
 

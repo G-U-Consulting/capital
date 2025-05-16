@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_Banco
 -- =============================================
 --START_PARAM
-set @banco = '';
+set @banco = NULL;
 
 --END_PARAM
 

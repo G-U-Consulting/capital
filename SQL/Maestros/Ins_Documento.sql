@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_documento
 -- =============================================
 --START_PARAM
-set @documento = ''
+set @documento = NULL
 
 --END_PARAM
 

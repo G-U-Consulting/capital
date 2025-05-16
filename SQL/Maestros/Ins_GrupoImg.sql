@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_grupo_img
 -- =============================================
 --START_PARAM
-set @grupo = '',
+set @grupo = NULL,
 set @orden = '0'
 
 --END_PARAM

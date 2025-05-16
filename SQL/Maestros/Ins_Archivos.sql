@@ -2,8 +2,8 @@
 -- Proceso: General/Get_Archivo
 -- =============================================
 --START_PARAM
-set @nombre = '',
-    @codigo = '',
+set @nombre = NULL,
+    @codigo = NULL,
     @orden = '0',
     @id_documento = ''
 

@@ -12,7 +12,7 @@ create table dim_ubicacion_proyecto(
 create table dim_estado_pubicacion(
 	id_estado_publicacion int not null auto_increment,
 	constraint pk_dim_estado_pubicacion primary key (id_estado_publicacion),
-	estado_publicacion varchar(200) unique,
+	estado_publicacion varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -21,7 +21,7 @@ create table dim_estado_pubicacion(
 create table dim_tipo_proyecto(
 	id_tipo_proyecto int not null auto_increment,
 	constraint pk_dim_tipo_proyecto primary key (id_tipo_proyecto),
-	tipo_proyecto varchar(200),
+	tipo_proyecto varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -30,7 +30,7 @@ create table dim_tipo_proyecto(
 create table dim_tipo_vis(
 	id_tipo_vis int not null auto_increment,
 	constraint pk_dim_tipo_vis primary key (id_tipo_vis),
-	tipo_vis varchar(200) unique,
+	tipo_vis varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -39,7 +39,7 @@ create table dim_tipo_vis(
 create table dim_tipo_financiacion(
 	id_tipo_financiacion int not null auto_increment,
 	constraint pk_dim_tipo_financiacion primary key (id_tipo_financiacion),
-	tipo_financiacion varchar(200) unique,
+	tipo_financiacion varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -48,7 +48,7 @@ create table dim_tipo_financiacion(
 create table dim_pie_legal(
 	id_pie_legal int not null auto_increment,
 	constraint pk_dim_pie_legal primary key (id_pie_legal),
-	pie_legal varchar(200),
+	pie_legal varchar(200) not null unique,
 	texto text,
 	notas_extra text,
 	codigo varchar(10),
@@ -58,7 +58,7 @@ create table dim_pie_legal(
 );
 create table dim_fiduciaria(
 	id_fiduciaria int not null auto_increment,
-	fiduciaria varchar(200),
+	fiduciaria varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -79,7 +79,7 @@ create table dim_opcion_visual(
 create table dim_zona_proyecto (
     id_zona_proyecto INT NOT NULL auto_increment,
     constraint pk_dim_zona_proyecto primary key (id_zona_proyecto),
-    zona_proyecto varchar(200),
+    zona_proyecto varchar(200) not null unique,
     codigo varchar(10),
     is_active BIT default 1,
     created_on DATETIME default current_timestamp,
@@ -88,7 +88,7 @@ create table dim_zona_proyecto (
 create table dim_ciudadela (
     id_ciudadela int not null auto_increment,
     constraint pk_ciudadela primary key (id_ciudadela),
-    ciudadela varchar(200),
+    ciudadela varchar(200) not null unique,
     codigo varchar(10),
     is_active bit default 1,
     created_on datetime default current_timestamp,
@@ -96,12 +96,11 @@ create table dim_ciudadela (
 );
 create table dim_banco_constructor(
 	id_banco int not null auto_increment,
-	banco varchar(100) unique,
+	banco varchar(200) not null unique,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	constraint pk_dim_banco_constructor primary key(id_banco)
 );
-
 create trigger tr_insert_banco after insert on dim_banco_constructor for each row
 begin
 	insert into dim_banco_factor (id_banco, id_factor, id_tipo_factor, valor)

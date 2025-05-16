@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_instructivo
 -- =============================================
 --START_PARAM
-set @instructivo = '',
+set @instructivo = NULL,
     @procedimiento = '',
     @documentacion_cierre = '',
     @notas = ''

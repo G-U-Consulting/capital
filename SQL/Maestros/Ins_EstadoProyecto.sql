@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_EstadoProyecto
 -- =============================================
 --START_PARAM
-set @estado_publicacion = ''
+set @estado_publicacion = NULL
 
 --END_PARAM
 

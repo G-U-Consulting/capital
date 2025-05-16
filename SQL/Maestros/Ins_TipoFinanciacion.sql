@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_TipoFinanciacion
 -- =============================================
 --START_PARAM
-set @tipo_financiacion = ''
+set @tipo_financiacion = NULL
 
 --END_PARAM
 
