@@ -22,6 +22,7 @@ set
     @meta_ventas = '',
     @id_pie_legal = 0,
     @id_banco_constructor = 0,
+    @id_bancos_financiador = 0,
     @id_tipo_financiacion = 0,
     @id_tipo_vis = 0,
 
@@ -81,6 +82,7 @@ insert into fact_proyectos (
     meta_ventas,
     id_pie_legal,
     id_banco_constructor,
+    id_bancos_financiador,
     id_tipo_financiacion,
     id_tipo_vis,
 
@@ -139,6 +141,7 @@ select
     @meta_ventas,
     nullif(@id_pie_legal, 0),
     nullif(@id_banco_constructor, 0),
+    nullif(@id_bancos_financiador, 0),
     nullif(@id_tipo_financiacion, 0),
     nullif(@id_tipo_vis, 0),
 

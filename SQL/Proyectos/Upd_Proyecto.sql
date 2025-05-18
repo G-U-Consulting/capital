@@ -24,6 +24,7 @@ set
     @meta_ventas = '',
     @id_pie_legal = 0,
     @id_banco_constructor = 0,
+    @id_bancos_financiador = 0,
     @id_tipo_financiacion = 0,
     @id_tipo_vis = 0,
 
@@ -83,7 +84,8 @@ set
     email_cotizaciones = @email_cotizaciones,
     meta_ventas = @meta_ventas,
     id_pie_legal = nullif(@id_pie_legal, 0),
-    id_banco_constructor = nullif(@id_banco_constructor, 0),
+    id_banco_constructor = nullif(@id_banco_constructor, 0),    
+    id_bancos_financiador = nullif(@id_bancos_financiador, 0),    
     id_tipo_financiacion = nullif(@id_tipo_financiacion, 0),
     id_tipo_vis = nullif(@id_tipo_vis, 0),
 

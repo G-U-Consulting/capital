@@ -2,7 +2,7 @@
 -- Proceso: Proyecto/Get_Proyecto
 -- =============================================
 --START_PARAM
-set @id_proyecto = 1;
+set @id_proyecto = 35;
 --END_PARAM
 
 
@@ -60,6 +60,7 @@ select
     a.created_on,
     a.created_by,
     a.id_banco_constructor,
+    a.id_bancos_financiador,
     a.id_tipo_financiacion,
     a.id_tipo_vis,
     id_opcion_visual

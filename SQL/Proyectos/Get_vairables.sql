@@ -44,3 +44,6 @@ where is_active = 1;
 
 select id_banco as id_banco_constructor, banco
 from dim_banco_constructor;
+
+select id_banco as id_bancos_financiador, banco
+from dim_banco_constructor;

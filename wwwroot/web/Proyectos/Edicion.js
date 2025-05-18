@@ -26,6 +26,7 @@
                 meta_ventas: "",
                 id_pie_legal: 0,
                 id_banco_constructor: 0,
+                id_bancos_financiador: 0,
                 id_tipo_financiacion: 0,
                 id_tipo_vis: 0,
 
@@ -85,6 +86,7 @@
                 meta_ventas: "",
                 id_pie_legal: 0,
                 id_banco_constructor: 0,
+                id_bancos_financiador: 0,
                 id_tipo_financiacion: 0,
                 id_tipo_vis: 0,
 
@@ -155,7 +157,8 @@
             isFormularioCompleto: false,
             tiposVIS: [],
             tiposFinanciacion: [], 
-            bancos: [],
+            banco_constructor: [],
+            bancos_financiador: [],
             fiduciaria: [],
             opcionesVisuales: [],
             tabsIncomplete: [],
@@ -186,33 +189,40 @@
         },
     },
     async mounted() {
-        showProgress();
         this.tabsIncomplete = this.tabs.map((_, index) => index);
-        this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
-        var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
-        resp = resp.data;
-        resp[0].forEach(item => item.checked = false);
-        this.estado_publicacion = resp[0];
-        resp[1].forEach(item => item.checked = false);
-        this.tiposVIS = resp[1];
-        resp[2].forEach(item => item.checked = false);
-        this.tiposFinanciacion = resp[2];
-        resp[3].forEach(item => item.checked = false);
-        this.opcionesVisuales = resp[3];
-        this.sede = resp[4];
-        this.zona_proyecto = resp[5];
-        this.ciudadela = resp[7];
-        this.tipo = resp[6];
-        this.pie_legal = resp[8];
-        this.fiduciaria = resp[9];
-        this.bancos = resp[10];
-        if(this.inputParameter != null)
-            this.selectProject(this.inputParameter);
-        else    
-            this.setMode(0);
-        hideProgress();
+        this.setMainMode();
     },
     methods: {
+        async setMainMode(){
+            showProgress();
+            this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
+            var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
+            hideProgress();
+            resp = resp.data;
+            resp[0].forEach(item => item.checked = false);
+            this.estado_publicacion = resp[0];
+            resp[1].forEach(item => item.checked = false);
+            this.tiposVIS = resp[1];
+            resp[2].forEach(item => item.checked = false);
+            this.tiposFinanciacion = resp[2];
+            resp[3].forEach(item => item.checked = false);
+            this.opcionesVisuales = resp[3];
+            resp[6].forEach(item => item.checked = false);
+            this.tipo = resp[6];
+            this.sede = resp[4];
+            this.zona_proyecto = resp[5];
+            this.ciudadela = resp[7];
+            // this.tipo = resp[6];
+            this.pie_legal = resp[8];
+            this.fiduciaria = resp[9];
+            this.banco_constructor = resp[10];
+            this.bancos_financiador = resp[11];
+            if(this.inputParameter != null)
+                this.selectProject(this.inputParameter);
+            else    
+                this.setMode(0);
+          
+        },
         setMode(mode) {
             this.mode = mode;
             if(mode == 0)
@@ -328,6 +338,31 @@
                     item.checked = false;
                 }
             });
+            var oVTipo = resp[0][0].id_tipo_proyecto;
+            this.tipo.forEach(item => {
+                if (oVTipo) {
+                    item.checked = (item.id_tipo_proyecto == oVTipo);
+                } else {
+                    item.checked = false;
+                }
+            });
+
+            var oVBContructor = resp[0][0].id_banco_constructor;
+            this.banco_constructor.forEach(item => {
+                if (oVBContructor) {
+                    item.checked = (item.id_banco_constructor == oVBContructor);
+                } else {
+                    item.checked = false;
+                }
+            });
+            var oVFinanciador = resp[0][0].id_bancos_financiador;
+            this.bancos_financiador.forEach(item => {
+                if (oVFinanciador) {
+                    item.checked = (item.id_bancos_financiador == oVFinanciador);
+                } else {
+                    item.checked = false;
+                }
+            });
             for (const key of Object.keys(this.camposPorSubmode)) {
                 const numericKey = parseInt(key, 10);
                 this.submode = numericKey;
@@ -416,14 +451,33 @@
             var oVs = this.opcionesVisuales.find(item => { return item.checked });
             if (oVs != null)
                 this.objProyecto.id_opcion_visual = oVs.id_opcion_visual;
+
+            var tPy = this.tipo.find(item => { return item.checked });
+            if (tPy != null)
+                this.objProyecto.id_tipo_proyecto = tPy.id_tipo_proyecto;
+
             var tFn = this.tiposFinanciacion.find(item => { return item.checked });
             if (tFn != null)
                 this.objProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
+
+            var ePu = this.estado_publicacion.find(item => { return item.checked });
+            if (ePu != null)
+                this.objProyecto.id_estado_publicacion = ePu.id_estado_publicacion;
+
+            var bCo = this.banco_constructor.find(item => { return item.checked });
+            if (bCo != null)
+                this.objProyecto.id_banco_constructor = bCo.id_banco_constructor;
+
+            var bFn = this.bancos_financiador.find(item => { return item.checked });
+            if (bFn != null)
+                this.objProyecto.id_bancos_financiador = bFn.id_bancos_financiador;
+
+            
             try {
                 showProgress();
                 const result = await httpFunc("/generic/genericST/Proyectos:Ins_Proyecto", this.objProyecto);
                 hideProgress();
-                this.setMainMode(1);
+                this.setMainMode();
             } catch (error) {
                 console.error("Error al insertar el proyecto:", error);
             }
@@ -498,23 +552,36 @@
                 return { status: 'Error', message: 'Hay errores de validación', errors: this.casoValidator };
             }
             */
- 
             var tVis = this.tiposVIS.find(item => { return item.checked });
             if (tVis != null)
                 this.editObjProyecto.id_tipo_vis = tVis.id_tipo_vis;
             var oVs = this.opcionesVisuales.find(item => { return item.checked });
             if (oVs != null)
                 this.editObjProyecto.id_opcion_visual = oVs.id_opcion_visual;
+            var tPy = this.tipo.find(item => { return item.checked });
+            if (tPy != null)
+                this.editObjProyecto.id_tipo_proyecto = tPy.id_tipo_proyecto;
             var tFn = this.tiposFinanciacion.find(item => { return item.checked });
             if (tFn != null)
                 this.editObjProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
+            
+            var ePu = this.estado_publicacion.find(item => { return item.checked });
+            if (ePu != null)
+                this.editObjProyecto.id_estado_publicacion = ePu.id_estado_publicacion;
 
+            var bCo = this.banco_constructor.find(item => { return item.checked });
+            if (bCo != null)
+                this.editObjProyecto.id_banco_constructor = bCo.id_banco_constructor;
+
+            var bFn = this.bancos_financiador.find(item => { return item.checked });
+            if (bFn != null)
+                this.editObjProyecto.id_bancos_financiador = bFn.id_bancos_financiador;
 
             try {
                 showProgress();
                 const result = await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", this.editObjProyecto);
                 hideProgress();
-                this.setMainMode(1);
+                this.setMainMode();
             } catch (error) {
                 console.error("Error al insertar el proyecto:", error);
             }

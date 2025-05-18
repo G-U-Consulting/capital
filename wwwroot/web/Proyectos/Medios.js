@@ -1,10 +1,11 @@
 ﻿export default {
     data() {
         return {
+            mode: -1,
             submode: 0,
             mediaTabs: [
-                "Principal",
                 "Secuencia",
+                "Principal",
                 "Imágenes",
                 "Videos",
                 "Recorridos Virt",
@@ -22,44 +23,8 @@
               selectedRow: null,
               selectedRowReco: null,
               modalVideoId: null,
-              tablas: [
-                {
-                  titulo: 'General de C. Capital',
-                  datos: ['Grupo xx', 'Grupo xx', 'Grupo xx','','','','','',''],
-                  activo: true,
-                  error: false
-                },
-                {
-                  titulo: 'Principal de Proyecto',
-                  datos: ['Item 1', 'Item 2', 'Item 3','','','','','',''],
-                  activo: false,
-                  error: false
-                },
-                {
-                  titulo: 'Imágenes de Proyecto',
-                  datos: ['Item 1','Item 2', 'Item 3','','','','','',''],
-                  activo: true,
-                  error: false
-                },
-                {
-                  titulo: 'Vídeos de Proyecto',
-                  datos: ['Item 1', 'Item 2', 'Item 3','','','','','',''],
-                  activo: false,
-                  error: true
-                },
-                {
-                  titulo: 'Recorridos Virtuales',
-                  datos: ['Item 1','Item 2', 'Item 3','','','','','',''],
-                  activo: true,
-                  error: false
-                },
-                {
-                  titulo: 'Avances de las Obras',
-                  datos: ['Item 1','Item 2', 'Item 3','','','','','',''],
-                  activo: false,
-                  error: false
-                }
-              ],
+              grupo_img: [],
+              tablas: [],
               selected: {
                 tablaIndex: null,
                 itemIndex: null
@@ -98,10 +63,59 @@
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("StartMediaMdule", null)
+        const res = await httpFunc("/generic/genericDT/Medios:Get_vairables", {});
+        const grupo_img = res.data.map(item => item.grupo);
+        this.construirTablas(grupo_img);
+
     },
     methods: {
+        setMode(mode) {
+            this.mode = mode;
+            // if(mode == 0)
+            //     GlobalVariables.miniModuleCallback("StartMediaMdule", null)
+        },
         async setSubmode(index) {
             this.submode = index;
+        },
+        construirTablas(grupo_img) {
+            this.tablas = [
+                {
+                    titulo: 'Agrupaciones Generales',
+                    datos: ['Grupo xx', 'Grupo xx', 'Grupo xx', '', '', '', '', ''],
+                    activo: true,
+                    error: false
+                },
+                {
+                    titulo: 'Imágenes Principales',
+                    datos: ['Item 1', 'Item 2', 'Item 3', '', '', '', '', ''],
+                    activo: false,
+                    error: false
+                },
+                {
+                    titulo: 'Agrupamiento de Imágenes de Proyecto',
+                    datos: grupo_img,
+                    activo: true,
+                    error: false
+                },
+                {
+                    titulo: 'Agrupamiento de Vídeos de Proyecto',
+                    datos: ['Item 1', 'Item 2', 'Item 3', '', '', '', '', ''],
+                    activo: false,
+                    error: true
+                },
+                {
+                    titulo: 'Agrupamiento de Recorridos Virtuales',
+                    datos: ['Item 1', 'Item 2', 'Item 3', '', '', '', '', ''],
+                    activo: true,
+                    error: false
+                },
+                {
+                    titulo: 'Periodos de Avances de obra',
+                    datos: ['Item 1', 'Item 2', 'Item 3', '', '', '', '', ''],
+                    activo: false,
+                    error: false
+                }
+            ];
         },
         dragStart(index) {
             this.dragIndex = index;

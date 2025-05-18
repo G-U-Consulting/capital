@@ -183,7 +183,9 @@ create table fact_proyectos(
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	id_banco_constructor int,
-	constraint fk_id_banco_fact_proyectos foreign key(id_banco_constructor) references dim_banco_constructor(id_banco)
+	constraint fk_id_banco_fact_proyectos foreign key(id_banco_constructor) references dim_banco_constructor(id_banco),
+	id_bancos_financiador int,
+	constraint fk_id_banco_fact_proyectos foreign key(id_bancos_financiador) references dim_banco_constructor(id_banco)
 );
 /*
 drop table fact_proyectos;
