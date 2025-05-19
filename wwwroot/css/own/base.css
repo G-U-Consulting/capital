@@ -1318,3 +1318,19 @@ tr.selected input {
     border: 1px solid #ccc;
 
   }
+.image-drag {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  height: 88%;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  margin: 2% 3%;
+  background: #fcfcfc;
+  color: #444;
+}
+.image-drag > span {
+  color: #444;
+}

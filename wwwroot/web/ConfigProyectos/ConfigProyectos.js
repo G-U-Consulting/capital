@@ -23,6 +23,7 @@ export default {
             tipos_proyecto: [],
             estados_proyecto: [],
             tipos_vis: [],
+            emails: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -187,7 +188,7 @@ export default {
                 this.setRuta();
             }
         },
-        async onUpdateSubsidio() {
+        async onSaveSubsidio() {
             let name = this.subImg 
                 ? `subsidio_${this.mode == 1 ? '#' : this.subsidio.id_subsidio}.${this.subImg.name.split(".").pop()}` 
                 : null;
@@ -203,11 +204,25 @@ export default {
                     const formData = new FormData();
                     formData.append("file", newFile);
                     resp = await httpFunc("/api/uploadfile/subsidio", formData);
-                    this.setMode(0);
                 }
                 else if (resp.data !== "OK") throw resp;
+                this.setMode(0);
             }
             catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
+        async onUpdateEmail(){
+            showProgress();
+            try {
+                if(this.emails.every(e => this.isEmail(e.email))) {
+                    let resp = await httpFunc('/generic/genericST/Maestros:Upd_Email', 
+                        { emails: JSON.stringify(this.emails) }
+                    );
+                    if (resp.data !== 'OK') throw resp;
+                } else throw "Emails inválidos";
+            } catch(e) {
                 console.error(e);
             }
             hideProgress();
@@ -278,6 +293,7 @@ export default {
             if (this.mainmode == 16) return [this.tipo_proyecto, "TipoProyecto"];
             if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto"];
             if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS"];
+            if (this.mainmode == 19) return [{}, "Email"];
             return null;
         },
         getMainPath() {
@@ -300,6 +316,7 @@ export default {
             if (this.mainmode == 16) path.text = "Tipo Unidades y Ventas";
             if (this.mainmode == 17) path.text = "Estados Proyecto";
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
+            if (this.mainmode == 19) path.text = "Emails Receptores";
             path.action = () => {
                 this.mode = 0; this.setRuta(); this.loadData();
                 if (this.mainmode == 13) { this.previews = []; this.files = []; }
@@ -344,6 +361,7 @@ export default {
                 this.tipos_proyecto,
                 this.estados_proyecto,
                 this.tipos_vis,
+                this.emails,
 
                 this.factores,
                 this.tipos_factor,
@@ -456,12 +474,20 @@ export default {
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
         },
+        isEmail(email) {
+            let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
+            return !email || regex.test(email);
+        },
         updateCursor(event) {
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
         },
         async handleDragOver(event) {
             event.preventDefault();
+        },
+        async handleSubDrop(e) {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) this.fileUpload({ target: { files } });
         },
         async handleDrop(event) {
             if (this.dragIndex !== null) {

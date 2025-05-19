@@ -70,12 +70,17 @@ from dim_tipo_proyecto
 order by tipo_proyecto;
 
 select id_estado_publicacion, estado_publicacion 
-from dim_estado_pubicacion
+from dim_estado_publicacion
 order by estado_publicacion;
 
 select id_tipo_vis, tipo_vis
 from dim_tipo_vis
 order by tipo_vis;
+
+select id_email, email 
+from dim_email_receptor 
+where is_active = 1
+order by id_email;
 
 select id_factor, factor from dim_factor;
 select id_tipo_factor, tipo_factor from dim_tipo_factor;
