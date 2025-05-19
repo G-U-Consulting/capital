@@ -130,7 +130,7 @@ mainVue = {
                 this.categorySelected = this.zoneSelected.categories.find(function (item) { return this.moduleSelected["category"] == item["key"] }.bind(this));
             this.loadVueModule(inputParameter);
 
-            if(!GlobalVariables.ruta.includes(name)){
+            if(GlobalVariables.ruta != null && !GlobalVariables.ruta.includes(name)){
                 GlobalVariables.ruta = GlobalVariables.ruta + " / " + name;
                 localStorage.setItem('ruta', GlobalVariables.ruta);
             }
