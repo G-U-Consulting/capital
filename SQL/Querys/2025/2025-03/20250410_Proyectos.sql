@@ -9,9 +9,9 @@ create table dim_ubicacion_proyecto(
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
-create table dim_estado_pubicacion(
+create table dim_estado_publicacion(
 	id_estado_publicacion int not null auto_increment,
-	constraint pk_dim_estado_pubicacion primary key (id_estado_publicacion),
+	constraint pk_dim_estado_publicacion primary key (id_estado_publicacion),
 	estado_publicacion varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
@@ -115,13 +115,54 @@ begin
 		dim_tipo_factor t;
 end;
 
+create table fact_banco_constructor (
+    id_proyecto int not null,
+    id_banco_constructor int not null,
+    primary key (id_proyecto, id_banco_constructor),
+    constraint fk_fbcon_proyecto foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_fbcon_banco foreign key (id_banco_constructor) 
+        references dim_banco_constructor(id_banco)
+);
+
+create table fact_banco_financiador (
+    id_proyecto int not null,
+    id_banco_financiador int not null,
+    primary key (id_proyecto, id_banco_financiador),
+    constraint fk_fbfin_proyecto foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_fbfin_banco foreign key (id_banco_financiador) 
+        references dim_banco_constructor(id_banco)
+);
+
+create table fact_estado_publicacion (
+    id_proyecto int not null,
+    id_estado_publicacion int not null,
+    primary key (id_proyecto, id_estado_publicacion),
+    constraint fk_estado_proyecto foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_estado_publicacion foreign key (id_estado_publicacion) 
+        references dim_estado_publicacion(id_estado_publicacion)
+);
+
+create table fact_tipo_proyecto (
+    id_proyecto int not null,
+    id_tipo_proyecto int not null,
+    primary key (id_proyecto, id_tipo_proyecto),
+    constraint fk_fact_tipo_proyecto_proy foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_fact_tipo_proyecto_tipo foreign key (id_tipo_proyecto) 
+        references dim_tipo_proyecto(id_tipo_proyecto)
+);
+
+
 create table fact_proyectos(
 	id_proyecto int not null auto_increment,
 	constraint pk_fact_proyectos primary key (id_proyecto),
 	id_sede int,
 	constraint fk_id_sede_fact_proyectos foreign key(id_sede) references dim_sede(id_sede),
 	id_estado_publicacion int,
-	constraint fk_id_estado_publicacion_fact_proyectos foreign key(id_estado_publicacion) references dim_estado_pubicacion(id_estado_publicacion), 
+	constraint fk_id_estado_publicacion_fact_proyectos foreign key(id_estado_publicacion) references dim_estado_publicacion(id_estado_publicacion), 
 	nombre varchar(200),
 	id_tipo_proyecto int,
 	constraint fk_id_tipo_proyecto_fact_proyectos foreign key(id_tipo_proyecto) references dim_tipo_proyecto(id_tipo_proyecto),
@@ -183,7 +224,10 @@ create table fact_proyectos(
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	id_banco_constructor int,
-	constraint fk_id_banco_fact_proyectos foreign key(id_banco_constructor) references dim_banco_constructor(id_banco)
+	constraint fk_id_banco_constructor_fact_proyectos foreign key(id_banco_constructor) references dim_banco_constructor(id_banco),
+	id_bancos_financiador int,
+	constraint fk_id_bancos_financiador_fact_proyectos foreign key(id_bancos_financiador) references dim_banco_constructor(id_banco)
+
 );
 create table dim_email_receptor(
 	id_email int auto_increment primary key,
@@ -196,7 +240,7 @@ create table dim_email_receptor(
 /*
 drop table fact_proyectos;
 drop table dim_ubicacion_proyecto;
-drop table dim_estado_pubicacion;
+drop table dim_estado_publicacion;
 drop table dim_tipo_proyecto;
 drop table dim_tipo_vis;
 drop table dim_tipo_financiacion;
@@ -204,7 +248,7 @@ drop table dim_pie_legal;
 drop table dim_fiduciaria;
 */
 
-insert into dim_estado_pubicacion(estado_publicacion, codigo) values
+insert into dim_estado_publicacion(estado_publicacion, codigo) values
 ('Publicado', 'PUB'),
 ('Excluir de Ad@', 'EXC'),
 ('Rot. Mostar Imágenes Generales', 'IGE'),

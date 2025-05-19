@@ -5,7 +5,7 @@
 --END_PARAM
 
 select id_estado_publicacion, estado_publicacion
-from dim_estado_pubicacion
+from dim_estado_publicacion
 where is_active = 1;
 
 select id_tipo_vis, tipo_vis
@@ -43,4 +43,7 @@ from dim_fiduciaria
 where is_active = 1;
 
 select id_banco as id_banco_constructor, banco
+from dim_banco_constructor;
+
+select id_banco as id_bancos_financiador, banco
 from dim_banco_constructor;
