@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_tramite
 -- =============================================
 --START_PARAM
-set @tramite = '',
+set @tramite = NULL,
     @texto = ''
 
 --END_PARAM

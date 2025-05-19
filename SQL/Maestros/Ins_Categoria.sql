@@ -2,7 +2,7 @@
 -- Proceso: General/Ins_categoria
 -- =============================================
 --START_PARAM
-set @categoria = ''
+set @categoria = NULL
 
 --END_PARAM
 

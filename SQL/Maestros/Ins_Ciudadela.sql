@@ -2,13 +2,9 @@
 -- Proceso: General/Ins_Ciudadela
 -- =============================================
 --START_PARAM
-set @ciudadela = ''
+set @ciudadela = NULL
 
 --END_PARAM
 
-IF NOT EXISTS (SELECT 1 FROM dim_ciudadela WHERE ciudadela = @ciudadela) THEN
-    INSERT INTO dim_ciudadela (ciudadela) VALUES (@ciudadela);
-    SELECT concat('OK-id_ciudadela:', (SELECT id_ciudadela from dim_ciudadela where ciudadela = @ciudadela)) AS result;
-ELSE
-    SELECT 'La ciudadela ya existe' AS result;
-END IF;
+INSERT INTO dim_ciudadela (ciudadela) VALUES (@ciudadela);
+SELECT concat('OK-id_ciudadela:', (SELECT id_ciudadela from dim_ciudadela where ciudadela = @ciudadela)) AS result;

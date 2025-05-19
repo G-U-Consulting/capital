@@ -8,9 +8,7 @@ set
     @id_sede = 0,
     @id_zona_proyecto = 0,
     @id_ciudadela = 0,
-    @id_tipo_proyecto = 0,
     @otra_info = '',
-    @id_estado_publicacion = 0,
 
     @subsidios_vis = '',
     @dias_separacion = '',
@@ -21,7 +19,6 @@ set
     @email_cotizaciones = '',
     @meta_ventas = '',
     @id_pie_legal = 0,
-    @id_banco_constructor = 0,
     @id_tipo_financiacion = 0,
     @id_tipo_vis = 0,
 
@@ -58,7 +55,11 @@ set
     @avance_obra_visible = '',
     @link_avance_obra = '',
     @incluir_brochure = '',
-    @link_brochure = '';
+    @link_brochure = '',
+    @banco_constructor = '',
+    @bancos_financiadores = '',
+    @estado_publicacion = '';
+    @tipo_proyecto = '';
 --END_PARAM
 
 insert into fact_proyectos (
@@ -67,9 +68,7 @@ insert into fact_proyectos (
     id_sede,
     id_zona_proyecto,
     id_ciudadela,
-    id_tipo_proyecto,
     otra_info,
-    id_estado_publicacion,
 
     subsidios_vis,
     dias_separacion,
@@ -80,8 +79,6 @@ insert into fact_proyectos (
     email_cotizaciones,
     meta_ventas,
     id_pie_legal,
-    id_banco_constructor,
-    id_tipo_financiacion,
     id_tipo_vis,
 
     centro_costos,
@@ -125,9 +122,7 @@ select
     nullif(@id_sede, 0),
     nullif(@id_zona_proyecto, 0),
     nullif(@id_ciudadela, 0),
-    nullif(@id_tipo_proyecto, 0),
     @otra_info,
-    nullif(@id_estado_publicacion, 0),
 
     @subsidios_vis,
     @dias_separacion,
@@ -138,8 +133,6 @@ select
     @email_cotizaciones,
     @meta_ventas,
     nullif(@id_pie_legal, 0),
-    nullif(@id_banco_constructor, 0),
-    nullif(@id_tipo_financiacion, 0),
     nullif(@id_tipo_vis, 0),
 
     @centro_costos,
@@ -177,5 +170,102 @@ select
     @incluir_brochure,
     @link_brochure;
 
-set @id_proyecto = last_insert_id();
-select concat('OK-id_proyecto:', @id_proyecto) as resp;
+    set @id_proyecto = last_insert_id();
+    
+    set @datos = @bancos_financiadores;
+    set @tabla = 'fact_banco_financiador';
+    set @campo = 'id_banco_financiador';
+    set @i = 1;
+    
+    if trim(@datos) <> '' then
+        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+        prepare stmt from @sql;
+        execute stmt;
+        deallocate prepare stmt;
+    
+        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+        while @i <= @n do
+            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+            if @item <> '' then
+                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+                prepare stmt from @sql;
+                execute stmt;
+                deallocate prepare stmt;
+            end if;
+            set @i = @i + 1;
+        end while;
+    end if;
+    
+    set @datos = @banco_constructor;
+    set @tabla = 'fact_banco_constructor';
+    set @campo = 'id_banco_constructor';
+    set @i = 1;
+    
+    if trim(@datos) <> '' then
+        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+        prepare stmt from @sql;
+        execute stmt;
+        deallocate prepare stmt;
+    
+        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+        while @i <= @n do
+            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+            if @item <> '' then
+                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+                prepare stmt from @sql;
+                execute stmt;
+                deallocate prepare stmt;
+            end if;
+            set @i = @i + 1;
+        end while;
+    end if;
+    
+    set @datos = @estado_publicacion;
+    set @tabla = 'fact_estado_publicacion';
+    set @campo = 'id_estado_publicacion';
+    set @i = 1;
+    
+    if trim(@datos) <> '' then
+        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+        prepare stmt from @sql;
+        execute stmt;
+        deallocate prepare stmt;
+    
+        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+        while @i <= @n do
+            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+            if @item <> '' then
+                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+                prepare stmt from @sql;
+                execute stmt;
+                deallocate prepare stmt;
+            end if;
+            set @i = @i + 1;
+        end while;
+    end if;
+
+    set @datos = @tipo_proyecto;
+    set @tabla = 'fact_tipo_proyecto';
+    set @campo = 'id_tipo_proyecto';
+    set @i = 1;
+    
+    if trim(@datos) <> '' then
+        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+        prepare stmt from @sql;
+        execute stmt;
+        deallocate prepare stmt;
+    
+        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+        while @i <= @n do
+            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+            if @item <> '' then
+                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+                prepare stmt from @sql;
+                execute stmt;
+                deallocate prepare stmt;
+            end if;
+            set @i = @i + 1;
+        end while;
+    end if;
+    
+    select concat('OK-id_proyecto:', @id_proyecto) as resp;

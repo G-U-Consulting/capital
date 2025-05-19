@@ -59,9 +59,29 @@ select
     a.is_active,
     a.created_on,
     a.created_by,
-    a.id_banco_constructor,
     a.id_tipo_financiacion,
     a.id_tipo_vis,
-    id_opcion_visual
+    id_opcion_visual,
+    (
+        select group_concat(id_estado_publicacion)
+        from fact_estado_publicacion
+        where id_proyecto = a.id_proyecto
+    ) as estado_publicacion,
+    (
+        select group_concat(id_banco_financiador)
+        from fact_banco_financiador
+        where id_proyecto = a.id_proyecto
+    ) as bancos_financiadores,
+    (
+        select group_concat(id_banco_constructor)
+        from fact_banco_constructor
+        where id_proyecto = a.id_proyecto
+    ) as banco_constructor,
+    (
+        select group_concat(id_tipo_proyecto)
+        from fact_tipo_proyecto
+        where id_proyecto = a.id_proyecto
+    ) as tipo_proyecto
+
 from fact_proyectos a
 where a.id_proyecto = @id_proyecto;

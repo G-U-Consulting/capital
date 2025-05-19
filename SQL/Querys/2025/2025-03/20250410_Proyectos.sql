@@ -9,10 +9,10 @@ create table dim_ubicacion_proyecto(
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
-create table dim_estado_pubicacion(
+create table dim_estado_publicacion(
 	id_estado_publicacion int not null auto_increment,
-	constraint pk_dim_estado_pubicacion primary key (id_estado_publicacion),
-	estado_publicacion varchar(200),
+	constraint pk_dim_estado_publicacion primary key (id_estado_publicacion),
+	estado_publicacion varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -21,7 +21,7 @@ create table dim_estado_pubicacion(
 create table dim_tipo_proyecto(
 	id_tipo_proyecto int not null auto_increment,
 	constraint pk_dim_tipo_proyecto primary key (id_tipo_proyecto),
-	tipo_proyecto varchar(200),
+	tipo_proyecto varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -30,7 +30,7 @@ create table dim_tipo_proyecto(
 create table dim_tipo_vis(
 	id_tipo_vis int not null auto_increment,
 	constraint pk_dim_tipo_vis primary key (id_tipo_vis),
-	tipo_vis varchar(200),
+	tipo_vis varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -39,7 +39,7 @@ create table dim_tipo_vis(
 create table dim_tipo_financiacion(
 	id_tipo_financiacion int not null auto_increment,
 	constraint pk_dim_tipo_financiacion primary key (id_tipo_financiacion),
-	tipo_financiacion varchar(200),
+	tipo_financiacion varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -48,7 +48,7 @@ create table dim_tipo_financiacion(
 create table dim_pie_legal(
 	id_pie_legal int not null auto_increment,
 	constraint pk_dim_pie_legal primary key (id_pie_legal),
-	pie_legal varchar(200),
+	pie_legal varchar(200) not null unique,
 	texto text,
 	notas_extra text,
 	codigo varchar(10),
@@ -58,7 +58,7 @@ create table dim_pie_legal(
 );
 create table dim_fiduciaria(
 	id_fiduciaria int not null auto_increment,
-	fiduciaria varchar(200),
+	fiduciaria varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -79,7 +79,7 @@ create table dim_opcion_visual(
 create table dim_zona_proyecto (
     id_zona_proyecto INT NOT NULL auto_increment,
     constraint pk_dim_zona_proyecto primary key (id_zona_proyecto),
-    zona_proyecto varchar(200),
+    zona_proyecto varchar(200) not null unique,
     codigo varchar(10),
     is_active BIT default 1,
     created_on DATETIME default current_timestamp,
@@ -88,7 +88,7 @@ create table dim_zona_proyecto (
 create table dim_ciudadela (
     id_ciudadela int not null auto_increment,
     constraint pk_ciudadela primary key (id_ciudadela),
-    ciudadela varchar(200),
+    ciudadela varchar(200) not null unique,
     codigo varchar(10),
     is_active bit default 1,
     created_on datetime default current_timestamp,
@@ -96,12 +96,11 @@ create table dim_ciudadela (
 );
 create table dim_banco_constructor(
 	id_banco int not null auto_increment,
-	banco varchar(100) unique,
+	banco varchar(200) not null unique,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	constraint pk_dim_banco_constructor primary key(id_banco)
 );
-
 create trigger tr_insert_banco after insert on dim_banco_constructor for each row
 begin
 	insert into dim_banco_factor (id_banco, id_factor, id_tipo_factor, valor)
@@ -116,13 +115,54 @@ begin
 		dim_tipo_factor t;
 end;
 
+create table fact_banco_constructor (
+    id_proyecto int not null,
+    id_banco_constructor int not null,
+    primary key (id_proyecto, id_banco_constructor),
+    constraint fk_fbcon_proyecto foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_fbcon_banco foreign key (id_banco_constructor) 
+        references dim_banco_constructor(id_banco)
+);
+
+create table fact_banco_financiador (
+    id_proyecto int not null,
+    id_banco_financiador int not null,
+    primary key (id_proyecto, id_banco_financiador),
+    constraint fk_fbfin_proyecto foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_fbfin_banco foreign key (id_banco_financiador) 
+        references dim_banco_constructor(id_banco)
+);
+
+create table fact_estado_publicacion (
+    id_proyecto int not null,
+    id_estado_publicacion int not null,
+    primary key (id_proyecto, id_estado_publicacion),
+    constraint fk_estado_proyecto foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_estado_publicacion foreign key (id_estado_publicacion) 
+        references dim_estado_publicacion(id_estado_publicacion)
+);
+
+create table fact_tipo_proyecto (
+    id_proyecto int not null,
+    id_tipo_proyecto int not null,
+    primary key (id_proyecto, id_tipo_proyecto),
+    constraint fk_fact_tipo_proyecto_proy foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_fact_tipo_proyecto_tipo foreign key (id_tipo_proyecto) 
+        references dim_tipo_proyecto(id_tipo_proyecto)
+);
+
+
 create table fact_proyectos(
 	id_proyecto int not null auto_increment,
 	constraint pk_fact_proyectos primary key (id_proyecto),
 	id_sede int,
 	constraint fk_id_sede_fact_proyectos foreign key(id_sede) references dim_sede(id_sede),
 	id_estado_publicacion int,
-	constraint fk_id_estado_publicacion_fact_proyectos foreign key(id_estado_publicacion) references dim_estado_pubicacion(id_estado_publicacion), 
+	constraint fk_id_estado_publicacion_fact_proyectos foreign key(id_estado_publicacion) references dim_estado_publicacion(id_estado_publicacion), 
 	nombre varchar(200),
 	id_tipo_proyecto int,
 	constraint fk_id_tipo_proyecto_fact_proyectos foreign key(id_tipo_proyecto) references dim_tipo_proyecto(id_tipo_proyecto),
@@ -184,12 +224,17 @@ create table fact_proyectos(
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	id_banco_constructor int,
-	constraint fk_id_banco_fact_proyectos foreign key(id_banco_constructor) references dim_banco_constructor(id_banco)
+	constraint fk_id_banco_constructor_fact_proyectos foreign key(id_banco_constructor) references dim_banco_constructor(id_banco),
+	id_bancos_financiador int,
+	constraint fk_id_bancos_financiador_fact_proyectos foreign key(id_bancos_financiador) references dim_banco_constructor(id_banco)
+
 );
+
+
 /*
 drop table fact_proyectos;
 drop table dim_ubicacion_proyecto;
-drop table dim_estado_pubicacion;
+drop table dim_estado_publicacion;
 drop table dim_tipo_proyecto;
 drop table dim_tipo_vis;
 drop table dim_tipo_financiacion;
@@ -197,7 +242,7 @@ drop table dim_pie_legal;
 drop table dim_fiduciaria;
 */
 
-insert into dim_estado_pubicacion(estado_publicacion, codigo) values
+insert into dim_estado_publicacion(estado_publicacion, codigo) values
 ('Publicado', 'PUB'),
 ('Excluir de Ad@', 'EXC'),
 ('Rot. Mostar Imágenes Generales', 'IGE'),

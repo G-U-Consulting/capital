@@ -321,12 +321,13 @@ insert into dim_tramite(tramite) values('Subsidio');
 
 create table dim_subsidio_vis(
 	id_subsidio int primary key auto_increment,
+	periodo int not null unique,
 	smmlv decimal(20,2) not null,
 	smmlv_0_2 decimal(20,2) not null,
 	smmlv_2_4 decimal(20,2) not null,
 	imagen varchar(255)
 );
-insert into dim_subsidio_vis(smmlv,smmlv_0_2,smmlv_2_4) values(1423500.00,42705000.00,28470000.00);
+insert into dim_subsidio_vis(periodo,smmlv,smmlv_0_2,smmlv_2_4) values(2025,1423500.00,42705000.00,28470000.00);
 
 create table dim_documento(
 	id_documento int primary key auto_increment,
