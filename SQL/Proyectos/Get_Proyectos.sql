@@ -60,7 +60,7 @@ select
     a.id_bancos_financiador
 from fact_proyectos a
 left join dim_ciudadela b on a.id_ciudadela = b.id_ciudadela
-left join dim_estado_pubicacion c on a.id_estado_publicacion = c.id_estado_publicacion
+left join dim_estado_publicacion c on a.id_estado_publicacion = c.id_estado_publicacion
 left join dim_tipo_proyecto d on a.id_tipo_proyecto = d.id_tipo_proyecto
 left join dim_pie_legal e on a.id_pie_legal = e.id_pie_legal
 left join dim_fiduciaria f on a.id_fiduciaria = f.id_fiduciaria

@@ -13,36 +13,39 @@
             ],
             tabsIncomplete: [],
             files: [],
+            draggedFile: null,
+            dragIndex: null,
             videos: [
                 { title: '', description: '', link: '' }
             ],
             videosReco: [
                 { title: '', description: '', link: '' }
             ],
-              hoveredIndex: null,
-              selectedRow: null,
-              selectedRowReco: null,
-              modalVideoId: null,
-              grupo_img: [],
-              tablas: [],
-              selected: {
+            hoveredIndex: null,
+            selectedRow: null,
+            selectedRowReco: null,
+            modalVideoId: null,
+            grupo_img: [],
+            tablas: [],
+            selected: {
                 tablaIndex: null,
                 itemIndex: null
-              },
-              editando: {
+            },
+            editando: {
                 tablaIndex: null,
                 itemIndex: null,
-              },
-              tooltipVisible: false,
+            },
+            
+            tooltipVisible: false,
             tooltipX: 0,
             tooltipY: 0,
             logoPreview: null,
             slidePreview: null,
             plantaPreview: null,
             isExpanded: {
-              logo: false,
-              slide: false,
-              planta: false
+                logo: false,
+                slide: false,
+                planta: false
             },
             previews: []
         };
@@ -180,9 +183,6 @@
             this.previews = [];
             this.files = [];
         },
-        async triggerFileInput() {
-            this.$refs.fileInput.click();
-        },
         openModal(link) {
             const id = this.getVideoId(link);
             if (id) {
@@ -257,7 +257,6 @@
             const datos = this.tablas[tablaIndex].datos;
             datos.splice(itemIndex, 1);
 
-            // Limpiar selección si no quedan ítems
             if (datos.length === 0) {
                 this.selected.tablaIndex = null;
                 this.selected.itemIndex = null;

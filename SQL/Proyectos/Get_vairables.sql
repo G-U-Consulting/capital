@@ -5,7 +5,7 @@
 --END_PARAM
 
 select id_estado_publicacion, estado_publicacion
-from dim_estado_pubicacion
+from dim_estado_publicacion
 where is_active = 1;
 
 select id_tipo_vis, tipo_vis

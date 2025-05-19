@@ -121,29 +121,35 @@
             </div>
         </div>
         <div class="pure-g" v-show="submode == 2">
-            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
-                Imágenes de proyecto
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
-                <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="configclearAllImages"  title="Limpiar o eliminar imágenes" >
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
-                Agrupación
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-4'>
-                <div class='formInputStandard positTex'>
-                    <select name="" id=""></select>
+            <div class="pure-u-1-1">
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                    Imágenes de proyecto
+                </div>
+                <div class="pure-g">
+                    <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
+                        <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="configclearAllImages"
+                            title="Limpiar o eliminar imágenes">
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='formInputStandard positTex'>
+                            <select name="" id=""></select>
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        <button>Nuevo agrupación</button>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
                 </div>
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-24'></div>
-            <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
-                <button>Nueva agrupación</button>
-            </div>
-            <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false" style="position: relative;padding-top: 1em;">
-                <label for="file-input" class="preview-container" style="height: calc(100vh - 17rem); cursor: pointer;"
+            <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
+                style="position: relative;padding-top: 1em;">
+                <label for="file-input" class="preview-container" style="height: calc(100dvh - 17rem); cursor: pointer;"
                     @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
                     @mouseleave="tooltipVisible = false">
-            
+        
                     <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
                         @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false" @mouseleave="tooltipVisible = true"
                         style="position: relative;">
@@ -155,8 +161,8 @@
                         Arrastra o haz clic para cargar imagenes.
                     </div>
                 </label>
-                <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="image/*"
-                    @change="handleFileChange" ref="fileInput" />
+                <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="*"
+                        @change="handleFileChange" ref="fileInput" />
             </div>
         </div>
         <div class="pure-g" v-show="submode == 3">

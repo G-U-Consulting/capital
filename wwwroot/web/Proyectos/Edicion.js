@@ -26,7 +26,7 @@
                 meta_ventas: "",
                 id_pie_legal: 0,
                 id_banco_constructor: 0,
-                id_bancos_financiador: 0,
+                bancos_financiadores: 0,
                 id_tipo_financiacion: 0,
                 id_tipo_vis: 0,
 
@@ -306,14 +306,7 @@
                     this.editObjProyecto[key] = proyecto[key];
                 }
             });
-            var ePSeleccionada = resp[0][0].id_estado_publicacion;
-            this.estado_publicacion.forEach(item => {
-                if (ePSeleccionada) {
-                    item.checked = (item.id_estado_publicacion == ePSeleccionada);
-                } else {
-                    item.checked = false;
-                }
-            });
+
             var tViSeleccionada = resp[0][0].id_tipo_vis;
             this.tiposVIS.forEach(item => {
                 if (tViSeleccionada) {
@@ -338,36 +331,47 @@
                     item.checked = false;
                 }
             });
-            var oVTipo = resp[0][0].id_tipo_proyecto;
+
+            const tipo = (resp[0][0].tipo_proyecto || '')
+                .split(',')
+                .map(id => parseInt(id));
+
             this.tipo.forEach(item => {
-                if (oVTipo) {
-                    item.checked = (item.id_tipo_proyecto == oVTipo);
-                } else {
-                    item.checked = false;
-                }
+                const id = parseInt(item.id_tipo_proyecto);
+                item.checked = tipo.includes(id);
             });
 
-            var oVBContructor = resp[0][0].id_banco_constructor;
-            this.banco_constructor.forEach(item => {
-                if (oVBContructor) {
-                    item.checked = (item.id_banco_constructor == oVBContructor);
-                } else {
-                    item.checked = false;
-                }
+            const estadopublicacion = (resp[0][0].estado_publicacion || '')
+                .split(',')
+                .map(id => parseInt(id));
+
+            this.estado_publicacion.forEach(item => {
+                const id = parseInt(item.id_estado_publicacion);
+                item.checked = estadopublicacion.includes(id);
             });
-            var oVFinanciador = resp[0][0].id_bancos_financiador;
+
+            const listaContructor = (resp[0][0].banco_constructor || '')
+                .split(',')
+                .map(id => parseInt(id));
+
+            this.banco_constructor.forEach(item => {
+                const id = parseInt(item.id_banco_constructor);
+                item.checked = listaContructor.includes(id);
+            });
+
+            const listaFinanciadores = (resp[0][0].bancos_financiadores || '')
+                .split(',')
+                .map(id => parseInt(id));
+
             this.bancos_financiador.forEach(item => {
-                if (oVFinanciador) {
-                    item.checked = (item.id_bancos_financiador == oVFinanciador);
-                } else {
-                    item.checked = false;
-                }
+                const id = parseInt(item.id_bancos_financiador);
+                item.checked = listaFinanciadores.includes(id);
             });
             for (const key of Object.keys(this.camposPorSubmode)) {
                 const numericKey = parseInt(key, 10);
                 this.submode = numericKey;
                 await this.setSubmode();
-        
+
             }
             this.submode = 0;
             this.setMode(2);
@@ -452,27 +456,32 @@
             if (oVs != null)
                 this.objProyecto.id_opcion_visual = oVs.id_opcion_visual;
 
-            var tPy = this.tipo.find(item => { return item.checked });
-            if (tPy != null)
-                this.objProyecto.id_tipo_proyecto = tPy.id_tipo_proyecto;
-
             var tFn = this.tiposFinanciacion.find(item => { return item.checked });
             if (tFn != null)
                 this.objProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
 
-            var ePu = this.estado_publicacion.find(item => { return item.checked });
-            if (ePu != null)
-                this.objProyecto.id_estado_publicacion = ePu.id_estado_publicacion;
+            const tipo = this.tipo
+                .filter(item => item.checked)
+                .map(item => item.id_tipo_proyecto);
+            this.objProyecto.tipo_proyecto = tipo.join(',');
 
-            var bCo = this.banco_constructor.find(item => { return item.checked });
-            if (bCo != null)
-                this.objProyecto.id_banco_constructor = bCo.id_banco_constructor;
+            const estadopublicacion = this.estado_publicacion
+                .filter(item => item.checked)
+                .map(item => item.id_estado_publicacion);
+            this.objProyecto.estado_publicacion = estadopublicacion.join(',');
 
-            var bFn = this.bancos_financiador.find(item => { return item.checked });
-            if (bFn != null)
-                this.objProyecto.id_bancos_financiador = bFn.id_bancos_financiador;
+            const bancosconstructor = this.banco_constructor
+                .filter(item => item.checked)
+                .map(item => item.id_banco_constructor);
 
-            
+            this.objProyecto.banco_constructor = bancosconstructor.join(',');
+
+            const bancosSeleccionados = this.bancos_financiador
+                .filter(item => item.checked)
+                .map(item => item.id_bancos_financiador);
+
+            this.objProyecto.bancos_financiadores = bancosSeleccionados.join(',');
+
             try {
                 showProgress();
                 const result = await httpFunc("/generic/genericST/Proyectos:Ins_Proyecto", this.objProyecto);
@@ -555,27 +564,34 @@
             var tVis = this.tiposVIS.find(item => { return item.checked });
             if (tVis != null)
                 this.editObjProyecto.id_tipo_vis = tVis.id_tipo_vis;
+
             var oVs = this.opcionesVisuales.find(item => { return item.checked });
             if (oVs != null)
                 this.editObjProyecto.id_opcion_visual = oVs.id_opcion_visual;
-            var tPy = this.tipo.find(item => { return item.checked });
-            if (tPy != null)
-                this.editObjProyecto.id_tipo_proyecto = tPy.id_tipo_proyecto;
+
             var tFn = this.tiposFinanciacion.find(item => { return item.checked });
             if (tFn != null)
                 this.editObjProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
-            
-            var ePu = this.estado_publicacion.find(item => { return item.checked });
-            if (ePu != null)
-                this.editObjProyecto.id_estado_publicacion = ePu.id_estado_publicacion;
+   
+            const tipo = this.tipo
+                .filter(item => item.checked)
+                .map(item => item.id_tipo_proyecto);
+            this.editObjProyecto.tipo_proyecto = tipo.join(',');
 
-            var bCo = this.banco_constructor.find(item => { return item.checked });
-            if (bCo != null)
-                this.editObjProyecto.id_banco_constructor = bCo.id_banco_constructor;
+            const estadopublicacion = this.estado_publicacion
+                .filter(item => item.checked)
+                .map(item => item.id_estado_publicacion);
+            this.editObjProyecto.estado_publicacion = estadopublicacion.join(',');
 
-            var bFn = this.bancos_financiador.find(item => { return item.checked });
-            if (bFn != null)
-                this.editObjProyecto.id_bancos_financiador = bFn.id_bancos_financiador;
+            const bancosconstructor = this.banco_constructor
+                .filter(item => item.checked)
+                .map(item => item.id_banco_constructor);
+            this.editObjProyecto.banco_constructor = bancosconstructor.join(',');
+
+            const bancosfinanciador = this.bancos_financiador
+                .filter(item => item.checked)
+                .map(item => item.id_bancos_financiador);
+            this.editObjProyecto.bancos_financiadores = bancosfinanciador.join(',');
 
             try {
                 showProgress();
