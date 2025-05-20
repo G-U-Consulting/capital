@@ -172,7 +172,8 @@
                 "Información adicional",
                 "Enlaces"
             ],
-            casoValidator: []
+            casoValidator: [],
+            viewList: false
         };
     },
     computed: {
@@ -190,13 +191,22 @@
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
-        this.setMainMode();
+        await this.setMainMode();
+        
+        /* Test */
+        this.proyectos[0].img = 'https://www.constructoracapital.com/web_datas/1738868507_logo-vivopark2.jpg';
+        this.proyectos[1].img = 'https://www.constructoracapital.com/web_datas/1706039706_logo-ajustado.png';
+        this.proyectos[2].img = 'https://www.constructoracapital.com/web_datas/1724858363_urbania-terra.jpg';
+        this.proyectos[3].img = 'https://www.constructoracapital.com/web_datas/1645484933_logo-puerto-vallarta.jpg';
+        /* End Test */
     },
     methods: {
         async setMainMode(){
             showProgress();
             this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
+            console.log(this.proyectos);
+            console.log(resp);
             hideProgress();
             resp = resp.data;
             resp[0].forEach(item => item.checked = false);

@@ -42,13 +42,7 @@ export default {
             tipo_proyecto: {},
             estado_proyecto: {},
             tipo_vis: {},
-            subsidio: {
-                id_subsidio: null,
-                smmlv: "",
-                smmlv_0_2: "",
-                smmlv_2_4: "",
-                imagen: null
-            },
+            subsidio: {},
 
             ruta: [],
             medioIsActive: 0,
