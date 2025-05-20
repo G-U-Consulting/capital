@@ -337,6 +337,7 @@ insert into dim_ciudadela (ciudadela) values
 
 insert into dim_tipo_proyecto (tipo_proyecto) values
 ('Apartamentos'),
+('Bodegas'),
 ('Casas'),
 ('Oficina'),
 ('Local'),

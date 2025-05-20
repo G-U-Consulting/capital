@@ -52,7 +52,7 @@ from dim_tramite
 where is_active = 1
 order by tramite;
 
-select id_documento, documento
+select id_documento, documento, is_img
 from dim_documento
 where is_active = 1
 order by documento;

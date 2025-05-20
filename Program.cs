@@ -212,17 +212,19 @@ app.Map("/file/upload", async (HttpContext context) => {
     }
     return ret.ToString();
 });
-app.Map("/api/uploaddocs/{folder}", async (string folder, HttpContext context, IWebHostEnvironment env) =>
+app.Map("/api/uploaddocs/{**folder}", async (string folder, HttpContext context, IWebHostEnvironment env) =>
 {
     Dictionary<string, string> data = [];
     var form = await context.Request.ReadFormAsync();
     var files = form.Files;
-    foreach(IFormFile file in files) {
+    string path = Path.Combine(env.WebRootPath, folder);
+    if (Directory.Exists(path))
+        Directory.Delete(path, true);
+    Directory.CreateDirectory(path);
+    foreach (IFormFile file in files)
+    {
         if (file == null || file.Length == 0)
             return Results.BadRequest(new { message = "No se encontró ningún archivo.", data = "Error" });
-        string path = Path.Combine(env.WebRootPath, "docs", folder);
-        if (!Directory.Exists(path))
-            Directory.CreateDirectory(path);
         string extension = Path.GetExtension(file.FileName);
         var fileName = Guid.NewGuid() + extension;
         string fullPath = Path.Combine(path, fileName);
