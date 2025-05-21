@@ -522,6 +522,9 @@ export default {
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
         },
+        validarNombre(e) {
+            e.target.value = e.target.value.replaceAll(/[^\w\s]/g, '');
+        },
         isEmail(email) {
             let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
             return !email || regex.test(email);

@@ -20,7 +20,6 @@ export default {
     async mounted() {
         this.proyecto = await GlobalVariables.miniModuleCallback("OpenDocs", null);
         this.setMainMode('Documentacion');
-        console.log(this.proyecto);
     },
     methods: {
         setMainMode(mode) {
@@ -135,8 +134,19 @@ export default {
         },
         async onSaveDocument() {
             showProgress();
+            await this.getDocument();
             
             hideProgress();
         },
+        async getDocument() {
+            let proj = this.proyecto,
+                resp = await httpFunc("/generic/genericDT/Maestros:Get_Documento", { id_proyecto: proj.id_proyecto });
+            if (resp.data) this.documento = resp.data[0];
+            else {
+                let doc = { documento: `[Docs] ${proj.nombre}` }
+                resp = await httpFunc(`/generic/genericST/Maestros:Ins_Documento`, doc, true);
+                if (resp.data == 'OK' && resp.id) this.documento = {...doc, id_documento: resp.id};
+            }
+        }
     }
 }

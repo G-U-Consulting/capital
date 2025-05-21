@@ -54,8 +54,7 @@ order by tramite;
 
 select id_documento, documento, is_img
 from dim_documento dd
-where is_active = 1 and (select count(*) from dim_documento_archivo da 
-where dd.id_documento = da.id_documento and da.id_proyecto is not null) = 0
+where is_active = 1 and documento not like '[Docs] %'
 order by documento;
 
 select id_subsidio, periodo, smmlv, smmlv_0_2, smmlv_2_4, imagen
