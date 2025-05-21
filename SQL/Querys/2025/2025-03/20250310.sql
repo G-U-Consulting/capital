@@ -340,7 +340,10 @@ create table dim_documento(
 );
 insert into dim_documento (documento, is_active, is_img) values
 ('General', 1, 1),
-('Sostenibilidad', 1, 1);
+('Sostenibilidad', 1, 1),
+('Principal',1,1),
+('Imágenes',1,1),
+('Avances de obra',1,1);
 
 create table dim_documento_archivo(
 	id_archivo int primary key auto_increment,
