@@ -229,8 +229,14 @@ create table fact_proyectos(
 	constraint fk_id_bancos_financiador_fact_proyectos foreign key(id_bancos_financiador) references dim_banco_constructor(id_banco)
 
 );
-
-
+create table dim_email_receptor(
+	id_email int auto_increment primary key,
+	email varchar(200) unique,
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
 /*
 drop table fact_proyectos;
 drop table dim_ubicacion_proyecto;
@@ -331,6 +337,7 @@ insert into dim_ciudadela (ciudadela) values
 
 insert into dim_tipo_proyecto (tipo_proyecto) values
 ('Apartamentos'),
+('Bodegas'),
 ('Casas'),
 ('Oficina'),
 ('Local'),
@@ -352,3 +359,9 @@ insert into dim_banco_constructor (banco) values
 ('Banco Pichincha'),
 ('Bancoomeva'),
 ('Banco Finandina');
+
+insert into dim_email_receptor (email) values
+(NULL),
+(NULL),
+(NULL),
+(NULL);

@@ -334,9 +334,16 @@ create table dim_documento(
 	documento varchar(200) not null unique,
 	codigo varchar(10),
 	is_active bit default 1,
+	is_img bit default 0,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
+insert into dim_documento (documento, is_active, is_img) values
+('General', 1, 1),
+('Sostenibilidad', 1, 1),
+('Principal',1,1),
+('Imágenes',1,1),
+('Avances de obra',1,1);
 
 create table dim_documento_archivo(
 	id_archivo int primary key auto_increment,

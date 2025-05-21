@@ -80,7 +80,7 @@
         title: "Usuarios",
         desc: "Administra las configuraciones de seguridad",
         imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZC",
+        zone: "ZM",
         category: "CONFIGUSUARIOS",
         allow: ["*"]
     },
@@ -90,7 +90,7 @@
         title: "Proyectos",
         desc: "Administra las configuraciones de seguridad",
         imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZC",
+        zone: "ZM",
         category: "ConfigProyectos",
         allow: ["*"]
     },
@@ -100,7 +100,7 @@
         title: "General",
         desc: "Administra las configuraciones de seguridad",
         imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZC",
+        zone: "ZM",
         category: "ConfigGeneral",
         allow: ["*"]
     }
@@ -134,8 +134,8 @@ const zones = {
     //     img: "./img/ico/menu/zo.png",
     //     categories: []
     // },
-    "ZC": {
-        name: "ZC",
+    "ZM": {
+        name: "ZM",
         title: "Zona Configuracion",
         img: "./img/ico/menu/zc.png",
         categories: [

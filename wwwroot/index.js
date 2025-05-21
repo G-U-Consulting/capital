@@ -279,7 +279,7 @@ function hideProgress() {
 function showMessage(msg) {
     if (msg.indexOf("Error") == 0)
         document.getElementById("lbMessage").style.color = "red";
-    else document.getElementById("lbMessage").style.color = "black";
+    else document.getElementById("lbMessage").style.color = "#0097AE";
 
     document.getElementById("lbMessage").innerText = msg;
     document.getElementById("divMessage").style.display = "block";

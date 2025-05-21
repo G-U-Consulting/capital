@@ -10,16 +10,16 @@
         </div>
 
         <div class="lateralMenuGroup">
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect group">
+            <div v-on:click="setMainMode(1);loadImg();" class="lateralMenuItem noSelect group">
                 Imágenes C.Capital
             </div>
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(1);loadImg();" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Generales Capital
                 <span class="tooltip-text">Imágenes generales capital</span>
             </div>
-            <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(2);loadImg();" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Sostenibilidad
@@ -160,20 +160,14 @@
         </div>
 
         <div class="lateralMenuGroup">
-            <!-- <div v-on:click="setMainMode(15)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 15}"> 
-                <img src="./img/ico/svg/notebook.svg" />
-                Usuarios API REST
-                <span class="tooltip-text">Usuarios API REST</span>
-            </div> -->
         </div>
     </div>
 
 
     <div class="pure-u-1-1 pure-u-md-4-5">
 
-        <!-- Imágenes Generales Capital -->
-        <div v-if="mainmode == 1">
+        <!-- Imágenes Generales Capital y Sostenibilidad -->
+        <div v-if="mainmode == 1 || mainmode == 2">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
                     <span class="hoverLink">{{ r.text }}</span>
@@ -181,30 +175,47 @@
                 </div>
             </div>
 
-            <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
-                    <h2>Imágenes Generales Capital</h2>
-                </div>
-                <img style="display: block; margin: 0 auto;" src="../../img/background/MEN AT WORK.JPG" alt="MEN AT WORK">
-            </div>
-        </div>
+            <div v-if="mode == 0" style="padding: 1em">{{mode = 2}}</div>
 
-        <!-- Imágenes Sostenibilidad -->
-        <div v-if="mainmode == 2">
-            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
+            <div v-if="mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                    Imágenes {{mainmode == 1 ? 'Generales Capital' : 'Sostenibilidad'}}
                 </div>
-            </div>
-
-            <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
-                    <h2>Imágenes Sostenibilidad</h2>
+                <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
+                    <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages" alt="">
                 </div>
-                <img style="display: block; margin: 0 auto;" src="../../img/background/MEN AT WORK.JPG" alt="MEN AT WORK">
+                <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
+                    style="position: relative;padding-top: 1em;">
+                    <label for="file-input" class="preview-container" style="height: calc(100vh - 17rem); cursor: pointer;"
+                        @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
+                        @mouseleave="tooltipVisible = false">
+                
+                        <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
+                            @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false" @mouseleave="tooltipVisible = true"
+                            style="position: relative;">
+                            <img :src="item.src" @click.stop.prevent="" 
+                            @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
+                            @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'"/>
+                            <div class="image-name-overlay">{{ item.file.name }}</div>
+                            <div class="download-btn">
+                                <a :href="getURLFile(item.file)" :download="item.file.name">
+                                    <img src="../../img/ico/download.jpg">
+                                </a>
+                            </div>
+                            <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
+                        </div>
+                        <div v-if="tooltipVisible" class="cursor-tooltip" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                            {{tooltipMsg}}
+                        </div>
+                    </label>
+                    <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="image/*"
+                        @change="handleFileChange" ref="fileInput" />
+                </div>
+                
+                <div class='pure-u-1-1 pure-u-md-2-5'></div>
+                <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                    <button v-on:click="onUpdateImg()">Guardar</button>
+                </div>
             </div>
         </div>
 
@@ -1117,14 +1128,14 @@
                         <table class="dataTable" v-if="documentos && documentos.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="doc in getFilteredList('documentos')" @click="onSelectDocument(doc)">
-                                    <td v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{doc[key]}}</td>
                                 </tr>
                             </tbody>
@@ -1148,7 +1159,7 @@
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-24'></div>
                 <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
-                    <button v-on:click="mode == 1 ? onCreateDocument() : onUpdateDocument()">Guardar</button>
+                    <button v-on:click="onSaveDocument()">Guardar</button>
                 </div>
                 <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
                     style="position: relative;padding-top: 1em;">
@@ -1218,9 +1229,10 @@
                         <table class="dataTable" v-if="subsidios && subsidios.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(subsidios[0]).filter(k => k != 'imagen' && !k.startsWith('id_'))">
-                                        {{key.replace("_"," ").replace("_","-")}}
-                                    </th>
+                                    <th>periodo</th>
+                                    <th>smmlv</th>
+                                    <th>subsidio entre 0-2 smmlv</th>
+                                    <th>subsidio entre 2-4 smmlv</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1257,20 +1269,29 @@
                             </div>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-2-3">
-                            <div class="formInputStandard">
+                            <div class="formInputStandard" style="height: 100%;">
                                 <span>Imagen</span>
-                                <img :src="subsidio.imagen" style="max-width: 100%; max-height: calc(100vh - 21rem);
-                                   display: block; margin: 0 auto; border: 1px solid #ccc;" alt="imagen">
-                                <div style="margin-top: 1rem;">
-                                    <label for="sub-image" class="file" style="text-align: center;">Subir Imagen</label>
-                                    <input id="sub-image" type="file" @change="fileUpload" style="display: none;" />
+                                <div v-if="subsidio.imagen">
+                                    <img :src="subsidio.imagen" style="max-width: 100%; max-height: calc(100vh - 21rem);
+                                    display: block; margin: 0 auto; border: 1px solid #ccc;" alt="imagen">
+                                    <div style="margin-top: 1rem;">
+                                        <label for="sub-image" class="file" style="text-align: center;">Subir Imagen</label>
+                                        <input id="sub-image" type="file" @change="fileUpload" style="display: none;" />
+                                    </div>
+                                </div>
+                                <div v-else style="height: 100%;">
+                                    <label for="sub-image" class="image-drag" draggable="true" 
+                                        @dragover.prevent="handleDragOver" @drop.prevent="handleSubDrop">
+                                        <span>Arrastra una imagen o haz clic</span>
+                                    </label>
+                                    <input id="sub-image" type="file" @change="fileUpload" style="display: none;" accept="image/*"/>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onUpdateSubsidio()">Guardar</button>
+                            <button v-on:click="onSaveSubsidio()">Guardar</button>
                         </div>
                     </div>
                 </div>
@@ -1377,7 +1398,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
-                                <button v-on:click="setMode(1)">Nuevo Estado</button>
+                                <button v-on:click="setMode(1)">Nuevo Tipo</button>
                             </div>
                         </div>
                     </div>
@@ -1541,7 +1562,7 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1" style="padding: 1em; height: max-content;" class="pure-g">
+            <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
                 <div class="pure-u-1-5"></div>
                 <div class="pure-u-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Tipología Proyecto</h2>
@@ -1566,12 +1587,26 @@
                 </div>
             </div>
 
-            <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24"></div>
-                <div class="pure-u-22-24 menuCard">
-                    <h2>Emails Receptores</h2>
+            <div v-if="mode == 0 || mode == 1">{{setMode(2)}}</div>
+
+            <div v-if="mode == 2" style="padding: 1em">
+                <div class="pure-u-1-8"></div>
+                <div class="pure-u-3-4 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                    <h2>Editar Emails Receptores</h2>
+                    <div class="pure-g">
+                        <div class="pure-u-1-2 pure-u-md-11-24" v-for="email in emails">
+                            <div class="formInputStandard pure-u-1-2 pure-u-md-22-24">
+                                <label>Email {{email.id_email}}</label>
+                                <input type="text" v-model="email.email" 
+                                    v-bind:class="{'errorInput': !isEmail(email.email)}" />
+                            </div>
+                            <div class="pure-u-1-12"></div>
+                        </div>
+                    </div>
+                    <div class="formInputStandard pure-u-1-2 pure-u-md-1-5" style="margin-top: 1rem;">
+                        <button v-on:click="onUpdateEmail()">Guardar</button>
+                    </div>
                 </div>
-                <img style="display: block; margin: 0 auto;" src="../../img/background/MEN AT WORK.JPG" alt="MEN AT WORK">
             </div>
         </div>
     </div>

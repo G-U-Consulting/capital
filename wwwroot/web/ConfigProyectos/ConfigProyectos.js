@@ -23,6 +23,7 @@ export default {
             tipos_proyecto: [],
             estados_proyecto: [],
             tipos_vis: [],
+            emails: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -67,7 +68,7 @@ export default {
                 instructivos: {},
                 pies_legales: {},
                 tramites: {},
-                documentos: {},
+                documentos: {is_img: '0'},
                 tipos_financiacion: {},
                 tipos_proyecto: {},
                 estados_proyecto: {},
@@ -187,7 +188,7 @@ export default {
                 this.setRuta();
             }
         },
-        async onUpdateSubsidio() {
+        async onSaveSubsidio() {
             let name = this.subImg 
                 ? `subsidio_${this.mode == 1 ? '#' : this.subsidio.id_subsidio}.${this.subImg.name.split(".").pop()}` 
                 : null;
@@ -203,20 +204,35 @@ export default {
                     const formData = new FormData();
                     formData.append("file", newFile);
                     resp = await httpFunc("/api/uploadfile/subsidio", formData);
-                    this.setMode(0);
                 }
                 else if (resp.data !== "OK") throw resp;
+                this.setMode(0);
             }
             catch (e) {
                 console.error(e);
             }
             hideProgress();
         },
+        async onUpdateEmail(){
+            showProgress();
+            try {
+                if(this.emails.every(e => this.isEmail(e.email))) {
+                    let resp = await httpFunc('/generic/genericST/Maestros:Upd_Email', 
+                        { emails: JSON.stringify(this.emails) }
+                    );
+                    if (resp.data !== 'OK') throw resp;
+                } else throw "Emails inválidos";
+            } catch(e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
         async onSelectDocument(doc) {
+            this.clearAllImages();
             this.setMode(2);
             Object.keys(doc).forEach((key) => (this.documento[key] = doc[key]));
-            let base = `./docs/${doc.documento} [${doc.id_documento}]/`
-            var resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", { id_documento: doc.id_documento })).data;
+            let base = `./docs/${doc.documento} [${doc.id_documento}]/`,
+                resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", { id_documento: doc.id_documento })).data;
             let files = await this.openFiles(
                 resp.map(file => {
                     return {
@@ -227,22 +243,25 @@ export default {
             );
             this.processFiles(files);
         },
-        async onCreateDocument() {
+        async onSaveDocument() {
+            showProgress();
             try {
-                showProgress();
-                let resp = await httpFunc(`/generic/genericST/Maestros:Ins_Documento`, this.documento, true);
-                hideProgress();
-                if (resp.data === "OK" && resp.id) {
+                let resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Documento`, this.documento, this.mode == 1),
+                    id_doc = this.mode == 1 ? resp.id : this.documento.id_documento;
+                if (resp.data === "OK" && id_doc) {
                     let files = {}, formData = new FormData(), docfiles = [...this.previews];
                     docfiles.forEach((pre, i) => {
                         formData.append('file', pre.file);
                         files[pre.file.name] = {
                             nombre: pre.file.name,
                             orden: i,
-                            id_documento: resp.id,
+                            id_documento: id_doc,
                         };
                     });
-                    resp = await httpFunc(`/api/uploaddocs/${this.documento.documento} [${resp.id}]`, formData);
+                    resp = await httpFunc("/generic/genericST/Maestros:Del_Archivos", { id_documento: id_doc });
+                    if (resp.data === 'OK')
+                        resp = await httpFunc(`/api/uploaddocs/docs/${this.documento.documento} [${id_doc}]`, formData);
+                    else throw resp;
                     if (resp.data) {
                         for (let key in resp.data) {
                             files[key].codigo = resp.data[key];
@@ -255,11 +274,60 @@ export default {
             } catch (e) {
                 console.error(e);
             }
+            hideProgress();
         },
-        async onUpdateDocument() {
-            console.log(this.documento);
-            console.log(this.previews);
-            console.log(this.files);
+        async onUpdateImg() {
+            let files = {}, formData = new FormData(), docfiles = [...this.previews],
+                folder = this.mainmode == 1 ? 'General' : 'Sostenibilidad',
+                doc = this.documentos.filter(doc => doc.is_img == 1 && doc.documento == folder),
+                id_doc = doc && doc.length ? doc[0].id_documento : null;
+            showProgress();
+            try {
+                if (id_doc) {
+                    docfiles.forEach((pre, i) => {
+                        formData.append('file', pre.file);
+                        files[pre.file.name] = {
+                            nombre: pre.file.name,
+                            orden: i,
+                            id_documento: id_doc,
+                        };
+                    });
+                    let resp = await httpFunc("/generic/genericST/Maestros:Del_Archivos", { id_documento: id_doc });
+                    if (resp.data === 'OK')
+                        resp = await httpFunc(`/api/uploaddocs/img/${folder}`, formData);
+                    else throw resp;
+                    if (resp.data) {
+                        for (let key in resp.data) {
+                            files[key].codigo = resp.data[key];
+                            let r = await httpFunc("/generic/genericST/Maestros:Ins_Archivos", files[key]);
+                            if (r.data !== 'OK') throw r.data;
+                        }
+                    } else throw resp;
+                }
+            }
+            catch(e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
+        async loadImg() {
+            this.clearAllImages();
+            let folder = this.mainmode == 1 ? 'General' : 'Sostenibilidad',
+                doc = this.documentos.filter(doc => doc.is_img == 1 && doc.documento == folder),
+                id_doc = doc && doc.length ? doc[0].id_documento : null;
+            if (id_doc) {
+                let base = `./img/${folder}/`,
+                    resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", { id_documento: id_doc })).data;
+                let files = await this.openFiles(
+                    resp.map(file => {
+                        return {
+                            path: base + file.codigo,
+                            name: file.nombre,
+                        }
+                    })
+                );
+                this.processFiles(files);
+            }
         },
         getItem() {
             if (this.mainmode == 3) return [this.grupoImg, "GrupoImg"];
@@ -278,6 +346,7 @@ export default {
             if (this.mainmode == 16) return [this.tipo_proyecto, "TipoProyecto"];
             if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto"];
             if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS"];
+            if (this.mainmode == 19) return [{}, "Email"];
             return null;
         },
         getMainPath() {
@@ -300,9 +369,9 @@ export default {
             if (this.mainmode == 16) path.text = "Tipo Unidades y Ventas";
             if (this.mainmode == 17) path.text = "Estados Proyecto";
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
+            if (this.mainmode == 19) path.text = "Emails Receptores";
             path.action = () => {
                 this.mode = 0; this.setRuta(); this.loadData();
-                if (this.mainmode == 13) { this.previews = []; this.files = []; }
             };
             return path;
         },
@@ -311,7 +380,9 @@ export default {
             if (this.mainmode == 5) this.medioIsActive = 0;
         },
         onClear(table) {
-            this.filtros[table] = {};
+            this.filtros[table] = this.mainmode == 5 
+                ? {id_categoria: '', is_active: ''} : this.mainmode == 13 
+                ? {is_img: '0'} : {};
         },
         async exportExcel(tabla) {
             try {
@@ -344,6 +415,7 @@ export default {
                 this.tipos_proyecto,
                 this.estados_proyecto,
                 this.tipos_vis,
+                this.emails,
 
                 this.factores,
                 this.tipos_factor,
@@ -456,12 +528,20 @@ export default {
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
         },
+        isEmail(email) {
+            let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
+            return !email || regex.test(email);
+        },
         updateCursor(event) {
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
         },
         async handleDragOver(event) {
             event.preventDefault();
+        },
+        async handleSubDrop(e) {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) this.fileUpload({ target: { files } });
         },
         async handleDrop(event) {
             if (this.dragIndex !== null) {
@@ -575,11 +655,11 @@ export default {
         },
         getFilteredList() {
             return (tabla) => {
-                return this[tabla] ? this[tabla].filter(item => {
-                    return this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
+                return this[tabla] ? this[tabla].filter(item => 
+                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
-                    ) : [];
-                }) : [];
+                    ) : []
+                ) : [];
             };
         }
     },
