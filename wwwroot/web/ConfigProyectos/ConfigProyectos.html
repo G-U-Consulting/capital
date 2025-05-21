@@ -575,7 +575,7 @@
 
                         <div class="pure-u-1-2 pure-u-md-1-2" v-for="bf in banco_factor">
                             <div class="pure-g">
-                                <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                                <div class="formInputStandard pure-u-1-1 pure-u-md-1-2">
                                     <span>{{tipos_factor.filter(tf => tf.id_tipo_factor ==
                                         bf.id_tipo_factor)[0].tipo_factor}}</span>
                                     <input type="number" v-model="banco_factor[bf.id_tipo_factor].valor" />

@@ -173,7 +173,10 @@
                 "Enlaces"
             ],
             casoValidator: [],
-            viewList: false
+            filtros: {
+                proyectos: { id_zona_proyecto : '' },
+            },
+            viewTable: true,
         };
     },
     computed: {
@@ -188,6 +191,15 @@
             }
           });
         },
+        getFilteredList() {
+            return (tabla) => {
+                return this[tabla] ? this[tabla].filter(item => 
+                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
+                        this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
+                    ) : []
+                ) : [];
+            };
+        }
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
@@ -205,8 +217,6 @@
             showProgress();
             this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
-            console.log(this.proyectos);
-            console.log(resp);
             hideProgress();
             resp = resp.data;
             resp[0].forEach(item => item.checked = false);
@@ -633,6 +643,10 @@
 
             }
             this.submode = 0;
+        },
+        onClear(table) {
+            let item = this.filtros[table];
+            item = Object.keys(item).forEach((key) => item[key] = '');
         },
         async hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;

@@ -1,37 +1,5 @@
 ﻿<!--PROYECTOS-->
 <!--LISTA PROYECTOS-->
-
-<!-- <div v-if="mode == 0" style="padding-top: 1em">
-    <div class="pure-u-1-24"></div>
-    <div class="pure-u-22-24 menuCard">
-        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
-            Proyectos en Venta
-        </div>
-        <div class="searchBox">
-            <div class="pure-g">
-                <div class="pure-u-1-1 pure-u-md-1-2">
-                    <input type="text" placeholder="Nombre" v-model="filtros.gruposImg['grupo']"/>
-                </div>
-                <div class="pure-u-1-1 pure-u-md-2-24">
-                    <div class="imgGraybutton" @click="onClear('gruposImg')">
-                        <img src="./img/ico/eraser.png" />
-                    </div>
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                <div class="pure-u-1-2 pure-u-md-1-24">
-                    <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"  
-                        @click="exportExcel('gruposImg')" title="Descargar datos a Excel" />
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                <div class="pure-u-1-1 pure-u-md-1-4">
-                    <button v-on:click="setMode(1)">Nuevo Grupo</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-
 <div v-if="mode == 0" style="padding-top: 1em">
     <div class="pure-u-1-24"></div>
     <div class="pure-u-22-24 menuCard">
@@ -41,16 +9,16 @@
             <!--Falta incluir Loo, Slide y Planta general Termómetro-->
             <div class="pure-g">
                 <div class="pure-u-1-1 pure-u-md-2-5">
-                    <input type="text" placeholder="Nombre" />
+                    <input type="text" placeholder="Nombre" v-model="filtros.proyectos['nombre']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-2-24">
-                    <div class="imgGraybutton">
-                        <img src="./img/ico/svg/search.svg" />
+                    <div class="imgGraybutton" @click="onClear('proyectos')">
+                        <img src="./img/ico/eraser.png" />
                     </div>
                 </div>
-                <div class="pure-u-1-1 pure-u-md-4-24">
-                    <select class="pure-input-1">
-                        <option value="">[Ver todos]</option>
+                <div class="pure-u-1-1 pure-u-md-5-24">
+                    <select class="pure-input-1" v-model="filtros.proyectos['id_zona_proyecto']">
+                        <option value="">[Todas las zonas]</option>
                         <option v-for="item in zona_proyecto" :value="item.id_zona_proyecto">{{item.zona_proyecto}}</option>
                     </select>
                 </div>
@@ -62,7 +30,7 @@
         </div>
         <div>
 
-            <div class="main-content" v-if="viewList">
+            <div class="main-content" v-if="viewTable">
                 <table class="dataTable">
                     <thead>
                         <tr>
@@ -74,7 +42,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in proyectos" @click="selectProject(item)">
+                        <tr v-for="item in getFilteredList('proyectos')" @click="selectProject(item)">
                             <td style="height: 4em;"><img class="img-row" :src="item.img" :alt="`img_${item.nombre}`"></td>
                             <td>{{item.nombre}}</td>
                             <td>{{item.sede}}</td>
@@ -86,7 +54,7 @@
             </div>
 
             <div class="main-content matrix-cont" v-else>
-                <div class="item-matrix" v-for="item in proyectos" @click="selectProject(item)">
+                <div class="item-matrix" v-for="item in getFilteredList('proyectos')" @click="selectProject(item)">
                     <div class="img-matrix">
                         <img :src="item.img" :alt="`img_${item.nombre}`">
                     </div>
@@ -99,14 +67,18 @@
         </div>
     </div>
     <div class="pure-u-2-24"></div>
-    <div class="pure-u-3-24" style="margin-top: 1rem;">
-        <input type="radio" name="view" id="view-list" v-model="viewList" :value="true">
-        <label for="view-list">Ver Lista</label>
-    </div>
-    <div class="pure-u-1-24"></div>
-    <div class="pure-u-3-24" style="margin-top: 1rem;">
-        <input type="radio" name="view" id="view-matrix" v-model="viewList" :value="false">
-        <label for="view-matrix">Ver Matriz</label>
+    <div class="pure-u-10-24">
+        <div class="radio-group">
+            <input type="radio" name="view" id="view-table" v-model="viewTable" :value="true">
+            <label for="view-table">
+                <img src="../../img/ico/Tabla.jpg"> 
+                <span>Ver Tabla</span>
+            </label>
+            <input type="radio" name="view" id="view-matrix" v-model="viewTable" :value="false">
+                <label for="view-matrix"><img src="../../img/ico/Matriz.png">
+                <span>Ver Matriz</span>
+            </label>
+        </div>
     </div>
 </div>
 

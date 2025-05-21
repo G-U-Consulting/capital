@@ -98,6 +98,9 @@ export default {
                 this.proyecto = null;
             }else if(type == "StartMediaMdule"){
                 this.pushRuta("Imágenes y Videos", 1);
+            }else if(type == "OpenDocs"){
+                this.pushRuta("Documentación", 1);
+                return this.proyecto;
             }
         },
         

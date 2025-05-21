@@ -64,6 +64,11 @@
         jsUrl: "./web/Proyectos/Unidades.js",
         allow: ["*"]
     },
+    "Documentacion": {
+        templateUrl: "./web/Proyectos/Documentacion.html",
+        jsUrl: "./web/Proyectos/Documentacion.js",
+        allow: ["*"]
+    },
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",

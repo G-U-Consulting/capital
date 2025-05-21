@@ -374,9 +374,9 @@ export default {
             if (this.mainmode == 5) this.medioIsActive = 0;
         },
         onClear(table) {
-            this.filtros[table] = this.mainmode == 5 
-                ? {id_categoria: '', is_active: ''} : this.mainmode == 13 
-                ? {is_img: '0'} : {};
+            let item = this.filtros[table];
+            item = Object.keys(item).forEach((key) => 
+                key == "is_img" && this.mainmode == 13 ? item[key] = '0' : item[key] = '');
         },
         async exportExcel(tabla) {
             try {
