@@ -1,3 +1,5 @@
+using Azure.Core;
+using Azure;
 using capital.Code.Inte;
 using capital.Code.Util;
 using Microsoft.AspNetCore.Identity;
@@ -194,23 +196,61 @@ app.Map("/api/internal/{op}", async (HttpRequest request, HttpResponse response,
 app.Map("/file/upload", async (HttpContext context) => {
     var form = await context.Request.ReadFormAsync();
     var files = form.Files;
-    var uploadsFolder = Path.Combine(rootPath, "wwwroot", "upload");
-
+    string serverPath = "upload";
+    string uploadsFolder = Path.Combine(rootPath, "wwwroot", serverPath);
     if (!Directory.Exists(uploadsFolder)) 
         Directory.CreateDirectory(uploadsFolder);
     JArray ret = new JArray();
     JObject tmp;
     foreach (var file in files) {
         tmp = new JObject();
-        string extension = Path.GetExtension(file.FileName);
-        string fileName = Guid.NewGuid().ToString() + extension;
-        string filePath = Path.Combine(uploadsFolder, fileName);
+        string serverName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        string filePath = Path.Combine(uploadsFolder, serverName);
         using (var stream = new FileStream(filePath, FileMode.Create)) {
             await file.CopyToAsync(stream);
         }
-        tmp["file"] = file.FileName;
+        tmp["fileName"] = file.FileName;
+        tmp["serverName"] = serverName;
+        tmp["serverPath"] = serverPath +"/" +serverName;
+        ret.Add(tmp);
     }
-    return ret.ToString();
+    return WebBDUt.NewBasicResponse(false, ret).ToString();
+});
+app.Map("/file/S3upload", async (HttpContext context) => {
+    string body = "";
+    try {
+        using (var stream = new StreamReader(context.Request.Body)) {
+            body = await stream.ReadToEndAsync();
+        }
+        JArray data = JArray.Parse(body);
+        JArray result = new JArray();
+        JObject tmp;
+        S3HelperUploadResponse stmp;
+        foreach (JObject item in data) {
+            stmp = await S3Helper.GetInstance(rootPath, defaultDB)
+                .UploadFile(Path.Combine(rootPath, "wwwroot", item["serverPath"].Value<string>()), item["fileName"].Value<string>(), false, context.User.Identity.Name, true);
+            tmp = JObject.FromObject(stmp);
+            result.Add(tmp);
+        }
+        return WebBDUt.NewBasicResponse(false, result).ToString();
+    } catch (Exception ex) {
+        Logger.Log("file/S3upload/" + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        context.Response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+}).RequireAuthorization();
+app.Map("/file/S3get/{key}", async (HttpContext context, string key) => {
+    string body = "";
+    try {
+        S3HelperDownloadResponse resp = await S3Helper.GetInstance(rootPath, defaultDB).DownloadFileByKey(key);
+        string path = resp.Path;
+        resp.Path = Path.GetFileName(resp.Path);
+        return Results.File(path, WebUt.GetContentType(Path.GetExtension(path)));
+    } catch (Exception ex) {
+        Logger.Log("file/S3get/" + "   "+ key + " - " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        context.Response.StatusCode = 500;
+        return null;
+    }
 });
 app.Map("/api/uploaddocs/{**folder}", async (string folder, HttpContext context, IWebHostEnvironment env) =>
 {

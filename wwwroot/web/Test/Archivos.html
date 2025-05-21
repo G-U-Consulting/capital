@@ -1,0 +1,112 @@
+<div class="pure-g">
+    <div class="pure-u-1-1 pure-u-md-1-1">
+        <div v-if="mode == 0" style="padding-top: 1em">
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24 menuCard" style="height: calc(100vh - 5.5rem)">
+                <h2>Selección de archivos</h2>
+                <br /><br />
+                <div class="pure-g">
+                    <div class="pure-u-1-24"></div>
+                    <div class="pure-u-22-24" style="height: calc(100vh - 20vh - 5.5rem)">
+                        <div>
+                            <div class='formInputStandard'>
+                                <label>Archivos</label><br />
+                                <input type="file" v-on:change="handleFileChange" multiple accept=".pdf" />
+                            </div>
+                            <div style="height:20vh; overflow: auto">
+                                <div v-for="item in files" style=" display: inline-block; padding: 0.5rem; border: 1px solid black; border-radius: 0.2rem; margin: 0.3rem;">
+                                    {{item.name}}
+                                    <span style="color: red; cursor: pointer;">&Cross;</span>
+                                </div>
+                            </div>
+                            En este momento los archivos solo están en memoria. Por lo tanto un no tenemos previsualización (aunque se podría crear con JS)
+                        </div>
+                        <div style="text-align:center">
+                            <br />
+                            <button v-on:click="uploadFiles">Cargar al servidor</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="mode == 1" style="padding-top: 1em">
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24 menuCard" style="height: calc(100vh - 5.5rem)">
+                <h2>Carga de archivos a S3</h2>
+                <br /><br />
+                <div class="pure-g">
+                    <div class="pure-u-1-24"></div>
+                    <div class="pure-u-22-24" style="height: calc(100vh - 20vh - 5.5rem)">
+                        <div>
+                            En este momento los archivos están cargados en un directorio local del servidor, eventualmente puden ser borrados, por eso es importante pasarlos a S3
+                        </div>
+                        <div style="height:20vh; overflow: auto">
+                            <table class="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre Original</th>
+                                        <th>Nuevo Nombre</th>
+                                        <th>Ruta</th>
+                                        <th>Vista</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in serverFiles">
+                                        <td>{{item.fileName}}</td>
+                                        <td>{{item.serverName}}</td>
+                                        <td>{{item.serverPath}}</td>
+                                        <td><button style="min-width: 0px" v-on:click="view(item)">Ver</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            En el siguiente paso, ademas de cargar los archivos en S3 van a quedar en la tabla "fact_archivos"
+                        </div>
+                        <div style="text-align:center">
+                            <br />
+                            <button v-on:click="S3UploadFiles()">Cargar BD + S3</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="mode == 2" style="padding-top: 1em">
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24 menuCard" style="height: calc(100vh - 5.5rem)">
+                <h2>Resultado del proceso</h2>
+                <br /><br />
+                <div class="pure-g">
+                    <div class="pure-u-1-24"></div>
+                    <div class="pure-u-22-24" style="height: calc(100vh - 20vh - 5.5rem)">
+                        <div>
+                            Los archivos van a quedar referenciados en la BD, cargados en S3 y en la carpeta de cache
+                        </div>
+                        <div style="height:20vh; overflow: auto">
+                            <table class="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>Success</th>
+                                        <th>Id</th>
+                                        <th>CacheKey</th>
+                                        <th>Message</th>
+                                        <th>Ver</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in S3Files">
+                                        <td>{{item.Success}}</td>
+                                        <td>{{item.Id}}</td>
+                                        <td>{{item.CacheKey}}</td>
+                                        <td>{{item.Message}}</td>
+                                        <td><button style="min-width: 0px" v-on:click="viewS3(item)">Ver</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,7 +2,6 @@
 -- Proceso: Proyectos/Get_vairables
 -- =============================================
 --START_PARAM
-
 --END_PARAM
 
 select id_estado_publicacion, estado_publicacion

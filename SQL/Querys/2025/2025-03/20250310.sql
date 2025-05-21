@@ -144,7 +144,7 @@ create table dim_variables_globales (
 );
 
 create table fact_documentos(
-	id_documento int not null,
+	id_documento int not null auto_increment,
 	documento varchar(200),
 	llave varchar(50),
 	cache_memoria bit,

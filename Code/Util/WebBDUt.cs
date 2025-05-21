@@ -720,10 +720,19 @@ public static class WebBDUt {
             len++;
         }
     }
-    public static JObject NewBasicResponse(bool isError, string data) {
+    public static JObject NewBasicResponse(bool isError, string? data) {
         JObject ret = new JObject();
         ret[ISERROR] = isError;
         if(isError)
+            ret[ERRORMESSAGE] = data;
+        else
+            ret[DATA] = data;
+        return ret;
+    }
+    public static JObject NewBasicResponse(bool isError, JContainer data) {
+        JObject ret = new JObject();
+        ret[ISERROR] = isError;
+        if (isError)
             ret[ERRORMESSAGE] = data;
         else
             ret[DATA] = data;

@@ -30,4 +30,36 @@ public static class WebUt {
         
         return await response.Content.ReadAsStringAsync();
     }
+    public static string GetContentType(string fileExt) {
+        string ret = "";
+        switch (fileExt.ToLower()) {
+            case ".txt":
+                ret = "text/plain"; break;
+            case ".xml":
+                ret = "text/xml"; break;
+            case ".html":
+                ret = "text/html"; break;
+            case ".jpeg":
+                ret = "image/jpeg"; break;
+            case ".jpg":
+                ret = "image/jpeg"; break;
+            case ".png":
+                ret = "image/png"; break;
+            case ".mpeg":
+                ret = "audio/mpeg"; break;
+            case ".ogg":
+                ret = "audio/ogg"; break;
+            case ".mp4":
+                ret = "video/mp4"; break;
+            case ".pdf":
+                ret = "application/pdf"; break;
+            case ".tiff":
+                ret = "image/tiff"; break;
+            case ".tif":
+                ret = "image/tif"; break;
+            default:
+                ret = "application/octet-stream"; break;
+        }
+        return ret;
+    }
 }
