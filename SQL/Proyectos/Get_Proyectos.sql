@@ -57,7 +57,8 @@ select
     a.incluir_cartilla_negocios_opcion, 
     a.link_cartilla_negocios,
     a.id_banco_constructor,
-    a.id_bancos_financiador
+    a.id_bancos_financiador,
+    a.id_zona_proyecto
 from fact_proyectos a
 left join dim_ciudadela b on a.id_ciudadela = b.id_ciudadela
 left join dim_estado_publicacion c on a.id_estado_publicacion = c.id_estado_publicacion

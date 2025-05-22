@@ -172,7 +172,11 @@
                 "Información adicional",
                 "Enlaces"
             ],
-            casoValidator: []
+            casoValidator: [],
+            filtros: {
+                proyectos: { id_zona_proyecto : '' },
+            },
+            viewTable: true,
         };
     },
     computed: {
@@ -187,10 +191,26 @@
             }
           });
         },
+        getFilteredList() {
+            return (tabla) => {
+                return this[tabla] ? this[tabla].filter(item => 
+                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
+                        this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
+                    ) : []
+                ) : [];
+            };
+        }
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
-        this.setMainMode();
+        await this.setMainMode();
+        
+        /* Test */
+        this.proyectos[0].img = 'https://www.constructoracapital.com/web_datas/1738868507_logo-vivopark2.jpg';
+        this.proyectos[1].img = 'https://www.constructoracapital.com/web_datas/1706039706_logo-ajustado.png';
+        this.proyectos[2].img = 'https://www.constructoracapital.com/web_datas/1724858363_urbania-terra.jpg';
+        this.proyectos[3].img = 'https://www.constructoracapital.com/web_datas/1645484933_logo-puerto-vallarta.jpg';
+        /* End Test */
     },
     methods: {
         async setMainMode(){
@@ -291,7 +311,7 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         },
-        async selectProject(item) {
+        async selectProject(item, mode = 2) {
             showProgress();
             this.editObjProyecto = {
                 ...this.editObjProyecto,
@@ -376,8 +396,16 @@
 
             }
             this.submode = 0;
-            this.setMode(2);
-            GlobalVariables.miniModuleCallback("SelectedProject", item)
+            this.setMode(mode);
+            await GlobalVariables.miniModuleCallback("SelectedProject", item);
+            if (mode == 'portada'){
+                let item = document.querySelector('.lateralMenuItemSelected');
+                item && item.classList.remove('lateralMenuItemSelected');
+            } else {
+                let item = document.getElementById('MenuItemEdicion');
+                item && !item.classList.contains('lateralMenuItemSelected') 
+                    && item.classList.add('lateralMenuItemSelected');
+            }
             hideProgress();
         },
         async newProject() {
@@ -625,6 +653,10 @@
 
             }
             this.submode = 0;
+        },
+        onClear(table) {
+            let item = this.filtros[table];
+            item = Object.keys(item).forEach((key) => item[key] = '');
         },
         async hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;

@@ -53,8 +53,8 @@ where is_active = 1
 order by tramite;
 
 select id_documento, documento, is_img
-from dim_documento
-where is_active = 1
+from dim_documento dd
+where is_active = 1 and documento not like '[Docs] %'
 order by documento;
 
 select id_subsidio, periodo, smmlv, smmlv_0_2, smmlv_2_4, imagen

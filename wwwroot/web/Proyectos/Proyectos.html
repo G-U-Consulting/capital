@@ -1,12 +1,14 @@
 <div class="pure-g">
     <div v-if="lateralMenu" class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
+        <div class="lateralMenuHeader">
+        </div>
         <div class="lateralMenuGroup">
             <div  class="lateralMenuGroup">
                 <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
                     Administración de Proyectos
                 </div>
                 <div v-on:click="setMainMode('EdicionProyectos')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'EdicionProyectos'}">
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'EdicionProyectos'}" id="MenuItemEdicion">
                     <img src="./img/ico/svg/sidebar/Información Básica.svg" />
                     Información Básica
                 </div>
@@ -20,8 +22,8 @@
                     <img src="./img/ico/svg/sidebar/Torres y Unidades.svg" />
                     Torres y Unidades
                 </div>
-                <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
+                <div v-on:click="setMainMode('Documentacion')" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Documentacion'}">
                     <img src="./img/ico/svg/sidebar/Documentación.svg" />
                     Documentación
                 </div>

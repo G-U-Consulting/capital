@@ -42,13 +42,7 @@ export default {
             tipo_proyecto: {},
             estado_proyecto: {},
             tipo_vis: {},
-            subsidio: {
-                id_subsidio: null,
-                smmlv: "",
-                smmlv_0_2: "",
-                smmlv_2_4: "",
-                imagen: null
-            },
+            subsidio: {},
 
             ruta: [],
             medioIsActive: 0,
@@ -380,9 +374,9 @@ export default {
             if (this.mainmode == 5) this.medioIsActive = 0;
         },
         onClear(table) {
-            this.filtros[table] = this.mainmode == 5 
-                ? {id_categoria: '', is_active: ''} : this.mainmode == 13 
-                ? {is_img: '0'} : {};
+            let item = this.filtros[table];
+            item = Object.keys(item).forEach((key) => 
+                key == "is_img" && this.mainmode == 13 ? item[key] = '0' : item[key] = '');
         },
         async exportExcel(tabla) {
             try {
@@ -527,6 +521,9 @@ export default {
         },
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
+        },
+        validarNombre(e) {
+            e.target.value = e.target.value.replaceAll(/[^\w\s]/g, '');
         },
         isEmail(email) {
             let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;

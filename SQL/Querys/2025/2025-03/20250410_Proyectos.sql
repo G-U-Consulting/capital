@@ -155,7 +155,6 @@ create table fact_tipo_proyecto (
         references dim_tipo_proyecto(id_tipo_proyecto)
 );
 
-
 create table fact_proyectos(
 	id_proyecto int not null auto_increment,
 	constraint pk_fact_proyectos primary key (id_proyecto),
@@ -163,7 +162,7 @@ create table fact_proyectos(
 	constraint fk_id_sede_fact_proyectos foreign key(id_sede) references dim_sede(id_sede),
 	id_estado_publicacion int,
 	constraint fk_id_estado_publicacion_fact_proyectos foreign key(id_estado_publicacion) references dim_estado_publicacion(id_estado_publicacion), 
-	nombre varchar(200),
+	nombre varchar(200) not null unique,
 	id_tipo_proyecto int,
 	constraint fk_id_tipo_proyecto_fact_proyectos foreign key(id_tipo_proyecto) references dim_tipo_proyecto(id_tipo_proyecto),
 	id_ciudadela int,
