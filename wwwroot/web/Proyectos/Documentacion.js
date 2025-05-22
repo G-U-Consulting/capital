@@ -20,6 +20,7 @@ export default {
     async mounted() {
         this.proyecto = await GlobalVariables.miniModuleCallback("OpenDocs", null);
         this.setMainMode('Documentacion');
+        this.loadFiles();
     },
     methods: {
         setMainMode(mode) {
@@ -132,21 +133,74 @@ export default {
             this.previews = [];
             this.files = [];
         },
-        async onSaveDocument() {
+        async onSave() {
             showProgress();
-            await this.getDocument();
+            console.log(this.previews);
+            let form = new FormData();
+            this.previews.forEach(pre => form.append(pre.file.name, pre.file));
+            let res = await httpFunc("/file/upload", form);
+            console.log(res);
+            if (res.isError) showMessage(res.errorMessage);
+            else this.uploadS3(res.data);
             
             hideProgress();
         },
-        async getDocument() {
-            let proj = this.proyecto,
-                resp = await httpFunc("/generic/genericDT/Maestros:Get_Documento", { id_proyecto: proj.id_proyecto });
-            if (resp.data) this.documento = resp.data[0];
-            else {
-                let doc = { documento: `[Docs] ${proj.nombre}` }
-                resp = await httpFunc(`/generic/genericST/Maestros:Ins_Documento`, doc, true);
-                if (resp.data == 'OK' && resp.id) this.documento = {...doc, id_documento: resp.id};
+        async loadFiles() {
+            this.clearAllImages();
+            let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+                { tipo: 'docs', id_proyecto: this.proyecto.id_proyecto }),
+                base = '/file/S3get/';
+            if (res.data) {
+                let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento } });
+                let files = await this.openFiles(paths);
+                await this.processFiles(files);
             }
+        },
+        async uploadS3(data) {
+            showProgress();
+        
+            const response = await httpFunc("/file/S3upload", data),
+                id_pro = this.proyecto.id_proyecto;
+            console.log(response);
+        
+            if (response.isError) {
+                showMessage(response.errorMessage);
+                hideProgress();
+                return;
+            }
+            let S3Files = response.data.map((item, i) => ({
+                id_documento: item.Id,
+                id_proyecto: id_pro,
+                tipo: 'docs',
+                orden: i
+            }));
+
+            let res = await httpFunc("/generic/genericST/Medios:Del_Archivos", 
+                { id_proyecto: id_pro, tipo: 'docs' });
+
+            if (res.isError) {
+                showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
+                hideProgress();
+                return;
+            }
+
+            S3Files.forEach(async archivo => {
+                res = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
+                    nombre: archivo.nombre || '',
+                    codigo: archivo.codigo || '', 
+                    orden: archivo.orden,
+                    id_documento: archivo.id_documento,
+                    id_proyecto: archivo.id_proyecto,
+                    tipo: archivo.tipo
+                });
+        
+                if (res.isError) {
+                    showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            });
+            hideProgress();
         }
     }
 }
