@@ -66,6 +66,7 @@ namespace capital.Code.Util {
             try {
                 string scachePath = Path.Combine(cachePath, key);
                 if (!File.Exists(scachePath)) {
+                    await Init();
                     GetObjectRequest request = new GetObjectRequest {
                         BucketName = bucketName,
                         Key = key
