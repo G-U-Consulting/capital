@@ -82,7 +82,6 @@
         const res = await httpFunc("/generic/genericDT/Medios:Get_vairables", {});
         const grupo_img = res.data.map(item => item.grupo);
         this.construirTablas(grupo_img);
-        this.loadData()
     },
     methods: {
         setMode(mode) {
@@ -451,135 +450,105 @@
         configclearAllImages(){
             showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
         },
-        async onUpdateImg() {
-            let files = {},
-                formData = new FormData(),
-                folderMap = {
-                    1: 'Principal',
-                    2: 'Imágenes',
-                    5: 'Avances de obra'
-                },
-                folder = folderMap[this.submode] || 'Principal';
-        
-            const doc = this.documentos.filter(doc => doc.is_img == 1 && doc.documento == folder),
-                id_doc = doc.length ? doc[0].id_documento : null;
-        
-            if (!id_doc) {
-                console.warn('No se encontró documento para la carpeta seleccionada.');
-                return;
-            }
-        
-            let uploadFiles = [];
-            if (this.submode === 1) {
-                uploadFiles = [
-                    this.logoFile,
-                    this.slideFile,
-                    this.plantaFile
-                ].filter(f => f);
-                uploadFiles = uploadFiles.map((file, index) => ({
-                    file,
-                    name: file.name,
-                    orden: index,
-                    tipo: ['logo', 'slide', 'planta'][index]
-                }));
-            } else {
-                uploadFiles = this.previews.map((item, index) => ({
-                    file: item.file,
-                    name: item.file.name,
-                    orden: index
-                }));
-            }
-        
-            if (uploadFiles.length === 0) {
-                console.warn('No hay archivos para subir.');
-                return;
-            }
+        async uploadFiles() {
             showProgress();
-            try {
-                uploadFiles.forEach((item, index) => {
-                    const originalName = item.file.name;
-                    const ext = originalName.substring(originalName.lastIndexOf('.') + 1);
-                    const baseName = originalName.substring(0, originalName.lastIndexOf('.'))
-                        .trim()
-                        .replace(/\s+/g, '_')
-                        .replace(/[^\w\-]/gi, '');
-        
-                    const prefix = item.tipo || '';
-                    let fullName;
-        
-                    if (prefix && !baseName.toLowerCase().startsWith(prefix.toLowerCase())) {
-                        fullName = `${prefix}_${baseName}.${ext}`;
-                    } else {
-                        fullName = `${baseName}.${ext}`;
-                    }
-        
-                    formData.append('file', item.file, fullName);
-        
-                    files[fullName] = {
-                        nombre: fullName,
-                        orden: item.orden ?? index,
-                        id_documento: id_doc
-                    };
-                });
-        
-                let resp = await httpFunc("/generic/genericST/Maestros:Del_Archivos", { id_documento: id_doc });
-                if (resp.data === 'OK') {
-                    resp = await httpFunc(`/api/uploaddocs/img/${folder}`, formData);
-                } else {
-                    throw resp;
-                }
-        
-                if (resp.data) {
-                    for (let key in resp.data) {
-                        files[key].codigo = resp.data[key];
-                        let r = await httpFunc("/generic/genericST/Medios:Ins_Archivos", files[key]);
-                        if (r.data !== 'OK') throw r.data;
-                    }
-                } else {
-                    throw resp;
-                }
-        
-            } catch (e) {
-                console.error(e);
+            var form = new FormData();
+            for (let i = 0; i < this.files.length; i++)
+                form.append(this.files[i].name, this.files[i]);
+            var response = await httpFunc("/file/upload", form);
+            console.log(response);
+            if (response.isError) {
+                showMessage(response.errorMessage);
+            } else { 
+                this.serverFiles = response.data;
+                this.S3UploadFiles();
             }
-        
             hideProgress();
         },
-        async loadData() {
-            [
-                this.documentos,
-            ] = (await httpFunc("/generic/genericDS/Medios:Get_vairables", {})).data;
-        },
-        async loadImg() {
-            this.clearAllImages();
+        async S3UploadFiles() {
+            showProgress();
+        
+            const response = await httpFunc("/file/S3upload", this.serverFiles);
+            console.log(response);
+        
+            if (response.isError) {
+                showMessage(response.errorMessage);
+                hideProgress();
+                return;
+            }
         
             const folderMap = {
                 1: 'Principal',
-                2: 'Imágenes',
+                2: 'Imagenes',
                 5: 'Avances de obra'
             };
-        
             const folder = folderMap[this.submode] || 'Principal';
         
-            const doc = this.documentos.find(d => d.is_img == 1 && d.documento === folder);
-            if (!doc) return;
+            this.S3Files = response.data.map((item, index) => ({
+                id_documento: item.Id,
+                id_proyecto: GlobalVariables.id_proyecto,
+                tipo: folder,
+                orden: index + 1
+            }));
         
-            const id_doc = doc.id_documento;
-            const base = `./img/${folder}/`;
+            for (let archivo of this.S3Files) {
+                const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
+                    nombre: archivo.nombre || '',
+                    codigo: archivo.codigo || '',
+                    orden: archivo.orden,
+                    id_documento: archivo.id_documento,
+                    id_proyecto: archivo.id_proyecto,
+                    tipo: archivo.tipo
+                });
         
-            const resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", { id_documento: id_doc })).data;
+                if (result.isError) {
+                    showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            }
+            for (let archivo of this.S3Files) {
+                const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
+                    nombre: archivo.nombre || '',
+                    codigo: archivo.codigo || '', 
+                    orden: archivo.orden,
+                    id_documento: archivo.id_documento,
+                    id_proyecto: archivo.id_proyecto,
+                    tipo: archivo.tipo
+                });
         
+                if (result.isError) {
+                    showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            }
+            hideProgress();
+        },
+        async loadImg() {
+            await this.clearAllImages();
+            await imagePath
+            let folderMap = {
+                1: 'Principal',
+                2: 'Imagenes',
+                5: 'Avances de obra'
+            },
+                folder = folderMap[this.submode] || 'Principal';
+            const resp = (await httpFunc("/generic/genericDT/Medios:Get_Archivos", { id_proyecto: GlobalVariables.id_proyecto, tipo: folder })).data;
             for (let file of resp) {
-                const imagePath = base + file.codigo;
+                var imagePath = ""
+                
+                imagePath = "/file/S3get/" + file.llave;
+
                 const blob = await this.fetchImageAsBlob(imagePath);
                 if (!blob) continue;
-        
+
                 const fileObj = new File([blob], file.nombre, { type: blob.type });
-        
+
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const src = e.target.result;
-        
+
                     if (folder.includes('Principal')) {
                         if (file.nombre.includes('logo')) {
                             this.logoPreview = src;

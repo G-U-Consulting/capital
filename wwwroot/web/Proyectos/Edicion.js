@@ -298,6 +298,8 @@
                 id_proyecto: item["id_proyecto"] 
               };
 
+              GlobalVariables.id_proyecto = item["id_proyecto"];
+
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": item["id_proyecto"] });
             resp = resp.data;
             const proyecto = resp[0][0];

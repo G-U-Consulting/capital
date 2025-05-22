@@ -13,7 +13,8 @@ var GlobalVariables = {
     ruta: null,
     passwordPolicy: null,
     zonaActual: null,
-    showModules: null
+    showModules: null,
+    id_proyecto: null
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null, mvm = null;

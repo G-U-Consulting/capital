@@ -229,14 +229,30 @@ create table fact_proyectos(
 	constraint fk_id_bancos_financiador_fact_proyectos foreign key(id_bancos_financiador) references dim_banco_constructor(id_banco)
 
 );
-create table dim_email_receptor(
-	id_email int auto_increment primary key,
-	email varchar(200) unique,
-	codigo varchar(10),
-	is_active bit default 1,
-	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+ 
+create table fact_documentos (
+    id_documento int auto_increment primary key,
+    documento varchar(200) not null,
+    llave varchar(50) not null,
+    cache_memoria bit default 0,
+    is_active bit default 1,
+    created_on datetime default current_timestamp,
+    created_by varchar(200) default current_user
 );
+
+create table fact_documento_proyecto (
+    id_documento_proyecto int auto_increment primary key,
+    id_documento int not null,
+    id_proyecto int not null,
+    orden int,
+	tipo varchar(100),
+    is_active bit default 1,
+    created_on datetime default current_timestamp,
+    created_by varchar(200) default current_user,
+    foreign key (id_documento) references fact_documentos(id_documento)
+);
+
+
 /*
 drop table fact_proyectos;
 drop table dim_ubicacion_proyecto;
@@ -246,7 +262,15 @@ drop table dim_tipo_vis;
 drop table dim_tipo_financiacion;
 drop table dim_pie_legal;
 drop table dim_fiduciaria;
+drop table fact_documentos;
 */
+
+insert into dim_tipo_documento (is_tipo, is_active) values
+('General', 1),
+('Sostenibilidad', 1),
+('Principal',1),
+('Imágenes',1),
+('Avances de obra',1);
 
 insert into dim_estado_publicacion(estado_publicacion, codigo) values
 ('Publicado', 'PUB'),
