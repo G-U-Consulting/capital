@@ -38,7 +38,7 @@ export default {
     },
     methods: {
         async setMainMode(mode) {
-            if(this.mainmode == mode)return;
+            if(this.mainmode == mode && mode != 'EdicionProyectos')return;
             this.ruta = [];
             this.pushRuta("Proyectos", 0);
             if(this.proyecto != null)

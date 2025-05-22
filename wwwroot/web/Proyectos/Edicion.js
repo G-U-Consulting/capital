@@ -311,7 +311,7 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         },
-        async selectProject(item) {
+        async selectProject(item, mode = 2) {
             showProgress();
             this.editObjProyecto = {
                 ...this.editObjProyecto,
@@ -394,8 +394,16 @@
 
             }
             this.submode = 0;
-            this.setMode(2);
-            GlobalVariables.miniModuleCallback("SelectedProject", item)
+            this.setMode(mode);
+            await GlobalVariables.miniModuleCallback("SelectedProject", item);
+            if (mode == 'portada'){
+                let item = document.querySelector('.lateralMenuItemSelected');
+                item && item.classList.remove('lateralMenuItemSelected');
+            } else {
+                let item = document.getElementById('MenuItemEdicion');
+                item && !item.classList.contains('lateralMenuItemSelected') 
+                    && item.classList.add('lateralMenuItemSelected');
+            }
             hideProgress();
         },
         async newProject() {

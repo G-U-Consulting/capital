@@ -34,7 +34,7 @@
                 <table class="dataTable">
                     <thead>
                         <tr>
-                            <th>Icono</th>
+                            <th>Logo</th>
                             <th>Nombre</th>
                             <th>Sede</th>
                             <th>Zona</th>
@@ -42,8 +42,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="item in getFilteredList('proyectos')" @click="selectProject(item)">
-                            <td style="height: 4em;"><img class="img-row" :src="item.img" :alt="`img_${item.nombre}`"></td>
+                        <tr v-for="item in getFilteredList('proyectos')" @click="selectProject(item,'portada');">
+                            <td style="height: 3.2em;"><img class="img-row" :src="item.img" :alt="`img_${item.nombre}`"></td>
                             <td>{{item.nombre}}</td>
                             <td>{{item.sede}}</td>
                             <td>{{item.zona_proyecto}}</td>
@@ -54,7 +54,7 @@
             </div>
 
             <div class="main-content matrix-cont" v-else>
-                <div class="item-matrix" v-for="item in getFilteredList('proyectos')" @click="selectProject(item)">
+                <div class="item-matrix" v-for="item in getFilteredList('proyectos')" @click="selectProject(item,'portada');">
                     <div class="img-matrix">
                         <img :src="item.img" :alt="`img_${item.nombre}`">
                     </div>
@@ -82,6 +82,15 @@
     </div>
 </div>
 
+<div v-if="mode == 'portada'" class="pure-g" style="height: calc(100vh - 3.5em - 2.3rem); overflow: hidden;">
+    <div class="pure-u-1-1" style="height: 100%;">
+
+        <!-- Test -->
+        <img style="height: 100%; width: 100%" src="../../img/background/abstract-1851115_1280.jpg" />
+        <!-- End test -->
+         
+    </div>
+</div>
 
 <!--NUEVO PROYECTO-->
 <div v-if="mode == 1" class="pure-g" style="height: max-content">
