@@ -144,7 +144,7 @@ create table dim_variables_globales (
 );
 
 create table fact_documentos(
-	id_documento int not null,
+	id_documento int not null auto_increment,
 	documento varchar(200),
 	llave varchar(50),
 	cache_memoria bit,
@@ -340,7 +340,10 @@ create table dim_documento(
 );
 insert into dim_documento (documento, is_active, is_img) values
 ('General', 1, 1),
-('Sostenibilidad', 1, 1);
+('Sostenibilidad', 1, 1),
+('Principal',1,1),
+('Imágenes',1,1),
+('Avances de obra',1,1);
 
 create table dim_documento_archivo(
 	id_archivo int primary key auto_increment,
@@ -348,10 +351,11 @@ create table dim_documento_archivo(
 	codigo varchar(50) not null unique,
 	orden int not null,
 	id_documento int,
+	id_proyecto int,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	constraint fk_id_documento foreign key(id_documento) references dim_documento(id_documento),
-	unique(nombre, id_documento)
+	unique(nombre, id_documento, id_proyecto)
 );
 -- END
 /*

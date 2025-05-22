@@ -47,7 +47,20 @@
                 slide: false,
                 planta: false
             },
-            previews: []
+            previews: [],
+            tooltipMsg: "Arrastra o haz clic para cargar archivos.",
+            documentos: [],
+            filtros: {
+                documentos: {is_img: '0'},
+             
+            },
+            logoPreview: null,
+            slidePreview: null,
+            plantaPreview: null,
+            logoFile: null,
+            slideFile: null,
+            plantaFile: null,
+
         };
     },
     computed: {
@@ -69,7 +82,6 @@
         const res = await httpFunc("/generic/genericDT/Medios:Get_vairables", {});
         const grupo_img = res.data.map(item => item.grupo);
         this.construirTablas(grupo_img);
-
     },
     methods: {
         setMode(mode) {
@@ -126,7 +138,7 @@
         dragOver(event) {
             // Necesario para permitir el "drop" en el contenedor
         },
-        handleDrop(event) {
+        async handleDrop(event, targetKey = null) {
             if (this.dragIndex !== null) {
                 const dropTarget = event.target.closest('.image-card');
                 if (dropTarget) {
@@ -134,10 +146,10 @@
                     if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
                         const draggedItem = this.previews[this.dragIndex];
                         const draggedFile = this.files[this.dragIndex];
-
+        
                         this.previews.splice(this.dragIndex, 1);
                         this.files.splice(this.dragIndex, 1);
-
+        
                         this.previews.splice(dropIndex, 0, draggedItem);
                         this.files.splice(dropIndex, 0, draggedFile);
                         this.dragIndex = null;
@@ -147,9 +159,39 @@
                 this.dragIndex = null;
                 return;
             }
-            if (event.dataTransfer.files.length > 0) {
-                const droppedFiles = event.dataTransfer.files;
-                this.processFiles(droppedFiles);
+            const droppedFiles = event.dataTransfer.files;
+            if (droppedFiles.length > 0) {
+                if (targetKey) {
+                    const file = droppedFiles[0];
+                    if (!file.type.startsWith("image/")) {
+                        showMessage("Solo se permiten imágenes.");
+                        return;
+                    }
+                    if (file.size > 2 * 1024 * 1024) {
+                        showMessage("La imagen debe pesar menos de 2Mb.");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this[targetKey] = e.target.result;
+                        if (targetKey === 'logoPreview') this.logoFile = file;
+                        else if (targetKey === 'slidePreview') this.slideFile = file;
+                        else if (targetKey === 'plantaPreview') this.plantaFile = file;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    Array.from(droppedFiles).forEach(file => {
+                        if (!file.type.startsWith("image/")) return;
+                        if (file.size > 2 * 1024 * 1024) return;
+        
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.previews.push({ src: e.target.result, file });
+                            this.files.push(file);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
             }
         },
         removeImage(index) {
@@ -372,21 +414,20 @@
                 this.selectedRowReco--;
             }
         },
-        previewImage(event, type) {
+        previewImage(event, target) {
             const file = event.target.files[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onload = () => {
-                if (type === 'logoPreview') {
-                  this.logoPreview = reader.result;
-                } else if (type === 'slidePreview') {
-                  this.slidePreview = reader.result;
-                } else if (type === 'plantaPreview') {
-                  this.plantaPreview = reader.result;
-                }
-              };
-              reader.readAsDataURL(file);
-            }
+            if (!file) return;
+        
+            const reader = new FileReader();
+            reader.onload = e => {
+                this[target] = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        
+            if (target === 'logoPreview') this.logoFile = { file, tipo: 'logo' };
+            else if (target === 'slidePreview') this.slideFile = { file, tipo: 'slide' };
+            else if (target === 'plantaPreview') this.plantaFile = { file, tipo: 'planta' };
+
         },
         expandImage(type) {
             this.isExpanded[type] = true;
@@ -408,6 +449,144 @@
         },
         configclearAllImages(){
             showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
+        },
+        async uploadFiles() {
+            showProgress();
+            var form = new FormData();
+            for (let i = 0; i < this.files.length; i++)
+                form.append(this.files[i].name, this.files[i]);
+            var response = await httpFunc("/file/upload", form);
+            console.log(response);
+            if (response.isError) {
+                showMessage(response.errorMessage);
+            } else { 
+                this.serverFiles = response.data;
+                this.S3UploadFiles();
+            }
+            hideProgress();
+        },
+        async S3UploadFiles() {
+            showProgress();
+        
+            const response = await httpFunc("/file/S3upload", this.serverFiles);
+            console.log(response);
+        
+            if (response.isError) {
+                showMessage(response.errorMessage);
+                hideProgress();
+                return;
+            }
+        
+            const folderMap = {
+                1: 'Principal',
+                2: 'Imagenes',
+                5: 'Avances de obra'
+            };
+            const folder = folderMap[this.submode] || 'Principal';
+        
+            this.S3Files = response.data.map((item, index) => ({
+                id_documento: item.Id,
+                id_proyecto: GlobalVariables.id_proyecto,
+                tipo: folder,
+                orden: index + 1
+            }));
+        
+            for (let archivo of this.S3Files) {
+                const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
+                    nombre: archivo.nombre || '',
+                    codigo: archivo.codigo || '',
+                    orden: archivo.orden,
+                    id_documento: archivo.id_documento,
+                    id_proyecto: archivo.id_proyecto,
+                    tipo: archivo.tipo
+                });
+        
+                if (result.isError) {
+                    showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            }
+            for (let archivo of this.S3Files) {
+                const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
+                    nombre: archivo.nombre || '',
+                    codigo: archivo.codigo || '', 
+                    orden: archivo.orden,
+                    id_documento: archivo.id_documento,
+                    id_proyecto: archivo.id_proyecto,
+                    tipo: archivo.tipo
+                });
+        
+                if (result.isError) {
+                    showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            }
+            hideProgress();
+        },
+        async loadImg() {
+            await this.clearAllImages();
+            await imagePath
+            let folderMap = {
+                1: 'Principal',
+                2: 'Imagenes',
+                5: 'Avances de obra'
+            },
+                folder = folderMap[this.submode] || 'Principal';
+            const resp = (await httpFunc("/generic/genericDT/Medios:Get_Archivos", { id_proyecto: GlobalVariables.id_proyecto, tipo: folder })).data;
+            for (let file of resp) {
+                var imagePath = ""
+                
+                imagePath = "/file/S3get/" + file.llave;
+
+                const blob = await this.fetchImageAsBlob(imagePath);
+                if (!blob) continue;
+
+                const fileObj = new File([blob], file.nombre, { type: blob.type });
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const src = e.target.result;
+
+                    if (folder.includes('Principal')) {
+                        if (file.nombre.includes('logo')) {
+                            this.logoPreview = src;
+                            this.logoFile = fileObj;
+                        } else if (file.nombre.includes('slide')) {
+                            this.slidePreview = src;
+                            this.slideFile = fileObj;
+                        } else if (file.nombre.includes('planta')) {
+                            this.plantaPreview = src;
+                            this.plantaFile = fileObj;
+                        }
+                    } else {
+                        this.previews.push({ src, file: fileObj });
+                        this.files.push(fileObj);
+                    }
+                };
+                reader.readAsDataURL(fileObj);
+            }
+        },
+        async fetchImageAsBlob(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Error al obtener la imagen: ${url}`);
+                return await response.blob();
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        },
+        clearAllImages() {
+            this.logoPreview = null;
+            this.logoFile = null;
+            this.slidePreview = null;
+            this.slideFile = null;
+            this.plantaPreview = null;
+            this.plantaFile = null;
+            this.previews = [];
+            this.files = [];
         }
     }
 };

@@ -13,7 +13,8 @@ var GlobalVariables = {
     ruta: null,
     passwordPolicy: null,
     zonaActual: null,
-    showModules: null
+    showModules: null,
+    id_proyecto: null
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null, mvm = null;
@@ -130,7 +131,7 @@ mainVue = {
                 this.categorySelected = this.zoneSelected.categories.find(function (item) { return this.moduleSelected["category"] == item["key"] }.bind(this));
             this.loadVueModule(inputParameter);
 
-            if(!GlobalVariables.ruta.includes(name)){
+            if(GlobalVariables.ruta != null && !GlobalVariables.ruta.includes(name)){
                 GlobalVariables.ruta = GlobalVariables.ruta + " / " + name;
                 localStorage.setItem('ruta', GlobalVariables.ruta);
             }
@@ -279,7 +280,7 @@ function hideProgress() {
 function showMessage(msg) {
     if (msg.indexOf("Error") == 0)
         document.getElementById("lbMessage").style.color = "red";
-    else document.getElementById("lbMessage").style.color = "black";
+    else document.getElementById("lbMessage").style.color = "#0097AE";
 
     document.getElementById("lbMessage").innerText = msg;
     document.getElementById("divMessage").style.display = "block";

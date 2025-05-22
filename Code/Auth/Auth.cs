@@ -107,7 +107,7 @@ namespace orca.Code.Auth {
                 response.StatusCode = 401;
                 return WebBDUt.NewBasicResponse(true, "El usuario no está autenticado");
             }
-            JObject result = WebBDUt.NewBasicResponse(false, null);
+            JObject result = WebBDUt.NewBasicResponse(false, "");
             JObject tmp = new JObject();
             var res = await Generic.ProcessRequest(request, response, "genericDS", "Usuarios/Get_RolesUsuario", "{username:'" + user.Identity.Name + "'}", rootPath);
             tmp["user"] = user.Identity.Name;
@@ -145,7 +145,7 @@ namespace orca.Code.Auth {
                 tmp = await CreateUser(item, userManager);
                 resp.Add(tmp);
             }
-            JObject ret = WebBDUt.NewBasicResponse(true, null);
+            JObject ret = WebBDUt.NewBasicResponse(true, "");
             ret[WebBDUt.DATA] = resp;
             return ret;
         }

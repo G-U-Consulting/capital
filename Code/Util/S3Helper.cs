@@ -1,4 +1,5 @@
-﻿using Amazon.S3;
+﻿using Amazon;
+using Amazon.S3;
 using Amazon.S3.Model;
 using Newtonsoft.Json.Linq;
 using System.Numerics;
@@ -10,16 +11,16 @@ namespace capital.Code.Util {
         private string cachePath, connectionString, bucketName;
         private IAmazonS3 client;
         private Dictionary<string, Tuple<string, string>> memoryCache;
-        public S3Helper s3Helper = null;
+        private static S3Helper s3Helper = null;
 
         public S3Helper(string localroot, string connectionString) {
             this.connectionString = connectionString;
-            cachePath = Path.Combine("wwwroot", "cache");
+            cachePath = Path.Combine(localroot, "wwwroot", "cache");
             if(!Directory.Exists(cachePath))
                 Directory.CreateDirectory(cachePath);
             memoryCache = new Dictionary<string, Tuple<string, string>>();
         }
-        public S3Helper GetInstance(string localroot, string connectionString) { 
+        public static S3Helper GetInstance(string localroot, string connectionString) { 
             if(s3Helper == null)
                 s3Helper = new S3Helper(localroot, connectionString);
             return s3Helper;
@@ -28,7 +29,7 @@ namespace capital.Code.Util {
             if(client == null) { 
                 string sdata = await WebBDUt.ExecuteLocalSQL<string>("General/Get_Variable", ["@nombre_variable"], ["DatosS3"], connectionString);
                 JObject jdata = JObject.Parse(sdata);
-                client = new AmazonS3Client(jdata["awsAccessKeyId"].Value<string>(), jdata["awsSecretAccessKey"].Value<string>());
+                client = new AmazonS3Client(jdata["awsAccessKeyId"].Value<string>(), jdata["awsSecretAccessKey"].Value<string>(), RegionEndpoint.USEast1);
                 bucketName = jdata["bucketName"].Value<string>();
             }
         }
@@ -36,7 +37,7 @@ namespace capital.Code.Util {
             S3HelperUploadResponse response = new S3HelperUploadResponse();
             try {
                 await Init();
-                string objectName = Guid.NewGuid().ToString();
+                string objectName = Guid.NewGuid().ToString() + Path.GetExtension(fileName);
                 PutObjectRequest request = new PutObjectRequest {
                     BucketName = bucketName,
                     Key = objectName,
@@ -79,6 +80,10 @@ namespace capital.Code.Util {
                         response.Success = false;
                         response.Message = oresponse.HttpStatusCode + "";
                     }
+                } else {
+                    response.Success = true;
+                    response.Path = scachePath;
+                    response.Message = "OK";
                 }
             } catch (Exception ex) {
                 response.Success = false;

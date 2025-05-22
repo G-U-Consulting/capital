@@ -15,8 +15,6 @@ public static class WebUt {
     private static HttpClient client = new HttpClient();
     public static async Task<string> WebRequest(string url, HttpMethod method, string body, string contentType, Dictionary<string, string> headers = null, X509Certificate2 cert = null) {
         HttpRequestMessage request = new HttpRequestMessage(method, url);
-        request.Headers.UserAgent.ParseAdd("MyAppName");
-        request.Headers.Host = "sincopruebas.constructoracapital.com";
         //if (cert != null) request.ClientCertificates.Add(cert);   
         if (headers != null)
             foreach (KeyValuePair<string, string> item in headers) { 
@@ -31,5 +29,37 @@ public static class WebUt {
         HttpResponseMessage response = await client.SendAsync(request);
         
         return await response.Content.ReadAsStringAsync();
+    }
+    public static string GetContentType(string fileExt) {
+        string ret = "";
+        switch (fileExt.ToLower()) {
+            case ".txt":
+                ret = "text/plain"; break;
+            case ".xml":
+                ret = "text/xml"; break;
+            case ".html":
+                ret = "text/html"; break;
+            case ".jpeg":
+                ret = "image/jpeg"; break;
+            case ".jpg":
+                ret = "image/jpeg"; break;
+            case ".png":
+                ret = "image/png"; break;
+            case ".mpeg":
+                ret = "audio/mpeg"; break;
+            case ".ogg":
+                ret = "audio/ogg"; break;
+            case ".mp4":
+                ret = "video/mp4"; break;
+            case ".pdf":
+                ret = "application/pdf"; break;
+            case ".tiff":
+                ret = "image/tiff"; break;
+            case ".tif":
+                ret = "image/tif"; break;
+            default:
+                ret = "application/octet-stream"; break;
+        }
+        return ret;
     }
 }

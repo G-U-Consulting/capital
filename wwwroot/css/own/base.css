@@ -1373,7 +1373,16 @@ tr.selected input {
 .image-drag > span {
   color: #444;
 }
-
+.center-absolute {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #666;
+  font-size: 1.1em;
+  pointer-events: none;
+  text-align: center;
+}
 .matrix-cont {
   display: inline-flex;
   flex-wrap: wrap;
