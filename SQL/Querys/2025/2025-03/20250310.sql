@@ -369,3 +369,23 @@ drop table dim_cargo;
 drop table dim_zona;
 drop table AuditoriaSQL;
 */
+
+create table dim_grupo_proyecto(
+	id_grupo_proyecto int primary key auto_increment,
+	grupo varchar(50) not null,
+	orden int not null,
+	id_proyecto int,
+	modulo varchar(200), -- ('imagenes','videos','recorridos','obras')
+	constraint fk_id_proyecto foreign key(id_proyecto) references fact_proyectos(id_proyecto),
+	unique(grupo, id_proyecto)
+);
+create trigger tr_insert_grupo_proyecto_g after insert on dim_grupo_img for each row
+begin
+	insert into dim_grupo_proyecto(grupo, orden, id_proyecto, modulo)
+	select new.grupo as grupo, new.orden as orden, fp.id_proyecto, 'imagenes' from fact_proyectos fp;
+end;
+create trigger tr_insert_grupo_proyecto_p after insert on fact_proyectos for each row
+begin
+	insert into dim_grupo_proyecto(grupo, orden, id_proyecto, modulo)
+	select dg.grupo, dg.orden, new.id_proyecto as id_proyecto, 'imagenes' from dim_grupo_img dg;
+end;

@@ -27,7 +27,7 @@
                             @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                             @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'"/>
                         <div class="image-name-overlay">{{ item.file.name }}</div>
-                         <div class="download-btn">
+                        <div class="download-btn">
                             <a :href="getURLFile(item.file)" :download="item.file.name">
                                 <img src="../../img/ico/download.jpg">
                             </a>

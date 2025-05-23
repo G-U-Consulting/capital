@@ -225,17 +225,7 @@ export default {
             this.clearAllImages();
             this.setMode(2);
             Object.keys(doc).forEach((key) => (this.documento[key] = doc[key]));
-            let base = `./docs/${doc.documento} [${doc.id_documento}]/`,
-                resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", { id_documento: doc.id_documento })).data;
-            let files = await this.openFiles(
-                resp.map(file => {
-                    return {
-                        path: base + file.codigo,
-                        name: file.nombre,
-                    }
-                })
-            );
-            this.processFiles(files);
+            this.loadFiles(doc.id_documento);
         },
         async onSaveDocument() {
             showProgress();
@@ -243,26 +233,12 @@ export default {
                 let resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Documento`, this.documento, this.mode == 1),
                     id_doc = this.mode == 1 ? resp.id : this.documento.id_documento;
                 if (resp.data === "OK" && id_doc) {
-                    let files = {}, formData = new FormData(), docfiles = [...this.previews];
-                    docfiles.forEach((pre, i) => {
-                        formData.append('file', pre.file);
-                        files[pre.file.name] = {
-                            nombre: pre.file.name,
-                            orden: i,
-                            id_documento: id_doc,
-                        };
-                    });
-                    resp = await httpFunc("/generic/genericST/Maestros:Del_Archivos", { id_documento: id_doc });
-                    if (resp.data === 'OK')
-                        resp = await httpFunc(`/api/uploaddocs/docs/${this.documento.documento} [${id_doc}]`, formData);
-                    else throw resp;
-                    if (resp.data) {
-                        for (let key in resp.data) {
-                            files[key].codigo = resp.data[key];
-                            let r = await httpFunc("/generic/genericST/Maestros:Ins_Archivos", files[key]);
-                            if (r.data !== 'OK') throw r.data;
-                        }
-                    } else throw resp;
+                    let form = new FormData();
+                    this.previews.forEach(pre => form.append(pre.file.name, pre.file));
+                    let res = await httpFunc("/file/upload", form);
+                    
+                    if (res.isError) showMessage(res.errorMessage);
+                    else this.uploadS3(res.data, id_doc);
                 } else throw resp;
                 this.setMode(0);
             } catch (e) {
@@ -575,32 +551,31 @@ export default {
             this.processFiles(selectedFiles);
         },
         async processFiles(files) {
+            let noDocs = [];
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const exists = this.files.some(existingFile => existingFile.name === file.name);
                 if (!exists) {
-                    this.files.push(file);
                     let ext = file.name.split('.').pop();
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        if (file.type.startsWith('image/')) {
-                            let f = { src: e.target.result, file: file };
-                            Object.defineProperty(f, 'content', {
-                                get() { return this.src; },
-                                set(val) { this.src = val; }
-                            });
-                            this.previews.push(f);
-                        }
-                        else if (this.getIcon(ext))
-                            this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result });
-                        else {
-                            this.files.pop();
-                            console.error(`Documento no soportado: ${file.name}`);
-                        }
-                    };
-                    reader.readAsDataURL(file);
+                    if (file.type.startsWith('image/') || this.getIcon(ext)) {
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            if (file.type.startsWith('image/')) {
+                                let f = { src: e.target.result, file: file };
+                                Object.defineProperty(f, 'content', {
+                                    get() { return this.src; },
+                                    set(val) { this.src = val; }
+                                });
+                                await this.previews.push(f);
+                            }
+                            else await this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result });
+                            this.files.push(file);
+                        };
+                        reader.readAsDataURL(file);
+                    } else noDocs.push(file.name);
                 }
             }
+            noDocs.length && showMessage(`Error: Documentos no soportados\n${noDocs.join(', ')}`);
         },
         getURLFile(file) {
             return URL.createObjectURL(file);
@@ -622,11 +597,13 @@ export default {
         getIcon(ext) {
             ext = ext.toLowerCase();
             let base = '/img/ico/';
-            if (['doc', 'docx', 'docm', 'dot', 'dotx', 'dotm'].includes(ext)) return base + 'Word.png';
-            if (['xls', 'xlsx', 'xlsm', 'xlt', 'xltx', 'xltm', 'csv'].includes(ext)) return base + 'Excel.png';
-            if (['ppt', 'pptx', 'pptm', 'pot', 'potx', 'potm'].includes(ext)) return base + 'PowerPoint.png';
-            if (['pdf'].includes(ext)) return base + 'PDF.png';
-            if (['txt'].includes(ext)) return base + 'Txt.png';
+            if (["doc", "docx", "docm", "dot", "dotx", "dotm"].includes(ext)) return base + 'Word.png';
+            if (["xls", "xlsx", "xlsm", "xlsb", "xlt", "xltx", "xltm", 'csv'].includes(ext)) return base + 'Excel.png';
+            if (["ppt", "pptx", "pptm", "pot", "potx", "potm", "pps", "ppsx", "ppsm",].includes(ext)) return base + 'PowerPoint.png';
+            if (["mdb", "accdb"].includes(ext)) return base + 'Access.png';
+            if (["mdb", "accdb"].includes(ext)) return base + 'Visio.png';
+            if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext)) 
+                return base + ext + '.png';
             else return false;
         },
         async dragStart(index) {
@@ -636,6 +613,74 @@ export default {
             this.previews = [];
             this.files = [];
         },
+        async loadFiles(id_doc) {
+            this.clearAllImages();
+            let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+                { tipo: 'docs', id_maestro_documento: id_doc }),
+                base = '/file/S3get/';
+                if (res.data) {
+                let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento } });
+                let files = await this.openFiles(paths);
+                await this.processFiles(files);
+                
+                let previews = [];
+                let interval = setInterval(() => {
+                    if(this.previews.length == files.length) {
+                        Promise.all(files.map(async f => {
+                            await this.previews.forEach(pre => {
+                                if (pre.file.name == f.name) previews.push(pre);
+                            });
+                        })).then(a => this.previews = [...previews]).then(a => {
+                            this.files = [];
+                            this.previews.forEach(pre => this.files.push(pre.file));
+                        }).then(a => clearInterval(interval));
+                    } else console.log("Cargando... " + this.previews.length);
+                }, 10);
+            }
+        },
+        async uploadS3(data, id_doc) {
+            showProgress();
+        
+            const response = await httpFunc("/file/S3upload", data);
+            console.log(response);
+        
+            if (response.isError) {
+                showMessage(response.errorMessage);
+                hideProgress();
+                return;
+            }
+            let S3Files = response.data.map((item, i) => ({
+                id_documento: item.Id,
+                id_maestro_documento: id_doc,
+                tipo: 'docs',
+                orden: i
+            }));
+
+            let res = await httpFunc("/generic/genericST/Medios:Del_Archivos", 
+                { id_maestro_documento: id_doc, tipo: 'docs' });
+
+            if (res.isError) {
+                showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
+                hideProgress();
+                return;
+            }
+
+            S3Files.forEach(async archivo => {
+                res = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
+                    orden: archivo.orden,
+                    id_documento: archivo.id_documento,
+                    id_maestro_documento: archivo.id_maestro_documento,
+                    tipo: archivo.tipo
+                });
+        
+                if (res.isError) {
+                    showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            });
+            hideProgress();
+        }
     },
     computed: {
         f_smmlv: {

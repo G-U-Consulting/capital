@@ -176,6 +176,8 @@
             filtros: {
                 proyectos: { id_zona_proyecto : '' },
             },
+            previews: [],
+            files: [],
             viewTable: true,
         };
     },
@@ -401,6 +403,7 @@
             if (mode == 'portada'){
                 let item = document.querySelector('.lateralMenuItemSelected');
                 item && item.classList.remove('lateralMenuItemSelected');
+                await this.loadImg('slide');
             } else {
                 let item = document.getElementById('MenuItemEdicion');
                 item && !item.classList.contains('lateralMenuItemSelected') 
@@ -657,6 +660,61 @@
         onClear(table) {
             let item = this.filtros[table];
             item = Object.keys(item).forEach((key) => item[key] = '');
+        },
+        async clearAllImages() {
+            this.previews = [];
+            this.files = [];
+        },
+        async processFiles(files) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const exists = this.files.some(existingFile => existingFile.name === file.name);
+                if (!exists) {
+                    this.files.push(file);
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        if (file.type.startsWith('image/')) {
+                            let f = { src: e.target.result, file: file };
+                            Object.defineProperty(f, 'content', {
+                                get() { return this.src; },
+                                set(val) { this.src = val; }
+                            });
+                            this.previews.push(f);
+                        }
+                        else {
+                            this.files.pop();
+                            console.error(`Documento no soportado: ${file.name}`);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        },
+        async openFiles(paths) {
+            let files = [];
+            try {
+                files = await Promise.all(paths.map(async ({ path, name }) => {
+                    const res = await fetch(path);
+                    if (!res.ok) throw new Error(`Error al cargar ${path}: ${res.statusText}`);
+                    const blob = await res.blob();
+                    return new File([blob], name, { type: blob.type });
+                }));
+            } catch (error) {
+                console.error("Error al cargar archivos:", error);
+            }
+            return files;
+        },
+        async loadImg(tipo) {
+            this.clearAllImages();
+            console.log(this.editObjProyecto);
+            let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+                { tipo, id_proyecto: this.editObjProyecto.id_proyecto });
+            console.log(res);
+            if (res.data) {
+                let paths = res.data.map(f => { return { path: '/file/S3get/' + f.llave, name: f.documento } });
+                let files = await this.openFiles(paths);
+                await this.processFiles(files);
+            }
         },
         async hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;

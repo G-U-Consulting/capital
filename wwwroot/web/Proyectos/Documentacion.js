@@ -72,32 +72,31 @@ export default {
             this.processFiles(selectedFiles);
         },
         async processFiles(files) {
+            let noDocs = [];
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const exists = this.files.some(existingFile => existingFile.name === file.name);
                 if (!exists) {
-                    this.files.push(file);
                     let ext = file.name.split('.').pop();
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        if (file.type.startsWith('image/')) {
-                            let f = { src: e.target.result, file: file };
-                            Object.defineProperty(f, 'content', {
-                                get() { return this.src; },
-                                set(val) { this.src = val; }
-                            });
-                            this.previews.push(f);
-                        }
-                        else if (this.getIcon(ext))
-                            this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result });
-                        else {
-                            this.files.pop();
-                            console.error(`Documento no soportado: ${file.name}`);
-                        }
-                    };
-                    reader.readAsDataURL(file);
+                    if (file.type.startsWith('image/') || this.getIcon(ext)) {
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            if (file.type.startsWith('image/')) {
+                                let f = { src: e.target.result, file: file };
+                                Object.defineProperty(f, 'content', {
+                                    get() { return this.src; },
+                                    set(val) { this.src = val; }
+                                });
+                                await this.previews.push(f);
+                            }
+                            else await this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result });
+                            this.files.push(file);
+                        };
+                        reader.readAsDataURL(file);
+                    } else noDocs.push(file.name);
                 }
             }
+            noDocs.length && showMessage(`Error: Documentos no soportados\n${noDocs.join(', ')}`);
         },
         getURLFile(file) {
             return URL.createObjectURL(file);
@@ -119,11 +118,13 @@ export default {
         getIcon(ext) {
             ext = ext.toLowerCase();
             let base = '/img/ico/';
-            if (['doc', 'docx', 'docm', 'dot', 'dotx', 'dotm'].includes(ext)) return base + 'Word.png';
-            if (['xls', 'xlsx', 'xlsm', 'xlt', 'xltx', 'xltm', 'csv'].includes(ext)) return base + 'Excel.png';
-            if (['ppt', 'pptx', 'pptm', 'pot', 'potx', 'potm'].includes(ext)) return base + 'PowerPoint.png';
-            if (['pdf'].includes(ext)) return base + 'PDF.png';
-            if (['txt'].includes(ext)) return base + 'Txt.png';
+            if (["doc", "docx", "docm", "dot", "dotx", "dotm"].includes(ext)) return base + 'Word.png';
+            if (["xls", "xlsx", "xlsm", "xlsb", "xlt", "xltx", "xltm", 'csv'].includes(ext)) return base + 'Excel.png';
+            if (["ppt", "pptx", "pptm", "pot", "potx", "potm", "pps", "ppsx", "ppsm",].includes(ext)) return base + 'PowerPoint.png';
+            if (["mdb", "accdb"].includes(ext)) return base + 'Access.png';
+            if (["mdb", "accdb"].includes(ext)) return base + 'Visio.png';
+            if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext)) 
+                return base + ext + '.png';
             else return false;
         },
         async dragStart(index) {
@@ -150,10 +151,24 @@ export default {
             let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
                 { tipo: 'docs', id_proyecto: this.proyecto.id_proyecto }),
                 base = '/file/S3get/';
-            if (res.data) {
+                if (res.data) {
                 let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento } });
                 let files = await this.openFiles(paths);
                 await this.processFiles(files);
+                
+                let previews = [];
+                let interval = setInterval(() => {
+                    if(this.previews.length == files.length) {
+                        Promise.all(files.map(async f => {
+                            await this.previews.forEach(pre => {
+                                if (pre.file.name == f.name) previews.push(pre);
+                            });
+                        })).then(a => this.previews = [...previews]).then(a => {
+                            this.files = [];
+                            this.previews.forEach(pre => this.files.push(pre.file));
+                        }).then(a => clearInterval(interval));
+                    } else console.log("Cargando... " + this.previews.length);
+                }, 10);
             }
         },
         async uploadS3(data) {

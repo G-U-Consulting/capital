@@ -242,7 +242,9 @@ create table fact_documentos (
 create table fact_documento_proyecto (
     id_documento_proyecto int auto_increment primary key,
     id_documento int not null,
-    id_proyecto int not null,
+    id_proyecto int,
+	id_secuencia int,
+	id_maestro_documento int,
     orden int,
 	tipo varchar(100),
     is_active bit default 1,
@@ -250,7 +252,6 @@ create table fact_documento_proyecto (
     created_by varchar(200) default current_user,
     foreign key (id_documento) references fact_documentos(id_documento)
 );
-
 
 /*
 drop table fact_proyectos;

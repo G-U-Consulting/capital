@@ -84,9 +84,10 @@
 
 <div v-if="mode == 'portada'" class="pure-g" style="height: calc(100vh - 3.5em - 2.3rem); overflow: hidden;">
     <div class="pure-u-1-1" style="height: 100%;">
-
+        
         <!-- Test -->
-        <img style="height: 100%; width: 100%" src="../../img/background/abstract-1851115_1280.jpg" />
+        <img style="height: 100%; width: 100%" v-if="previews && previews.length && previews[0].src"
+            :src="previews && previews.length && previews[0].src" />
         <!-- End test -->
          
     </div>

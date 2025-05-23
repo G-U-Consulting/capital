@@ -4,6 +4,7 @@
 --START_PARAM
 set @id_documento,
     @id_proyecto,
+    @id_maestro_documento,
     @orden,
     @tipo;
 
@@ -11,11 +12,13 @@ set @id_documento,
 insert into fact_documento_proyecto (
     id_documento,
     id_proyecto,
+    id_maestro_documento,
     orden,
     tipo
 ) values (
     @id_documento,
     @id_proyecto,
+    @id_maestro_documento,
     @orden,
     @tipo
 );
