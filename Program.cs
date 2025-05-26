@@ -230,6 +230,7 @@ app.Map("/file/S3upload", async (HttpContext context) => {
             stmp = await S3Helper.GetInstance(rootPath, defaultDB)
                 .UploadFile(Path.Combine(rootPath, "wwwroot", item["serverPath"].Value<string>()), item["fileName"].Value<string>(), false, context.User.Identity.Name, true);
             tmp = JObject.FromObject(stmp);
+            tmp["FileName"] = item["fileName"];
             result.Add(tmp);
         }
         return WebBDUt.NewBasicResponse(false, result).ToString();

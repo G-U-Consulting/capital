@@ -6,21 +6,25 @@ set @id_documento,
     @id_proyecto,
     @id_maestro_documento,
     @orden,
+    @id_grupo_proyecto,
     @tipo;
 
 --END_PARAM
+
 insert into fact_documento_proyecto (
     id_documento,
     id_proyecto,
     id_maestro_documento,
     orden,
-    tipo
+    tipo,
+    id_grupo_proyecto
 ) values (
     @id_documento,
     @id_proyecto,
     @id_maestro_documento,
     @orden,
-    @tipo
+    @tipo,
+    @id_grupo_proyecto
 );
 
 
