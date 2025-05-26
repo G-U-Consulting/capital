@@ -10,15 +10,13 @@ set @id_proyecto,
 
 update fact_documento_proyecto
 set is_active = 0
-where (
+where
     id_proyecto = @id_proyecto
-    and tipo like CONCAT('%', @tipo, '%')
+    and tipo like concat('%', @tipo, '%')
     and id_grupo_proyecto = @id_grupo_proyecto
-)
-or (
-    id_proyecto = @id_proyecto
-    and tipo like CONCAT('%', @tipo, '%')
-    and id_maestro_documento = @id_maestro_documento
-);
+    and (
+        @id_maestro_documento is null
+        or id_maestro_documento = @id_maestro_documento
+    );
 
-select 'OK' as result;
+select 'ok' as result;

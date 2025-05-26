@@ -4,8 +4,7 @@
     <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
         <div class="pure-g steps">
             <div v-for="(tab, index) in mediaTabs" :key="index" class="pure-u-1-1 pure-u-md-1-6">
-                <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]"
-                    @click="setSubmode(index); [1].includes(index) && loadImg()">
+                <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]" @click="setSubmode(index)">
                     {{ tab }}
                 </div>
             </div>
@@ -147,7 +146,7 @@
                     </div>
                     <div class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard positTex' >
-                            <select v-model="selectImg">
+                            <select v-model="selectImg" @change="checkAndLoad">
                                 <option :value="null" disabled >[Seleccione uno ...]</option>
                                 <option v-for='item in grupo_proyectos' v-bind:value='item.id_grupo_proyecto'>
                                     {{ item.grupo }}
@@ -156,8 +155,8 @@
                         </div>
                     </div>
                     <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
-                        <button @click="modeimg = false; previews = [];" >Nuevo agrupación</button>
-                    </div>
+                        <button @click="modImg" >Nuevo agrupación</button>
+                    </div>  
                     <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
                 </div>
             </div>
@@ -241,13 +240,13 @@
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
                     Vídeos de Proyecto
                 </div>
-                <div class="pure-g">
+                <div v-if="modevid" class="pure-g">
                     <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
                         Agrupación
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-1-4'>
+                    <div  class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard positTex'>
-                            <select v-model="selectVid">
+                            <select v-model="selectVid" @change="checkAndLoad">
                                 <option value='' disabled selected>[Seleccione uno ...]</option>
                                 <option v-for='item in grupo_proyectos' v-bind:value='item.id_grupo_proyecto'>
                                     {{ item.grupo }}
@@ -255,8 +254,23 @@
                             </select>
                         </div>
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                    <div @click="modevid = false" class='pure-u-1-1 pure-u-md-1-5 positTex'>
                         <button>Nueva agrupación</button>
+                    </div>
+                </div>
+                <div v-else class="pure-g">
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        Nueva Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='formInputStandard positTex' >
+                           <input type="text" v-model="newGrupVid">
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='formInputStandard positTex'>
+                           <span class="icon" class="btn-atras" @click="volverDesdeVideo">⬅</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -274,8 +288,8 @@
                     <tbody>
                         <tr v-for="(video, index) in videos" :key="index" :class="{ selected: selectedRow === index }"
                             @click="selectRow(index)">
-                            <td><input v-model="video.title" class="full-width-input" /></td>
-                            <td><input v-model="video.description" class="full-width-input"/></td>
+                            <td><input v-model="video.nombre" class="full-width-input" /></td>
+                            <td><input v-model="video.descripcion" class="full-width-input"/></td>
                             <td><input v-model="video.link" class="full-width-input"/></td>
                             <td class="center-delete-cell">
                                 <div class="center-content" @click.stop>
@@ -433,10 +447,11 @@
             </div>
         </div>
     </div>
-    <div v-if="modeimg" class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
-        <button @click="uploadFiles()">Guardar</button>
-    </div>
-    <div v-else class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
-        <button @click="GrupUploadFiles">Guardar</button>
+    <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
+        <button v-if="submode == 2 && modeimg" @click="uploadFiles()">Guardar</button>
+        <button v-else-if="submode == 2" @click="GrupUploadFiles">Guardar</button>
+        <button v-else-if="submode == 3 && !modevid" @click="crearGrupoVideos()">Guardar</button>
+        <button v-else-if="submode == 3" @click="insertarVideosEnGrupo()">Guardar</button>
+        <button v-else-if="submode == 1" @click="uploadFiles()">Guardar</button>
     </div>
 </div>
