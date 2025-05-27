@@ -13,6 +13,7 @@
             ],
             tabsIncomplete: [],
             files: [],
+            filesAvo:[],
             draggedFile: null,
             dragIndex: null,
             videos: [
@@ -48,6 +49,7 @@
                 planta: false
             },
             previews: [],
+            previewsAvo: [],
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
             documentos: [],
             filtros: {
@@ -65,28 +67,17 @@
             selectRvr: null,
             selectAvo: null,
             grupo_proyectos: [],
-            modeimg: true,
-            modevid: true,
+            modeimg: false,
+            modeAvo: false,
+            modevid: false,
+            modevir: false,
+            ismodulImg: false,
+            ismodulVid: false,
+            ismodulRvr: false,
+            ismodulAvo: false,
             S3Files: [],
-
+            videoId: null,
         };
-    },
-    watch: {
-         grupo_proyectos(newVal) {
-            if (newVal.length > 0 && !this.selectImg) {
-                this.selectImg = newVal[0].id_grupo_proyecto;
-            }
-            if (newVal.length > 0 && !this.selectVid) {
-                this.selectVid = newVal[0].id_grupo_proyecto;
-            }
-            if (newVal.length > 0 && !this.selectRvr) {
-                this.selectRvr = newVal[0].id_grupo_proyecto;
-            }
-            if (newVal.length > 0 && !this.selectAvo) {
-                this.selectAvo = newVal[0].id_grupo_proyecto;
-            }
-         },
-     
     },
     computed: {
         tabClasses() {
@@ -104,9 +95,7 @@
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("StartMediaMdule", null)
-        const res = await httpFunc("/generic/genericDT/Medios:Get_variables", { id_proyecto: GlobalVariables.id_proyecto, modulo: 'imagenes'});
-        const grupo_img = res.data.map(item => item.grupo);
-        this.construirTablas(grupo_img);
+        this.setSubmode(0);
     },
     methods: {
         setMode(mode) {
@@ -118,15 +107,42 @@
             this.submode = index;
  
             if (index == 0) {
-                const res = await httpFunc("/generic/genericDT/Medios:Get_variables", { id_proyecto: GlobalVariables.id_proyecto, modulo: 'imagenes' });
-                const grupo_img = res.data.map(item => item.grupo);
-                this.construirTablas(grupo_img);
-                return;
-            }
 
+                const resImg = await httpFunc("/generic/genericDT/Medios:Get_variables", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: 'imagenes',
+                });
+                const grupo_img = resImg.data.map(item => item.grupo);
+        
+                const resVid = await httpFunc("/generic/genericDT/Medios:Get_variables", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: 'videos',
+                });
+                const grupo_vid = resVid.data.map(item => item.grupo);
+        
+                const resVir = await httpFunc("/generic/genericDT/Medios:Get_variables", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: 'Recorridos virt',
+                });
+                const grupo_vir = resVir.data.map(item => item.grupo);
+        
+                await this.construirTablas(grupo_img, grupo_vid, grupo_vir);
+
+                const resAvo = await httpFunc("/generic/genericDT/Medios:Get_variables", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: 'avances de obra',
+                });
+                const grupo_avo = resAvo.data.map(item => item.grupo);
+        
+                await this.construirTablas(grupo_img, grupo_vid, grupo_vir,grupo_avo);
+               
+            }
+        
             this.modeimg = true;
+            this.modeAvo = true;
+            this.modevid = true;
+            this.modevir = true;
             const modulos = {
-                1: 'principal',
                 2: 'imagenes',
                 3: 'videos',
                 4: 'recorridos virt',
@@ -145,7 +161,7 @@
                 console.log(error);
             }
         },
-        construirTablas(grupo_img) {
+        construirTablas(grupo_img, grupo_vid,grupo_vir,grupo_avo) {
             this.tablas = [
                 {
                     titulo: 'Agrupaciones Generales',
@@ -167,20 +183,20 @@
                 },
                 {
                     titulo: 'Agrupamiento de Vídeos de Proyecto',
-                    datos: [],
-                    activo: false,
+                    datos: grupo_vid,
+                    activo: true,
                     error: true
                 },
                 {
                     titulo: 'Agrupamiento de Recorridos Virtuales',
-                    datos: [],
+                    datos: grupo_vir,
                     activo: true,
                     error: false
                 },
                 {
                     titulo: 'Periodos de Avances de obra',
-                    datos: [],
-                    activo: false,
+                    datos: grupo_avo,
+                    activo: true,
                     error: false
                 }
             ];
@@ -210,6 +226,28 @@
                     }
                 }
                 this.dragIndex = null;
+                return;
+            }
+
+            const droppedText = event.dataTransfer.getData('text');
+            if (droppedText && (droppedText.includes('youtube.com') || droppedText.includes('youtu.be'))) {
+                const videoId = this.extractYouTubeId(droppedText);
+                if (videoId) {
+                    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+
+                    this.previewsAvo.push({
+                        isVideo: true,
+                        src: thumbnailUrl,
+                        videoUrl: droppedText,
+                        name: 'Video de YouTube'
+                    });
+
+                    this.filesAvo.push({
+                        isVideo: true,
+                        Url: droppedText,
+                        name: 'Video de YouTube'
+                    });
+                }
                 return;
             }
             const droppedFiles = event.dataTransfer.files;
@@ -247,9 +285,94 @@
                 }
             }
         },
+        async handleDropAvo(event, targetKey = null) {
+            if (this.dragIndex !== null) {
+                const dropTarget = event.target.closest('.image-card');
+                if (dropTarget) {
+                    const dropIndex = Array.from(event.currentTarget.querySelectorAll('.image-card')).indexOf(dropTarget);
+                    if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
+                        const draggedItem = this.previewsAvo[this.dragIndex];
+                        const draggedFile = this.filesAvo[this.dragIndex];
+        
+                        this.previewsAvo.splice(this.dragIndex, 1);
+                        this.filesAvo.splice(this.dragIndex, 1);
+        
+                        this.previewsAvo.splice(dropIndex, 0, draggedItem);
+                        this.filesAvo.splice(dropIndex, 0, draggedFile);
+                        this.dragIndex = null;
+                        return;
+                    }
+                }
+                this.dragIndex = null;
+                return;
+            }
+
+            const droppedText = event.dataTransfer.getData('text');
+            if (droppedText && (droppedText.includes('youtube.com') || droppedText.includes('youtu.be'))) {
+                const videoId = this.extractYouTubeId(droppedText);
+                if (videoId) {
+                    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+
+                    this.previewsAvo.push({
+                        isVideo: true,
+                        src: thumbnailUrl,
+                        videoUrl: droppedText,
+                        name: 'Video de YouTube'
+                    });
+
+                    this.filesAvo.push({
+                        isVideo: true,
+                        Url: droppedText,
+                        name: 'Video de YouTube'
+                    });
+                }
+                return;
+            }
+            const droppedFiles = event.dataTransfer.files;
+            if (droppedFiles.length > 0) {
+                if (targetKey) {
+                    const file = droppedFiles[0];
+                    if (!file.type.startsWith("image/")) {
+                        showMessage("Solo se permiten imágenes.");
+                        return;
+                    }
+                    if (file.size > 2 * 1024 * 1024) {
+                        showMessage("La imagen debe pesar menos de 2Mb.");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this[targetKey] = e.target.result;
+                        if (targetKey === 'logoPreview') this.logoFile = file;
+                        else if (targetKey === 'slidePreview') this.slideFile = file;
+                        else if (targetKey === 'plantaPreview') this.plantaFile = file;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    Array.from(droppedFiles).forEach(file => {
+                        if (!file.type.startsWith("image/")) return;
+                        if (file.size > 2 * 1024 * 1024) return;
+        
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.previewsAvo.push({ src: e.target.result, file });
+                            this.filesAvo.push(file);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+            }
+        },
+        extractYouTubeId(url) {
+            const regExp = /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[1].length === 11) ? match[1] : null;
+        },
         removeImage(index) {
             this.previews.splice(index, 1);
             this.files.splice(index, 1);
+            this.previewsAvo.splice(index, 1);
+            this.filesAvo.splice(index, 1);
         },
         handleFileChange(event) {
             const selectedFiles = event.target.files;
@@ -499,6 +622,9 @@
         configclearAllImages(){
             showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
         },
+
+        //////////////////////////////////////
+
         async uploadFiles() {
             const form = new FormData();
            
@@ -513,13 +639,18 @@
                     const file = getFile(fObj);
                     if (file) form.append(file.name, file);
                 });
-            } else {
+            } else if (this.submode === 2) {
                 this.files.forEach(fObj => {
                     const file = getFile(fObj) || fObj;
                     if (file) form.append(file.name, file);
                 });
+            } else if (this.submode === 5)  {
+                this.filesAvo.forEach(fObj => {
+                    const file = getFile(fObj) || fObj;
+                    if (file) form.append(file.name, file);
+                });
             }
-
+        
             showProgress();
             const response = await httpFunc("/file/upload", form);
             hideProgress();
@@ -531,12 +662,13 @@
             }
         },
 
+///////////////////////////////////
+
         async S3UploadFiles() {
             const getFile = (f) => f instanceof File ? f : f?.file || null;
            
             showProgress();
             const response = await httpFunc("/file/S3upload", this.serverFiles);
-            hideProgress();
 
             if (response.isError) {
                 showMessage(response.errorMessage);
@@ -550,7 +682,7 @@
             };
 
             const folder = folderMap[this.submode] || 'principal';
-            await this.checkAndLoad(this.submode);
+         
             if (this.submode === 1) {
                 const fileList = [this.logoFile, this.slideFile, this.plantaFile].map(getFile).filter(Boolean);
 
@@ -568,11 +700,27 @@
                     name: item.FileName,
                     id_proyecto: GlobalVariables.id_proyecto,
                     tipo: folder,
-                    orden: index
+                    orden: index, 
+                    link: item.Url
                 }));
             }
+            if (this.submode === 5 && Array.isArray(this.filesAvo)) {
+                const startIndex = this.S3Files.length;
 
-            showProgress();
+                const filteredAndMappedItems = this.filesAvo
+                    .filter(item => item?.isVideo === true || (item?.link))
+                    .map((item, idx) => ({
+                        id_documento: '1',
+                        name: 'Video',
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        tipo: folder,
+                        orden: startIndex + idx,
+                        link: item.Url || item.link
+                    }));
+
+                this.S3Files.push(...filteredAndMappedItems);
+            }
+          
             for (const archivo of this.S3Files) {
                 const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
                     nombre: archivo.name || '',
@@ -590,17 +738,16 @@
                 }
             }
 
-            hideProgress();
-            showProgress();
-
+    
             for (const archivo of this.S3Files) {
                 const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
                     nombre: archivo.name || '',
                     orden: archivo.orden,
-                    id_documento: archivo.id_documento,
+                    id_documento: archivo.id_documento || 1,
                     id_proyecto: archivo.id_proyecto,
                     id_grupo_proyecto: this.selectedGrupoId,
-                    tipo: archivo.tipo
+                    tipo: archivo.tipo,
+                    link: archivo.link
                 });
 
                 if (result.isError) {
@@ -609,15 +756,17 @@
                     return;
                 }
             }
-
+            await this.loadImg();
             hideProgress();
         },
+////////////////////////////////////
 
         async loadImg() {
             const folderMap = {
                 1: 'principal',
                 2: 'imagenes',
                 3: 'videos',
+                4: 'recorridos virt',
                 5: 'avances de obra'
             };
         
@@ -637,6 +786,24 @@
 
          
                 this.videos = this.videos.map(video => ({
+                    nombre: video.nombre || '',
+                    descripcion: video.descripcion || '',
+                    link: video.link || ''
+                }));
+
+            }
+
+            if (this.submode === 4) {
+                const resp = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    tipo: folder,
+                    id_grupo_proyecto: this.selectedGrupoId
+                });
+
+                this.videosReco = resp.data || [];
+
+
+                this.videosReco = this.videosReco.map(video => ({
                     nombre: video.nombre || '',
                     descripcion: video.descripcion || '',
                     link: video.link || ''
@@ -665,7 +832,7 @@
                     }
                 }
             }
-            if (this.submode === 2) {
+            if (this.submode === 2 || this.submode === 5) {
                 await this.clearAllImages();
                 const res = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
                     id_proyecto: GlobalVariables.id_proyecto,
@@ -678,18 +845,31 @@
             hideProgress();
         
             for (let file of archivos) {
+                const isVideo = !!file.link;
+
+                if (isVideo) {
+                    if (this.submode === 5) {
+                        this.previewsAvo.push({ previewSrc: file.link, videoUrl: file.link, isVideo: true });
+                        this.filesAvo.push(file);
+                    } else if (this.submode === 2) {
+                        this.previews.push({ previewSrc: file.link, videoUrl: file.link, isVideo: true });
+                        this.files.push(file);
+                    }
+                    continue;
+                }
+
                 const imagePath = "/file/S3get/" + file.llave;
                 const blob = await this.fetchImageAsBlob(imagePath);
                 if (!blob) continue;
-        
+
                 const fileObj = new File([blob], file.documento, { type: blob.type });
-        
+
                 const src = await new Promise(resolve => {
                     const reader = new FileReader();
                     reader.onload = e => resolve(e.target.result);
                     reader.readAsDataURL(fileObj);
                 });
-        
+
                 if (this.submode === 1) {
                     if (file.tipo.includes('logo')) {
                         this.logoPreview = src;
@@ -701,9 +881,12 @@
                         this.plantaPreview = src;
                         this.plantaFile = fileObj;
                     }
-                } else {
+                } else if (this.submode === 2) {
                     this.previews.push({ src, file: fileObj });
                     this.files.push(fileObj);
+                } else if (this.submode === 5) {
+                    this.previewsAvo.push({ src, file: fileObj });
+                    this.filesAvo.push(fileObj);
                 }
             }
         },
@@ -727,6 +910,8 @@
             this.plantaFile = null;
             this.previews = [];
             this.files = [];
+            this.previewsAvo = [];
+            this.filesAvo = [];
         },
         async GrupUploadFiles() {
             const folderMap = {
@@ -763,6 +948,7 @@
                 this.grupo_proyectos = resp.data;
             
                 this.uploadFiles();
+                await this.checkAndLoad(this.submode);
                 hideProgress();
             } catch (error) {
                 hideProgress();
@@ -771,20 +957,42 @@
         },
         checkAndLoad() {
 
+              
             switch (this.submode) {
-                case 2: this.selectedGrupoId = this.selectImg; break;
-                case 3: this.selectedGrupoId = this.selectVid; break;
-                case 4: this.selectedGrupoId = this.selectRvr; break;
-                case 5: this.selectedGrupoId = this.selectAvo; break;
-                default: this.selectedGrupoId = 0;
-              }
-            this.loadImg();
-        
+                case 2:
+                    this.selectedGrupoId = this.selectImg;
+                    this.ismodulImg = true;
+                    break;
+                case 3:
+                    this.selectedGrupoId = this.selectVid;
+                    this.ismodulVid = true;
+                    break;
+                case 4:
+                    this.selectedGrupoId = this.selectRvr;
+                    this.ismodulRvr = true;
+                    break;
+                case 5:
+                    this.selectedGrupoId = this.selectAvo;
+                    this.ismodulAvo = true;
+                    break;
+                default:
+                    this.selectedGrupoId = 0;
+            }
+
+            if (this.selectedGrupoId) {
+                this.loadImg();
+            }
+
         },
         modImg(){
             this.modeimg = false; 
             this.previews = []; 
             this.files = [];
+        },
+        modAvo(){
+            this.modeAvo = false; 
+            this.previewsAvo = []; 
+            this.filesAvo = [];
         },
         async crearGrupoVideos() {
             try {
@@ -812,13 +1020,90 @@
                 hideProgress();
             }
         },
+  
+        async crearGrupoReco() {
+            try {
+                showProgress();
+
+                const res = await httpFunc("/generic/genericDT/Medios:Ins_Grupos", {
+                    grupo: this.newGrupVid,
+                    orden: 5,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: 'recorridos virt'
+                });
+
+                if (res.isError || !res.data || !res.data[0]?.result) {
+                    showMessage("El Grupo ya existe.");
+                    return;
+                }
+
+                this.selectedGrupoId = res.data[0].result;
+                this.insertarRecoEnGrupo();
+                showMessage("Grupo de videos creado correctamente.");
+            } catch (error) {
+                console.error("Error al crear grupo:", error);
+                showMessage("Ocurrió un error al crear el grupo.");
+            } finally {
+                hideProgress();
+            }
+        },
+        async insertarRecoEnGrupo() {
+            if (!this.selectedGrupoId) {
+                showMessage("Primero debes crear o seleccionar un grupo.");
+                return;
+            }
+
+            showProgress();
+            for (const [index, archivo] of this.videosReco.entries()) {
+                const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    id_grupo_proyecto: this.selectedGrupoId,
+                    tipo: 'recorridos virt'
+                });
+
+                if (result.isError) {
+                    showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            }
+
+            hideProgress();
+            try {
+                showProgress();
+
+                for (const [index, archivo] of this.videosReco.entries()) {
+                    const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
+                        orden: index,
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        id_documento: 1,
+                        id_grupo_proyecto: this.selectedGrupoId,
+                        tipo: 'recorridos virt',
+                        descripcion: archivo.descripcion,
+                        video: archivo.nombre,
+                        link: archivo.link
+                    });
+
+                    if (result.isError) {
+                        showMessage(`Error al insertar archivo "${archivo.nombre}".`);
+                        return;
+                    }
+                }
+
+                showMessage("Videos guardados correctamente.");
+            } catch (error) {
+                console.error("Error al insertar videos:", error);
+                showMessage("Ocurrió un error al insertar los videos.");
+            } finally {
+                hideProgress();
+            }
+        },
         async insertarVideosEnGrupo() {
             if (!this.selectedGrupoId) {
                 showMessage("Primero debes crear o seleccionar un grupo.");
                 return;
             }
 
-            
             showProgress();
             for (const [index, archivo] of this.videos.entries())  {
                 const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
@@ -865,13 +1150,31 @@
             }
         },
         volverDesdeVideo() {
-            this.modevid = true;
-            this.setSubmode(3);
-            this.videos = [{
-              nombre: '',
-              descripcion: '',
-              link: ''
-            }];
-        }
+     
+            if(this.submode == 3){
+                this.modevid = true;
+                this.setSubmode(3);
+                this.videos = [{
+                  nombre: '',
+                  descripcion: '',
+                  link: ''
+                }];
+            }
+            if(this.submode == 4){
+                this.modevir = true;
+                this.setSubmode(4);
+                this.videosReco = [{
+                  nombre: '',
+                  descripcion: '',
+                  link: ''
+                }];
+            }
+        },
+        showVideo(videoUrl) {
+            this.videoId = this.extractYouTubeId(videoUrl);
+        },
+        closeVideo() {
+            this.videoId = null;
+        },
     }
 };

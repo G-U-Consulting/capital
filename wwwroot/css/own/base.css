@@ -396,6 +396,7 @@ table thead th {
 }
 
 .dataTable {
+    table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
     margin: 0px auto;
@@ -1542,3 +1543,33 @@ tr.selected input {
  cursor: pointer;
  border-radius: 50%;
 }
+
+.th-fijo th {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  height: 4.5em;
+  max-height: 4.5em;
+  padding: 5px;
+  white-space: normal;
+  word-break: break-word;
+  overflow: hidden;
+}
+.video-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.video-modal iframe {
+  width: 50%;
+  height: 50%;
+  border: none;
+}
+

@@ -23,7 +23,7 @@
                         <div :class="{ deshabilitada: tabla.activo, 'tabla-seleccionada': selected.tablaIndex === i }" class="tabla-scroll">
                             <table class="dataTable">
                                 <thead>
-                                    <tr style="height: 50px;">
+                                    <tr class="th-fijo">
                                         <th>{{ tabla.titulo }}</th>
                                     </tr>
                                 </thead>
@@ -74,7 +74,7 @@
                         <span>Eliminar ítem</span>
                     </span>
                     <span class="icon-button" @click="addRowVid">
-                        <img src="../../img/ico/addRow.png" alt="">
+                        <img src="../../img/ico/eye-64.png" alt="">
                         <span>Previsualizar</span>
                     </span>
                 </div>
@@ -160,8 +160,7 @@
                     <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
                 </div>
             </div>
-            
-            <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
+            <div v-if="modeimg && ismodulImg" class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
                 style="position: relative;padding-top: 1em;">
                 <label for="file-input" class="preview-container" style="height: calc(100dvh - 17rem); cursor: pointer;"
                     @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
@@ -192,11 +191,7 @@
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
                     Imágenes de proyecto
                 </div>
-                <div class="pure-g">
-                    <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
-                        <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="configclearAllImages"
-                            title="Limpiar o eliminar imágenes">
-                    </div>
+                <div class="pure-g menuCard" style="margin-top: 1em;">
                     <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
                        Nueva Agrupación
                     </div>
@@ -205,35 +200,12 @@
                            <input type="text" v-model="newGrup">
                         </div>
                     </div>
-                    <!-- <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
-                        <button @click="" >Guardar</button>
-                    </div> -->
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        <button @click="GrupUploadFiles" >Guardar agrupación</button>
+                    </div>
                     <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
                 </div>
             </div>
-            <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
-            style="position: relative;padding-top: 1em;">
-            <label for="file-input" class="preview-container" style="height: calc(100dvh - 17rem); cursor: pointer;"
-                @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
-                @mouseleave="tooltipVisible = false">
-                <div v-if="previews.length === 0" class="center-absolute ">
-                    Arrastra o haz clic para cargar imágenes.
-                </div>
-                <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
-                    @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false" @mouseleave="tooltipVisible = true"
-                    style="position: relative;">
-                    <img :src="item.src" @click.stop.prevent="" @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
-                        @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
-                    <div class="image-name-overlay">{{ item.file.name }}</div>
-                    <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
-                </div>
-                <div v-if="tooltipVisible" class="cursor-tooltip" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
-                    {{tooltipMsg}}
-                </div>
-            </label>
-            <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="*"
-                @change="handleFileChange" ref="fileInput" />
-        </div>
          </div>
         <div class="pure-g" v-show="submode == 3">
             <div class="pure-u-1-1">
@@ -247,7 +219,7 @@
                     <div  class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard positTex'>
                             <select v-model="selectVid" @change="checkAndLoad">
-                                <option value='' disabled selected>[Seleccione uno ...]</option>
+                                <option :value="null" disabled>[Seleccione uno ...]</option>
                                 <option v-for='item in grupo_proyectos' v-bind:value='item.id_grupo_proyecto'>
                                     {{ item.grupo }}
                                 </option>
@@ -258,24 +230,22 @@
                         <button>Nueva agrupación</button>
                     </div>
                 </div>
-                <div v-else class="pure-g">
+                <div v-else class="pure-g menuCard" style="margin-top: 1em;">
                     <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
                         Nueva Agrupación
                     </div>
                     <div class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard positTex' >
-                           <input type="text" v-model="newGrupVid">
+                           <input type="text" v-model="newGrup">
                         </div>
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-1-4'>
-                        <div class='formInputStandard positTex'>
-                           <span class="icon" class="btn-atras" @click="volverDesdeVideo">⬅</span>
-                        </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        <button @click="GrupUploadFiles" >Guardar agrupación</button>
                     </div>
                 </div>
             </div>
             <div class="pure-u-1"></div>
-            <div class="pure-u-1 scroll-container">
+            <div v-if="modevid && ismodulVid" class="pure-u-1 scroll-container">
                 <table class="menuCard" style="width: 100%;">
                     <thead>
                         <tr>
@@ -308,7 +278,7 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1 icon-buttons" style="margin-top: 1.5em;">
+            <div v-if="modevid && ismodulVid" class="pure-u-1 icon-buttons" style="margin-top: 1.5em;">
                 <span class="icon-button" @click="moveRowVid('up')">
                     <img src="../../img/ico/up.png" alt="">
                     <span>Subir ítem</span>
@@ -326,26 +296,44 @@
             </div>
         </div>
         <div class="pure-g" v-show="submode == 4">
-            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
-                Recorridos Virtuales de Proyecto
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
-                Agrupación
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-4'>
-                <div class='formInputStandard positTex'>
-                    <select v-model="selectRvr">
-                        <option value='' disabled selected>[Seleccione uno ...]</option>
-                        <option v-for='item in grupo_proyectos' v-bind:value='item.id_grupo_proyecto'>
-                            {{ item.grupo }}
-                        </option>
-                    </select>
+            <div class="pure-u-1-1">
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
+                    Recorridos Virtuales de Proyecto
+                </div>
+                <div v-if="modevir" class="pure-g">
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        Agrupación
+                    </div>
+                    <div  class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='formInputStandard positTex'>
+                            <select v-model="selectRvr" @change="checkAndLoad">
+                                <option value='null' selected>[Seleccione uno ...]</option>
+                                <option v-for='item in grupo_proyectos' v-bind:value='item.id_grupo_proyecto'>
+                                    {{ item.grupo }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div @click="modevir = false" class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                        <button>Nueva agrupación</button>
+                    </div>
+                </div>
+                <div v-else class="pure-g menuCard" style="margin-top: 1em;">
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        Nueva Agrupación
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4'>
+                        <div class='formInputStandard positTex' >
+                           <input type="text" v-model="newGrup">
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                        <button @click="crearGrupoVideos" >Guardar agrupación</button>
+                    </div>
                 </div>
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                <button>Nueva agrupación</button>
-            </div>
-            <div class="pure-u-1 scroll-container">
+
+            <div v-if="modevir && ismodulRvr" class="pure-u-1 scroll-container">
                 <table class="menuCard" style="width: 100%;">
                     <thead>
                         <tr>
@@ -358,9 +346,9 @@
                     <tbody>
                         <tr v-for="(video, index) in videosReco" :key="index" :class="{ selected: selectedRowReco === index }"
                             @click="selectRowReco(index)">
-                            <td><input v-model="video.title" class="full-width-input" /></td>
-                            <td><input v-model="video.description" class="full-width-input"/></td>
-                            <td><input v-model="video.link" class="full-width-input"/></td>
+                            <td><input v-model="video.nombre" class="full-width-input" /></td>
+                            <td><input v-model="video.descripcion" class="full-width-input"/></td>
+                            <td><input v-model="video.link" class="full-width-input"/>{{}}</td>
                             <td class="center-delete-cell">
                                 <div class="center-content" @click.stop>
                                     <span class="delete" @click.stop="removeRowReco(index)" title="Eliminar item">✖</span>
@@ -377,7 +365,7 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1 icon-buttons" style="margin-top: 1.5em;">
+            <div v-if="modevir && ismodulRvr" class="pure-u-1 icon-buttons" style="margin-top: 1.5em;">
                 <span class="icon-button" @click="moveRowReco('up')">
                     <img src="../../img/ico/up.png" alt="">
                     <span>Subir ítem</span>
@@ -399,7 +387,7 @@
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom:4px">
                     Avances de obra de Proyecto
                 </div>
-                <div class="pure-g">
+                <div v-if="modeAvo" class="pure-g">
                     <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
                         <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="configclearAllImages"  title="Limpiar o eliminar imágenes" >
                         </div>
@@ -408,34 +396,61 @@
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard positTex'>
-                                <select v-model="selectAvo">
-                                    <option value='' disabled selected>[Seleccione uno ...]</option>
+                                <select v-model="selectAvo" @change="checkAndLoad">
+                                    <option value='null' selected>[Seleccione uno ...]</option>
                                     <option v-for='item in grupo_proyectos' v-bind:value='item.id_grupo_proyecto'>
                                         {{ item.grupo }}
                                     </option>
                                 </select>
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
-                            <button>Nuevo Periodo</button>
+                        <div @click="modAvo" class='pure-u-1-1 pure-u-md-1-5 positTex'>
+                            <button>Nueva agrupación</button>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
                 </div>
-            </div>
-            <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false" style="position: relative;padding-top: 1em;">
-                <label for="file-input" class="preview-container" style="height: calc(100dvh - 25rem); cursor: pointer;"
-                    @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
-                    @mouseleave="tooltipVisible = false">
-                    <div v-if="previews.length === 0" class="center-absolute ">
-                        Arrastra o haz clic para cargar imágenes.
+                <div v-if="!modeAvo">
+                    <div class="pure-u-1-1">
+                        <div class="pure-g menuCard" style="margin-top: 1em;">
+                            <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                               Nueva Agrupación
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-4'>
+                                <div class='formInputStandard positTex' >
+                                   <input type="text" v-model="newGrup">
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-4 positTex'>
+                                <button @click="GrupUploadFiles" >Guardar agrupación</button>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
+                        </div>
                     </div>
-                    <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
+                 </div>
+            </div>
+            <div v-if="modeAvo && ismodulAvo" class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
+                style="position: relative;padding-top: 1em;">
+                <label for="file-input" class="preview-container" style="height: calc(100dvh - 25rem); cursor: pointer;"
+                    @dragover.prevent="handleDragOver" @drop.prevent="handleDropAvo" @mouseenter="tooltipVisible = true"
+                    @mouseleave="tooltipVisible = false">
+                    <div v-if="previewsAvo.length === 0" class="center-absolute ">
+                        Arrastra o haz clic para cargar imágenes o URLs de YouTube.
+                    </div>
+                    <div class="image-card" v-for="(item, index) in previewsAvo" :key="index" draggable="true"
                         @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false" @mouseleave="tooltipVisible = true"
                         style="position: relative;">
-                        <img :src="item.src" @click.stop.prevent="" 
-                        @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
-                        @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'"/>
-                        <div class="image-name-overlay">{{ item.file.name }}</div>
+                        <template v-if="item.isVideo">
+                            <img :src="item.previewSrc" @click.stop.prevent="showVideo(item.videoUrl)"
+                                style="cursor: pointer; object-fit: cover; width: 100%; height: 100%;"
+                                @mouseenter="tooltipVisible = true; tooltipMsg = 'Clic para ver el video'"
+                                @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
+                            <div class="image-name-overlay">Video</div>
+                        </template>
+                        <template v-else>
+                            <img :src="item.src" @click.stop.prevent=""
+                                @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
+                                @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
+                            <div class="image-name-overlay">{{ item.file.name }}</div>
+                        </template>
                         <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
                     </div>
                     <div v-if="tooltipVisible" class="cursor-tooltip" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
@@ -445,13 +460,18 @@
                 <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="image/*"
                     @change="handleFileChange" ref="fileInput" />
             </div>
+            <div v-if="videoId" class="video-modal" @click="closeVideo">
+                <iframe width="80%" height="80%" :src="`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen></iframe>
+            </div>
         </div>
     </div>
+
     <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
-        <button v-if="submode == 2 && modeimg" @click="uploadFiles()">Guardar</button>
-        <button v-else-if="submode == 2" @click="GrupUploadFiles">Guardar</button>
-        <button v-else-if="submode == 3 && !modevid" @click="crearGrupoVideos()">Guardar</button>
+        <button v-if="submode == 2 || submode == 1 || submode == 5" @click="uploadFiles">Guardar</button>
         <button v-else-if="submode == 3" @click="insertarVideosEnGrupo()">Guardar</button>
-        <button v-else-if="submode == 1" @click="uploadFiles()">Guardar</button>
+        <button v-else-if="submode == 4" @click="insertarRecoEnGrupo()">Guardar</button>
+        
     </div>
 </div>
