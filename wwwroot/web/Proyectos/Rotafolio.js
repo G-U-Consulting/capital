@@ -46,10 +46,12 @@ export default {
                 let res = await httpFunc('/generic/genericDT/Maestros:Get_Documento', 
                     { documento: "General,Sostenibilidad", is_img: 1 });
                 if (res.data && res.data.length) {
-                    res.data.forEach(async doc => {
-                        this.addResources(await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
-                        { tipo: doc.documento, id_maestro_documento: doc.id_documento }))
-                    });
+                    await Promise.all(
+                        res.data.map(async doc => {
+                            this.addResources(await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
+                            { tipo: doc.documento, id_maestro_documento: doc.id_documento }))
+                        })
+                    );
                 }
 
                 this.addResources(await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
