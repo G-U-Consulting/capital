@@ -587,7 +587,7 @@ export default {
         },
         async loadFiles(id_doc, tipo) {
             this.clearAllImages();
-            let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+            let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                 { tipo, id_maestro_documento: id_doc }),
                 base = '/file/S3get/';
                 if (res.data) {

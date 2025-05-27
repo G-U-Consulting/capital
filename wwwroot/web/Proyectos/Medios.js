@@ -16,10 +16,10 @@
             draggedFile: null,
             dragIndex: null,
             videos: [
-                { title: '', description: '', link: '' }
+                { nombre: '', descripcion: '', link: '' }
             ],
             videosReco: [
-                { title: '', description: '', link: '' }
+                { nombre: '', descripcion: '', link: '' }
             ],
             hoveredIndex: null,
             selectedRow: null,
@@ -60,8 +60,33 @@
             logoFile: null,
             slideFile: null,
             plantaFile: null,
+            selectImg: null,
+            selectVid: null,
+            selectRvr: null,
+            selectAvo: null,
+            grupo_proyectos: [],
+            modeimg: true,
+            modevid: true,
+            S3Files: [],
 
         };
+    },
+    watch: {
+         grupo_proyectos(newVal) {
+            if (newVal.length > 0 && !this.selectImg) {
+                this.selectImg = newVal[0].id_grupo_proyecto;
+            }
+            if (newVal.length > 0 && !this.selectVid) {
+                this.selectVid = newVal[0].id_grupo_proyecto;
+            }
+            if (newVal.length > 0 && !this.selectRvr) {
+                this.selectRvr = newVal[0].id_grupo_proyecto;
+            }
+            if (newVal.length > 0 && !this.selectAvo) {
+                this.selectAvo = newVal[0].id_grupo_proyecto;
+            }
+         },
+     
     },
     computed: {
         tabClasses() {
@@ -79,30 +104,58 @@
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("StartMediaMdule", null)
-        const res = await httpFunc("/generic/genericDT/Medios:Get_vairables", {});
+        const res = await httpFunc("/generic/genericDT/Medios:Get_variables", { id_proyecto: GlobalVariables.id_proyecto, modulo: 'imagenes'});
         const grupo_img = res.data.map(item => item.grupo);
         this.construirTablas(grupo_img);
     },
     methods: {
         setMode(mode) {
             this.mode = mode;
-            // if(mode == 0)
-            //     GlobalVariables.miniModuleCallback("StartMediaMdule", null)
+             if(mode == 0)
+                 GlobalVariables.miniModuleCallback("StartMediaMdule", null)
         },
         async setSubmode(index) {
             this.submode = index;
+ 
+            if (index == 0) {
+                const res = await httpFunc("/generic/genericDT/Medios:Get_variables", { id_proyecto: GlobalVariables.id_proyecto, modulo: 'imagenes' });
+                const grupo_img = res.data.map(item => item.grupo);
+                this.construirTablas(grupo_img);
+                return;
+            }
+
+            this.modeimg = true;
+            const modulos = {
+                1: 'principal',
+                2: 'imagenes',
+                3: 'videos',
+                4: 'recorridos virt',
+                5: 'avances de obra'
+            };
+            const modulo = modulos[index];
+            if (!modulo) return;
+            try {
+                const res = await httpFunc("/generic/genericDT/Medios:Get_variables", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo
+                });
+                this.grupo_proyectos = res.data;
+
+            } catch (error) {
+                console.log(error);
+            }
         },
         construirTablas(grupo_img) {
             this.tablas = [
                 {
                     titulo: 'Agrupaciones Generales',
-                    datos: ['Grupo xx', 'Grupo xx', 'Grupo xx', '', '', '', '', ''],
+                    datos: ['Generales Capital', 'Sostenibilidad'],
                     activo: true,
                     error: false
                 },
                 {
                     titulo: 'Imágenes Principales',
-                    datos: ['Item 1', 'Item 2', 'Item 3', '', '', '', '', ''],
+                    datos: ['Logo', 'Slide ', 'Planta General Termómetro'],
                     activo: false,
                     error: false
                 },
@@ -114,19 +167,19 @@
                 },
                 {
                     titulo: 'Agrupamiento de Vídeos de Proyecto',
-                    datos: ['Item 1', 'Item 2', 'Item 3', '', '', '', '', ''],
+                    datos: [],
                     activo: false,
                     error: true
                 },
                 {
                     titulo: 'Agrupamiento de Recorridos Virtuales',
-                    datos: ['Item 1', 'Item 2', 'Item 3', '', '', '', '', ''],
+                    datos: [],
                     activo: true,
                     error: false
                 },
                 {
                     titulo: 'Periodos de Avances de obra',
-                    datos: ['Item 1', 'Item 2', 'Item 3', '', '', '', '', ''],
+                    datos: [],
                     activo: false,
                     error: false
                 }
@@ -220,10 +273,6 @@
                     }
                 }
             }
-        },
-        async clearAllImages() {
-            this.previews = [];
-            this.files = [];
         },
         openModal(link) {
             const id = this.getVideoId(link);
@@ -451,123 +500,214 @@
             showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
         },
         async uploadFiles() {
+            const form = new FormData();
+           
+    
+            function getFile(f) {
+                if (!f) return null;
+                return f instanceof File ? f : f.file || null;
+            }
+
+            if (this.submode === 1) {
+                [this.logoFile, this.slideFile, this.plantaFile].forEach(fObj => {
+                    const file = getFile(fObj);
+                    if (file) form.append(file.name, file);
+                });
+            } else {
+                this.files.forEach(fObj => {
+                    const file = getFile(fObj) || fObj;
+                    if (file) form.append(file.name, file);
+                });
+            }
+
             showProgress();
-            var form = new FormData();
-            for (let i = 0; i < this.files.length; i++)
-                form.append(this.files[i].name, this.files[i]);
-            var response = await httpFunc("/file/upload", form);
-            console.log(response);
+            const response = await httpFunc("/file/upload", form);
+            hideProgress();
             if (response.isError) {
                 showMessage(response.errorMessage);
-            } else { 
+            } else {
                 this.serverFiles = response.data;
                 this.S3UploadFiles();
             }
-            hideProgress();
         },
+
         async S3UploadFiles() {
+            const getFile = (f) => f instanceof File ? f : f?.file || null;
+           
             showProgress();
-        
             const response = await httpFunc("/file/S3upload", this.serverFiles);
-            console.log(response);
-        
+            hideProgress();
+
             if (response.isError) {
                 showMessage(response.errorMessage);
-                hideProgress();
                 return;
             }
-        
+
             const folderMap = {
-                1: 'Principal',
-                2: 'Imagenes',
-                5: 'Avances de obra'
+                1: 'principal',
+                2: 'imagenes',
+                5: 'avances de obra'
             };
-            const folder = folderMap[this.submode] || 'Principal';
-        
-            this.S3Files = response.data.map((item, index) => ({
-                id_documento: item.Id,
-                id_proyecto: GlobalVariables.id_proyecto,
-                tipo: folder,
-                orden: index + 1
-            }));
-        
-            for (let archivo of this.S3Files) {
+
+            const folder = folderMap[this.submode] || 'principal';
+            await this.checkAndLoad(this.submode);
+            if (this.submode === 1) {
+                const fileList = [this.logoFile, this.slideFile, this.plantaFile].map(getFile).filter(Boolean);
+
+                this.S3Files = fileList.map((file, index) => ({
+                    file,
+                    name: file.name,
+                    orden: index,
+                    id_documento: response.data[index]?.Id,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    tipo: ['logo', 'slide', 'planta'][index]
+                }));
+            } else {
+                this.S3Files = response.data.map((item, index) => ({
+                    id_documento: item.Id,
+                    name: item.FileName,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    tipo: folder,
+                    orden: index
+                }));
+            }
+
+            showProgress();
+            for (const archivo of this.S3Files) {
                 const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
-                    nombre: archivo.nombre || '',
-                    codigo: archivo.codigo || '',
+                    nombre: archivo.name || '',
                     orden: archivo.orden,
                     id_documento: archivo.id_documento,
                     id_proyecto: archivo.id_proyecto,
-                    tipo: archivo.tipo
+                    tipo: archivo.tipo,
+                    id_grupo_proyecto: this.selectedGrupoId
                 });
-        
+
                 if (result.isError) {
                     showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
                     hideProgress();
                     return;
                 }
             }
-            for (let archivo of this.S3Files) {
+
+            hideProgress();
+            showProgress();
+
+            for (const archivo of this.S3Files) {
                 const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
-                    nombre: archivo.nombre || '',
-                    codigo: archivo.codigo || '', 
+                    nombre: archivo.name || '',
                     orden: archivo.orden,
                     id_documento: archivo.id_documento,
                     id_proyecto: archivo.id_proyecto,
+                    id_grupo_proyecto: this.selectedGrupoId,
                     tipo: archivo.tipo
                 });
-        
+
                 if (result.isError) {
                     showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
                     hideProgress();
                     return;
                 }
             }
+
             hideProgress();
         },
-        async loadImg() {
-            await this.clearAllImages();
-            await imagePath
-            let folderMap = {
-                1: 'Principal',
-                2: 'Imagenes',
-                5: 'Avances de obra'
-            },
-                folder = folderMap[this.submode] || 'Principal';
-            const resp = (await httpFunc("/generic/genericDT/Medios:Get_Archivos", { id_proyecto: GlobalVariables.id_proyecto, tipo: folder })).data;
-            for (let file of resp) {
-                var imagePath = ""
-                
-                imagePath = "/file/S3get/" + file.llave;
 
+        async loadImg() {
+            const folderMap = {
+                1: 'principal',
+                2: 'imagenes',
+                3: 'videos',
+                5: 'avances de obra'
+            };
+        
+            const folder = folderMap[this.submode] || 'principal';
+            let archivos = [];
+        
+            showProgress();
+
+            if (this.submode === 3) {
+              const resp = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    tipo: folder,
+                    id_grupo_proyecto: this.selectedGrupoId
+                });
+
+                this.videos = resp.data || [];
+
+         
+                this.videos = this.videos.map(video => ({
+                    nombre: video.nombre || '',
+                    descripcion: video.descripcion || '',
+                    link: video.link || ''
+                }));
+
+            }
+        
+            if (this.submode === 1) {
+                const tipos = ['logo', 'slide', 'planta'];
+                const seenKeys = new Set();
+        
+                for (let tipo of tipos) {
+                    const res = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        tipo,
+                        id_grupo_proyecto: this.selectedGrupoId,
+                    });
+        
+                    if (res?.data?.length) {
+                        for (let f of res.data) {
+                            if (!seenKeys.has(f.llave)) {
+                                seenKeys.add(f.llave);
+                                archivos.push(f);
+                            }
+                        }
+                    }
+                }
+            }
+            if (this.submode === 2) {
+                await this.clearAllImages();
+                const res = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    tipo: folder,
+                    id_grupo_proyecto: this.selectedGrupoId
+                });
+                archivos = res.data || [];
+            }
+        
+            hideProgress();
+        
+            for (let file of archivos) {
+                const imagePath = "/file/S3get/" + file.llave;
                 const blob = await this.fetchImageAsBlob(imagePath);
                 if (!blob) continue;
-
-                const fileObj = new File([blob], file.nombre, { type: blob.type });
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const src = e.target.result;
-
-                    if (folder.includes('Principal')) {
-                        if (file.nombre.includes('logo')) {
-                            this.logoPreview = src;
-                            this.logoFile = fileObj;
-                        } else if (file.nombre.includes('slide')) {
-                            this.slidePreview = src;
-                            this.slideFile = fileObj;
-                        } else if (file.nombre.includes('planta')) {
-                            this.plantaPreview = src;
-                            this.plantaFile = fileObj;
-                        }
-                    } else {
-                        this.previews.push({ src, file: fileObj });
-                        this.files.push(fileObj);
+        
+                const fileObj = new File([blob], file.documento, { type: blob.type });
+        
+                const src = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(fileObj);
+                });
+        
+                if (this.submode === 1) {
+                    if (file.tipo.includes('logo')) {
+                        this.logoPreview = src;
+                        this.logoFile = fileObj;
+                    } else if (file.tipo.includes('slide')) {
+                        this.slidePreview = src;
+                        this.slideFile = fileObj;
+                    } else if (file.tipo.includes('planta')) {
+                        this.plantaPreview = src;
+                        this.plantaFile = fileObj;
                     }
-                };
-                reader.readAsDataURL(fileObj);
+                } else {
+                    this.previews.push({ src, file: fileObj });
+                    this.files.push(fileObj);
+                }
             }
         },
+        
         async fetchImageAsBlob(url) {
             try {
                 const response = await fetch(url);
@@ -587,6 +727,151 @@
             this.plantaFile = null;
             this.previews = [];
             this.files = [];
+        },
+        async GrupUploadFiles() {
+            const folderMap = {
+                1: 'principal',
+                2: 'imagenes',
+                5: 'avances de obra'
+            };
+
+            const folder = folderMap[this.submode] || 'principal';
+            showProgress();
+
+            try {
+                const res = await httpFunc("/generic/genericDT/Medios:Ins_Grupos", {
+                    grupo: this.newGrup,
+                    orden: 5,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: folder
+                });
+                this.selectImg = res.data[0].result;
+                if (res.isError) {
+                    hideProgress();
+                    if (res.errorMessage && res.errorMessage.includes("Duplicate")) {
+                        showMessage("Grupo ya creado");
+                    } else {
+                        showMessage("Error al crear grupo");
+                    }
+                    return;
+                }
+
+                let resp = await httpFunc("/generic/genericDT/Medios:Get_variables", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: folder
+                });
+                this.grupo_proyectos = resp.data;
+            
+                this.uploadFiles();
+                hideProgress();
+            } catch (error) {
+                hideProgress();
+                showMessage("Error inesperado al crear grupo");
+            }
+        },
+        checkAndLoad() {
+
+            switch (this.submode) {
+                case 2: this.selectedGrupoId = this.selectImg; break;
+                case 3: this.selectedGrupoId = this.selectVid; break;
+                case 4: this.selectedGrupoId = this.selectRvr; break;
+                case 5: this.selectedGrupoId = this.selectAvo; break;
+                default: this.selectedGrupoId = 0;
+              }
+            this.loadImg();
+        
+        },
+        modImg(){
+            this.modeimg = false; 
+            this.previews = []; 
+            this.files = [];
+        },
+        async crearGrupoVideos() {
+            try {
+                showProgress();
+        
+                const res = await httpFunc("/generic/genericDT/Medios:Ins_Grupos", {
+                    grupo: this.newGrupVid,
+                    orden: 5,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: 'videos'
+                });
+        
+                if (res.isError || !res.data || !res.data[0]?.result) {
+                    showMessage("El Grupo ya existe.");
+                    return;
+                }
+        
+                this.selectedGrupoId = res.data[0].result;
+                this.insertarVideosEnGrupo();
+                showMessage("Grupo de videos creado correctamente.");
+            } catch (error) {
+                console.error("Error al crear grupo:", error);
+                showMessage("Ocurrió un error al crear el grupo.");
+            } finally {
+                hideProgress();
+            }
+        },
+        async insertarVideosEnGrupo() {
+            if (!this.selectedGrupoId) {
+                showMessage("Primero debes crear o seleccionar un grupo.");
+                return;
+            }
+
+            
+            showProgress();
+            for (const [index, archivo] of this.videos.entries())  {
+                const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    id_grupo_proyecto: this.selectedGrupoId,
+                    tipo: 'videos'
+                });
+
+                if (result.isError) {
+                    showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            }
+
+            hideProgress();
+            try {
+                showProgress();
+        
+                for (const [index, archivo] of this.videos.entries()) {
+                    const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
+                        orden: index,
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        id_documento: 1,
+                        id_grupo_proyecto: this.selectedGrupoId,
+                        tipo: 'videos',
+                        descripcion: archivo.descripcion,
+                        video: archivo.nombre,
+                        link: archivo.link
+                    });
+        
+                    if (result.isError) {
+                        showMessage(`Error al insertar archivo "${archivo.nombre}".`);
+                        return;
+                    }
+                }
+        
+                showMessage("Videos guardados correctamente.");
+            } catch (error) {
+                console.error("Error al insertar videos:", error);
+                showMessage("Ocurrió un error al insertar los videos.");
+            } finally {
+                hideProgress();
+            }
+        },
+        volverDesdeVideo() {
+            this.modevid = true;
+            this.setSubmode(3);
+            this.videos = [{
+              nombre: '',
+              descripcion: '',
+              link: ''
+            }];
         }
     }
 };

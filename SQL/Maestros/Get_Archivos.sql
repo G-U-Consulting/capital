@@ -1,12 +1,16 @@
-﻿-- =============================================
--- Proceso: General/Get_Archivo
--- =============================================
+﻿-- ================================================
+-- Proceso: Maestros/Get_Archivo
+-- ================================================
 --START_PARAM
-set @id_documento = ''
-
+set @tipo = 'imagenes',
+    @id_proyecto = 0,
+    @id_grupo_proyecto = 0,
+    @id_maestro_documento = 0;
 --END_PARAM
 
-select id_archivo, nombre, codigo, orden, id_documento
-from dim_documento_archivo
-where id_documento = @id_documento
+select a.id_documento,documento,llave, orden, a.is_active, b.id_grupo_proyecto, b.tipo, b.link
+from fact_documentos a
+join fact_documento_proyecto b on a.id_documento = b.id_documento
+where FIND_IN_SET(b.tipo, @tipo) and (id_proyecto = @id_proyecto 
+	or id_maestro_documento = @id_maestro_documento) and b.is_active = 1
 order by orden;

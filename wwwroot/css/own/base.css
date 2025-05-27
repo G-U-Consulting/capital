@@ -1456,6 +1456,22 @@ tr.selected input {
 .radio-group label:hover {
   background-color: #e5e6e9;
 }
+.btn-atras {
+  display: inline-block;
+  background-color: #00839C;
+  color: white;
+  padding: 5px 10px;
+  font-size: 16px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-atras:hover {
+  background-color: #006b80;
+  transform: scale(1.05);
+}
 .cont-portada {
   height: 100%; 
   display: flex; 

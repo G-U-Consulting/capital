@@ -32,18 +32,18 @@ export default {
                     { documento: "General,Sostenibilidad", is_img: 1 });
                 if (res.data && res.data.length) {
                     res.data.forEach(async doc => {
-                        this.addResources(await httpFunc('/generic/genericDT/Medios:Get_Archivos', 
+                        this.addResources(await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
                         { tipo: doc.documento, id_maestro_documento: doc.id_documento }))
                     });
                 }
 
-                this.addResources(await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+                this.addResources(await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: 'logo,slide,planta', id_proyecto }));
 
                 let modulos = ['imagenes','videos','recorridos virt','obras'];
                 res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
-                let grupos = res.data.sort((a,b) => parseInt(a.orden) - parseInt(b.orden));
-                res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+                let grupos = res.data.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
+                res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: modulos.join(','), id_proyecto })
                     
                 modulos.forEach(mod => {

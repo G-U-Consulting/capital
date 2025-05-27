@@ -210,7 +210,7 @@
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         await this.setMainMode();
         this.proyectos.forEach(async pro => {
-            let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+            let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                 { tipo: 'logo', id_proyecto: pro.id_proyecto });
                 if(res.data && res.data.length)
                     pro.img = '/file/S3get/' + res.data[0].llave;
@@ -710,7 +710,7 @@
             this.clearAllImages();
             clearInterval(this.interval);
             this.imgsPortada = [];
-            let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+            let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                 { tipo, id_proyecto: this.editObjProyecto.id_proyecto });
             if (res.data) {
                 res.data.forEach(f => this.imgsPortada.push('/file/S3get/' + f.llave));
@@ -720,7 +720,7 @@
                 { documento: "Sostenibilidad", is_img: 1 });
             if (res.data && res.data.length) {
                 let doc = res.data[0];
-                res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+                res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                 { tipo: doc.documento, id_maestro_documento: doc.id_documento });
                 if (res.data) 
                     res.data.forEach(f => this.imgsPortada.push('/file/S3get/' + f.llave));

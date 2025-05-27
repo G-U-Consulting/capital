@@ -3,13 +3,20 @@
 -- =============================================
 --START_PARAM
 set @id_proyecto,
+    @id_grupo_proyecto,
     @id_maestro_documento,
     @tipo;
 --END_PARAM
 
 update fact_documento_proyecto
 set is_active = 0
-where id_proyecto = @id_proyecto or id_maestro_documento = @id_maestro_documento
-  and tipo like CONCAT('%', @tipo, '%');
+where
+    id_proyecto = @id_proyecto
+    and tipo like concat('%', @tipo, '%')
+    and id_grupo_proyecto = @id_grupo_proyecto
+    and (
+        @id_maestro_documento is null
+        or id_maestro_documento = @id_maestro_documento
+    );
 
-select 'OK' as result;
+select 'ok' as result;
