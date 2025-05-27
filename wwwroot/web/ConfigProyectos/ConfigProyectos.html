@@ -4,7 +4,7 @@
         </div>
 
         <div class="lateralMenuGroup">
-            <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+            <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
                 Listados Maestros
             </div>
         </div>
@@ -24,12 +24,6 @@
                 <img src="./img/ico/svg/notebook.svg" />
                 Sostenibilidad
                 <span class="tooltip-text">Imágenes sostenibilidad</span>
-            </div>
-            <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
-                <img src="./img/ico/svg/notebook.svg" />
-                Agrupamiento
-                <span class="tooltip-text">Agrupamiento de imágenes</span>
             </div>
         </div>
 
@@ -127,6 +121,12 @@
                 Emails receptores
                 <span class="tooltip-text">Emails receptores</span>
             </div>
+            <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
+                <img src="./img/ico/svg/notebook.svg" />
+                Agrupamiento Img
+                <span class="tooltip-text">Agrupamiento de imágenes</span>
+            </div>
         </div>
 
         <div class="lateralMenuGroup">
@@ -164,6 +164,11 @@
     </div>
 
     <div class="pure-u-1-1 pure-u-md-4-5">
+
+        <div v-if="mainmode == 0" class="contentHeight" 
+            style="display: block; background-image: url('./img/background/floor-plan-1857175_1280.jpg'); 
+            background-attachment: fixed; background-repeat: no-repeat; background-size: cover;">
+        </div>
 
         <!-- Imágenes Generales Capital y Sostenibilidad -->
         <div v-if="mainmode == 1 || mainmode == 2">

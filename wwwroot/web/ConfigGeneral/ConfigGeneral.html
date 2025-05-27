@@ -1,19 +1,22 @@
 <div class="pure-g">
     <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
-        <div style="font-size: 0.8rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 0.75rem;">
-            <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                <span class="hoverLink">{{ r.text }}</span>
-                <span v-if="i < ruta.length - 1"> / </span>
+        <div class="lateralMenuHeader">
+        </div>
+        <div class="lateralMenuGroup">
+            <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
+                General
             </div>
         </div>
-        <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect"
-             v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
-            <img src="./img/ico/svg/user.svg" />
-            Política de Contraseña
-        </div>
-        <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
-            <img src="./img/ico/svg/screen.svg" />
-            Fondo Pantalla
+        <div class="lateralMenuGroup">
+            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
+                <img src="./img/ico/svg/user.svg" />
+                Política de Contraseña
+            </div>
+            <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
+                <img src="./img/ico/svg/screen.svg" />
+                Fondo Pantalla
+            </div>
         </div>
     </div>
     <div class="pure-u-1-1 pure-u-md-4-5">

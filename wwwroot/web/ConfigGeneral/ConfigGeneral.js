@@ -32,7 +32,7 @@ export default {
         }
     }, 
     async mounted() {
-        this.setMainMode(0);
+        this.setMainMode(1);
     },
     methods: {
         setRuta() {
@@ -42,7 +42,7 @@ export default {
             if (this.mode == 1) subpath.push(nuevo);
             if (this.mode == 2) subpath.push(editar);
             this.ruta = [{
-                text: 'ZU', action: () => 
+                text: 'ZM', action: () => 
                 GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
             }, {text: 'General', action: () => { this.mainmode = 0; this.setMode(0) }}];
             this.ruta = [...this.ruta, ...subpath];

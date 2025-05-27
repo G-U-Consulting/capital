@@ -94,7 +94,7 @@ export default {
             if (this.mode == 3 && this.mainmode == 6) subpath = [...subpath, editar,
             { text: 'Factores', action: () => { this.mode = 3; this.setRuta() } }];
             this.ruta = [{
-                text: 'ZC', action: () =>
+                text: 'ZM', action: () =>
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
             }, { text: 'Maestros', action: () => { this.mainmode = 0; this.mode = 0; this.setRuta() } }];
             this.ruta = [...this.ruta, ...subpath];

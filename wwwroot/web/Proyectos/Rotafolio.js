@@ -133,7 +133,11 @@ export default {
         resetInterval() {
             if (this.interval) clearInterval(this.interval);
             this.interval = setInterval(() => {
-                this.playIndex = (this.playIndex + 1) % this.files.length;
+                let img = document.getElementById('img-rotafolio');
+                img && (img.style.opacity = .7);
+                setTimeout(() => {
+                    this.playIndex = (this.playIndex + 1) % this.files.length;
+                }, 200);
             }, this.time);
             this.stop = false;
         },
@@ -167,6 +171,25 @@ export default {
         },
         onPlayerStateChange(e) {
             if (e.data === YT.PlayerState.ENDED) this.setIndex(1);
+        },
+        onloadimg(e) {
+            let img = e.target, rel = img.naturalWidth / img.naturalHeight, min = 150, fact = 1.5;
+            let maxheight = img.parentElement.offsetHeight, maxwidth = img.parentElement.offsetWidth;
+            let width = Math.min(maxwidth, img.naturalWidth * fact), height = Math.min(maxheight, img.naturalHeight * 1.2);
+            let rel2 = width / height;
+            if (img.naturalHeight < min) {
+                img.width = min * rel;
+                img.height = min;
+            }
+            else if (rel2 > rel / fact && rel2 < rel * fact) {
+                img.width = img.naturalWidth * fact;
+                img.height = img.naturalHeight * fact;
+            }
+            else {
+                img.width = img.width * fact;
+                img.height = img.height * fact;
+            }
+            img.style.opacity = 1;
         },
         initVideo(e) {
             this.vplayer = new YT.Player("v-player", {
