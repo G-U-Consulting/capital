@@ -101,6 +101,9 @@ export default {
             }else if(type == "OpenDocs"){
                 this.pushRuta("Documentación", 1);
                 return this.proyecto;
+            }else if(type == "Rotafolio"){
+                this.pushRuta("Rotafolio", 1);
+                return this.proyecto;
             }
         },
         

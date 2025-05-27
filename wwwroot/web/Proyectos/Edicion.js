@@ -178,7 +178,10 @@
             },
             previews: [],
             files: [],
+            imgsPortada: [],
             viewTable: true,
+            frontImg: '',
+            interval: null
         };
     },
     computed: {
@@ -206,13 +209,12 @@
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         await this.setMainMode();
-        
-        /* Test */
-        this.proyectos[0].img = 'https://www.constructoracapital.com/web_datas/1738868507_logo-vivopark2.jpg';
-        this.proyectos[1].img = 'https://www.constructoracapital.com/web_datas/1706039706_logo-ajustado.png';
-        this.proyectos[2].img = 'https://www.constructoracapital.com/web_datas/1724858363_urbania-terra.jpg';
-        this.proyectos[3].img = 'https://www.constructoracapital.com/web_datas/1645484933_logo-puerto-vallarta.jpg';
-        /* End Test */
+        this.proyectos.forEach(async pro => {
+            let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+                { tipo: 'logo', id_proyecto: pro.id_proyecto });
+                if(res.data && res.data.length)
+                    pro.img = '/file/S3get/' + res.data[0].llave;
+        });
     },
     methods: {
         async setMainMode(){
@@ -403,7 +405,7 @@
             if (mode == 'portada'){
                 let item = document.querySelector('.lateralMenuItemSelected');
                 item && item.classList.remove('lateralMenuItemSelected');
-                await this.loadImg('slide');
+                await this.loadImg('slide,logo,planta');
             } else {
                 let item = document.getElementById('MenuItemEdicion');
                 item && !item.classList.contains('lateralMenuItemSelected') 
@@ -706,15 +708,56 @@
         },
         async loadImg(tipo) {
             this.clearAllImages();
-            console.log(this.editObjProyecto);
+            clearInterval(this.interval);
+            this.imgsPortada = [];
             let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
                 { tipo, id_proyecto: this.editObjProyecto.id_proyecto });
-            console.log(res);
             if (res.data) {
-                let paths = res.data.map(f => { return { path: '/file/S3get/' + f.llave, name: f.documento } });
-                let files = await this.openFiles(paths);
-                await this.processFiles(files);
+                res.data.forEach(f => this.imgsPortada.push('/file/S3get/' + f.llave));
+                if (this.imgsPortada.length) this.frontImg = this.imgsPortada[0];
             }
+            res = await httpFunc('/generic/genericDT/Maestros:Get_Documento',
+                { documento: "Sostenibilidad", is_img: 1 });
+            if (res.data && res.data.length) {
+                let doc = res.data[0];
+                res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
+                { tipo: doc.documento, id_maestro_documento: doc.id_documento });
+                if (res.data) 
+                    res.data.forEach(f => this.imgsPortada.push('/file/S3get/' + f.llave));
+            }
+            let i = 0;
+            this.interval = setInterval(() => {
+                if (this.imgsPortada && this.imgsPortada.length) {
+                    let img = document.getElementById('img-portada');
+                    if (img) {
+                        img.style.opacity = 0;
+                        setTimeout(() => {
+                            i = (i + 1) % this.imgsPortada.length;
+                            this.frontImg = this.imgsPortada[i];
+                        }, 150);
+                        document.getElementById('img-portada').style.opacity = .15;
+                    } else clearInterval(this.interval);
+                }
+            }, 8000);
+        },
+        onloadimg(e) {
+            let img = e.target, rel = img.naturalWidth / img.naturalHeight, min = 150, fact = 1.25;
+            let maxheight = img.parentElement.offsetHeight, maxwidth = img.parentElement.offsetWidth;
+            let width = Math.min(maxwidth, img.naturalWidth * fact), height = Math.min(maxheight, img.naturalHeight * 1.2);
+            let rel2 = width / height;
+            if (img.naturalHeight < min) {
+                img.width = min * rel;
+                img.height = min;
+            }
+            else if (rel2 > rel / fact && rel2 < rel * fact) {
+                img.width = img.naturalWidth * fact;
+                img.height = img.naturalHeight * fact;
+            }
+            else {
+                img.width = img.width * fact;
+                img.height = img.height * fact;
+            }
+            img.style.opacity = 1;
         },
         async hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;

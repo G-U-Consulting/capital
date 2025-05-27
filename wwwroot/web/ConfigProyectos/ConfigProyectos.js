@@ -225,7 +225,7 @@ export default {
             this.clearAllImages();
             this.setMode(2);
             Object.keys(doc).forEach((key) => (this.documento[key] = doc[key]));
-            this.loadFiles(doc.id_documento);
+            this.loadFiles(doc.id_documento, 'docs');
         },
         async onSaveDocument() {
             showProgress();
@@ -236,9 +236,8 @@ export default {
                     let form = new FormData();
                     this.previews.forEach(pre => form.append(pre.file.name, pre.file));
                     let res = await httpFunc("/file/upload", form);
-                    
                     if (res.isError) showMessage(res.errorMessage);
-                    else this.uploadS3(res.data, id_doc);
+                    else this.uploadS3(res.data, id_doc, 'docs');
                 } else throw resp;
                 this.setMode(0);
             } catch (e) {
@@ -247,33 +246,18 @@ export default {
             hideProgress();
         },
         async onUpdateImg() {
-            let files = {}, formData = new FormData(), docfiles = [...this.previews],
-                folder = this.mainmode == 1 ? 'General' : 'Sostenibilidad',
+            let folder = this.mainmode == 1 ? 'General' : 'Sostenibilidad',
                 doc = this.documentos.filter(doc => doc.is_img == 1 && doc.documento == folder),
                 id_doc = doc && doc.length ? doc[0].id_documento : null;
             showProgress();
             try {
                 if (id_doc) {
-                    docfiles.forEach((pre, i) => {
-                        formData.append('file', pre.file);
-                        files[pre.file.name] = {
-                            nombre: pre.file.name,
-                            orden: i,
-                            id_documento: id_doc,
-                        };
-                    });
-                    let resp = await httpFunc("/generic/genericST/Maestros:Del_Archivos", { id_documento: id_doc });
-                    if (resp.data === 'OK')
-                        resp = await httpFunc(`/api/uploaddocs/img/${folder}`, formData);
-                    else throw resp;
-                    if (resp.data) {
-                        for (let key in resp.data) {
-                            files[key].codigo = resp.data[key];
-                            let r = await httpFunc("/generic/genericST/Maestros:Ins_Archivos", files[key]);
-                            if (r.data !== 'OK') throw r.data;
-                        }
-                    } else throw resp;
-                }
+                    let form = new FormData();
+                    this.previews.forEach(pre => form.append(pre.file.name, pre.file));
+                    let res = await httpFunc("/file/upload", form);
+                    if (res.isError) showMessage(res.errorMessage);
+                    else this.uploadS3(res.data, id_doc, folder);
+                } else throw "No se encontró " + folder;
             }
             catch(e) {
                 console.error(e);
@@ -285,19 +269,7 @@ export default {
             let folder = this.mainmode == 1 ? 'General' : 'Sostenibilidad',
                 doc = this.documentos.filter(doc => doc.is_img == 1 && doc.documento == folder),
                 id_doc = doc && doc.length ? doc[0].id_documento : null;
-            if (id_doc) {
-                let base = `./img/${folder}/`,
-                    resp = (await httpFunc("/generic/genericDT/Maestros:Get_Archivos", { id_documento: id_doc })).data;
-                let files = await this.openFiles(
-                    resp.map(file => {
-                        return {
-                            path: base + file.codigo,
-                            name: file.nombre,
-                        }
-                    })
-                );
-                this.processFiles(files);
-            }
+            id_doc && this.loadFiles(id_doc, folder);
         },
         getItem() {
             if (this.mainmode == 3) return [this.grupoImg, "GrupoImg"];
@@ -613,10 +585,10 @@ export default {
             this.previews = [];
             this.files = [];
         },
-        async loadFiles(id_doc) {
+        async loadFiles(id_doc, tipo) {
             this.clearAllImages();
             let res = await httpFunc('/generic/genericDT/Medios:Get_Archivos',
-                { tipo: 'docs', id_maestro_documento: id_doc }),
+                { tipo, id_maestro_documento: id_doc }),
                 base = '/file/S3get/';
                 if (res.data) {
                 let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento } });
@@ -638,7 +610,7 @@ export default {
                 }, 10);
             }
         },
-        async uploadS3(data, id_doc) {
+        async uploadS3(data, id_doc, tipo) {
             showProgress();
         
             const response = await httpFunc("/file/S3upload", data);
@@ -652,12 +624,12 @@ export default {
             let S3Files = response.data.map((item, i) => ({
                 id_documento: item.Id,
                 id_maestro_documento: id_doc,
-                tipo: 'docs',
+                tipo,
                 orden: i
             }));
 
             let res = await httpFunc("/generic/genericST/Medios:Del_Archivos", 
-                { id_maestro_documento: id_doc, tipo: 'docs' });
+                { id_maestro_documento: id_doc, tipo });
 
             if (res.isError) {
                 showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);

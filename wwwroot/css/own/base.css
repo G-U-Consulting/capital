@@ -1456,3 +1456,61 @@ tr.selected input {
 .radio-group label:hover {
   background-color: #e5e6e9;
 }
+.cont-portada {
+  height: 100%; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+}
+.img-portada {
+  max-height: 100%; 
+  max-width: 100%; 
+  opacity: 0.15; 
+  transition: opacity .4s ease-in-out;
+}
+.cont-rotafolio {
+  max-height: calc(100vh - 14rem);
+  width: calc(100% / 24 * 21);
+  aspect-ratio: 16 / 9;
+  margin: 1rem auto;
+  border: 1px #bbb solid;
+  border-radius: 5px;
+  background-color: #1b1b1b;
+  position: relative;
+  overflow: hidden;
+}
+.player-rotafolio {
+  height: 100%;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 60%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+}
+.player-rotafolio img {
+  max-height: 100%;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
+.btn-bar-rotafolio {
+  position: absolute;
+  margin: 0 auto;
+  height: 15%;
+  width: 100%;
+  bottom: 0;
+  display: flex;
+  gap: 5%;
+  justify-content: center;
+  align-items: center;
+}
+.btn-rotafolio {
+ height: 80%;
+ max-height: 80px;
+ width: auto;
+ cursor: pointer;
+ border-radius: 50%;
+}
