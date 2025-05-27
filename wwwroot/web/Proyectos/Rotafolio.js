@@ -77,24 +77,24 @@ export default {
         addResources(res) {
             let data = res.data;
             if (data && data.length)
-                data.sort((a, b) => parseInt(a.orden) - parseInt(b.orden)).forEach(d => 
-                    this.files.push({path: d.llave, content: null, link: d.link || null, name: d.documento}));
+                data.sort((a, b) => parseInt(a.orden) - parseInt(b.orden)).forEach(d => {
+                    if (d.link) {
+                        let link = this.formatURLYouTube(d.link);
+                        link && this.files.push({path: d.llave, content: null, link, name: d.documento})
+                    } else this.files.push({path: d.llave, content: null, link: null, name: d.documento});
+                });
         },
         async loadResources() {
             try {
                 let files = [...this.files];
                 await Promise.all(files.map(async (f, i) => {
-                    if (f.link) {
-                        let link = this.formatURLYouTube(f.link); // f.link;
-                        this.files[i].link = link;
-                    }
-                    else {
+                    if (!f.link) {
                         const res = await fetch('/file/S3get/' + f.path);
                         if (!res.ok) throw new Error(`Error al cargar ${f.path}: ${res.statusText}`);
                         const blob = await res.blob(),
                             file = new File([blob], f.name, { type: blob.type }),
                             reader = new FileReader();
-                        reader.onload = async (e) => 
+                        reader.onload = async (e) =>
                             file.type.startsWith('image/') && (this.files[i].content = e.target.result);
                         reader.readAsDataURL(file);
                     }

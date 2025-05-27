@@ -15,7 +15,7 @@
                         frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
                     </iframe>
                 </div>
-                <div class="btn-bar-rotafolio" v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false)}">
+                <div class="btn-bar-rotafolio" v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
                     <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)">
                     <img src="../../img/ico/play.png" @click="play" 
                         class="btn-rotafolio" v-show="stop">
