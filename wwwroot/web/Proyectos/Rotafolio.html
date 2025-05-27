@@ -7,11 +7,15 @@
                 Rotafolio
             </div>
 
-            <div class="cont-rotafolio" id="cont-rotafolio">
+            <div class="cont-rotafolio" id="cont-rotafolio" @mousemove="setShowBar" @mousedown="setShowBar">
                 <div class="player-rotafolio" v-if="!loading">
-                    <img :src="files[playIndex].content">
+                    <img v-if="files[playIndex].content" :src="files[playIndex].content">
+                    <iframe v-else-if="isVideo(files[playIndex], true)" @load="initVideo" id="v-player" :key="playIndex"
+                        :src="`${files[playIndex].link}?autoplay=1&enablejsapi=1&mute=1`"
+                        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
+                    </iframe>
                 </div>
-                <div class="btn-bar-rotafolio">
+                <div class="btn-bar-rotafolio" v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false)}">
                     <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)">
                     <img src="../../img/ico/play.png" @click="play" 
                         class="btn-rotafolio" v-show="stop">

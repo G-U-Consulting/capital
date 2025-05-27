@@ -1506,22 +1506,34 @@ tr.selected input {
   align-items: center;
   background-color: white;
 }
+.player-rotafolio:has(iframe) {
+  width: 100%;
+}
 .player-rotafolio img {
   max-height: 100%;
   max-width: 100%;
   width: auto;
   height: auto;
 }
+.player-rotafolio iframe {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
 .btn-bar-rotafolio {
   position: absolute;
   margin: 0 auto;
   height: 15%;
   width: 100%;
-  bottom: 0;
+  bottom: -15%;
   display: flex;
   gap: 5%;
   justify-content: center;
   align-items: center;
+  transition: transform .3s ease-in-out;
+}
+.show-bar {
+  transform: translate(0, -100%);
 }
 .btn-rotafolio {
  height: 80%;
