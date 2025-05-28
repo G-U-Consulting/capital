@@ -29,6 +29,10 @@ export default {
         await this.setTime();
         await this.listResources();
     },
+    unmounted() {
+        this.interval && clearInterval(this.interval);
+        this.timeout && clearTimeout(this.timeout);
+    },
     methods: {
         setMainMode(mode) {
             this.mainmode = mode;
@@ -45,13 +49,14 @@ export default {
             if (id_proyecto) {
                 let res = await httpFunc('/generic/genericDT/Maestros:Get_Documento', 
                     { documento: "General,Sostenibilidad", is_img: 1 });
-                if (res.data && res.data.length) {
-                    await Promise.all(
-                        res.data.map(async doc => {
-                            this.addResources(await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
-                            { tipo: doc.documento, id_maestro_documento: doc.id_documento }))
-                        })
-                    );
+                if (res.data && res.data.length == 2) {
+                    let data = res.data.sort((a, b) => a.documento.localeCompare(b.documento));
+                    let resp = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
+                        { tipo: data[0].documento, id_maestro_documento: data[0].id_documento });
+                    this.addResources(resp);
+                    resp = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
+                        { tipo: data[1].documento, id_maestro_documento: data[1].id_documento });
+                    this.addResources(resp);
                 }
 
                 this.addResources(await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
@@ -59,7 +64,7 @@ export default {
 
                 let modulos = ['imagenes','videos','recorridos virt','avances de obra'];
                 res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
-                let grupos = res.data.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
+                let grupos = res.data;
                 res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: modulos.join(','), id_proyecto })
                     
@@ -131,7 +136,7 @@ export default {
             this.resetInterval();
         },
         resetInterval() {
-            if (this.interval) clearInterval(this.interval);
+            this.interval && clearInterval(this.interval);
             this.interval = setInterval(() => {
                 let img = document.getElementById('img-rotafolio');
                 img && (img.style.opacity = .7);

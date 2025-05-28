@@ -179,7 +179,7 @@
             previews: [],
             files: [],
             imgsPortada: [],
-            viewTable: true,
+            viewMode: 'Tabla',
             frontImg: '',
             interval: null
         };
@@ -208,6 +208,7 @@
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
+        await this.setViewMode();
         await this.setMainMode();
         this.proyectos.forEach(async pro => {
             let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
@@ -310,6 +311,23 @@
             validarSubmode(index);
             this.submode = index;
             this.isFormularioCompleto = this.tabsIncomplete.length === 0;
+        },
+        async setViewMode(mode) {
+            let vista = await GlobalVariables.getPreferences('vistaProyecto', true);
+            if (vista) this.viewMode = vista;
+            else {
+                let data = (await httpFunc("/generic/genericST/Usuarios:Ins_Preferencias", 
+                    { usuario: GlobalVariables.username, nombre: 'vistaProyecto', valor: mode || 'Tabla' })).data;
+                if (data == 'OK') await this.setViewMode();
+            }
+        },
+        async updateViewMode(mode) {
+            if (mode != this.viewMode) {
+                this.viewMode = mode;
+                let data = (await httpFunc("/generic/genericST/Usuarios:Upd_Preferencias", 
+                    { usuario: GlobalVariables.username, nombre: 'vistaProyecto', valor: mode || 'Tabla' })).data;
+                if (data == 'OK') await this.setViewMode();
+            }
         },
         validarEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

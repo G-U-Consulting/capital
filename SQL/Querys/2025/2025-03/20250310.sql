@@ -389,3 +389,13 @@ begin
 	insert into dim_grupo_proyecto(grupo, orden, id_proyecto, modulo)
 	select dg.grupo, dg.orden, new.id_proyecto as id_proyecto, 'imagenes' from dim_grupo_img dg;
 end;
+
+create table dim_preferencias_usuario(
+	id int primary key auto_increment,
+	id_usuario int,
+	created_on datetime default current_timestamp,
+	nombre varchar(200) not null,
+	valor text not null,
+	constraint fk_id_usuario_preferencia foreign key(id_usuario) references fact_usuarios(id_usuario),
+	constraint unique_usuario_preferencia unique(id_usuario, nombre)
+);
