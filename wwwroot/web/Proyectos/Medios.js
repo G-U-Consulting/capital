@@ -978,15 +978,16 @@
             this.slideFile = null;
             this.plantaFile = null;
             this.files = [];
+            this.filesAvo = [];
             this.previews = [];
+            this.previewsAvo = [];
             // this.logoPreview = null;
             // this.slidePreview = null;
             // this.plantaPreview = null;
-            // this.previewsAvo = [];
-            // this.filesAvo = [];
+            
         },
         async GrupUploadFiles() {
-            const folderMap = {
+            const folderMap = { 
                 1: 'principal',
                 2: 'imagenes',
                 3: 'videos',
