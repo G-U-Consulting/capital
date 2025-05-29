@@ -220,6 +220,7 @@
             this.modevid = true;
             this.modevir = true;
             const modulos = {
+                1: 'principal',
                 2: 'imagenes',
                 3: 'videos',
                 4: 'recorridos virt',
@@ -750,6 +751,8 @@
             const folderMap = {
                 1: 'principal',
                 2: 'imagenes',
+                3: 'videos',
+                4: 'recorridos virt',
                 5: 'avances de obra'
             };
 
@@ -971,21 +974,23 @@
             }
         },
         clearAllImages() {
-            this.logoPreview = null;
             this.logoFile = null;
-            this.slidePreview = null;
             this.slideFile = null;
-            this.plantaPreview = null;
             this.plantaFile = null;
-            this.previews = [];
             this.files = [];
-            this.previewsAvo = [];
-            this.filesAvo = [];
+            this.previews = [];
+            // this.logoPreview = null;
+            // this.slidePreview = null;
+            // this.plantaPreview = null;
+            // this.previewsAvo = [];
+            // this.filesAvo = [];
         },
         async GrupUploadFiles() {
             const folderMap = {
                 1: 'principal',
                 2: 'imagenes',
+                3: 'videos',
+                4: 'recorridos virt',
                 5: 'avances de obra'
             };
 
@@ -1093,7 +1098,7 @@
                 showProgress();
 
                 const res = await httpFunc("/generic/genericDT/Medios:Ins_Grupos", {
-                    grupo: this.newGrupVid,
+                    grupo: this.newGrupReco,
                     orden: 5,
                     id_proyecto: GlobalVariables.id_proyecto,
                     modulo: 'recorridos virt'
