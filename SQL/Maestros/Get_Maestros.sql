@@ -9,9 +9,8 @@ select id_grupo_img, orden, grupo
 from dim_grupo_img
 order by orden;
 
-select id_categoria, categoria
+select id_categoria, categoria, is_active
 from dim_categoria_medio
-where is_active = 1
 order by categoria;
 
 select mp.id_medio, mp.medio, mp.id_categoria, mp.is_active, id_sinco, id_sinco as 'ID Sinco', 

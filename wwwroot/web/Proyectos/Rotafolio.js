@@ -203,7 +203,7 @@ export default {
                 }
             });
             setTimeout(() => {
-                let state = this.vplayer.getPlayerState();
+                let state = this.vplayer && this.vplayer.getPlayerState();
                 if (state !== YT.PlayerState.PLAYING) {
                     this.vplayer.mute();
                     this.vplayer.playVideo();

@@ -1518,11 +1518,11 @@ tr.selected input {
 .btn-bar-rotafolio {
   position: absolute;
   margin: 0 auto;
-  height: 15%;
+  height: 12%;
   width: 100%;
-  bottom: -15%;
+  bottom: -12%;
   display: flex;
-  gap: 5%;
+  gap: 4%;
   justify-content: center;
   align-items: center;
   transition: transform .3s ease-in-out;
@@ -1531,8 +1531,7 @@ tr.selected input {
   transform: translate(0, -100%);
 }
 .btn-rotafolio {
- height: 80%;
- max-height: 80px;
+ height: 75%;
  width: auto;
  cursor: pointer;
  border-radius: 50%;

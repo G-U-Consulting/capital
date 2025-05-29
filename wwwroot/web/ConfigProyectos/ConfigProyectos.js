@@ -272,23 +272,23 @@ export default {
             id_doc && this.loadFiles(id_doc, folder);
         },
         getItem() {
-            if (this.mainmode == 3) return [this.grupoImg, "GrupoImg"];
-            if (this.mainmode == 4) return [this.categoriaMedio, "Categoria"];
-            if (this.mainmode == 5) return [this.medioPublicitario, "Medio"];
-            if (this.mainmode == 6) return [this.banco, "Banco"];
-            if (this.mainmode == 7) return [this.fiduciaria, "Fiduciaria"];
-            if (this.mainmode == 8) return [this.zonaProyecto, "ZonaProyecto"];
-            if (this.mainmode == 9) return [this.ciudadela, "Ciudadela"];
-            if (this.mainmode == 10) return [this.instructivo, "Instructivo"];
-            if (this.mainmode == 11) return [this.pie_legal, "PieLegal"];
-            if (this.mainmode == 12) return [this.tramite, "Tramite"];
-            if (this.mainmode == 13) return [this.documento, "Documento"];
-            if (this.mainmode == 14) return [this.subsidio, "Subsidio"];
-            if (this.mainmode == 15) return [this.tipo_financiacion, "TipoFinanciacion"];
-            if (this.mainmode == 16) return [this.tipo_proyecto, "TipoProyecto"];
-            if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto"];
-            if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS"];
-            if (this.mainmode == 19) return [{}, "Email"];
+            if (this.mainmode == 3) return [this.grupoImg, "GrupoImg", this.gruposImg];
+            if (this.mainmode == 4) return [this.categoriaMedio, "Categoria", this.categoriasMedios];
+            if (this.mainmode == 5) return [this.medioPublicitario, "Medio", this.mediosPublicitarios];
+            if (this.mainmode == 6) return [this.banco, "Banco", this.bancos];
+            if (this.mainmode == 7) return [this.fiduciaria, "Fiduciaria", this.fiduciarias];
+            if (this.mainmode == 8) return [this.zonaProyecto, "ZonaProyecto", this.zonasProyectos];
+            if (this.mainmode == 9) return [this.ciudadela, "Ciudadela", this.ciudadelas];
+            if (this.mainmode == 10) return [this.instructivo, "Instructivo", this.instructivos];
+            if (this.mainmode == 11) return [this.pie_legal, "PieLegal", this.pies_legales];
+            if (this.mainmode == 12) return [this.tramite, "Tramite", this.tramites];
+            if (this.mainmode == 13) return [this.documento, "Documento", this.documentos];
+            if (this.mainmode == 14) return [this.subsidio, "Subsidio", this.subsidios];
+            if (this.mainmode == 15) return [this.tipo_financiacion, "TipoFinanciacion", this.tipos_financiacion];
+            if (this.mainmode == 16) return [this.tipo_proyecto, "TipoProyecto", this.tipos_proyecto];
+            if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto", this.estados_proyecto];
+            if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS", this.tipos_vis];
+            if (this.mainmode == 19) return [{}, "Email", this.emails];
             return null;
         },
         getMainPath() {
@@ -652,7 +652,22 @@ export default {
                 }
             });
             hideProgress();
-        }
+        },
+        async toggleState(item) {
+            item.is_active = item.is_active == '0' ? '1' : '0';
+            await httpFunc(`/generic/genericST/Maestros:Upd_${this.getItem()[1]}`, item);
+        },
+        async deleteItem(item) {
+            let list = this.getItem()[2],
+                key = Object.keys(item).filter(k => k.includes('id_'))[0],
+                index = list.findIndex(i => i[key] === item[key]),
+                res = await httpFunc(`/generic/genericST/Maestros:Del_${this.getItem()[1]}`, item);
+            if (res.data === 'OK' && index !== -1) list.splice(index, 1);
+            else showMessage(res.errorMessage);
+        },
+        async requestDelete(item) {
+            showConfirm("Se eliminará permanentemente. Continuar?", this.deleteItem, null, item);
+        },
     },
     computed: {
         f_smmlv: {
