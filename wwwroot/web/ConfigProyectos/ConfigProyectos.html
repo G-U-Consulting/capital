@@ -190,7 +190,7 @@
                 </div>
                 <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
                     style="position: relative;padding-top: 1em;">
-                    <label for="file-input" class="preview-container" style="height: calc(100vh - 17rem); cursor: pointer;"
+                    <label for="file-input" class="preview-container" style="height: calc(100vh - 17rem); cursor: pointer; max-height: 100%;"
                         @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
                         @mouseleave="tooltipVisible = false">
                 
@@ -218,7 +218,7 @@
                 
                 <div class='pure-u-1-1 pure-u-md-2-5'></div>
                 <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                    <button v-on:click="onUpdateImg()">Guardar</button>
+                    <button v-on:click="onUpdateImg()" style="margin-top: .8rem;">Guardar</button>
                 </div>
             </div>
         </div>
@@ -1124,7 +1124,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
-                                <button v-on:click="setMode(1)">Agregar</button>
+                                <button v-on:click="clearAllImages();setMode(1)">Agregar</button>
                             </div>
                         </div>
                     </div>
@@ -1167,7 +1167,7 @@
                 </div>
                 <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
                     style="position: relative;padding-top: 1em;">
-                    <label for="file-input" class="preview-container" style="height: calc(100vh - 17rem); cursor: pointer;"
+                    <label for="file-input" class="preview-container" style="height: calc(100vh - 17rem); cursor: pointer; max-height: 100%;"
                         @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
                         @mouseleave="tooltipVisible = false">
                         <div v-if="previews.length === 0" class="center-absolute ">
