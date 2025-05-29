@@ -1,0 +1,557 @@
+<!--Proceso Negocio -->
+<div class="pure-g" style="height: max-content">
+    <div class="pure-u-1-24"></div>
+    <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+        <div class="pure-g steps">
+            <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-6">
+                <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]" @click="handleNext(index)">
+                    {{ tab }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pure-u-1-24"></div>
+    <div class="pure-u-1-24"></div>
+    <div class="pure-u-22-24 menuCard"
+        style="height: calc(100vh - 14rem); overflow-y: auto; padding: 1em 1em 0 1em !important ">
+        <!-- ----------------------------------------------------------------- -->
+        <!-- ----------------------------- Bienvenida------------------------- -->
+        <!-- ----------------------------------------------------------------- -->
+        <div class="pure-g" v-if="mode == 0">
+            <div class='pure-u-1-1 pure-u-md-1-1'>
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                    Bienvenida a Cliente
+                </div>
+                <div class="pure-g" style="align-items: center; justify-content: flex-start; gap: 1rem;margin: 1em 0;">
+                    <div class="pure-u-1 pure-u-md-1-2">
+                        <div class="formInputStandard" style="width: 100%;">
+                            <input type="text" v-model="" maxlength="100" placeholder="Usuario o Nombre" style="width: 100%;" />
+                        </div>
+                    </div>
+                    <div class="pure-u-md-auto" style="padding: 0 1rem; font-weight: bold;">
+                        Criterio
+                    </div>
+                    <div class="pure-u-1 pure-u-md-1-5">
+                        <div class="formInputStandard" style="width: 100%;">
+                            <select v-model="" style="width: 100%;">
+                                <option value="" selected>[Todos los cargos]</option>
+                                <option value="">Opción 1</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-1 pure-u-md-1-6" style="text-align: right;">
+                        <button v-on:click="">Nuevo Cliente</button>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                    Información Básica
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Nombres</span>
+                        <input type='text' v-model='Obj.NewClient' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Apellido 1</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Apellido 2</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Ciudad</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Barrio</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Departamento</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Pais</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Email 1</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Email 2</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Telefono 1</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Telefono 2</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-2'>
+                    <div class='formInputStandard'>
+                        <span>Dirección</span>
+                        <input type='text' v-model='' maxlength='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard' style='margin-top: 1.5rem;'>
+                        <button v-on:click="">Ingresar Dirección</button>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                    Documento de Identificación
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Tipo Documento</span>
+                        <select v-model=''>
+                            <option value='' selected>Seleccione</option>
+                            <option>
+        
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Número Documento</span>
+                        <select v-model=''>
+                            <option value='' selected>Seleccione</option>
+                            <option>
+        
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>País Expedición</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Depart. Expedición</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Ciudad Expedición</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Fecha Expedición</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ----------------------------------------------------------------- -->
+        <!-- ----------------------------- Registro--------------------------- -->
+        <!-- ----------------------------------------------------------------- -->
+        <div class="pure-g" v-if="mode == 1">
+            <div class='pure-u-1-1' style="font-size: 2em;">
+                {{ Obj.NewClient }}
+            </div>
+            <div class='pure-u-1-1 formDivision'style="margin-top: 0.5em;">
+                <span style="font-size: 1.8em;">Registros de visita</span>
+                <button style="float: right;">Nueva visita</button>
+            </div>
+        
+            <table class="dataTable" style="margin-top: 1em;">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Proyecto</th>
+                        <th>Tipo</th>
+                        <th>Modo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Fecha 1</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Fecha 2</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Fecha 3</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class='pure-u-1-1 formDivision' style="margin-top: 1em;">
+                <span style="font-size: 1.5em;">Tipo de Registro (referido a la visita seleccionada en la tabla)</span>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1'>
+                <div class='formInputStandard'>
+                    <div class='pure-g'>
+                        <div v-for='item in tipo' class='pure-u-1-5' style='margin: .8rem 0 .8rem 0; '>
+                            <label class="check">
+                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <span class="checkmark"></span>
+                                {{ item }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
+                <span style="font-size: 1.5em;">Modo de atención (referido a la visita seleccionada en la tabla)</span>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1' >
+                <div class='formInputStandard'>
+                    <div class='pure-g'>
+                        <div v-for='item in Modo' class='pure-u-1-6' style='margin-top: .8rem;'>
+                            <label class="check">
+                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <span class="checkmark"></span>
+                                {{ item }}
+                            </label>
+                        </div>
+                        <div class="pure-u-1 pure-u-md-1-8">
+                            <div class="formInputStandard" style="width: 100%;">
+                                <input type="text" v-model="" maxlength="100" placeholder="Especificar" style="width: 100%;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
+                <span style="font-size: 1.5em;">Otra información (referido a la visita seleccionada en la tabla)</span>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='formInputStandard'>
+                    <span>Categoría Medio</span>
+                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='formInputStandard'>
+                    <span>Medio</span>
+                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='formInputStandard'>
+                    <span>Motivo de Compra</span>
+                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-5'>
+                <div class='formInputStandard'>
+                    <span>Presupuesto disponible</span>
+                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='formInputStandard'>
+                    <span>Referencias</span>
+                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                </div>
+            </div>
+        </div>
+        <!-- ----------------------------------------------------------------- -->
+        <!-- --------------------------- Cotización--------------------------- -->
+        <!-- ----------------------------------------------------------------- -->
+        <div class="pure-g" v-if="mode == 2">
+            <div class='pure-u-1-1' style="font-size: 2em;">
+                {{ Obj.NewClient }}
+            </div>
+            <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
+                <span style="font-size: 1.8em;">Cotizaciones</span>
+            </div>
+            <div class='pure-u-1-1' style="margin-top: 0.5em;">
+                <button style="float: right;">Nueva Cotización</button>
+            </div>
+            <table class="dataTable" style="margin-top: 1em;">
+                <thead>
+                    <tr>
+                        <th>Cotización</th>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Importe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Cotización 1</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Cotización 2</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="margin-top: 1em;" class="pure-u-1 pure-u-md-1-1">
+                <samp class="pure-u-1 pure-u-md-1-6" style="margin-top: .8rem;">Lista Activa:</samp>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard" style="width: 100%;">
+                        <select v-model="" style="width: 100%;">
+                            <option value="" selected>[Seleccione]</option>
+                            <option value="">Opción 1</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-2" style="text-align: right;margin-top: .5rem;">
+                    <button >Agregar Unidad</button>
+                </div>
+            </div>
+            <table class="dataTable" style="margin-top: 1em;">
+                <thead>
+                    <tr>
+                        <th>Ítem</th>
+                        <th>Fecha</th>
+                        <th style="background-color: orange;">Ítem Id ▼</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th>Importe</th>
+                        <th>Descuento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Ítem 1</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Ítem 2</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- ----------------------------------------------------------------- -->
+        <!-- ----------------------------- Opción ---------------------------- -->
+        <!-- ----------------------------------------------------------------- -->
+        <div v-if="mode == 3">
+            <div>
+                <h1>Modulo Opción</h1>
+            </div>
+            <div style="text-align: center;">
+                <img src="../../img/ico/MEN AT WORK.JPG" alt="">
+            </div>
+            <!-- <div class='pure-u-1-1' style="font-size: 2em;">
+                {{ Obj.NewClient }}
+            </div>
+        
+            <div class='pure-u-1-1 formDivision' style="display: flex; justify-content: space-between;">
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <span style="font-size: 1.2em;">Opcionar</span>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <span style="font-size: 1.2em;">Importe:</span>
+                </div>
+            </div>
+            <div class="pure-g" style="margin-top: 1em;">
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <fieldset style="border: 1px solid lightgray; padding: 1em;">
+                        <legend>Modo de Pago:</legend>
+                        <label><input type="radio" name="modoPago" /> Contado</label>
+                        <div style="margin-top: 1em;">
+                            <span>Modalidad:</span>
+                            <select style="width: 100%;">
+                                <option>Seleccione</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <fieldset style="border: 1px solid lightgray; padding: 1em;">
+                        <label><input type="radio" name="modoPago" /> Financiado</label>
+                        <div style="margin-top: 1em;">
+                            <div><span>Modalidad:</span>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Modalidad</span>
+                                        <select v-model=''>
+                                            <option value='' selected>Seleccione</option>
+                                            <option>
+                        
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div><span>Entidad:</span>
+                                <select style="width: 100%;">
+                                    <option>Seleccione</option>
+                                </select>
+                            </div>
+                            <div><span>Tipo:</span>
+                                <select style="width: 100%;">
+                                    <option>Seleccione</option>
+                                </select>
+                            </div>
+                            <div><span>Años:</span>
+                                <select style="width: 100%;">
+                                    <option>Seleccione</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            <div class='pure-u-1-1 formDivision' style="font-size: 1.2em; margin-top: 1em;">
+                Aportes y subsidios
+            </div>
+            <div class="pure-g">
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span>Cesantías</span>
+                        <input type="text" value="0,00" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span>Ahorros</span>
+                        <input type="text" value="0,00" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span>Ingresos</span>
+                        <input type="text" value="0,00" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <label><input type="radio" name="subsidio" /> Subsidio</label>
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span>Valor Subsidio</span>
+                        <input type="text" value="0,00" style="color: red;" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span>Caja de compensación:</span>
+                        <select style="width: 100%;">
+                            <option>Seleccione</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        
+            <div class='pure-u-1-1 formDivision' style="margin-top: 1em;">
+                <span>Importe Financiable:</span> <strong></strong>
+                Cuota Inicial: <strong></strong>
+                Cuota: <strong></strong>
+            </div> -->
+        </div>
+        <!-- ----------------------------------------------------------------- -->
+        <!-- -------------------------- Vinculación--------------------------- -->
+        <!-- ----------------------------------------------------------------- -->
+        <div v-if="mode == 4">
+            <div>
+                <h1>Modulo Vinculación</h1>
+            </div>
+            <div style="text-align: center;">
+                <img src="../../img/ico/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+        <!-- ----------------------------------------------------------------- -->
+        <!-- ----------------------------- Cierre ---------------------------- -->
+        <!-- ----------------------------------------------------------------- -->
+        <div v-if="mode == 5">
+            <div>
+                <h1>Modulo Cierre</h1>
+            </div>
+            <div style="text-align: center;">
+                <img src="../../img/ico/MEN AT WORK.JPG" alt="">
+            </div>
+        </div>
+    </div>
+     <!-- ------------------------------------------------------------ -->
+    <!-- ----------------------------- Global------------------------- -->
+     <!-- ------------------------------------------------------------ -->
+    <div class="pure-u-1-1" style="padding-top: 1em;">
+        <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
+            <div v-if="mode != 0" class="pure-u-auto">
+                <button class="pure-button button-fixed" @click="handleNext(mode - 1)">Volver</button>
+            </div>
+            <div v-if="mode == 5" class="pure-u-auto">
+                <button class="pure-button button-fixed" @click="save">Guardar</button>
+            </div>
+            <div v-if="mode != 5" class="pure-u-auto">
+                <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>
+            </div>
+        </div>
+    </div>
+    <div v-if="showPolicyModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Autorización para el tratamiento de datos personales</h3>
+            <p>
+                Para continuar, debes aceptar nuestra política de tratamiento de datos personales.
+                Puedes leerla completa en:
+                <a href="https://www.constructoracapital.com/autorizacion-tratamiento-datos-personales" target="_blank">
+                    https://www.constructoracapital.com/autorizacion-tratamiento-datos-personales
+                </a>
+            </p>
+            <div class="modal-buttons">
+                <button @click="acceptPolicy">Acepto</button>
+                <button @click="declinePolicy">No acepto</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -12,16 +12,21 @@
                 "Avances de obra"
             ],
             tabsIncomplete: [],
+            logoPreview: null,
+            slidePreview: null,
+            plantaPreview: null,
+            previews: [],
+            previewsAvo: [],
             files: [],
             filesAvo:[],
-            draggedFile: null,
-            dragIndex: null,
             videos: [
                 { nombre: '', descripcion: '', link: '' }
             ],
             videosReco: [
                 { nombre: '', descripcion: '', link: '' }
             ],
+            draggedFile: null,
+            dragIndex: null,
             hoveredIndex: null,
             selectedRow: null,
             selectedRowReco: null,
@@ -36,7 +41,6 @@
                 tablaIndex: null,
                 itemIndex: null,
             },
-            
             tooltipVisible: false,
             tooltipX: 0,
             tooltipY: 0,
@@ -48,8 +52,6 @@
                 slide: false,
                 planta: false
             },
-            previews: [],
-            previewsAvo: [],
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
             documentos: [],
             filtros: {
@@ -77,7 +79,60 @@
             ismodulAvo: false,
             S3Files: [],
             videoId: null,
+            previewSrc: null,
+            modalVisible: false,
+            plantaPreviewAll: [],
+
+
+            playIndex: 0,
+            interval: null,
+            time: 8000,
+            stop: false,
+            showBar: true,
+            loading: false,
+
         };
+    },
+    watch: {
+        previewsAvo: {
+            deep: true,
+            handler(newVal) {
+                localStorage.setItem("previewsAvo", JSON.stringify(newVal));
+            }
+        },
+        plantaPreview(val) {
+            this.updatePlantaPreviewAll();
+          },
+          slidePreview(val) {
+            this.updatePlantaPreviewAll();
+          },
+          logoPreview(val) {
+            this.updatePlantaPreviewAll();
+          },
+          previews: {
+            handler(val) {
+              this.updatePlantaPreviewAll();
+            },
+            deep: true
+          },
+          previewsAvo: {
+            handler(val) {
+              this.updatePlantaPreviewAll();
+            },
+            deep: true
+          },
+          videos: {
+            handler(val) {
+              this.updatePlantaPreviewAll();
+            },
+            deep: true
+          },
+          videosReco: {
+            handler(val) {
+              this.updatePlantaPreviewAll();
+            },
+            deep: true
+          }
     },
     computed: {
         tabClasses() {
@@ -91,17 +146,36 @@
             }
           });
         },
+        getPreviewSrc() {
+            return '../../img/ico/youtobe.png';
+        },
+        allItems() {
+            return this.plantaPreviewAll;
+        }
     },
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
-        GlobalVariables.miniModuleCallback("StartMediaMdule", null)
+        GlobalVariables.miniModuleCallback("StartMediaMdule", null);
         this.setSubmode(0);
+        this.updatePlantaPreviewAll();
+
     },
     methods: {
+        updatePlantaPreviewAll() {
+            this.plantaPreviewAll = [
+              { src: this.plantaPreview },
+              { src: this.slidePreview },
+              { src: this.logoPreview },
+              ...(this.previews || []),
+              ...(this.previewsAvo || []),
+              ...(this.videos?.filter(v => v.link) || []),
+              ...(this.videosReco?.filter(v => v.link) || [])
+            ];
+        },
         setMode(mode) {
             this.mode = mode;
              if(mode == 0)
-                 GlobalVariables.miniModuleCallback("StartMediaMdule", null)
+                 GlobalVariables.miniModuleCallback("StartMediaMdule", null);
         },
         async setSubmode(index) {
             this.submode = index;
@@ -137,7 +211,10 @@
                 await this.construirTablas(grupo_img, grupo_vid, grupo_vir,grupo_avo);
                
             }
-        
+            if (index == 1) {
+                this.loadImg()
+                return;
+            }
             this.modeimg = true;
             this.modeAvo = true;
             this.modevid = true;
@@ -622,9 +699,7 @@
         configclearAllImages(){
             showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
         },
-
         //////////////////////////////////////
-
         async uploadFiles() {
             const form = new FormData();
            
@@ -661,9 +736,6 @@
                 this.S3UploadFiles();
             }
         },
-
-///////////////////////////////////
-
         async S3UploadFiles() {
             const getFile = (f) => f instanceof File ? f : f?.file || null;
            
@@ -759,8 +831,6 @@
             await this.loadImg();
             hideProgress();
         },
-////////////////////////////////////
-
         async loadImg() {
             const folderMap = {
                 1: 'principal',
@@ -890,7 +960,6 @@
                 }
             }
         },
-        
         async fetchImageAsBlob(url) {
             try {
                 const response = await fetch(url);
@@ -957,7 +1026,6 @@
         },
         checkAndLoad() {
 
-              
             switch (this.submode) {
                 case 2:
                     this.selectedGrupoId = this.selectImg;
@@ -1020,7 +1088,6 @@
                 hideProgress();
             }
         },
-  
         async crearGrupoReco() {
             try {
                 showProgress();
@@ -1175,6 +1242,103 @@
         },
         closeVideo() {
             this.videoId = null;
+        },
+        async openPrevi() {
+            this.modalVisible = true;
+            history.pushState(null, "", "#modal-carrusel");
+            var tag = document.createElement("script");
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName("script")[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            if (this.allItems.length) this.resetInterval();
+        },
+        closePrevi() {
+            this.modalVisible = false;
+            history.pushState(null, "", window.location.pathname);
+        },
+
+        /////////////////////////////////////////////////////
+
+        // fullScreen() {
+        //     let cont = document.getElementById("cont-rotafolio");
+            
+        //     if (cont.requestFullscreen) {
+        //         cont.requestFullscreen();
+        //     } else if (cont.mozRequestFullScreen) {
+        //         cont.mozRequestFullScreen();
+        //     } else if (cont.webkitRequestFullscreen) {
+        //         cont.webkitRequestFullscreen();
+        //     } else if (cont.msRequestFullscreen) {
+        //         cont.msRequestFullscreen();
+        //     }
+        // },
+        async setTime() {
+            let res = await httpFunc('/generic/genericDT/General:Get_Variable', {nombre_variable: 'CarDurac'});
+            if (res.data.length && res.data[0].valor) 
+                this.time = parseFloat(res.data[0].valor.replace(',','.')) * 1000;
+        },
+        isImage(item) {
+            this.setTime()
+            const valueToCheck = item?.content || item?.url;
+            const isBase64 = item?.src?.startsWith('data:image/');
+          
+            return item && (typeof valueToCheck === 'string' && valueToCheck.match(/\.(jpeg|jpg|png|gif)$/i) || isBase64);
+          },
+        isVideo(item) {
+            return item && (item.previewSrc || item.videoUrl)?.includes('youtube.com');
+        },
+        formatURL(url) {
+            try {
+                const urlObj = new URL(url);
+                if (urlObj.hostname.includes("youtube.com") && urlObj.searchParams.has("v")) {
+                    return `https://www.youtube.com/embed/${urlObj.searchParams.get("v")}?autoplay=1&enablejsapi=1&mute=1`;
+                } else if (urlObj.hostname.includes("youtu.be")) {
+                    return `https://www.youtube.com/embed/${urlObj.pathname.slice(1)}?autoplay=1&enablejsapi=1&mute=1`;
+                }
+                return url;
+            } catch (e) {
+                return '';
+            }
+        },
+        initVideo() {
+            // inicialización opcional para videos YouTube embebidos
+        },
+        play() {
+            this.fullScreen();
+            this.resetInterval();
+        },
+        pause() {
+            if (this.interval) clearInterval(this.interval);
+            this.interval = null;
+            this.stop = true;
+        },
+        setIndex(i) {
+            if (!this.allItems.length) return;
+            this.playIndex = (this.playIndex + i + this.allItems.length) % this.allItems.length;
+            this.resetInterval();
+        },
+        resetInterval() {
+            if (this.interval) clearInterval(this.interval);
+            this.interval = setInterval(() => {
+                this.playIndex = (this.playIndex + 1) % this.allItems.length;
+            }, this.time);
+            this.stop = false;
+        },
+        getImageUrl(item) {
+            if (item.src) return item.src;
+            if (item.llave) return `/file/S3get/${item.llave}`;
+            return '';
+        },
+        setShowBar() {
+            if (!this.cont) this.cont = document.getElementById('cont-rotafolio');
+            this.showBar = true;
+            this.timeout && clearTimeout(this.timeout);
+            this.cont.style.cursor = 'auto';
+            this.timeout = setTimeout(() => {
+                this.showBar = false;
+                this.cont.style.cursor = 'none';
+            }, 2500);
         },
     }
 };
