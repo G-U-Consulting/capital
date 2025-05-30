@@ -16,7 +16,8 @@ export default {
             showBar: false,
             vplayer: null,
             time: 8000,
-            cont: null
+            cont: null,
+            showList: false,
         };
     },
     async mounted() {
@@ -28,6 +29,7 @@ export default {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         await this.setTime();
         await this.listResources();
+        console.log(this.grupos);
     },
     unmounted() {
         this.interval && clearInterval(this.interval);
@@ -65,6 +67,11 @@ export default {
                 let modulos = ['imagenes','videos','recorridos virt','avances de obra'];
                 res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
                 let grupos = res.data;
+                this.grupos = grupos.map(g => {
+                    g.files = []; 
+                    g.expanded = false;
+                    return g;
+                });
                 res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: modulos.join(','), id_proyecto })
                     
@@ -85,8 +92,8 @@ export default {
                 data.sort((a, b) => parseInt(a.orden) - parseInt(b.orden)).forEach(d => {
                     if (d.link) {
                         let link = this.formatURLYouTube(d.link);
-                        link && this.files.push({path: d.llave, content: null, link, name: d.documento})
-                    } else this.files.push({path: d.llave, content: null, link: null, name: d.documento});
+                        link && this.files.push({path: d.llave, content: null, link, name: d.documento, id_grupo: d.id_grupo_proyecto})
+                    } else this.files.push({path: d.llave, content: null, link: null, name: d.documento, id_grupo: d.id_grupo_proyecto});
                 });
         },
         async loadResources() {
@@ -107,6 +114,16 @@ export default {
             } catch (error) {
                 console.error("Error al cargar archivos:", error);
             }
+            this.files.forEach(f => {
+                let grupo = this.grupos.filter(g => f.id_grupo === g.id_grupo_proyecto);
+                grupo = grupo ? grupo[0] : null;
+                if (grupo) {
+                    let file = {...f};
+                    if (f.link) file.content = '../../img/ico/youtobe.png';
+                    else file.content = '/file/S3get/' + file.path;
+                    grupo.files.push(file);
+                }
+            });
             this.loading = false;
         },
         fullScreen() {
@@ -220,5 +237,9 @@ export default {
                 this.cont.style.cursor = 'none';
             }, 2500);
         },
+        toggleList() {
+            this.showList = !this.showList;
+            //GlobalVariables.miniModuleCallback('ToggleLateralMenu');
+        }
     }
 }

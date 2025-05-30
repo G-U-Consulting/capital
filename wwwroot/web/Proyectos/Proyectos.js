@@ -107,7 +107,7 @@ export default {
             }else if(type == "ProcesoNegocio"){
                 this.pushRuta("Proceso de Negocio", 1);
                 return this.proyecto;
-            }
+            }else if(type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
             
         },
         
