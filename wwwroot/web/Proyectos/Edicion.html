@@ -71,13 +71,13 @@
     <div class="pure-u-2-24"></div>
     <div class="pure-u-20-24">
         <div class="btn-view-group">
-            <div>
-                <img src="../../img/ico/Tabla.jpg">
-                <button @click="updateViewMode('Tabla')">Ver Tabla</button>
-            </div>
-            <div>
-                <img src="../../img/ico/Matriz.png">
-                <button @click="updateViewMode('Matriz')">Ver Matriz</button>
+            <div class="radio-group">
+                <input type="radio" name="view" id="view-table" :checked="viewMode == 'Tabla'"
+                    @click="updateViewMode('Tabla')" />
+                <label for="view-table"><span>Ver Tabla</span></label>
+                <input type="radio" name="view" id="view-matrix" :checked="viewMode == 'Matriz'"
+                    @click="updateViewMode('Matriz')" />
+                <label for="view-matrix"><span>Ver Matriz</span></label>
             </div>
         </div>
     </div>

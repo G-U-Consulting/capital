@@ -21,12 +21,12 @@
                     <span style="color: white;">Cargando recursos...</span>
                 </div>
                 <div class="btn-bar-rotafolio" v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
-                    <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)">
-                    <img src="../../img/ico/play.png" @click="play" 
+                    <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)" style="transform: rotate(180deg);">
+                    <img src="../../img/ico/play.png" @click="play" style="background: white;" 
                         class="btn-rotafolio" v-show="stop">
-                    <img src="../../img/ico/pause.png" @click="pause"
+                    <img src="../../img/ico/pause.png" @click="pause" style="background: white;" 
                         class="btn-rotafolio" v-show="!stop">
-                    <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1)" style="transform: rotate(180deg);">
+                    <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1)">
                 </div>
             </div>
         </div>

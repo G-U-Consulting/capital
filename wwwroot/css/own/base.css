@@ -1421,24 +1421,31 @@ tr.selected input {
   text-align: center;
   padding: 5px 0;
 }
-.btn-view-group {
+.radio-group {
   padding-top: 1rem;
   display: flex;
-  gap: 4rem;
+  gap: 3rem;
 }
-.btn-view-group div {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
+.radio-group input[type="radio"] {
+  display: none;
 }
-.btn-view-group div img {
-  width: auto;
-  height: 1.7rem;
-  object-fit: cover;
+.radio-group label {
+  padding: 5px 20px;
+  border: 2px solid #007891;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #003848;
 }
-.btn-view-group div button {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+.radio-group input[type="radio"]:checked + label {
+  background-color: #00839C;
+  color: white;
+}
+.radio-group label:hover {
+  background-color: #e5e6e9;
+}
+.radio-group input[type="radio"]:checked + label:hover {
+  background-color: #006b80;
 }
 
 .btn-atras {
@@ -1518,11 +1525,11 @@ tr.selected input {
 .btn-bar-rotafolio {
   position: absolute;
   margin: 0 auto;
-  height: 12%;
+  height: 10%;
   width: 100%;
-  bottom: -12%;
+  bottom: -10%;
   display: flex;
-  gap: 4%;
+  gap: 3%;
   justify-content: center;
   align-items: center;
   transition: transform .3s ease-in-out;

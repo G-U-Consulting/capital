@@ -309,18 +309,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-8"></div>
+                <div class="pure-u-22-24 pure-u-md-3-4 menuCard">
                     <h2>Categorías de Medios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.categoriasMedios['categoria']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('categoriasMedios')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.categoriasMedios['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">

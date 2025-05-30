@@ -54,7 +54,7 @@ export default {
             filtros: {
                 gruposImg: {},
                 mediosPublicitarios: { id_categoria: '', is_active: '' },
-                categoriasMedios: {},
+                categoriasMedios: { is_active: '' },
                 ciudadelas: {},
                 bancos: {},
                 fiduciarias: {},
@@ -663,10 +663,14 @@ export default {
                 index = list.findIndex(i => i[key] === item[key]),
                 res = await httpFunc(`/generic/genericST/Maestros:Del_${this.getItem()[1]}`, item);
             if (res.data === 'OK' && index !== -1) list.splice(index, 1);
-            else showMessage(res.errorMessage);
+            else {
+                let msg = res.errorMessage || ''; 
+                showMessage(msg.includes('foreign key constraint fails') 
+                    ? 'Error: No fue posible eliminar el registro.\nDatos en uso' : msg);
+            }
         },
         async requestDelete(item) {
-            showConfirm("Se eliminará permanentemente. Continuar?", this.deleteItem, null, item);
+            showConfirm("Se eliminará permanentemente.", this.deleteItem, null, item);
         },
     },
     computed: {
