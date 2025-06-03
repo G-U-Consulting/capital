@@ -1544,7 +1544,11 @@ tr.selected input {
  border-radius: 50%;
  user-select: none;
 }
-
+.btn-fullscreen {
+  border-radius: 0; 
+  position: absolute; 
+  right: 10px;
+}
 .th-fijo th {
   display: table-cell;
   vertical-align: middle;
@@ -1672,17 +1676,24 @@ tr.selected input {
   outline: none;
   display: flex;
   align-items: center;
+  user-select: none;
 }
 .menu-title span {
   display: inline-block;
   margin-left: 5px;
+  font-size: 15px;
 }
 .menu-title img {
   display: inline-block;
-  height: 30px;
+  height: 25px;
   width: auto;
   margin-left: auto;
   margin-right: 5px;
+  transition: transform .15s ease-in-out;
+  user-select: none;
+}
+.menu-title img.expanded {
+  transform: rotate(180deg);
 }
 
 .menu-title:hover {
@@ -1690,12 +1701,38 @@ tr.selected input {
 }
 
 .menu-content {
-  padding-left: 15px;
-  background-color: #f2f2f2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: all .2s ease-in-out;
+}
+.menu-content.open {
+  border-top: 1px #ccc solid;
+  padding: 8px;
+  max-height: 5000px;
 }
 
-.menu-content img {
+.menu-content div {
+  aspect-ratio: 16 / 9;
   width: 100%;
-  margin: 10px 0;
-  border-radius: 5px;
+  height: auto;
+  border: 2px #0093BA solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3px;
+}
+
+.menu-content div img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px #ccc solid;
+}
+
+.menu-content div.current{
+  background-color: #0093BA80;
+  border: 2px #006b80 solid;
 }

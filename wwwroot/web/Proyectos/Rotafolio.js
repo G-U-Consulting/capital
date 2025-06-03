@@ -10,6 +10,7 @@ export default {
             files: [],
             loading: true,
             stop: true,
+            full: false,
             interval: null,
             timeout: null,
             playIndex: 0,
@@ -29,7 +30,6 @@ export default {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         await this.setTime();
         await this.listResources();
-        console.log(this.grupos);
     },
     unmounted() {
         this.interval && clearInterval(this.interval);
@@ -49,20 +49,20 @@ export default {
             this.files = [];
             let id_proyecto = this.proyecto ? this.proyecto.id_proyecto : null;
             if (id_proyecto) {
+                let general = null, sostenibilidad = null;
                 let res = await httpFunc('/generic/genericDT/Maestros:Get_Documento', 
                     { documento: "General,Sostenibilidad", is_img: 1 });
                 if (res.data && res.data.length == 2) {
                     let data = res.data.sort((a, b) => a.documento.localeCompare(b.documento));
-                    let resp = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
+                    general = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
                         { tipo: data[0].documento, id_maestro_documento: data[0].id_documento });
-                    this.addResources(resp);
-                    resp = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
+
+                    sostenibilidad = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
                         { tipo: data[1].documento, id_maestro_documento: data[1].id_documento });
-                    this.addResources(resp);
                 }
 
-                this.addResources(await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
-                    { tipo: 'logo,slide,planta', id_proyecto }));
+                let principal = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
+                    { tipo: 'logo,slide,planta', id_proyecto });
 
                 let modulos = ['imagenes','videos','recorridos virt','avances de obra'];
                 res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
@@ -72,37 +72,35 @@ export default {
                     g.expanded = false;
                     return g;
                 });
-                res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
-                    { tipo: modulos.join(','), id_proyecto })
-                    
-                modulos.forEach(mod => {
-                    let data = res.data.filter(d => d.tipo == mod);
-                    grupos.forEach(g => {
-                        let temp = data.filter(d => d.id_grupo_proyecto == g.id_grupo_proyecto);
-                        this.addResources({ data: temp });
-                    });
-                });
-
+                this.grupos = [{grupo: 'General', orden: -3, files: general.data, expanded: false},
+                    {grupo: 'Sostenibilidad', orden: -2, files: sostenibilidad.data, expanded: false},
+                    {grupo: 'Principal', orden: -1, files: principal.data, expanded: false}, ...this.grupos];
+                await this.orderResources();
                 this.loadResources();
             }
         },
-        addResources(res) {
-            let data = res.data;
-            if (data && data.length)
-                data.sort((a, b) => parseInt(a.orden) - parseInt(b.orden)).forEach(d => {
-                    if (d.link) {
-                        let link = this.formatURLYouTube(d.link);
-                        link && this.files.push({path: d.llave, content: null, link, name: d.documento, id_grupo: d.id_grupo_proyecto})
-                    } else this.files.push({path: d.llave, content: null, link: null, name: d.documento, id_grupo: d.id_grupo_proyecto});
+        async orderResources() {
+            let grupos = this.grupos.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
+            grupos.forEach(g => {
+                let files = g.files.sort((a, b) => parseInt(a.orden) - parseInt(b.orden)).map(f => {
+                    if (f.link) {
+                        let link = this.formatURLYouTube(f.link);
+                        if (link) {
+                            f.link = link;
+                            return f;
+                        }
+                    } else return f;
                 });
+                this.files = [...this.files, ...files.filter(f => f != undefined)];
+            });
         },
         async loadResources() {
             try {
                 let files = [...this.files];
                 await Promise.all(files.map(async (f, i) => {
                     if (!f.link) {
-                        const res = await fetch('/file/S3get/' + f.path);
-                        if (!res.ok) throw new Error(`Error al cargar ${f.path}: ${res.statusText}`);
+                        const res = await fetch('/file/S3get/' + f.llave);
+                        if (!res.ok) throw new Error(`Error al cargar ${f.llave}: ${res.statusText}`);
                         const blob = await res.blob(),
                             file = new File([blob], f.name, { type: blob.type }),
                             reader = new FileReader();
@@ -114,34 +112,35 @@ export default {
             } catch (error) {
                 console.error("Error al cargar archivos:", error);
             }
-            this.files.forEach(f => {
-                let grupo = this.grupos.filter(g => f.id_grupo === g.id_grupo_proyecto);
-                grupo = grupo ? grupo[0] : null;
-                if (grupo) {
-                    let file = {...f};
-                    if (f.link) file.content = '../../img/ico/youtobe.png';
-                    else file.content = '/file/S3get/' + file.path;
-                    grupo.files.push(file);
-                }
-            });
             this.loading = false;
         },
         fullScreen() {
             let cont = document.getElementById("cont-rotafolio");
             
-            if (cont.requestFullscreen) {
-                cont.requestFullscreen();
-            } else if (cont.mozRequestFullScreen) {
-                cont.mozRequestFullScreen();
-            } else if (cont.webkitRequestFullscreen) {
-                cont.webkitRequestFullscreen();
-            } else if (cont.msRequestFullscreen) {
-                cont.msRequestFullscreen();
+            if(this.full) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                this.full = false;
             }
-        },
-        play() {
-            this.fullScreen();
-            this.resetInterval();
+            else {
+                if (cont.requestFullscreen) {
+                    cont.requestFullscreen();
+                } else if (cont.mozRequestFullScreen) {
+                    cont.mozRequestFullScreen();
+                } else if (cont.webkitRequestFullscreen) {
+                    cont.webkitRequestFullscreen();
+                } else if (cont.msRequestFullscreen) {
+                    cont.msRequestFullscreen();
+                }
+                this.full = true;
+            }
         },
         pause() {
             if (this.interval) clearInterval(this.interval);

@@ -16,18 +16,19 @@
                     </div>
                     <div class="list-resources">
 
-                        <div class="menu-section" v-for="grupo in grupos" @click="grupo.expanded = !grupo.expanded">
-                            <div class="menu-title">
+                        <div class="menu-section" v-for="grupo in grupos">
+                            <div class="menu-title" @click="grupo.expanded = !grupo.expanded">
                                 <span>{{grupo.grupo}}</span>
-                                <img src="../../img/ico/down-combo.png">
+                                <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': grupo.expanded}">
                             </div>
-                            <div class="menu-content" v-bind:class="{'hide-editor': !grupo.expanded}">
-                                <div v-for="file in grupo.files">
-                                    <img :src="file.content" :alt="file.name">
+                            <div class="menu-content" v-bind:class="{'open': grupo.expanded}">
+                                <div v-for="file in grupo.files" v-bind:class="{'current': file.current}"
+                                    @click="file.current = true">
+                                    <img :src="file.content || '/file/S3get/' + file.llave" :alt="file.name"
+                                        style="background-color: white;">
                                 </div>
                             </div>
                         </div>
-
                         
                     </div>
                 </div>
@@ -48,11 +49,13 @@
                         v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
                         <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)"
                             style="transform: rotate(180deg);">
-                        <img src="../../img/ico/play.png" @click="play" style="background: white;" class="btn-rotafolio"
+                        <img src="../../img/ico/play.png" @click="resetInterval" style="background: white;" class="btn-rotafolio"
                             v-show="stop">
                         <img src="../../img/ico/pause.png" @click="pause" style="background: white;"
                             class="btn-rotafolio" v-show="!stop">
                         <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1)">
+                        <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen" 
+                            class="btn-rotafolio btn-fullscreen">
                     </div>
                 </div>
             </div>
