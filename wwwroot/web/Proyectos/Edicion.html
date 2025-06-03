@@ -295,7 +295,7 @@
             <!--Fin TODO-->
             <!--TODO Acabados y reformas-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Acabados y reformas
+                Permitir acabados y reformas
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
@@ -393,6 +393,12 @@
                 <div class='formInputStandard'>
                     <span>Meta VentasUnidades / Mes</span>
                     <input type='number' v-model='objProyecto.meta_ventas' maxlen='100' v-bind:class="{errorInput:casoValidator.meta_ventas != null}" />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-4'>
+                <div class='formInputStandard'>
+                    <span>Email Coordinación de Sala</span>
+                    <input type='text' v-model='objProyecto.email_coord_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.coord_sala != null}" />
                 </div>
             </div>
             <!--<div class='pure-u-1-1 pure-u-md-1-4'>
@@ -1007,7 +1013,7 @@
             <!--Fin TODO-->
             <!--TODO Acabados y reformas-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Acabados y reformas
+                Permitir acabados y reformas
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
@@ -1105,6 +1111,12 @@
                 <div class='formInputStandard'>
                     <span>Meta VentasUnidades / Mes</span>
                     <input type='number' v-model='editObjProyecto.meta_ventas' maxlen='100' />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-4'>
+                <div class='formInputStandard'>
+                    <span>Email Coordinación de Sala</span>
+                    <input type='text' v-model='editObjProyecto.email_coord_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.coord_sala != null}" />
                 </div>
             </div>
             <!--<div class='pure-u-1-1 pure-u-md-1-4'>

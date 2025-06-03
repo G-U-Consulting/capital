@@ -182,6 +182,7 @@ create table fact_proyectos(
 	email_cotizaciones varchar(200),
 	email_coordinador_sala varchar(200),
 	meta_ventas int,
+	Email_Coordinacion_Sala varchar(200),
 	centro_costos varchar(50),
 	id_pie_legal int,
 	constraint fk_id_pie_legal_fact_proyectos foreign key(id_pie_legal) references dim_pie_legal(id_pie_legal),
@@ -295,6 +296,7 @@ insert into dim_tipo_financiacion(tipo_financiacion)values
 ('Aplica Crédito 40-60'),
 ('Aplica Crédito 50-50'),
 ('Aplica Crédito 20-80'),
+('Aplica Crédito 30-70'),
 ('Aplica Leasing 20-80'),
 ('Aplica Leasing 10-90'),
 
