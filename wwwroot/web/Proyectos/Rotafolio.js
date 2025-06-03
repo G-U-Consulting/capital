@@ -19,6 +19,10 @@ export default {
             time: 8000,
             cont: null,
             showList: false,
+
+            tooltipVisible: false,
+            tooltipX: 0,
+            tooltipY: 0,
         };
     },
     async mounted() {
@@ -75,7 +79,19 @@ export default {
                 this.grupos = [{grupo: 'General', orden: -3, files: general.data, expanded: false},
                     {grupo: 'Sostenibilidad', orden: -2, files: sostenibilidad.data, expanded: false},
                     {grupo: 'Principal', orden: -1, files: principal.data, expanded: false}, ...this.grupos];
+                
+                res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
+                    { tipo: modulos.join(','), id_proyecto })
+                    
+                modulos.forEach(mod => {
+                    let data = res.data.filter(d => d.tipo == mod);
+                    grupos.forEach(g => {
+                        let temp = data.filter(d => d.id_grupo_proyecto == g.id_grupo_proyecto);
+                        g.files = temp;
+                    });
+                });
                 await this.orderResources();
+                this.files.length && (this.files[0].current = true);
                 this.loadResources();
             }
         },
@@ -148,7 +164,9 @@ export default {
             this.stop = true;
         },
         setIndex(i) {
+            this.files[this.playIndex].current = false;
             this.playIndex = ((this.playIndex || this.files.length) + i) % this.files.length;
+            this.files[this.playIndex].current = true;
             this.resetInterval();
         },
         resetInterval() {
@@ -157,13 +175,16 @@ export default {
                 let img = document.getElementById('img-rotafolio');
                 img && (img.style.opacity = .7);
                 setTimeout(() => {
+                    this.files[this.playIndex].current = false;
                     this.playIndex = (this.playIndex + 1) % this.files.length;
+                    this.files[this.playIndex].current = true;
                 }, 200);
             }, this.time);
             this.stop = false;
         },
         formatURLYouTube(url) {
             try {
+                if (!url.startsWith('https://www.')) url = 'https://www.' + url;
                 let urlObj = new URL(url);
                 if (urlObj.hostname.includes("youtube.com") && urlObj.searchParams.has("v")) {
                     let videoID = urlObj.searchParams.get("v");
@@ -173,6 +194,7 @@ export default {
                     return `https://www.youtube.com/embed/${videoID}`;
                 } else return url;
             } catch(e) {
+                console.error(e);
                 showMessage(e.message.includes('Invalid URL') 
                     ? 'Algunos videos no se cargaron: link invalido' 
                     : e.message);
@@ -238,7 +260,16 @@ export default {
         },
         toggleList() {
             this.showList = !this.showList;
-            //GlobalVariables.miniModuleCallback('ToggleLateralMenu');
-        }
+        },
+        selectFile(file) {
+            this.files.forEach(f => f.current = false);
+            file.current = true;
+            this.playIndex = this.files.indexOf(file);
+            this.stop ? this.pause() : this.resetInterval();
+        },
+        updateCursor(event) {
+            this.tooltipX = event.clientX + 10;
+            this.tooltipY = event.clientY + 10;
+        },
     }
 }

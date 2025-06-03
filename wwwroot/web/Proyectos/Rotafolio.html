@@ -11,7 +11,8 @@
 
             <div style="display: flex; width: 100%; gap: 2rem; align-items: center;">
                 <div class="cont-list-resources" v-bind:class="{'open': showList}">
-                    <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}">
+                    <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}"
+                        v-if="!loading">
                         <img src="../../img/ico/deploy.png">
                     </div>
                     <div class="list-resources">
@@ -22,10 +23,15 @@
                                 <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': grupo.expanded}">
                             </div>
                             <div class="menu-content" v-bind:class="{'open': grupo.expanded}">
-                                <div v-for="file in grupo.files" v-bind:class="{'current': file.current}"
-                                    @click="file.current = true">
-                                    <img :src="file.content || '/file/S3get/' + file.llave" :alt="file.name"
-                                        style="background-color: white;">
+                                <div class="item-content" v-for="file in grupo.files" v-bind:class="{'current': file.current}"
+                                    @click="selectFile(file)">
+                                    <img :src="file.link ? '../../img/ico/youtobe.png' : '/file/S3get/' + file.llave" 
+                                    :alt="file.documento" style="background-color: white;" @mousemove="updateCursor"
+                                    @mouseenter="tooltipVisible = true; tooltipMsg = file.link || file.documento"
+                                    @mouseleave="tooltipVisible = false;">
+                                </div>
+                                <div v-if="tooltipVisible" class="cursor-tooltip" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                                    {{tooltipMsg}}
                                 </div>
                             </div>
                         </div>
@@ -38,7 +44,7 @@
                             :key="'i' + playIndex" id="img-rotafolio">
                         <iframe v-else-if="isVideo(files[playIndex], true)" @load="initVideo" id="v-player"
                             :src="`${files[playIndex].link}?autoplay=1&enablejsapi=1&mute=1`" :key="'v' + playIndex"
-                            frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
+                            frameborder="0" allow="autoplay; encrypted-media" @mousemove="setShowBar" @mousedown="setShowBar">
                         </iframe>
                     </div>
                     <div class="loader-rotafolio" v-else>
@@ -56,6 +62,18 @@
                         <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1)">
                         <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen" 
                             class="btn-rotafolio btn-fullscreen">
+                    </div>
+                    <div class="btn-left-bar-rotafolio"
+                        v-bind:class="{'show-left-bar': showBar && isVideo(files[playIndex], false) && !loading}">
+                        <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(-1)"
+                            style="transform: rotate(180deg);">
+                    </div>
+                    <div class="btn-right-bar-rotafolio"
+                        v-bind:class="{'show-right-bar': showBar && isVideo(files[playIndex], false) && !loading}">
+                        <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(1)">
+                        
+                        <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen" 
+                            class="btn-lat-rotafolio btn-fullscreen">
                     </div>
                 </div>
             </div>
