@@ -179,37 +179,14 @@
         },
         async setSubmode(index) {
             this.submode = index;
- 
-            if (index == 0) {
 
-                const resImg = await httpFunc("/generic/genericDT/Medios:Get_variables", {
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    modulo: 'imagenes',
-                });
-                const grupo_img = resImg.data.map(item => item.grupo);
-        
-                const resVid = await httpFunc("/generic/genericDT/Medios:Get_variables", {
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    modulo: 'videos',
-                });
-                const grupo_vid = resVid.data.map(item => item.grupo);
-        
-                const resVir = await httpFunc("/generic/genericDT/Medios:Get_variables", {
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    modulo: 'Recorridos virt',
-                });
-                const grupo_vir = resVir.data.map(item => item.grupo);
-        
-                await this.construirTablas(grupo_img, grupo_vid, grupo_vir);
+            if (index === 0) {
+                const grupo_img = await this.actualizarDatos('imagenes');
+                const grupo_vid = await this.actualizarDatos('videos');
+                const grupo_vir = await this.actualizarDatos('Recorridos virt');
+                const grupo_avo = await this.actualizarDatos('avances de obra');
 
-                const resAvo = await httpFunc("/generic/genericDT/Medios:Get_variables", {
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    modulo: 'avances de obra',
-                });
-                const grupo_avo = resAvo.data.map(item => item.grupo);
-        
-                await this.construirTablas(grupo_img, grupo_vid, grupo_vir,grupo_avo);
-               
+                await this.construirTablas(grupo_img, grupo_vid, grupo_vir, grupo_avo);
             }
             if (index == 1) {
                 this.loadImg()
@@ -250,31 +227,31 @@
                 {
                     titulo: 'Imágenes Principales',
                     datos: ['Logo', 'Slide ', 'Planta General Termómetro'],
-                    activo: false,
+                    activo: true,
                     error: false
                 },
                 {
                     titulo: 'Agrupamiento de Imágenes de Proyecto',
                     datos: grupo_img,
-                    activo: true,
+                    activo: false,
                     error: false
                 },
                 {
                     titulo: 'Agrupamiento de Vídeos de Proyecto',
                     datos: grupo_vid,
-                    activo: true,
+                    activo: false,
                     error: true
                 },
                 {
                     titulo: 'Agrupamiento de Recorridos Virtuales',
                     datos: grupo_vir,
-                    activo: true,
+                    activo: false,
                     error: false
                 },
                 {
                     titulo: 'Periodos de Avances de obra',
                     datos: grupo_avo,
-                    activo: true,
+                    activo: false,
                     error: false
                 }
             ];
@@ -514,10 +491,7 @@
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
         },
-        async selectItem(tablaIdx, itemIdx) {
-            this.selected.tablaIndex = tablaIdx;
-            this.selected.itemIndex = itemIdx;
-        },
+  
         async moveRow(direction) {
             const { tablaIndex, itemIndex } = this.selected;
             if (tablaIndex === null || itemIndex === null) return;
@@ -568,19 +542,26 @@
             }
             this.editando = { tablaIndex: null, itemIndex: null };
         },
-        selectItem(i, j) {
-            const tabla = this.tablas[i];
-            if (tabla.titulo === 'General de C. Capital' || tabla.activo) return;
-
-            this.selected.tablaIndex = i;
-            this.selected.itemIndex = j;
-
-            this.editando.tablaIndex = i;
-            this.editando.itemIndex = j;
-
-            this.$nextTick(() => {
-                this.$refs.editInput?.focus?.();
-            });
+        // selectItem(i, j) {
+        //     const tabla = this.tablas[i];
+        //     if (tabla.titulo === 'General de C. Capital' || tabla.activo) return;
+        
+        //     this.selected.tablaIndex = i;
+        //     this.selected.itemIndex = j;
+        
+        //     this.editando.tablaIndex = i;
+        //     this.editando.itemIndex = j;
+        
+        //     this.$nextTick(() => {
+        //         this.$refs.editInput?.focus?.();
+        //     });
+        // },
+        selectItem(tablaIndex, itemIndex) {
+            const tabla = this.tablas[tablaIndex];
+            console.log(tabla.titulo, tabla.activo);
+            if (tabla.titulo === 'Agrupaciones Generales' ||  tabla.titulo === 'Imágenes Principales' || tabla.activo) return;
+            this.selected.tablaIndex = tablaIndex;
+            this.selected.itemIndex = itemIndex;
         },
         onItemEditFinish(i, j) {
             this.editando.tablaIndex = null;
@@ -1346,5 +1327,79 @@
                 this.cont.style.cursor = 'none';
             }, 2500);
         },
+        async actualizarDatos(modulo) {
+            try {
+                const response = await httpFunc("/generic/genericDT/Medios:Get_variables", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: modulo
+                });
+
+                if (response.isError || !response.data) {
+                    console.error(`Error al actualizar datos para el módulo: ${modulo}`);
+                    return [];
+                }
+
+                return response.data.map(item => item.grupo);
+            } catch (error) {
+                console.error(`Error inesperado al actualizar datos para el módulo: ${modulo}`, error);
+                return [];
+            }
+        },
+        async guardarCambios() {
+            try {
+                const folderMap = {
+                    'Agrupamiento de Imágenes de Proyecto': 'imagenes',
+                    'Agrupamiento de Vídeos de Proyecto': 'videos',
+                    'Agrupamiento de Recorridos Virtuales': 'recorridos virt',
+                    'Periodos de Avances de obra': 'avances de obra'
+                };
+
+                for (const tabla of this.tablas) {
+                    if (tabla.titulo === 'Agrupaciones Generales' || tabla.titulo === 'Imágenes Principales') {
+                        continue;
+                    }
+
+                    const modulo = folderMap[tabla.titulo] || 'general';
+                    const datos = tabla.datos.map((grupo, index) => ({
+                        grupo: grupo,
+                        orden: index,
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        modulo: modulo,
+                        is_active: tabla.activo
+                    }));
+
+                    showProgress();
+                    const resp = await httpFunc("/generic/genericST/Medios:Del_variables", {
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        modulo: modulo
+                    });
+
+                    for (const dato of datos) {
+                        const response = await httpFunc("/generic/genericST/Medios:Ins_Grupos", {
+                            grupo: dato.grupo,
+                            orden: dato.orden,
+                            id_proyecto: dato.id_proyecto,
+                            modulo: dato.modulo,
+                            is_active: dato.is_active
+                        });
+
+                        if (response.isError) {
+                            console.error(`Error al guardar el grupo "${dato.grupo}" en el módulo "${dato.modulo}" con orden ${dato.orden}`);
+                            showMessage(`Error al guardar el grupo "${dato.grupo}" en el módulo "${dato.modulo}" con orden ${dato.orden}`);
+                            hideProgress();
+                            return false;
+                        }
+                    }
+                }
+                hideProgress();
+                showMessage("Grupos y órdenes guardados correctamente.");
+                return true;
+            } catch (error) {
+                console.error("Error inesperado al guardar grupos y órdenes:", error);
+                showMessage("Error inesperado al guardar grupos y órdenes.");
+                return false;
+            }
+        },
+        
     }
 };

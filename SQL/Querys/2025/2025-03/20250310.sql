@@ -376,6 +376,7 @@ create table dim_grupo_proyecto(
 	orden int not null,
 	id_proyecto int,
 	modulo varchar(200), -- ('imagenes','videos','recorridos','obras')
+	is_active bit default 1,
 	constraint fk_id_proyecto foreign key(id_proyecto) references fact_proyectos(id_proyecto),
 	unique(grupo, id_proyecto)
 );
