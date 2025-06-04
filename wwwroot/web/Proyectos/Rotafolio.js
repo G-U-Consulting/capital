@@ -44,9 +44,9 @@ export default {
             this.mainmode = mode;
         },
         async setTime() {
-            let res = await httpFunc('/generic/genericDT/General:Get_Variable', {nombre_variable: 'CarDurac'});
-            if (res.data.length && res.data[0].valor) 
-                this.time = parseFloat(res.data[0].valor.replace(',','.')) * 1000;
+            let res = await httpFunc('/generic/genericDT/General:Get_Variable', { nombre_variable: 'CarDurac' });
+            if (res.data.length && res.data[0].valor)
+                this.time = parseFloat(res.data[0].valor.replace(',', '.')) * 1000;
         },
         async listResources() {
             this.loading = true;
@@ -54,35 +54,35 @@ export default {
             let id_proyecto = this.proyecto ? this.proyecto.id_proyecto : null;
             if (id_proyecto) {
                 let general = null, sostenibilidad = null;
-                let res = await httpFunc('/generic/genericDT/Maestros:Get_Documento', 
+                let res = await httpFunc('/generic/genericDT/Maestros:Get_Documento',
                     { documento: "General,Sostenibilidad", is_img: 1 });
                 if (res.data && res.data.length == 2) {
                     let data = res.data.sort((a, b) => a.documento.localeCompare(b.documento));
-                    general = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
+                    general = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                         { tipo: data[0].documento, id_maestro_documento: data[0].id_documento });
 
-                    sostenibilidad = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', 
+                    sostenibilidad = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                         { tipo: data[1].documento, id_maestro_documento: data[1].id_documento });
                 }
 
                 let principal = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: 'logo,slide,planta', id_proyecto });
 
-                let modulos = ['imagenes','videos','recorridos virt','avances de obra'];
                 res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
                 let grupos = res.data;
                 this.grupos = grupos.map(g => {
-                    g.files = []; 
+                    g.files = [];
                     g.expanded = false;
                     return g;
                 });
-                this.grupos = [{grupo: 'General', orden: -3, files: general.data, expanded: false},
-                    {grupo: 'Sostenibilidad', orden: -2, files: sostenibilidad.data, expanded: false},
-                    {grupo: 'Principal', orden: -1, files: principal.data, expanded: false}, ...this.grupos];
-                
+                this.grupos = [{ grupo: 'General', orden: -3, files: general.data, expanded: false },
+                { grupo: 'Sostenibilidad', orden: -2, files: sostenibilidad.data, expanded: false },
+                { grupo: 'Principal', orden: -1, files: principal.data, expanded: false }, ...this.grupos];
+
+                let modulos = ['imagenes', 'videos', 'recorridos virt', 'avances de obra'];
                 res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: modulos.join(','), id_proyecto })
-                    
+
                 modulos.forEach(mod => {
                     let data = res.data.filter(d => d.tipo == mod);
                     grupos.forEach(g => {
@@ -92,7 +92,7 @@ export default {
                 });
                 await this.orderResources();
                 this.files.length && (this.files[0].current = true);
-                this.loadResources();
+                await this.loadResources();
             }
         },
         async orderResources() {
@@ -132,8 +132,8 @@ export default {
         },
         fullScreen() {
             let cont = document.getElementById("cont-rotafolio");
-            
-            if(this.full) {
+
+            if (this.full) {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 } else if (document.mozCancelFullScreen) {
@@ -193,10 +193,10 @@ export default {
                     let videoID = urlObj.pathname.substring(1);
                     return `https://www.youtube.com/embed/${videoID}`;
                 } else return url;
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
-                showMessage(e.message.includes('Invalid URL') 
-                    ? 'Algunos videos no se cargaron: link invalido' 
+                showMessage(e.message.includes('Invalid URL')
+                    ? 'Algunos videos no se cargaron: link invalido'
                     : e.message);
                 return null;
             }
@@ -271,5 +271,14 @@ export default {
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
         },
-    }
+        toggleExpand() {
+            let expanded = this.isExpanded();
+            this.grupos.forEach(g => g.expanded = !expanded);
+        }
+    },
+    computed: {
+        isExpanded() {
+            return () => this.grupos.every(g => g.expanded);
+        }
+    },
 }

@@ -1593,8 +1593,8 @@ tr.selected input {
 .btn-fullscreen {
   border-radius: 0; 
   position: absolute; 
-  right: 7px;
-  bottom: 7px;
+  right: 5px;
+  bottom: 5px;
   pointer-events: auto;
 }
 .th-fijo th {
@@ -1709,8 +1709,6 @@ tr.selected input {
 }
 
 .menu-section {
-  /* border-bottom: 1px #bbb solid;
-  border-top: 1px #bbb solid; */
   border: 1px #bbb solid;
 }
 
