@@ -70,15 +70,6 @@ export default {
 
                 res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
                 let grupos = res.data;
-                this.grupos = grupos.map(g => {
-                    g.files = [];
-                    g.expanded = false;
-                    return g;
-                });
-                this.grupos = [{ grupo: 'General', orden: -3, files: general.data, expanded: false },
-                { grupo: 'Sostenibilidad', orden: -2, files: sostenibilidad.data, expanded: false },
-                { grupo: 'Principal', orden: -1, files: principal.data, expanded: false }, ...this.grupos];
-
                 let modulos = ['imagenes', 'videos', 'recorridos virt', 'avances de obra'];
                 res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: modulos.join(','), id_proyecto })
@@ -87,9 +78,14 @@ export default {
                     let data = res.data.filter(d => d.tipo == mod);
                     grupos.forEach(g => {
                         let temp = data.filter(d => d.id_grupo_proyecto == g.id_grupo_proyecto);
-                        g.files = temp;
+                        g.files = [...(g.files || []), ...temp];
+                        g.expanded = false;
                     });
                 });
+                this.grupos = [{ grupo: 'General', orden: -3, files: general.data, expanded: false },
+                { grupo: 'Sostenibilidad', orden: -2, files: sostenibilidad.data, expanded: false },
+                { grupo: 'Principal', orden: -1, files: principal.data, expanded: false }, ...grupos];
+
                 await this.orderResources();
                 this.files.length && (this.files[0].current = true);
                 await this.loadResources();

@@ -52,22 +52,22 @@ export default {
             quills: {},
 
             filtros: {
-                gruposImg: {},
+                gruposImg: { is_active: '' },
                 mediosPublicitarios: { id_categoria: '', is_active: '' },
                 categoriasMedios: { is_active: '' },
-                ciudadelas: {},
-                bancos: {},
-                fiduciarias: {},
-                zonasProyectos: {},
-                instructivos: {},
-                pies_legales: {},
-                tramites: {},
-                documentos: {is_img: '0'},
-                tipos_financiacion: {},
-                tipos_proyecto: {},
-                estados_proyecto: {},
-                tipos_vis: {},
-                subsidios: {},
+                ciudadelas: { is_active: '' },
+                bancos: { is_active: '' },
+                fiduciarias: { is_active: '' },
+                zonasProyectos: { is_active: '' },
+                instructivos: { is_active: '' },
+                pies_legales: { is_active: '' },
+                tramites: { is_active: '' },
+                documentos: { is_img: '0',  is_active: '' },
+                tipos_financiacion: { is_active: '' },
+                tipos_proyecto: { is_active: '' },
+                estados_proyecto: { is_active: '' },
+                tipos_vis: { is_active: '' },
+                subsidios: { is_active: '' },
             },
 
             tooltipVisible: false,
@@ -183,6 +183,25 @@ export default {
             }
         },
         async onSaveSubsidio() {
+/*             if (this.mode == 1) {
+                if (this.subImg) {
+                    showProgress();
+                    try {
+                        let form = new FormData();
+                        form.append(this.subImg.name, this.subImg);
+                        let res = await httpFunc("/file/upload", form);
+                        if (res.isError) showMessage(res.errorMessage);
+                        else await httpFunc("/file/S3upload", res.data);
+                        console.log(res);
+                        // Actualizar llave archivo en subsidio['imagen']
+                    }
+                    catch(e) {
+                        console.error(e);
+                    }
+                    hideProgress();
+                }
+            } */
+
             let name = this.subImg 
                 ? `subsidio_${this.mode == 1 ? '#' : this.subsidio.id_subsidio}.${this.subImg.name.split(".").pop()}` 
                 : null;
@@ -230,6 +249,7 @@ export default {
         async onSaveDocument() {
             showProgress();
             try {
+                this.documento.is_img = '0';
                 let resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Documento`, this.documento, this.mode == 1),
                     id_doc = this.mode == 1 ? resp.id : this.documento.id_documento;
                 if (resp.data === "OK" && id_doc) {

@@ -264,12 +264,14 @@ cross join
 
 create table dim_grupo_img(
 	id_grupo_img int primary key auto_increment,
+	is_active bit default 1,
 	grupo varchar(50) not null unique,
 	orden int not null
 );
 create table dim_instructivo(
 	id_instructivo int primary key auto_increment,
 	instructivo varchar(50) not null unique,
+	is_active bit default 1,
 	procedimiento text,
 	documentacion_cierre text,
 	notas text
@@ -321,6 +323,7 @@ insert into dim_tramite(tramite) values('Subsidio');
 
 create table dim_subsidio_vis(
 	id_subsidio int primary key auto_increment,
+	is_active bit default 1,
 	periodo int not null unique,
 	smmlv decimal(20,2) not null,
 	smmlv_0_2 decimal(20,2) not null,

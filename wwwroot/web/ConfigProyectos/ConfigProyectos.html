@@ -233,18 +233,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Agrupamiento de Imágenes</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.gruposImg['grupo']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('gruposImg')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.gruposImg['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -261,14 +268,26 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="gruposImg && gruposImg.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(gruposImg[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(gruposImg[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="gru in getFilteredList('gruposImg')" @click="onSelect(gru)">
-                                    <td v-for="key in Object.keys(gru).filter(k => !k.startsWith('id_'))">{{gru[key]}}
+                                    <td v-for="key in Object.keys(gru).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">{{gru[key]}}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(gru)">
+                                            <input :id="'toggle' + gru.grupo" type="checkbox" class="toggle-input" 
+                                                :checked="Number(gru.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + gru.grupo" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(gru)" class="delete">✖</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -278,8 +297,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Grupo de Imágenes</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
@@ -309,8 +328,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-8"></div>
-                <div class="pure-u-22-24 pure-u-md-3-4 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Categorías de Medios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -375,8 +394,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Categoria</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
@@ -461,8 +480,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Medio</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
@@ -511,18 +530,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Bancos</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.bancos['banco']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('bancos')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.bancos['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -539,15 +565,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="bancos && bancos.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(bancos[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(bancos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="banco in getFilteredList('bancos')" @click="onSelect(banco)">
-                                    <td v-for="key in Object.keys(banco).filter(k => !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(banco).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{banco[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(banco)">
+                                            <input :id="'toggle' + banco.banco" type="checkbox" class="toggle-input" 
+                                                :checked="Number(banco.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + banco.banco" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(banco)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -556,8 +594,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Banco</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
@@ -575,14 +613,14 @@
                                     <thead>
                                         <tr>
                                             <th
-                                                v-for="key in Object.keys(factores[0]).filter(k => !k.startsWith('id_'))">
+                                                v-for="key in Object.keys(factores[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                                 {{key.replaceAll("_"," ")}}
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="fac in factores" @click="onSelectFactor(fac)">
-                                            <td v-for="key in Object.keys(fac).filter(k => !k.startsWith('id_'))">
+                                            <td v-for="key in Object.keys(fac).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                                 {{fac[key]}}</td>
                                         </tr>
                                     </tbody>
@@ -594,8 +632,8 @@
             </div>
 
             <div v-if="mode == 3" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>Editar Factores</h2>
                     <div class="pure-g" style="align-items: flex-end;">
 
@@ -634,18 +672,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Fiduciarias</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.fiduciarias['fiduciaria']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('fiduciarias')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.fiduciarias['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -662,15 +707,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="fiduciarias && fiduciarias.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(fiduciarias[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(fiduciarias[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="fid in getFilteredList('fiduciarias')" @click="onSelect(fid)">
-                                    <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{fid[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(fid)">
+                                            <input :id="'toggle' + fid.fiduciaria" type="checkbox" class="toggle-input" 
+                                                :checked="Number(fid.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + fid.fiduciaria" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(fid)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -679,8 +736,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Fiduciaria</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
@@ -709,13 +766,20 @@
                     <h2>Zonas agrupamiento proyectos</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.zonasProyectos['zona_proyecto']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('zonasProyectos')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.zonasProyectos['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -732,15 +796,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="zonasProyectos && zonasProyectos.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(zonasProyectos[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(zonasProyectos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="zap in getFilteredList('zonasProyectos')" @click="onSelect(zap)">
-                                    <td v-for="key in Object.keys(zap).filter(k => !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(zap).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{zap[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(zap)">
+                                            <input :id="'toggle' + zap.zona_proyecto" type="checkbox" class="toggle-input" 
+                                                :checked="Number(zap.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + zap.zona_proyecto" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(zap)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -779,13 +855,20 @@
                     <h2>Ciudadelas</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.ciudadelas['ciudadela']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('ciudadelas')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.ciudadelas['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -802,15 +885,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="ciudadelas && ciudadelas.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(ciudadelas[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(ciudadelas[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="ciu in getFilteredList('ciudadelas')" @click="onSelect(ciu)">
-                                    <td v-for="key in Object.keys(ciu).filter(k => !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(ciu).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{ciu[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(ciu)">
+                                            <input :id="'toggle' + ciu.ciudadela" type="checkbox" class="toggle-input" 
+                                                :checked="Number(ciu.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + ciu.ciudadela" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(ciu)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -849,13 +944,20 @@
                     <h2>Instructivos Consignación y cierre</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.instructivos['instructivo']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('instructivos')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.instructivos['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -873,16 +975,28 @@
                             <thead>
                                 <tr>
                                     <th
-                                        v-for="key in Object.keys(instructivos[0]).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
+                                        v-for="key in Object.keys(instructivos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_')  && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="ins in getFilteredList('instructivos')" @click="onSelect(ins)">
                                     <td
-                                        v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
+                                        v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && !k.startsWith('is_')  && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
                                         {{ins[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(ins)">
+                                            <input :id="'toggle' + ins.instructivo" type="checkbox" class="toggle-input" 
+                                                :checked="Number(ins.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + ins.instructivo" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(ins)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -947,18 +1061,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Pies Legales Cotizaciones</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.pies_legales['pie_legal']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('pies_legales')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.pies_legales['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -976,16 +1097,28 @@
                             <thead>
                                 <tr>
                                     <th
-                                        v-for="key in Object.keys(pies_legales[0]).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
+                                        v-for="key in Object.keys(pies_legales[0]).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="pie in getFilteredList('pies_legales')" @click="onSelect(pie)">
                                     <td
-                                        v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_'))">
+                                        v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{pie[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(pie)">
+                                            <input :id="'toggle' + pie.pie_legal" type="checkbox" class="toggle-input" 
+                                                :checked="Number(pie.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + pie.pie_legal" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(pie)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1041,18 +1174,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Trámites</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.tramites['tramite']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('tramites')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.tramites['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -1069,15 +1209,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="tramites && tramites.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(tramites[0]).filter(k => k != 'texto' && !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(tramites[0]).filter(k => k != 'texto' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="tra in getFilteredList('tramites')" @click="onSelect(tra)">
-                                    <td v-for="key in Object.keys(tra).filter(k => k != 'texto' && !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(tra).filter(k => k != 'texto' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{tra[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(tra)">
+                                            <input :id="'toggle' + tra.tramite" type="checkbox" class="toggle-input" 
+                                                :checked="Number(tra.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + tra.tramite" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(tra)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1125,18 +1277,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Otros Documentos</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.documentos['documento']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('documentos')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.documentos['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -1156,12 +1315,24 @@
                                     <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="doc in getFilteredList('documentos')" @click="onSelectDocument(doc)">
                                     <td v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{doc[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(doc)">
+                                            <input :id="'toggle' + doc.documento" type="checkbox" class="toggle-input" 
+                                                :checked="Number(doc.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + doc.documento" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(doc)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1229,18 +1400,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-8"></div>
+                <div class="pure-u-22-24 pure-u-md-3-4 menuCard">
                     <h2>Subsidios VIS</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Periodo" v-model="filtros.subsidios['periodo']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('subsidios')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.subsidios['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -1261,12 +1439,24 @@
                                     <th>smmlv</th>
                                     <th>subsidio entre 0-2 smmlv</th>
                                     <th>subsidio entre 2-4 smmlv</th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="sub in getFilteredList('subsidios')" @click="onSelect(sub)">
-                                    <td v-for="key in Object.keys(sub).filter(k => k != 'imagen' && !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(sub).filter(k => k != 'imagen' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.startsWith('smmlv') ? formatNumber(sub[key].replace(',','.')) : sub[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(sub)">
+                                            <input :id="'toggle' + sub.subsidio" type="checkbox" class="toggle-input" 
+                                                :checked="Number(sub.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + sub.subsidio" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(sub)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1336,18 +1526,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Tipos de Financiación</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.tipos_financiacion['tipo_financiacion']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('tipos_financiacion')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.tipos_financiacion['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -1364,15 +1561,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="tipos_financiacion && tipos_financiacion.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(tipos_financiacion[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(tipos_financiacion[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="fid in getFilteredList('tipos_financiacion')" @click="onSelect(fid)">
-                                    <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_'))">
-                                        {{fid[key]}}</td>
+                                <tr v-for="tf in getFilteredList('tipos_financiacion')" @click="onSelect(tf)">
+                                    <td v-for="key in Object.keys(tf).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
+                                        {{tf[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(tf)">
+                                            <input :id="'toggle' + tf.tipo_financiacion" type="checkbox" class="toggle-input" 
+                                                :checked="Number(tf.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + tf.tipo_financiacion" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(tf)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1381,8 +1590,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Tipo Financiación</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
@@ -1406,18 +1615,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Tipo Unidades y Ventas</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.tipos_proyecto['tipo_proyecto']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('tipos_proyecto')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.tipos_proyecto['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -1434,15 +1650,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="tipos_proyecto && tipos_proyecto.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(tipos_proyecto[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(tipos_proyecto[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="tpr in getFilteredList('tipos_proyecto')" @click="onSelect(tpr)">
-                                    <td v-for="key in Object.keys(tpr).filter(k => !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(tpr).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{tpr[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(tpr)">
+                                            <input :id="'toggle' + tpr.tipo_proyecto" type="checkbox" class="toggle-input" 
+                                                :checked="Number(tpr.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + tpr.tipo_proyecto" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(tpr)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1451,8 +1679,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Tipo Proyecto</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
@@ -1476,18 +1704,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Estados de Proyecto</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.estados_proyecto['estado_publicacion']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('estados_proyecto')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.estados_proyecto['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -1504,15 +1739,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="estados_proyecto && estados_proyecto.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(estados_proyecto[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(estados_proyecto[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="fid in getFilteredList('estados_proyecto')" @click="onSelect(fid)">
-                                    <td v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_'))">
-                                        {{fid[key]}}</td>
+                                <tr v-for="epr in getFilteredList('estados_proyecto')" @click="onSelect(epr)">
+                                    <td v-for="key in Object.keys(epr).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
+                                        {{epr[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(epr)">
+                                            <input :id="'toggle' + epr.estado_proyecto" type="checkbox" class="toggle-input" 
+                                                :checked="Number(epr.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + epr.estado_proyecto" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(epr)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1521,8 +1768,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Estado Proyecto</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
@@ -1546,18 +1793,25 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>Tipologías de Proyecto</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-2">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.tipos_vis['tipo_vis']"/>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-2-24">
                                 <div class="imgGraybutton" @click="onClear('tipos_vis')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24">
+                                <select v-model="filtros.tipos_vis['is_active']" class="pure-input-1">
+                                    <option value="">[Todos]</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-2 pure-u-md-1-24">
@@ -1574,15 +1828,27 @@
                         <table class="dataTable" style="table-layout: auto;" v-if="tipos_vis && tipos_vis.length">
                             <thead>
                                 <tr>
-                                    <th v-for="key in Object.keys(tipos_vis[0]).filter(k => !k.startsWith('id_'))">
+                                    <th v-for="key in Object.keys(tipos_vis[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
+                                    <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="vis in getFilteredList('tipos_vis')" @click="onSelect(vis)">
-                                    <td v-for="key in Object.keys(vis).filter(k => !k.startsWith('id_'))">
+                                    <td v-for="key in Object.keys(vis).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{vis[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(vis)">
+                                            <input :id="'toggle' + vis.tipo_vis" type="checkbox" class="toggle-input" 
+                                                :checked="Number(vis.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + vis.tipo_vis" style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(vis)" class="delete">✖</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1591,8 +1857,8 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-5"></div>
-                <div class="pure-u-22-24 pure-u-md-3-5 menuCard" style="margin: 0em 0em 0.5em 0em;">
+                <div class="pure-u-1-24 pure-u-md-1-6"></div>
+                <div class="pure-u-22-24 pure-u-md-2-3 menuCard" style="margin: 0em 0em 0.5em 0em;">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Tipología Proyecto</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">

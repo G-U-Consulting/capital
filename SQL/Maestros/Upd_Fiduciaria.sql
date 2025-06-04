@@ -4,15 +4,13 @@
 --START_PARAM
 set
     @id_fiduciaria = '',
-    @fiduciaria = ''
+    @fiduciaria = '',
+    @is_active = '0'
 --END_PARAM
 
-IF NOT EXISTS (SELECT 1 FROM dim_fiduciaria WHERE fiduciaria = @fiduciaria) THEN
-    UPDATE dim_fiduciaria
-    SET fiduciaria = @fiduciaria
+UPDATE dim_fiduciaria
+    SET fiduciaria = @fiduciaria,
+        is_active = if(@is_active = '0', 0, 1)
     WHERE id_fiduciaria = @id_fiduciaria;
-ELSE
-    SELECT 'La fiduciaria ya existe' AS result;
-END IF;
 
 select 'OK' as result;
