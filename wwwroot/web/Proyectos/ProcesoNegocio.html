@@ -26,7 +26,7 @@
                 <div class="pure-g" style="align-items: center; justify-content: flex-start;margin: 1em 0;">
                     <div class="pure-u-1 pure-u-md-1-2">
                         <div style="width: 100%;">
-                            <input type="text" v-model="cliente" maxlength="100" placeholder="Ingrese numero de documento" style="width: 100%;" />
+                            <input type="text" v-model="cliente" maxlength="100" placeholder="Ingrese numero de documento" style="width: 100%;" @keyup.enter="busquedaCliente"/>
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-24">
@@ -45,138 +45,161 @@
                             </select>
                         </div>
                     </div>
-                    <div v-if="isboton" class="pure-u-1-1 pure-u-md-1-6" style="text-align: right;">
-                        <button v-on:click="iscliente = true">Nuevo Cliente</button>
-                    </div>
-                </div>
-                <div v-if="iscliente" style="max-height: calc(100dvh - 30rem); overflow-y: auto;">
-                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
-                        Información Básica
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3'>
-                        <div class='formInputStandard'>
-                            <span>Nombres</span>
-                            <input type='text' v-model='ObjCliente.NewNombres' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3'>
-                        <div class='formInputStandard'>
-                            <span>Apellido 1</span>
-                            <input type='text' v-model='ObjCliente.NewApellido1' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3'>
-                        <div class='formInputStandard'>
-                            <span>Apellido 2</span>
-                            <input type='text' v-model='ObjCliente.NewApellido2' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-4-5'>
-                        <div class='formInputStandard'>
-                            <span>Dirección</span>
-                            <input type='text' v-model='ObjCliente.NewDireccion' maxlength='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-5'>
-                        <div class='formInputStandard' style='margin-top: 1.5rem; text-align: right;'>
-                            <button v-on:click="">Ingresar Dirección</button>
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3'>
-                        <div class='formInputStandard'>
-                            <span>Ciudad</span>
-                            <input type='text' v-model='ObjCliente.NewCiudad' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3'>
-                        <div class='formInputStandard'>
-                            <span>Barrio</span>
-                            <input type='text' v-model='ObjCliente.NewBarrio' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Departamento</span>
-                            <input type='text' v-model='ObjCliente.NewDepartamento' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Pais</span>
-                            <input type='text' v-model='ObjCliente.NewPais' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3'>
-                        <div class='formInputStandard'>
-                            <span>Email 1</span>
-                            <input type='text' v-model='ObjCliente.NewEmail1' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3'>
-                        <div class='formInputStandard'>
-                            <span>Email 2</span>
-                            <input type='text' v-model='ObjCliente.NewEmail2' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Telefono 1</span>
-                            <input type='text' v-model='ObjCliente.NewTelefono1' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Telefono 2</span>
-                            <input type='text' v-model='ObjCliente.NewTelefono2' maxlen='100' placeholder="Seleccione" />
-                        </div>
+                    <div class="pure-u-1-1 pure-u-md-1-6" style="text-align: right;">
+                        <button @click="limpiarObj">Nuevo Cliente</button>
                     </div>
                 </div>
                 <div v-if="iscliente">
-                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
-                        Documento de Identificación
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Tipo Documento</span>
-                            <select v-model='ObjCliente.NewTipoDocumento'>
-                                <option value='' selected>Seleccione</option>
-                                <option value='CC'>Cédula de Ciudadanía</option>
-                                <option value='TI'>Tarjeta de Identidad</option>
-                                <option value='CE'>Cédula de Extranjería</option>
-                                <option value='PAS'>Pasaporte</option>
-                                <option value='NIT'>NIT</option>
-                                <option value='RC'>Registro Civil</option>
-                            </select>
+                    <div>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                            Información Básica
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <span>Nombres</span>
+                                <input type='text' v-model='ObjCliente.NewNombres' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <span>Apellido 1</span>
+                                <input type='text' v-model='ObjCliente.NewApellido1' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <span>Apellido 2</span>
+                                <input type='text' v-model='ObjCliente.NewApellido2' maxlen='100' placeholder="Seleccione" />
+                            </div>
                         </div>
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Número Documento</span>
-                            <input type='text' v-model='ObjCliente.NewNumeroDocumento' maxlen='100' placeholder="Seleccione" />
+                    <div style="max-height: calc(100dvh - 33rem); overflow-y: auto;">
+                        <div class='pure-u-4-5'>
+                            <div class='formInputStandard'>
+                                <span>Dirección</span>
+                                <input type='text' v-model='ObjCliente.NewDireccion' maxlength='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-5'>
+                            <div class='formInputStandard' style='margin-top: 1.5rem; text-align: right;'>
+                                <button v-on:click="">Ingresar Dirección</button>
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <span>Ciudad</span>
+                                <input type='text' v-model='ObjCliente.NewCiudad' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <span>Barrio</span>
+                                <input type='text' v-model='ObjCliente.NewBarrio' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <span>Departamento</span>
+                                <input type='text' v-model='ObjCliente.NewDepartamento' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <span>Pais</span>
+                                <input type='text' v-model='ObjCliente.NewPais' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <span>Email 1</span>
+                                <input type='text' v-model='ObjCliente.NewEmail1' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                            <div class='formInputStandard'>
+                                <span>Email 2</span>
+                                <input type='text' v-model='ObjCliente.NewEmail2' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <span>Telefono 1</span>
+                                <input type='text' v-model='ObjCliente.NewTelefono1' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <span>Telefono 2</span>
+                                <input type='text' v-model='ObjCliente.NewTelefono2' maxlen='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                
+                        <div v-if="iscliente">
+                            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                                Documento de Identificación
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Tipo Documento</span>
+                                    <select v-model='ObjCliente.NewTipoDocumento'>
+                                        <option value='' selected>Seleccione</option>
+                                        <option value='CC'>Cédula de Ciudadanía</option>
+                                        <option value='TI'>Tarjeta de Identidad</option>
+                                        <option value='CE'>Cédula de Extranjería</option>
+                                        <option value='PAS'>Pasaporte</option>
+                                        <option value='NIT'>NIT</option>
+                                        <option value='RC'>Registro Civil</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Número Documento</span>
+                                    <input type='text' v-model='ObjCliente.NewNumeroDocumento' maxlen='100' placeholder="Seleccione" />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>País Expedición</span>
+                                    <input type='text' v-model='ObjCliente.NewPaisExpedicion' maxlen='100' placeholder="Seleccione" />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Depart. Expedición</span>
+                                    <input type='text' v-model='ObjCliente.NewDepartamentoExpedicion' maxlen='100'
+                                        placeholder="Seleccione" />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Ciudad Expedición</span>
+                                    <input type='text' v-model='ObjCliente.NewCiudadExpedicion' maxlen='100' placeholder="Seleccione" />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Fecha Expedición</span>
+                                    <input type='datetime' v-model='ObjCliente.NewFechaExpedicion' maxlen='100' placeholder="Seleccione" />
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>País Expedición</span>
-                            <input type='text' v-model='ObjCliente.NewPaisExpedicion' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Depart. Expedición</span>
-                            <input type='text' v-model='ObjCliente.NewDepartamentoExpedicion' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Ciudad Expedición</span>
-                            <input type='text' v-model='ObjCliente.NewCiudadExpedicion' maxlen='100' placeholder="Seleccione" />
-                        </div>
-                    </div>
-                    <div class='pure-u-1-1 pure-u-md-1-6'>
-                        <div class='formInputStandard'>
-                            <span>Fecha Expedición</span>
-                            <input type='date' v-model='ObjCliente.NewFechaExpedicion' maxlen='100' placeholder="Seleccione" />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1' v-if="iscliente">
+                <div class='formInputStandard'>
+                    <div class='pure-g'>
+                        <div class='pure-u-1-1'>
+                            <label class="check" style="display: inline-flex; align-items: center;">
+                                <input type="checkbox" :value="1" v-model="policyAccepted" @change="acceptPolicy(policyAccepted)" />
+                                <span class="checkmark"></span>
+                                <span style="margin-right: 0.5em;">
+                                    Al enviarnos su información personal usted autoriza a CONSTRUCTORA CAPITAL BOGOTÁ S.A.S y
+                                    CONSTRUCTORA CAPITAL MEDELLÍN S.A.S en adelante “EL RESPONSABLE” para que traten sus datos de
+                                    conformidad con la autorización <a href="https://www.constructoracapital.com/autorizacion-tratamiento-datos-personales" target="_blank">aquí indicada</a>.
+                                </span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -189,114 +212,123 @@
             <div class='pure-u-1-1' style="font-size: 2em;">
                 {{ ObjCliente.NewNombres }}
             </div>
-            <div class='pure-u-1-1 formDivision'style="margin-top: 0.5em;">
-                <span style="font-size: 1.8em;">Registros de visita</span>
-                <button style="float: right;">Nueva visita</button>
-            </div>
-        
-            <table class="dataTable" style="margin-top: 1em;">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Descripción</th>
-                        <th>Proyecto</th>
-                        <th>Tipo</th>
-                        <th>Modo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Fecha 1</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>Fecha 2</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>Fecha 3</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class='pure-u-1-1 formDivision' style="margin-top: 1em;">
-                <span style="font-size: 1.5em;">Tipo de Registro (referido a la visita seleccionada en la tabla)</span>
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-1'>
-                <div class='formInputStandard'>
-                    <div class='pure-g'>
-                        <div v-for='item in tipo' class='pure-u-1-5' style='margin: .8rem 0 .8rem 0; '>
-                            <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" />
-                                <span class="checkmark"></span>
-                                {{ item }}
-                            </label>
-                        </div>
-                    </div>
+            <div v-if="submode == 0">
+                <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
+                    <span style="font-size: 1.8em;">Tipo de Registro (referido a la visita seleccionada en la tabla)</span>
+                    <button @click="submode = 1" style="float: right;">Registros de visita</button>
                 </div>
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
-                <span style="font-size: 1.5em;">Modo de atención (referido a la visita seleccionada in la tabla)</span>
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-1' >
-                <div class='formInputStandard'>
-                    <div class='pure-g'>
-                        <div v-for='item in Modo' class='pure-u-1-6' style='margin-top: .8rem;'>
-                            <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" />
-                                <span class="checkmark"></span>
-                                {{ item }}
-                            </label>
-                        </div>
-                        <div class="pure-u-1 pure-u-md-1-8">
-                            <div class="formInputStandard" style="width: 100%;">
-                                <input type="text" v-model="" maxlength="100" placeholder="Especificar" style="width: 100%;" />
+                <div class='pure-u-1-1 pure-u-md-1-1'>
+                    <div class='formInputStandard'>
+                        <div class='pure-g'>
+                            <div v-for='item in tipo' class='pure-u-1-5' style='margin: .8rem 0 .8rem 0; '>
+                                <label class="check">
+                                    <input type="checkbox" value='1' v-model="item.checked" />
+                                    <span class="checkmark"></span>
+                                    {{ item }}
+                                </label>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
-                <span style="font-size: 1.5em;">Otra información (referido a la visita seleccionada en la tabla)</span>
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-6'>
-                <div class='formInputStandard'>
-                    <span>Categoría Medio</span>
-                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
+                    <span style="font-size: 1.5em;">Modo de atención (referido a la visita seleccionada in la tabla)</span>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-1'>
+                    <div class='formInputStandard'>
+                        <div class='pure-g' style="align-items: center;">
+                            <div v-for='(item, index) in Modo' :key="index" class='pure-u-1-6' style='margin-top: .8rem;'>
+                                <label class="check">
+                                    <input type="checkbox" value='1' v-model="item.checked" />
+                                    <span class="checkmark"></span>
+                                    {{ item }}
+                                </label>
+                            </div>
+                            <div class="pure-u-1-6" style="margin-top: .8rem; display: flex; align-items: center;">
+                                <input type="text" v-model="otroTexto" maxlength="100" placeholder="Especificar" style="width: 150%; margin-left: -10em;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
+                    <span style="font-size: 1.5em;">Otra información (referido a la visita seleccionada en la tabla)</span>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Categoría Medio</span>
+                        <select v-model=''>
+                            <option value='' disabled selected>Seleccione</option>
+                            <option v-for='item in categoria' v-bind:value='item.id_categoria'>
+                                {{ item.categoria }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Medio</span>
+                        <select v-model=''>
+                            <option value='' disabled selected>Seleccione</option>
+                            <option v-for='item in medio' v-bind:value='item.id_medio'>
+                                {{ item.medio }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Motivo de Compra</span>
+                        <select v-model=''>
+                            <option value='' selected>Seleccione</option>
+                            <option value='PV'>Primera vivienda</option>
+                            <option value='SV'>Segunda vivienda</option>
+                            <option value='IN'>Inversión</option>
+                        </select>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-5'>
+                    <div class='formInputStandard'>
+                        <span>Presupuesto disponible</span>
+                        <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-1-6'>
+                    <div class='formInputStandard'>
+                        <span>Motivo de Compra</span>
+                        <select v-model=''>
+                            <option value='' selected>Seleccione</option>
+                            <option value='NR'>No ha recibido referencias</option>
+                            <option value='RP'>Ha recibido referencias POSITIVAS</option>
+                            <option value='RN'>Ha recibido referencias NEGATIVAS</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-6'>
-                <div class='formInputStandard'>
-                    <span>Medio</span>
-                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+            <div v-else>
+                <div class='pure-u-1-1 formDivision'style="margin-top: 0.5em;">
+                    <span style="font-size: 1.8em;">Registros de visita</span>
+                    <button @click="submode = 0" style="float: right;">Nueva visita</button>
                 </div>
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-6'>
-                <div class='formInputStandard'>
-                    <span>Motivo de Compra</span>
-                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
-                </div>
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-5'>
-                <div class='formInputStandard'>
-                    <span>Presupuesto disponible</span>
-                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
-                </div>
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-6'>
-                <div class='formInputStandard'>
-                    <span>Referencias</span>
-                    <input type='text' v-model='' maxlen='100' placeholder="Seleccione" />
+                <div style="min-height: calc(100dvh - 40rem); overflow-y: auto; margin-top: 1em;">
+                    <table class="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Proyecto</th>
+                                <th>Tipo</th>
+                                <th>Modo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -356,7 +388,7 @@
                     <tr>
                         <th>Ítem</th>
                         <th>Fecha</th>
-                        <th style="background-color: orange;">Ítem Id ▼</th>
+                        <th>Ítem Id</th>
                         <th>Tipo</th>
                         <th>Descripción</th>
                         <th>Importe</th>
@@ -532,33 +564,17 @@
      <!-- ------------------------------------------------------------ -->
     <!-- ----------------------------- Global------------------------- -->
      <!-- ------------------------------------------------------------ -->
-    <div class="pure-u-1-1" style="padding-top: 1em;">
+    <div class="pure-u-1-1" style="padding-top: 1em;" v-if="iscliente">
         <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
-            <div v-if="mode != 0" class="pure-u-auto">
+            <!-- <div v-if="mode != 0" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(mode - 1)">Volver</button>
-            </div>
-            <div v-if="mode == 5" class="pure-u-auto">
+            </div> -->
+            <div class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="nuevoCliente">Guardar</button>
             </div>
-            <div v-if="mode != 5 && ObjCliente.NewNombres != ''" class="pure-u-auto">
+            <!-- <div v-if="mode != 5 && ObjCliente.NewNombres != ''" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>
-            </div>
-        </div>
-    </div>
-    <div v-if="showPolicyModal" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Autorización para el tratamiento de datos personales</h3>
-            <p>
-                Para continuar, debes aceptar nuestra política de tratamiento de datos personales.
-                Puedes leerla completa en:
-                <a href="https://www.constructoracapital.com/autorizacion-tratamiento-datos-personales" target="_blank">
-                    https://www.constructoracapital.com/autorizacion-tratamiento-datos-personales
-                </a>
-            </p>
-            <div class="modal-buttons">
-                <button @click="acceptPolicy">Acepto</button>
-                <button @click="declinePolicy">No acepto</button>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>

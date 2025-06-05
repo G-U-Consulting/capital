@@ -220,12 +220,13 @@
         });
     },
     methods: {
-        async setMainMode(){
+        async setMainMode() {
             showProgress();
             this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
             hideProgress();
             resp = resp.data;
+        
             resp[0].forEach(item => item.checked = false);
             this.estado_publicacion = resp[0];
             resp[1].forEach(item => item.checked = false);
@@ -239,16 +240,26 @@
             this.sede = resp[4];
             this.zona_proyecto = resp[5];
             this.ciudadela = resp[7];
-            // this.tipo = resp[6];
             this.pie_legal = resp[8];
             this.fiduciaria = resp[9];
-            this.banco_constructor = resp[10];
-            this.bancos_financiador = resp[11];
-            if(this.inputParameter != null)
+        
+            this.banco_constructor = resp[10]
+                .filter(item => item.banco !== "Carta de compromiso del Cliente")
+                .sort((a, b) => a.banco.localeCompare(b.banco));
+
+            const cartaCompromiso = resp[11].find(item => item.banco === "Carta de compromiso del Cliente");
+            this.bancos_financiador = resp[11]
+                .filter(item => item.banco !== "Carta de compromiso del Cliente")
+                .sort((a, b) => a.banco.localeCompare(b.banco));
+            if (cartaCompromiso) {
+                this.bancos_financiador.unshift(cartaCompromiso);
+            }
+        
+            if (this.inputParameter != null) {
                 this.selectProject(this.inputParameter);
-            else    
+            } else {
                 this.setMode(0);
-          
+            }
         },
         setMode(mode) {
             this.mode = mode;

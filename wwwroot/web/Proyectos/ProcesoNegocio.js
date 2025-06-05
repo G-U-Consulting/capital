@@ -3,6 +3,7 @@ export default {
         return {
             mainmode: 0,
             mode: 0,
+            submode: 1,
             tabsIncomplete: [],
             tabs: [
                 "Bienvenida",
@@ -65,54 +66,59 @@ export default {
               return 'wizarTabIncomplete';
             }
           });
-        },
-        buttonLabel() {
-            return this.mode === 5 ? 'Guardar' : 'Siguiente';
         }
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
+        let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {});
+        this.categoria = resp.data[0];
+        this.medio = resp.data[1];
     },
     methods: {
-      handleNext(nextIndex) {
+      async handleNext(nextIndex) {
         if (this.mode === 0 && nextIndex === 1 && !this.policyAccepted && this.iscliente && this.ObjCliente.NewNombres !== '') {
-          this.showPolicyModal = true;
+          showMessage("Debe aceptar la política para continuar.");
         } else if (this.policyAccepted || nextIndex === 0) {
           this.mode = nextIndex;
         }
       },
-      acceptPolicy() {
-        this.policyAccepted = true;
-        this.showPolicyModal = false;
-        this.mode = 1;
+      async acceptPolicy(isChecked) {
+        if (isChecked) {
+          this.policyAccepted = true;
+          this.showPolicyModal = false;
+        } 
       },
-      declinePolicy() {
+      async declinePolicy() {
         this.showPolicyModal = false;
         this.mode = 0;
       },
-      handleAction() {
+      async handleAction() {
         if (this.mode === 5) {
           this.save();
         } else {
           this.handleNext(this.mode + 1);
         }
       },
-        async nuevoCliente() {
-            let cliente = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
-            cliente = cliente.data;
-            if (cliente[0].result.includes("OK")) {
-                this.iscliente = false;
-                this.isboton = true;
-                this.mode = 0;
-                this.policyAccepted = false;
-                this.limpiarObj();
-                if (cliente[0].result.includes('Insert')) { showMessage("Cliente creado correctamente."); } else showMessage("Cliente actualizado correctamente.");
-            } else {
-                this.limpiarObj();
-                showMessage("Error al crear el cliente.");
-            }
-        },
+      async nuevoCliente() {
+        if (!this.policyAccepted) {
+          showMessage("Debe aceptar la política para continuar.");
+          return;
+        }
+        let cliente = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
+        cliente = cliente.data;
+        if (cliente[0].result.includes("OK")) {
+          this.iscliente = false;
+          this.isboton = true;
+          this.mode = 0;
+          this.policyAccepted = false;
+          this.limpiarObj();
+          if (cliente[0].result.includes('Insert')) { showMessage("Cliente creado correctamente."); } else showMessage("Cliente actualizado correctamente.");
+        } else {
+          this.limpiarObj();
+          showMessage("Error al crear el cliente.");
+        }
+      },
       async limpiarObj() {
         this.ObjCliente = {
             NewNombres: '',
@@ -134,9 +140,10 @@ export default {
             NewCiudadExpedicion: '',
             NewFechaExpedicion: '',
         };
+        this.iscliente = true;
       },
       async busquedaCliente(){
-        let cliente = await  httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {cliente: this.cliente});
+        let cliente = await  httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cliente', {cliente: this.cliente});
         cliente = cliente.data;
 
         if (cliente && cliente[0] && cliente[0][0]) {
@@ -168,5 +175,8 @@ export default {
         }
 
       }
+
+      ///////// mode 1
+      // Add more methods for each mode as needed
     }
 }
