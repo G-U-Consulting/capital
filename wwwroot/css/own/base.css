@@ -1486,6 +1486,7 @@ tr.selected input {
   background-color: #1b1b1b;
   position: relative;
   overflow: hidden;
+  user-select: none;
 }
 .player-rotafolio {
   position: relative;
@@ -1499,6 +1500,7 @@ tr.selected input {
   align-items: center;
   background-color: white;
   transform-origin: top left;
+  user-select: none;
 }
 .player-rotafolio:has(iframe) {
   width: 100%;
@@ -1512,13 +1514,22 @@ tr.selected input {
 }
 .zoom-lens {
   position: absolute;
-  width: 20%;
-  height: 20%;
+  width: 30%;
+  height: 30%;
   border: 2px solid black;
   pointer-events: none;
   background-repeat: no-repeat;
   background-size: cover;
+  z-index: 0;
+}
+.zoom-box {
+  position: absolute;
+  border: 2px solid #006b80;
   z-index: 10;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #1b1b1b;
+  cursor: grab;
 }
 
 .player-rotafolio iframe {
@@ -1547,6 +1558,7 @@ tr.selected input {
   align-items: center;
   transition: transform .3s ease-in-out;
   pointer-events: none;
+  user-select: none;
 }
 .show-bar {
   transform: translate(0, -100%);
