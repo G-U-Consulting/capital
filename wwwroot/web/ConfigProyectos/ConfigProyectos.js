@@ -148,7 +148,7 @@ export default {
                 if (resp.data === "OK") this.setMode(0);
                 else throw resp;
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
         },
         async onCreateBanco() {
@@ -183,45 +183,25 @@ export default {
             }
         },
         async onSaveSubsidio() {
-/*             if (this.mode == 1) {
-                if (this.subImg) {
-                    showProgress();
-                    try {
-                        let form = new FormData();
-                        form.append(this.subImg.name, this.subImg);
-                        let res = await httpFunc("/file/upload", form);
-                        if (res.isError) showMessage(res.errorMessage);
-                        else await httpFunc("/file/S3upload", res.data);
-                        console.log(res);
-                        // Actualizar llave archivo en subsidio['imagen']
-                    }
-                    catch(e) {
-                        console.error(e);
-                    }
-                    hideProgress();
-                }
-            } */
-
-            let name = this.subImg 
-                ? `subsidio_${this.mode == 1 ? '#' : this.subsidio.id_subsidio}.${this.subImg.name.split(".").pop()}` 
-                : null;
-            let resp = {};
             showProgress();
             try {
                 let sub = { ...this.subsidio };
-                if (name) sub.imagen = `/img/subsidio/${name}`;
-                resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Subsidio`, sub, this.mode == 1);
-                if (resp.data === "OK" && this.subImg) {
-                    let file = this.subImg;
-                    const newFile = new File([file], resp.id ? name.replace('#', resp.id) : name, { type: file.type });
-                    const formData = new FormData();
-                    formData.append("file", newFile);
-                    resp = await httpFunc("/api/uploadfile/subsidio", formData);
+                if (this.subImg) {
+                    let form = new FormData();
+                    form.append(this.subImg.name, this.subImg);
+                    let res = await httpFunc("/file/upload", form);
+                    let s3res = null;
+                    if (res.isError) showMessage(res.errorMessage);
+                    else s3res = await httpFunc("/file/S3upload", res.data);
+                    if (s3res && !s3res.isError && s3res.data.length) 
+                        sub.imagen = s3res.data[0].CacheKey;
                 }
-                else if (resp.data !== "OK") throw resp;
-                this.setMode(0);
+                let resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Subsidio`, 
+                    sub, this.mode == 1);
+                if (resp.data === "OK") this.setMode(0);
+                else throw resp;
             }
-            catch (e) {
+            catch(e) {
                 console.error(e);
             }
             hideProgress();
@@ -355,7 +335,7 @@ export default {
                 window.open("./docs/" + archivo, "_blank");
             }
             catch (e) {
-                console.log(e);
+                console.error(e);
             }
             hideProgress();
         },

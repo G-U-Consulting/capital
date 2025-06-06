@@ -19,6 +19,8 @@ export default {
             time: 8000,
             cont: null,
             showList: false,
+            lupa: false,
+            zoomLens: null,
 
             tooltipVisible: false,
             tooltipX: 0,
@@ -34,6 +36,7 @@ export default {
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         await this.setTime();
         await this.listResources();
+        this.handleFullscreen();
     },
     unmounted() {
         this.interval && clearInterval(this.interval);
@@ -154,6 +157,19 @@ export default {
                 this.full = true;
             }
         },
+        handleFullscreen () {
+            let handleFullscreenChange = () => {
+                if (!document.fullscreenElement && 
+                    !document.webkitFullscreenElement && 
+                    !document.mozFullScreenElement && 
+                    !document.msFullscreenElement) 
+                    this.full = false  
+            }
+            document.addEventListener("fullscreenchange", handleFullscreenChange);
+            document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+            document.addEventListener("mozfullscreenchange", handleFullscreenChange);
+            document.addEventListener("MSFullscreenChange", handleFullscreenChange);
+        },
         pause() {
             if (this.interval) clearInterval(this.interval);
             this.interval = null;
@@ -202,6 +218,7 @@ export default {
                 if (!item.content && item.link) {
                     if (this.interval) clearInterval(this.interval);
                     this.interval = null;
+                    this.lupa = false;
                     return true;
                 } else {
                     next && this.setIndex(1);
@@ -212,6 +229,7 @@ export default {
             if (e.data === YT.PlayerState.ENDED) this.setIndex(1);
         },
         onloadimg(e) {
+            this.lupa = false;
             let img = e.target, rel = img.naturalWidth / img.naturalHeight, min = 150, fact = 1.5;
             let maxheight = img.parentElement.offsetHeight, maxwidth = img.parentElement.offsetWidth;
             let width = Math.min(maxwidth, img.naturalWidth * fact), height = Math.min(maxheight, img.naturalHeight * 1.2);
@@ -270,7 +288,68 @@ export default {
         toggleExpand() {
             let expanded = this.isExpanded();
             this.grupos.forEach(g => g.expanded = !expanded);
+        },
+        toggleLupa() {
+            this.lupa = !this.lupa;
+            this.zoomLens = document.getElementById('zoom-lens');
+            const img = document.getElementById('img-rotafolio');
+
+            if (this.lupa && img) {
+                const zoomFactor = 2;
+
+                // Usa tamaño natural para el fondo ampliado
+                this.zoomLens.style.backgroundImage = `url(${img.src})`;
+                this.zoomLens.style.backgroundSize = `${img.naturalWidth * zoomFactor}px ${img.naturalHeight * zoomFactor}px`;
+            }
+        },
+        movelupa(event) {
+            if (this.lupa) {
+                const img = document.getElementById('img-rotafolio');
+                const imgRect = img.getBoundingClientRect();
+                const zoomFactor = 2;
+
+                const scaleX = img.naturalWidth / img.width;
+                const scaleY = img.naturalHeight / img.height;
+
+                let offsetX = event.clientX - imgRect.left;
+                let offsetY = event.clientY - imgRect.top;
+
+                const lensWidth = this.zoomLens.offsetWidth;
+                const lensHeight = this.zoomLens.offsetHeight;
+
+                let lensX = offsetX - lensWidth / 2;
+                let lensY = offsetY - lensHeight / 2;
+
+                lensX = Math.max(0, Math.min(lensX, img.width - lensWidth));
+                lensY = Math.max(0, Math.min(lensY, img.height - lensHeight));
+
+                let maxX = img.width - lensWidth;
+                let maxY = img.height - lensHeight;
+
+                this.zoomLens.style.left = `${lensX + img.offsetLeft}px`;
+                this.zoomLens.style.top = `${lensY + img.offsetTop}px`;
+                let rel = 1.13 + (document.body.offsetWidth - 1366) * 0.05 / 554;
+                const calcX = img.naturalWidth / (maxX * scaleX * rel);
+                const calcY = img.naturalHeight / (maxY * scaleY * rel);
+
+                const bgX = lensX * scaleX * zoomFactor * calcX;
+                const bgY = lensY * scaleY * zoomFactor * calcY;
+
+                console.log('width', img.naturalWidth, img.width);
+                console.log('height',img.naturalHeight, img.height);
+                console.log('lens',lensX, lensY);
+                console.log('scale',scaleX, scaleY);
+                console.log('max',maxX, maxY);
+                console.log('calc',calcX, calcY);
+                console.log('rel',rel);
+                console.log('bg',bgX, bgY);
+
+                this.zoomLens.style.backgroundPosition = `-${bgX}px -${bgY}px`;
+            }
         }
+
+
+
     },
     computed: {
         isExpanded() {

@@ -271,7 +271,7 @@
                                     <th v-for="key in Object.keys(gruposImg[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -367,7 +367,7 @@
                                         v-for="key in Object.keys(categoriasMedios[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -568,7 +568,7 @@
                                     <th v-for="key in Object.keys(bancos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -710,7 +710,7 @@
                                     <th v-for="key in Object.keys(fiduciarias[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -799,7 +799,7 @@
                                     <th v-for="key in Object.keys(zonasProyectos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -888,7 +888,7 @@
                                     <th v-for="key in Object.keys(ciudadelas[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -978,7 +978,7 @@
                                         v-for="key in Object.keys(instructivos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_')  && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -1100,7 +1100,7 @@
                                         v-for="key in Object.keys(pies_legales[0]).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -1212,7 +1212,7 @@
                                     <th v-for="key in Object.keys(tramites[0]).filter(k => k != 'texto' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -1315,7 +1315,7 @@
                                     <th v-for="key in Object.keys(documentos[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -1427,7 +1427,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
-                                <button v-on:click="setMode(1)">Nuevo Subsidio</button>
+                                <button v-on:click="setMode(1)">Nuevo Periodo</button>
                             </div>
                         </div>
                     </div>
@@ -1439,13 +1439,14 @@
                                     <th>smmlv</th>
                                     <th>subsidio entre 0-2 smmlv</th>
                                     <th>subsidio entre 2-4 smmlv</th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="sub in getFilteredList('subsidios')" @click="onSelect(sub)">
-                                    <td v-for="key in Object.keys(sub).filter(k => k != 'imagen' && !k.startsWith('id_') && !k.startsWith('is_'))">
+                                    <td v-for="key in Object.keys(sub).filter(k => k != 'imagen' && !k.startsWith('id_') && !k.startsWith('is_'))"
+                                        :style="key.startsWith('smmlv') ? 'text-align: right;' : ''">
                                         {{key.startsWith('smmlv') ? formatNumber(sub[key].replace(',','.')) : sub[key]}}</td>
                                     <td style="text-align: center;">
                                         <div class="toggle-switch" @click.stop.prevent="toggleState(sub)">
@@ -1490,8 +1491,9 @@
                             <div class="formInputStandard" style="height: 100%;">
                                 <span>Imagen</span>
                                 <div v-if="subsidio.imagen">
-                                    <img :src="subsidio.imagen" style="max-width: 100%; max-height: calc(100vh - 21rem);
-                                    display: block; margin: 0 auto; border: 1px solid #ccc;" alt="imagen">
+                                    <img :src="subsidio.imagen.startsWith('blob:') ? subsidio.imagen : '/file/S3get/' + subsidio.imagen" 
+                                        style="max-width: 100%; max-height: calc(100vh - 21rem);
+                                        display: block; margin: 0 auto; border: 1px solid #ccc;" alt="imagen">
                                     <div style="margin-top: 1rem;">
                                         <label for="sub-image" class="file" style="text-align: center;">Subir Imagen</label>
                                         <input id="sub-image" type="file" @change="fileUpload" style="display: none;" />
@@ -1564,7 +1566,7 @@
                                     <th v-for="key in Object.keys(tipos_financiacion[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -1653,7 +1655,7 @@
                                     <th v-for="key in Object.keys(tipos_proyecto[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -1742,7 +1744,7 @@
                                     <th v-for="key in Object.keys(estados_proyecto[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
@@ -1831,7 +1833,7 @@
                                     <th v-for="key in Object.keys(tipos_vis[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{key.replaceAll("_"," ")}}
                                     </th>
-                                    <th>Estado</th>
+                                    <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>

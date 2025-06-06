@@ -41,10 +41,13 @@
                     </div>
                 </div>
                 <div class="cont-rotafolio" id="cont-rotafolio" @mousemove="setShowBar" @mousedown="setShowBar">
-                    <div class="player-rotafolio" v-if="!loading">
-                        <img v-if="files[playIndex].content" :src="files[playIndex].content" @load="onloadimg"
-                            :key="'i' + playIndex" id="img-rotafolio">
-                        <iframe v-else-if="isVideo(files[playIndex], true)" @load="initVideo" id="v-player"
+                    <div class="player-rotafolio" v-if="!loading && files[playIndex].content">
+                        <img :src="files[playIndex].content" @load="onloadimg"
+                            :key="'i' + playIndex" id="img-rotafolio" @mousemove="movelupa">
+                        <div class="zoom-lens" id="zoom-lens" v-show="lupa"></div>
+                    </div>
+                    <div class="player-rotafolio" v-else-if="!loading && isVideo(files[playIndex], true)">
+                        <iframe @load="initVideo" id="v-player"
                             :src="`${files[playIndex].link}?autoplay=1&enablejsapi=1&mute=1`" :key="'v' + playIndex"
                             frameborder="0" allow="autoplay; encrypted-media" @mousemove="setShowBar"
                             @mousedown="setShowBar">
@@ -65,6 +68,12 @@
                         <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1)">
                         <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen"
                             class="btn-rotafolio btn-fullscreen">
+                        <div class="btn-left-rotafolio">
+                            <img src="../../img/ico/svg/zoom-out.svg" @click="''" 
+                                class="btn-rotafolio">
+                            <img src="../../img/ico/svg/lupa.svg" @click="toggleLupa" 
+                                class="btn-rotafolio">
+                        </div>
                     </div>
                     <div class="btn-left-bar-rotafolio"
                         v-bind:class="{'show-left-bar': showBar && isVideo(files[playIndex], false) && !loading}">
