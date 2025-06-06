@@ -1573,3 +1573,8 @@ tr.selected input {
   border: none;
 }
 
+.hoverRow:hover{
+    outline: none;
+    background-color: #b3e6ff;
+    cursor: pointer;
+}

@@ -60,8 +60,8 @@
         allow: ["*"]
     },
     "Unidades": {
-        templateUrl: "./web/Proyectos/Unidades.html",
-        jsUrl: "./web/Proyectos/Unidades.js",
+        templateUrl: "./web/Proyectos/Unidades3d.html",
+        jsUrl: "./web/Proyectos/Unidades3d.js",
         allow: ["*"]
     },
     "Documentacion": {
