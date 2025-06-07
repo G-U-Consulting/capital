@@ -28,7 +28,8 @@ export default {
             isDragging: false,
             startX: 0,
             startY: 0,
-            zoomFactor: 2,
+            zoomFactor: 1,
+            zoomTimeout: null,
 
             tooltipVisible: false,
             tooltipX: 0,
@@ -350,19 +351,18 @@ export default {
             }
         },
 
-        toggleZoom(relX, relY) {
-            this.zoom = !this.zoom;
+        changeZoom(relX, relY) {
             const img = document.getElementById('img-rotafolio');
             this.zoomBox = document.getElementById('zoom-box');
             if (!this.cont) this.cont = document.getElementById('cont-rotafolio');
 
             if (this.zoom && img) {
-                let height = img.height * this.zoomFactor, contHeight = this.cont.getBoundingClientRect().height;
-                let width = img.width * this.zoomFactor, contWidth = this.cont.getBoundingClientRect().width;
+                let height = img.height * this.c_zoomFactor, contHeight = this.cont.getBoundingClientRect().height;
+                let width = img.width * this.c_zoomFactor, contWidth = this.cont.getBoundingClientRect().width;
                 this.zoomBox.style.height = height + 'px';
                 this.zoomBox.style.width = width + 'px';
-                this.zoomBox.style.top = `${(height - contHeight) / contHeight * -relY}%`;
-                this.zoomBox.style.left = `${(width - contWidth) / contWidth * -relX}%`;
+                this.zoomBox.style.top = `calc(${(height - contHeight) / contHeight * -relY}% - 4px)`;
+                this.zoomBox.style.left = `calc(${(width - contWidth) / contWidth * -relX}% - 4px)`;
                 this.zoomBox.style.backgroundImage = `url(${img.src})`;
                 this.zoomBox.style.backgroundSize = `${width}px ${height}px`;
             }
@@ -395,17 +395,31 @@ export default {
             contenido.style.top = Math.min(maxY, Math.max(minY, y)) + 'px';
         },
         handleWheel(e) {
-            let relX = e.offsetX / e.target.width * 100;
-            let relY = e.offsetY / e.target.height * 100;
-            console.log(e.target.width, e.offsetX, relX);
-            console.log(e.target.height, e.offsetY, relY);
-            this.toggleZoom(relX, relY);
+            let relX = e.offsetX / e.target.getBoundingClientRect().width * 100;
+            let relY = e.offsetY / e.target.getBoundingClientRect().height * 100;
+            let factor = [1, 1.25, 1.5, 1.75, 2];
+            e.deltaY > 0 
+                ? this.c_zoomFactor = factor.reverse().find(f => f < this.c_zoomFactor) || Math.min(...factor)
+                : this.c_zoomFactor = factor.find(f => f > this.c_zoomFactor) || Math.max(...factor);
+            this.changeZoom(relX, relY);
         }
 
     },
     computed: {
         isExpanded() {
             return () => this.grupos.every(g => g.expanded);
-        }
+        },
+        c_zoomFactor: {
+            get() { return this.zoomFactor },
+            set(val) {
+                this.zoomTimeout && clearTimeout(this.zoomTimeout);
+                val > 1 
+                    ? this.zoom = true 
+                    : this.zoomTimeout = setTimeout(() => {
+                        this.zoom = false;
+                    }, 1000);
+                this.zoomFactor = val;
+            }
+        },
     },
 }

@@ -1531,12 +1531,17 @@ tr.selected input {
   background-color: #1b1b1b;
   cursor: grab;
 }
-
+.zoom-slide {
+  position: absolute;
+  z-index: 11;
+  left: 5px;
+  bottom: 5px;
+}
 .player-rotafolio iframe {
   position: absolute;
   height: 100%;
   width: 100%;
- user-select: none;
+  user-select: none;
 }
 .loader-rotafolio {
   display: flex; 
