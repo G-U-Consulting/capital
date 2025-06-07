@@ -236,7 +236,7 @@
                 {{ ObjCliente.NewNombres }}
             </div>
             <div v-for="(tab, index) in tab" :key="index" @click="activeTab = index"
-                :class="['tab', { active: activeTab === index }]">
+                :class="['tab-registro', { active: activeTab === index }]">
                 {{ tab }}
             </div>
             <div v-if="activeTab == 0">

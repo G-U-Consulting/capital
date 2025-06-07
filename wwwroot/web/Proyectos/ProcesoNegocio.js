@@ -84,7 +84,6 @@ export default {
     this.referencia = resp.data[3];
     this.tipo_registro = resp.data[4];
     this.modo_atencion = resp.data[5];
-    this.mode = 1;
   },
   methods: {
     async handleNext(nextIndex) {
