@@ -250,6 +250,9 @@ app.Map("/file/S3get/{key}", async (HttpContext context, string key) => {
     string body = "";
     try {
         S3HelperDownloadResponse resp = await S3Helper.GetInstance(rootPath, defaultDB).DownloadFileByKey(key);
+        if (!resp.Success) {
+            Logger.Log("file/S3get/" + "   " + key + " - (RESP)" + resp.Message);
+        }
         string path = resp.Path;
         resp.Path = Path.GetFileName(resp.Path);
         return Results.File(path, WebUt.GetContentType(Path.GetExtension(path)));
