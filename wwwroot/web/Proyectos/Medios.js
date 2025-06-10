@@ -56,7 +56,6 @@
             documentos: [],
             filtros: {
                 documentos: {is_img: '0'},
-             
             },
             logoPreview: null,
             slidePreview: null,
@@ -242,18 +241,18 @@
                     activo: false,
                     error: true
                 },
-                {
-                    titulo: 'Agrupamiento de Recorridos Virtuales',
-                    datos: grupo_vir,
-                    activo: false,
-                    error: false
-                },
-                {
-                    titulo: 'Periodos de Avances de obra',
-                    datos: grupo_avo,
-                    activo: false,
-                    error: false
-                }
+                // {
+                //     titulo: 'Agrupamiento de Recorridos Virtuales',
+                //     datos: grupo_vir,
+                //     activo: false,
+                //     error: false
+                // },
+                // {
+                //     titulo: 'Periodos de Avances de obra',
+                //     datos: grupo_avo,
+                //     activo: false,
+                //     error: false
+                // }
             ];
         },
         dragStart(index) {

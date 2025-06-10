@@ -32,7 +32,7 @@ loginVue = {
             try {
                 const { data } = await axios.post("/util/Presentacion", {});
                 if (data.data[1]) {
-                    this.images = data.data[1].map(x => `/img/carrusel/${x.a}`);
+                    this.images = data.data[1].map(x => `/file/S3get/${x.llave}`);
                 }
             } catch (err) {
                 console.error("Error:", err);

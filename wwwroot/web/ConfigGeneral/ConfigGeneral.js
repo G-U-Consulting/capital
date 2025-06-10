@@ -62,7 +62,7 @@ export default {
                 var variables = (await httpFunc("/generic/genericDS/Usuarios:Get_Variables", {})).data;
                 this.cargos = variables[0];
                 hideProgress();
-            } else if (mode == 2) {
+            } else if (mode == 1) {
                 showProgress();
                 try {
                     const response = await httpFunc("/generic/genericDS/Seguridad:Get_Seguridad", {});
@@ -92,7 +92,7 @@ export default {
                     console.log("Error al obtener datos de Seguridad:Get_Seguridad:", error);
                 }
                 hideProgress();
-            } else if (mode == 3) {
+            } else if (mode == 2) {
                 this.fetchCarouselImages();
             }
             this.mainmode = mode;
@@ -208,7 +208,7 @@ export default {
                 showProgress();
                 let response = (await httpFunc("/generic/genericDS/Presentacion:Get_Presentacion", {})).data;
                 if (response[1]) {
-                    this.previews = response[1].map(x => `/img/carrusel/${x.a}`);
+                    this.previews = response[1].map(x => `/file/S3get/${x.llave}`);
                 } else {
                     this.message = "❌ No se encontraron imágenes en el servidor.";
                 }
@@ -220,7 +220,26 @@ export default {
         async handleDragLeave(event) {
             event.currentTarget.classList.remove("drag-over");
         },
-        async handleDrop(event) {
+        async handleDrop(event, targetKey = null) {
+            if (this.dragIndex !== null) {
+                const dropTarget = event.target.closest('.image-card');
+                if (dropTarget) {
+                    const dropIndex = Array.from(event.currentTarget.querySelectorAll('.image-card')).indexOf(dropTarget);
+                    if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
+                        const draggedPreview = this.previews[this.dragIndex];
+                        const draggedFile = this.files[this.dragIndex];
+
+                        this.previews.splice(this.dragIndex, 1);
+                        this.files.splice(this.dragIndex, 1);
+
+                        this.previews.splice(dropIndex, 0, draggedPreview);
+                        this.files.splice(dropIndex, 0, draggedFile);
+                    }
+                }
+                this.dragIndex = null;
+                return;
+            }
+
             event.preventDefault();
             event.currentTarget.classList.remove("drag-over");
 
@@ -237,38 +256,68 @@ export default {
             });
         },
         async uploadFiles() {
-            let formData = new FormData();
-
-            for (let i = 0; i < this.previews.length; i++) {
-                const preview = this.previews[i];
-                const filename = `image_${i}.jpg`;
-                let file;
-                if (preview.startsWith("data:image")) {
-                    file = await this.urlToFile(preview, filename);
-                } else if (preview.startsWith("/img/carrusel/")) {
-                    const fetchedBlob = await fetch(preview).then(r => r.blob());
-                    file = new File([fetchedBlob], filename, { type: fetchedBlob.type });
-                }
-                if (file) {
-                    formData.append("file", file);
-                }
-            }
-            if (!formData.has("file")) {
-                this.message = "No hay imágenes para subir.";
+            if (!this.files.length && !this.previews.length) {
+                this.message = "No hay archivos para subir.";
                 return;
+            }
+            const form = new FormData();
+            if (this.files.length) {
+                this.files.forEach(file => {
+                    if (file) form.append("file", file);
+                });
+            } else if (this.previews.length) {
+                this.previews.forEach(preview => {
+                    if (preview) form.append("file", preview);
+                });
             }
             try {
                 showProgress();
-                await httpFunc("/generic/genericST/Presentacion:Upd_Presentacion", {
-                    duracion: this.duracion,
-                });
-                const response = await httpFunc("/api/upload", formData);
-                this.message = response.message;
-                await this.fetchCarouselImages();
+                const uploadResp = await httpFunc("/file/upload", form);
+                if (uploadResp.isError || !uploadResp.data) {
+                    hideProgress();
+                    this.message = uploadResp.errorMessage || "Error al subir archivos al servidor.";
+                    return;
+                }
+                const serverFiles = uploadResp.data;
+                const s3Resp = await httpFunc("/file/S3upload", serverFiles);
+                if (s3Resp.isError || !s3Resp.data) {
+                    hideProgress();
+                    this.message = s3Resp.errorMessage || "Error al subir archivos a S3.";
+                    return;
+                }
+                const insRespDel = await httpFunc("/generic/genericST/Presentacion:Del_Presentacion", {});
+                if (insRespDel.isError || insRespDel.data !== "OK") {
+                    hideProgress();
+                    this.message = insRespDel.errorMessage || "Error al eliminar el archivo en la base de datos.";
+                    return;
+                }
+                const s3Files = s3Resp.data;
+                let arr = [];
+                let index = 0;
+                
+                for (const file of s3Files) {
+                    index++;
+                    arr.push({
+                        id_documento: file.Id,
+                        tipo: 'Carrusel',
+                        orden: index
+                    });
+                    const insResp = await httpFunc("/generic/genericST/Presentacion:Ins_Presentacion", arr[index-1]);
+                    if (insResp.isError || insResp.data !== "OK") {
+                        hideProgress();
+                        this.message = insResp.errorMessage || "Error al registrar archivos en la base de datos.";
+                        return;
+                    }
+                }
+                this.message = "Archivos subidos y registrados correctamente.";
+                this.files = [];
+                this.previews = [];
+                this.fetchCarouselImages();
                 hideProgress();
             } catch (error) {
+                hideProgress();
+                this.message = "❌ Error al subir los archivos.";
                 console.error("Upload error:", error);
-                this.message = "❌ Error al subir las imágenes.";
             }
         },
         async getFilenameFromDataURL(dataUrl) {
@@ -290,9 +339,9 @@ export default {
         },
         getMainPath() {
             let path = {};
-            if (this.mainmode == 1) path.text = "Categorias Adm";
-            if (this.mainmode == 2) path.text = "Política de Contraseña";
-            if (this.mainmode == 3) path.text = "Fondo Pantalla";
+            // if (this.mainmode == 1) path.text = "Categorias Adm";
+            if (this.mainmode == 1) path.text = "Política de Contraseña";
+            if (this.mainmode == 2) path.text = "Fondo Pantalla";
             path.action = () => this.setMode(0);
             return path;
         }
