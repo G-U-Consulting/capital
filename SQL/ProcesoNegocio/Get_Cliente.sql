@@ -30,6 +30,6 @@ where a.is_active = 1
   and @cliente != ''
   and (
     a.nombres like concat('%', @cliente collate utf8mb4_general_ci, '%')
-    or a.numero_documento like concat('%', @cliente collate utf8mb4_general_ci, '%')
+    or a.numero_documento = @cliente
   )
 order by 1;

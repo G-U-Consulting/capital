@@ -19,7 +19,7 @@
         category: "USUARIOS",
         allow: ["*"]
     },   
-     "Roles": {
+    "Roles": {
         templateUrl: "./web/Roles/Roles.html",
         jsUrl: "./web/Roles/Roles.js",
         title: "Roles",
@@ -69,6 +69,11 @@
         jsUrl: "./web/Proyectos/Documentacion.js",
         allow: ["*"]
     },
+    "Recorridos": {
+        templateUrl: "./web/Proyectos/Recorridos.html",
+        jsUrl: "./web/Proyectos/Recorridos.js",
+        allow: ["*"]
+    },
     "Rotafolio": {
         templateUrl: "./web/Proyectos/Rotafolio.html",
         jsUrl: "./web/Proyectos/Rotafolio.js",
@@ -86,6 +91,16 @@
         desc: "Administra las configuraciones de seguridad",
         imgSrc: "./img/ico/menu/006-group.png",
         zone: "ZU",
+        category: "INFORMES",
+        allow: ["*"]
+    },
+    "Informes": {
+        templateUrl: "./web/Informes/Informes.html",
+        jsUrl: "./web/Informes/Informes.js",
+        title: "Informes y Exportación",
+        desc: "Administra las configuraciones de seguridad",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZI",
         category: "INFORMES",
         allow: ["*"]
     },
@@ -164,6 +179,14 @@ const zones = {
         title: "Zona Configuracion",
         img: "./img/ico/menu/zc.png",
         categories: [
+        ]
+    },
+    "ZI": {
+        name: "ZI",
+        title: "Zona Informes",
+        img: "./img/ico/menu/zc.png",
+        categories: [
+            { key: "INFORMES", name: "Informes" },
         ]
     },
     "OUT": {

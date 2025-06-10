@@ -13,8 +13,7 @@ select id_categoria, categoria, is_active
 from dim_categoria_medio
 order by categoria;
 
-select mp.id_medio, mp.medio, mp.id_categoria, mp.is_active, id_sinco, id_sinco as 'ID Sinco', 
-cm.categoria, if(mp.is_active = 1, 'Sí', 'No') as 'Activo'
+select mp.id_medio, mp.medio, mp.id_categoria, mp.is_active, id_sinco, id_sinco as 'ID Sinco', cm.categoria
 from dim_medio_publicitario mp 
 join dim_categoria_medio cm on mp.id_categoria = cm.id_categoria
 order by is_active desc, mp.medio asc;
@@ -76,6 +75,10 @@ select id_email, email
 from dim_email_receptor 
 where is_active = 1
 order by id_email;
+
+select id_sala_venta, sala_venta, encuesta_vpn, is_active
+from dim_sala_venta
+order by sala_venta;
 
 select id_factor, factor from dim_factor;
 select id_tipo_factor, tipo_factor from dim_tipo_factor;

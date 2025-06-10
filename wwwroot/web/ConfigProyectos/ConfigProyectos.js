@@ -24,6 +24,7 @@ export default {
             estados_proyecto: [],
             tipos_vis: [],
             emails: [],
+            salas_ventas: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -43,6 +44,7 @@ export default {
             estado_proyecto: {},
             tipo_vis: {},
             subsidio: {},
+            sala_venta: {},
 
             ruta: [],
             medioIsActive: 0,
@@ -68,6 +70,7 @@ export default {
                 estados_proyecto: { is_active: '' },
                 tipos_vis: { is_active: '' },
                 subsidios: { is_active: '' },
+                salas_ventas: {is_active: '' },
             },
 
             tooltipVisible: false,
@@ -148,6 +151,7 @@ export default {
                 if (resp.data === "OK") this.setMode(0);
                 else throw resp;
             } catch (e) {
+                if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
         },
@@ -162,8 +166,10 @@ export default {
                     this.mode = 2;
                     this.setRuta();
                 }
+                else throw resp;
                 hideProgress();
             } catch (e) {
+                if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
             hideProgress();
@@ -202,6 +208,7 @@ export default {
                 else throw resp;
             }
             catch(e) {
+                if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
             hideProgress();
@@ -216,6 +223,7 @@ export default {
                     if (resp.data !== 'OK') throw resp;
                 } else throw "Emails inválidos";
             } catch(e) {
+                showMessage('Error: ' + e);
                 console.error(e);
             }
             hideProgress();
@@ -241,6 +249,7 @@ export default {
                 } else throw resp;
                 this.setMode(0);
             } catch (e) {
+                if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
             hideProgress();
@@ -260,6 +269,7 @@ export default {
                 } else throw "No se encontró " + folder;
             }
             catch(e) {
+                showMessage('Error: ' + e);
                 console.error(e);
             }
             hideProgress();
@@ -289,6 +299,7 @@ export default {
             if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto", this.estados_proyecto];
             if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS", this.tipos_vis];
             if (this.mainmode == 19) return [{}, "Email", this.emails];
+            if (this.mainmode == 20) return [this.sala_venta, "SalaVenta", this.salas_ventas];
             return null;
         },
         getMainPath() {
@@ -312,6 +323,7 @@ export default {
             if (this.mainmode == 17) path.text = "Estados Proyecto";
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
             if (this.mainmode == 19) path.text = "Emails Receptores";
+            if (this.mainmode == 20) path.text = "Salas Ventas";
             path.action = () => {
                 this.mode = 0; this.setRuta(); this.loadData();
             };
@@ -358,6 +370,7 @@ export default {
                 this.estados_proyecto,
                 this.tipos_vis,
                 this.emails,
+                this.salas_ventas,
 
                 this.factores,
                 this.tipos_factor,

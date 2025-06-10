@@ -1,9 +1,10 @@
 ﻿-- =============================================
--- Proceso: Presentacion/Del_Presentacion
+-- Proceso: Maestros/Del_SalaVenta
 -- =============================================
 --START_PARAM
+set @id_sala_venta = NULL
 --END_PARAM
 
-delete a from fact_documento_proyecto a where a.tipo = 'Carrusel';
+delete from dim_sala_venta where id_sala_venta = @id_sala_venta;
 
 select 'OK' as result;

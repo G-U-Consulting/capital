@@ -795,5 +795,74 @@
         async hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         },
+        dragStart(index) {
+            this.dragIndex = index;
+        },
+        dragOver(index) {
+            // Permite el drop
+        },
+        drop(index) {
+            if (this.dragIndex === null || this.dragIndex === index) return;
+            // Reordena previews y files en paralelo
+            const draggedPreview = this.previews[this.dragIndex];
+            const draggedFile = this.files[this.dragIndex];
+            this.previews.splice(this.dragIndex, 1);
+            this.files.splice(this.dragIndex, 1);
+            this.previews.splice(index, 0, draggedPreview);
+            this.files.splice(index, 0, draggedFile);
+            this.dragIndex = null;
+        },
+        async handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove("drag-over");
+            const files = Array.from(event.dataTransfer.files);
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith("image/")) {
+                    this.files.push(file);
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.previews.push({ src: e.target.result, file });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        },
+        async uploadFiles() {
+            if (!this.files.length && !this.previews.length) {
+                this.message = "No hay archivos para subir.";
+                return;
+            }
+            const form = new FormData();
+            // Agrega archivos reales
+            this.files.forEach(file => {
+                if (file) form.append("file", file);
+            });
+            try {
+                showProgress();
+                const uploadResp = await httpFunc("/file/upload", form);
+                if (uploadResp.isError || !uploadResp.data) {
+                    hideProgress();
+                    this.message = uploadResp.errorMessage || "Error al subir archivos al servidor.";
+                    return;
+                }
+                const serverFiles = uploadResp.data;
+                const s3Resp = await httpFunc("/file/S3upload", serverFiles);
+                if (s3Resp.isError || !s3Resp.data) {
+                    hideProgress();
+                    this.message = s3Resp.errorMessage || "Error al subir archivos a S3.";
+                    return;
+                }
+                // Aquí puedes registrar en tu base de datos, limpiar arrays, etc.
+                this.message = "Archivos subidos y registrados correctamente.";
+                this.files = [];
+                this.previews = [];
+                hideProgress();
+            } catch (error) {
+                hideProgress();
+                this.message = "❌ Error al subir los archivos.";
+                console.error("Upload error:", error);
+            }
+        },
     }
 };

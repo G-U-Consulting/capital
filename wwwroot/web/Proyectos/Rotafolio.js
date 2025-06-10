@@ -19,8 +19,17 @@ export default {
             time: 8000,
             cont: null,
             showList: false,
+            
             lupa: false,
             zoomLens: null,
+
+            zoom: false,
+            zoomBox: null,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            zoomFactor: 1,
+            zoomTimeout: null,
 
             tooltipVisible: false,
             tooltipX: 0,
@@ -73,7 +82,8 @@ export default {
 
                 res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
                 let grupos = res.data;
-                let modulos = ['imagenes', 'videos', 'recorridos virt', 'avances de obra'];
+                let modulos = ['imagenes', 'videos', 'avances de obra'];
+                if (grupos) grupos = grupos.filter(g => modulos.includes(g.modulo));
                 res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: modulos.join(','), id_proyecto })
 
@@ -128,9 +138,10 @@ export default {
                 console.error("Error al cargar archivos:", error);
             }
             this.loading = false;
+            this.playIndex = 0;
         },
         fullScreen() {
-            let cont = document.getElementById("cont-rotafolio");
+            if (!this.cont) this.cont = document.getElementById('cont-rotafolio');
 
             if (this.full) {
                 if (document.exitFullscreen) {
@@ -145,14 +156,14 @@ export default {
                 this.full = false;
             }
             else {
-                if (cont.requestFullscreen) {
-                    cont.requestFullscreen();
+                if (this.cont.requestFullscreen) {
+                    this.cont.requestFullscreen();
                 } else if (cont.mozRequestFullScreen) {
-                    cont.mozRequestFullScreen();
+                    this.cont.mozRequestFullScreen();
                 } else if (cont.webkitRequestFullscreen) {
-                    cont.webkitRequestFullscreen();
+                    this.cont.webkitRequestFullscreen();
                 } else if (cont.msRequestFullscreen) {
-                    cont.msRequestFullscreen();
+                    this.cont.msRequestFullscreen();
                 }
                 this.full = true;
             }
@@ -163,7 +174,9 @@ export default {
                     !document.webkitFullscreenElement && 
                     !document.mozFullScreenElement && 
                     !document.msFullscreenElement) 
-                    this.full = false  
+                    this.full = false;
+                this.lupa = false;
+                this.zoom = false;
             }
             document.addEventListener("fullscreenchange", handleFullscreenChange);
             document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
@@ -219,6 +232,7 @@ export default {
                     if (this.interval) clearInterval(this.interval);
                     this.interval = null;
                     this.lupa = false;
+                    this.zoom = false;
                     return true;
                 } else {
                     next && this.setIndex(1);
@@ -230,6 +244,7 @@ export default {
         },
         onloadimg(e) {
             this.lupa = false;
+            this.zoom = false;
             let img = e.target, rel = img.naturalWidth / img.naturalHeight, min = 150, fact = 1.5;
             let maxheight = img.parentElement.offsetHeight, maxwidth = img.parentElement.offsetWidth;
             let width = Math.min(maxwidth, img.naturalWidth * fact), height = Math.min(maxheight, img.naturalHeight * 1.2);
@@ -297,9 +312,8 @@ export default {
             if (this.lupa && img) {
                 const zoomFactor = 2;
 
-                // Usa tamaño natural para el fondo ampliado
                 this.zoomLens.style.backgroundImage = `url(${img.src})`;
-                this.zoomLens.style.backgroundSize = `${img.naturalWidth * zoomFactor}px ${img.naturalHeight * zoomFactor}px`;
+                this.zoomLens.style.backgroundSize = `${img.width * zoomFactor}px ${img.height * zoomFactor}px`;
             }
         },
         movelupa(event) {
@@ -328,32 +342,85 @@ export default {
 
                 this.zoomLens.style.left = `${lensX + img.offsetLeft}px`;
                 this.zoomLens.style.top = `${lensY + img.offsetTop}px`;
-                let rel = 1.13 + (document.body.offsetWidth - 1366) * 0.05 / 554;
-                const calcX = img.naturalWidth / (maxX * scaleX * rel);
-                const calcY = img.naturalHeight / (maxY * scaleY * rel);
+                const calcX = img.naturalWidth / (maxX * scaleX * 1.1753);
+                const calcY = img.naturalHeight / (maxY * scaleY * 1.1937);
 
-                const bgX = lensX * scaleX * zoomFactor * calcX;
-                const bgY = lensY * scaleY * zoomFactor * calcY;
-
-                console.log('width', img.naturalWidth, img.width);
-                console.log('height',img.naturalHeight, img.height);
-                console.log('lens',lensX, lensY);
-                console.log('scale',scaleX, scaleY);
-                console.log('max',maxX, maxY);
-                console.log('calc',calcX, calcY);
-                console.log('rel',rel);
-                console.log('bg',bgX, bgY);
+                const bgX = lensX * calcX * zoomFactor ;
+                const bgY = lensY * calcY * zoomFactor ;
 
                 this.zoomLens.style.backgroundPosition = `-${bgX}px -${bgY}px`;
             }
+        },
+
+        changeZoom(relX, relY) {
+            const img = document.getElementById('img-rotafolio');
+            this.zoomBox = document.getElementById('zoom-box');
+            if (!this.cont) this.cont = document.getElementById('cont-rotafolio');
+
+            if (this.zoom && img) {
+                let height = img.height * this.c_zoomFactor, contHeight = this.cont.getBoundingClientRect().height;
+                let width = img.width * this.c_zoomFactor, contWidth = this.cont.getBoundingClientRect().width;
+                this.zoomBox.style.height = height + 'px';
+                this.zoomBox.style.width = width + 'px';
+                this.zoomBox.style.top = `calc(${(height - contHeight) / contHeight * -relY}% - 4px)`;
+                this.zoomBox.style.left = `calc(${(width - contWidth) / contWidth * -relX}% - 4px)`;
+                this.zoomBox.style.backgroundImage = `url(${img.src})`;
+                this.zoomBox.style.backgroundSize = `${width}px ${height}px`;
+            }
+        },
+        drag(e) {
+            this.isDragging = true;
+            e.target.style.cursor = 'grabbing';
+            this.startX = e.clientX - e.target.offsetLeft;
+            this.startY = e.clientY - e.target.offsetTop;
+        },
+        noDrag(e) {
+            this.isDragging = false;
+            e.target.style.cursor = 'grab';
+            this.startX = 0;
+            this.startX = 0;
+        },
+        dragImage(e) {
+            if (!this.isDragging) return;
+            e.preventDefault();
+            let contenido = e.target, contenedor = contenido.parentElement;
+            let x = e.clientX - this.startX;
+            let y = e.clientY - this.startY;
+
+            const maxX = 0;
+            const maxY = 0;
+            const minX = contenedor.clientWidth - contenido.clientWidth;
+            const minY = contenedor.clientHeight - contenido.clientHeight;
+
+            contenido.style.left = Math.min(maxX, Math.max(minX, x)) + 'px';
+            contenido.style.top = Math.min(maxY, Math.max(minY, y)) + 'px';
+        },
+        handleWheel(e) {
+            let relX = e.offsetX / e.target.getBoundingClientRect().width * 100;
+            let relY = e.offsetY / e.target.getBoundingClientRect().height * 100;
+            let factor = [1, 1.25, 1.5, 1.75, 2];
+            e.deltaY > 0 
+                ? this.c_zoomFactor = factor.reverse().find(f => f < this.c_zoomFactor) || Math.min(...factor)
+                : this.c_zoomFactor = factor.find(f => f > this.c_zoomFactor) || Math.max(...factor);
+            this.changeZoom(relX, relY);
         }
-
-
 
     },
     computed: {
         isExpanded() {
             return () => this.grupos.every(g => g.expanded);
-        }
+        },
+        c_zoomFactor: {
+            get() { return this.zoomFactor },
+            set(val) {
+                this.zoomTimeout && clearTimeout(this.zoomTimeout);
+                val > 1 
+                    ? this.zoom = true 
+                    : this.zoomTimeout = setTimeout(() => {
+                        this.zoom = false;
+                    }, 1000);
+                this.zoomFactor = val;
+            }
+        },
     },
 }
