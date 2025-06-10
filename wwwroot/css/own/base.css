@@ -1815,6 +1815,7 @@ div.btn-left-rotafolio img {
   justify-content: center;
   align-items: center;
   padding: 3px;
+  cursor: pointer;
 }
 
 .menu-content .item-content img {

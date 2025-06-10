@@ -32,6 +32,11 @@
                 <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
                     Gestión Comercial
                 </div>
+                <div v-on:click="setMainMode('Recorridos')" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Recorridos'}">
+                    <img src="./img/ico/tour.jpg" />
+                    Recorridos Virtuales
+                </div>
                 <div v-on:click="setMainMode('Rotafolio')" class="lateralMenuItem noSelect"
                     v-bind:class="{'lateralMenuItemSelected': mainmode == 'Rotafolio'}">
                     <img src="./img/ico/svg/sidebar/Rotafolio.svg" />

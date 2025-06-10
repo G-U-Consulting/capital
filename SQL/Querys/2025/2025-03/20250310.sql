@@ -394,6 +394,16 @@ begin
 	select dg.grupo, dg.orden, new.id_proyecto as id_proyecto, 'imagenes' from dim_grupo_img dg;
 end;
 
+create table dim_sala_venta(
+	id_sala_venta int primary key auto_increment,
+	sala_venta varchar(200) not null unique,
+	encuesta_vpn varchar(200),
+	codigo varchar(10),
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+
 create table dim_preferencias_usuario(
 	id int primary key auto_increment,
 	id_usuario int,

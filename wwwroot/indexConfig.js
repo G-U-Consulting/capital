@@ -69,6 +69,11 @@
         jsUrl: "./web/Proyectos/Documentacion.js",
         allow: ["*"]
     },
+    "Recorridos": {
+        templateUrl: "./web/Proyectos/Recorridos.html",
+        jsUrl: "./web/Proyectos/Recorridos.js",
+        allow: ["*"]
+    },
     "Rotafolio": {
         templateUrl: "./web/Proyectos/Rotafolio.html",
         jsUrl: "./web/Proyectos/Rotafolio.js",

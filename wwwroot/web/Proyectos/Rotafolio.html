@@ -10,7 +10,7 @@
 
             <div style="display: flex; width: 100%; gap: 2rem; align-items: center;">
                 <div class="cont-list-resources" v-bind:class="{'open': showList}">
-                    <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}" v-if="!loading">
+                    <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}" v-if="!loading && files.length">
                         <img src="../../img/ico/deploy.png">
                     </div>
                     <div class="list-resources">
@@ -26,11 +26,11 @@
                             </div>
                             <div class="menu-content" v-bind:class="{'open': grupo.expanded}">
                                 <div class="item-content" v-for="file in grupo.files"
-                                    v-bind:class="{'current': file.current}" @click="selectFile(file)">
+                                    v-bind:class="{'current': file.current}" @click="selectFile(file)" 
+                                    @mouseenter="tooltipVisible = true; tooltipMsg = file.link || file.documento"
+                                    @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
                                     <img :src="file.link ? '../../img/ico/youtobe.png' : '/file/S3get/' + file.llave"
-                                        :alt="file.documento" style="background-color: white;" @mousemove="updateCursor"
-                                        @mouseenter="tooltipVisible = true; tooltipMsg = file.link || file.documento"
-                                        @mouseleave="tooltipVisible = false;">
+                                        :alt="file.documento" style="background-color: white;">
                                 </div>
                                 <div v-if="tooltipVisible" class="cursor-tooltip"
                                     :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
@@ -48,23 +48,27 @@
                         <input type="range" min="1" max="2" step="0.01" value="1" v-model="c_zoomFactor" @input="changeZoom(50, 50)">
                         <span>{{parseInt(c_zoomFactor * 100)}}%</span>
                     </div>
-                    <div class="player-rotafolio" v-if="!loading && files[playIndex].content">
+                    <div class="player-rotafolio" v-if="!loading && files.length && files[playIndex].content">
                         <img :src="files[playIndex].content" @load="onloadimg"
                             :key="'i' + playIndex" id="img-rotafolio" @mousemove="movelupa" @wheel="handleWheel">
                         <div class="zoom-lens" id="zoom-lens" v-show="lupa"></div>
                     </div>
-                    <div class="player-rotafolio" v-else-if="!loading && isVideo(files[playIndex], true)">
+                    <div class="player-rotafolio" v-else-if="!loading && files.length && isVideo(files[playIndex], true)">
                         <iframe @load="initVideo" id="v-player"
                             :src="`${files[playIndex].link}?autoplay=1&enablejsapi=1&mute=1`" :key="'v' + playIndex"
                             frameborder="0" allow="autoplay; encrypted-media" @mousemove="setShowBar"
                             @mousedown="setShowBar">
                         </iframe>
                     </div>
+                    <div class="loader-rotafolio" v-else-if="!loading && !files.length">
+                        <img src="../../img/ico/warning.jpg" style="width: 40px; height: auto;">
+                        <span style="color: white;">No se encontraron recursos para mostrar</span>
+                    </div>
                     <div class="loader-rotafolio" v-else>
                         <img src="../../img/ico/svg/loader.svg">
                         <span style="color: white;">Cargando recursos...</span>
                     </div>
-                    <div class="btn-bar-rotafolio"
+                    <div class="btn-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
                         <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)"
                             style="transform: rotate(180deg);">
@@ -76,18 +80,18 @@
                         <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen"
                             class="btn-rotafolio btn-fullscreen">
                         <div class="btn-left-rotafolio">
-                            <img src="../../img/ico/svg/lupa.svg" @click="toggleLupa" 
-                                class="btn-rotafolio">
+                            <!-- <img src="../../img/ico/svg/lupa.svg" @click="toggleLupa" 
+                                class="btn-rotafolio"> -->
                             <img src="../../img/ico/svg/zoom-out.svg" @click="zoom = true;c_zoomFactor = 1.25;changeZoom(50, 50)" 
                                 class="btn-rotafolio">
                         </div>
                     </div>
-                    <div class="btn-left-bar-rotafolio"
+                    <div class="btn-left-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-left-bar': showBar && isVideo(files[playIndex], false) && !loading}">
                         <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(-1)"
                             style="transform: rotate(180deg);">
                     </div>
-                    <div class="btn-right-bar-rotafolio"
+                    <div class="btn-right-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-right-bar': showBar && isVideo(files[playIndex], false) && !loading}">
                         <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(1)">
                         <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen"

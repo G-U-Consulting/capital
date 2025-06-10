@@ -104,6 +104,9 @@ export default {
             }else if(type == "Rotafolio"){
                 this.pushRuta("Rotafolio", 1);
                 return this.proyecto;
+            }else if(type == "Recorridos"){
+                this.pushRuta("Recorridos", 1);
+                return this.proyecto;
             }else if(type == "ProcesoNegocio"){
                 this.pushRuta("Proceso de Negocio", 1);
                 return this.proyecto;

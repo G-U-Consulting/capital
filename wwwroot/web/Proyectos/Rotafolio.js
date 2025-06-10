@@ -82,7 +82,8 @@ export default {
 
                 res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
                 let grupos = res.data;
-                let modulos = ['imagenes', 'videos', 'recorridos virt', 'avances de obra'];
+                let modulos = ['imagenes', 'videos', 'avances de obra'];
+                if (grupos) grupos = grupos.filter(g => modulos.includes(g.modulo));
                 res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                     { tipo: modulos.join(','), id_proyecto })
 
