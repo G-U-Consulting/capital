@@ -219,7 +219,7 @@
                     pro.img = '/file/S3get/' + res.data[0].llave;
         });
         //TODO - Quitar
-        this.selectProject(this.proyectos[0]);
+        //this.selectProject(this.proyectos[0]);
     },
     methods: {
         async setMainMode() {

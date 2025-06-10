@@ -94,7 +94,7 @@ export default {
                 if(this.ruta.length < 2)
                     this.pushRuta(this.proyecto["nombre"], 2);
                 //TODO Quitar
-                this.setMainMode("Unidades");
+                //this.setMainMode("Unidades");
             } else if(type == "NewProject"){
                 this.pushRuta("Nuevo proyecto", 1);
                 this.proyecto = null;
