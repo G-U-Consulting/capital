@@ -4,4 +4,6 @@
 --START_PARAM
 --END_PARAM
 
-delete a from dim_carrusel_imagenes a;
+delete a from fact_documento_proyecto a where a.tipo = 'Carrusel';
+
+select 'OK' as result;
