@@ -1879,6 +1879,11 @@ div.btn-left-rotafolio img {
   border-radius: 0 0 8px 8px;
 }
 
+.hoverRow:hover{
+    outline: none;
+    background-color: #b3e6ff;
+    cursor: pointer;
+}
 .banco_factor {
   border: 0 !important;
   font-size: 1rem !important;

@@ -8,6 +8,10 @@ Reinicia el servicio de servidor DEV
 ```
 sudo systemctl restart kestrel-capital.service
 ```
+Darle permisos de escritura a los directorios
+```
+sudo chmod -R a+rw /var/www/capital/pub/wwwroot/cache
+```
 ## Add your files
 
 - [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
