@@ -5,12 +5,14 @@
 set
     @id_grupo_img = '',
     @grupo = '',
-    @orden = '0'
+    @orden = '0',
+    @is_active = '0'
 --END_PARAM
 
 UPDATE dim_grupo_img
     SET grupo = @grupo,
-    orden = @orden
+        orden = @orden,
+        is_active = if(@is_active = '0', 0, 1)
     WHERE id_grupo_img = @id_grupo_img;
 
 select 'OK' as result;

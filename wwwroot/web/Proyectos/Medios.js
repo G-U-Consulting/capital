@@ -12,16 +12,21 @@
                 "Avances de obra"
             ],
             tabsIncomplete: [],
+            logoPreview: null,
+            slidePreview: null,
+            plantaPreview: null,
+            previews: [],
+            previewsAvo: [],
             files: [],
             filesAvo:[],
-            draggedFile: null,
-            dragIndex: null,
             videos: [
                 { nombre: '', descripcion: '', link: '' }
             ],
             videosReco: [
                 { nombre: '', descripcion: '', link: '' }
             ],
+            draggedFile: null,
+            dragIndex: null,
             hoveredIndex: null,
             selectedRow: null,
             selectedRowReco: null,
@@ -36,7 +41,6 @@
                 tablaIndex: null,
                 itemIndex: null,
             },
-            
             tooltipVisible: false,
             tooltipX: 0,
             tooltipY: 0,
@@ -48,8 +52,6 @@
                 slide: false,
                 planta: false
             },
-            previews: [],
-            previewsAvo: [],
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
             documentos: [],
             filtros: {
@@ -77,7 +79,60 @@
             ismodulAvo: false,
             S3Files: [],
             videoId: null,
+            previewSrc: null,
+            modalVisible: false,
+            plantaPreviewAll: [],
+
+
+            playIndex: 0,
+            interval: null,
+            time: 8000,
+            stop: false,
+            showBar: true,
+            loading: false,
+
         };
+    },
+    watch: {
+        previewsAvo: {
+            deep: true,
+            handler(newVal) {
+                localStorage.setItem("previewsAvo", JSON.stringify(newVal));
+            }
+        },
+        plantaPreview(val) {
+            this.updatePlantaPreviewAll();
+          },
+          slidePreview(val) {
+            this.updatePlantaPreviewAll();
+          },
+          logoPreview(val) {
+            this.updatePlantaPreviewAll();
+          },
+          previews: {
+            handler(val) {
+              this.updatePlantaPreviewAll();
+            },
+            deep: true
+          },
+          previewsAvo: {
+            handler(val) {
+              this.updatePlantaPreviewAll();
+            },
+            deep: true
+          },
+          videos: {
+            handler(val) {
+              this.updatePlantaPreviewAll();
+            },
+            deep: true
+          },
+          videosReco: {
+            handler(val) {
+              this.updatePlantaPreviewAll();
+            },
+            deep: true
+          }
     },
     computed: {
         tabClasses() {
@@ -91,58 +146,58 @@
             }
           });
         },
+        getPreviewSrc() {
+            return '../../img/ico/youtobe.png';
+        },
+        allItems() {
+            return this.plantaPreviewAll;
+        }
     },
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
-        GlobalVariables.miniModuleCallback("StartMediaMdule", null)
+        GlobalVariables.miniModuleCallback("StartMediaMdule", null);
         this.setSubmode(0);
+        this.updatePlantaPreviewAll();
+
     },
     methods: {
+        updatePlantaPreviewAll() {
+            this.plantaPreviewAll = [
+              { src: this.plantaPreview },
+              { src: this.slidePreview },
+              { src: this.logoPreview },
+              ...(this.previews || []),
+              ...(this.previewsAvo || []),
+              ...(this.videos?.filter(v => v.link) || []),
+              ...(this.videosReco?.filter(v => v.link) || [])
+            ];
+        },
         setMode(mode) {
             this.mode = mode;
              if(mode == 0)
-                 GlobalVariables.miniModuleCallback("StartMediaMdule", null)
+                 GlobalVariables.miniModuleCallback("StartMediaMdule", null);
         },
         async setSubmode(index) {
             this.submode = index;
- 
-            if (index == 0) {
 
-                const resImg = await httpFunc("/generic/genericDT/Medios:Get_variables", {
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    modulo: 'imagenes',
-                });
-                const grupo_img = resImg.data.map(item => item.grupo);
-        
-                const resVid = await httpFunc("/generic/genericDT/Medios:Get_variables", {
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    modulo: 'videos',
-                });
-                const grupo_vid = resVid.data.map(item => item.grupo);
-        
-                const resVir = await httpFunc("/generic/genericDT/Medios:Get_variables", {
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    modulo: 'Recorridos virt',
-                });
-                const grupo_vir = resVir.data.map(item => item.grupo);
-        
-                await this.construirTablas(grupo_img, grupo_vid, grupo_vir);
+            if (index === 0) {
+                const grupo_img = await this.actualizarDatos('imagenes');
+                const grupo_vid = await this.actualizarDatos('videos');
+                const grupo_vir = await this.actualizarDatos('Recorridos virt');
+                const grupo_avo = await this.actualizarDatos('avances de obra');
 
-                const resAvo = await httpFunc("/generic/genericDT/Medios:Get_variables", {
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    modulo: 'avances de obra',
-                });
-                const grupo_avo = resAvo.data.map(item => item.grupo);
-        
-                await this.construirTablas(grupo_img, grupo_vid, grupo_vir,grupo_avo);
-               
+                await this.construirTablas(grupo_img, grupo_vid, grupo_vir, grupo_avo);
             }
-        
+            if (index == 1) {
+                this.loadImg()
+                return;
+            }
             this.modeimg = true;
             this.modeAvo = true;
             this.modevid = true;
             this.modevir = true;
             const modulos = {
+                1: 'principal',
                 2: 'imagenes',
                 3: 'videos',
                 4: 'recorridos virt',
@@ -172,31 +227,31 @@
                 {
                     titulo: 'Imágenes Principales',
                     datos: ['Logo', 'Slide ', 'Planta General Termómetro'],
-                    activo: false,
+                    activo: true,
                     error: false
                 },
                 {
                     titulo: 'Agrupamiento de Imágenes de Proyecto',
                     datos: grupo_img,
-                    activo: true,
+                    activo: false,
                     error: false
                 },
                 {
                     titulo: 'Agrupamiento de Vídeos de Proyecto',
                     datos: grupo_vid,
-                    activo: true,
+                    activo: false,
                     error: true
                 },
                 {
                     titulo: 'Agrupamiento de Recorridos Virtuales',
                     datos: grupo_vir,
-                    activo: true,
+                    activo: false,
                     error: false
                 },
                 {
                     titulo: 'Periodos de Avances de obra',
                     datos: grupo_avo,
-                    activo: true,
+                    activo: false,
                     error: false
                 }
             ];
@@ -436,10 +491,7 @@
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
         },
-        async selectItem(tablaIdx, itemIdx) {
-            this.selected.tablaIndex = tablaIdx;
-            this.selected.itemIndex = itemIdx;
-        },
+  
         async moveRow(direction) {
             const { tablaIndex, itemIndex } = this.selected;
             if (tablaIndex === null || itemIndex === null) return;
@@ -490,19 +542,26 @@
             }
             this.editando = { tablaIndex: null, itemIndex: null };
         },
-        selectItem(i, j) {
-            const tabla = this.tablas[i];
-            if (tabla.titulo === 'General de C. Capital' || tabla.activo) return;
-
-            this.selected.tablaIndex = i;
-            this.selected.itemIndex = j;
-
-            this.editando.tablaIndex = i;
-            this.editando.itemIndex = j;
-
-            this.$nextTick(() => {
-                this.$refs.editInput?.focus?.();
-            });
+        // selectItem(i, j) {
+        //     const tabla = this.tablas[i];
+        //     if (tabla.titulo === 'General de C. Capital' || tabla.activo) return;
+        
+        //     this.selected.tablaIndex = i;
+        //     this.selected.itemIndex = j;
+        
+        //     this.editando.tablaIndex = i;
+        //     this.editando.itemIndex = j;
+        
+        //     this.$nextTick(() => {
+        //         this.$refs.editInput?.focus?.();
+        //     });
+        // },
+        selectItem(tablaIndex, itemIndex) {
+            const tabla = this.tablas[tablaIndex];
+            console.log(tabla.titulo, tabla.activo);
+            if (tabla.titulo === 'Agrupaciones Generales' ||  tabla.titulo === 'Imágenes Principales' || tabla.activo) return;
+            this.selected.tablaIndex = tablaIndex;
+            this.selected.itemIndex = itemIndex;
         },
         onItemEditFinish(i, j) {
             this.editando.tablaIndex = null;
@@ -622,9 +681,7 @@
         configclearAllImages(){
             showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
         },
-
         //////////////////////////////////////
-
         async uploadFiles() {
             const form = new FormData();
            
@@ -661,9 +718,6 @@
                 this.S3UploadFiles();
             }
         },
-
-///////////////////////////////////
-
         async S3UploadFiles() {
             const getFile = (f) => f instanceof File ? f : f?.file || null;
            
@@ -678,6 +732,8 @@
             const folderMap = {
                 1: 'principal',
                 2: 'imagenes',
+                3: 'videos',
+                4: 'recorridos virt',
                 5: 'avances de obra'
             };
 
@@ -759,8 +815,6 @@
             await this.loadImg();
             hideProgress();
         },
-////////////////////////////////////
-
         async loadImg() {
             const folderMap = {
                 1: 'principal',
@@ -890,7 +944,6 @@
                 }
             }
         },
-        
         async fetchImageAsBlob(url) {
             try {
                 const response = await fetch(url);
@@ -902,21 +955,24 @@
             }
         },
         clearAllImages() {
-            this.logoPreview = null;
             this.logoFile = null;
-            this.slidePreview = null;
             this.slideFile = null;
-            this.plantaPreview = null;
             this.plantaFile = null;
-            this.previews = [];
             this.files = [];
-            this.previewsAvo = [];
             this.filesAvo = [];
+            this.previews = [];
+            this.previewsAvo = [];
+            // this.logoPreview = null;
+            // this.slidePreview = null;
+            // this.plantaPreview = null;
+            
         },
         async GrupUploadFiles() {
-            const folderMap = {
+            const folderMap = { 
                 1: 'principal',
                 2: 'imagenes',
+                3: 'videos',
+                4: 'recorridos virt',
                 5: 'avances de obra'
             };
 
@@ -957,7 +1013,6 @@
         },
         checkAndLoad() {
 
-              
             switch (this.submode) {
                 case 2:
                     this.selectedGrupoId = this.selectImg;
@@ -1020,13 +1075,12 @@
                 hideProgress();
             }
         },
-  
         async crearGrupoReco() {
             try {
                 showProgress();
 
                 const res = await httpFunc("/generic/genericDT/Medios:Ins_Grupos", {
-                    grupo: this.newGrupVid,
+                    grupo: this.newGrupReco,
                     orden: 5,
                     id_proyecto: GlobalVariables.id_proyecto,
                     modulo: 'recorridos virt'
@@ -1176,5 +1230,176 @@
         closeVideo() {
             this.videoId = null;
         },
+        async openPrevi() {
+            this.modalVisible = true;
+            history.pushState(null, "", "#modal-carrusel");
+            var tag = document.createElement("script");
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName("script")[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            if (this.allItems.length) this.resetInterval();
+        },
+        closePrevi() {
+            this.modalVisible = false;
+            history.pushState(null, "", window.location.pathname);
+        },
+
+        /////////////////////////////////////////////////////
+
+        // fullScreen() {
+        //     let cont = document.getElementById("cont-rotafolio");
+            
+        //     if (cont.requestFullscreen) {
+        //         cont.requestFullscreen();
+        //     } else if (cont.mozRequestFullScreen) {
+        //         cont.mozRequestFullScreen();
+        //     } else if (cont.webkitRequestFullscreen) {
+        //         cont.webkitRequestFullscreen();
+        //     } else if (cont.msRequestFullscreen) {
+        //         cont.msRequestFullscreen();
+        //     }
+        // },
+        async setTime() {
+            let res = await httpFunc('/generic/genericDT/General:Get_Variable', {nombre_variable: 'CarDurac'});
+            if (res.data.length && res.data[0].valor) 
+                this.time = parseFloat(res.data[0].valor.replace(',','.')) * 1000;
+        },
+        isImage(item) {
+            this.setTime()
+            const valueToCheck = item?.content || item?.url;
+            const isBase64 = item?.src?.startsWith('data:image/');
+          
+            return item && (typeof valueToCheck === 'string' && valueToCheck.match(/\.(jpeg|jpg|png|gif)$/i) || isBase64);
+          },
+        isVideo(item) {
+            return item && (item.previewSrc || item.videoUrl)?.includes('youtube.com');
+        },
+        formatURL(url) {
+            try {
+                const urlObj = new URL(url);
+                if (urlObj.hostname.includes("youtube.com") && urlObj.searchParams.has("v")) {
+                    return `https://www.youtube.com/embed/${urlObj.searchParams.get("v")}?autoplay=1&enablejsapi=1&mute=1`;
+                } else if (urlObj.hostname.includes("youtu.be")) {
+                    return `https://www.youtube.com/embed/${urlObj.pathname.slice(1)}?autoplay=1&enablejsapi=1&mute=1`;
+                }
+                return url;
+            } catch (e) {
+                return '';
+            }
+        },
+        initVideo() {
+            // inicialización opcional para videos YouTube embebidos
+        },
+        play() {
+            this.fullScreen();
+            this.resetInterval();
+        },
+        pause() {
+            if (this.interval) clearInterval(this.interval);
+            this.interval = null;
+            this.stop = true;
+        },
+        setIndex(i) {
+            if (!this.allItems.length) return;
+            this.playIndex = (this.playIndex + i + this.allItems.length) % this.allItems.length;
+            this.resetInterval();
+        },
+        resetInterval() {
+            if (this.interval) clearInterval(this.interval);
+            this.interval = setInterval(() => {
+                this.playIndex = (this.playIndex + 1) % this.allItems.length;
+            }, this.time);
+            this.stop = false;
+        },
+        getImageUrl(item) {
+            if (item.src) return item.src;
+            if (item.llave) return `/file/S3get/${item.llave}`;
+            return '';
+        },
+        setShowBar() {
+            if (!this.cont) this.cont = document.getElementById('cont-rotafolio');
+            this.showBar = true;
+            this.timeout && clearTimeout(this.timeout);
+            this.cont.style.cursor = 'auto';
+            this.timeout = setTimeout(() => {
+                this.showBar = false;
+                this.cont.style.cursor = 'none';
+            }, 2500);
+        },
+        async actualizarDatos(modulo) {
+            try {
+                const response = await httpFunc("/generic/genericDT/Medios:Get_variables", {
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    modulo: modulo
+                });
+
+                if (response.isError || !response.data) {
+                    console.error(`Error al actualizar datos para el módulo: ${modulo}`);
+                    return [];
+                }
+
+                return response.data.map(item => item.grupo);
+            } catch (error) {
+                console.error(`Error inesperado al actualizar datos para el módulo: ${modulo}`, error);
+                return [];
+            }
+        },
+        async guardarCambios() {
+            try {
+                const folderMap = {
+                    'Agrupamiento de Imágenes de Proyecto': 'imagenes',
+                    'Agrupamiento de Vídeos de Proyecto': 'videos',
+                    'Agrupamiento de Recorridos Virtuales': 'recorridos virt',
+                    'Periodos de Avances de obra': 'avances de obra'
+                };
+
+                for (const tabla of this.tablas) {
+                    if (tabla.titulo === 'Agrupaciones Generales' || tabla.titulo === 'Imágenes Principales') {
+                        continue;
+                    }
+
+                    const modulo = folderMap[tabla.titulo] || 'general';
+                    const datos = tabla.datos.map((grupo, index) => ({
+                        grupo: grupo,
+                        orden: index,
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        modulo: modulo,
+                        is_active: tabla.activo
+                    }));
+
+                    showProgress();
+                    const resp = await httpFunc("/generic/genericST/Medios:Del_variables", {
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        modulo: modulo
+                    });
+
+                    for (const dato of datos) {
+                        const response = await httpFunc("/generic/genericST/Medios:Ins_Grupos", {
+                            grupo: dato.grupo,
+                            orden: dato.orden,
+                            id_proyecto: dato.id_proyecto,
+                            modulo: dato.modulo,
+                            is_active: dato.is_active
+                        });
+
+                        if (response.isError) {
+                            console.error(`Error al guardar el grupo "${dato.grupo}" en el módulo "${dato.modulo}" con orden ${dato.orden}`);
+                            showMessage(`Error al guardar el grupo "${dato.grupo}" en el módulo "${dato.modulo}" con orden ${dato.orden}`);
+                            hideProgress();
+                            return false;
+                        }
+                    }
+                }
+                hideProgress();
+                showMessage("Grupos y órdenes guardados correctamente.");
+                return true;
+            } catch (error) {
+                console.error("Error inesperado al guardar grupos y órdenes:", error);
+                showMessage("Error inesperado al guardar grupos y órdenes.");
+                return false;
+            }
+        },
+        
     }
 };

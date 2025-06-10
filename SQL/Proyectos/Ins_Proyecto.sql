@@ -18,6 +18,7 @@ set
     @dias_pago_ci_banco_no_amigo = '',
     @email_cotizaciones = '',
     @meta_ventas = '',
+    @email_coord_sala = '',
     @id_pie_legal = 0,
     @id_tipo_financiacion = 0,
     @id_tipo_vis = 0,
@@ -78,6 +79,7 @@ insert into fact_proyectos (
     dias_pago_ci_banco_no_amigo,
     email_cotizaciones,
     meta_ventas,
+    email_coord_sala,
     id_pie_legal,
     id_tipo_vis,
 
@@ -132,6 +134,7 @@ select
     @dias_pago_ci_banco_no_amigo,
     @email_cotizaciones,
     @meta_ventas,
+    @email_coord_sala,
     nullif(@id_pie_legal, 0),
     nullif(@id_tipo_vis, 0),
 

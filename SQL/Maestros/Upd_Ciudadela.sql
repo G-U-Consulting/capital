@@ -4,15 +4,13 @@
 --START_PARAM
 set
     @id_ciudadela = '',
-    @ciudadela = ''
+    @ciudadela = '',
+    @is_active
 --END_PARAM
 
-IF NOT EXISTS (SELECT 1 FROM dim_ciudadela WHERE ciudadela = @ciudadela) THEN
-    UPDATE dim_ciudadela
-    SET ciudadela = @ciudadela
+UPDATE dim_ciudadela
+    SET ciudadela = @ciudadela,
+        is_active = if(@is_active = '0', 0, 1)
     WHERE id_ciudadela = @id_ciudadela;
-ELSE
-    SELECT 'La ciudadela ya existe' AS result;
-END IF;
 
 select 'OK' as result;

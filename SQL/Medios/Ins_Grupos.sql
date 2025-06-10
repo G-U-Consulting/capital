@@ -4,22 +4,25 @@
 --START_PARAM
 set @grupo = '',
     @orden = 0,
-    @id_proyecto = 0,
-    @modulo = '';
+    @id_proyecto = 1,
+    @modulo = '',
+    @is_active = false;
 --END_PARAM
 
 insert into dim_grupo_proyecto (
     grupo,
     orden,
     id_proyecto,
-    modulo
+    modulo,
+    is_active
 ) values (
     @grupo,
     @orden,
     @id_proyecto,
-    @modulo
+    @modulo,
+    @is_active
 );
 
--- resultado
+
 select CONCAT(last_insert_id()) as result;
 

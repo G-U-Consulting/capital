@@ -52,22 +52,22 @@ export default {
             quills: {},
 
             filtros: {
-                gruposImg: {},
+                gruposImg: { is_active: '' },
                 mediosPublicitarios: { id_categoria: '', is_active: '' },
-                categoriasMedios: {},
-                ciudadelas: {},
-                bancos: {},
-                fiduciarias: {},
-                zonasProyectos: {},
-                instructivos: {},
-                pies_legales: {},
-                tramites: {},
-                documentos: {is_img: '0'},
-                tipos_financiacion: {},
-                tipos_proyecto: {},
-                estados_proyecto: {},
-                tipos_vis: {},
-                subsidios: {},
+                categoriasMedios: { is_active: '' },
+                ciudadelas: { is_active: '' },
+                bancos: { is_active: '' },
+                fiduciarias: { is_active: '' },
+                zonasProyectos: { is_active: '' },
+                instructivos: { is_active: '' },
+                pies_legales: { is_active: '' },
+                tramites: { is_active: '' },
+                documentos: { is_img: '0',  is_active: '' },
+                tipos_financiacion: { is_active: '' },
+                tipos_proyecto: { is_active: '' },
+                estados_proyecto: { is_active: '' },
+                tipos_vis: { is_active: '' },
+                subsidios: { is_active: '' },
             },
 
             tooltipVisible: false,
@@ -148,7 +148,7 @@ export default {
                 if (resp.data === "OK") this.setMode(0);
                 else throw resp;
             } catch (e) {
-                console.log(e);
+                console.error(e);
             }
         },
         async onCreateBanco() {
@@ -183,26 +183,25 @@ export default {
             }
         },
         async onSaveSubsidio() {
-            let name = this.subImg 
-                ? `subsidio_${this.mode == 1 ? '#' : this.subsidio.id_subsidio}.${this.subImg.name.split(".").pop()}` 
-                : null;
-            let resp = {};
             showProgress();
             try {
                 let sub = { ...this.subsidio };
-                if (name) sub.imagen = `/img/subsidio/${name}`;
-                resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Subsidio`, sub, this.mode == 1);
-                if (resp.data === "OK" && this.subImg) {
-                    let file = this.subImg;
-                    const newFile = new File([file], resp.id ? name.replace('#', resp.id) : name, { type: file.type });
-                    const formData = new FormData();
-                    formData.append("file", newFile);
-                    resp = await httpFunc("/api/uploadfile/subsidio", formData);
+                if (this.subImg) {
+                    let form = new FormData();
+                    form.append(this.subImg.name, this.subImg);
+                    let res = await httpFunc("/file/upload", form);
+                    let s3res = null;
+                    if (res.isError) showMessage(res.errorMessage);
+                    else s3res = await httpFunc("/file/S3upload", res.data);
+                    if (s3res && !s3res.isError && s3res.data.length) 
+                        sub.imagen = s3res.data[0].CacheKey;
                 }
-                else if (resp.data !== "OK") throw resp;
-                this.setMode(0);
+                let resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Subsidio`, 
+                    sub, this.mode == 1);
+                if (resp.data === "OK") this.setMode(0);
+                else throw resp;
             }
-            catch (e) {
+            catch(e) {
                 console.error(e);
             }
             hideProgress();
@@ -230,6 +229,7 @@ export default {
         async onSaveDocument() {
             showProgress();
             try {
+                this.documento.is_img = '0';
                 let resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Documento`, this.documento, this.mode == 1),
                     id_doc = this.mode == 1 ? resp.id : this.documento.id_documento;
                 if (resp.data === "OK" && id_doc) {
@@ -272,23 +272,23 @@ export default {
             id_doc && this.loadFiles(id_doc, folder);
         },
         getItem() {
-            if (this.mainmode == 3) return [this.grupoImg, "GrupoImg"];
-            if (this.mainmode == 4) return [this.categoriaMedio, "Categoria"];
-            if (this.mainmode == 5) return [this.medioPublicitario, "Medio"];
-            if (this.mainmode == 6) return [this.banco, "Banco"];
-            if (this.mainmode == 7) return [this.fiduciaria, "Fiduciaria"];
-            if (this.mainmode == 8) return [this.zonaProyecto, "ZonaProyecto"];
-            if (this.mainmode == 9) return [this.ciudadela, "Ciudadela"];
-            if (this.mainmode == 10) return [this.instructivo, "Instructivo"];
-            if (this.mainmode == 11) return [this.pie_legal, "PieLegal"];
-            if (this.mainmode == 12) return [this.tramite, "Tramite"];
-            if (this.mainmode == 13) return [this.documento, "Documento"];
-            if (this.mainmode == 14) return [this.subsidio, "Subsidio"];
-            if (this.mainmode == 15) return [this.tipo_financiacion, "TipoFinanciacion"];
-            if (this.mainmode == 16) return [this.tipo_proyecto, "TipoProyecto"];
-            if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto"];
-            if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS"];
-            if (this.mainmode == 19) return [{}, "Email"];
+            if (this.mainmode == 3) return [this.grupoImg, "GrupoImg", this.gruposImg];
+            if (this.mainmode == 4) return [this.categoriaMedio, "Categoria", this.categoriasMedios];
+            if (this.mainmode == 5) return [this.medioPublicitario, "Medio", this.mediosPublicitarios];
+            if (this.mainmode == 6) return [this.banco, "Banco", this.bancos];
+            if (this.mainmode == 7) return [this.fiduciaria, "Fiduciaria", this.fiduciarias];
+            if (this.mainmode == 8) return [this.zonaProyecto, "ZonaProyecto", this.zonasProyectos];
+            if (this.mainmode == 9) return [this.ciudadela, "Ciudadela", this.ciudadelas];
+            if (this.mainmode == 10) return [this.instructivo, "Instructivo", this.instructivos];
+            if (this.mainmode == 11) return [this.pie_legal, "PieLegal", this.pies_legales];
+            if (this.mainmode == 12) return [this.tramite, "Tramite", this.tramites];
+            if (this.mainmode == 13) return [this.documento, "Documento", this.documentos];
+            if (this.mainmode == 14) return [this.subsidio, "Subsidio", this.subsidios];
+            if (this.mainmode == 15) return [this.tipo_financiacion, "TipoFinanciacion", this.tipos_financiacion];
+            if (this.mainmode == 16) return [this.tipo_proyecto, "TipoProyecto", this.tipos_proyecto];
+            if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto", this.estados_proyecto];
+            if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS", this.tipos_vis];
+            if (this.mainmode == 19) return [{}, "Email", this.emails];
             return null;
         },
         getMainPath() {
@@ -335,7 +335,7 @@ export default {
                 window.open("./docs/" + archivo, "_blank");
             }
             catch (e) {
-                console.log(e);
+                console.error(e);
             }
             hideProgress();
         },
@@ -652,7 +652,26 @@ export default {
                 }
             });
             hideProgress();
-        }
+        },
+        async toggleState(item) {
+            item.is_active = item.is_active == '0' ? '1' : '0';
+            await httpFunc(`/generic/genericST/Maestros:Upd_${this.getItem()[1]}`, item);
+        },
+        async deleteItem(item) {
+            let list = this.getItem()[2],
+                key = Object.keys(item).filter(k => k.includes('id_'))[0],
+                index = list.findIndex(i => i[key] === item[key]),
+                res = await httpFunc(`/generic/genericST/Maestros:Del_${this.getItem()[1]}`, item);
+            if (res.data === 'OK' && index !== -1) list.splice(index, 1);
+            else {
+                let msg = res.errorMessage || ''; 
+                showMessage(msg.includes('foreign key constraint fails') 
+                    ? 'Error: No fue posible eliminar el registro.\nDatos en uso' : msg);
+            }
+        },
+        async requestDelete(item) {
+            showConfirm("Se eliminará permanentemente.", this.deleteItem, null, item);
+        },
     },
     computed: {
         f_smmlv: {

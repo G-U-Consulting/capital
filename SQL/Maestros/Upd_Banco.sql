@@ -4,15 +4,13 @@
 --START_PARAM
 set
     @id_banco = '',
-    @banco = ''
+    @banco = '',
+    @is_active = '0'
 --END_PARAM
 
-IF NOT EXISTS (SELECT 1 FROM dim_banco_constructor WHERE banco = @banco) THEN
-    UPDATE dim_banco_constructor
-    SET banco = @banco
+UPDATE dim_banco_constructor
+    SET banco = @banco,
+        is_active = if(@is_active = '0', 0, 1)
     WHERE id_banco = @id_banco;
-ELSE
-    SELECT 'El banco ya existe' AS result;
-END IF;
 
 select 'OK' as result;

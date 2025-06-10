@@ -264,12 +264,14 @@ cross join
 
 create table dim_grupo_img(
 	id_grupo_img int primary key auto_increment,
+	is_active bit default 1,
 	grupo varchar(50) not null unique,
 	orden int not null
 );
 create table dim_instructivo(
 	id_instructivo int primary key auto_increment,
 	instructivo varchar(50) not null unique,
+	is_active bit default 1,
 	procedimiento text,
 	documentacion_cierre text,
 	notas text
@@ -321,6 +323,7 @@ insert into dim_tramite(tramite) values('Subsidio');
 
 create table dim_subsidio_vis(
 	id_subsidio int primary key auto_increment,
+	is_active bit default 1,
 	periodo int not null unique,
 	smmlv decimal(20,2) not null,
 	smmlv_0_2 decimal(20,2) not null,
@@ -376,6 +379,7 @@ create table dim_grupo_proyecto(
 	orden int not null,
 	id_proyecto int,
 	modulo varchar(200), -- ('imagenes','videos','recorridos','obras')
+	is_active bit default 1,
 	constraint fk_id_proyecto foreign key(id_proyecto) references fact_proyectos(id_proyecto),
 	unique(grupo, id_proyecto)
 );
@@ -389,3 +393,13 @@ begin
 	insert into dim_grupo_proyecto(grupo, orden, id_proyecto, modulo)
 	select dg.grupo, dg.orden, new.id_proyecto as id_proyecto, 'imagenes' from dim_grupo_img dg;
 end;
+
+create table dim_preferencias_usuario(
+	id int primary key auto_increment,
+	id_usuario int,
+	created_on datetime default current_timestamp,
+	nombre varchar(200) not null,
+	valor text not null,
+	constraint fk_id_usuario_preferencia foreign key(id_usuario) references fact_usuarios(id_usuario),
+	constraint unique_usuario_preferencia unique(id_usuario, nombre)
+);

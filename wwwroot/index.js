@@ -14,7 +14,8 @@ var GlobalVariables = {
     passwordPolicy: null,
     zonaActual: null,
     showModules: null,
-    id_proyecto: null
+    id_proyecto: null,
+    getPreferences: null,
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null, mvm = null;
@@ -76,6 +77,7 @@ mainVue = {
             if (e.state != null && e.state.moduleName != null)
                 this.loadModule(e.state.moduleName);
         }.bind(this);
+        GlobalVariables.getPreferences = this.getPreferences;
     },
     methods: {
         async loadModule(name, inputParameter) {
@@ -251,6 +253,22 @@ mainVue = {
                 }
             } catch (error) {
                 console.log("Error al obtener datos de Seguridad:Get_Seguridad:", error);
+            }
+        },
+        async getPreferences(nombre, oneresult) {
+            try {
+                let preferences = {}, 
+                    params = { usuario: GlobalVariables.username };
+                nombre && (params['nombre'] = nombre);
+                let data = (await httpFunc("/generic/genericDT/Usuarios:Get_Preferencias", params)).data;
+                if (data && nombre && oneresult && !nombre.includes(','))
+                    return data[0] ? data[0].valor : null;
+                data.forEach(p => preferences[p.nombre] = p.valor);
+                return preferences;
+            }
+            catch (e) {
+                console.log("Error al obtener preferencias de usuario:", error);
+                return {};
             }
         }
     }

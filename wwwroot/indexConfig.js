@@ -74,6 +74,11 @@
         jsUrl: "./web/Proyectos/Rotafolio.js",
         allow: ["*"]
     },
+    "ProcesoNegocio": {
+        templateUrl: "./web/Proyectos/ProcesoNegocio.html",
+        jsUrl: "./web/Proyectos/ProcesoNegocio.js",
+        allow: ["*"]
+    },
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",

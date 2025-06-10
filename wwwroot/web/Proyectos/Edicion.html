@@ -30,7 +30,7 @@
         </div>
         <div>
 
-            <div class="main-content" v-if="viewTable">
+            <div class="main-content" v-if="viewMode == 'Tabla'">
                 <table class="dataTable">
                     <thead>
                         <tr>
@@ -55,7 +55,7 @@
                 </table>
             </div>
 
-            <div class="main-content matrix-cont" v-else>
+            <div class="main-content matrix-cont" v-if="viewMode == 'Matriz'">
                 <div class="item-matrix" v-for="item in getFilteredList('proyectos')" @click="selectProject(item,'portada');">
                     <div class="img-matrix">
                         <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
@@ -69,18 +69,16 @@
         </div>
     </div>
     <div class="pure-u-2-24"></div>
-    <div class="pure-u-10-24">
-        <div class="radio-group">
-            <input type="radio" name="view" id="view-table" v-model="viewTable" :value="true">
-            <label for="view-table">
-                <img src="../../img/ico/Tabla.jpg"> 
-                <span>Ver Tabla</span>
-            </label>
-            <input type="radio" name="view" id="view-matrix" v-model="viewTable" :value="false">
-                <label for="view-matrix"><img src="../../img/ico/Matriz.png">
-                <span>Ver Matriz</span>
-            </label>
-            
+    <div class="pure-u-20-24">
+        <div class="btn-view-group">
+            <div class="radio-group">
+                <input type="radio" name="view" id="view-table" :checked="viewMode == 'Tabla'"
+                    @click="updateViewMode('Tabla')" />
+                <label for="view-table"><span>Ver Tabla</span></label>
+                <input type="radio" name="view" id="view-matrix" :checked="viewMode == 'Matriz'"
+                    @click="updateViewMode('Matriz')" />
+                <label for="view-matrix"><span>Ver Matriz</span></label>
+            </div>
         </div>
     </div>
 </div>
@@ -297,7 +295,7 @@
             <!--Fin TODO-->
             <!--TODO Acabados y reformas-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Acabados y reformas
+                Permitir acabados y reformas
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
@@ -395,6 +393,12 @@
                 <div class='formInputStandard'>
                     <span>Meta VentasUnidades / Mes</span>
                     <input type='number' v-model='objProyecto.meta_ventas' maxlen='100' v-bind:class="{errorInput:casoValidator.meta_ventas != null}" />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-4'>
+                <div class='formInputStandard'>
+                    <span>Email Coordinación de Sala</span>
+                    <input type='text' v-model='objProyecto.email_coord_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.coord_sala != null}" />
                 </div>
             </div>
             <!--<div class='pure-u-1-1 pure-u-md-1-4'>
@@ -1009,7 +1013,7 @@
             <!--Fin TODO-->
             <!--TODO Acabados y reformas-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Acabados y reformas
+                Permitir acabados y reformas
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
@@ -1107,6 +1111,12 @@
                 <div class='formInputStandard'>
                     <span>Meta VentasUnidades / Mes</span>
                     <input type='number' v-model='editObjProyecto.meta_ventas' maxlen='100' />
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-4'>
+                <div class='formInputStandard'>
+                    <span>Email Coordinación de Sala</span>
+                    <input type='text' v-model='editObjProyecto.email_coord_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.coord_sala != null}" />
                 </div>
             </div>
             <!--<div class='pure-u-1-1 pure-u-md-1-4'>
