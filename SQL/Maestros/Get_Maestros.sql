@@ -80,7 +80,7 @@ select id_sala_venta, sala_venta, encuesta_vpn, is_active
 from dim_sala_venta
 order by sala_venta;
 
-select id_factor, factor from dim_factor;
+select id_factor, factor, unidad from dim_factor order by id_factor;
 select id_tipo_factor, tipo_factor from dim_tipo_factor;
 
 select id_banco, id_factor, id_tipo_factor, valor from dim_banco_factor;

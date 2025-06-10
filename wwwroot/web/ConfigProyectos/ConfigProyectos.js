@@ -39,6 +39,7 @@ export default {
             documento: {},
             factor: {},
             banco_factor: {},
+            copy_bf: {},
             tipo_financiacion: {},
             tipo_proyecto: {},
             estado_proyecto: {},
@@ -133,17 +134,26 @@ export default {
             if (this.mainmode == 11) this.pieEditor = 1;
             if (this.mainmode == 12) this.traEditor = 1;
         },
-        onSelectFactor(selected) {
-            this.setMode(3);
-            Object.keys(selected).forEach((key) => (this.factor[key] = selected[key]));
-            const bfs = this.bancos_factores.filter((bf) =>
-                bf.id_banco == this.banco.id_banco && bf.id_factor == this.factor.id_factor);
-            this.banco_factor = {};
-            bfs.forEach((bf) => (this.banco_factor[bf.id_tipo_factor] = bf));
+        async onSelectBanco(selected) {
+            this.setMode(2);
+            this.banco = {...selected};
+            const bfs = {};
+            const cbfs = {};
+            this.tipos_factor.forEach(tf => {
+                let obj = {}, cobj = {};
+                this.factores.forEach(f => {
+                    obj[f.id_factor] = this.bancos_factores.filter(bf => bf.id_banco == selected.id_banco && bf.id_tipo_factor == tf.id_tipo_factor && bf.id_factor == f.id_factor)[0];
+                    cobj[f.id_factor] = {...obj[f.id_factor]};
+                });
+                bfs[tf.id_tipo_factor] = obj;
+                cbfs[tf.id_tipo_factor] = cobj;
+            });
+            this.banco_factor = bfs;
+            this.copy_bf = cbfs;
         },
         async onSave() {
             let [item, itemname] = this.getItem();
-            if (this.mainmode == 5) item["is_active"] = this.medioIsActive ? 1 : null;
+            if (this.mainmode == 5) item["is_active"] = this.medioIsActive ? '1' : '0';
             try {
                 showProgress();
                 const resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_${itemname}`, item);
@@ -155,37 +165,50 @@ export default {
                 console.error(e);
             }
         },
-        async onCreateBanco() {
+        async onUpdateFactor() {
             showProgress();
+            const bf = this.banco_factor, cbf = this.copy_bf;
+            let error = false, errormsg = '', bfs = [];
+            for (const id_tf in bf) 
+                for (const id_f in bf[id_tf]) 
+                    if (bf[id_tf][id_f].valor != cbf[id_tf][id_f].valor)
+                        bfs.push(bf[id_tf][id_f]);
+            await Promise.all(bfs.map(async bf => await httpFunc(`/generic/genericST/Maestros:Upd_BancoFactor`, bf)))
+                .then(res => {
+                    let err = res.filter(r => r.isError);
+                    if (err && err.length) {
+                        error = true;
+                        errormsg ||= err[0].errorMessage;
+                    }
+                })
+                .catch(e => console.error(e));
+            hideProgress();
+            if (error) {
+                console.error(errormsg);
+                showMessage("Error: " + errormsg);
+                this.mode = 2;
+                this.setRuta();
+            } else {
+                this.mode = 0;
+                this.setRuta();
+            }
+        },
+        async onSaveBanco() {
             try {
                 showProgress();
-                const resp = await httpFunc(`/generic/genericST/Maestros:Ins_Banco`, this.banco, true);
-                if (resp.data === "OK" && resp.id) {
-                    this.banco.id_banco = resp.id;
-                    this.loadData();
-                    this.mode = 2;
-                    this.setRuta();
+                const resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Banco`, this.banco, this.mode == 1);
+                hideProgress();
+                if (resp.data === "OK") {
+                    if (this.mode == 1) {
+                        let banco = {...this.banco, id_banco: resp.id };
+                        await this.loadData();
+                        await this.onSelectBanco(banco);
+                    } else await this.onUpdateFactor();
                 }
                 else throw resp;
-                hideProgress();
             } catch (e) {
                 if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
-            }
-            hideProgress();
-        },
-        async onUpdateFactor() {
-            showProgress();
-            const bf = this.banco_factor;
-            let error = false;
-            for (const key in bf) {
-                let resp = await httpFunc(`/generic/genericST/Maestros:Upd_BancoFactor`, bf[key]);
-                if (resp.data !== "OK") error = true;
-            }
-            hideProgress();
-            if (!error) {
-                this.mode = 2;
-                this.setRuta();
             }
         },
         async onSaveSubsidio() {

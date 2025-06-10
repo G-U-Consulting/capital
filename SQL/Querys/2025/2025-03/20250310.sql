@@ -210,21 +210,23 @@ values
 
 create table dim_factor(
 	id_factor int auto_increment primary key,
-	factor varchar(50) not null
+	factor varchar(50) not null,
+	unidad VARCHAR(50) not null,
+	constraint unique_factor_unidad unique(factor, unidad)
 );
 
-insert into dim_factor(factor) values('Factores por millón 5 años (PESOS)');
-insert into dim_factor(factor) values('Factores por millón 10 años (PESOS)');
-insert into dim_factor(factor) values('Factores por millón 15 años (PESOS)');
-insert into dim_factor(factor) values('Factores por millón 20 años (PESOS)');
-insert into dim_factor(factor) values('Factores por millón 25 años (PESOS)');
-insert into dim_factor(factor) values('Factores por millón 30 años (PESOS)');
-insert into dim_factor(factor) values('Factores por millón 5 años (UVR)');
-insert into dim_factor(factor) values('Factores por millón 10 años (UVR)');
-insert into dim_factor(factor) values('Factores por millón 15 años (UVR)');
-insert into dim_factor(factor) values('Factores por millón 20 años (UVR)');
-insert into dim_factor(factor) values('Factores por millón 25 años (UVR)');
-insert into dim_factor(factor) values('Factores por millón 30 años (UVR)');
+insert into dim_factor(factor) values('5 años', 'COP');
+insert into dim_factor(factor) values('10 años', 'COP');
+insert into dim_factor(factor) values('15 años', 'COP');
+insert into dim_factor(factor) values('20 años', 'COP');
+insert into dim_factor(factor) values('25 años', 'COP');
+insert into dim_factor(factor) values('30 años', 'COP');
+insert into dim_factor(factor) values('5 años', 'UVR');
+insert into dim_factor(factor) values('10 años', 'UVR');
+insert into dim_factor(factor) values('15 años', 'UVR');
+insert into dim_factor(factor) values('20 años', 'UVR');
+insert into dim_factor(factor) values('25 años', 'UVR');
+insert into dim_factor(factor) values('30 años', 'UVR');
 
 create table dim_tipo_factor(
 	id_tipo_factor int primary key auto_increment,
@@ -233,8 +235,8 @@ create table dim_tipo_factor(
 
 insert into dim_tipo_factor(tipo_factor) values('VIS');
 insert into dim_tipo_factor(tipo_factor) values('NO VIS');
-insert into dim_tipo_factor(tipo_factor) values('VIS + Certificado EDGE');
-insert into dim_tipo_factor(tipo_factor) values('NO VIS + Certificado EDGE');
+insert into dim_tipo_factor(tipo_factor) values('VIS + EDGE');
+insert into dim_tipo_factor(tipo_factor) values('NO VIS + EDGE');
 
 create table dim_banco_factor(
 	id_banco_factor int primary key auto_increment,
