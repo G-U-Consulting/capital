@@ -159,22 +159,23 @@
                 if (!this.tablas[1].activo) {
                     if (this.slidePreview) items.push({ src: this.slidePreview });
                     if (this.logoPreview) items.push({ src: this.logoPreview });
+                    if (this.plantaPreview) items.push({ src: this.plantaPreview });
                 }
 
                 if (this.tablas[2] && !this.tablas[2].activo && this.previews) {
                     items = items.concat(this.previews);
                 }
    
-                if (this.tablas[3] && !this.tablas[3].activo && this.previewsAvo) {
-                    items = items.concat(this.previewsAvo);
-                }
+                // if (this.tablas[3] && !this.tablas[3].activo && this.previewsAvo) {
+                //     items = items.concat(this.previewsAvo);
+                // }
             }
             if (this.videos?.length) {
                 items = items.concat(this.videos.filter(v => v.link));
             }
-            if (this.videosReco?.length) {
-                items = items.concat(this.videosReco.filter(v => v.link));
-            }
+            // if (this.videosReco?.length) {
+            //     items = items.concat(this.videosReco.filter(v => v.link));
+            // }
             return items;
         }
     },
@@ -1255,7 +1256,6 @@
             this.videoId = null;
         },
         async openPrevi() {
-            // Mostrar mensaje si no hay imágenes/videos activos
             if (!this.allItems.length) {
                 showMessage('No hay imágenes ni videos activos para previsualizar.');
                 return;
@@ -1321,7 +1321,7 @@
             // inicialización opcional para videos YouTube embebidos
         },
         play() {
-            this.fullScreen();
+            // this.fullScreen();
             this.resetInterval();
         },
         pause() {
