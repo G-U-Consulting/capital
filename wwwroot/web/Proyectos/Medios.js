@@ -149,7 +149,33 @@
             return '../../img/ico/youtobe.png';
         },
         allItems() {
-            return this.plantaPreviewAll;
+            let items = [];
+            if (this.tablas && this.tablas.length) {
+       
+                if (!this.tablas[0].activo && this.plantaPreview) {
+                    items.push({ src: this.plantaPreview });
+                }
+    
+                if (!this.tablas[1].activo) {
+                    if (this.slidePreview) items.push({ src: this.slidePreview });
+                    if (this.logoPreview) items.push({ src: this.logoPreview });
+                }
+
+                if (this.tablas[2] && !this.tablas[2].activo && this.previews) {
+                    items = items.concat(this.previews);
+                }
+   
+                if (this.tablas[3] && !this.tablas[3].activo && this.previewsAvo) {
+                    items = items.concat(this.previewsAvo);
+                }
+            }
+            if (this.videos?.length) {
+                items = items.concat(this.videos.filter(v => v.link));
+            }
+            if (this.videosReco?.length) {
+                items = items.concat(this.videosReco.filter(v => v.link));
+            }
+            return items;
         }
     },
     async mounted() {
@@ -232,13 +258,13 @@
                 {
                     titulo: 'Agrupamiento de Imágenes de Proyecto',
                     datos: grupo_img,
-                    activo: false,
+                    activo: true,
                     error: false
                 },
                 {
                     titulo: 'Agrupamiento de Vídeos de Proyecto',
                     datos: grupo_vid,
-                    activo: false,
+                    activo: true,
                     error: true
                 },
                 // {
@@ -557,7 +583,6 @@
         // },
         selectItem(tablaIndex, itemIndex) {
             const tabla = this.tablas[tablaIndex];
-            console.log(tabla.titulo, tabla.activo);
             if (tabla.titulo === 'Agrupaciones Generales' ||  tabla.titulo === 'Imágenes Principales' || tabla.activo) return;
             this.selected.tablaIndex = tablaIndex;
             this.selected.itemIndex = itemIndex;
@@ -1230,6 +1255,11 @@
             this.videoId = null;
         },
         async openPrevi() {
+            // Mostrar mensaje si no hay imágenes/videos activos
+            if (!this.allItems.length) {
+                showMessage('No hay imágenes ni videos activos para previsualizar.');
+                return;
+            }
             this.modalVisible = true;
             history.pushState(null, "", "#modal-carrusel");
             var tag = document.createElement("script");
@@ -1399,6 +1429,13 @@
                 return false;
             }
         },
-        
+        clearSelection(){
+            console.log('clearSelection');
+                this.selected = {
+                    tablaIndex: null,
+                    itemIndex: null,
+                    tabindex: 0
+                };
+            },
     }
 };

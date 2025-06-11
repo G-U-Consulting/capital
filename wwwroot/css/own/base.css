@@ -868,7 +868,7 @@ table thead th {
     max-height: 80%;
     transition: transform 0.6s ease-in-out;
   }
-  .image-card-preview{
+  .image-card-preview {
     position: relative;
     width: 100%;
     height: calc(100vh - 35rem);
@@ -879,16 +879,26 @@ table thead th {
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.1s ease-in-out;
     border: 1px solid #ccc;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
+  
+ 
   .image-card-preview:hover {
     transform: scale(1.05);
 }
 
 .image-card-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
+
 
 .cardColor {
   display: flex;
@@ -1291,6 +1301,10 @@ tr.selected input {
   gap: 1rem;
   height: calc(100vh - 22rem);
   margin-top: 1em;
+}
+
+.contenedor-tablas:focus {
+  outline: none;
 }
 
 .tabla-scroll td .contenido-celda {
@@ -1877,6 +1891,11 @@ div.btn-left-rotafolio img {
   border-top: none;
   background-color: #fff;
   border-radius: 0 0 8px 8px;
+}
+.monospace-text {
+  font-family: monospace;
+  white-space: pre;
+  font-size: 1.2em;
 }
 
 .hoverRow:hover{
