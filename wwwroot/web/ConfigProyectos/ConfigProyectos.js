@@ -25,6 +25,7 @@ export default {
             tipos_vis: [],
             emails: [],
             salas_ventas: [],
+            colores: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -46,6 +47,7 @@ export default {
             tipo_vis: {},
             subsidio: {},
             sala_venta: {},
+            color: {},
 
             ruta: [],
             medioIsActive: 0,
@@ -65,13 +67,14 @@ export default {
                 instructivos: { is_active: '' },
                 pies_legales: { is_active: '' },
                 tramites: { is_active: '' },
-                documentos: { is_img: '0',  is_active: '' },
+                documentos: { is_img: '0', is_active: '' },
                 tipos_financiacion: { is_active: '' },
                 tipos_proyecto: { is_active: '' },
                 estados_proyecto: { is_active: '' },
                 tipos_vis: { is_active: '' },
                 subsidios: { is_active: '' },
-                salas_ventas: {is_active: '' },
+                salas_ventas: { is_active: '' },
+                colores: { is_active: '' },
             },
 
             tooltipVisible: false,
@@ -136,14 +139,14 @@ export default {
         },
         async onSelectBanco(selected) {
             this.setMode(2);
-            this.banco = {...selected};
+            this.banco = { ...selected };
             const bfs = {};
             const cbfs = {};
             this.tipos_factor.forEach(tf => {
                 let obj = {}, cobj = {};
                 this.factores.forEach(f => {
                     obj[f.id_factor] = this.bancos_factores.filter(bf => bf.id_banco == selected.id_banco && bf.id_tipo_factor == tf.id_tipo_factor && bf.id_factor == f.id_factor)[0];
-                    cobj[f.id_factor] = {...obj[f.id_factor]};
+                    cobj[f.id_factor] = { ...obj[f.id_factor] };
                 });
                 bfs[tf.id_tipo_factor] = obj;
                 cbfs[tf.id_tipo_factor] = cobj;
@@ -169,8 +172,8 @@ export default {
             showProgress();
             const bf = this.banco_factor, cbf = this.copy_bf;
             let error = false, errormsg = '', bfs = [];
-            for (const id_tf in bf) 
-                for (const id_f in bf[id_tf]) 
+            for (const id_tf in bf)
+                for (const id_f in bf[id_tf])
                     if (bf[id_tf][id_f].valor != cbf[id_tf][id_f].valor)
                         bfs.push(bf[id_tf][id_f]);
             await Promise.all(bfs.map(async bf => await httpFunc(`/generic/genericST/Maestros:Upd_BancoFactor`, bf)))
@@ -189,7 +192,7 @@ export default {
                 this.mode = 2;
                 this.setRuta();
             } else {
-                this.mode = 0;
+                this.setMode(0);
                 this.setRuta();
             }
         },
@@ -200,7 +203,7 @@ export default {
                 hideProgress();
                 if (resp.data === "OK") {
                     if (this.mode == 1) {
-                        let banco = {...this.banco, id_banco: resp.id };
+                        let banco = { ...this.banco, id_banco: resp.id };
                         await this.loadData();
                         await this.onSelectBanco(banco);
                     } else await this.onUpdateFactor();
@@ -222,30 +225,30 @@ export default {
                     let s3res = null;
                     if (res.isError) showMessage(res.errorMessage);
                     else s3res = await httpFunc("/file/S3upload", res.data);
-                    if (s3res && !s3res.isError && s3res.data.length) 
+                    if (s3res && !s3res.isError && s3res.data.length)
                         sub.imagen = s3res.data[0].CacheKey;
                 }
-                let resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Subsidio`, 
+                let resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Subsidio`,
                     sub, this.mode == 1);
                 if (resp.data === "OK") this.setMode(0);
                 else throw resp;
             }
-            catch(e) {
+            catch (e) {
                 if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
             hideProgress();
         },
-        async onUpdateEmail(){
+        async onUpdateEmail() {
             showProgress();
             try {
-                if(this.emails.every(e => this.isEmail(e.email))) {
-                    let resp = await httpFunc('/generic/genericST/Maestros:Upd_Email', 
+                if (this.emails.every(e => this.isEmail(e.email))) {
+                    let resp = await httpFunc('/generic/genericST/Maestros:Upd_Email',
                         { emails: JSON.stringify(this.emails) }
                     );
                     if (resp.data !== 'OK') throw resp;
                 } else throw "Emails inválidos";
-            } catch(e) {
+            } catch (e) {
                 showMessage('Error: ' + e);
                 console.error(e);
             }
@@ -291,7 +294,7 @@ export default {
                     else this.uploadS3(res.data, id_doc, folder);
                 } else throw "No se encontró " + folder;
             }
-            catch(e) {
+            catch (e) {
                 showMessage('Error: ' + e);
                 console.error(e);
             }
@@ -323,6 +326,7 @@ export default {
             if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS", this.tipos_vis];
             if (this.mainmode == 19) return [{}, "Email", this.emails];
             if (this.mainmode == 20) return [this.sala_venta, "SalaVenta", this.salas_ventas];
+            if (this.mainmode == 21) return [this.color, "Color", this.colores];
             return null;
         },
         getMainPath() {
@@ -347,18 +351,19 @@ export default {
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
             if (this.mainmode == 19) path.text = "Emails Receptores";
             if (this.mainmode == 20) path.text = "Salas Ventas";
+            if (this.mainmode == 21) path.text = "Gama de Colores";
             path.action = () => {
                 this.mode = 0; this.setRuta(); this.loadData();
             };
             return path;
         },
         clearItem(item) {
-            Object.keys(item).forEach((key) => (item[key] = null));
+            Object.keys(item).forEach((key) => delete item[key]);
             if (this.mainmode == 5) this.medioIsActive = 0;
         },
         onClear(table) {
             let item = this.filtros[table];
-            item = Object.keys(item).forEach((key) => 
+            item = Object.keys(item).forEach((key) =>
                 key == "is_img" && this.mainmode == 13 ? item[key] = '0' : item[key] = '');
         },
         async exportExcel(tabla) {
@@ -394,6 +399,7 @@ export default {
                 this.tipos_vis,
                 this.emails,
                 this.salas_ventas,
+                this.colores,
 
                 this.factores,
                 this.tipos_factor,
@@ -477,11 +483,11 @@ export default {
                 }
             }, 100);
         },
-        formatNumber(value) {
+        formatNumber(value, dec = true) {
             if (!value) return "";
             let [parteEntera, parteDecimal] = value.split(".");
             parteEntera = parteEntera.replace(/\D/g, "");
-            parteDecimal = parteDecimal ? parteDecimal.replace(/\D/g, "") : "";
+            parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
 
             let groups = [];
             let len = parteEntera.length;
@@ -610,7 +616,7 @@ export default {
             if (["ppt", "pptx", "pptm", "pot", "potx", "potm", "pps", "ppsx", "ppsm",].includes(ext)) return base + 'PowerPoint.png';
             if (["mdb", "accdb"].includes(ext)) return base + 'Access.png';
             if (["mdb", "accdb"].includes(ext)) return base + 'Visio.png';
-            if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext)) 
+            if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext))
                 return base + ext + '.png';
             else return false;
         },
@@ -626,14 +632,14 @@ export default {
             let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                 { tipo, id_maestro_documento: id_doc }),
                 base = '/file/S3get/';
-                if (res.data) {
+            if (res.data) {
                 let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento } });
                 let files = await this.openFiles(paths);
                 await this.processFiles(files);
-                
+
                 let previews = [];
                 let interval = setInterval(() => {
-                    if(this.previews.length == files.length) {
+                    if (this.previews.length == files.length) {
                         Promise.all(files.map(async f => {
                             await this.previews.forEach(pre => {
                                 if (pre.file.name == f.name) previews.push(pre);
@@ -648,10 +654,9 @@ export default {
         },
         async uploadS3(data, id_doc, tipo) {
             showProgress();
-        
+
             const response = await httpFunc("/file/S3upload", data);
-            console.log(response);
-        
+            
             if (response.isError) {
                 showMessage(response.errorMessage);
                 hideProgress();
@@ -664,7 +669,7 @@ export default {
                 orden: i
             }));
 
-            let res = await httpFunc("/generic/genericST/Medios:Del_Archivos", 
+            let res = await httpFunc("/generic/genericST/Medios:Del_Archivos",
                 { id_maestro_documento: id_doc, tipo });
 
             if (res.isError) {
@@ -680,7 +685,7 @@ export default {
                     id_maestro_documento: archivo.id_maestro_documento,
                     tipo: archivo.tipo
                 });
-        
+
                 if (res.isError) {
                     showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
                     hideProgress();
@@ -700,8 +705,8 @@ export default {
                 res = await httpFunc(`/generic/genericST/Maestros:Del_${this.getItem()[1]}`, item);
             if (res.data === 'OK' && index !== -1) list.splice(index, 1);
             else {
-                let msg = res.errorMessage || ''; 
-                showMessage(msg.includes('foreign key constraint fails') 
+                let msg = res.errorMessage || '';
+                showMessage(msg.includes('foreign key constraint fails')
                     ? 'Error: No fue posible eliminar el registro.\nDatos en uso' : msg);
             }
         },
@@ -722,9 +727,12 @@ export default {
             get() { return this.formatNumber(this.subsidio['smmlv_2_4']); },
             set(val) { this.subsidio['smmlv_2_4'] = this.cleanNumber(val); }
         },
+        has_factor() {
+            return (id_banco) => this.bancos_factores.filter(bf => bf.id_banco == id_banco).some(bf => bf.valor != '0');
+        },
         getFilteredList() {
             return (tabla) => {
-                return this[tabla] ? this[tabla].filter(item => 
+                return this[tabla] ? this[tabla].filter(item =>
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
                     ) : []

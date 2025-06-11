@@ -415,3 +415,11 @@ create table dim_preferencias_usuario(
 	constraint fk_id_usuario_preferencia foreign key(id_usuario) references fact_usuarios(id_usuario),
 	constraint unique_usuario_preferencia unique(id_usuario, nombre)
 );
+create table dim_color(
+	id_color int primary key auto_increment,
+	estado varchar(50) not null unique,
+	color varchar(7) not null,
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);

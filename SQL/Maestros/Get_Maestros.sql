@@ -80,6 +80,10 @@ select id_sala_venta, sala_venta, encuesta_vpn, is_active
 from dim_sala_venta
 order by sala_venta;
 
+select id_color, estado, color, is_active
+from dim_color
+order by estado;
+
 select id_factor, factor, unidad from dim_factor order by id_factor;
 select id_tipo_factor, tipo_factor from dim_tipo_factor;
 
