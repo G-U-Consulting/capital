@@ -1072,14 +1072,14 @@ textarea.editor {
 .ql-container.ql-snow {
   min-height: 13rem;
   height: 50%;
-  max-height: calc(100vh - 27.5rem);
+  max-height: calc(100vh - 27.6rem);
   overflow-y: auto;
 }
 .ql-snow.ql-toolbar button {
   min-width: auto;
 }
 .ql-editor.ql-blank{
-	max-height: calc(100vh - 27.5rem);
+	max-height: calc(100vh - 27.6rem);
 }
 .tab{
   text-align: center;

@@ -728,7 +728,15 @@ export default {
             set(val) { this.subsidio['smmlv_2_4'] = this.cleanNumber(val); }
         },
         has_factor() {
-            return (id_banco) => this.bancos_factores.filter(bf => bf.id_banco == id_banco).some(bf => bf.valor != '0');
+            return (id_banco, factor) => {
+                let unidades = new Set();
+                let factores = this.factores.filter(f => f.factor == factor);
+                this.bancos_factores.filter(bf => bf.id_banco == id_banco 
+                    && factores.map(f => f.id_factor).includes(bf.id_factor))
+                    .forEach(bf => bf.valor != '0' && 
+                        unidades.add(factores.filter(f => bf.id_factor == f.id_factor)[0].unidad));
+                return [...unidades].join('/');
+            }
         },
         getFilteredList() {
             return (tabla) => {
