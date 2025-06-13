@@ -47,3 +47,6 @@ from dim_banco_constructor;
 
 select id_banco as id_bancos_financiador, banco
 from dim_banco_constructor;
+
+select id_sala_venta, sala_venta
+from dim_sala_venta;

@@ -7,24 +7,25 @@ set @cliente = '';
 --END_PARAM
 
 select a.id_cliente,
-       a.nombres,
-       a.apellido1,
-       a.apellido2,
-       a.direccion,
-       a.ciudad,
-       a.barrio,
-       a.departamento,
-       a.pais,
-       a.email1,
-       a.email2,
-       a.telefono1,
-       a.telefono2,
-       a.tipo_documento,
-       a.numero_documento,
-       a.pais_expedicion,
-       a.departamento_expedicion,
-       a.ciudad_expedicion,
-       date_format(a.fecha_expedicion, '%Y-%m-%d') as fecha_expedicion
+      a.nombres,
+      a.apellido1,
+      a.apellido2,
+      a.direccion,
+      a.ciudad,
+      a.barrio,
+      a.departamento,
+      a.pais,
+      a.email1,
+      a.email2,
+      a.telefono1,
+      a.telefono2,
+      a.tipo_documento,
+      a.numero_documento,
+      a.pais_expedicion,
+      a.departamento_expedicion,
+      a.ciudad_expedicion,
+      a.is_politica_aceptada,
+      date_format(a.fecha_expedicion, '%Y-%m-%d') as fecha_expedicion
 from fact_clientes a
 where a.is_active = 1
   and @cliente != ''

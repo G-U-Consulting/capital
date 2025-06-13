@@ -158,10 +158,10 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Sala de Ventas</span>
-                    <select v-model=''>
+                    <select v-model='objProyecto.id_sala_venta'>
                         <option value=''>Seleccione</option>
-                        <option >
-                            <!-- {{ item.sala_venta }} -->
+                        <option v-for='item in salas_venta' v-bind:value='item.id_sala_venta'>
+                            {{ item.sala_venta }}
                         </option>
                     </select>
                 </div>
@@ -384,12 +384,6 @@
                 Coordinación de Sala de Ventas
             </div>
             <!--TODO Cambiar email de coordinado de sala por coordinador de sala-->
-            <!--<div class='pure-u-1-1 pure-u-md-1-4'>
-                        <div class='formInputStandard'>
-                            <span>E-mail coordiandor de Sala</span>
-                            <input type='email' v-model='objProyecto.email_coordinador_sala' maxlen='100' />
-                        </div>
-                    </div>-->
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <label for="coordinacion" style="display: block; margin-bottom: 0.3rem;">Coordinación</label>
@@ -409,7 +403,7 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Email Coordinación de Sala</span>
-                    <input type='text' v-model='objProyecto.email_coord_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.coord_sala != null}" />
+                    <input type='text' v-model='objProyecto.email_coordinacion_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.email_coordinacion_sala != null}" />
                 </div>
             </div>
             <!--<div class='pure-u-1-1 pure-u-md-1-4'>
@@ -887,10 +881,10 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Sala de Ventas</span>
-                    <select v-model=''>
+                    <select v-model='editObjProyecto.id_sala_venta'>
                         <option value=''>Seleccione</option>
-                        <option >
-                            <!-- {{ item.sala_venta }} -->
+                        <option v-for='item in salas_venta' v-bind:value='item.id_sala_venta' :key='item.id_sala_venta'>
+                            {{ item.sala_venta }}
                         </option>
                     </select>
                 </div>
@@ -1113,12 +1107,6 @@
                 Coordinación de Sala de Ventas
             </div>
             <!--TODO Cambiar email de coordinado de sala por coordinador de sala-->
-            <!--<div class='pure-u-1-1 pure-u-md-1-4'>
-                        <div class='formInputStandard'>
-                            <span>E-mail coordiandor de Sala</span>
-                            <input type='email' v-model='editObjProyecto.email_coordinador_sala' maxlen='100' />
-                        </div>
-                    </div>-->
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <label for="coordinacion" style="display: block; margin-bottom: 0.3rem;">Coordinación</label>
@@ -1138,7 +1126,7 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Email Coordinación de Sala</span>
-                    <input type='text' v-model='editObjProyecto.email_coord_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.coord_sala != null}" />
+                    <input type='text' v-model='editObjProyecto.email_coordinacion_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.email_coordinacion_sala != null}" />
                 </div>
             </div>
             <!--<div class='pure-u-1-1 pure-u-md-1-4'>

@@ -10,6 +10,7 @@ set
     @id_sede = 0,
     @id_zona_proyecto = 0,
     @id_ciudadela = 0,
+    @id_sala_venta = 0,
     @otra_info = '',
 
 
@@ -21,7 +22,7 @@ set
     @dias_pago_ci_banco_no_amigo = '',
     @email_cotizaciones = '',
     @meta_ventas = '',
-    @email_coord_sala = '',
+    @email_coordinacion_sala = '',
     @id_pie_legal = 0,
     @id_tipo_financiacion = 0,
     @id_tipo_vis = 0,
@@ -73,6 +74,8 @@ set
     id_sede = nullif(@id_sede, 0),
     id_zona_proyecto = nullif(@id_zona_proyecto, 0),
     id_ciudadela = nullif(@id_ciudadela, 0),
+    id_sala_venta = nullif(@id_sala_venta, 0),
+    email_coordinacion_sala = @email_coordinacion_sala,
     otra_info = @otra_info,
 
     subsidios_vis = @subsidios_vis,
@@ -83,7 +86,6 @@ set
     dias_pago_ci_banco_no_amigo = @dias_pago_ci_banco_no_amigo,
     email_cotizaciones = @email_cotizaciones,
     meta_ventas = @meta_ventas,
-    email_coord_sala = @email_coord_sala,
     id_pie_legal = nullif(@id_pie_legal, 0),
     id_tipo_financiacion = nullif(@id_tipo_financiacion, 0),
     id_tipo_vis = nullif(@id_tipo_vis, 0),

@@ -19,7 +19,8 @@ set @NewNombres = '',
     @NewPaisExpedicion = '',
     @NewDepartamentoExpedicion = '',
     @NewCiudadExpedicion = '',
-    @NewFechaExpedicion = '';
+    @NewFechaExpedicion = '',
+    @NewIsPoliticaAceptada = 0;
 --END_PARAM
 
 if exists (
@@ -44,7 +45,8 @@ if exists (
         Pais_Expedicion = @NewPaisExpedicion,
         Departamento_Expedicion = @NewDepartamentoExpedicion,
         Ciudad_Expedicion = @NewCiudadExpedicion,
-        Fecha_Expedicion = @NewFechaExpedicion
+        Fecha_Expedicion = @NewFechaExpedicion,
+        Is_Politica_Aceptada = @NewIsPoliticaAceptada
     where Numero_Documento = @NewNumeroDocumento;
 
     select concat('OK-Registro actualizado:', @NewNumeroDocumento, ' ', 'Update' ) as result;
@@ -67,7 +69,8 @@ else
         Pais_Expedicion,
         Departamento_Expedicion,
         Ciudad_Expedicion,
-        Fecha_Expedicion
+        Fecha_Expedicion,
+        Is_Politica_Aceptada
     ) values (
         @NewNombres,
         @NewApellido1,
@@ -86,7 +89,8 @@ else
         @NewPaisExpedicion,
         @NewDepartamentoExpedicion,
         @NewCiudadExpedicion,
-        @NewFechaExpedicion
+        @NewFechaExpedicion,
+        @NewIsPoliticaAceptada
     );
 
     select concat('OK-id_archivo:', last_insert_id(), ' ', 'Insert') as result;

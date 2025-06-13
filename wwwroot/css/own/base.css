@@ -490,13 +490,18 @@ table thead th {
     z-index: 999;
   }
   .modal {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: white;
     padding: 5px 20px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     text-align: right;
     color: red;
-  }
+    z-index: 1000;
+}
   .modal span {
     color: red;
     cursor: pointer;

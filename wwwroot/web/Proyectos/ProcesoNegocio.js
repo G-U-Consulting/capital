@@ -34,6 +34,7 @@ export default {
         NewDepartamentoExpedicion: '',
         NewCiudadExpedicion: '',
         NewFechaExpedicion: '',
+        NewIsPoliticaAceptada: 0,
 
       },
       ObjVisita: {
@@ -44,7 +45,7 @@ export default {
         id_medio: '',
         id_motivo_compra: '',
         id_referencia: '',
-        presupuesto_disponible: '',
+        id_presupuesto_vivienda: '',
         otro_texto: '',
         descripcion: '',
         id_cliente: '',
@@ -84,6 +85,7 @@ export default {
     this.referencia = resp.data[3];
     this.tipo_registro = resp.data[4];
     this.modo_atencion = resp.data[5];
+    this.presupuesto_vivienda = resp.data[6];
   },
   methods: {
     async handleNext(nextIndex) {
@@ -122,7 +124,9 @@ export default {
         this.isboton = true;
         this.mode = 0;
         this.policyAccepted = false;
-        this.limpiarObj();
+        // this.limpiarObj();
+        this.iscliente = true;
+        this.acceptPolicy(true);
         if (cliente[0].result.includes('Insert')) { showMessage("Cliente creado correctamente."); } else showMessage("Cliente actualizado correctamente.");
       } else {
         this.limpiarObj();
@@ -150,6 +154,8 @@ export default {
           NewDepartamentoExpedicion: '',
           NewCiudadExpedicion: '',
           NewFechaExpedicion: '',
+          NewIdPresupuestoVivienda: '',
+          NewIsPoliticaAceptada: 0,
         }
       }
       if (this.mode == 1) {
@@ -163,6 +169,7 @@ export default {
           presupuesto_disponible: '',
           otro_texto: '',
           descripcion: '',
+          id_presupuesto_vivienda: '',
         }
         if (Array.isArray(this.tipo_registro)) {
           this.tipo_registro.forEach(item => item.checked = false);
@@ -197,6 +204,13 @@ export default {
         this.ObjCliente.NewCiudadExpedicion = cliente[0][0].ciudad_expedicion;
         this.ObjCliente.NewFechaExpedicion = cliente[0][0].fecha_expedicion;
         this.id_cliente = cliente[0][0].id_cliente;
+        this.ObjCliente.NewIsPoliticaAceptada = cliente[0][0].is_politica_aceptada;
+
+          if (this.ObjCliente.NewIsPoliticaAceptada == 1) {
+              this.policyAccepted = true;
+          } else {
+              this.policyAccepted = false;
+          }
 
         this.iscliente = true;
         this.isboton = false;
@@ -251,6 +265,7 @@ export default {
       this.ObjVisita.presupuesto_disponible = resp.data[0][0].presupuesto_disponible;
       this.ObjVisita.otro_texto = resp.data[0][0].otro_texto;
       this.ObjVisita.descripcion = resp.data[0][0].descripcion;
+      this.ObjVisita.id_presupuesto_vivienda = resp.data[0][0].id_presupuesto_vivienda;
 
       var tFSeleccionada = resp.data[0][0].tipo_registro;
       this.tipo_registro.forEach(item => {

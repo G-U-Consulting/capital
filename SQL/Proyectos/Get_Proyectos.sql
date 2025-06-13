@@ -10,7 +10,9 @@ select
     DATE_FORMAT(a.created_on, '%Y-%m-%d %T') AS created_on, 
     if(a.is_active = true, 1, 0) AS is_active,
     h.zona_proyecto,
-    b.ciudadela, 
+    b.ciudadela,
+    a.id_sala_venta,
+    i.sala_venta,
     c.estado_publicacion, 
     d.tipo_proyecto, 
     e.pie_legal, 
@@ -23,7 +25,7 @@ select
     a.dias_pago_ci_banco_amigo, 
     a.dias_pago_ci_banco_no_amigo, 
     a.email_cotizaciones, 
-    a.email_coordinador_sala, 
+    a.email_coordinacion_sala,
     a.meta_ventas, 
     a.centro_costos, 
     a.email_receptor_1, 
@@ -65,5 +67,6 @@ left join dim_estado_publicacion c on a.id_estado_publicacion = c.id_estado_publ
 left join dim_tipo_proyecto d on a.id_tipo_proyecto = d.id_tipo_proyecto
 left join dim_pie_legal e on a.id_pie_legal = e.id_pie_legal
 left join dim_fiduciaria f on a.id_fiduciaria = f.id_fiduciaria
-left join dim_sede g on a.id_sede = g.id_sede
-left join dim_zona_proyecto h on a.id_zona_proyecto = h.id_zona_proyecto;
+left join dim_sede g on a.id_sede = g.id_sede   
+left join dim_zona_proyecto h on a.id_zona_proyecto = h.id_zona_proyecto
+left join dim_sala_venta i on a.id_sala_venta = i.id_sala_venta;

@@ -7,19 +7,19 @@ set @cliente = '',
 --END_PARAM
 
 select a.id_visita,
-       a.id_cliente,
-       a.id_categoria_medio,
-       a.id_medio,
-       a.id_motivo_compra,
-       a.id_referencia,
-       a.presupuesto_disponible,
-       a.otro_texto,
-       e.motivo_compra as motivo,
-       f.referencia as referencia,
-       a.created_on as fecha,
-       g.nombre as proyecto,
-       a.descripcion,
-       (
+      a.id_cliente,
+      a.id_categoria_medio,
+      a.id_medio,
+      a.id_motivo_compra,
+      a.id_referencia,
+      a.otro_texto,
+      e.motivo_compra as motivo,
+      f.referencia as referencia,
+      a.created_on as fecha,
+      g.nombre as proyecto,
+      a.descripcion,
+      a.id_presupuesto_vivienda,
+      (
         select group_concat(id_tipo_registro)
         from fact_tipo_registro
         where id_visita = a.id_visita

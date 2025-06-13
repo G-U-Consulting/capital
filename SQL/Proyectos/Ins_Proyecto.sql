@@ -8,6 +8,7 @@ set
     @id_sede = 0,
     @id_zona_proyecto = 0,
     @id_ciudadela = 0,
+    @id_sala_venta = 0,
     @otra_info = '',
 
     @subsidios_vis = '',
@@ -18,7 +19,7 @@ set
     @dias_pago_ci_banco_no_amigo = '',
     @email_cotizaciones = '',
     @meta_ventas = '',
-    @email_coord_sala = '',
+    @email_coordinacion_sala = '',
     @id_pie_legal = 0,
     @id_tipo_financiacion = 0,
     @id_tipo_vis = 0,
@@ -69,6 +70,7 @@ insert into fact_proyectos (
     id_sede,
     id_zona_proyecto,
     id_ciudadela,
+    id_sala_venta,
     otra_info,
 
     subsidios_vis,
@@ -79,7 +81,7 @@ insert into fact_proyectos (
     dias_pago_ci_banco_no_amigo,
     email_cotizaciones,
     meta_ventas,
-    email_coord_sala,
+    email_coordinacion_sala,
     id_pie_legal,
     id_tipo_vis,
 
@@ -124,6 +126,7 @@ select
     nullif(@id_sede, 0),
     nullif(@id_zona_proyecto, 0),
     nullif(@id_ciudadela, 0),
+    nullif(@id_sala_venta, 0),
     @otra_info,
 
     @subsidios_vis,
@@ -134,7 +137,7 @@ select
     @dias_pago_ci_banco_no_amigo,
     @email_cotizaciones,
     @meta_ventas,
-    @email_coord_sala,
+    @email_coordinacion_sala,
     nullif(@id_pie_legal, 0),
     nullif(@id_tipo_vis, 0),
 

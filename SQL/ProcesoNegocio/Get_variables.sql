@@ -27,3 +27,6 @@ where is_active = 1;
 select id_modo_atencion, modo_atencion
 from dim_modo_atencion
 where is_active = 1;
+
+select id_presupuesto_vivienda, rango
+from presupuesto_vivienda;

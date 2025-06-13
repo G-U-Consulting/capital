@@ -197,7 +197,7 @@
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Fecha Expedición</span>
-                                    <input type='datetime' v-model='ObjCliente.NewFechaExpedicion' maxlen='100'
+                                    <input type='date' v-model='ObjCliente.NewFechaExpedicion' maxlen='100'
                                         placeholder="Seleccione" />
                                 </div>
                             </div>
@@ -379,8 +379,12 @@
                 <div class='pure-u-1-1 pure-u-md-1-6'>
                     <div class='formInputStandard'>
                         <span>Presupuesto disponible</span>
-                        <input type='text' v-model='ObjVisita.presupuesto_disponible' maxlen='100'
-                            placeholder="Seleccione" />
+                        <select v-model='ObjVisita.id_presupuesto_vivienda'>
+                            <option value='' selected>Seleccione</option>
+                            <option v-for='item in presupuesto_vivienda' v-bind:value='item.id_presupuesto_vivienda'>
+                                {{ item.rango }}
+                            </option>
+                        </select>
                     </div>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-6'>

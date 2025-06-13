@@ -13,7 +13,8 @@
                 id_zona_proyecto: 0,
                 id_ciudadela: 0,
                 id_tipo_proyecto: 0,
-                otra_info: "",
+                otra_info: "", 
+                id_sala_venta: 0,
                 id_estado_publicacion: 0,
 
                 subsidios_vis: "",
@@ -24,10 +25,10 @@
                 dias_pago_ci_banco_no_amigo: "",
                 email_cotizaciones: "",
                 meta_ventas: "",
-                email_coord_sala: "",
+                email_coordinacion_sala: "",
                 id_pie_legal: 0,
                 id_banco_constructor: 0,
-                bancos_financiadores: 0,
+                id_bancos_financiador: 0,
                 id_tipo_financiacion: 0,
                 id_tipo_vis: 0,
 
@@ -75,6 +76,7 @@
                 id_ciudadela: 0,
                 id_tipo_proyecto: 0,
                 otra_info: "",
+                id_sala_venta: 0,
                 id_estado_publicacion: 0,
 
                 subsidios_vis: "",
@@ -85,7 +87,7 @@
                 dias_pago_ci_banco_no_amigo: "",
                 email_cotizaciones: "",
                 meta_ventas: "",
-                email_coord_sala: "",
+                email_coordinacion_sala: "",
                 id_pie_legal: 0,
                 id_banco_constructor: 0,
                 id_bancos_financiador: 0,
@@ -181,6 +183,7 @@
             previews: [],
             files: [],
             imgsPortada: [],
+            salas_venta: [],
             viewMode: 'Tabla',
             frontImg: '',
             interval: null
@@ -244,6 +247,7 @@
             this.ciudadela = resp[7];
             this.pie_legal = resp[8];
             this.fiduciaria = resp[9];
+            this.salas_venta = resp[12];
         
             this.banco_constructor = resp[10]
                 .filter(item => item.banco !== "Carta de compromiso del Cliente")
@@ -279,7 +283,7 @@
                     const valor1 = this.objProyecto[campo];
                     const valor2 = this.editObjProyecto[campo];
                     return (!valor1 || valor1.toString().trim() === '') &&
-                           (!valor2 || valor2.toString().trim() === '');
+                    (!valor2 || valor2.toString().trim() === '');
                 });
         
                 const validacionesEspecialesSubmode = this.validacionEspecial[submodeIndex] || [];
@@ -353,9 +357,9 @@
             this.editObjProyecto = {
                 ...this.editObjProyecto,
                 id_proyecto: item["id_proyecto"] 
-              };
+            };
 
-              GlobalVariables.id_proyecto = item["id_proyecto"];
+            GlobalVariables.id_proyecto = item["id_proyecto"];
 
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": item["id_proyecto"] });
             resp = resp.data;
