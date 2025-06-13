@@ -26,6 +26,7 @@ export default {
             emails: [],
             salas_ventas: [],
             colores: [],
+            sedes: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -48,6 +49,7 @@ export default {
             subsidio: {},
             sala_venta: {},
             color: {},
+            sede: {},
 
             ruta: [],
             medioIsActive: 0,
@@ -75,6 +77,7 @@ export default {
                 subsidios: { is_active: '' },
                 salas_ventas: { is_active: '' },
                 colores: { is_active: '' },
+                sedes: { is_active: '' },
             },
 
             tooltipVisible: false,
@@ -327,6 +330,7 @@ export default {
             if (this.mainmode == 19) return [{}, "Email", this.emails];
             if (this.mainmode == 20) return [this.sala_venta, "SalaVenta", this.salas_ventas];
             if (this.mainmode == 21) return [this.color, "Color", this.colores];
+            if (this.mainmode == 22) return [this.sede, "Sede", this.sedes];
             return null;
         },
         getMainPath() {
@@ -352,6 +356,7 @@ export default {
             if (this.mainmode == 19) path.text = "Emails Receptores";
             if (this.mainmode == 20) path.text = "Salas Ventas";
             if (this.mainmode == 21) path.text = "Gama de Colores";
+            if (this.mainmode == 22) path.text = "Sedes";
             path.action = () => {
                 this.mode = 0; this.setRuta(); this.loadData();
             };
@@ -400,6 +405,7 @@ export default {
                 this.emails,
                 this.salas_ventas,
                 this.colores,
+                this.sedes,
 
                 this.factores,
                 this.tipos_factor,

@@ -1,7 +1,8 @@
 ﻿create table dim_sede(
 	id_sede int not null,
-	sede varchar(100),
+	sede varchar(100) not null unique key,
 	alias varchar(3),
+    is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	constraint pk_dim_sede primary key(id_sede)
@@ -244,6 +245,7 @@ create table dim_banco_factor(
 	id_factor int,
 	id_tipo_factor int,
 	valor int not null,
+	id_proyecto int,
 	constraint fk_id_banco foreign key(id_banco) references dim_banco_constructor(id_banco),
 	constraint fk_id_factor foreign key(id_factor) references dim_factor(id_factor),
 	constraint fk_id_tipo_factor foreign key(id_tipo_factor) references dim_tipo_factor(id_tipo_factor)

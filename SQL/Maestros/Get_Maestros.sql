@@ -84,7 +84,11 @@ select id_color, estado, color, is_active
 from dim_color
 order by estado;
 
+select id_sede, sede, alias, is_active
+from dim_sede
+order by sede;
+
 select id_factor, factor, unidad from dim_factor order by id_factor;
 select id_tipo_factor, tipo_factor from dim_tipo_factor;
 
-select id_banco, id_factor, id_tipo_factor, valor from dim_banco_factor;
+select id_banco, id_factor, id_tipo_factor, valor from dim_banco_factor where id_proyecto is NULL;
