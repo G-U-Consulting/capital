@@ -26,13 +26,15 @@ select id_fiduciaria, fiduciaria, is_active
 from dim_fiduciaria
 order by fiduciaria;
 
-select id_zona_proyecto, zona_proyecto, is_active
-from dim_zona_proyecto
-order by zona_proyecto;
+select zp.id_zona_proyecto, zp.zona_proyecto, zp.is_active, s.id_sede, s.sede
+from dim_zona_proyecto zp join dim_sede s
+on zp.id_sede = s.id_sede
+order by zp.zona_proyecto;
 
-select id_ciudadela, ciudadela, is_active
-from dim_ciudadela 
-order by ciudadela;
+select c.id_ciudadela, c.ciudadela, c.is_active, s.id_sede, s.sede
+from dim_ciudadela c join dim_sede s
+on c.id_sede = s.id_sede
+order by c.ciudadela;
 
 select id_instructivo, instructivo, procedimiento, documentacion_cierre, notas, is_active
 from dim_instructivo

@@ -80,19 +80,25 @@ create table dim_zona_proyecto (
     id_zona_proyecto INT NOT NULL auto_increment,
     constraint pk_dim_zona_proyecto primary key (id_zona_proyecto),
     zona_proyecto varchar(200) not null unique,
+	id_sede int not null,
     codigo varchar(10),
     is_active BIT default 1,
     created_on DATETIME default current_timestamp,
-    created_by varchar(200) default CURRENT_USER
+    created_by varchar(200) default CURRENT_USER,
+    constraint fk_zona_sede foreign key (id_sede) 
+        references dim_sede(id_sede)
 );
 create table dim_ciudadela (
     id_ciudadela int not null auto_increment,
     constraint pk_ciudadela primary key (id_ciudadela),
     ciudadela varchar(200) not null unique,
+	id_sede int not null,
     codigo varchar(10),
     is_active bit default 1,
     created_on datetime default current_timestamp,
-    created_by varchar(200) default current_user
+    created_by varchar(200) default current_user,
+	constraint fk_ciudadela_sede foreign key (id_sede) 
+		references dim_sede(id_sede)
 );
 create table dim_banco_constructor(
 	id_banco int not null auto_increment,
@@ -347,24 +353,24 @@ insert into dim_fiduciaria (fiduciaria) values
 ('Scotia Colpatria Fiduciaria'),
 ('Skandia');
 
-insert into dim_zona_proyecto (zona_proyecto) values
-('Bogotá (Fontibón, Bosa, Centro, Sur-Occidente, Puente Aranda, Usaquén)'),
-('Pruebas'),
-('Sabana Norte (Chía, Zipaquirá, Tocancipá)'),
-('Sabana Occidente (Mosquera, Madrid)');
+insert into dim_zona_proyecto (zona_proyecto, id_sede) values
+('Bogotá (Fontibón, Bosa, Centro, Sur-Occidente, Puente Aranda, Usaquén)', 1),
+('Pruebas', 2),
+('Sabana Norte (Chía, Zipaquirá, Tocancipá)', 1),
+('Sabana Occidente (Mosquera, Madrid)', 1);
 
-insert into dim_ciudadela (ciudadela) values
-('alameda de zipaquirá'),
-('alegra'),
-('belari'),
-('ciudad del sol'),
-('fontibón'),
-('la arboleda'),
-('la prosperidad'),
-('la toscana'),
-('los maderos'),
-('novaterra'),
-('urbania');
+insert into dim_ciudadela (ciudadela, id_sede) values
+('alameda de zipaquirá', 1),
+('alegra', 1),
+('belari', 1),
+('ciudad del sol', 1),
+('fontibón', 1),
+('la arboleda', 1),
+('la prosperidad', 1),
+('la toscana', 1),
+('los maderos', 1),
+('novaterra', 1),
+('urbania', 1);
 
 insert into dim_tipo_proyecto (tipo_proyecto) values
 ('Apartamentos'),
