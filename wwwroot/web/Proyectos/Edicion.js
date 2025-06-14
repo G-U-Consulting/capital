@@ -9,69 +9,7 @@
             objProyecto: {
                 nombre: "",
                 direccion: "",
-                id_sede: 0 ,
-                id_zona_proyecto: 0,
-                id_ciudadela: 0,
-                id_tipo_proyecto: 0,
-                otra_info: "", 
-                id_sala_venta: 0,
-                id_estado_publicacion: 0,
-
-                subsidios_vis: "",
-                dias_separacion: "",
-                dias_cierre_sala: "",
-                meses_ci: "",
-                dias_pago_ci_banco_amigo: "",
-                dias_pago_ci_banco_no_amigo: "",
-                email_cotizaciones: "",
-                meta_ventas: "",
-                email_coordinacion_sala: "",
-                id_pie_legal: 0,
-                id_banco_constructor: 0,
-                id_bancos_financiador: 0,
-                id_tipo_financiacion: 0,
-                id_tipo_vis: 0,
-
-                centro_costos: "",
-                id_fiduciaria: 0,
-                id_opcion_visual: 0,
-
-                lanzamiento: 0,
-                ciudad_lanzamiento: "",
-                fecha_lanzamiento: "",
-                latitud: "",
-                bloqueo_libres: "",
-                inmuebles_opcionados: "",
-                tipos_excluidos: "",
-                link_waze: "",
-                linea_whatsapp: "",
-
-                email_receptor_1: "",
-                email_receptor_2: "",
-                email_receptor_3: "",
-                email_receptor_4: "",
-
-                link_general_onelink: "",
-                link_especifico_onelink: "",
-                incluir_especificaciones_tecnicias: "",
-                link_especificaciones_tecnicias: "",
-                incluir_cartilla_negocios_cotizacion: "",
-                incluir_cartilla_negocios_opcion: "",
-                link_cartilla_negocios: "",
-                frame_seguimiento_visible: "",
-                link_seguimiento_leads: "",
-                frame_evaluacion_conocimiento: "",
-                link_evaluacion_conocimiento: "",
-                avance_obra_visible: 0,
-                link_avance_obra: "",
-                incluir_brochure: 0,
-                link_brochure: ""
-            },
-            editObjProyecto: {
-                id_proyecto: 0,
-                nombre: "",
-                direccion: "",
-                id_sede: 0 ,
+                id_sede: 0,
                 id_zona_proyecto: 0,
                 id_ciudadela: 0,
                 id_tipo_proyecto: 0,
@@ -129,7 +67,69 @@
                 incluir_brochure: 0,
                 link_brochure: ""
             },
-            
+            editObjProyecto: {
+                id_proyecto: 0,
+                nombre: "",
+                direccion: "",
+                id_sede: 0,
+                id_zona_proyecto: 0,
+                id_ciudadela: 0,
+                id_tipo_proyecto: 0,
+                otra_info: "",
+                id_sala_venta: 0,
+                id_estado_publicacion: 0,
+
+                subsidios_vis: "",
+                dias_separacion: "",
+                dias_cierre_sala: "",
+                meses_ci: "",
+                dias_pago_ci_banco_amigo: "",
+                dias_pago_ci_banco_no_amigo: "",
+                email_cotizaciones: "",
+                meta_ventas: "",
+                email_coordinacion_sala: "",
+                id_pie_legal: 0,
+                id_banco_constructor: 0,
+                id_bancos_financiador: 0,
+                id_tipo_financiacion: 0,
+                id_tipo_vis: 0,
+
+                centro_costos: "",
+                id_fiduciaria: 0,
+                id_opcion_visual: 0,
+
+                lanzamiento: 0,
+                ciudad_lanzamiento: "",
+                fecha_lanzamiento: "",
+                latitud: "",
+                bloqueo_libres: "",
+                inmuebles_opcionados: "",
+                tipos_excluidos: "",
+                link_waze: "",
+                linea_whatsapp: "",
+
+                email_receptor_1: "",
+                email_receptor_2: "",
+                email_receptor_3: "",
+                email_receptor_4: "",
+
+                link_general_onelink: "",
+                link_especifico_onelink: "",
+                incluir_especificaciones_tecnicias: "",
+                link_especificaciones_tecnicias: "",
+                incluir_cartilla_negocios_cotizacion: "",
+                incluir_cartilla_negocios_opcion: "",
+                link_cartilla_negocios: "",
+                frame_seguimiento_visible: "",
+                link_seguimiento_leads: "",
+                frame_evaluacion_conocimiento: "",
+                link_evaluacion_conocimiento: "",
+                avance_obra_visible: 0,
+                link_avance_obra: "",
+                incluir_brochure: 0,
+                link_brochure: ""
+            },
+
             camposPorSubmode: {
                 0: ["nombre"],
                 1: ["id_banco_constructor"],
@@ -160,7 +160,7 @@
             },
             isFormularioCompleto: false,
             tiposVIS: [],
-            tiposFinanciacion: [], 
+            tiposFinanciacion: [],
             banco_constructor: [],
             bancos_financiador: [],
             fiduciaria: [],
@@ -178,7 +178,7 @@
             ],
             casoValidator: [],
             filtros: {
-                proyectos: { id_zona_proyecto : '' },
+                proyectos: { id_zona_proyecto: '' },
             },
             previews: [],
             files: [],
@@ -191,24 +191,34 @@
     },
     computed: {
         tabClasses() {
-          return this.tabs.map((_, index) => {
-            if (this.submode === index) {
-              return 'wizarTabActive';
-            } else if (!this.tabsIncomplete.includes(index)) {
-              return 'wizarTabCompleted';
-            } else {
-              return 'wizarTabIncomplete';
-            }
-          });
+            return this.tabs.map((_, index) => {
+                if (this.submode === index) {
+                    return 'wizarTabActive';
+                } else if (!this.tabsIncomplete.includes(index)) {
+                    return 'wizarTabCompleted';
+                } else {
+                    return 'wizarTabIncomplete';
+                }
+            });
         },
         getFilteredList() {
             return (tabla) => {
-                return this[tabla] ? this[tabla].filter(item => 
+                return this[tabla] ? this[tabla].filter(item =>
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
                     ) : []
                 ) : [];
             };
+        },
+        zonasFiltradas() {
+            const sedeId = this.objProyecto?.id_sede || this.editObjProyecto?.id_sede;
+            if (!sedeId) return [];
+            return this.zona_proyecto.filter(z => z.id_sede === sedeId);
+        },
+        ciudadelaFiltradas() {
+            const sedeId = this.objProyecto?.id_sede || this.editObjProyecto?.id_sede;
+            if (!sedeId) return [];
+            return this.ciudadela.filter(z => z.id_sede === sedeId);
         }
     },
     async mounted() {
@@ -218,8 +228,8 @@
         this.proyectos.forEach(async pro => {
             let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                 { tipo: 'logo', id_proyecto: pro.id_proyecto });
-                if(res.data && res.data.length)
-                    pro.img = '/file/S3get/' + res.data[0].llave;
+            if (res.data && res.data.length)
+                pro.img = '/file/S3get/' + res.data[0].llave;
         });
         //TODO - Quitar
         //this.selectProject(this.proyectos[0]);
@@ -231,7 +241,7 @@
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
             hideProgress();
             resp = resp.data;
-        
+
             resp[0].forEach(item => item.checked = false);
             this.estado_publicacion = resp[0];
             resp[1].forEach(item => item.checked = false);
@@ -248,7 +258,7 @@
             this.pie_legal = resp[8];
             this.fiduciaria = resp[9];
             this.salas_venta = resp[12];
-        
+
             this.banco_constructor = resp[10]
                 .filter(item => item.banco !== "Carta de compromiso del Cliente")
                 .sort((a, b) => a.banco.localeCompare(b.banco));
@@ -260,7 +270,7 @@
             if (cartaCompromiso) {
                 this.bancos_financiador.unshift(cartaCompromiso);
             }
-        
+
             if (this.inputParameter != null) {
                 this.selectProject(this.inputParameter);
             } else {
@@ -269,23 +279,23 @@
         },
         setMode(mode) {
             this.mode = mode;
-            if(mode == 0)
+            if (mode == 0)
                 GlobalVariables.miniModuleCallback("SartProjectModule", null)
-            if(mode == 1)
+            if (mode == 1)
                 GlobalVariables.miniModuleCallback("NewProject", null)
         },
         setSubmode(index) {
             const anteriorIndex = this.submode;
-            
+
             const validarSubmode = (submodeIndex) => {
                 const camposAValidar = this.camposPorSubmode[submodeIndex] || [];
                 let submodeIncompleto = camposAValidar.some(campo => {
                     const valor1 = this.objProyecto[campo];
                     const valor2 = this.editObjProyecto[campo];
                     return (!valor1 || valor1.toString().trim() === '') &&
-                    (!valor2 || valor2.toString().trim() === '');
+                        (!valor2 || valor2.toString().trim() === '');
                 });
-        
+
                 const validacionesEspecialesSubmode = this.validacionEspecial[submodeIndex] || [];
                 validacionesEspecialesSubmode.forEach(validacion => {
                     if (validacion.tipo === 'checkbox_group') {
@@ -306,7 +316,7 @@
                         }
                     }
                 });
-        
+
                 if (submodeIncompleto) {
                     if (!this.tabsIncomplete.includes(submodeIndex)) {
                         this.tabsIncomplete.push(submodeIndex);
@@ -318,7 +328,7 @@
                     }
                 }
             };
-        
+
             if (anteriorIndex !== null) {
                 validarSubmode(anteriorIndex);
             }
@@ -335,7 +345,7 @@
             let vista = await GlobalVariables.getPreferences('vistaProyecto', true);
             if (vista) this.viewMode = vista;
             else {
-                let data = (await httpFunc("/generic/genericST/Usuarios:Ins_Preferencias", 
+                let data = (await httpFunc("/generic/genericST/Usuarios:Ins_Preferencias",
                     { usuario: GlobalVariables.username, nombre: 'vistaProyecto', valor: mode || 'Tabla' })).data;
                 if (data == 'OK') await this.setViewMode();
             }
@@ -343,7 +353,7 @@
         async updateViewMode(mode) {
             if (mode != this.viewMode) {
                 this.viewMode = mode;
-                let data = (await httpFunc("/generic/genericST/Usuarios:Upd_Preferencias", 
+                let data = (await httpFunc("/generic/genericST/Usuarios:Upd_Preferencias",
                     { usuario: GlobalVariables.username, nombre: 'vistaProyecto', valor: mode || 'Tabla' })).data;
                 if (data == 'OK') await this.setViewMode();
             }
@@ -356,7 +366,7 @@
             showProgress();
             this.editObjProyecto = {
                 ...this.editObjProyecto,
-                id_proyecto: item["id_proyecto"] 
+                id_proyecto: item["id_proyecto"]
             };
 
             GlobalVariables.id_proyecto = item["id_proyecto"];
@@ -439,13 +449,13 @@
             this.submode = 0;
             this.setMode(mode);
             await GlobalVariables.miniModuleCallback("SelectedProject", item);
-            if (mode == 'portada'){
+            if (mode == 'portada') {
                 let item = document.querySelector('.lateralMenuItemSelected');
                 item && item.classList.remove('lateralMenuItemSelected');
                 await this.loadImg('slide,logo,planta');
             } else {
                 let item = document.getElementById('MenuItemEdicion');
-                item && !item.classList.contains('lateralMenuItemSelected') 
+                item && !item.classList.contains('lateralMenuItemSelected')
                     && item.classList.add('lateralMenuItemSelected');
             }
             hideProgress();
@@ -520,7 +530,7 @@
                 return { status: 'Error', message: 'Hay errores de validación', errors: this.casoValidator };
             }
             */
- 
+
             var tVis = this.tiposVIS.find(item => { return item.checked });
             if (tVis != null)
                 this.objProyecto.id_tipo_vis = tVis.id_tipo_vis;
@@ -563,7 +573,7 @@
                 console.error("Error al insertar el proyecto:", error);
             }
         },
-        async updateProject(){
+        async updateProject() {
             this.casoValidator = [];
             /*
             const validarCampos = (fields) => {
@@ -644,7 +654,7 @@
             var tFn = this.tiposFinanciacion.find(item => { return item.checked });
             if (tFn != null)
                 this.editObjProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
-   
+
             const tipo = this.tipo
                 .filter(item => item.checked)
                 .map(item => item.id_tipo_proyecto);
@@ -673,8 +683,8 @@
             } catch (error) {
                 console.error("Error al insertar el proyecto:", error);
             }
-        }, 
-        async cleanObjectData(){
+        },
+        async cleanObjectData() {
             await this.cleanObject(this.editObjProyecto);
             await this.cleanObject(this.objProyecto);
         },
@@ -758,8 +768,8 @@
             if (res.data && res.data.length) {
                 let doc = res.data[0];
                 res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
-                { tipo: doc.documento, id_maestro_documento: doc.id_documento });
-                if (res.data) 
+                    { tipo: doc.documento, id_maestro_documento: doc.id_documento });
+                if (res.data)
                     res.data.forEach(f => this.imgsPortada.push('/file/S3get/' + f.llave));
             }
             let i = 0;

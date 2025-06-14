@@ -355,9 +355,17 @@ insert into dim_fiduciaria (fiduciaria) values
 
 insert into dim_zona_proyecto (zona_proyecto, id_sede) values
 ('Bogotá (Fontibón, Bosa, Centro, Sur-Occidente, Puente Aranda, Usaquén)', 1),
-('Pruebas', 2),
+('Pruebas', 1),
 ('Sabana Norte (Chía, Zipaquirá, Tocancipá)', 1),
-('Sabana Occidente (Mosquera, Madrid)', 1);
+('Sabana Occidente (Mosquera, Madrid)', 1)
+('Bello', 2),
+('Envigado', 2),
+('Itagüi', 2),
+('Medellín', 2),
+('Niquía', 2),	
+('Rionegro', 2),
+('Sabaneta', 2);
+
 
 insert into dim_ciudadela (ciudadela, id_sede) values
 ('alameda de zipaquirá', 1),

@@ -23,14 +23,14 @@ where is_active = 1;
 select id_sede , sede
 from dim_sede;
 
-select id_zona_proyecto, zona_proyecto
+select id_zona_proyecto, zona_proyecto, id_sede
 from dim_zona_proyecto;
 
 select id_tipo_proyecto, tipo_proyecto 
 from dim_tipo_proyecto
 where is_active = 1;
 
-select id_ciudadela, ciudadela
+select id_ciudadela, ciudadela, id_sede
 from dim_ciudadela 
 where is_active = 1;
 

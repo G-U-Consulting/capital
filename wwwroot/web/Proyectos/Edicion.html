@@ -127,7 +127,7 @@
                     <span>Sede</span>
                     <select v-model='objProyecto.id_sede'>
                         <option value='' disabled selected>Seleccione</option>
-                        <option v-for='item in sede' v-bind:value='item.id_sede'>
+                        <option v-for='item in sede' :value='item.id_sede'>
                             {{ item.sede }}
                         </option>
                     </select>
@@ -138,7 +138,7 @@
                     <span>Zona</span>
                     <select v-model='objProyecto.id_zona_proyecto'>
                         <option value='' disabled selected>Seleccione</option>
-                        <option v-for='item in zona_proyecto' v-bind:value='item.id_zona_proyecto'>
+                        <option v-for='item in zonasFiltradas' :value='item.id_zona_proyecto'>
                             {{ item.zona_proyecto }}
                         </option>
                     </select>
@@ -149,7 +149,7 @@
                     <span>Ciudadela</span>
                     <select v-model='objProyecto.id_ciudadela'>
                         <option value=''>Seleccione</option>
-                        <option v-for='item in ciudadela' v-bind:value='item.id_ciudadela'>
+                        <option v-for='item in ciudadelaFiltradas' v-bind:value='item.id_ciudadela'>
                             {{ item.ciudadela }}
                         </option>
                     </select>
@@ -861,7 +861,7 @@
                     <span>Zona</span>
                     <select v-model='editObjProyecto.id_zona_proyecto'>
                         <option value=''>Seleccione</option>
-                        <option v-for='item in zona_proyecto' :value='item.id_zona_proyecto'>
+                        <option v-for='item in zonasFiltradas' :value='item.id_zona_proyecto'>
                             {{ item.zona_proyecto }}
                         </option>
                     </select>
@@ -872,7 +872,7 @@
                     <span>Ciudadela</span>
                     <select v-model='editObjProyecto.id_ciudadela'>
                         <option value=''>Seleccione</option>
-                        <option v-for='item in ciudadela' v-bind:value='item.id_ciudadela'>
+                        <option v-for='item in ciudadelaFiltradas' v-bind:value='item.id_ciudadela'>
                             {{ item.ciudadela }}
                         </option>
                     </select>

@@ -189,7 +189,7 @@ const zones = {
     "ZI": {
         name: "ZI",
         title: "Zona Informes",
-        img: "./img/ico/menu/zc.png",
+        img: "./img/ico/menu/zi.png",
         categories: [
             { key: "INFORMES", name: "Informes" },
         ]
