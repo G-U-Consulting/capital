@@ -58,8 +58,11 @@ export default {
       isboton: true,
       tab: ['Registros de visita', 'Registros de compras'],
       activeTab: 0,
-        visitas: [],
-        id_cliente: 0,
+      visitas: [],
+      id_cliente: 0,
+      filtroProyecto: '',
+      contadorProyectos: {},
+      cotizaciones: [],
     };
   },
   computed: {
@@ -73,6 +76,21 @@ export default {
           return 'wizarTabIncomplete';
         }
       });
+    }, proyectosUnicos() {
+      const proyectos = this.visitas.map(v => v.proyecto);
+      return [...new Set(proyectos)];
+    }, visitasFiltradas() {
+      if (!this.filtroProyecto) return this.visitas;
+      return this.visitas.filter(v => v.proyecto === this.filtroProyecto);
+    }
+  },
+  watch: {
+    visitasFiltradas: {
+      handler(val) {
+        this.contarProyectos(val);
+      },
+      immediate: true,
+      deep: true
     }
   },
   async mounted() {
@@ -206,11 +224,11 @@ export default {
         this.id_cliente = cliente[0][0].id_cliente;
         this.ObjCliente.NewIsPoliticaAceptada = cliente[0][0].is_politica_aceptada;
 
-          if (this.ObjCliente.NewIsPoliticaAceptada == 1) {
-              this.policyAccepted = true;
-          } else {
-              this.policyAccepted = false;
-          }
+        if (this.ObjCliente.NewIsPoliticaAceptada == 1) {
+          this.policyAccepted = true;
+        } else {
+          this.policyAccepted = false;
+        }
 
         this.iscliente = true;
         this.isboton = false;
@@ -230,8 +248,8 @@ export default {
 
     ///////// mode 1
     async nuevaVisita() {
-        this.ObjVisita.id_proyecto = GlobalVariables.id_proyecto;
-        this.ObjVisita.id_cliente = this.id_cliente;
+      this.ObjVisita.id_proyecto = GlobalVariables.id_proyecto;
+      this.ObjVisita.id_cliente = this.id_cliente;
       const tipo = this.tipo_registro
         .filter(item => item.checked)
         .map(item => item.id_tipo_registro);
@@ -283,6 +301,28 @@ export default {
           item.checked = false;
         }
       });
-    }
-  }
+    },
+    contarProyectos(lista) {
+      const contador = {};
+      lista.forEach(item => {
+        if (!contador[item.proyecto]) {
+          contador[item.proyecto] = 0;
+        }
+        contador[item.proyecto]++;
+      });
+      this.contadorProyectos = contador;
+    },
+
+    //////// mode 2
+
+    addCotizacion() {
+      this.cotizaciones.push({
+        cotizacion: '',
+        fecha: '',
+        descripcion: '',
+        importe: '',
+      });
+    },
+
+  },
 }
