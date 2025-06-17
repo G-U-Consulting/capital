@@ -89,6 +89,11 @@
         jsUrl: "./web/Proyectos/ProcesoNegocio.js",
         allow: ["*"]
     },
+    "SalaInfo": {
+        templateUrl: "./web/Proyectos/SalaInfo.html",
+        jsUrl: "./web/Proyectos/SalaInfo.js",
+        allow: ["*"]
+    },
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",

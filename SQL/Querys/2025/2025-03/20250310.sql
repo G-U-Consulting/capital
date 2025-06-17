@@ -402,10 +402,14 @@ create table dim_sala_venta(
 	id_sala_venta int primary key auto_increment,
 	sala_venta varchar(200) not null unique,
 	encuesta_vpn varchar(200),
+	id_sede int not null,
+	id_playlist varchar(200),
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+    constraint fk_sala_sede foreign key (id_sede) 
+        references dim_sede(id_sede)
 );
 
 create table dim_preferencias_usuario(
@@ -425,3 +429,27 @@ create table dim_color(
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
+
+create table dim_tipo_turno(
+	id_tipo_turno int primary key auto_increment,
+	tipo_turno varchar(50) not null unique
+);
+create table dim_tipo_turno_sala(
+	id_tipo_turno int not null references dim_tipo_turno(id_tipo_turno),
+	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+	primary key(id_tipo_turno, id_sala_venta)
+);
+insert into dim_tipo_turno (tipo_turno) values
+('Atención con turnos'), ('Turnos con SMS'), ('Fichos físicos');
+
+create table dim_campo_obligatorio(
+	id_campo int primary key auto_increment,
+	campo varchar(50) not null unique
+);
+create table dim_campo_obligatorio_sala(
+	id_campo int not null references dim_campo_obligatorio(id_campo),
+	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+	primary key(id_campo, id_sala_venta)
+);
+insert into dim_campo_obligatorio(campo) values
+('Dirección'), ('Medio publicitario'), ('Presupuesto'), ('Motivo de compra');

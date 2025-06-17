@@ -11,6 +11,7 @@ select
     a.id_sede,
     a.id_estado_publicacion,
     a.nombre,
+    date_format(a.fecha_asignacion_sala, '%Y-%m-%d %T') as fecha_asignacion_sala,
     a.id_sala_venta,
     a.id_tipo_proyecto,
     a.id_ciudadela,

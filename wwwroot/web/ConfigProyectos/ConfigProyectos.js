@@ -27,6 +27,7 @@ export default {
             salas_ventas: [],
             colores: [],
             sedes: [],
+            pro_sala: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -75,7 +76,7 @@ export default {
                 estados_proyecto: { is_active: '' },
                 tipos_vis: { is_active: '' },
                 subsidios: { is_active: '' },
-                salas_ventas: { is_active: '' },
+                salas_ventas: { is_active: '', id_sede: '' },
                 colores: { is_active: '' },
                 sedes: { is_active: '' },
             },
@@ -719,6 +720,28 @@ export default {
         async requestDelete(item) {
             showConfirm("Se eliminará permanentemente.", this.deleteItem, null, item);
         },
+        async removePro(pro) {
+            showProgress();
+            let res = await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto2", {...pro, id_sala_venta: 'null'});
+            if (res.isError) {
+                console.error(res);
+                showMessage('Error: ' + res.errorMessage);
+            } else await this.loadProjects(this.sala_venta);
+        },
+        async reqRemovePro(pro) {
+            showConfirm(`Se retirará el proyecto <b>${pro.nombre}</b> de la sala de ventas <b>${this.sala_venta.sala_venta}</b>.`, 
+                this.removePro, null, pro);
+        },
+        async loadProjects(sv) {
+            showProgress();
+            let res = await httpFunc(`/generic/genericDT/Maestros:Get_ProyectoSala`, { id_sala: sv.id_sala_venta });
+            if (res.isError) {
+                this.pro_sala = [];
+                console.error(res);
+                showMessage('Error: ' + res.errorMessage);
+            } else this.pro_sala = res.data;
+            hideProgress();
+        }
     },
     computed: {
         f_smmlv: {

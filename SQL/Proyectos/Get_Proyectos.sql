@@ -11,6 +11,7 @@ select
     if(a.is_active = true, 1, 0) AS is_active,
     h.zona_proyecto,
     b.ciudadela,
+    DATE_FORMAT(a.fecha_asignacion_sala, '%Y-%m-%d %T') AS fecha_asignacion_sala, 
     a.id_sala_venta,
     i.sala_venta,
     c.estado_publicacion, 

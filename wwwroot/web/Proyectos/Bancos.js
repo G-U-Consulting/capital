@@ -5,6 +5,7 @@ export default {
             mode: 0,
             ruta: [],
             proyecto: null,
+            nombrePro: '',
 
             bancos: [],
             factores: [],
@@ -22,6 +23,7 @@ export default {
     },
     async mounted() {
         this.proyecto = await GlobalVariables.miniModuleCallback("Bancos", null);
+        this.nombrePro = this.proyecto.nombre;
         this.setMainMode('Bancos');
         await this.loadData();
     },

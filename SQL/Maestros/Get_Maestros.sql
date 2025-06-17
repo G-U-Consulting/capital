@@ -78,9 +78,10 @@ from dim_email_receptor
 where is_active = 1
 order by id_email;
 
-select id_sala_venta, sala_venta, encuesta_vpn, is_active
-from dim_sala_venta
-order by sala_venta;
+select sv.id_sala_venta, sv.sala_venta, sv.encuesta_vpn, s.sede, sv.is_active, sv.id_sede, sv.id_playlist
+from dim_sala_venta sv join dim_sede s
+on sv.id_sede = s.id_sede
+order by sv.sala_venta;
 
 select id_color, estado, color, is_active
 from dim_color
