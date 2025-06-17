@@ -184,7 +184,6 @@ export default {
           id_medio: '',
           id_motivo_compra: '',
           id_referencia: '',
-          presupuesto_disponible: '',
           otro_texto: '',
           descripcion: '',
           id_presupuesto_vivienda: '',
@@ -259,6 +258,14 @@ export default {
         .filter(item => item.checked)
         .map(item => item.id_modo_atencion);
       this.ObjVisita.modo_atencion = estadopublicacion.join(',');
+      if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
+        showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
+        return;
+      }
+      if(this.ObjVisita.id_visita != null){
+          showMessage("Esta visita no se puede actualizar.");
+          return;
+      }
       showProgress();
       try {
         let resp = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Registro', this.ObjVisita);
@@ -280,7 +287,6 @@ export default {
       this.ObjVisita.id_medio = resp.data[0][0].id_medio;
       this.ObjVisita.id_motivo_compra = resp.data[0][0].id_motivo_compra;
       this.ObjVisita.id_referencia = resp.data[0][0].id_referencia;
-      this.ObjVisita.presupuesto_disponible = resp.data[0][0].presupuesto_disponible;
       this.ObjVisita.otro_texto = resp.data[0][0].otro_texto;
       this.ObjVisita.descripcion = resp.data[0][0].descripcion;
       this.ObjVisita.id_presupuesto_vivienda = resp.data[0][0].id_presupuesto_vivienda;

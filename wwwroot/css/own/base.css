@@ -1921,3 +1921,15 @@ div.btn-left-rotafolio img {
   margin: 0 auto;
   border-radius: 6px;
 }
+.filtro-proyecto-inline {
+  margin-top: 0.5rem;
+  display: flex; 
+  align-items: center; 
+  gap: 0.5rem;
+}
+.col-1-6 {
+  width: 16.66%;
+}
+.col-3-6 {
+  width: 50%;
+}

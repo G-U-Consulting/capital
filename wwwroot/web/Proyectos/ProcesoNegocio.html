@@ -244,16 +244,17 @@
                     <span style="font-size: 1.8em;">Registros de visita</span>
                     <button @click="limpiarObj(1)" style="float: right;">Nueva visita</button>
                 </div>
-                <div style="min-height: calc(100dvh - 43rem);overflow-y: auto; margin-top: 1em">
-                    <div class='pure-u-1-1 pure-u-md-1-6' style="margin-bottom: 0.5rem;">
-                        <label for="filtro-proyecto">Filtrar por Proyecto:</label>
-                        <select v-model="filtroProyecto" id="filtro-proyecto">
-                            <option value="">Todos</option>
-                            <option v-for="proy in proyectosUnicos" :key="proy" :value="proy">
-                                {{ proy }}
-                            </option>
-                        </select>
-                    </div>
+                <div class='pure-u-1-1 pure-u-md-1-4 filtro-proyecto-inline'>
+                    <label for="filtro-proyecto" style="white-space: nowrap;">Filtrar por Proyecto:</label>
+                    <select v-model="filtroProyecto" id="filtro-proyecto" style="flex: 1;">
+                        <option value="">Todos</option>
+                        <option v-for="proy in proyectosUnicos" :key="proy" :value="proy">
+                            {{ proy }}
+                        </option>
+                    </select>
+                </div>
+                <div
+                    style="min-height: calc(100dvh - 48.5rem);max-height: calc(100dvh - 48.5rem); overflow-y: auto; margin-top: 0.5em;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -290,7 +291,7 @@
                     <span style="font-size: 1.8em;">Registros de compras</span>
                 </div>
                 <div
-                    style="min-height: calc(100dvh - 43rem); max-height: calc(100dvh - 43rem); overflow-y: auto; margin-top: 1em;">
+                    style="min-height: calc(100dvh - 46.5rem); max-height: calc(100dvh - 43rem); overflow-y: auto; margin-top: 1em;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -359,7 +360,7 @@
                     <span style="font-size: 1.5em;">Otra información (referido a la visita seleccionada en la
                         tabla)</span>
                 </div>
-                <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='pure-u-1-1 pure-u-md-1-5'>
                     <div class='formInputStandard'>
                         <span>Categoría Medio</span>
                         <select v-model='ObjVisita.id_categoria'>
@@ -370,7 +371,7 @@
                         </select>
                     </div>
                 </div>
-                <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='pure-u-1-1 pure-u-md-1-5'>
                     <div class='formInputStandard'>
                         <span>Medio</span>
                         <select v-model='ObjVisita.id_medio'>
@@ -381,7 +382,7 @@
                         </select>
                     </div>
                 </div>
-                <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='pure-u-1-1 pure-u-md-1-5'>
                     <div class='formInputStandard'>
                         <span>Motivo de Compra</span>
                         <select v-model='ObjVisita.id_motivo_compra'>
@@ -392,7 +393,7 @@
                         </select>
                     </div>
                 </div>
-                <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='pure-u-1-1 pure-u-md-1-5'>
                     <div class='formInputStandard'>
                         <span>Presupuesto disponible</span>
                         <select v-model='ObjVisita.id_presupuesto_vivienda'>
@@ -403,7 +404,7 @@
                         </select>
                     </div>
                 </div>
-                <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='pure-u-1-1 pure-u-md-1-5'>
                     <div class='formInputStandard'>
                         <span>Referencias</span>
                         <select v-model='ObjVisita.id_referencia'>
@@ -414,8 +415,8 @@
                         </select>
                     </div>
                 </div>
-                <div class='pure-u-1-1 pure-u-md-1-6'>
-                    <div class='formInputStandard'>
+                <div class='pure-u-1-1 pure-u-md-1-1'>
+                    <div class='formInputStandard filtro-proyecto-inline'>
                         <span>Descripción</span>
                         <input type='text' v-model='ObjVisita.descripcion' maxlen='100' placeholder="Seleccione" />
                     </div>
@@ -431,26 +432,33 @@
             </div>
             <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
                 <span style="font-size: 1.8em;">Cotizaciones</span>
-            </div>
-            <div class="pure-u-1-1" style="margin-top: 0.5em;">
                 <button style="float: right;" @click="addCotizacion">Nueva Cotización</button>
             </div>
-            <div style="min-height: calc(100dvh - 47rem);max-height: calc(100dvh - 47rem); overflow-y: auto; margin-top: 0.5em;">
+            <div
+                style="min-height: calc(100dvh - 47rem);max-height: calc(100dvh - 47rem); overflow-y: auto; margin-top: 0.5em;">
                 <table class="dataTable">
-                    <thead> 
+                    <thead>
                         <tr>
-                            <th>Cotización</th>
-                            <th>Fecha</th>
-                            <th>Descripción</th>
-                            <th>Importe</th>
+                            <th class="col-1-6">Cotización</th>
+                            <th class="col-1-6">Fecha</th>
+                            <th class="col-3-6">Descripción</th>
+                            <th class="col-1-6">Importe</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="(item, index) in cotizaciones" :key="index">
-                            <td><input type="text" v-model="item.cotizacion" placeholder="#" /></td>
-                            <td><input type="date" v-model="item.fecha" /></td>
-                            <td><input type="text" v-model="item.descripcion" placeholder="Descripción" /></td>
-                            <td><input type="number" step="0.01" v-model="item.importe" placeholder="$" /></td>
+                            <td class="col-1-6">
+                                <input type="text" v-model="item.cotizacion" placeholder="#" />
+                            </td>
+                            <td class="col-1-6">
+                                <input type="date" v-model="item.fecha" />
+                            </td>
+                            <td class="col-3-6">
+                                <input type="text" v-model="item.descripcion" placeholder="Descripción" />
+                            </td>
+                            <td class="col-1-6">
+                                <input type="number" step="0.01" v-model="item.importe" placeholder="$" />
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -660,6 +668,9 @@
             </div>
             <div v-if="mode == 1" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="nuevaVisita">Guardar</button>
+            </div>
+            <div v-if="mode == 2" class="pure-u-auto">
+                <button class="pure-button button-fixed">Guardar</button>
             </div>
             <!-- <div v-if="mode != 5 && ObjCliente.NewNombres != ''" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>
