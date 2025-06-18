@@ -352,7 +352,7 @@ export default {
             if (this.mainmode == 14) path.text = "Subsidios VIS";
             if (this.mainmode == 15) path.text = "Tipos Financiación";
             if (this.mainmode == 16) path.text = "Tipo Unidades y Ventas";
-            if (this.mainmode == 17) path.text = "Estados Proyecto";
+            if (this.mainmode == 17) path.text = "Estados Publicación";
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
             if (this.mainmode == 19) path.text = "Emails Receptores";
             if (this.mainmode == 20) path.text = "Salas Ventas";

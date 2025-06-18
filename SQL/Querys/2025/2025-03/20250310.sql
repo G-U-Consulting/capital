@@ -57,8 +57,8 @@ insert into dim_tipo_usuario (id_tipo_usuario, tipo_usuario) values
 create table fact_usuarios(
 	id_usuario int not null auto_increment,
 	usuario varchar(200),
-	identificacion varchar(20),
-	nombres varchar(200),
+	identificacion varchar(20) not null unique,
+	nombres varchar(200) not null,
 	email varchar(200),
 	id_cargo int,
 	id_tipo_usuario int,
@@ -69,6 +69,7 @@ create table fact_usuarios(
 	constraint fk_fu_id_cargo foreign key(id_cargo) references dim_cargo(id_cargo),
 	constraint fk_fu_Id_tipo_usuario foreign key(id_tipo_usuario) references dim_tipo_usuario(id_tipo_usuario)
 );
+
 --drop table dim_permiso
 create table dim_permiso(
 	id_permiso int not null,
@@ -453,3 +454,9 @@ create table dim_campo_obligatorio_sala(
 );
 insert into dim_campo_obligatorio(campo) values
 ('Dirección'), ('Medio publicitario'), ('Presupuesto'), ('Motivo de compra');
+
+create table dim_personal_sala(
+	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+	id_usuario int not null references fact_usuarios(id_usuario),
+	primary key(id_sala_venta, id_usuario)
+);

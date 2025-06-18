@@ -113,7 +113,7 @@
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 17}">
                 <img src="./img/ico/svg/notebook.svg" />
                 Estados
-                <span class="tooltip-text">Estados de Proyecto</span>
+                <span class="tooltip-text">Estados de Publicación</span>
             </div>
             <div v-on:click="setMainMode(18)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 18}">
@@ -1826,7 +1826,7 @@
             </div>
         </div>
 
-        <!-- Estados Proyecto -->
+        <!-- Estados Publicación -->
         <div v-if="mainmode == 17">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
@@ -1838,7 +1838,7 @@
             <div v-if="mode == 0" style="padding: 1em">
                 <div class="pure-u-1-24 pure-u-md-1-6"></div>
                 <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
-                    <h2>Estados de Proyecto</h2>
+                    <h2>Estados de Publicación</h2>
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-10-24">
@@ -1907,7 +1907,7 @@
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
                 <div class="pure-u-1-24 pure-u-md-1-6"></div>
                 <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
-                    <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Estado Proyecto</h2>
+                    <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Estado Publicación</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="estado_proyecto.estado_publicacion" maxlength="50" />

@@ -94,6 +94,16 @@
         jsUrl: "./web/Proyectos/SalaInfo.js",
         allow: ["*"]
     },
+    "SalaMedios": {
+        templateUrl: "./web/Proyectos/SalaMedios.html",
+        jsUrl: "./web/Proyectos/SalaMedios.js",
+        allow: ["*"]
+    },
+    "SalaPersonal": {
+        templateUrl: "./web/Proyectos/SalaPersonal.html",
+        jsUrl: "./web/Proyectos/SalaPersonal.js",
+        allow: ["*"]
+    },
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",
