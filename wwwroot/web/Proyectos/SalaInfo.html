@@ -7,8 +7,7 @@
     <div class="pure-u-1-24 pure-u-md-1-24"></div>
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard" style="min-height: calc(100vh - 10.6rem);">
         <h2 style="margin-bottom: .5rem;">{{sala.sala_venta}}</h2>
-        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'
-            style="font-size: 1.5em; margin-bottom: 4px;">
+        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
             Información Básica
         </div>
         <div class="pure-g">
@@ -56,7 +55,6 @@
                     </tbody>
                 </table>
             </div>
-
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision'
                 style="font-size: 1.5em; margin-bottom: 4px; margin-top: 1rem;">
                 Tipo de turnos y playlist TV
@@ -70,19 +68,16 @@
                     </label>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-2'>
-                    <div style="display: flex; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: .5rem;">
                         <label for="ipt-playlist" style="font-size: 14px;">ID Playlist YouTube TV turnos:</label>
                         <input type="text" id="ipt-playlist" v-model="sala.id_playlist" maxlength="200">
                     </div>
                 </div>
             </div>
-
-            
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision'
                 style="font-size: 1.5em; margin-bottom: 4px; margin-top: 1rem;">
                 Campos obligatorios en el registro
             </div>
-
             <div style="display: flex; align-items: center; margin-top: .5rem;">
                 <div class='pure-u-1-1 pure-u-md-1-6' v-for="campo in c_obligatorios">
                     <label class="check">

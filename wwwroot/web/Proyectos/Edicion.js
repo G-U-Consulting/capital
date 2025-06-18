@@ -185,6 +185,7 @@
             imgsPortada: [],
             salas_venta: [],
             viewMode: 'Tabla',
+            onlyActive: false,
             frontImg: '',
             interval: null
         };
@@ -225,6 +226,7 @@
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         await this.setViewMode();
         await this.setMainMode();
+        await this.loadOnlyActive();
         this.proyectos.forEach(async pro => {
             let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                 { tipo: 'logo', id_proyecto: pro.id_proyecto });
@@ -345,16 +347,14 @@
             let vista = await GlobalVariables.getPreferences('vistaProyecto', true);
             if (vista) this.viewMode = vista;
             else {
-                let data = (await httpFunc("/generic/genericST/Usuarios:Ins_Preferencias",
-                    { usuario: GlobalVariables.username, nombre: 'vistaProyecto', valor: mode || 'Tabla' })).data;
+                let data = await GlobalVariables.setPreferences('vistaProyecto', mode || 'Tabla', true);
                 if (data == 'OK') await this.setViewMode();
             }
         },
         async updateViewMode(mode) {
             if (mode != this.viewMode) {
                 this.viewMode = mode;
-                let data = (await httpFunc("/generic/genericST/Usuarios:Upd_Preferencias",
-                    { usuario: GlobalVariables.username, nombre: 'vistaProyecto', valor: mode || 'Tabla' })).data;
+                let data = await GlobalVariables.setPreferences('vistaProyecto', mode || 'Tabla');
                 if (data == 'OK') await this.setViewMode();
             }
         },
@@ -708,7 +708,7 @@
         },
         onClear(table) {
             let item = this.filtros[table];
-            item = Object.keys(item).forEach((key) => item[key] = '');
+            item = Object.keys(item).forEach((key) => key !== 'is_active' && (item[key] = ''));
         },
         async clearAllImages() {
             this.previews = [];
@@ -841,6 +841,22 @@
                     reader.readAsDataURL(file);
                 }
             }
+        },
+        async toggleState(item) {
+            item.is_active = item.is_active == '0' ? '1' : '0';
+            await httpFunc(`/generic/genericST/Proyectos:Upd_Proyecto2`, { id_proyecto: item.id_proyecto, is_active: item.is_active });
+        },
+        async onChangeStateView(save = true) {
+            if (this.onlyActive)
+                this.filtros.proyectos['is_active'] = '1';
+            else delete this.filtros.proyectos['is_active'];
+            save && await GlobalVariables.setPreferences('soloProyectosActivos', this.onlyActive ? 's' : 'n');
+        },
+        async loadOnlyActive() {
+            let onlyActive = await GlobalVariables.getPreferences('soloProyectosActivos', true);
+            if (!onlyActive) await GlobalVariables.setPreferences('soloProyectosActivos', 'n', true);
+            else this.onlyActive = onlyActive != 'n';
+            this.onChangeStateView(false);
         },
         async uploadFiles() {
             if (!this.files.length && !this.previews.length) {

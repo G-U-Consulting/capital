@@ -118,6 +118,12 @@ export default {
             }else if(type == "SalaInfo"){
                 this.pushRuta("Información Sala", 1);
                 return this.proyecto;
+            }else if(type == "SalaMedios"){
+                this.pushRuta("Gestión Medios Sala", 1);
+                return this.proyecto;
+            }else if(type == "SalaPersonal"){
+                this.pushRuta("Gestión Personal", 1);
+                return this.proyecto;
             }else if(type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
             
         },

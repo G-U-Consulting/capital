@@ -1177,7 +1177,7 @@ textarea.editor {
   border-top: 0;
   height: fit-content;
 }
-tr{
+tbody tr{
   cursor: pointer;
 }
 .cursor-tooltip {

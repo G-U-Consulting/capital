@@ -13,10 +13,6 @@ export default {
             t_turnos_sala: [],
             c_obligatorios: [],
             c_obligatorios_sala: [],
-
-            filtros: {
-                
-            }
         };
     },
     async mounted() {
@@ -31,16 +27,16 @@ export default {
             this.mainmode = mode;
         },
         async loadData() {
-            let res = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto", 
+            let res = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto",
                 { id_proyecto: this.proyecto.id_proyecto })).data;
             res.length && (this.proyecto = res[0]);
             let id_sala = this.proyecto.id_sala_venta;
             [
-                this.salas, 
-                this.proyectos, 
-                this.t_turnos, 
-                this.t_turnos_sala, 
-                this.c_obligatorios, 
+                this.salas,
+                this.proyectos,
+                this.t_turnos,
+                this.t_turnos_sala,
+                this.c_obligatorios,
                 this.c_obligatorios_sala
             ] = (await httpFunc("/generic/genericDS/Proyectos:Get_Salas", { id_sala })).data;
             if (id_sala) {
@@ -48,7 +44,7 @@ export default {
                     let sala = this.salas.filter(s => s.id_sala_venta == id_sala);
                     if (sala.length) {
                         this.sala = sala[0];
-                        this.proyectos = this.proyectos.map(pro => ({...pro, vpn: this.sala.encuesta_vpn}));
+                        this.proyectos = this.proyectos.map(pro => ({ ...pro, vpn: this.sala.encuesta_vpn }));
                     }
                 }
             }
@@ -64,16 +60,16 @@ export default {
         load_checked() {
             this.t_turnos = this.t_turnos.map(t => {
                 let checked = !!this.t_turnos_sala.filter(ts => ts.id_tipo_turno == t.id_tipo_turno).length;
-                return {...t, checked};
+                return { ...t, checked };
             });
             this.c_obligatorios = this.c_obligatorios.map(c => {
                 let checked = !!this.c_obligatorios_sala.filter(cs => cs.id_campo == c.id_campo).length;
-                return {...c, checked};
+                return { ...c, checked };
             });
         },
         async onUpdate() {
             showProgress();
-            let turnos = this.t_turnos.filter(t => t.checked).map(t => t.id_tipo_turno), 
+            let turnos = this.t_turnos.filter(t => t.checked).map(t => t.id_tipo_turno),
                 obligatorios = this.c_obligatorios.filter(c => c.checked).map(c => c.id_campo);
             this.sala.tipos_turno = turnos.join(',');
             this.sala.campos_obligatorios = obligatorios.join(',');
@@ -84,8 +80,5 @@ export default {
                 showMessage('Error: ' + res.errorMessage);
             }
         }
-    },
-    computed: {
-
     }
 }

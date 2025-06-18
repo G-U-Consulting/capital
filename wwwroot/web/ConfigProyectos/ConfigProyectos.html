@@ -2158,7 +2158,7 @@
                             <span>ID Playlist YouTube Turnos</span>
                             <input type="text" v-model="sala_venta.id_playlist" maxlength="200" />
                         </div>
-                        <table class="dataTable">
+                        <table class="dataTable" style="margin: .5rem 0; table-layout: auto;">
                             <thead>
                                 <tr>
                                     <th>Proyecto</th>
@@ -2167,7 +2167,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="pro in pro_sala">
+                                <tr v-for="pro in pro_sala" v-bind:class="{'deshabilitada': pro.is_active == '0'}" style="cursor: auto;">
                                     <td>{{pro.nombre}}</td>
                                     <td>{{pro.fecha_asignacion_sala}}</td>
                                     <td style="text-align: center;">
@@ -2176,6 +2176,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <div class="pure-u-1-1 pure-u-md-2-5"></div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
                         </div>
