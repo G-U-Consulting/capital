@@ -243,6 +243,9 @@ export default {
         let resp2 = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { cliente: this.cliente });
         this.visitas = resp2.data[0];
       }
+      if (index == 2) {
+        await this.getCotizaciones();
+      }
     },
 
     ///////// mode 1
@@ -320,15 +323,50 @@ export default {
     },
 
     //////// mode 2
-
+    async getCotizaciones() {
+      let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', { id_cliente: this.id_cliente });
+      this.cotizaciones = resp.data[0];
+    },
     addCotizacion() {
-      this.cotizaciones.push({
+      this.cotizaciones.push({ 
         cotizacion: '',
         fecha: '',
         descripcion: '',
         importe: '',
+        id_cliente: this.id_cliente,
       });
     },
-
+    async guardarCotizacion() {
+      showProgress();
+      try {
+        for (let i = 0; i < this.cotizaciones.length; i++) {
+          let resp = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Cotizacion', this.cotizaciones[i]);
+          resp = resp.data;
+          if (resp.includes("OK")) {
+            hideProgress();
+            showMessage("Cotización creada correctamente.");  
+          } else {
+            showMessage("Error al crear la cotización.");
+            hideProgress();
+            return;
+          }
+        }
+      } catch (error) {
+        hideProgress();
+        showMessage("Error al crear la cotización.");
+      }
+    },
+      formatFecha(valor) {
+        if (!valor) return '';
+        try {
+          const fecha = new Date(valor);
+          if (isNaN(fecha)) return ''; // invalida
+          return fecha.toISOString().split('T')[0];
+        } catch {
+          return '';
+        }
+    }
+    
+    
   },
 }

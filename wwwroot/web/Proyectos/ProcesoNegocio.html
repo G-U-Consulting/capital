@@ -438,30 +438,39 @@
                 style="min-height: calc(100dvh - 47rem);max-height: calc(100dvh - 47rem); overflow-y: auto; margin-top: 0.5em;">
                 <table class="dataTable">
                     <thead>
-                        <tr>
-                            <th class="col-1-6">Cotización</th>
-                            <th class="col-1-6">Fecha</th>
-                            <th class="col-3-6">Descripción</th>
-                            <th class="col-1-6">Importe</th>
-                        </tr>
+                      <tr>
+                        <th class="col-1-6">Cotización</th>
+                        <th class="col-1-6">Fecha</th>
+                        <th class="col-3-6">Descripción</th>
+                        <th class="col-1-6">Importe</th>
+                      </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(item, index) in cotizaciones" :key="index">
-                            <td class="col-1-6">
-                                <input type="text" v-model="item.cotizacion" placeholder="#" />
-                            </td>
-                            <td class="col-1-6">
-                                <input type="date" v-model="item.fecha" />
-                            </td>
-                            <td class="col-3-6">
-                                <input type="text" v-model="item.descripcion" placeholder="Descripción" />
-                            </td>
-                            <td class="col-1-6">
-                                <input type="number" step="0.01" v-model="item.importe" placeholder="$" />
-                            </td>
-                        </tr>
+                      <tr v-for="(item, index) in cotizaciones" :key="index">
+                        <td class="col-1-6">
+                          <input type="text" v-model="item.cotizacion" placeholder="#" />
+                        </td>
+                        <td class="col-1-6">
+                          <input
+                            type="date"
+                            :value="formatFecha(item.fecha)"
+                            @input="item.fecha = $event.target.value"
+                          />
+                        </td>
+                        <td class="col-3-6">
+                          <input type="text" v-model="item.descripcion" placeholder="Descripción" />
+                        </td>
+                        <td class="col-1-6">
+                          <input
+                            type="number"
+                            :value="item.importe"
+                            @input="item.importe = parseFloat($event.target.value) || 0"
+                            placeholder="$"
+                          />
+                        </td>
+                      </tr>
                     </tbody>
-                </table>
+                  </table>
             </div>
             <div style="margin-top: 1em;" class="pure-u-1 pure-u-md-1-1">
                 <samp class="pure-u-1 pure-u-md-1-6" style="margin-top: .8rem;">Lista Activa:</samp>
@@ -670,7 +679,7 @@
                 <button class="pure-button button-fixed" @click="nuevaVisita">Guardar</button>
             </div>
             <div v-if="mode == 2" class="pure-u-auto">
-                <button class="pure-button button-fixed">Guardar</button>
+                <button class="pure-button button-fixed" @click="guardarCotizacion">Guardar</button>
             </div>
             <!-- <div v-if="mode != 5 && ObjCliente.NewNombres != ''" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>
