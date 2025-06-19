@@ -4,6 +4,7 @@ export default {
             mainmode: 0,
             mode: 0,
             ruta: [],
+            onlyActive: false,
             proyecto: null,
             searchID: null,
             usuarios: [],
@@ -12,7 +13,7 @@ export default {
             sala: {},
 
             filtros: {
-
+                usuarios: {}
             }
         };
     },
@@ -29,30 +30,39 @@ export default {
             let res = (await httpFunc("/generic/genericDS/Proyectos:Get_Personal", { id_sala: this.proyecto.id_sala_venta })).data;
             if (res[0].length) this.sala = res[0][0];
             this.usuarios = res[1];
-            console.log(this.sala, this.usuarios, res);
         },
         async searchUser() {
             if (this.searchID) {
-                let users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", { searchID: this.searchID, id_sede: '', id_cargo: '', seachUser: '@' })).data;
-                console.log(users);
+                let users = (await httpFunc("/generic/genericDT/Usuarios:Get_Usuarios", { seachUser: this.searchID, id_sede: '', id_cargo: '' })).data;
+                users = users.filter(u => u.is_active == '1');
                 if (users.length) this.usuario = users[0].is_active == '1' ? users[0] : {};
-                else this.usuario = {};
+                else {
+                    showMessage("No se encontró el usuario");
+                    this.usuario = {};
+                }
             }
         },
         async onAddUser() {
-            showProgress();
-            let res = (await httpFunc("/generic/genericST/Proyectos:Ins_Personal",
-                { id_sala: this.sala.id_sala_venta, id_usuario: this.usuario.id_usuario }));
-            if (res.data === 'OK') {
-                this.usuarios.push(this.usuario);
-                this.searchID = null;
-                this.usuario = {};
+            let id_usuario = this.usuario.id_usuario;
+            if (id_usuario) {
+                if (this.usuarios.some(u => u.id_usuario === id_usuario))
+                    showMessage("El usuario ya está asignado");
+                else {
+                    showProgress();
+                    let res = (await httpFunc("/generic/genericST/Proyectos:Ins_Personal",
+                        { id_sala: this.sala.id_sala_venta, id_usuario }));
+                    if (res.data === 'OK') {
+                        this.usuarios.push({...this.usuario, permanente: '0'});
+                        this.searchID = null;
+                        this.usuario = {};
+                    }
+                    else {
+                        console.error(res);
+                        showMessage('Error: ' + res.errorMessage);
+                    }
+                    hideProgress();
+                }
             }
-            else {
-                console.error(res);
-                showMessage('Error: ' + res.errorMessage);
-            }
-            hideProgress();
         },
         async onDelUser(user) {
             showProgress();
@@ -65,6 +75,19 @@ export default {
                 showMessage('Error: ' + res.errorMessage);
             }
             hideProgress();
+        },
+        onChangeStateView() {
+            if (this.onlyActive) this.filtros.usuarios['is_active'] = '1';
+            else delete this.filtros.usuarios['is_active'];
+        },
+        async toggleFix(user) {
+            user.permanente = user.permanente == '0' ? '1' : '0';
+            let res = (await httpFunc("/generic/genericST/Proyectos:Upd_Personal",
+                { id_sala: this.sala.id_sala_venta, id_usuario: user.id_usuario, permanente: user.permanente }));
+            if (res.isError) {
+                console.error(res);
+                showMessage('Error: ' + res.errorMessage)
+            }
         }
     },
     computed: {
@@ -74,7 +97,13 @@ export default {
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
                     ) : []
-                ) : [];
+                ).sort((a, b) => {
+                    if (a.cargo.toLowerCase() < b.cargo.toLowerCase()) return -1;
+                    if (a.cargo.toLowerCase() > b.cargo.toLowerCase()) return 1;
+                    if (a.nombres.toLowerCase() < b.nombres.toLowerCase()) return -1;
+                    if (a.nombres.toLowerCase() > b.nombres.toLowerCase()) return 1;
+                    return 0;
+                }) : [];
             };
         },
     }

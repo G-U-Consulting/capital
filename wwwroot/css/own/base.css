@@ -1933,3 +1933,6 @@ div.btn-left-rotafolio img {
 .col-3-6 {
   width: 50%;
 }
+tr.destacada {
+  border: 2px #007891 solid;
+}

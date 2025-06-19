@@ -445,18 +445,24 @@ insert into dim_tipo_turno (tipo_turno) values
 
 create table dim_campo_obligatorio(
 	id_campo int primary key auto_increment,
-	campo varchar(50) not null unique
+	campo varchar(50) not null,
+	modulo varchar(10) not null,
+	campobd varchar(50) not null
 );
 create table dim_campo_obligatorio_sala(
 	id_campo int not null references dim_campo_obligatorio(id_campo),
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
 	primary key(id_campo, id_sala_venta)
 );
-insert into dim_campo_obligatorio(campo) values
-('Dirección'), ('Medio publicitario'), ('Presupuesto'), ('Motivo de compra');
+insert into dim_campo_obligatorio(campo,modulo,campobd) values
+('Dirección', 1, 'direccion'), 
+('Medio publicitario', 2, 'id_medio'), 
+('Presupuesto', 2, 'id_presupuesto_vivienda'), 
+('Motivo de compra', 2, 'id_motivo_compra');
 
 create table dim_personal_sala(
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
 	id_usuario int not null references fact_usuarios(id_usuario),
+	permanente bit default 0,
 	primary key(id_sala_venta, id_usuario)
 );
