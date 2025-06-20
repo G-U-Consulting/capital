@@ -27,10 +27,13 @@ export default {
             files: [],
             previews: [],
             message: "",
+            dragIndex: null,
+            hoverIndex: null,
             duracion: "3",
-            intervalTime: 3000
+            intervalTime: 3000,
+            tooltipVisible: false,
         }
-    }, 
+    },
     async mounted() {
         this.setMainMode(1);
     },
@@ -42,9 +45,9 @@ export default {
             if (this.mode == 1) subpath.push(nuevo);
             if (this.mode == 2) subpath.push(editar);
             this.ruta = [{
-                text: 'ZM', action: () => 
-                GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, {text: 'General', action: () => { this.mainmode = 0; this.setMode(0) }}];
+                text: 'ZM', action: () =>
+                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+            }, { text: 'General', action: () => { this.mainmode = 0; this.setMode(0) } }];
             this.ruta = [...this.ruta, ...subpath];
         },
         setMode(mode) {
@@ -93,7 +96,7 @@ export default {
                 }
                 hideProgress();
             } else if (mode == 2) {
-                this.fetchCarouselImages();
+                // this.fetchCarouselImages();
             }
             this.mainmode = mode;
             this.mode = 0;
@@ -108,12 +111,12 @@ export default {
             this.editCargo["id_cargo"] = cargo["id_cargo"];
             this.editCargo["cargo"] = cargo["cargo"];
             this.editCargo["descripcion"] = cargo["descripcion"];
-        
+
             hideProgress();
         },
         async agregarCargo() {
             try {
-                if(this.createCargo.cargo == ""){
+                if (this.createCargo.cargo == "") {
                     console.log("Error");
                     return
                 }
@@ -126,7 +129,7 @@ export default {
             }
         },
         async eliminarCargo(item) {
-            showConfirm("La Categoria <b>"+item.cargo+"</b> se eliminará permanentemente.", this.delCategoria, null, item);
+            showConfirm("La Categoria <b>" + item.cargo + "</b> se eliminará permanentemente.", this.delCategoria, null, item);
         },
         async actualizarCargo() {
             if (!this.editCargo.cargo.trim()) {
@@ -152,10 +155,14 @@ export default {
                 }
             } catch (error) {
                 console.log(error)
-            } 
+            }
         },
-        async seachCargos(){
+        async seachCargos() {
             this.cargos = (await httpFunc("/generic/genericDT/Cargos:Get_Cargos", { "cargo": this.seachCargo })).data;
+        },
+        async toggleState(item) {
+            item.is_active = item.is_active == '0' ? '1' : '0';
+            await httpFunc(`/generic/genericST/Proyectos:Upd_Proyecto2`, { id_proyecto: item.id_proyecto, is_active: item.is_active });
         },
         /*SEGURIDAD*/
         async updatePolicy() {
@@ -173,167 +180,145 @@ export default {
             }
         },
         /*PRESENTACION*/
-        async dragStart(index) {
+        dragStart(index) {
             this.dragIndex = index;
         },
-        async dragOver(index) {
-            // Esto permite que el drop funcione
+        dragOver(event) {
+            // Necesario para permitir el "drop" en el contenedor
         },
-        async drop(index) {
-            if (this.dragIndex === null || this.dragIndex === index) return;
-
-            const draggedItem = this.previews[this.dragIndex];
-            this.previews.splice(this.dragIndex, 1);
-            this.previews.splice(index, 0, draggedItem);
-            this.dragIndex = null;
+        handleDragOver(event) {
+            event.preventDefault();
         },
-        async removeImage(index) {
-            this.previews.splice(index, 1);
-        },
-        async handleFileChange(event) {
+        handleFileChange(event) {
             const selectedFiles = event.target.files;
-            for (let i = 0; i < selectedFiles.length; i++) {
-                const file = selectedFiles[i];
-                this.files.push(file);
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.previews.push(e.target.result);
-                };
-                reader.readAsDataURL(file);
-            }
+            this.processFiles(selectedFiles);
         },
-        async fetchCarouselImages() {
-            try {
-                showProgress();
-                let response = (await httpFunc("/generic/genericDS/Presentacion:Get_Presentacion", {})).data;
-                if (response[1]) {
-                    this.previews = response[1].map(x => `/file/S3get/${x.llave}`);
-                } else {
-                    this.message = "❌ No se encontraron imágenes en el servidor.";
-                }
-                hideProgress();
-            } catch (error) {
-                this.message = "❌ Error al cargar imágenes.";
-            }
-        },
-        async handleDragLeave(event) {
-            event.currentTarget.classList.remove("drag-over");
-        },
-        async handleDrop(event, targetKey = null) {
+        async handleDrop(event) {
             if (this.dragIndex !== null) {
                 const dropTarget = event.target.closest('.image-card');
                 if (dropTarget) {
                     const dropIndex = Array.from(event.currentTarget.querySelectorAll('.image-card')).indexOf(dropTarget);
                     if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
-                        const draggedPreview = this.previews[this.dragIndex];
+                        const draggedItem = this.previews[this.dragIndex];
                         const draggedFile = this.files[this.dragIndex];
 
                         this.previews.splice(this.dragIndex, 1);
                         this.files.splice(this.dragIndex, 1);
 
-                        this.previews.splice(dropIndex, 0, draggedPreview);
+                        this.previews.splice(dropIndex, 0, draggedItem);
                         this.files.splice(dropIndex, 0, draggedFile);
+                        this.dragIndex = null;
+                        return;
                     }
                 }
                 this.dragIndex = null;
                 return;
             }
-
-            event.preventDefault();
-            event.currentTarget.classList.remove("drag-over");
-
-            const files = Array.from(event.dataTransfer.files);
-            files.forEach(file => {
-                if (file.type.startsWith("image/")) {
-                    this.files.push(file);
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.previews.push(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
+            if (event.dataTransfer.files.length > 0) {
+                const droppedFiles = event.dataTransfer.files;
+                this.processFiles(droppedFiles);
+            }
+        },
+        async processFiles(files) {
+            let noDocs = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const exists = this.files.some(existingFile => existingFile.name === file.name);
+                if (!exists) {
+                    let ext = file.name.split('.').pop();
+                    if (file.type.startsWith('image/') || this.getIcon(ext)) {
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            if (file.type.startsWith('image/')) {
+                                let f = { src: e.target.result, file: file };
+                                Object.defineProperty(f, 'content', {
+                                    get() { return this.src; },
+                                    set(val) { this.src = val; }
+                                });
+                                await this.previews.push(f);
+                            }
+                            else await this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result });
+                            this.files.push(file);
+                        };
+                        reader.readAsDataURL(file);
+                    } else noDocs.push(file.name);
                 }
-            });
+            }
+            noDocs.length && showMessage(`Error: Documentos no soportados\n${noDocs.join(', ')}`);
+        },
+        removeImage(index) {
+            this.previews.splice(index, 1);
+            this.files.splice(index, 1);
         },
         async uploadFiles() {
-            if (!this.files.length && !this.previews.length) {
-                this.message = "No hay archivos para subir.";
+            const form = new FormData();
+
+
+            function getFile(f) {
+                if (!f) return null;
+                return f instanceof File ? f : f.file || null;
+            }
+
+            this.files.forEach(fObj => {
+                const file = getFile(fObj) || fObj;
+                if (file) form.append(file.name, file);
+            });
+
+            showProgress();
+            const response = await httpFunc("/file/upload", form);
+            hideProgress();
+            if (response.isError) {
+                showMessage(response.errorMessage);
+            } else {
+                this.serverFiles = response.data;
+                this.S3UploadFiles();
+            }
+        },
+        async S3UploadFiles() {
+            showProgress();
+
+            const response = await httpFunc("/file/S3upload", this.serverFiles);
+
+            if (response.isError) {
+                showMessage(response.errorMessage);
+                hideProgress();
                 return;
             }
-            const form = new FormData();
-            if (this.files.length) {
-                this.files.forEach(file => {
-                    if (file) form.append("file", file);
-                });
-            } else if (this.previews.length) {
-                this.previews.forEach(preview => {
-                    if (preview) form.append("file", preview);
-                });
-            }
-            try {
-                showProgress();
-                const uploadResp = await httpFunc("/file/upload", form);
-                if (uploadResp.isError || !uploadResp.data) {
-                    hideProgress();
-                    this.message = uploadResp.errorMessage || "Error al subir archivos al servidor.";
-                    return;
-                }
-                const serverFiles = uploadResp.data;
-                const s3Resp = await httpFunc("/file/S3upload", serverFiles);
-                if (s3Resp.isError || !s3Resp.data) {
-                    hideProgress();
-                    this.message = s3Resp.errorMessage || "Error al subir archivos a S3.";
-                    return;
-                }
-                const insRespDel = await httpFunc("/generic/genericST/Presentacion:Del_Presentacion", {});
-                if (insRespDel.isError || insRespDel.data !== "OK") {
-                    hideProgress();
-                    this.message = insRespDel.errorMessage || "Error al eliminar el archivo en la base de datos.";
-                    return;
-                }
-                const s3Files = s3Resp.data;
-                let arr = [];
-                let index = 0;
-                
-                for (const file of s3Files) {
-                    index++;
-                    arr.push({
-                        id_documento: file.Id,
-                        tipo: 'Carrusel',
-                        orden: index
-                    });
-                    const insResp = await httpFunc("/generic/genericST/Presentacion:Ins_Presentacion", arr[index-1]);
-                    if (insResp.isError || insResp.data !== "OK") {
-                        hideProgress();
-                        this.message = insResp.errorMessage || "Error al registrar archivos en la base de datos.";
-                        return;
-                    }
-                }
-                this.message = "Archivos subidos y registrados correctamente.";
-                this.files = [];
-                this.previews = [];
-                this.fetchCarouselImages();
+            this.S3Files = response.data.map((item, index) => ({
+                id_documento: item.Id,
+                name: item.FileName,
+                id_proyecto: GlobalVariables.id_proyecto,
+                tipo: "Carrusel",
+                orden: index,
+                link: item.Url
+            }));
+
+            let res = await httpFunc("/generic/genericST/Presentacion:Del_Presentacion",
+                {});
+
+            if (res.isError) {
+                showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
                 hideProgress();
-            } catch (error) {
-                hideProgress();
-                this.message = "❌ Error al subir los archivos.";
-                console.error("Upload error:", error);
+                return;
             }
+
+            this.S3Files.forEach(async archivo => {
+                res = await httpFunc("/generic/genericST/Presentacion:Ins_Presentacion", {
+                    orden: archivo.orden,
+                    id_documento: archivo.id_documento,
+                    tipo: archivo.tipo
+                });
+
+                if (res.isError) {
+                    showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            });
+            hideProgress();
         },
-        async getFilenameFromDataURL(dataUrl) {
-            const match = dataUrl.match(/name=([^;]*)/);
-            return match ? match[1] : `image_${Date.now()}.jpg`;
-        },
-        async urlToFile(dataUrl, filename = "temp.png") {
-            try {
-                const res = await fetch(dataUrl);
-                const blob = await res.blob();
-                return new File([blob], filename, { type: blob.type });
-            } catch (e) {
-                console.error("Error al convertir a archivo:", e);
-                return null;
-            }
-        },
+
+        /*SEGURIDAD*/
         hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;
         },
