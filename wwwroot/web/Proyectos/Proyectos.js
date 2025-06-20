@@ -124,6 +124,9 @@ export default {
             }else if(type == "SalaPersonal"){
                 this.pushRuta("Gestión Personal", 1);
                 return this.proyecto;
+            }else if(type == "SalaCalendario"){
+                this.pushRuta("Calendario", 1);
+                return this.proyecto;
             }else if(type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
             
         },

@@ -42,10 +42,7 @@ export default {
             if (id_sala) {
                 if (this.salas.length) {
                     let sala = this.salas.filter(s => s.id_sala_venta == id_sala);
-                    if (sala.length) {
-                        this.sala = sala[0];
-                        this.proyectos = this.proyectos.map(pro => ({ ...pro, vpn: this.sala.encuesta_vpn }));
-                    }
+                    if (sala.length) this.sala = sala[0];
                 }
             }
             this.load_checked();

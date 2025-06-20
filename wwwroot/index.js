@@ -259,6 +259,8 @@ mainVue = {
         },
         async getPreferences(nombre, oneresult) {
             try {
+                if (!GlobalVariables.username)
+                    throw "No username";
                 let preferences = {}, 
                     params = { usuario: GlobalVariables.username };
                 nombre && (params['nombre'] = nombre);
@@ -276,9 +278,11 @@ mainVue = {
         async setPreferences(nombre, valor, nuevo) {
             let data = null;
             try {
+                if (!GlobalVariables.username)
+                    throw "No username";
                 data = (await httpFunc(`/generic/genericST/Usuarios:${nuevo ? 'Ins' : 'Upd'}_Preferencias`,
                     { usuario: GlobalVariables.username, nombre, valor }));
-                if (data.data != 'OK') throw data.errorMessage;
+                if (data.data != 'OK') throw data.errorMessage || data.data;
                 else return 'OK';
             }
             catch (e) {

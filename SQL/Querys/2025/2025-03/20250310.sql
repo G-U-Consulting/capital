@@ -178,7 +178,8 @@ create table AuditoriaSQL (
 	operacion varchar(50) not null,
 	datos text not null,
 	fecha datetime default current_timestamp,
-	username varchar(255);
+	username varchar(255),
+	error varchar(255)
 );
 create table dim_procedimientos_informes (
     id_procedimiento_informe int auto_increment primary key,

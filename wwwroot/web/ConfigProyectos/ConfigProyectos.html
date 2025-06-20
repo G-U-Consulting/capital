@@ -2158,7 +2158,7 @@
                             <span>ID Playlist YouTube Turnos</span>
                             <input type="text" v-model="sala_venta.id_playlist" maxlength="200" />
                         </div>
-                        <table class="dataTable" style="margin: .5rem 0; table-layout: auto;">
+                        <table class="dataTable" style="margin: .5rem 0; table-layout: auto;" v-if="mode == 2">
                             <thead>
                                 <tr>
                                     <th>Proyecto</th>

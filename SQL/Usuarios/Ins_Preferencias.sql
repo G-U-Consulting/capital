@@ -1,13 +1,13 @@
 -- =============================================
--- Proceso: /Usuarios/Get_Preferencias
+-- Proceso: /Usuarios/Ins_Preferencias
 -- =============================================
 --START_PARAM
 set @usuario = NULL,
     @nombre = NULL,
-    @valor = NULL;
+    @valor = NULL,
+    @result = '';
 --END_PARAM
 
-insert into dim_preferencias_usuario (id_usuario, nombre, valor)
-values((select id_usuario from fact_usuarios where usuario = @usuario), @nombre, @valor);
+call fn_preferences(@usuario, @nombre, @valor, 'insert', @result);
 
-select concat('OK-id_preferencia:', LAST_INSERT_ID()) as result;
+select @result as result;

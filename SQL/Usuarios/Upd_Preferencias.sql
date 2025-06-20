@@ -1,14 +1,13 @@
 -- =============================================
--- Proceso: /Usuarios/Get_Preferencias
+-- Proceso: /Usuarios/Upd_Preferencias
 -- =============================================
 --START_PARAM
 set @usuario = NULL,
     @nombre = NULL,
-    @valor = NULL;
+    @valor = NULL,
+    @result = '';
 --END_PARAM
 
-update dim_preferencias_usuario set valor = @valor
-where id_usuario = (select id_usuario from fact_usuarios where usuario = @usuario)
-and nombre = @nombre;
+call fn_preferences(@usuario, @nombre, @valor, 'update', @result);
 
-select 'OK' as result;
+select @result as result;

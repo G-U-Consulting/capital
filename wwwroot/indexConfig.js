@@ -104,6 +104,11 @@
         jsUrl: "./web/Proyectos/SalaPersonal.js",
         allow: ["*"]
     },
+    "SalaCalendario": {
+        templateUrl: "./web/Proyectos/SalaCalendario.html",
+        jsUrl: "./web/Proyectos/SalaCalendario.js",
+        allow: ["*"]
+    },
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",
