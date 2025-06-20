@@ -18,7 +18,7 @@
             previews: [],
             previewsAvo: [],
             files: [],
-            filesAvo:[],
+            filesAvo: [],
             videos: [
                 { nombre: '', descripcion: '', link: '' }
             ],
@@ -55,7 +55,7 @@
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
             documentos: [],
             filtros: {
-                documentos: {is_img: '0'},
+                documentos: { is_img: '0' },
             },
             logoPreview: null,
             slidePreview: null,
@@ -101,49 +101,49 @@
         },
         plantaPreview(val) {
             this.updatePlantaPreviewAll();
-          },
-          slidePreview(val) {
+        },
+        slidePreview(val) {
             this.updatePlantaPreviewAll();
-          },
-          logoPreview(val) {
+        },
+        logoPreview(val) {
             this.updatePlantaPreviewAll();
-          },
-          previews: {
+        },
+        previews: {
             handler(val) {
-              this.updatePlantaPreviewAll();
+                this.updatePlantaPreviewAll();
             },
             deep: true
-          },
-          previewsAvo: {
+        },
+        previewsAvo: {
             handler(val) {
-              this.updatePlantaPreviewAll();
+                this.updatePlantaPreviewAll();
             },
             deep: true
-          },
-          videos: {
+        },
+        videos: {
             handler(val) {
-              this.updatePlantaPreviewAll();
+                this.updatePlantaPreviewAll();
             },
             deep: true
-          },
-          videosReco: {
+        },
+        videosReco: {
             handler(val) {
-              this.updatePlantaPreviewAll();
+                this.updatePlantaPreviewAll();
             },
             deep: true
-          }
+        }
     },
     computed: {
         tabClasses() {
-          return this.mediaTabs.map((_, index) => {
-            if (this.submode === index) {
-              return 'wizarTabActive';
-            } else if (!this.tabsIncomplete.includes(index)) {
-              return 'wizarTabCompleted';
-            } else {
-              return 'wizarTabIncomplete';
-            }
-          });
+            return this.mediaTabs.map((_, index) => {
+                if (this.submode === index) {
+                    return 'wizarTabActive';
+                } else if (!this.tabsIncomplete.includes(index)) {
+                    return 'wizarTabCompleted';
+                } else {
+                    return 'wizarTabIncomplete';
+                }
+            });
         },
         getPreviewSrc() {
             return '../../img/ico/youtobe.png';
@@ -151,11 +151,10 @@
         allItems() {
             let items = [];
             if (this.tablas && this.tablas.length) {
-       
                 if (!this.tablas[0].activo && this.plantaPreview) {
                     items.push({ src: this.plantaPreview });
                 }
-    
+
                 if (!this.tablas[1].activo) {
                     if (this.slidePreview) items.push({ src: this.slidePreview });
                     if (this.logoPreview) items.push({ src: this.logoPreview });
@@ -165,7 +164,6 @@
                 if (this.tablas[2] && !this.tablas[2].activo && this.previews) {
                     items = items.concat(this.previews);
                 }
-   
                 // if (this.tablas[3] && !this.tablas[3].activo && this.previewsAvo) {
                 //     items = items.concat(this.previewsAvo);
                 // }
@@ -189,19 +187,19 @@
     methods: {
         updatePlantaPreviewAll() {
             this.plantaPreviewAll = [
-              { src: this.plantaPreview },
-              { src: this.slidePreview },
-              { src: this.logoPreview },
-              ...(this.previews || []),
-              ...(this.previewsAvo || []),
-              ...(this.videos?.filter(v => v.link) || []),
-              ...(this.videosReco?.filter(v => v.link) || [])
+                { src: this.plantaPreview },
+                { src: this.slidePreview },
+                { src: this.logoPreview },
+                ...(this.previews || []),
+                ...(this.previewsAvo || []),
+                ...(this.videos?.filter(v => v.link) || []),
+                ...(this.videosReco?.filter(v => v.link) || [])
             ];
         },
         setMode(mode) {
             this.mode = mode;
-             if(mode == 0)
-                 GlobalVariables.miniModuleCallback("StartMediaMdule", null);
+            if (mode == 0)
+                GlobalVariables.miniModuleCallback("StartMediaMdule", null);
         },
         async setSubmode(index) {
             this.submode = index;
@@ -242,7 +240,7 @@
                 console.log(error);
             }
         },
-        construirTablas(grupo_img, grupo_vid,grupo_vir,grupo_avo) {
+        construirTablas(grupo_img, grupo_vid, grupo_vir, grupo_avo) {
             this.tablas = [
                 {
                     titulo: 'Agrupaciones Generales',
@@ -296,10 +294,10 @@
                     if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
                         const draggedItem = this.previews[this.dragIndex];
                         const draggedFile = this.files[this.dragIndex];
-        
+
                         this.previews.splice(this.dragIndex, 1);
                         this.files.splice(this.dragIndex, 1);
-        
+
                         this.previews.splice(dropIndex, 0, draggedItem);
                         this.files.splice(dropIndex, 0, draggedFile);
                         this.dragIndex = null;
@@ -355,7 +353,7 @@
                     Array.from(droppedFiles).forEach(file => {
                         if (!file.type.startsWith("image/")) return;
                         if (file.size > 2 * 1024 * 1024) return;
-        
+
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             this.previews.push({ src: e.target.result, file });
@@ -374,10 +372,10 @@
                     if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
                         const draggedItem = this.previewsAvo[this.dragIndex];
                         const draggedFile = this.filesAvo[this.dragIndex];
-        
+
                         this.previewsAvo.splice(this.dragIndex, 1);
                         this.filesAvo.splice(this.dragIndex, 1);
-        
+
                         this.previewsAvo.splice(dropIndex, 0, draggedItem);
                         this.filesAvo.splice(dropIndex, 0, draggedFile);
                         this.dragIndex = null;
@@ -433,7 +431,7 @@
                     Array.from(droppedFiles).forEach(file => {
                         if (!file.type.startsWith("image/")) return;
                         if (file.size > 2 * 1024 * 1024) return;
-        
+
                         const reader = new FileReader();
                         reader.onload = (e) => {
                             this.previewsAvo.push({ src: e.target.result, file });
@@ -443,11 +441,6 @@
                     });
                 }
             }
-        },
-        extractYouTubeId(url) {
-            const regExp = /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[1].length === 11) ? match[1] : null;
         },
         removeImage(index) {
             this.previews.splice(index, 1);
@@ -461,6 +454,11 @@
         },
         handleDragOver(event) {
             event.preventDefault();
+        },
+        extractYouTubeId(url) {
+            const regExp = /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[1].length === 11) ? match[1] : null;
         },
         processFiles(files) {
             for (let i = 0; i < files.length; i++) {
@@ -500,24 +498,22 @@
         async moveRow(direction) {
             const i = this.selectedRow;
             if (i === null || i < 0 || i >= this.videos.length) return;
-          
             if (direction === 'up' && i > 0) {
-              const temp = this.videos[i];
-              this.videos[i] = this.videos[i - 1];
-              this.videos[i - 1] = temp;
-              this.selectedRow = i - 1;
+                const temp = this.videos[i];
+                this.videos[i] = this.videos[i - 1];
+                this.videos[i - 1] = temp;
+                this.selectedRow = i - 1;
             } else if (direction === 'down' && i < this.videos.length - 1) {
-              const temp = this.videos[i];
-              this.videos[i] = this.videos[i + 1];
-              this.videos[i + 1] = temp;
-              this.selectedRow = i + 1;
+                const temp = this.videos[i];
+                this.videos[i] = this.videos[i + 1];
+                this.videos[i + 1] = temp;
+                this.selectedRow = i + 1;
             }
         },
         async updateCursor(event) {
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
         },
-  
         async moveRow(direction) {
             const { tablaIndex, itemIndex } = this.selected;
             if (tablaIndex === null || itemIndex === null) return;
@@ -536,7 +532,7 @@
         async addRowSec() {
             const { tablaIndex, itemIndex } = this.selected;
             if (tablaIndex === null || itemIndex === null) return;
-          
+
             const datos = this.tablas[tablaIndex].datos;
             datos.splice(itemIndex + 1, 0, '');
             this.selected.itemIndex = itemIndex + 1;
@@ -571,20 +567,20 @@
         // selectItem(i, j) {
         //     const tabla = this.tablas[i];
         //     if (tabla.titulo === 'General de C. Capital' || tabla.activo) return;
-        
+
         //     this.selected.tablaIndex = i;
         //     this.selected.itemIndex = j;
-        
+
         //     this.editando.tablaIndex = i;
         //     this.editando.itemIndex = j;
-        
+
         //     this.$nextTick(() => {
         //         this.$refs.editInput?.focus?.();
         //     });
         // },
         selectItem(tablaIndex, itemIndex) {
             const tabla = this.tablas[tablaIndex];
-            if (tabla.titulo === 'Agrupaciones Generales' ||  tabla.titulo === 'Imágenes Principales' || tabla.activo) return;
+            if (tabla.titulo === 'Agrupaciones Generales' || tabla.titulo === 'Imágenes Principales' || tabla.activo) return;
             this.selected.tablaIndex = tablaIndex;
             this.selected.itemIndex = itemIndex;
         },
@@ -673,13 +669,13 @@
         previewImage(event, target) {
             const file = event.target.files[0];
             if (!file) return;
-        
+
             const reader = new FileReader();
             reader.onload = e => {
                 this[target] = e.target.result;
             };
             reader.readAsDataURL(file);
-        
+
             if (target === 'logoPreview') this.logoFile = { file, tipo: 'logo' };
             else if (target === 'slidePreview') this.slideFile = { file, tipo: 'slide' };
             else if (target === 'plantaPreview') this.plantaFile = { file, tipo: 'planta' };
@@ -703,14 +699,14 @@
                 this.plantaPreview = null;
             }
         },
-        configclearAllImages(){
+        configclearAllImages() {
             showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
         },
         //////////////////////////////////////
         async uploadFiles() {
             const form = new FormData();
-           
-    
+
+
             function getFile(f) {
                 if (!f) return null;
                 return f instanceof File ? f : f.file || null;
@@ -726,13 +722,13 @@
                     const file = getFile(fObj) || fObj;
                     if (file) form.append(file.name, file);
                 });
-            } else if (this.submode === 5)  {
+            } else if (this.submode === 5) {
                 this.filesAvo.forEach(fObj => {
                     const file = getFile(fObj) || fObj;
                     if (file) form.append(file.name, file);
                 });
             }
-        
+
             showProgress();
             const response = await httpFunc("/file/upload", form);
             hideProgress();
@@ -745,12 +741,13 @@
         },
         async S3UploadFiles() {
             const getFile = (f) => f instanceof File ? f : f?.file || null;
-           
+
             showProgress();
             const response = await httpFunc("/file/S3upload", this.serverFiles);
 
             if (response.isError) {
                 showMessage(response.errorMessage);
+                hideProgress();
                 return;
             }
 
@@ -763,7 +760,7 @@
             };
 
             const folder = folderMap[this.submode] || 'principal';
-         
+
             if (this.submode === 1) {
                 const fileList = [this.logoFile, this.slideFile, this.plantaFile].map(getFile).filter(Boolean);
 
@@ -781,7 +778,7 @@
                     name: item.FileName,
                     id_proyecto: GlobalVariables.id_proyecto,
                     tipo: folder,
-                    orden: index, 
+                    orden: index,
                     link: item.Url
                 }));
             }
@@ -801,7 +798,7 @@
 
                 this.S3Files.push(...filteredAndMappedItems);
             }
-          
+
             for (const archivo of this.S3Files) {
                 const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
                     nombre: archivo.name || '',
@@ -819,7 +816,7 @@
                 }
             }
 
-    
+
             for (const archivo of this.S3Files) {
                 const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
                     nombre: archivo.name || '',
@@ -848,14 +845,14 @@
                 4: 'recorridos virt',
                 5: 'avances de obra'
             };
-        
+
             const folder = folderMap[this.submode] || 'principal';
             let archivos = [];
-        
+
             showProgress();
 
             if (this.submode === 3) {
-              const resp = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
+                const resp = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
                     id_proyecto: GlobalVariables.id_proyecto,
                     tipo: folder,
                     id_grupo_proyecto: this.selectedGrupoId
@@ -863,7 +860,7 @@
 
                 this.videos = resp.data || [];
 
-         
+
                 this.videos = this.videos.map(video => ({
                     nombre: video.nombre || '',
                     descripcion: video.descripcion || '',
@@ -889,18 +886,18 @@
                 }));
 
             }
-        
+
             if (this.submode === 1) {
                 const tipos = ['logo', 'slide', 'planta'];
                 const seenKeys = new Set();
-        
+
                 for (let tipo of tipos) {
                     const res = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
                         id_proyecto: GlobalVariables.id_proyecto,
                         tipo,
                         id_grupo_proyecto: this.selectedGrupoId,
                     });
-        
+
                     if (res?.data?.length) {
                         for (let f of res.data) {
                             if (!seenKeys.has(f.llave)) {
@@ -920,9 +917,9 @@
                 });
                 archivos = res.data || [];
             }
-        
+
             hideProgress();
-        
+
             for (let file of archivos) {
                 const isVideo = !!file.link;
 
@@ -990,10 +987,10 @@
             // this.logoPreview = null;
             // this.slidePreview = null;
             // this.plantaPreview = null;
-            
+
         },
         async GrupUploadFiles() {
-            const folderMap = { 
+            const folderMap = {
                 1: 'principal',
                 2: 'imagenes',
                 3: 'videos',
@@ -1027,7 +1024,7 @@
                     modulo: folder
                 });
                 this.grupo_proyectos = resp.data;
-            
+
                 this.uploadFiles();
                 await this.checkAndLoad(this.submode);
                 hideProgress();
@@ -1064,32 +1061,32 @@
             }
 
         },
-        modImg(){
-            this.modeimg = false; 
-            this.previews = []; 
+        modImg() {
+            this.modeimg = false;
+            this.previews = [];
             this.files = [];
         },
-        modAvo(){
-            this.modeAvo = false; 
-            this.previewsAvo = []; 
+        modAvo() {
+            this.modeAvo = false;
+            this.previewsAvo = [];
             this.filesAvo = [];
         },
         async crearGrupoVideos() {
             try {
                 showProgress();
-        
+
                 const res = await httpFunc("/generic/genericDT/Medios:Ins_Grupos", {
                     grupo: this.newGrupVid,
                     orden: 5,
                     id_proyecto: GlobalVariables.id_proyecto,
                     modulo: 'videos'
                 });
-        
+
                 if (res.isError || !res.data || !res.data[0]?.result) {
                     showMessage("El Grupo ya existe.");
                     return;
                 }
-        
+
                 this.selectedGrupoId = res.data[0].result;
                 this.insertarVideosEnGrupo();
                 showMessage("Grupo de videos creado correctamente.");
@@ -1184,7 +1181,7 @@
             }
 
             showProgress();
-            for (const [index, archivo] of this.videos.entries())  {
+            for (const [index, archivo] of this.videos.entries()) {
                 const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
                     id_proyecto: GlobalVariables.id_proyecto,
                     id_grupo_proyecto: this.selectedGrupoId,
@@ -1201,7 +1198,7 @@
             hideProgress();
             try {
                 showProgress();
-        
+
                 for (const [index, archivo] of this.videos.entries()) {
                     const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
                         orden: index,
@@ -1213,13 +1210,13 @@
                         video: archivo.nombre,
                         link: archivo.link
                     });
-        
+
                     if (result.isError) {
                         showMessage(`Error al insertar archivo "${archivo.nombre}".`);
                         return;
                     }
                 }
-        
+
                 showMessage("Videos guardados correctamente.");
             } catch (error) {
                 console.error("Error al insertar videos:", error);
@@ -1229,23 +1226,23 @@
             }
         },
         volverDesdeVideo() {
-     
-            if(this.submode == 3){
+
+            if (this.submode == 3) {
                 this.modevid = true;
                 this.setSubmode(3);
                 this.videos = [{
-                  nombre: '',
-                  descripcion: '',
-                  link: ''
+                    nombre: '',
+                    descripcion: '',
+                    link: ''
                 }];
             }
-            if(this.submode == 4){
+            if (this.submode == 4) {
                 this.modevir = true;
                 this.setSubmode(4);
                 this.videosReco = [{
-                  nombre: '',
-                  descripcion: '',
-                  link: ''
+                    nombre: '',
+                    descripcion: '',
+                    link: ''
                 }];
             }
         },
@@ -1278,7 +1275,7 @@
 
         // fullScreen() {
         //     let cont = document.getElementById("cont-rotafolio");
-            
+
         //     if (cont.requestFullscreen) {
         //         cont.requestFullscreen();
         //     } else if (cont.mozRequestFullScreen) {
@@ -1290,17 +1287,17 @@
         //     }
         // },
         async setTime() {
-            let res = await httpFunc('/generic/genericDT/General:Get_Variable', {nombre_variable: 'CarDurac'});
-            if (res.data.length && res.data[0].valor) 
-                this.time = parseFloat(res.data[0].valor.replace(',','.')) * 1000;
+            let res = await httpFunc('/generic/genericDT/General:Get_Variable', { nombre_variable: 'CarDurac' });
+            if (res.data.length && res.data[0].valor)
+                this.time = parseFloat(res.data[0].valor.replace(',', '.')) * 1000;
         },
         isImage(item) {
             this.setTime()
             const valueToCheck = item?.content || item?.url;
             const isBase64 = item?.src?.startsWith('data:image/');
-          
+
             return item && (typeof valueToCheck === 'string' && valueToCheck.match(/\.(jpeg|jpg|png|gif)$/i) || isBase64);
-          },
+        },
         isVideo(item) {
             return item && (item.previewSrc || item.videoUrl)?.includes('youtube.com');
         },
@@ -1429,13 +1426,13 @@
                 return false;
             }
         },
-        clearSelection(){
+        clearSelection() {
             console.log('clearSelection');
-                this.selected = {
-                    tablaIndex: null,
-                    itemIndex: null,
-                    tabindex: 0
-                };
-            },
+            this.selected = {
+                tablaIndex: null,
+                itemIndex: null,
+                tabindex: 0
+            };
+        },
     }
 };

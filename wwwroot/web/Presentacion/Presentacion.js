@@ -10,7 +10,6 @@
             ruta: GlobalVariables.ruta,
             duracion: "3",
             dragIndex: null,
-     
         }
     }, 
     async mounted() {

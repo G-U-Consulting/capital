@@ -10,31 +10,29 @@ export default {
         "Registro",
         "Cotización",
         "Opción",
-        "Vinculación",
-        "Cierre"
       ],
       showPolicyModal: false,
       policyAccepted: false,
       ObjCliente: {
-        NewNombres: '',
-        NewApellido1: '',
-        NewApellido2: '',
-        NewDireccion: '',
-        NewCiudad: '',
-        NewBarrio: '',
-        NewDepartamento: '',
-        NewPais: '',
-        NewEmail1: '',
-        NewEmail2: '',
-        NewTelefono1: '',
-        NewTelefono2: '',
-        NewTipoDocumento: '',
-        NewNumeroDocumento: '',
-        NewPaisExpedicion: '',
-        NewDepartamentoExpedicion: '',
-        NewCiudadExpedicion: '',
-        NewFechaExpedicion: '',
-        NewIsPoliticaAceptada: 0,
+        nombres: '',
+        apellido1: '',
+        apellido2: '',
+        direccion: '',
+        ciudad: '',
+        barrio: '',
+        departamento: '',
+        pais: '',
+        email1: '',
+        email2: '',
+        telefono1: '',
+        telefono2: '',
+        tipoDocumento: '',
+        numeroDocumento: '',
+        paisExpedicion: '',
+        departamentoExpedicion: '',
+        ciudadExpedicion: '',
+        fechaExpedicion: '',
+        isPoliticaAceptada: 0,
 
       },
       ObjVisita: {
@@ -104,10 +102,12 @@ export default {
     this.tipo_registro = resp.data[4];
     this.modo_atencion = resp.data[5];
     this.presupuesto_vivienda = resp.data[6];
+    this.campoObligatorio();
+      
   },
   methods: {
     async handleNext(nextIndex) {
-      if (this.mode === 0 && nextIndex === 1 && !this.policyAccepted && this.iscliente && this.ObjCliente.NewNombres !== '') {
+      if (this.mode === 0 && nextIndex === 1 && !this.policyAccepted && this.iscliente && this.ObjCliente.nombres !== '') {
         showMessage("Debe aceptar la política para continuar.");
       } else if (this.policyAccepted || nextIndex === 0) {
         this.mode = nextIndex;
@@ -135,6 +135,7 @@ export default {
         showMessage("Debe aceptar la política para continuar.");
         return;
       }
+      if (!this.validarCampos(this.ObjCliente, this.camposObligatorios)) return;
       let cliente = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
       cliente = cliente.data;
       if (cliente[0].result.includes("OK")) {
@@ -154,26 +155,26 @@ export default {
     async limpiarObj() {
       if (this.mode == 0) {
         this.ObjCliente = {
-          NewNombres: '',
-          NewApellido1: '',
-          NewApellido2: '',
-          NewDireccion: '',
-          NewCiudad: '',
-          NewBarrio: '',
-          NewDepartamento: '',
-          NewPais: '',
-          NewEmail1: '',
-          NewEmail2: '',
-          NewTelefono1: '',
-          NewTelefono2: '',
-          NewTipoDocumento: '',
-          NewNumeroDocumento: '',
-          NewPaisExpedicion: '',
-          NewDepartamentoExpedicion: '',
-          NewCiudadExpedicion: '',
-          NewFechaExpedicion: '',
-          NewIdPresupuestoVivienda: '',
-          NewIsPoliticaAceptada: 0,
+          nombres: '',
+          apellido1: '',
+          apellido2: '',
+          direccion: '',
+          ciudad: '',
+          barrio: '',
+          departamento: '',
+          pais: '',
+          email1: '',
+          email2: '',
+          telefono1: '',
+          telefono2: '',
+          tipoDocumento: '',
+          numeroDocumento: '',
+          paisExpedicion: '',
+          departamentoExpedicion: '',
+          ciudadExpedicion: '',
+          fechaExpedicion: '',
+          idPresupuestoVivienda: '',
+          isPoliticaAceptada: 0,
         }
       }
       if (this.mode == 1) {
@@ -202,28 +203,28 @@ export default {
       cliente = cliente.data;
 
       if (cliente && cliente[0] && cliente[0][0]) {
-        this.ObjCliente.NewNombres = cliente[0][0].nombres;
-        this.ObjCliente.NewApellido1 = cliente[0][0].apellido1;
-        this.ObjCliente.NewApellido2 = cliente[0][0].apellido2;
-        this.ObjCliente.NewDireccion = cliente[0][0].direccion;
-        this.ObjCliente.NewCiudad = cliente[0][0].ciudad;
-        this.ObjCliente.NewBarrio = cliente[0][0].barrio;
-        this.ObjCliente.NewDepartamento = cliente[0][0].departamento;
-        this.ObjCliente.NewPais = cliente[0][0].pais;
-        this.ObjCliente.NewEmail1 = cliente[0][0].email1;
-        this.ObjCliente.NewEmail2 = cliente[0][0].email2;
-        this.ObjCliente.NewTelefono1 = cliente[0][0].telefono1;
-        this.ObjCliente.NewTelefono2 = cliente[0][0].telefono2;
-        this.ObjCliente.NewTipoDocumento = cliente[0][0].tipo_documento;
-        this.ObjCliente.NewNumeroDocumento = cliente[0][0].numero_documento;
-        this.ObjCliente.NewPaisExpedicion = cliente[0][0].pais_expedicion;
-        this.ObjCliente.NewDepartamentoExpedicion = cliente[0][0].departamento_expedicion;
-        this.ObjCliente.NewCiudadExpedicion = cliente[0][0].ciudad_expedicion;
-        this.ObjCliente.NewFechaExpedicion = cliente[0][0].fecha_expedicion;
+        this.ObjCliente.nombres = cliente[0][0].nombres;
+        this.ObjCliente.apellido1 = cliente[0][0].apellido1;
+        this.ObjCliente.apellido2 = cliente[0][0].apellido2;
+        this.ObjCliente.direccion = cliente[0][0].direccion;
+        this.ObjCliente.ciudad = cliente[0][0].ciudad;
+        this.ObjCliente.barrio = cliente[0][0].barrio;
+        this.ObjCliente.departamento = cliente[0][0].departamento;
+        this.ObjCliente.pais = cliente[0][0].pais;
+        this.ObjCliente.email1 = cliente[0][0].email1;
+        this.ObjCliente.email2 = cliente[0][0].email2;
+        this.ObjCliente.telefono1 = cliente[0][0].telefono1;
+        this.ObjCliente.telefono2 = cliente[0][0].telefono2;
+        this.ObjCliente.tipoDocumento = cliente[0][0].tipo_documento;
+        this.ObjCliente.numeroDocumento = cliente[0][0].numero_documento;
+        this.ObjCliente.paisExpedicion = cliente[0][0].pais_expedicion;
+        this.ObjCliente.departamentoExpedicion = cliente[0][0].departamento_expedicion;
+        this.ObjCliente.ciudadExpedicion = cliente[0][0].ciudad_expedicion;
+        this.ObjCliente.fechaExpedicion = cliente[0][0].fecha_expedicion;
         this.id_cliente = cliente[0][0].id_cliente;
-        this.ObjCliente.NewIsPoliticaAceptada = cliente[0][0].is_politica_aceptada;
+        this.ObjCliente.isPoliticaAceptada = cliente[0][0].is_politica_aceptada;
 
-        if (this.ObjCliente.NewIsPoliticaAceptada == 1) {
+        if (this.ObjCliente.isPoliticaAceptada == 1) {
           this.policyAccepted = true;
         } else {
           this.policyAccepted = false;
@@ -232,13 +233,14 @@ export default {
         this.iscliente = true;
         this.isboton = false;
       } else {
-        this.ObjCliente.NewNombres = '';
+        this.ObjCliente.nombres = '';
         this.iscliente = false;
         showMessage("No se encontró el cliente.");
       }
 
     },
-    async setSubmode(index) {
+      async setSubmode(index) {
+        this.campoObligatorio();
       if (index == 1) {
         let resp2 = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { cliente: this.cliente });
         this.visitas = resp2.data[0];
@@ -261,13 +263,14 @@ export default {
         .filter(item => item.checked)
         .map(item => item.id_modo_atencion);
       this.ObjVisita.modo_atencion = estadopublicacion.join(',');
-      if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
-        showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
-        return;
-      }
       if(this.ObjVisita.id_visita != null){
           showMessage("Esta visita no se puede actualizar.");
           return;
+      }
+      if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
+      if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
+        showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
+        return;
       }
       showProgress();
       try {
@@ -356,17 +359,32 @@ export default {
         showMessage("Error al crear la cotización.");
       }
     },
-      formatFecha(valor) {
-        if (!valor) return '';
-        try {
-          const fecha = new Date(valor);
-          if (isNaN(fecha)) return ''; // invalida
-          return fecha.toISOString().split('T')[0];
-        } catch {
-          return '';
+    async campoObligatorio() {
+      let res = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto", {
+        id_proyecto: GlobalVariables.id_proyecto
+      })).data;
+    
+      if (res.length) this.proyecto = res[0];
+    
+      let id_sala_venta = this.proyecto.id_sala_venta;
+      let modulo = this.mode+1;
+      let resp = (await httpFunc("/generic/genericDS/ProcesoNegocio:Get_Obligatorio", {
+        id_sala_venta,
+        modulo
+      })).data;
+        this.camposObligatorios = resp[0].map(r => r.campobd);
+        this.nombreCampos = resp[0].map(r => r.campo)
+    },
+    validarCampos(obj, camposObligatorios) {
+      for (let i = 0; i < camposObligatorios.length; i++) {
+        let campo = camposObligatorios[i];
+        if (obj[campo] === undefined || obj[campo] === null || obj[campo].toString().trim() === '') {
+          let nombreCampo = this.nombreCampos && this.nombreCampos[i] ? this.nombreCampos[i] : campo;
+          showMessage(`El campo obligatorio '${nombreCampo}' no ha sido diligenciado.`);
+          return false;
         }
-    }
-    
-    
+      }
+      return true;
+    },
   },
 }

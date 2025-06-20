@@ -1933,3 +1933,18 @@ div.btn-left-rotafolio img {
 .col-3-6 {
   width: 50%;
 }
+.dataTable th,
+.dataTable td {
+  white-space: nowrap;
+  overflow: hidden;        
+  text-overflow: ellipsis; 
+  max-width: 10rem;      
+}
+.dataTable td.usuario,
+.dataTable th.usuario {
+  max-width: 15rem;
+}
+.dataTable td.rol,
+.dataTable th.rol {
+  max-width: 5rem;
+}

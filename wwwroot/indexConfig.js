@@ -89,6 +89,21 @@
         jsUrl: "./web/Proyectos/ProcesoNegocio.js",
         allow: ["*"]
     },
+    "Clientes": {
+        templateUrl: "./web/Proyectos/Clientes.html",
+        jsUrl: "./web/Proyectos/Clientes.js",
+        allow: ["*"]
+    },
+    "MisCompromisos": {
+        templateUrl: "./web/Proyectos/MisCompromisos.html",
+        jsUrl: "./web/Proyectos/MisCompromisos.js",
+        allow: ["*"]
+    },
+    "MiCalendario":{
+        templateUrl: "./web/Proyectos/MiCalendario.html",
+        jsUrl: "./web/Proyectos/MiCalendario.js",
+        allow: ["*"]
+    },
     "SalaInfo": {
         templateUrl: "./web/Proyectos/SalaInfo.html",
         jsUrl: "./web/Proyectos/SalaInfo.js",
