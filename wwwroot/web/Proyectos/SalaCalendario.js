@@ -5,8 +5,14 @@ export default {
             mode: 0,
             ruta: [],
             proyecto: null,
-            namedays: ["lun","mar","mié","jue","vie","sáb","dom"],
-            namemonths: ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],
+            nameDays: ["lun","mar","mié","jue","vie","sáb","dom"],
+            nameMonths: ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],
+            viewMode: {},
+            optionMode: [
+                { name: "6 meses", months: 6, initMonth: 0, year: new Date().getFullYear(), class: "m6" },
+                { name: "12 meses", months: 12, initMonth: 0, year: new Date().getFullYear(), class: "m12" }
+            ],
+            viewMonths: {},
             filtros: {
                 
             }
@@ -17,7 +23,8 @@ export default {
         this.setMainMode('SalaMedios');
         await this.loadData();
         console.log(this.getMonthCalendar);
-        console.log(this.getMonthCalendar(new Date("2025-06-20")));
+        this.viewMode = this.optionMode[1];
+        this.setViewMonths();
     },
     methods: {
         setMainMode(mode) {
@@ -81,6 +88,21 @@ export default {
             }
 
             return daysView;
+        },
+        setViewMonths() {
+            let today = new Date(), 
+                init = Math.floor(today.getMonth() / this.viewMode.months) * this.viewMode.months;
+            for (let x = init; x < this.viewMode.months + init; x++) 
+                this.viewMonths[this.nameMonths[x]] = 
+                    {
+                        year: this.viewMode.year,
+                        days: this.getMonthCalendar(new Date(this.viewMode.year, x, 1)),
+                        selected: today.getMonth() === x
+                    }
+        },
+        selectMonth(n) {
+            for (const key in this.viewMonths) 
+                this.nameMonths[n] == key ? this.viewMonths[key].selected = true : this.viewMonths[key].selected = false;
         }
     },
     computed: {

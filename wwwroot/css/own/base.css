@@ -1952,21 +1952,46 @@ tr.destacada {
   border: 2px #007891 solid;
 }
 
+.calendar {
+  display: grid;
+  max-height: calc(100vh - 18rem);
+  overflow-y: auto;
+  gap: 6px;
+}
+.calendar.m6 {
+  grid: repeat(2, 1fr) / repeat(3, 1fr);
+}
+.calendar.m12 {
+  grid: repeat(4, 1fr) / repeat(3, 1fr);
+}
+@media (min-width: 1600px) {
+  .calendar.m12 {
+    grid: repeat(3, 1fr) / repeat(4, 1fr);
+  }
+}
 .cal-month {
-  height: 215px; /*185px*/
-  width: 285px; /*208px*/
   display: inline-flex;
   flex-direction: column;
   font-size: 12px;
-  margin-right: 8px;
-  margin-bottom: 5px;
-  border: 1px #006b80 solid;
+  border: 1px #2a93a7  solid;
+  min-height: 220px;
+}
+.cal-sel-month {
+  border: 2px #0c5968 solid;
 }
 .cal-header{
   width: 100%;
   display: flex;
 }
 
+.cal-name-month {
+  height: calc(1rem + 10px);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px #aaa solid;
+}
 .cal-name-day {
   height: calc(1rem + 10px);
   width: calc(100% / 7);
@@ -1987,4 +2012,14 @@ tr.destacada {
   height: 100%;
   border: 1px #ccc solid;
   padding: 8%;
+}
+
+.cal-today {
+  background: #A6D9F480;
+  border: 1px #006b80 solid;
+  font-weight: bold;
+}
+
+.cal-fade-day span {
+  color: #929292;
 }
