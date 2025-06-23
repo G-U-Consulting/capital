@@ -10,7 +10,7 @@ set @id_cliente = 0,
     @importe = 0; 
 --END_PARAM
 
-if exists (select 1 from fact_cotizaciones where cotizacion = @cotizacion) then
+if exists (select 1 from fact_cotizaciones where cotizacion = @cotizacion and id_cliente = @id_cliente) then
     update fact_cotizaciones
     set descripcion = @descripcion
     where cotizacion = @cotizacion;
