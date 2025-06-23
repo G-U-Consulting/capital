@@ -105,7 +105,7 @@ app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string 
         if(ut == "ExcelFormater")
             ret = ExcelFormater.Format(JObject.Parse(body), rootPath);
         if (ut == "Presentacion")
-            ret = (await WebBDUt.ExecuteLocalSQLJson<DataSet>("Presentacion/Get_Presentacion", new JObject())).ToString();
+            ret = (await WebBDUt.ExecuteLocalSQLJson<DataSet>("Presentacion/Get_Duracion", new JObject())).ToString();
         if (ut == "Test")
             ret = (await Sinco.GetInstance(defaultDB).GetEmpresas()).ToString();
         if (ut == "Test2")

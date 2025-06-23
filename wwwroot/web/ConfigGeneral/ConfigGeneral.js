@@ -96,7 +96,7 @@ export default {
                 }
                 hideProgress();
             } else if (mode == 2) {
-                // this.fetchCarouselImages();
+                this.loadImg();
             }
             this.mainmode = mode;
             this.mode = 0;
@@ -253,7 +253,6 @@ export default {
         async uploadFiles() {
             const form = new FormData();
 
-
             function getFile(f) {
                 if (!f) return null;
                 return f instanceof File ? f : f.file || null;
@@ -317,7 +316,51 @@ export default {
             });
             hideProgress();
         },
+        async loadImg() {
+            const folder = 'Carrusel';
+            let archivos = [];
 
+            showProgress();
+            await this.clearAllImages();
+
+            const res = await httpFunc("/generic/genericDT/Presentacion:Get_Presentacion", {
+                tipo: folder
+            });
+
+            archivos = res.data || [];
+            hideProgress();
+
+            for (let file of archivos) {
+                const imagePath = "/file/S3get/" + file.llave;
+                const blob = await this.fetchImageAsBlob(imagePath);
+                if (!blob) continue;
+
+                const fileObj = new File([blob], file.documento, { type: blob.type });
+
+                const src = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(fileObj);
+                });
+
+                this.previews.push({ src, file: fileObj });
+                this.files.push(fileObj);
+            }
+        },
+        async clearAllImages() {
+            this.previews = [];
+            this.files = [];
+        },
+        async fetchImageAsBlob(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Error al obtener la imagen: ${url}`);
+                return await response.blob();
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        },
         /*SEGURIDAD*/
         hasPermission(id) {
             return !!GlobalVariables.permisos.filter(p => p.id_permiso == id).length;

@@ -331,27 +331,44 @@ export default {
       this.cotizaciones = resp.data[0];
     },
     addCotizacion() {
-      this.cotizaciones.push({ 
-        cotizacion: '',
-        fecha: '',
+      const nuevaFecha = new Date();
+    
+      const pad = num => String(num).padStart(2, '0');
+      const yyyy = nuevaFecha.getFullYear();
+      const MM = pad(nuevaFecha.getMonth() + 1);
+      const dd = pad(nuevaFecha.getDate());
+      const hh = pad(nuevaFecha.getHours());
+      const mm = pad(nuevaFecha.getMinutes());
+      const ss = pad(nuevaFecha.getSeconds());
+      const formatoFecha = `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
+
+      let siguienteId = 1;
+      if (this.cotizaciones.length > 0) {
+        const ids = this.cotizaciones.map(c => parseInt(c.cotizacion) || 0);
+        siguienteId = Math.max(...ids) + 1;
+      }
+    
+      this.cotizaciones.push({
+        cotizacion: siguienteId,
+        fecha: formatoFecha,
         descripcion: '',
-        importe: '',
+        importe: 0,
         id_cliente: this.id_cliente,
       });
     },
+    
     async guardarCotizacion() {
       showProgress();
       try {
         for (let i = 0; i < this.cotizaciones.length; i++) {
-          let resp = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Cotizacion', this.cotizaciones[i]);
+          let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cotizacion', this.cotizaciones[i]);
           resp = resp.data;
-          if (resp.includes("OK")) {
-            hideProgress();
-            showMessage("Cotización creada correctamente.");  
+          if (resp[0].result.includes("insert")) {
+            showMessage("Cotización creada correctamente.");
+          } else if (resp[0].result.includes("update")) {
+            showMessage("Cotización actualizada correctamente.");
           } else {
-            showMessage("Error al crear la cotización.");
-            hideProgress();
-            return;
+            showMessage("Error al guardar la cotización.");
           }
         }
       } catch (error) {

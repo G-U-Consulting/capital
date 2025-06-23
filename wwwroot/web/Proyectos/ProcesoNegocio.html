@@ -24,31 +24,20 @@
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                     Bienvenida a Cliente
                 </div>
-                <div class="pure-g" style="align-items: center; justify-content: flex-start;margin: 1em 0;">
-                    <div class="pure-u-1 pure-u-md-1-2">
-                        <div style="width: 100%;">
+                <div class="pure-g" style="align-items: center; justify-content: space-between; margin: 1em 0;">
+                    <div class="pure-u-1 pure-u-md-5-6" style="display: flex; align-items: center;">
+                        <div class="pure-u-1 pure-u-md-1-2">
                             <input type="text" v-model="cliente" maxlength="100"
                                 placeholder="Ingrese numero de documento o nombre" style="width: 100%;"
                                 @keyup.enter="busquedaCliente" />
                         </div>
-                    </div>
-                    <div class="pure-u-1-1 pure-u-md-1-24">
-                        <div class="imgGraybutton">
-                            <img src="./img/ico/svg/search.svg" @click="busquedaCliente" />
+                        <div class="pure-u-md-1-24">
+                            <div class="imgGraybutton">
+                                <img src="./img/ico/svg/search.svg" @click="busquedaCliente" />
+                            </div>
                         </div>
                     </div>
-                    <!-- <div class="pure-u-md-auto" style="padding: 0 1rem; font-weight: bold;">
-                        Criterio
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-5">
-                        <div class="formInputStandard" style="width: 100%;">
-                            <select v-model="" style="width: 100%;">
-                                <option value="" selected>[Todos los cargos]</option>
-                                <option value="">Opción 1</option>
-                            </select>
-                        </div>
-                    </div> -->
-                    <div class="pure-u-1-1 pure-u-md-1-3" style="text-align: right;">
+                    <div class="pure-u-1 pure-u-md-1-6" style="text-align: right;">
                         <button @click="limpiarObj">Nuevo Cliente</button>
                     </div>
                 </div>
@@ -60,8 +49,7 @@
                         <div class='pure-u-1-1 pure-u-md-1-3'>
                             <div class='formInputStandard'>
                                 <span>Nombres</span>
-                                <input type='text' v-model='ObjCliente.nombres' maxlen='100'
-                                    placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.nombres' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-3'>
@@ -87,23 +75,16 @@
                                     placeholder="Seleccione" />
                             </div>
                         </div>
-                        <!-- <div class='pure-u-1-5'>
-                            <div class='formInputStandard' style='margin-top: 1.5rem; text-align: right;'>
-                                <button v-on:click="">Ingresar Dirección</button>
-                            </div>
-                        </div> -->
                         <div class='pure-u-1-1 pure-u-md-1-3'>
                             <div class='formInputStandard'>
                                 <span>Ciudad</span>
-                                <input type='text' v-model='ObjCliente.ciudad' maxlen='100'
-                                    placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.ciudad' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-3'>
                             <div class='formInputStandard'>
                                 <span>Barrio</span>
-                                <input type='text' v-model='ObjCliente.barrio' maxlen='100'
-                                    placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.barrio' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
@@ -122,15 +103,13 @@
                         <div class='pure-u-1-1 pure-u-md-1-3'>
                             <div class='formInputStandard'>
                                 <span>Email 1</span>
-                                <input type='text' v-model='ObjCliente.email1' maxlen='100'
-                                    placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.email1' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-3'>
                             <div class='formInputStandard'>
                                 <span>Email 2</span>
-                                <input type='text' v-model='ObjCliente.email2' maxlen='100'
-                                    placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.email2' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
@@ -147,7 +126,6 @@
                                     placeholder="Seleccione" />
                             </div>
                         </div>
-
                         <div v-if="iscliente">
                             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                                 Documento de Identificación
@@ -463,19 +441,32 @@
                     </tbody>
                 </table>
             </div>
-            <div style="margin-top: 1em;" class="pure-u-1 pure-u-md-1-1">
-                <samp class="pure-u-1 pure-u-md-1-6" style="margin-top: .8rem;">Lista Activa:</samp>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard" style="width: 100%;">
-                        <select v-model="" style="width: 100%;">
-                            <option value="" selected>[Seleccione]</option>
-                            <option value="">Opción 1</option>
-                        </select>
+            <!-- <div style="margin-top: 1em; align-items: center; justify-content: space-between;">
+                <div class="pure-u-1 pure-u-md-5-6" style="display: flex; align-items: center; gap: 1em;">
+                    <samp class="pure-u-md-auto" style="margin: 0;">Lista Activa:</samp>
+                    <div class="pure-u-md-1-6">
+                        <div class="formInputStandard" style="width: 100%;">
+                            <select v-model="" style="width: 100%;">
+                                <option value="" selected>[Seleccione]</option>
+                                <option value="">Opción 1</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-2" style="text-align: right;margin-top: .5rem;">
+                <div class="pure-u-1 pure-u-md-1-6" style="text-align: right;">
                     <button>Agregar Unidad</button>
                 </div>
+            </div> -->
+            <div class="pure-u-1-1"
+                style="margin-top: 0.5em; display: flex; align-items: center; justify-content: space-between;">
+                <div class="pure-u-1-1 pure-u-md-1-3" style="display: flex; align-items: center; gap: 6.5em;">
+                    <samp class="pure-u-1-1 pure-u-md-1-3">Lista Activa:</samp>
+                    <select v-model="">
+                        <option value="" selected>[Seleccione]</option>
+                        <option value="">Opción 1</option>
+                    </select>
+                </div>
+                <button>Agregar Unidad</button>
             </div>
             <table class="dataTable" style="margin-top: 1em;">
                 <thead>
@@ -631,28 +622,6 @@
                 Cuota Inicial: <strong></strong>
                 Cuota: <strong></strong>
             </div> -->
-        </div>
-        <!-- ----------------------------------------------------------------- -->
-        <!-- -------------------------- Vinculación--------------------------- -->
-        <!-- ----------------------------------------------------------------- -->
-        <div v-if="mode == 4">
-            <div>
-                <h1>Modulo Vinculación</h1>
-            </div>
-            <div style="text-align: center;">
-                <img src="../../img/ico/MEN AT WORK.JPG" alt="">
-            </div>
-        </div>
-        <!-- ----------------------------------------------------------------- -->
-        <!-- ----------------------------- Cierre ---------------------------- -->
-        <!-- ----------------------------------------------------------------- -->
-        <div v-if="mode == 5">
-            <div>
-                <h1>Modulo Cierre</h1>
-            </div>
-            <div style="text-align: center;">
-                <img src="../../img/ico/MEN AT WORK.JPG" alt="">
-            </div>
         </div>
     </div>
     <!-- ------------------------------------------------------------ -->
