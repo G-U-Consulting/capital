@@ -12,6 +12,8 @@ export default {
                 { name: "6 meses", months: 6, initMonth: 0, year: new Date().getFullYear(), class: "m6" },
                 { name: "12 meses", months: 12, initMonth: 0, year: new Date().getFullYear(), class: "m12" }
             ],
+            initDate: null,
+            selectedDate: null,
             viewMonths: {},
             filtros: {
                 
@@ -23,8 +25,8 @@ export default {
         this.setMainMode('SalaMedios');
         await this.loadData();
         console.log(this.getMonthCalendar);
-        this.viewMode = this.optionMode[1];
-        this.setViewMonths();
+        this.viewMode = this.optionMode[0];
+        this.setToday();
     },
     methods: {
         setMainMode(mode) {
@@ -55,7 +57,8 @@ export default {
                     currentMonth: false,
                     month: fecha.getMonth(),
                     localeDate: fecha.toLocaleDateString(),
-                    isToday: false
+                    isToday: false,
+                    isSelected: false
                 });
             }
 
@@ -69,7 +72,10 @@ export default {
                     localeDate: fecha.toLocaleDateString(),
                     isToday: fecha.getDate() === today.getDate() &&
                         fecha.getMonth() === today.getMonth() &&
-                        fecha.getFullYear() === today.getFullYear()
+                        fecha.getFullYear() === today.getFullYear(),
+                    isSelected: fecha.getDate() === this.initDate.getDate() &&
+                        fecha.getMonth() === this.initDate.getMonth() &&
+                        fecha.getFullYear() === this.initDate.getFullYear()
                 });
             }
 
@@ -82,7 +88,8 @@ export default {
                     currentMonth: false,
                     month: fecha.getMonth(),
                     localeDate: fecha.toLocaleDateString(),
-                    isToday: false
+                    isToday: false,
+                    isSelected: false
                 });
                 i++;
             }
@@ -90,30 +97,50 @@ export default {
             return daysView;
         },
         setViewMonths() {
-            let today = new Date(), 
-                init = Math.floor(today.getMonth() / this.viewMode.months) * this.viewMode.months;
+            let current = this.initDate, 
+                init = Math.floor(current.getMonth() / this.viewMode.months) * this.viewMode.months;
+            this.viewMode.year = current.getFullYear();
+            this.viewMode.initMonth = init;
+            let temp = {};
             for (let x = init; x < this.viewMode.months + init; x++) 
-                this.viewMonths[this.nameMonths[x]] = 
+                temp[this.nameMonths[x]] = 
                     {
                         year: this.viewMode.year,
                         days: this.getMonthCalendar(new Date(this.viewMode.year, x, 1)),
-                        selected: today.getMonth() === x
+                        selected: current.getMonth() === x
                     }
+            this.viewMonths = temp;
         },
-        selectMonth(n) {
-            for (const key in this.viewMonths) 
-                this.nameMonths[n] == key ? this.viewMonths[key].selected = true : this.viewMonths[key].selected = false;
+        async updateViewMode(mode) {
+            if (mode != this.viewMode.class) {
+                let option = this.optionMode.find(o => o.class == mode);
+                option && (this.viewMode = option);
+                this.setViewMonths();
+                //let data = await GlobalVariables.setPreferences('vistaProyecto', mode || 'Tabla');
+                //if (data == 'OK') await this.setViewMode();
+            }
+        },
+        setDate(dir) {
+            let date = this.initDate, fact = this.viewMode.months, m = date.getMonth();
+            date.setMonth(date.getMonth() + (fact * dir));
+            if (Math.abs(m - date.getMonth()) !== fact % 12)
+                date.setDate(0);
+            this.setViewMonths();
+        },
+        setToday() {
+            this.initDate = new Date();
+            this.setViewMonths();
+        },
+        selDay(day, m) {
+            const selectedMonthKey = Object.keys(this.viewMonths).find(key => this.viewMonths[key].selected);
+            if (selectedMonthKey) {
+                const selectedDay = this.viewMonths[selectedMonthKey].days.find(d => d.isSelected);
+                if (selectedDay) selectedDay.isSelected = false;
+                this.viewMonths[selectedMonthKey].selected = false;
+            }
+            day.isSelected = true;
+            this.initDate = new Date(this.viewMode.year, day.month, day.monthDay);
+            this.viewMonths[this.nameMonths[m]].selected = true;
         }
-    },
-    computed: {
-        getFilteredList() {
-            return (tabla) => {
-                return this[tabla] ? this[tabla].filter(item =>
-                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
-                        this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
-                    ) : []
-                ) : [];
-            };
-        },
     }
 }

@@ -11,9 +11,38 @@
             style="font-size: 1.5em; margin-bottom: 4px;">
             {{(new Date()).toLocaleDateString()}}
         </div>
+
+        <div class="pure-u-1-6">
+            <div class="btn-view-group">
+                <div class="radio-group" style="flex-direction: column; gap: 0; padding-top: 4px;">
+                    <input type="radio" name="view" id="view-m6" :checked="viewMode.class == 'm6'"
+                        @click="updateViewMode('m6')" />
+                    <label for="view-m6" style="margin-bottom: .5rem; text-align: center;"><span>6 meses</span></label>
+                    <input type="radio" name="view" id="view-m12" :checked="viewMode.class == 'm12'"
+                        @click="updateViewMode('m12')" />
+                    <label for="view-m12" style="margin-bottom: .5rem; text-align: center;"><span>12 meses</span></label>
+                </div>
+            </div>
+        </div>
+        <div class="pure-u-1-6 pure-u-md-1-6"></div>
+        <div class="pure-u-1-5">
+            <div class="btn-view-group">
+                <div class="radio-group" style="flex-direction: column; gap: 0; padding-top: 4px;">
+                    <button style="margin-bottom: .5rem; padding: 5px .5rem;">Agregar Hito</button>
+                    <button style="margin-bottom: .5rem; padding: 5px .5rem;">Marcar como festivo</button>
+                </div>
+            </div>
+        </div>
+        <div class="pure-u-1-8 pure-u-md-1-8"></div>
+        <div class="pure-u-1-3 pure-u-md-1-3" style="text-align: end;">
+            <div @click="setToday" class="cal-btn" style="margin-right: 5px; background-color: #636363; width: 50px;">Hoy</div>
+            <div @click="setDate(-1)" class="cal-btn">&lt;</div>
+            <div @click="setDate(1)" class="cal-btn">&gt;</div>
+        </div>
+
         <div :class="'calendar pure-u-1-1 pure-u-md-1-1 ' + viewMode.class">
             <div class="cal-month" v-for="i in Array.from({length: viewMode.months}, (_, i) => i + viewMode.initMonth)"
-                v-bind:class="{'cal-sel-month': viewMonths[nameMonths[i]].selected}" @click="selectMonth(i)">
+                v-bind:class="{'cal-sel-month': viewMonths[nameMonths[i]].selected}">
                 <div class="cal-header">
                     <div class="cal-name-month">
                         <span>{{`${nameMonths[i]} - ${viewMonths[nameMonths[i]].year}`}}</span>
@@ -26,7 +55,8 @@
                 </div>
                 <div class="cal-matrix">
                     <div class="cal-day" v-for="day in viewMonths[nameMonths[i]].days"
-                        v-bind:class="{'cal-today': day.isToday ,'cal-fade-day': !day.currentMonth}">
+                        v-bind:class="{'cal-today': day.isToday, 'cal-fade-day': !day.currentMonth, 
+                            'cal-sel-day': day.isSelected}" @click="day.currentMonth && selDay(day, i)">
                         <span>
                             {{day.monthDay}}
                         </span>

@@ -2013,13 +2013,27 @@ tr.destacada {
   border: 1px #ccc solid;
   padding: 8%;
 }
-
 .cal-today {
   background: #A6D9F480;
   border: 1px #006b80 solid;
   font-weight: bold;
 }
-
+.cal-sel-day {
+  background: #cad1d480;
+  border: 1px #607579 solid;
+}
+.cal-today.cal-sel-day {
+  background: #7ba0b480;
+  border: 1px #004857 solid;
+}
 .cal-fade-day span {
   color: #929292;
+}
+
+.cal-btn {
+  border-radius: 2px; 
+  display: inline-block; 
+  padding: 5px 10px; 
+  background-color: rgb(49, 52, 59); 
+  color: white; width: 30px;
 }
