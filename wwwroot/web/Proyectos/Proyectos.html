@@ -1,111 +1,119 @@
 <div class="pure-g">
-    <div v-if="lateralMenu" class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
-        <div class="lateralMenuHeader">
+    <div v-if="lateralMenu" style="position:relative">
+        <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}" :style="{right: (showList?'-20.3vw':'-2.3vw') }">
+            <img src="../../img/ico/deploy.png">
         </div>
-        <div class="lateralMenuGroup">
-            <div class="lateralMenuGroup">
-                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
-                    Administración de Proyectos
-                </div>
-                <div v-on:click="setMainMode('EdicionProyectos')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'EdicionProyectos'}" id="MenuItemEdicion">
-                    <img src="./img/ico/svg/sidebar/Información Básica.svg" />
-                    Información Básica
-                </div>
-                <div v-on:click="setMainMode('Medios')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Medios'}">
-                    <img src="./img/ico/svg/media.svg" />
-                    Imágenes y Vídeos
-                </div>
-                <div v-on:click="setMainMode('Unidades')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Unidades'}">
-                    <img src="./img/ico/svg/sidebar/Torres y Unidades.svg" />
-                    Torres y Unidades
-                </div>
-                <div v-on:click="setMainMode('Documentacion')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Documentacion'}">
-                    <img src="./img/ico/svg/sidebar/Documentación.svg" />
-                    Documentación
-                </div>
-                <div v-on:click="setMainMode('Bancos')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Bancos'}">
-                    <img src="./img/ico/svg/Maestro/Bancos.svg" />
-                    Administrar Bancos
-                </div>
+    </div>
+    <div v-if="lateralMenu" class="pure-u-1-1 pure-u-md-1-5" :style="{display:showList?'block':'none'}">
+        <div class="lateralMenu">
+            <div class="lateralMenuHeader">
             </div>
             <div class="lateralMenuGroup">
-                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
-                    Gestión Comercial
+                <div class="lateralMenuGroup">
+                    <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                        Administración de Proyectos
+                    </div>
+                    <div v-on:click="setMainMode('EdicionProyectos')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'EdicionProyectos'}" id="MenuItemEdicion">
+                        <img src="./img/ico/svg/sidebar/Información Básica.svg" />
+                        Información Básica
+                    </div>
+                    <div v-on:click="setMainMode('Medios')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Medios'}">
+                        <img src="./img/ico/svg/media.svg" />
+                        Imágenes y Vídeos
+                    </div>
+                    <div v-on:click="setMainMode('Unidades')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Unidades'}">
+                        <img src="./img/ico/svg/sidebar/Torres y Unidades.svg" />
+                        Torres y Unidades
+                    </div>
+                    <div v-on:click="setMainMode('Documentacion')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Documentacion'}">
+                        <img src="./img/ico/svg/sidebar/Documentación.svg" />
+                        Documentación
+                    </div>
+                    <div v-on:click="setMainMode('Bancos')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Bancos'}">
+                        <img src="./img/ico/svg/Maestro/Bancos.svg" />
+                        Administrar Bancos
+                    </div>
                 </div>
-                <div v-on:click="setMainMode('Recorridos')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Recorridos'}">
-                    <img src="./img/ico/tour.jpg" />
-                    Recorridos Virtuales
+                <div class="lateralMenuGroup">
+                    <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                        Gestión Comercial
+                    </div>
+                    <div v-on:click="setMainMode('Recorridos')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Recorridos'}">
+                        <img src="./img/ico/tour.jpg" />
+                        Recorridos Virtuales
+                    </div>
+                    <div v-on:click="setMainMode('Rotafolio')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Rotafolio'}">
+                        <img src="./img/ico/svg/sidebar/Rotafolio.svg" />
+                        Rotafolio de Proyectos
+                    </div>
+                    <div v-on:click="setMainMode('ProcesoNegocio')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'ProcesoNegocio'}">
+                        <img src="./img/ico/svg/sidebar/Proceso de negocio.svg" />
+                        Proceso de negocio
+                    </div>
+                    <div v-on:click="setMainMode('Clientes')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Clientes'}">
+                        <img src="./img/ico/svg/sidebar/Clientes.svg" />
+                        Clientes
+                    </div>
                 </div>
-                <div v-on:click="setMainMode('Rotafolio')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Rotafolio'}">
-                    <img src="./img/ico/svg/sidebar/Rotafolio.svg" />
-                    Rotafolio de Proyectos
+                <div class="lateralMenuGroup">
+                    <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                        Agenda
+                    </div>
+                    <div v-on:click="setMainMode('MisCompromisos')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'MisCompromisos'}">
+                        <img src="./img/ico/svg/sidebar/Compromisos.svg" />
+                        Mis compromisos
+                    </div>
+                    <div v-on:click="setMainMode('MiCalendario')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'MiCalendario'}">
+                        <img src="./img/ico/svg/sidebar/Mi Calendario.svg" />
+                        Mi Calendario
+                    </div>
                 </div>
-                <div v-on:click="setMainMode('ProcesoNegocio')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'ProcesoNegocio'}">
-                    <img src="./img/ico/svg/sidebar/Proceso de negocio.svg" />
-                    Proceso de negocio
-                </div>
-                <div v-on:click="setMainMode('Clientes')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'Clientes'}">
-                    <img src="./img/ico/svg/sidebar/Clientes.svg" />
-                    Clientes
-                </div>
-            </div>
-            <div class="lateralMenuGroup">
-                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
-                    Agenda
-                </div>
-                <div v-on:click="setMainMode('MisCompromisos')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'MisCompromisos'}">
-                    <img src="./img/ico/svg/sidebar/Compromisos.svg" />
-                    Mis compromisos
-                </div>
-                <div v-on:click="setMainMode('MiCalendario')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'MiCalendario'}">
-                    <img src="./img/ico/svg/sidebar/Mi Calendario.svg" />
-                    Mi Calendario
-                </div>
-            </div>
-            <div class="lateralMenuGroup">
-                <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
-                    Salas de Ventas
-                </div>
-                <div v-on:click="setMainMode('SalaInfo')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaInfo'}">
-                    <img src="./img/ico/svg/sidebar/Gestión de personal.svg" />
-                    Información Básica
-                </div>
-                <div v-on:click="setMainMode('SalaMedios')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaMedios'}">
-                    <img src="./img/ico/svg/sidebar/Calendario.svg" />
-                    Gestión de medios
-                </div>
-                <div v-on:click="setMainMode('SalaPersonal')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaPersonal'}">
-                    <img src="./img/ico/svg/sidebar/Gestión de personal.svg" />
-                    Gestión de Personal
-                </div>
-                <div v-on:click="setMainMode('SalaCalendario')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaCalendario'}">
-                    <img src="./img/ico/svg/sidebar/Calendario.svg" />
-                    Calendario
-                </div>
-                <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
-                    <img src="./img/ico/svg/sidebar/Programación mensual.svg" />
-                    Programación mensual
+                <div class="lateralMenuGroup">
+                    <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
+                        Salas de Ventas
+                    </div>
+                    <div v-on:click="setMainMode('SalaInfo')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaInfo'}">
+                        <img src="./img/ico/svg/sidebar/Gestión de personal.svg" />
+                        Información Básica
+                    </div>
+                    <div v-on:click="setMainMode('SalaMedios')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaMedios'}">
+                        <img src="./img/ico/svg/sidebar/Calendario.svg" />
+                        Gestión de medios
+                    </div>
+                    <div v-on:click="setMainMode('SalaPersonal')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaPersonal'}">
+                        <img src="./img/ico/svg/sidebar/Gestión de personal.svg" />
+                        Gestión de Personal
+                    </div>
+                    <div v-on:click="setMainMode('SalaCalendario')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaCalendario'}">
+                        <img src="./img/ico/svg/sidebar/Calendario.svg" />
+                        Calendario
+                    </div>
+                    <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
+                        <img src="./img/ico/svg/sidebar/Programación mensual.svg" />
+                        Programación mensual
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div :class="['pure-u-1-1', lateralMenu ? 'pure-u-md-4-5' : 'pure-u-md-1-1']">
+    
+    <div :class="['pure-u-1-1', lateralMenu && showList ? 'pure-u-md-4-5' : 'pure-u-md-1-1']">
         <div class="pure-g">
             <div class="pure-u-1-24"></div>
             <div class="pure-u-22-24">

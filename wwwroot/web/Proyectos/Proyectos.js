@@ -26,6 +26,7 @@ export default {
                 resultadoEjecucion: null
             },
             lateralMenu: false,
+            showList: true
         };
     },
     async mounted() {
@@ -155,7 +156,9 @@ export default {
         async removeFile() {
             this.fileSelected = null;
         },
-        
+        toggleList() {
+            this.showList = !this.showList;
+        }
         // async getMainPath() {
         //     let path = {};
         //     if (this.mainmode == 1) path.text = "Información Básica";
