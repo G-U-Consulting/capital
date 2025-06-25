@@ -124,6 +124,11 @@
         jsUrl: "./web/Proyectos/SalaCalendario.js",
         allow: ["*"]
     },
+    "ProgMensual":{
+        templateUrl: "./web/Proyectos/ProgMensual.html",
+        jsUrl: "./web/Proyectos/ProgMensual.js",
+        allow: ["*"]
+    },
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",

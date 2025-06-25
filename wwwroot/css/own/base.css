@@ -2031,7 +2031,6 @@ tr.destacada {
 .cal-fade-day span {
   color: #929292;
 }
-
 .cal-btn {
   border-radius: 5px; 
   display: inline-block; 
@@ -2075,7 +2074,6 @@ tr.destacada {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   position: relative;
 }
-
 .torre {
     background-color: #00839C;
     color: white;
@@ -2089,3 +2087,7 @@ tr.destacada {
     .torre:hover {
         border: 3px solid #4d4d4d;
     }
+
+    .tab-registro.highlight-text {
+  color: #A5D8F2 !important;
+}

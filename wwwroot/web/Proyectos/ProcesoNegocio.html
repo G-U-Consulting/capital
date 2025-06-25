@@ -213,10 +213,11 @@
             <div class='pure-u-1-1' style="font-size: 2em;">
                 {{ ObjCliente.Nombres }}
             </div>
-            <div v-for="(tab, index) in tab" :key="index" @click="activeTab = index"
-                :class="['tab-registro', { active: activeTab === index }]">
-                {{ tab }}
+            <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index"
+                :class="['tab-registro', { active: activeTab === index }, { 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }]">
+                {{ tabItem }}
             </div>
+
             <div v-if="activeTab == 0">
                 <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
                     <span style="font-size: 1.8em;">Registros de visita</span>
@@ -281,12 +282,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                            <tr v-for="(item, idx) in registroCompras" :key="idx">
+                                <td>{{ item.fecha }}</td>
+                                <td>{{ item.proyecto }}</td>
+                                <td>{{ item.tipo }}</td>
+                                <td>{{ item.modo }}</td>
+                                <td>{{ item.descripcion }}</td>
                             </tr>
                         </tbody>
                     </table>
