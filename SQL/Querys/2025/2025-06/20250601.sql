@@ -100,6 +100,19 @@ create table presupuesto_vivienda (
     maximo int
 );
 
+create table fact_cotizaciones (
+    id_cotizacion int auto_increment primary key,
+    id_cliente int,
+    cotizacion varchar(100),
+    fecha datetime,
+    descripcion varchar(100),
+    importe decimal(10,2),
+    is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);  
+
+
 
 /*
 drop table fact_clientes;

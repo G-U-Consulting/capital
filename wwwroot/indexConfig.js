@@ -89,9 +89,39 @@
         jsUrl: "./web/Proyectos/ProcesoNegocio.js",
         allow: ["*"]
     },
+    "Clientes": {
+        templateUrl: "./web/Proyectos/Clientes.html",
+        jsUrl: "./web/Proyectos/Clientes.js",
+        allow: ["*"]
+    },
+    "MisCompromisos": {
+        templateUrl: "./web/Proyectos/MisCompromisos.html",
+        jsUrl: "./web/Proyectos/MisCompromisos.js",
+        allow: ["*"]
+    },
+    "MiCalendario":{
+        templateUrl: "./web/Proyectos/MiCalendario.html",
+        jsUrl: "./web/Proyectos/MiCalendario.js",
+        allow: ["*"]
+    },
     "SalaInfo": {
         templateUrl: "./web/Proyectos/SalaInfo.html",
         jsUrl: "./web/Proyectos/SalaInfo.js",
+        allow: ["*"]
+    },
+    "SalaMedios": {
+        templateUrl: "./web/Proyectos/SalaMedios.html",
+        jsUrl: "./web/Proyectos/SalaMedios.js",
+        allow: ["*"]
+    },
+    "SalaPersonal": {
+        templateUrl: "./web/Proyectos/SalaPersonal.html",
+        jsUrl: "./web/Proyectos/SalaPersonal.js",
+        allow: ["*"]
+    },
+    "SalaCalendario": {
+        templateUrl: "./web/Proyectos/SalaCalendario.html",
+        jsUrl: "./web/Proyectos/SalaCalendario.js",
         allow: ["*"]
     },
     "Informes": {

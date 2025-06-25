@@ -118,7 +118,26 @@ export default {
             }else if(type == "SalaInfo"){
                 this.pushRuta("Información Sala", 1);
                 return this.proyecto;
-            }else if(type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
+            }else if(type == "SalaMedios"){
+                this.pushRuta("Gestión Medios Sala", 1);
+                return this.proyecto;
+            }else if(type == "SalaPersonal"){
+                this.pushRuta("Gestión Personal", 1);
+                return this.proyecto;
+            }else if(type == "SalaCalendario"){
+                this.pushRuta("Calendario", 1);
+                return this.proyecto;
+            }else if(type == "Clientes"){
+                this.pushRuta("Clientes", 1);
+                return this.proyecto;
+            }else if(type == "MisCompromisos"){
+                this.pushRuta("Mis Compromisos", 1)
+                return this.proyecto;
+            }else if(type == "MiCalendario"){
+                this.pushRuta("Mi Calendario", 1)
+                return this.proyecto;
+            }
+            else if(type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
             
         },
         

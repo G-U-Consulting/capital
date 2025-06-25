@@ -16,6 +16,7 @@ var GlobalVariables = {
     showModules: null,
     id_proyecto: null,
     getPreferences: null,
+    setPreferences: null,
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null, mvm = null;
@@ -78,6 +79,7 @@ mainVue = {
                 this.loadModule(e.state.moduleName);
         }.bind(this);
         GlobalVariables.getPreferences = this.getPreferences;
+        GlobalVariables.setPreferences = this.setPreferences;
     },
     methods: {
         async loadModule(name, inputParameter) {
@@ -257,6 +259,8 @@ mainVue = {
         },
         async getPreferences(nombre, oneresult) {
             try {
+                if (!GlobalVariables.username)
+                    throw "No username";
                 let preferences = {}, 
                     params = { usuario: GlobalVariables.username };
                 nombre && (params['nombre'] = nombre);
@@ -267,8 +271,23 @@ mainVue = {
                 return preferences;
             }
             catch (e) {
-                console.log("Error al obtener preferencias de usuario:", error);
+                console.log("Error al obtener preferencias de usuario:", e);
                 return {};
+            }
+        },
+        async setPreferences(nombre, valor, nuevo) {
+            let data = null;
+            try {
+                if (!GlobalVariables.username)
+                    throw "No username";
+                data = (await httpFunc(`/generic/genericST/Usuarios:${nuevo ? 'Ins' : 'Upd'}_Preferencias`,
+                    { usuario: GlobalVariables.username, nombre, valor }));
+                if (data.data != 'OK') throw data.errorMessage || data.data;
+                else return 'OK';
+            }
+            catch (e) {
+                console.log("Error al actualizar preferencias de usuario:", e);
+                return e;
             }
         }
     }
