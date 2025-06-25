@@ -2049,6 +2049,7 @@ tr.destacada {
     .torre:hover {
         border: 3px solid #4d4d4d;
     }
+
     .tab-registro.highlight-text {
   color: #A5D8F2 !important;
 }
