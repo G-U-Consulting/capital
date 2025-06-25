@@ -61,6 +61,24 @@ export default {
       filtroProyecto: '',
       contadorProyectos: {},
       cotizaciones: [],
+      registroCompras: [
+        {
+          fecha: '2025-06-01',
+          proyecto: 'Proyecto A',
+          tipo: 'Compra',
+          modo: 'Contado',
+          descripcion: 'Compra de materiales A',
+          id_cliente: 111111
+        },
+        {
+          fecha: '2025-06-15',
+          proyecto: 'Proyecto B',
+          tipo: 'Compra',
+          modo: 'Crédito',
+          descripcion: 'Compra de herramientas B',
+          id_cliente: 111111
+        }
+      ]
     };
   },
   computed: {
@@ -103,7 +121,6 @@ export default {
     this.modo_atencion = resp.data[5];
     this.presupuesto_vivienda = resp.data[6];
     this.campoObligatorio();
-      
   },
   methods: {
     async handleNext(nextIndex) {
@@ -229,7 +246,27 @@ export default {
         } else {
           this.policyAccepted = false;
         }
-
+        /// Dev
+        this.registroCompras = [
+          {
+            fecha: '2025-06-01',
+            proyecto: 'Proyecto A',
+            tipo: 'Compra',
+            modo: 'Contado',
+            descripcion: 'Compra de materiales A',
+            id_cliente: '111111'
+          },
+          {
+            fecha: '2025-06-15',
+            proyecto: 'Proyecto B',
+            tipo: 'Compra',
+            modo: 'Crédito',
+            descripcion: 'Compra de herramientas B',
+            id_cliente: '111111'
+          }
+        ]
+        this.activeTabs(this.cliente);
+        //////
         this.iscliente = true;
         this.isboton = false;
       } else {
@@ -324,7 +361,6 @@ export default {
       });
       this.contadorProyectos = contador;
     },
-
     //////// mode 2
     async getCotizaciones() {
       let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', { id_cliente: this.id_cliente });
@@ -356,7 +392,6 @@ export default {
         id_cliente: this.id_cliente,
       });
     },
-    
     async guardarCotizacion() {
       showProgress();
       try {
@@ -402,6 +437,17 @@ export default {
         }
       }
       return true;
+    },
+    hasData(index) {
+      if (index === 0) return this.registroCompras.length > 0;
+      return false;
+    },
+    activeTabs(id_cliente) {
+      if (
+        this.registroCompras[0]?.id_cliente !== id_cliente
+      ) {
+        this.registroCompras = [];
+      }
     },
   },
 }
