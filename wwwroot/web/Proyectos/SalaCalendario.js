@@ -5,37 +5,40 @@ export default {
             mode: 0,
             ruta: [],
             proyecto: null,
-            nameDays: ["lun","mar","mié","jue","vie","sáb","dom"],
-            nameMonths: ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],
+            sala: {},
+            hito: {},
+            nameDays: ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"],
+            nameMonths: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
             viewMode: {},
             optionMode: [
                 { name: "6 meses", months: 6, initMonth: 0, year: new Date().getFullYear(), class: "m6" },
                 { name: "12 meses", months: 12, initMonth: 0, year: new Date().getFullYear(), class: "m12" }
             ],
-            initDate: null,
-            selectedDate: null,
+            selDate: null,
             viewMonths: {},
-            filtros: {
-                
-            }
+            hitos: [],
+
+            modal: null,
         };
     },
     async mounted() {
-        this.proyecto = await GlobalVariables.miniModuleCallback("SalaMedios", null);
-        this.setMainMode('SalaMedios');
+        this.proyecto = await GlobalVariables.miniModuleCallback("SalaCalendario", null);
+        this.setMainMode('SalaCalendario');
         await this.loadData();
         console.log(this.getMonthCalendar);
         this.viewMode = this.optionMode[0];
         this.setToday();
+        this.modal = document.getElementById('modalOverlay');
     },
     methods: {
         setMainMode(mode) {
             this.mainmode = mode;
         },
         async loadData() {
-            /*[this.bancos, this.factores, this.tipos_factor, this.bancos_factores] =
-                (await httpFunc("/generic/genericDS/Proyectos:Get_Bancos", { id_proyecto: this.proyecto.id_proyecto })).data;
-            */
+            let [salas, hitos] = (await httpFunc("/generic/genericDS/Proyectos:Get_Hito", { id_sala: this.proyecto.id_sala_venta })).data;
+            if (salas.length) this.sala = salas[0];
+            this.hitos = hitos;
+            console.log(this.sala, this.hitos);
         },
         getMonthCalendar(baseDate) {
             const daysView = [];
@@ -73,9 +76,9 @@ export default {
                     isToday: fecha.getDate() === today.getDate() &&
                         fecha.getMonth() === today.getMonth() &&
                         fecha.getFullYear() === today.getFullYear(),
-                    isSelected: fecha.getDate() === this.initDate.getDate() &&
-                        fecha.getMonth() === this.initDate.getMonth() &&
-                        fecha.getFullYear() === this.initDate.getFullYear()
+                    isSelected: fecha.getDate() === this.selDate.getDate() &&
+                        fecha.getMonth() === this.selDate.getMonth() &&
+                        fecha.getFullYear() === this.selDate.getFullYear()
                 });
             }
 
@@ -97,18 +100,18 @@ export default {
             return daysView;
         },
         setViewMonths() {
-            let current = this.initDate, 
+            let current = this.selDate,
                 init = Math.floor(current.getMonth() / this.viewMode.months) * this.viewMode.months;
             this.viewMode.year = current.getFullYear();
             this.viewMode.initMonth = init;
             let temp = {};
-            for (let x = init; x < this.viewMode.months + init; x++) 
-                temp[this.nameMonths[x]] = 
-                    {
-                        year: this.viewMode.year,
-                        days: this.getMonthCalendar(new Date(this.viewMode.year, x, 1)),
-                        selected: current.getMonth() === x
-                    }
+            for (let x = init; x < this.viewMode.months + init; x++)
+                temp[this.nameMonths[x]] =
+                {
+                    year: this.viewMode.year,
+                    days: this.getMonthCalendar(new Date(this.viewMode.year, x, 1)),
+                    selected: current.getMonth() === x
+                }
             this.viewMonths = temp;
         },
         async updateViewMode(mode) {
@@ -121,14 +124,14 @@ export default {
             }
         },
         setDate(dir) {
-            let date = this.initDate, fact = this.viewMode.months, m = date.getMonth();
+            let date = this.selDate, fact = this.viewMode.months, m = date.getMonth();
             date.setMonth(date.getMonth() + (fact * dir));
             if (Math.abs(m - date.getMonth()) !== fact % 12)
                 date.setDate(0);
             this.setViewMonths();
         },
         setToday() {
-            this.initDate = new Date();
+            this.selDate = new Date();
             this.setViewMonths();
         },
         selDay(day, m) {
@@ -139,8 +142,28 @@ export default {
                 this.viewMonths[selectedMonthKey].selected = false;
             }
             day.isSelected = true;
-            this.initDate = new Date(this.viewMode.year, day.month, day.monthDay);
+            this.selDate = new Date(this.viewMode.year, day.month, day.monthDay);
             this.viewMonths[this.nameMonths[m]].selected = true;
+        },
+        isToday() {
+            const today = new Date();
+            return this.selDate && today.getDate() === this.selDate.getDate()
+                && today.getMonth() === this.selDate.getMonth()
+                && today.getFullYear() === this.selDate.getFullYear();
+        },
+        openModal() {
+            this.hito.hora = '00:00';
+            this.hito.color = '#006ec9';
+            this.modal && (this.modal.style.display = 'flex');
+        },
+        closeModal(e) {
+            if (this.modal && e.target === this.modal)
+                (this.modal.style.display = 'none');
+        },
+        async onSave() {
+            this.hito['fecha'] = `${this.selDate.getFullYear()}-${this.selDate.getMonth() + 1}-${this.selDate.getDate()} ${this.hito.hora}`;
+            let res = await httpFunc("/generic/genericST/Proyectos:Ins_Hito", { ...this.hito, id_sala: this.sala.id_sala_venta });
+            console.log(this.hito, res);
         }
     }
 }

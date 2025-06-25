@@ -467,3 +467,12 @@ create table dim_personal_sala(
 	permanente bit default 0,
 	primary key(id_sala_venta, id_usuario)
 );
+create table dim_hito_sala(
+	id_hito int primary key auto_increment,
+	titulo varchar(200) not null,
+	descripcion varchar(255),
+	fecha datetime not null,
+	color varchar(7) not null,
+	festivo bit default 0,
+	id_sala_venta int not null references dim_sala_venta(id_sala_venta)
+);
