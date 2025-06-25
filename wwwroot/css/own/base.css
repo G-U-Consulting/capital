@@ -2075,3 +2075,17 @@ tr.destacada {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   position: relative;
 }
+
+.torre {
+    background-color: #00839C;
+    color: white;
+    height: 5rem;
+    width: 8rem;
+    border-radius: 0.5rem;
+    line-height: 5rem;
+    text-align: center;
+    border: 3px solid #00839C;
+}
+    .torre:hover {
+        border: 3px solid #4d4d4d;
+    }

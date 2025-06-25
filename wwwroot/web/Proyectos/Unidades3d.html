@@ -108,8 +108,10 @@
         </div>
         <div v-if="viewProperties.viewType == 'classic'" class="pure-u-3-4">
             <div class="pure-g">
-                <div v-for="item in torres" v-bind:class="['pure-u-1-'+viewProperties.cols]">
-                    Torre {{item.idtorre}}
+                <div v-for="item in torres" v-bind:class="['pure-u-1-'+viewProperties.cols, 'torre']" style="margin: 0.5rem">
+                    <div>
+                        Torre {{item.idtorre}}
+                    </div>
                 </div>
             </div>
         </div>
