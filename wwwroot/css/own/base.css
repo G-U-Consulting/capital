@@ -1965,7 +1965,7 @@ tr.destacada {
 .calendar.m12 {
   grid: repeat(4, 1fr) / repeat(3, 1fr);
 }
-@media (min-width: 1592px) {
+@media (min-width: 1900px) {
   .calendar.m12 {
     grid: repeat(3, 1fr) / repeat(4, 1fr);
   }
