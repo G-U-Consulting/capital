@@ -3,24 +3,26 @@
     <span v-if="i < ruta.length - 1"> / </span>
 </div>
 
-<div v-if="mode == 0" style="padding: 1em">
+<div style="padding: 1em">
     <div class="pure-u-1-24 pure-u-md-1-24"></div>
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard" style="height: calc(100vh - 8rem)">
         <h2 style="margin-bottom: .5rem;">{{sala.sala_venta}}</h2>
         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
-            Fecha actual: {{(selDate || (new Date())).toLocaleDateString()}}
+            Fecha actual: {{ formatDatetime(null, 'date', selDate) }}
         </div>
-
         <div class="pure-u-1-1 pure-u-md-7-24">
             <div class="btn-view-group">
                 <div class="radio-group" style="gap: 1rem; padding-top: 4px;">
                     <input type="radio" name="view" id="view-m6" :checked="viewMode.class == 'm6'"
                         @click="updateViewMode('m6')" />
-                    <label for="view-m6" style="margin-bottom: .5rem; text-align: center;"><span>6 meses</span></label>
+                    <label for="view-m6" style="margin-bottom: .5rem; text-align: center;">
+                        <span>6 meses</span>
+                    </label>
                     <input type="radio" name="view" id="view-m12" :checked="viewMode.class == 'm12'"
                         @click="updateViewMode('m12')" />
-                    <label for="view-m12" style="margin-bottom: .5rem; text-align: center;"><span>12
-                            meses</span></label>
+                    <label for="view-m12" style="margin-bottom: .5rem; text-align: center;">
+                        <span>12 meses</span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -28,8 +30,11 @@
         <div class="pure-u-1-1 pure-u-md-3-8">
             <div class="btn-view-group">
                 <div class="radio-group" style="gap: 1rem; padding-top: 4px;">
-                    <button style="margin-bottom: .5rem; padding: 5px .5rem;" @click="openModal">Agregar Hito</button>
-                    <button style="margin-bottom: .5rem; padding: 5px .5rem;">Marcar como festivo</button>
+                    <button style="margin-bottom: .5rem; padding: 5px .5rem;" @click="openModal(1)">Agregar
+                        Hito</button>
+                    <button style="margin-bottom: .5rem; padding: 5px .5rem;" @click="toggleHoliday">
+                        {{day.isHoliday ? 'Desmarcar festivo' : 'Marcar como festivo'}}
+                    </button>
                 </div>
             </div>
         </div>
@@ -41,7 +46,6 @@
             <div @click="setDate(1)" class="cal-btn" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                 &gt;</div>
         </div>
-
         <div :class="'calendar pure-u-1-1 pure-u-md-1-1 ' + viewMode.class">
             <div class="cal-month" v-for="i in Array.from({length: viewMode.months}, (_, i) => i + viewMode.initMonth)"
                 v-bind:class="{'cal-sel-month': viewMonths[nameMonths[i]].selected}">
@@ -57,41 +61,84 @@
                 </div>
                 <div class="cal-matrix">
                     <div class="cal-day" v-for="day in viewMonths[nameMonths[i]].days" v-bind:class="{'cal-today': day.isToday, 'cal-fade-day': !day.currentMonth, 
-                            'cal-sel-day': day.isSelected}" @click="day.currentMonth && selDay(day, i)">
+                            'cal-sel-day': day.isSelected, 'cal-holiday': day.isHoliday}"
+                        @click="day.currentMonth && selDay(day, i)" :style="day.events && day.events.filter(e => e.festivo != '1').length ? 
+                            `background-color: ${day.events.filter(e => e.festivo != '1')[0].color}40;` : ''"
+                        @dblclick="day.events && day.events.filter(e => e.festivo != '1').length && openModal(3)">
                         <span>
                             {{day.monthDay}}
                         </span>
+                        <div class="hide-editor" v-bind:class="{'cal-event-count': day.events && 
+                            day.events.filter(e => e.festivo != '1').length}">
+                            <span>{{day.events.filter(e => e.festivo != '1').length}}</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="modal-overlay" id="modalOverlay" @click="closeModal($event)">
-        <div class="modal-content pure-g">
+        <div class="modal-content pure-g" v-if="mode == 1 || mode == 2">
             <div class='pure-u-1-1 pure-u-md-1-1'>
-                <h2 style="text-align: center;">{{(selDate || (new Date())).toLocaleDateString()}}</h2>
+                <h2 style="text-align: center;">{{ formatDatetime(null, 'date', selDate) }}</h2>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1 formInputStandard'>
                 <span>Titulo</span>
-                <input type='text' maxlength="100" v-model="hito.titulo"/>
+                <input type='text' maxlength="100" v-model="hito.titulo" />
             </div>
             <div class='pure-u-1-2 pure-u-md-1-2 formInputStandard'>
                 <span>Hora</span>
-                <input type='time' v-model="hito.hora"/>
+                <input type='time' v-model="hito.hora" />
             </div>
-            <div class='pure-u-1-2 pure-u-md-1-2 formInputStandard' style="text-align: center;">
+            <div class='pure-u-1-4 pure-u-md-1-4 formInputStandard' style="text-align: center;">
                 <span>Color</span>
-                <input type='color' v-model="hito.color"/>
+                <input type='color' v-model="hito.color" />
+            </div>
+            <div class='pure-u-1-4 pure-u-md-1-4 formInputStandard' style="text-align: center;">
+                <label class="check" for="hitoPro" style="margin-top: 1.8rem;">
+                    <input type='checkbox' value='0' v-model='hitoPro' id='hitoPro' />
+                    <span class="checkmark"></span>
+                    Hito de proyecto
+                </label>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1 formInputStandard'>
                 <span>Descripción</span>
-                <textarea maxlength="255" v-model="hito.descripcion" style="min-width: 100%; max-width: 100%; min-height: 100px; max-height: 100px;"></textarea>
+                <textarea maxlength="255" v-model="hito.descripcion"
+                    style="width: 100%; height: 100px; resize: none; font-size: 14px;"></textarea>
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-3 formInputStandard'></div>
+            <div class='pure-u-1-1 pure-u-md-1-6 formInputStandard'></div>
+            <div class='pure-u-1-1 pure-u-md-1-3 formInputStandard'>
+                <button @click="onCancel">Cancelar</button>
+            </div>
             <div class='pure-u-1-1 pure-u-md-1-3 formInputStandard'>
                 <button @click="onSave">Guardar</button>
             </div>
         </div>
-    </div>
 
+        <div class="modal-content pure-g" v-if="mode == 3">
+            <div class="pure-u-1-1">
+                <h2 style="text-align: center; margin-bottom: 1rem;">
+                    Hitos del {{ formatDatetime(null, 'date', selDate) }}
+                </h2>
+            </div>
+            <div class="event-list">
+                <div v-for="e in day.events.filter(e => e.festivo != '1')" class="event-card pure-g"
+                    :style="`border: 1px solid ${e.color}90; border-left: 6px solid ${e.color}; background-color: ${e.color}10;`">
+                    <div class="pure-u-5-6 pure-u-md-5-6">
+                        <h4 class="event-title">
+                            {{ e.titulo }} - {{ e.id_proyecto ? proyecto.nombre : sala.sala_venta }} - {{
+                            formatDatetime(e.fecha, 'time') }}
+                        </h4>
+                        <p class="event-description">{{ e.descripcion }}</p>
+                    </div>
+                    <div class="event-edit-btn pure-u-1-12 pure-u-md-1-12">
+                        <img src="../../img/ico/svg/pencil.svg" alt="Editar" @click="selEvent(e)">
+                    </div>
+                    <div class="event-edit-btn pure-u-1-12 pure-u-md-1-12">
+                        <img src="../../img/ico/svg/cerrar-transparente.svg" alt="Eliminar" @click="reqDeleteEvent(e)">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

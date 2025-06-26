@@ -474,5 +474,6 @@ create table dim_hito_sala(
 	fecha datetime not null,
 	color varchar(7) not null,
 	festivo bit default 0,
-	id_sala_venta int not null references dim_sala_venta(id_sala_venta)
+	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+	id_proyecto int references fact_proyectos(id_proyecto)
 );
