@@ -213,9 +213,13 @@
             <div class='pure-u-1-1' style="font-size: 2em;">
                 {{ ObjCliente.Nombres }}
             </div>
-            <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index"
-                :class="['tab-registro', { active: activeTab === index }, { 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }]">
+            <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index" :class="[
+                'tab-registro',
+                { active: activeTab === index },
+                { 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }
+              ]">
                 {{ tabItem }}
+                <span v-if="tabItem === 'Registros de compras' && registroCompras.length > 0" class="dot"></span>
             </div>
 
             <div v-if="activeTab == 0">
@@ -433,7 +437,7 @@
                                 {{item.fecha}}
                             </td>
                             <td class="col-3-6">
-                                <input type="text" v-model="item.descripcion" placeholder="Descripción" />
+                                <input type="text" v-model="item.descripcion" placeholder="Descripción" @focus="setCotizacionActiva(item.cotizacion)"/>
                             </td>
                             <td class="col-1-6">
                                 {{item.importe}}

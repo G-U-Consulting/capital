@@ -2088,6 +2088,35 @@ tr.destacada {
         border: 3px solid #4d4d4d;
     }
 
-    .tab-registro.highlight-text {
-  color: #A5D8F2 !important;
+
+.tab-registro {
+  padding: 10px 16px;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.tab-registro.active {
+  background-color: #004e6b;
+  color: white;
+  font-weight: bold;
+}
+
+.highlight-text {
+  border: 1px solid #004e6b;
+  border-bottom: none;
+  color: #004e6b;
+  font-weight: bold;
+}
+
+.dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  height: 8px;
+  width: 8px;
+  background-color: #ff3b3b;
+  border-radius: 50%;
 }

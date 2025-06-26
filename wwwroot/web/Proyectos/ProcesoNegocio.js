@@ -78,7 +78,8 @@ export default {
           descripcion: 'Compra de herramientas B',
           id_cliente: 111111
         }
-      ]
+      ],
+      cotizacionActiva: null,
     };
   },
   computed: {
@@ -98,7 +99,8 @@ export default {
     }, visitasFiltradas() {
       if (!this.filtroProyecto) return this.visitas;
       return this.visitas.filter(v => v.proyecto === this.filtroProyecto);
-    }
+    },
+    
   },
   watch: {
     visitasFiltradas: {
@@ -108,6 +110,9 @@ export default {
       immediate: true,
       deep: true
     }
+  },
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
   },
   async mounted() {
     this.tabsIncomplete = this.tabs.map((_, index) => index);
@@ -121,6 +126,7 @@ export default {
     this.modo_atencion = resp.data[5];
     this.presupuesto_vivienda = resp.data[6];
     this.campoObligatorio();
+    window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
   },
   methods: {
     async handleNext(nextIndex) {
@@ -368,7 +374,6 @@ export default {
     },
     addCotizacion() {
       const nuevaFecha = new Date();
-    
       const pad = num => String(num).padStart(2, '0');
       const yyyy = nuevaFecha.getFullYear();
       const MM = pad(nuevaFecha.getMonth() + 1);
@@ -377,13 +382,13 @@ export default {
       const mm = pad(nuevaFecha.getMinutes());
       const ss = pad(nuevaFecha.getSeconds());
       const formatoFecha = `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
-
+  
       let siguienteId = 1;
       if (this.cotizaciones.length > 0) {
         const ids = this.cotizaciones.map(c => parseInt(c.cotizacion) || 0);
         siguienteId = Math.max(...ids) + 1;
       }
-    
+  
       this.cotizaciones.push({
         cotizacion: siguienteId,
         fecha: formatoFecha,
@@ -391,6 +396,23 @@ export default {
         importe: 0,
         id_cliente: this.id_cliente,
       });
+  
+      this.cotizacionActiva = siguienteId;
+    },
+    eliminarCotizacionActivaSiVacia(event) {
+      if (event.key === 'Escape' && this.cotizacionActiva != null) {
+        const index = this.cotizaciones.findIndex(c => c.cotizacion === this.cotizacionActiva);
+        if (index !== -1) {
+          const item = this.cotizaciones[index];
+          if (!item.descripcion && item.importe === 0) {
+            this.cotizaciones.splice(index, 1);
+            this.cotizacionActiva = null;
+          }
+        }
+      }
+    },
+    setCotizacionActiva(cotId) {
+      this.cotizacionActiva = cotId;
     },
     async guardarCotizacion() {
       showProgress();
