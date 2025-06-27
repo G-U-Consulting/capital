@@ -36,7 +36,7 @@
                         {{ moduleSelected == null ? "Menú principal" : moduleSelected.title }}
                     </span>
                     <span v-if="loginData.devDB || loginData.debug" class="pure-hidden-sm pure-hidden-xs"
-                          style="color: #ffff00; font-size: 1em; margin-left: 2em">
+                        style="color: #ffff00; font-size: 1em; margin-left: 2em">
                         {{ loginData.debug ? " Portal de pruebas " : "" }}
                     </span>
                     <span class="pure-hidden-md pure-hidden-lg pure-hidden-xl" style="color: white; font-size: 1.5em;">
@@ -44,10 +44,10 @@
                     </span>
                 </div>
                 <div style="display: flex; align-items: center; position: absolute; right: 1em;">
-                    <span style="color: white; font-size: 1em; margin-right: 0.5em;">Alejandro Salcedo</span>
+                    <span style="color: white; font-size: 1em; margin-right: 0.5em;">{{nombreUsuario}}</span>
                     <img class="pure-hidden-sm pure-hidden-xs" 
-                         style="height: 2em; margin: 0 0.2em 0.2em 0.5em;" 
-                         alt="" src="./img/cli/logo01.png" />
+                        style="height: 2em; margin: 0 0.2em 0.2em 0.5em;" 
+                        alt="" src="./img/cli/logo01.png" />
                 </div>
             </div>
         </div>
@@ -55,10 +55,10 @@
         <div>
             <div class="sidenav">
                 <div v-for="(item, key) in zones" :key="key" :class="['zone', 'noSelect', { 
-                         preSelectedZone: zonePreSelected == item, 
-                         selectedZone: zoneSelected == item, 
-                         logOut: item.isLogOut 
-                     }]" @click="handleClick(item)">
+                        preSelectedZone: zonePreSelected == item, 
+                        selectedZone: zoneSelected == item, 
+                        logOut: item.isLogOut 
+                    }]" @click="handleClick(item)">
                     <img :src="item.img" />
                     <span class="monospace-text">{{ key }}</span>
                 </div>
@@ -87,7 +87,7 @@
                         <div style="padding: 2rem 2rem">
                             <div v-for="(value, key) in modules">
                                 <div v-if="modules[key].hidden != true && zonePreSelected != null && zonePreSelected.name == value.zone"
-                                     v-on:click="loadModule(key, null); showMobileMenu = false;" v-bind:class="{ selectedMenuCategory: isActiveModule(key) }" class="menuCategory">
+                                    v-on:click="loadModule(key, null); showMobileMenu = false;" v-bind:class="{ selectedMenuCategory: isActiveModule(key) }" class="menuCategory">
                                     {{value.title}}
                                 </div>
                             </div>

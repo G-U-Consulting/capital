@@ -214,10 +214,7 @@
                 {{ ObjCliente.Nombres }}
             </div>
             <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index" :class="[
-                'tab-registro',
-                { active: activeTab === index },
-                { 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }
-              ]">
+                'tab-registro', { active: activeTab === index },{ 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }]">
                 {{ tabItem }}
                 <span v-if="tabItem === 'Registros de compras' && registroCompras.length > 0" class="dot"></span>
             </div>
@@ -446,22 +443,6 @@
                     </tbody>
                 </table>
             </div>
-            <!-- <div style="margin-top: 1em; align-items: center; justify-content: space-between;">
-                <div class="pure-u-1 pure-u-md-5-6" style="display: flex; align-items: center; gap: 1em;">
-                    <samp class="pure-u-md-auto" style="margin: 0;">Lista Activa:</samp>
-                    <div class="pure-u-md-1-6">
-                        <div class="formInputStandard" style="width: 100%;">
-                            <select v-model="" style="width: 100%;">
-                                <option value="" selected>[Seleccione]</option>
-                                <option value="">Opción 1</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6" style="text-align: right;">
-                    <button>Agregar Unidad</button>
-                </div>
-            </div> -->
             <div class="pure-u-1-1"
                 style="margin-top: 0.5em; display: flex; align-items: center; justify-content: space-between;">
                 <div class="pure-u-1-1 pure-u-md-1-3" style="display: flex; align-items: center; gap: 6.5em;">
@@ -478,7 +459,6 @@
                     <tr>
                         <th>Ítem</th>
                         <th>Fecha</th>
-                        <th>Ítem Id</th>
                         <th>Tipo</th>
                         <th>Descripción</th>
                         <th>Importe</th>

@@ -36,6 +36,7 @@ mainVue = {
             categories: null,
             categorySelected: null,
             apiKeys: {},
+            nombreUsuario: "",
         }
     },
     async mounted() {
@@ -80,6 +81,8 @@ mainVue = {
         }.bind(this);
         GlobalVariables.getPreferences = this.getPreferences;
         GlobalVariables.setPreferences = this.setPreferences;
+        const response = await httpFunc("/generic/genericDS/General:Get_NomUser", { user: GlobalVariables.username });
+        this.nombreUsuario = response.data[0][0].nombres;
     },
     methods: {
         async loadModule(name, inputParameter) {
@@ -131,11 +134,11 @@ mainVue = {
                 this.moduleSelected.moduleObj.template = await (await fetch(this.moduleSelected.templateUrl)).text();
             this.zoneSelected = this.zones[this.moduleSelected["zone"]];
             GlobalVariables.zonaActual = this.zoneSelected;
-            if(this.zoneSelected != null)
+            if (this.zoneSelected != null)
                 this.categorySelected = this.zoneSelected.categories.find(function (item) { return this.moduleSelected["category"] == item["key"] }.bind(this));
             this.loadVueModule(inputParameter);
 
-            if(GlobalVariables.ruta != null && !GlobalVariables.ruta.includes(name)){
+            if (GlobalVariables.ruta != null && !GlobalVariables.ruta.includes(name)) {
                 GlobalVariables.ruta = GlobalVariables.ruta + " / " + name;
                 localStorage.setItem('ruta', GlobalVariables.ruta);
             }
@@ -164,7 +167,7 @@ mainVue = {
                 miniModule.moduleObj = miniModule.moduleObj.default;
             }
             if (miniModule.moduleObj.template == null || miniModule.moduleObj.template == "")
-                miniModule.moduleObj.template = await(await fetch(miniModule.templateUrl)).text();
+                miniModule.moduleObj.template = await (await fetch(miniModule.templateUrl)).text();
 
             if (mvm != null) mvm.unmount();
             mvm = createApp(miniModule.moduleObj);
@@ -206,7 +209,7 @@ mainVue = {
             } else {
                 this.openZone(item);
             }
-        },        
+        },
         async logOut() {
             showProgress();
             var data = await httpFunc("/auth/logout", {});
@@ -261,7 +264,7 @@ mainVue = {
             try {
                 if (!GlobalVariables.username)
                     throw "No username";
-                let preferences = {}, 
+                let preferences = {},
                     params = { usuario: GlobalVariables.username };
                 nombre && (params['nombre'] = nombre);
                 let data = (await httpFunc("/generic/genericDT/Usuarios:Get_Preferencias", params)).data;
