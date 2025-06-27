@@ -2184,3 +2184,9 @@ tr.destacada {
   background-color: #ff3b3b;
   border-radius: 50%;
 }
+
+.text-center-bold {
+  font-size: 1.2em;
+  text-align: center;
+  font-weight: bold;
+}

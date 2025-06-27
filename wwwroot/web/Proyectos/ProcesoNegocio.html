@@ -211,7 +211,7 @@
         <!-- ----------------------------------------------------------------- -->
         <div class="pure-g" v-if="mode == 1">
             <div class='pure-u-1-1' style="font-size: 2em;">
-                {{ ObjCliente.Nombres }}
+                {{ ObjCliente.nombres }}
             </div>
             <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index" :class="[
                 'tab-registro', { active: activeTab === index },{ 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }]">
@@ -234,7 +234,7 @@
                     </select>
                 </div>
                 <div
-                    style="min-height: calc(100dvh - 48.5rem);max-height: calc(100dvh - 48.5rem); overflow-y: auto; margin-top: 0.5em;">
+                    style="min-height: calc(100dvh - 37rem);max-height: calc(100dvh - 48.5rem); overflow-y: auto; margin-top: 0.5em;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -271,7 +271,7 @@
                     <span style="font-size: 1.8em;">Registros de compras</span>
                 </div>
                 <div
-                    style="min-height: calc(100dvh - 46.5rem); max-height: calc(100dvh - 43rem); overflow-y: auto; margin-top: 1em;">
+                    style="min-height: calc(100dvh - 37rem); max-height: calc(100dvh - 43rem); overflow-y: auto; margin-top: 1em;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -408,14 +408,14 @@
         <!-- ----------------------------------------------------------------- -->
         <div class="pure-g" v-if="mode == 2">
             <div class='pure-u-1-1' style="font-size: 2em;">
-                {{ ObjCliente.Nombres }}
+                {{ ObjCliente.nombres }}
             </div>
             <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
                 <span style="font-size: 1.8em;">Cotizaciones</span>
                 <button style="float: right;" @click="addCotizacion">Nueva Cotización</button>
             </div>
             <div
-                style="min-height: calc(100dvh - 47rem);max-height: calc(100dvh - 47rem); overflow-y: auto; margin-top: 0.5em;">
+                style="min-height: calc(100dvh - 37rem);max-height: calc(100dvh - 47rem); overflow-y: auto; margin-top: 0.5em;">
                 <table class="dataTable">
                     <thead>
                         <tr>
@@ -473,10 +473,8 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
                     </tr>
                     <tr>
-                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -491,16 +489,9 @@
         <!-- ----------------------------- Opción ---------------------------- -->
         <!-- ----------------------------------------------------------------- -->
         <div v-if="mode == 3">
-            <div>
-                <h1>Modulo Opción</h1>
+            <div class='pure-u-1-1' style="font-size: 2em;">
+                {{ ObjCliente.nombres }}
             </div>
-            <div style="text-align: center;">
-                <img src="../../img/ico/MEN AT WORK.JPG" alt="">
-            </div>
-            <!-- <div class='pure-u-1-1' style="font-size: 2em;">
-                {{ ObjCliente.Nombres }}
-            </div>
-        
             <div class='pure-u-1-1 formDivision' style="display: flex; justify-content: space-between;">
                 <div class="pure-u-1 pure-u-md-1-2">
                     <span style="font-size: 1.2em;">Opcionar</span>
@@ -510,21 +501,29 @@
                 </div>
             </div>
             <div class="pure-g" style="margin-top: 1em;">
-                <div class="pure-u-1 pure-u-md-1-2">
+                <div class="pure-u-1 pure-u-md-1-1" style="margin-bottom: .5em;">
+                    <legend>Modo de Pago:</legend>
                     <fieldset style="border: 1px solid lightgray; padding: 1em;">
-                        <legend>Modo de Pago:</legend>
-                        <label><input type="radio" name="modoPago" /> Contado</label>
-                        <div style="margin-top: 1em;">
-                            <span>Modalidad:</span>
-                            <select style="width: 100%;">
+                        <label class="check" class="pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
+                            <input type="checkbox" value='1' v-model="" />
+                            <span class="checkmark"></span>
+                            Contado
+                        </label>
+                        <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">Modalidad:</span>
+                        <div class="pure-u-1-1 pure-u-md-1-4">
+                            <select>
                                 <option>Seleccione</option>
                             </select>
                         </div>
                     </fieldset>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-2">
+                <div class="pure-u-1 pure-u-md-1-1">
                     <fieldset style="border: 1px solid lightgray; padding: 1em;">
-                        <label><input type="radio" name="modoPago" /> Financiado</label>
+                        <label class="check" class="pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
+                            <input type="checkbox" value='1' v-model="" />
+                            <span class="checkmark"></span>
+                            Financiado
+                        </label>
                         <div style="margin-top: 1em;">
                             <div><span>Modalidad:</span>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
@@ -606,7 +605,7 @@
                 <span>Importe Financiable:</span> <strong></strong>
                 Cuota Inicial: <strong></strong>
                 Cuota: <strong></strong>
-            </div> -->
+            </div>
         </div>
     </div>
     <!-- ------------------------------------------------------------ -->
