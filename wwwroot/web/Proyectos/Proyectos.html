@@ -68,10 +68,10 @@
                     <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
                         Agenda
                     </div>
-                    <div v-on:click="setMainMode('MisCompromisos')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'MisCompromisos'}">
+                    <div v-on:click="setMainMode('MisTareas')" class="lateralMenuItem noSelect"
+                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'MisTareas'}">
                         <img src="./img/ico/svg/sidebar/Compromisos.svg" />
-                        Mis compromisos
+                        Mis Tareas
                     </div>
                     <div v-on:click="setMainMode('MiCalendario')" class="lateralMenuItem noSelect"
                          v-bind:class="{'lateralMenuItemSelected': mainmode == 'MiCalendario'}">
@@ -271,7 +271,7 @@
                 </div>
             </div>
         </div>
-        <!-- Mis compromisos-->
+        <!-- Mis Tareas-->
         <div v-if="mainmode == 10"
             style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 5rem);">
             <div>

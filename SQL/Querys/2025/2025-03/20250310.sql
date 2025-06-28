@@ -477,3 +477,36 @@ create table dim_hito_sala(
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
 	id_proyecto int references fact_proyectos(id_proyecto)
 );
+create table dim_prioridad_tarea(
+	id_prioridad int primary key auto_increment,
+	nombre varchar(20) not null,
+	prioridad int not null
+);
+insert into dim_prioridad_tarea(nombre, prioridad) values
+('Baja', 10),
+('Media', 20),
+('Alta', 30),
+('Urgente', 40);
+
+create table dim_estado_tarea(
+	id_estado int primary key auto_increment,
+	nombre varchar(20) not null,
+	orden int not null
+);
+insert into dim_estado_tarea(nombre, orden) values
+('Sin iniciar', 10),
+('En espera', 20),
+('En ejecución', 30),
+('Finalizada', 40);
+
+create table dim_tarea_usuario(
+	id_tarea int primary key auto_increment,
+	alta date not null,
+	deadline date not null,
+	id_proyecto int not null references fact_proyectos(id_proyecto),
+	descripcion varchar(255) not null,
+	id_prioridad int not null references dim_prioridad_tarea(id_prioridad),
+	id_estado int not null references dim_estado_tarea(id_estado),
+	id_usuario int not null references fact_usuarios(id_usuario),
+	check(deadline >= alta)
+);

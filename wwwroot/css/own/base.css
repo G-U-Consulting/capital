@@ -1994,6 +1994,7 @@ tr.destacada {
   justify-content: center;
   align-items: center;
   border: 1px #aaa solid;
+  background-color: #8bcdd92b;
 }
 .cal-name-day {
   height: calc(1rem + 10px);
@@ -2002,6 +2003,7 @@ tr.destacada {
   justify-content: center;
   align-items: center;
   border: 1px #aaa solid;
+  background-color: #8bcdd92b;
 }
 
 .cal-matrix{
@@ -2017,15 +2019,19 @@ tr.destacada {
   padding: 8%;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 .cal-today {
-  background: #A6D9F480;
-  border: 1px #006b80 solid;
+  background: #c5e3fd8f;
+  border: 2px #c45c5c solid;
   font-weight: bold;
 }
 .cal-sel-day {
   background: #cad1d480;
   border: 1px #607579 solid;
+}
+.cal-holiday {
+  background-color: #ffe4e4;
 }
 .cal-holiday > span {
   color: #c80000;
@@ -2045,7 +2051,7 @@ tr.destacada {
 }
 .cal-today.cal-sel-day {
   background: #7ba0b480;
-  border: 1px #004857 solid;
+  border: 2px #8f0000 solid;
 }
 .cal-fade-day span {
   color: #929292;
@@ -2065,7 +2071,7 @@ tr.destacada {
 }
 .cal-btn.today{
   margin-right: 5px;
-  width: 55px;
+  width: 80px;
   font-weight: normal;
 }
 .cal-btn:hover {
@@ -2120,6 +2126,7 @@ tr.destacada {
   height: auto;
   cursor: pointer;
   padding: 0 3px;
+  user-select: none;
 }
 .event-card:hover {
   transform: translateY(-2px);
@@ -2183,4 +2190,8 @@ tr.destacada {
   width: 8px;
   background-color: #ff3b3b;
   border-radius: 50%;
+}
+
+.editable td {
+  padding: 0;
 }

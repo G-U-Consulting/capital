@@ -131,8 +131,8 @@ export default {
             }else if(type == "Clientes"){
                 this.pushRuta("Clientes", 1);
                 return this.proyecto;
-            }else if(type == "MisCompromisos"){
-                this.pushRuta("Mis Compromisos", 1)
+            }else if(type == "MisTareas"){
+                this.pushRuta("Mis Tareas", 1)
                 return this.proyecto;
             }else if(type == "MiCalendario"){
                 this.pushRuta("Mi Calendario", 1)

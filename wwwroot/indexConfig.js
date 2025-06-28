@@ -94,9 +94,9 @@
         jsUrl: "./web/Proyectos/Clientes.js",
         allow: ["*"]
     },
-    "MisCompromisos": {
-        templateUrl: "./web/Proyectos/MisCompromisos.html",
-        jsUrl: "./web/Proyectos/MisCompromisos.js",
+    "MisTareas": {
+        templateUrl: "./web/Proyectos/MisTareas.html",
+        jsUrl: "./web/Proyectos/MisTareas.js",
         allow: ["*"]
     },
     "MiCalendario":{

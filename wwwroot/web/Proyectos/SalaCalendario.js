@@ -168,7 +168,7 @@ export default {
             this.mode = mode;
             if (mode == 1) {
                 this.hito = { hora: '00:00', color: '#006ec9' };
-                this.hitoPro = false;
+                this.hitoPro = true;
             }
             this.modal && (this.modal.style.display = 'flex');
         },
