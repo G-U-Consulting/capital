@@ -20,7 +20,6 @@ loginVue = {
         let response = await axios.post("/util/Presentacion", {});
         this.duracion = response.data.data[0][0].valor;
         await this.fetchImages();
-        console.log(this.images)
         if (this.images.length) {
             this.updateImage();
             setInterval(this.updateImage, this.duracion * 1000);
