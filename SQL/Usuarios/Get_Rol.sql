@@ -5,7 +5,7 @@
 set @id_rol = 9;
 --END_PARAM
 
-select a.id_rol, a.rol, a.descripcion, a.id_sede
+select a.id_rol, a.rol, a.descripcion, nivel, a.id_sede
 from fact_roles a
 where id_rol = @id_rol;
 
@@ -23,3 +23,4 @@ select b.id_sede, b.sede
 from fact_roles a
 join dim_sede b on a.id_sede = b.id_sede
 where id_rol = @id_rol;
+

@@ -5,6 +5,7 @@
 set @id_rol = '2',
     @rol = 'elrol',
     @descripcion = 'ladesc',
+    @Nivel = 0,
     @id_sede = 1,
     @permisos = '5,',
     @created_by = 'alejandros';
@@ -13,6 +14,7 @@ call fn_list(@permisos, ',');
 update fact_roles set
     rol = @rol,
     descripcion = @descripcion,
+    nivel = @Nivel,
     id_sede = @id_sede
 where id_rol = @id_rol;
 delete a
