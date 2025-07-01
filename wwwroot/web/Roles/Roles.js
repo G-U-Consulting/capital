@@ -14,6 +14,7 @@ export default {
             roleList: [],
             newRole: {
                 "rol": "",
+                "nivel": 0,
                 "permisos": "",
                 "descripcion": "",
                 "id_sede": "",
@@ -22,6 +23,7 @@ export default {
             editRole: {
                 "id_rol": "",
                 "rol": "",
+                "nivel": 0,
                 "permisos": "",
                 "id_sede": "",
                 "descripcion": "",
@@ -161,6 +163,7 @@ export default {
             this.editRole["rol"] = resp[0][0]["rol"];
             this.editRole["permisos"] = "";
             this.editRole["descripcion"] = resp[0][0]["descripcion"];
+            this.editRole["nivel"] = resp[0][0]["nivel"];
             this.users = resp[2];
             this.selectedAccess = null;
             var sedeSeleccionada = resp[3][0];

@@ -106,6 +106,7 @@ create table fact_roles(
 	rol varchar(200),
 	id_sede int,
 	descripcion varchar(1000),
+	nivel int,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
