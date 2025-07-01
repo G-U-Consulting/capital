@@ -17,9 +17,10 @@ export default {
                 tareas: { activa: '1' }
             },
 
-            editRow: false,
+            editNewRow: false,
             selRow: null,
-            enableEdit: false
+            enableEdit: false,
+            orden: "dead-prio"
         };
     },
     async mounted() {
@@ -32,12 +33,14 @@ export default {
             this.mainmode = mode;
         },
         async loadData() {
+            showProgress();
             let usuarios = [];
             [usuarios, this.proyectos, this.tareas, this.prioridades, this.estados] =
                 (await httpFunc("/generic/genericDS/Proyectos:Get_Tarea", { username: GlobalVariables.username })).data;
             usuarios.length && (this.usuario = usuarios[0]);
             this.selPro = this.proyectos.find(p => p.id_proyecto === this.proyecto.id_proyecto);
             this.onChangePro();
+            hideProgress();
         },
         onChangePro() {
             let id_pro = this.selPro.id_proyecto;
@@ -49,34 +52,39 @@ export default {
             this.cancel();
         },
         newRow() {
-            this.editRow = !this.editRow;
+            this.editNewRow = !this.editNewRow;
             this.tarea = {};
             this.selRow = null;
         },
         onSelect(t, i) {
             if (this.selRow != i) {
                 this.tarea = { ...t };
-                this.editRow = false;
+                this.editNewRow = false;
                 this.enableEdit = false;
                 this.selRow = i;
             }
         },
         async onSave() {
-            if (this.selRow)
-                this.tarea = this.getFilteredList('tareas')[this.selRow];
-            let res = await httpFunc(`/generic/genericST/Proyectos:${this.selRow ? 'Upd' : 'Ins'}_Tarea`,
-                { ...this.tarea, id_usuario: this.usuario.id_usuario });
-            if (res.data === 'OK') {
-                this.tareas =
-                    (await httpFunc("/generic/genericDT/Proyectos:Get_Tareas", { id_usuario: this.usuario.id_usuario })).data;
-                this.tarea = {};
-                this.cancel();
-            } else {
-                console.error(res);
-                showMessage('Error: ' + (res.errorMessage || res.data));
+            if (this.enableEdit || this.editNewRow) {
+                showProgress();
+                if (this.selRow)
+                    this.tarea = this.getFilteredList('tareas')[this.selRow];
+                let res = await httpFunc(`/generic/genericST/Proyectos:${this.selRow != null ? 'Upd' : 'Ins'}_Tarea`,
+                    { ...this.tarea, id_usuario: this.usuario.id_usuario });
+                if (res.data === 'OK') {
+                    this.tareas =
+                        (await httpFunc("/generic/genericDT/Proyectos:Get_Tareas", { id_usuario: this.usuario.id_usuario })).data;
+                    this.tarea = {};
+                    this.cancel();
+                } else {
+                    console.error(res);
+                    showMessage('Error: ' + (res.errorMessage || res.data));
+                }
+                hideProgress();
             }
         },
         async onDelete(tarea) {
+            showProgress();
             let res = await httpFunc(`/generic/genericST/Proyectos:Del_Tarea`, tarea);
             if (res.data === 'OK') {
                 this.tareas =
@@ -87,13 +95,14 @@ export default {
                 console.error(res);
                 showMessage('Error: ' + (res.errorMessage || res.data));
             }
+            hideProgress();
         },
         async reqDelete() {
-            if (!this.editRow)
+            if (!this.editNewRow)
                 showConfirm(`Se eliminará la tarea <b>${this.tarea.descripcion}</b> permanentemente.`, this.onDelete, null, this.tarea);
         },
         cancel() {
-            this.editRow = false;
+            this.editNewRow = false;
             this.selRow = null;
             this.enableEdit = false;
         }
@@ -105,7 +114,18 @@ export default {
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(String(this.filtros[tabla][key]).toLowerCase())
                     ) : []
-                ) : [];
+                ).sort((a, b) => {
+                    let fecha_a = new Date(a.deadline), fecha_b = new Date(b.deadline),
+                        orden_a = parseInt(a.orden_p), orden_b = parseInt(b.orden_p);
+                    if (this.orden == 'prio-dead') {
+                        if (orden_a == orden_b) return fecha_a <= fecha_b ? -1 : 1;
+                        else return orden_b - orden_a;
+                    }
+                    else {
+                        if (a.deadline == b.deadline) return orden_b - orden_a;
+                        else return fecha_a <= fecha_b ? -1 : 1;
+                    }
+                }) : [];
             };
         }
     }

@@ -14,13 +14,13 @@
         <div class='pure-u-1-2 pure-u-md-1-12' style="text-align: center; padding-top: 14px;">
             <label for="sel-pro" style="padding-top: .5rem;">Proyecto: </label>
         </div>
-        <div class='pure-u-1-2 pure-u-md-5-24 formInputStandard'>
+        <div class='pure-u-1-2 pure-u-md-1-6 formInputStandard'>
             <select v-model="selPro" class="pure-input-1" @change="onChangePro" id="sel-pro">
                 <option :value="{}">[Todos]</option>
                 <option v-for="pro in proyectos" :value="pro">{{pro.nombre}}</option>
             </select>
         </div>
-        <div class='pure-u-1-1 pure-u-md-1-12'></div>
+        <div class='pure-u-1-1 pure-u-md-1-24'></div>
         <div class='pure-u-1-1 pure-u-md-1-4' style="padding-top: 14px;">
             <label class="check">
                 <input type="checkbox" :checked="filtros.tareas.activa" @change="onChangeActive" />
@@ -28,7 +28,15 @@
                 Mostrar solo tareas activas
             </label>
         </div>
-        <div class='pure-u-1-1 pure-u-md-4-24'></div>
+        <div class='pure-u-1-1 pure-u-md-1-12' style="text-align: center; padding-top: 14px;">
+            <label for="sel-orden">Orden: </label>
+        </div>
+        <div class='pure-u-1-1 pure-u-md-1-6 formInputStandard' style="text-align: left;">
+            <select id="sel-orden" v-model="orden">
+                <option value="dead-prio">Deadline - Prioridad</option>
+                <option value="prio-dead">Prioridad - Deadline</option>
+            </select>
+        </div>
         <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: right; padding-top: .5rem;">
             <button @click="newRow()">Agregar Tarea</button>
         </div>
@@ -37,16 +45,16 @@
             <table class="dataTable" style="table-layout: auto;">
                 <thead>
                     <tr>
-                        <th>Fecha Alta</th>
-                        <th>Deadline</th>
-                        <th>Proyecto</th>
-                        <th>Descripción</th>
-                        <th>Prioridad</th>
-                        <th>Estado</th>
+                        <th style="width: 13%;">Alta</th>
+                        <th style="width: 13%;">Deadline</th>
+                        <th style="width: 16%;">Proyecto</th>
+                        <th style="width: 32%;">Descripción</th>
+                        <th style="width: 13%;">Prioridad</th>
+                        <th style="width: 13%;">Estado</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-if="editRow" class="editable" v-bind:class="{'destacada': selRow == null}">
+                    <tr v-if="editNewRow" class="editable" v-bind:class="{'destacada': selRow == null}">
                         <td><input type="date" v-model="tarea.alta"></td>
                         <td><input type="date" v-model="tarea.deadline"></td>
                         <td>
@@ -90,14 +98,14 @@
                             <input type="text" v-model="t.descripcion" v-if="enableEdit && selRow == i">
                             <span v-else>{{t.descripcion}}</span>
                         </td>
-                        <td>
+                        <td style="text-align: center;">
                             <select v-model="t.id_prioridad" v-if="enableEdit && selRow == i">
                                 <option value="" disabled>[Seleccione]</option>
                                 <option v-for="p in prioridades" :value="p.id_prioridad">{{p.nombre}}</option>
                             </select>
                             <span v-else>{{t.prioridad}}</span>
                         </td>
-                        <td>
+                        <td style="text-align: center;">
                             <select v-model="t.id_estado" v-if="enableEdit && selRow == i">
                                 <option value="" disabled>[Seleccione]</option>
                                 <option v-for="e in estados" :value="e.id_estado">{{e.nombre}}</option>

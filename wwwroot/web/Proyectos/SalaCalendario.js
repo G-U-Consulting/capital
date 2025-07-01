@@ -29,6 +29,7 @@ export default {
         this.setToday();
         await this.loadViewMode();
         this.modal = document.getElementById('modalOverlay');
+        window.addEventListener('keyup', (e) => e.key === 'Escape' && this.closeModal({}, true));
     },
     methods: {
         setMainMode(mode) {
@@ -172,8 +173,8 @@ export default {
             }
             this.modal && (this.modal.style.display = 'flex');
         },
-        closeModal(e) {
-            if (this.modal && e.target === this.modal)
+        closeModal(e, forzar) {
+            if (this.modal && (e.target === this.modal || forzar))
                 this.modal.style.display = 'none';
         },
         async onSave() {

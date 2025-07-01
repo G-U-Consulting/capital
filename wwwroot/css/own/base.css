@@ -2023,7 +2023,7 @@ tr.destacada {
 }
 .cal-today {
   background: #c5e3fd8f;
-  border: 2px #c45c5c solid;
+  border: 2px #d34343 solid;
   font-weight: bold;
 }
 .cal-sel-day {
@@ -2051,7 +2051,7 @@ tr.destacada {
 }
 .cal-today.cal-sel-day {
   background: #7ba0b480;
-  border: 2px #8f0000 solid;
+  border: 2px #e00000 solid;
 }
 .cal-fade-day span {
   color: #929292;
@@ -2099,6 +2099,13 @@ tr.destacada {
   width: 90%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   position: relative;
+}
+.modal-cerrar {
+  width: 20px; 
+  position: absolute; 
+  top: 1rem; 
+  right: 1rem; 
+  cursor: pointer;
 }
 .event-list {
   width: 100%;

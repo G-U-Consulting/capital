@@ -508,5 +508,5 @@ create table dim_tarea_usuario(
 	id_prioridad int not null references dim_prioridad_tarea(id_prioridad),
 	id_estado int not null references dim_estado_tarea(id_estado),
 	id_usuario int not null references fact_usuarios(id_usuario),
-	check(deadline >= alta)
+	constraint chk_fecha_alta_mayor check(deadline >= alta)
 );
