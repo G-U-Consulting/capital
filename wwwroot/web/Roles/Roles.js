@@ -14,7 +14,6 @@ export default {
             roleList: [],
             newRole: {
                 "rol": "",
-                "nivel": 0,
                 "permisos": "",
                 "descripcion": "",
                 "id_sede": "",
@@ -23,7 +22,6 @@ export default {
             editRole: {
                 "id_rol": "",
                 "rol": "",
-                "nivel": 0,
                 "permisos": "",
                 "id_sede": "",
                 "descripcion": "",
