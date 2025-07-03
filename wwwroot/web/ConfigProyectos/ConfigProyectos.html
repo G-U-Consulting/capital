@@ -1,4 +1,4 @@
-<div class="pure-g">
+<div class="pure-g maestros">
     <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
         <div class="lateralMenuHeader">
         </div>
@@ -627,7 +627,8 @@
                                     <td
                                         v-for="key in Object.keys(banco).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{banco[key]}}</td>
-                                    <td v-for="fact in new Set(factores.map(f => f.factor))" style="text-align: center;">
+                                    <td v-for="fact in new Set(factores.map(f => f.factor))"
+                                        style="text-align: center;">
                                         {{has_factor(banco.id_banco, fact) || "❌"}}
                                     </td>
                                     <td style="text-align: center;">
@@ -654,10 +655,11 @@
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Banco</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24" v-if="mode == 1">
-                            <input type="text" v-model="banco.banco" maxlength="50"/>
+                            <input type="text" v-model="banco.banco" maxlength="50" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2" style="padding-left: 0" v-if="mode == 2">
-                            <input type="text" v-model="banco.banco" maxlength="50"/>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2" style="padding-left: 0"
+                            v-if="mode == 2">
+                            <input type="text" v-model="banco.banco" maxlength="50" />
                         </div>
                         <div v-if="mode == 1" class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSaveBanco()">Guardar</button>
@@ -669,7 +671,7 @@
                             <div style="max-height: calc(100vh - 18.5rem); overflow-y: auto;">
                                 <div v-for="unidad in new Set(factores.map(f => f.unidad))">
                                     <h3>Valores en {{unidad}}</h3>
-                                    <table class="dataTable">
+                                    <table class="dataTable" style="table-layout: auto;">
                                         <thead>
                                             <tr>
                                                 <th>
@@ -680,9 +682,9 @@
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody style="font-size: 15px;">
                                             <tr v-for="tf in tipos_factor">
-                                                <td style="text-align: center;">
+                                                <td style="text-align: center; padding: 3px;">
                                                     <span>
                                                         {{tf.tipo_factor}}
                                                     </span>
@@ -698,7 +700,7 @@
                                     </table>
                                 </div>
                             </div>
-                            
+
                             <div class='pure-u-1-1 pure-u-md-2-5'></div>
                             <div class='pure-u-1-1 pure-u-md-1-5'>
                                 <button v-on:click="onSaveBanco()" style="margin-top: .8rem;">Guardar</button>
@@ -900,7 +902,6 @@
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Sede</span>
                             <select v-model='zonaProyecto.id_sede'>
-                                <option value='' disabled selected>Seleccione</option>
                                 <option
                                     v-for="sed in sedes.sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
                                     :value='sed.id_sede' :disabled="sed.is_active != '1'">
@@ -1006,14 +1007,13 @@
                 <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Ciudadela</h2>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-3-4">
                             <span>Nombre Ciudadela</span>
                             <input type="text" v-model="ciudadela.ciudadela" maxlength="50" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Sede</span>
-                            <select v-model='ciudadela.id_sede'>
-                                <option value='' disabled selected>Seleccione</option>
+                            <select v-model='ciudadela.id_sede' @change="delete ciudadela.id_zona_proyecto">
                                 <option
                                     v-for="sed in sedes.sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
                                     :value='sed.id_sede' :disabled="sed.is_active != '1'">
@@ -1021,6 +1021,17 @@
                                 </option>
                             </select>
                         </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                            <span>Zona</span>
+                            <select v-model='ciudadela.id_zona_proyecto'>
+                                <option
+                                    v-for="zon in zonasProyectos.filter(z => z.id_sede == ciudadela.id_sede).sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
+                                    :value='zon.id_zona_proyecto' :disabled="zon.is_active != '1'">
+                                    {{ zon.zona_proyecto }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-2-5"></div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
                         </div>
@@ -1513,8 +1524,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-8"></div>
-                <div class="pure-u-22-24 pure-u-md-3-4 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Subsidios VIS</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -2101,14 +2112,16 @@
                                 <tr>
                                     <th
                                         v-for="key in Object.keys(salas_ventas[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
-                                        {{(key[0].toUpperCase() + key.substr(1)).replaceAll("_"," ").replace('vpn', 'VPN')}}
+                                        {{(key[0].toUpperCase() + key.substr(1)).replaceAll("_"," ").replace('vpn',
+                                        'VPN')}}
                                     </th>
                                     <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="sv in getFilteredList('salas_ventas')" @click="onSelect(sv);loadProjects(sv);">
+                                <tr v-for="sv in getFilteredList('salas_ventas')"
+                                    @click="onSelect(sv);loadProjects(sv);">
                                     <td
                                         v-for="key in Object.keys(sv).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{sv[key]}}</td>
@@ -2131,18 +2144,39 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
-                    <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Salas de Ventas</h2>
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+                    <div class="pure-u-1-1 pure-u-md-5-6">
+                        <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Salas de Ventas</h2>
+                    </div>
+                    <div class="pure-u-1-1 pure-u-md-1-6 labeled-switch"
+                        @click.stop.prevent="sala_venta.is_feria = sala_venta.is_feria == '1' ? '0' : '1';">
+                        <span style="margin-right: .5rem;">Sala de feria</span>
+                        <div class="toggle-switch" style="margin: 0;">
+                            <input id="toggle-sala-feria" type="checkbox" class="toggle-input"
+                                :checked="Number(sala_venta.is_feria) !== 1">
+                            <label class="toggle-label" for="toggle-sala-feria"
+                                style="transform: rotate(180deg);"></label>
+                        </div>
+                    </div>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Salas de Venta</span>
                             <input type="text" v-model="sala_venta.sala_venta" maxlength="50" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Nombre Sala Encuesta VPN</span>
+                            <input type="text" v-model="sala_venta.encuesta_vpn" maxlength="200" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>ID Playlist YouTube Turnos</span>
+                            <input type="text" v-model="sala_venta.id_playlist" maxlength="200" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Sede</span>
-                            <select v-model='sala_venta.id_sede'>
-                                <option value='' disabled selected>Seleccione</option>
+                            <select v-model='sala_venta.id_sede'
+                                @change="sala_venta.id_zona_proyecto = '';sala_venta.id_ciudadela = '';proyecto_sala={};">
+                                <option value="">[Todas las sedes]</option>
                                 <option
                                     v-for="sed in sedes.sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
                                     :value='sed.id_sede' :disabled="sed.is_active != '1'">
@@ -2150,35 +2184,100 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
-                            <span>Nombre Sala Encuesta VPN</span>
-                            <input type="text" v-model="sala_venta.encuesta_vpn" maxlength="200" />
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Zona</span>
+                            <select v-model='sala_venta.id_zona_proyecto'
+                                @change="sala_venta.id_ciudadela = '';proyecto_sala={};">
+                                <option value="">[Todas las zonas]</option>
+                                <option
+                                    v-for="zon in zonasProyectos.filter(z => !sala_venta.id_sede || z.id_sede == sala_venta.id_sede).sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
+                                    :value='zon.id_zona_proyecto' :disabled="zon.is_active != '1'">
+                                    {{ zon.zona_proyecto }}
+                                </option>
+                            </select>
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
-                            <span>ID Playlist YouTube Turnos</span>
-                            <input type="text" v-model="sala_venta.id_playlist" maxlength="200" />
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Ciudadela</span>
+                            <select v-model='sala_venta.id_ciudadela' @change="proyecto_sala={};">
+                                <option value="">[Todas las ciudadelas]</option>
+                                <option v-for="ciu in ciudadelas
+                                    .filter(c => 
+                                        (!sala_venta.id_sede || c.id_sede == sala_venta.id_sede) && 
+                                        (!sala_venta.id_zona_proyecto || c.id_zona_proyecto == sala_venta.id_zona_proyecto))
+                                            .sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
+                                    :value='ciu.id_ciudadela' :disabled="ciu.is_active != '1'">
+                                    {{ ciu.ciudadela }}
+                                </option>
+                            </select>
                         </div>
-                        <table class="dataTable" style="margin: .5rem 0; table-layout: auto;" v-if="mode == 2">
-                            <thead>
-                                <tr>
-                                    <th>Proyecto</th>
-                                    <th>Fecha Asignación</th>
-                                    <th>Retirar</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="pro in pro_sala" v-bind:class="{'deshabilitada': pro.is_active == '0'}" style="cursor: auto;">
-                                    <td>{{pro.nombre}}</td>
-                                    <td>{{pro.fecha_asignacion_sala}}</td>
-                                    <td style="text-align: center;">
-                                        <span @click.stop.prevent="reqRemovePro(pro)" class="delete">✖</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4" v-if="mode == 2">
+                            <span>Proyectos</span>
+                            <select v-model='proyecto_sala'>
+                                <option v-for="pro in proyectos
+                                        .filter(p => 
+                                        (!sala_venta.id_sede || p.id_sede == sala_venta.id_sede) && 
+                                        (!sala_venta.id_zona_proyecto || p.id_zona_proyecto == sala_venta.id_zona_proyecto) && 
+                                        (!sala_venta.id_ciudadela || p.id_ciudadela == sala_venta.id_ciudadela))
+                                            .sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
+                                    :value='pro' :disabled="pro.is_active != '1'">
+                                    {{ pro.nombre }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4" v-if="mode == 2">
+                            <button style="margin-top: 1.5rem;" @click="addProject">Asignar</button>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-1" style="height: calc(100vh - 31.3rem); overflow-y: auto;">
+                            <table class="dataTable" style="margin: .5rem 0; table-layout: auto;" v-if="mode == 2">
+                                <thead>
+                                    <tr>
+                                        <th>Proyecto</th>
+                                        <th>Fecha Asignación</th>
+                                        <th v-if="sala_venta.is_feria == '1'">Descuento</th>
+                                        <th v-if="sala_venta.is_feria == '1'">Vigente Hasta</th>
+                                        <th>Opcionar</th>
+                                        <th>Visualizar</th>
+                                        <th>Retirar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="pro in pro_sala" v-bind:class="{'deshabilitada': pro.is_active == '0'}"
+                                        style="cursor: auto;">
+                                        <td>{{pro.nombre}}</td>
+                                        <td>{{pro.fecha_asignacion}}</td>
+                                        <td v-if="sala_venta.is_feria == '1'" style="padding: 0;">
+                                            <input type="number" v-model="pro.descuento">
+                                        </td>
+                                        <td v-if="sala_venta.is_feria == '1'" style="padding: 0;">
+                                            <input type="date" v-model="pro.vigencia">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <div class="toggle-switch">
+                                                <input :id="'toggle-opc' + pro.nombre" type="checkbox"
+                                                    class="toggle-input" :checked="Number(pro.opcionar) !== 1" disabled>
+                                                <label class="toggle-label" :for="'toggle-opc' + pro.nombre"
+                                                    style="transform: rotate(180deg);" aria-disabled="true"></label>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <div class="toggle-switch">
+                                                <input :id="'toggle-vis' + pro.nombre" type="checkbox"
+                                                    class="toggle-input" :checked="Number(pro.visualizar) !== 1"
+                                                    disabled>
+                                                <label class="toggle-label" :for="'toggle-vis' + pro.nombre"
+                                                    style="transform: rotate(180deg);" aria-disabled="true"></label>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span @click.stop.prevent="reqRemovePro(pro)" class="delete">✖</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                         <div class="pure-u-1-1 pure-u-md-2-5"></div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onSave()">Guardar</button>
+                            <button v-on:click="onSaveSala()">Guardar</button>
                         </div>
                     </div>
                 </div>
@@ -2277,7 +2376,7 @@
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Color</span>
-                            <input type="color" v-model="color.color"/>
+                            <input type="color" v-model="color.color" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
@@ -2325,7 +2424,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-4">
-                                <button v-on:click="setMode(1)">Nueva sede</button>
+                                <button v-on:click="setMode(1)">Nueva Sede</button>
                             </div>
                         </div>
                     </div>

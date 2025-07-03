@@ -28,6 +28,7 @@ export default {
             colores: [],
             sedes: [],
             pro_sala: [],
+            proyectos: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -51,6 +52,7 @@ export default {
             sala_venta: {},
             color: {},
             sede: {},
+            proyecto_sala: {},
 
             ruta: [],
             medioIsActive: 0,
@@ -159,18 +161,20 @@ export default {
             this.copy_bf = cbfs;
         },
         async onSave() {
-            let [item, itemname] = this.getItem();
+            let [item, itemname] = this.getItem(), id = null;
             if (this.mainmode == 5) item["is_active"] = this.medioIsActive ? '1' : '0';
             try {
                 showProgress();
-                const resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_${itemname}`, item);
+                const resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_${itemname}`, item, this.mode == 1);
                 hideProgress();
+                if (this.mode == 1) id = resp.id;
                 if (resp.data === "OK") this.setMode(0);
                 else throw resp;
             } catch (e) {
                 if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
+            return id;
         },
         async onUpdateFactor() {
             showProgress();
@@ -199,6 +203,12 @@ export default {
                 this.setMode(0);
                 this.setRuta();
             }
+            return bfs;
+        },
+        async onUpdateFactorPro(bfs) {
+            await Promise.all(bfs.map(async bf =>
+                await httpFunc(`/generic/genericST/Maestros:Del_BancoFactor`, { id_banco_factor: bf.id_banco_factor })
+            ))
         },
         async onSaveBanco() {
             try {
@@ -210,7 +220,16 @@ export default {
                         let banco = { ...this.banco, id_banco: resp.id };
                         await this.loadData();
                         await this.onSelectBanco(banco);
-                    } else await this.onUpdateFactor();
+                    } else {
+                        let res = (await httpFunc(`/generic/genericDT/Maestros:Get_BancoFactor`, { id_banco: this.banco.id_banco })).data;
+                        let bfs = await this.onUpdateFactor();
+                        res = res.filter(r => bfs.some(bf => bf.id_factor == r.id_factor && bf.id_tipo_factor == r.id_tipo_factor));
+                        if (res.length) {
+                            let t = this.factores2html(res);
+                            showConfirm("Se encontraron los siguientes factores personalizados de proyecto" + t,
+                                this.onUpdateFactorPro, null, res, 'Sobreescribir', 'Conservar');
+                        }
+                    }
                 }
                 else throw resp;
             } catch (e) {
@@ -304,6 +323,15 @@ export default {
             }
             hideProgress();
         },
+        async onSaveSala() {
+            let sala = { ...this.sala_venta }, isNew = this.mode == 1;
+            let id_sala_venta = await this.onSave();
+            if (isNew) {
+                this.setMode(2);
+                this.sala_venta = { id_sede: '', id_zona_proyecto: '', id_ciudadela: '', ...sala, id_sala_venta };
+                this.loadProjects(this.sala_venta);
+            }
+        },
         async loadImg() {
             this.clearAllImages();
             let folder = this.mainmode == 1 ? 'General' : 'Sostenibilidad',
@@ -384,6 +412,39 @@ export default {
                 console.error(e);
             }
             hideProgress();
+        },
+        factores2html(data) {
+            const agrupado = {}, lista = document.createElement('ul');
+            lista.classList.add('list-modal');
+            data.forEach(item => {
+                const { proyecto, factor, tipo_factor, valor, unidad } = item;
+                if (!agrupado[proyecto]) agrupado[proyecto] = {};
+                if (!agrupado[proyecto][factor]) agrupado[proyecto][factor] = {};
+                agrupado[proyecto][factor][tipo_factor] = `${valor} ${unidad}`;
+            });
+
+            let index = 1;
+            for (const proyecto in agrupado) {
+                const liProyecto = document.createElement('li');
+                liProyecto.textContent = `${index}. ${proyecto}`;
+                const ulFactor = document.createElement('ul');
+                for (const factor in agrupado[proyecto]) {
+                    const liFactor = document.createElement('li');
+                    liFactor.textContent = `${factor}`;
+                    const ulTipo = document.createElement('ul');
+                    for (const tipo in agrupado[proyecto][factor]) {
+                        const liTipo = document.createElement('li');
+                        liTipo.textContent = `${tipo}: ${agrupado[proyecto][factor][tipo]}`;
+                        ulTipo.appendChild(liTipo);
+                    }
+                    liFactor.appendChild(ulTipo);
+                    ulFactor.appendChild(liFactor);
+                }
+                liProyecto.appendChild(ulFactor);
+                lista.appendChild(liProyecto);
+                index++;
+            }
+            return lista.outerHTML;
         },
         async loadData() {
             [
@@ -663,7 +724,7 @@ export default {
             showProgress();
 
             const response = await httpFunc("/file/S3upload", data);
-            
+
             if (response.isError) {
                 showMessage(response.errorMessage);
                 hideProgress();
@@ -722,24 +783,40 @@ export default {
         },
         async removePro(pro) {
             showProgress();
-            let res = await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto2", {...pro, id_sala_venta: 'null'});
+            let res = await httpFunc("/generic/genericST/Maestros:Del_ProyectoSala", pro);
             if (res.isError) {
                 console.error(res);
                 showMessage('Error: ' + res.errorMessage);
             } else await this.loadProjects(this.sala_venta);
         },
         async reqRemovePro(pro) {
-            showConfirm(`Se retirará el proyecto <b>${pro.nombre}</b> de la sala de ventas <b>${this.sala_venta.sala_venta}</b>.`, 
+            showConfirm(`Se retirará el proyecto <b>${pro.nombre}</b> de la sala de ventas <b>${this.sala_venta.sala_venta}</b>.`,
                 this.removePro, null, pro);
         },
         async loadProjects(sv) {
             showProgress();
-            let res = await httpFunc(`/generic/genericDT/Maestros:Get_ProyectoSala`, { id_sala: sv.id_sala_venta });
+            let res = await httpFunc(`/generic/genericDS/Maestros:Get_ProyectoSala`, { id_sala: sv.id_sala_venta });
             if (res.isError) {
                 this.pro_sala = [];
                 console.error(res);
                 showMessage('Error: ' + res.errorMessage);
-            } else this.pro_sala = res.data;
+            } else[this.proyectos, this.pro_sala] = res.data;
+            hideProgress();
+        },
+        async addProject() {
+            showProgress();
+            let pro = this.proyecto_sala;
+            if (pro.id_proyecto) {
+                let res = await httpFunc(`/generic/genericST/Maestros:Ins_ProyectoSala`,
+                    { id_sala: this.sala_venta.id_sala_venta, id_proyecto: pro.id_proyecto });
+                if (res.isError) {
+                    console.error(res);
+                    showMessage('Error: ' + res.errorMessage);
+                } else {
+                    this.proyecto_sala = {};
+                    this.loadProjects(this.sala_venta);
+                }
+            }
             hideProgress();
         }
     },
@@ -760,9 +837,9 @@ export default {
             return (id_banco, factor) => {
                 let unidades = new Set();
                 let factores = this.factores.filter(f => f.factor == factor);
-                this.bancos_factores.filter(bf => bf.id_banco == id_banco 
+                this.bancos_factores.filter(bf => bf.id_banco == id_banco
                     && factores.map(f => f.id_factor).includes(bf.id_factor))
-                    .forEach(bf => bf.valor != '0' && 
+                    .forEach(bf => bf.valor != '0' &&
                         unidades.add(factores.filter(f => bf.id_factor == f.id_factor)[0].unidad));
                 return [...unidades].join('/');
             }

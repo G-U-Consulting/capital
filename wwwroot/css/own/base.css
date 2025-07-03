@@ -1978,6 +1978,8 @@ tr.destacada {
   border: 1px #2a93a7  solid;
   min-height: 225px;
   user-select: none;
+  border-radius: 6px;
+  overflow: hidden;
 }
 .cal-sel-month {
   border: 2px #0c5968 solid;
@@ -2150,6 +2152,26 @@ tr.destacada {
   color: #404040;
   text-align: justify;
   padding-right: 1rem;
+}
+.list-modal {
+  text-align: start; 
+  font-size: 1rem; 
+  color: #444;
+}
+.maestros .searchBox {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+.maestros .searchBox > div > div:has(button){
+  margin-left: auto;
+  text-align: right;
+}
+.labeled-switch {
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: right; 
+  margin-top: .3em; 
+  cursor: pointer;
 }
 
 .torre {

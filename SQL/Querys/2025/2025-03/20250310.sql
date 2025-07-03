@@ -239,8 +239,9 @@ create table dim_tipo_factor(
 
 insert into dim_tipo_factor(tipo_factor) values('VIS');
 insert into dim_tipo_factor(tipo_factor) values('NO VIS');
-insert into dim_tipo_factor(tipo_factor) values('VIS + EDGE');
-insert into dim_tipo_factor(tipo_factor) values('NO VIS + EDGE');
+insert into dim_tipo_factor(tipo_factor) values('VIS + SOSTENIBLE');
+insert into dim_tipo_factor(tipo_factor) values('NO VIS + SOSTENIBLE');
+insert into dim_tipo_factor(tipo_factor) values('Leasing');
 
 create table dim_banco_factor(
 	id_banco_factor int primary key auto_increment,
@@ -405,14 +406,27 @@ create table dim_sala_venta(
 	id_sala_venta int primary key auto_increment,
 	sala_venta varchar(200) not null unique,
 	encuesta_vpn varchar(200),
-	id_sede int not null,
+	id_sede int,
 	id_playlist varchar(200),
+	id_zona_proyecto int references dim_zona_proyecto(id_zona_proyecto),
+	id_ciudadela int references dim_ciudadela(id_ciudadela),
 	codigo varchar(10),
+	is_feria bit default 0,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
     constraint fk_sala_sede foreign key (id_sede) 
         references dim_sede(id_sede)
+);
+create table dim_sala_proyecto(
+	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+	id_proyecto int not null references fact_proyectos(id_proyecto),
+	descuento int default 0,
+	visualizar bit default 0,
+	opcionar bit default 0,
+	vigencia date,
+	fecha_asignacion date default current_date,
+	primary key(id_sala_venta, id_proyecto)
 );
 
 create table dim_preferencias_usuario(

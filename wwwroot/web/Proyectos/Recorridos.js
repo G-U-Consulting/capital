@@ -94,8 +94,8 @@ export default {
                 return null;
             }
         },
-        initApp(e) {
-
+        redirect(url) {
+            window.open(url, '_blank');
         },
         setShowBar() {
             if (!this.cont) this.cont = document.getElementById('cont-rotafolio');

@@ -53,7 +53,7 @@ export default {
         },
         newRow() {
             this.editNewRow = !this.editNewRow;
-            this.tarea = {};
+            this.tarea = { alta: this.formatDate(new Date()) };
             this.selRow = null;
         },
         onSelect(t, i) {
@@ -105,6 +105,15 @@ export default {
             this.editNewRow = false;
             this.selRow = null;
             this.enableEdit = false;
+        },
+        formatDate(date) {
+            let day = date.getDate().toString().padStart(2, '0'),
+                month = (date.getMonth() + 1).toString().padStart(2, '0'),
+                year = date.getFullYear(),
+                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
+                minutes = date.getMinutes().toString().padStart(2, '0'),
+                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
+            return `${year}-${month}-${day}`;
         }
     },
     computed: {

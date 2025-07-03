@@ -19,4 +19,4 @@ where
         or id_maestro_documento <=> @id_maestro_documento
     );
 
-select 'ok' as result;
+select 'OK' as result;

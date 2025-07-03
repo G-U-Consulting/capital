@@ -60,6 +60,8 @@
                         v-bind:class="{'show-left-bar': showBar && !loading}">
                         <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(-1)"
                             style="transform: rotate(180deg);">
+                        <img src="../../img/ico/svg/web.svg" @click="redirect(files[playIndex].link)"
+                            class="btn-lat-rotafolio btn-fullscreen" style="right: 10px; bottom: 3px;">
                     </div>
                     <div class="btn-right-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-right-bar': showBar && !loading}">

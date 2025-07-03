@@ -80,10 +80,10 @@ create table dim_zona_proyecto (
     id_zona_proyecto INT NOT NULL auto_increment,
     constraint pk_dim_zona_proyecto primary key (id_zona_proyecto),
     zona_proyecto varchar(200) not null unique,
-	id_sede int not null,
+	id_sede int,
     codigo varchar(10),
-    is_active BIT default 1,
-    created_on DATETIME default current_timestamp,
+    is_active bit default 1,
+    created_on datetime default current_timestamp,
     created_by varchar(200) default CURRENT_USER,
     constraint fk_zona_sede foreign key (id_sede) 
         references dim_sede(id_sede)
@@ -92,13 +92,16 @@ create table dim_ciudadela (
     id_ciudadela int not null auto_increment,
     constraint pk_ciudadela primary key (id_ciudadela),
     ciudadela varchar(200) not null unique,
-	id_sede int not null,
+	id_sede int,
+	id_zona_proyecto int,
     codigo varchar(10),
     is_active bit default 1,
     created_on datetime default current_timestamp,
     created_by varchar(200) default current_user,
 	constraint fk_ciudadela_sede foreign key (id_sede) 
-		references dim_sede(id_sede)
+		references dim_sede(id_sede),
+	constraint fk_ciudadela_zona foreign key (id_zona_proyecto) 
+		references dim_zona_proyecto(id_zona_proyecto)
 );
 create table dim_banco_constructor(
 	id_banco int not null auto_increment,
