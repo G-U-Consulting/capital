@@ -29,6 +29,7 @@ export default {
             sedes: [],
             pro_sala: [],
             proyectos: [],
+            proyectos_sala: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -60,12 +61,14 @@ export default {
             pieEditor: 1,
             traEditor: 1,
             quills: {},
+            enableEdit: false,
+            selRow: null,
 
             filtros: {
                 gruposImg: { is_active: '' },
                 mediosPublicitarios: { id_categoria: '', is_active: '' },
                 categoriasMedios: { is_active: '' },
-                ciudadelas: { is_active: '', id_sede: '' },
+                ciudadelas: { is_active: '', id_sede: '', id_zona_proyecto: '' },
                 bancos: { is_active: '' },
                 fiduciarias: { is_active: '' },
                 zonasProyectos: { is_active: '', id_sede: '' },
@@ -78,7 +81,7 @@ export default {
                 estados_proyecto: { is_active: '' },
                 tipos_vis: { is_active: '' },
                 subsidios: { is_active: '' },
-                salas_ventas: { is_active: '', id_sede: '' },
+                salas_ventas: { is_active: '', id_sede: '', id_zona_proyecto: '', id_ciudadela: '' },
                 colores: { is_active: '' },
                 sedes: { is_active: '' },
             },
@@ -787,7 +790,12 @@ export default {
             if (res.isError) {
                 console.error(res);
                 showMessage('Error: ' + res.errorMessage);
-            } else await this.loadProjects(this.sala_venta);
+            } else {
+                this.proyecto_sala = {};
+                this.selRow = null;
+                this.enableEdit = false;
+                await this.loadProjects(this.sala_venta);
+            }
         },
         async reqRemovePro(pro) {
             showConfirm(`Se retirará el proyecto <b>${pro.nombre}</b> de la sala de ventas <b>${this.sala_venta.sala_venta}</b>.`,
@@ -803,21 +811,58 @@ export default {
             } else[this.proyectos, this.pro_sala] = res.data;
             hideProgress();
         },
-        async addProject() {
+        async addProjects() {
             showProgress();
-            let pro = this.proyecto_sala;
-            if (pro.id_proyecto) {
-                let res = await httpFunc(`/generic/genericST/Maestros:Ins_ProyectoSala`,
-                    { id_sala: this.sala_venta.id_sala_venta, id_proyecto: pro.id_proyecto });
-                if (res.isError) {
-                    console.error(res);
-                    showMessage('Error: ' + res.errorMessage);
-                } else {
-                    this.proyecto_sala = {};
-                    this.loadProjects(this.sala_venta);
-                }
+            let projects = [...this.proyectos_sala], errorMessage = null;
+            if (projects.length) {
+                console.log(projects);
+                await Promise.all(projects.map(async pro => {
+                    if (pro.id_proyecto) {
+                        let res = await httpFunc(`/generic/genericST/Maestros:Ins_ProyectoSala`,
+                            { id_sala: this.sala_venta.id_sala_venta, id_proyecto: pro.id_proyecto });
+                        if (res.isError) {
+                            console.error(res);
+                            errorMessage |= 'Error: ' + res.errorMessage;
+                        }
+                    }
+                }));
+                errorMessage && showMessage(errorMessage);
+                this.proyectos_sala = [];
+                await this.loadProjects(this.sala_venta);
             }
             hideProgress();
+        },
+        async onSelectPro(pro, i) {
+            if (this.selRow != i && pro.is_active == '1') {
+                this.enableEdit && await this.onSavePro();
+                this.proyecto_sala = { ...pro };
+                this.enableEdit = false;
+                this.selRow = i;
+            }
+        },
+        async onSavePro() {
+            showProgress();
+            if (this.selRow != null)
+                this.proyecto_sala = this.pro_sala[this.selRow];
+            let res = await httpFunc('/generic/genericST/Maestros:Upd_ProyectoSala', this.proyecto_sala);
+            if (res.data === 'OK') {
+                this.proyecto_sala = {};
+                this.selRow = null;
+                this.enableEdit = false;
+                await this.loadProjects(this.sala_venta);
+            } else {
+                console.error(res);
+                showMessage('Error: ' + (res.errorMessage || res.data));
+            }
+            hideProgress();
+        },
+        async toggleEdit() {
+            this.enableEdit ? await this.onSavePro()
+                : this.selRow !== null ? this.enableEdit = true : this.enableEdit = false;
+        },
+        async toggleFeria(sv) {
+            sv.is_feria = sv.is_feria == '0' ? '1' : '0';
+            await httpFunc(`/generic/genericST/Maestros:Upd_SalaVenta`, sv);
         }
     },
     computed: {

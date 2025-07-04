@@ -169,6 +169,16 @@
         category: "ConfigProyectos",
         allow: ["*"]
     },
+    "SalasVentas": {
+        templateUrl: "./web/Test/Archivos.html",
+        jsUrl: "./web/Test/Archivos.js",
+        title: "Prueba de archivos",
+        desc: "",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZM",
+        category: "TestArchivos",
+        allow: ["*"]
+    },
     "ConfigGeneral": {
         templateUrl: "./web/ConfigGeneral/ConfigGeneral.html",
         jsUrl: "./web/ConfigGeneral/ConfigGeneral.js",

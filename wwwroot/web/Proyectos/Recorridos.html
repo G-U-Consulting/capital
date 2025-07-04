@@ -10,7 +10,8 @@
 
             <div style="display: flex; width: 100%; gap: 2rem; align-items: center;">
                 <div class="cont-list-resources" v-bind:class="{'open': showList}">
-                    <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}" v-if="!loading && files.length">
+                    <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}"
+                        v-if="!loading && files.length">
                         <img src="../../img/ico/deploy.png">
                     </div>
                     <div class="list-resources">
@@ -26,14 +27,14 @@
                             </div>
                             <div class="menu-content" v-bind:class="{'open': grupo.expanded}">
                                 <div class="item-content" v-for="file in grupo.files"
-                                    v-bind:class="{'current': file.current}" @click="selectFile(file)" 
+                                    v-bind:class="{'current': file.current}" @click="selectFile(file)"
                                     @mousemove="updateCursor" @mouseleave="tooltipVisible = false;"
                                     @mouseenter="tooltipVisible = true; tooltipMsg = file.descripcion || file.link">
                                     <img :src="file.link && file.link.includes('matterport') ? 
-                                        '../../img/ico/Matterport.png' : '../../img/ico/link.jpg'" :alt="file.video" 
+                                        '../../img/ico/Matterport.png' : '../../img/ico/link.jpg'" :alt="file.video"
                                         style="aspect-ratio: auto; height: auto; width: calc(100% * 9 / 16); border: 0;">
                                 </div>
-                                <div v-if="tooltipVisible" class="cursor-tooltip"
+                                <div v-if="tooltipVisible && showList" class="cursor-tooltip"
                                     :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
                                     {{tooltipMsg}}
                                 </div>
@@ -43,9 +44,9 @@
                 </div>
                 <div class="cont-rotafolio" id="cont-rotafolio" @mousemove="setShowBar" @mousedown="setShowBar">
                     <div class="player-rotafolio" v-if="!loading && files.length">
-                        <iframe @load="initApp" id="v-player"
-                            :src="`${files[playIndex].link}`" :key="'v' + playIndex" frameborder="0" 
-                            allowfullscreen allow="xr-spatial-tracking" @mousemove="setShowBar" @mousedown="setShowBar">
+                        <iframe @load="initApp" id="v-player" :src="`${files[playIndex].link}`" :key="'v' + playIndex"
+                            frameborder="0" allowfullscreen allow="xr-spatial-tracking" @mousemove="setShowBar"
+                            @mousedown="setShowBar">
                         </iframe>
                     </div>
                     <div class="loader-rotafolio" v-else-if="!loading && !files.length">
@@ -61,11 +62,17 @@
                         <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(-1)"
                             style="transform: rotate(180deg);">
                         <img src="../../img/ico/svg/web.svg" @click="redirect(files[playIndex].link)"
-                            class="btn-lat-rotafolio btn-fullscreen" style="right: 10px; bottom: 3px;">
+                            class="btn-lat-rotafolio btn-fullscreen" style="right: 10px; bottom: 3px;"
+                            @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
+                            @mouseenter="tooltipVisible = true;tooltipMsg = 'Abrir nueva pestaña'">
                     </div>
                     <div class="btn-right-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-right-bar': showBar && !loading}">
                         <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(1)">
+                    </div>
+                    <div v-if="tooltipVisible" class="cursor-tooltip"
+                        :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                        {{tooltipMsg}}
                     </div>
                 </div>
             </div>

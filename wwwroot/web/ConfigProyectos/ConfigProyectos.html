@@ -268,7 +268,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.gruposImg['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -368,7 +368,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.categoriasMedios['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -472,7 +472,7 @@
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.mediosPublicitarios['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -593,7 +593,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.bancos['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -737,7 +737,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.fiduciarias['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -838,7 +838,7 @@
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.zonasProyectos['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -936,33 +936,40 @@
                                 <input type="text" placeholder="Nombre" v-model="filtros.ciudadelas['ciudadela']"
                                     maxlength="50" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-12">
+                            <div class="pure-u-1-1 pure-u-md-1-24">
                                 <div class="imgGraybutton" @click="onClear('ciudadelas')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-6">
-                                <select v-model="filtros.ciudadelas['id_sede']" class="pure-input-1">
+                                <select v-model="filtros.ciudadelas['id_sede']" class="pure-input-1"
+                                    @change="filtros.ciudadelas['id_zona_proyecto'] = '';">
                                     <option value="">[Todas las sedes]</option>
                                     <option v-for="item in sedes" :value="item.id_sede">
                                         {{item.sede}}</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-6" style="padding: 0 5px;">
+                                <select v-model="filtros.ciudadelas['id_zona_proyecto']" class="pure-input-1">
+                                    <option value="">[Todas las zonas]</option>
+                                    <option :value="item.id_zona_proyecto"
+                                        v-for="item in zonasProyectos
+                                        .filter(z => !filtros.ciudadelas['id_sede'] || z.id_sede == filtros.ciudadelas['id_sede'])">
+                                        {{item.zona_proyecto}}</option>
+                                </select>
+                            </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.ciudadelas['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                            <div class="pure-u-1-2 pure-u-md-1-24">
+                            <div class="pure-u-1-2 pure-u-md-1-12" style="text-align: center;">
                                 <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
                                     @click="exportExcel('ciudadelas')" title="Descargar datos a Excel" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                            <div class="pure-u-1-1 pure-u-md-1-5">
+                            <div class="pure-u-1-1 pure-u-md-1-6">
                                 <button v-on:click="setMode(1)">Nueva Ciudadela</button>
                             </div>
                         </div>
@@ -1066,7 +1073,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.instructivos['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -1189,7 +1196,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.pies_legales['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -1304,7 +1311,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.tramites['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -1411,7 +1418,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.documentos['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -1540,7 +1547,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.subsidios['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -1675,7 +1682,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.tipos_financiacion['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -1769,7 +1776,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.tipos_proyecto['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -1863,7 +1870,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.estados_proyecto['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -1957,7 +1964,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.tipos_vis['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -2071,37 +2078,56 @@
                     <h2>Salas de Ventas</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-1-4">
+                            <div class="pure-u-1-1 pure-u-md-5-24">
                                 <input type="text" placeholder="Nombre" v-model="filtros.salas_ventas['sala_venta']"
                                     maxlength="50" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-12">
+                            <div class="pure-u-1-1 pure-u-md-1-24">
                                 <div class="imgGraybutton" @click="onClear('salas_ventas')">
                                     <img src="./img/ico/eraser.png" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-6">
-                                <select v-model="filtros.salas_ventas['id_sede']" class="pure-input-1">
+                            <div class="pure-u-1-1 pure-u-md-1-8">
+                                <select v-model="filtros.salas_ventas['id_sede']" class="pure-input-1"
+                                    @change="salas_ventas['id_zona_proyecto'] = '';filtros.salas_ventas['id_ciudadela'] = '';">
                                     <option value="">[Todas las sedes]</option>
                                     <option v-for="item in sedes" :value="item.id_sede">
                                         {{item.sede}}</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+
+                            <div class="pure-u-1-1 pure-u-md-1-8" style="padding: 0 5px;">
+                                <select v-model="filtros.salas_ventas['id_zona_proyecto']" class="pure-input-1"
+                                    @change="filtros.salas_ventas['id_ciudadela'] = '';">
+                                    <option value="">[Todas las zonas]</option>
+                                    <option :value="item.id_zona_proyecto"
+                                        v-for="item in zonasProyectos
+                                        .filter(z => !filtros.salas_ventas['id_sede'] || z.id_sede == filtros.salas_ventas['id_sede'])">
+                                        {{item.zona_proyecto}}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-8" style="padding-right: 5px;">
+                                <select v-model="filtros.salas_ventas['id_ciudadela']" class="pure-input-1">
+                                    <option value="">[Todas las ciudadelas]</option>
+                                    <option :value="item.id_ciudadela"
+                                        v-for="item in ciudadelas
+                                        .filter(c => !filtros.salas_ventas['zona_proyecto'] || c.zona_proyecto == filtros.salas_ventas['zona_proyecto'])">
+                                        {{item.ciudadela}}</option>
+                                </select>
+                            </div>
+
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.salas_ventas['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                            <div class="pure-u-1-2 pure-u-md-1-24">
+                            <div class="pure-u-1-2 pure-u-md-1-12" style="text-align: center;">
                                 <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
                                     @click="exportExcel('salas_ventas')" title="Descargar datos a Excel" />
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                            <div class="pure-u-1-1 pure-u-md-1-5">
+                            <div class="pure-u-1-1 pure-u-md-1-6">
                                 <button v-on:click="setMode(1)">Nueva Sala</button>
                             </div>
                         </div>
@@ -2115,6 +2141,7 @@
                                         {{(key[0].toUpperCase() + key.substr(1)).replaceAll("_"," ").replace('vpn',
                                         'VPN')}}
                                     </th>
+                                    <th>Feria</th>
                                     <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
@@ -2125,6 +2152,14 @@
                                     <td
                                         v-for="key in Object.keys(sv).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{sv[key]}}</td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleFeria(sv)">
+                                            <input :id="'toggle' + sv.sala_venta" type="checkbox" class="toggle-input"
+                                                :checked="Number(sv.is_feria) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + sv.sala_venta"
+                                                style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
                                     <td style="text-align: center;">
                                         <div class="toggle-switch" @click.stop.prevent="toggleState(sv)">
                                             <input :id="'toggle' + sv.sala_venta" type="checkbox" class="toggle-input"
@@ -2212,23 +2247,31 @@
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4" v-if="mode == 2">
                             <span>Proyectos</span>
-                            <select v-model='proyecto_sala'>
+                            <select v-model='proyectos_sala'>
+                                <option :value="proyectos
+                                        .filter(p => p.is_active == '1' &&
+                                        (!sala_venta.id_sede || p.id_sede == sala_venta.id_sede) && 
+                                        (!sala_venta.id_zona_proyecto || p.id_zona_proyecto == sala_venta.id_zona_proyecto) && 
+                                        (!sala_venta.id_ciudadela || p.id_ciudadela == sala_venta.id_ciudadela))
+                                            .sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))">
+                                    [Todos los proyectos]
+                                </option>
                                 <option v-for="pro in proyectos
-                                        .filter(p => 
+                                        .filter(p => p.is_active == '1' &&
                                         (!sala_venta.id_sede || p.id_sede == sala_venta.id_sede) && 
                                         (!sala_venta.id_zona_proyecto || p.id_zona_proyecto == sala_venta.id_zona_proyecto) && 
                                         (!sala_venta.id_ciudadela || p.id_ciudadela == sala_venta.id_ciudadela))
                                             .sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
-                                    :value='pro' :disabled="pro.is_active != '1'">
+                                    :value='[pro]'>
                                     {{ pro.nombre }}
                                 </option>
                             </select>
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4" v-if="mode == 2">
-                            <button style="margin-top: 1.5rem;" @click="addProject">Asignar</button>
+                            <button style="margin-top: 1.5rem;" @click="addProjects">Asignar</button>
                         </div>
-                        <div class="pure-u-1-1 pure-u-md-1-1" style="height: calc(100vh - 31.3rem); overflow-y: auto;">
-                            <table class="dataTable" style="margin: .5rem 0; table-layout: auto;" v-if="mode == 2">
+                        <div class="pure-u-1-1 pure-u-md-1-1" style="margin: .5rem 0; height: calc(100vh - 32.8rem); overflow-y: auto;">
+                            <table class="dataTable" style="table-layout: auto;" v-if="mode == 2">
                                 <thead>
                                     <tr>
                                         <th>Proyecto</th>
@@ -2241,32 +2284,42 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="pro in pro_sala" v-bind:class="{'deshabilitada': pro.is_active == '0'}"
+                                    <tr v-for="(pro, i) in pro_sala" v-bind:class="{'deshabilitada': pro.is_active == '0', 
+                                            'destacada': selRow == i}" @click="onSelectPro(pro, i)"
                                         style="cursor: auto;">
                                         <td>{{pro.nombre}}</td>
                                         <td>{{pro.fecha_asignacion}}</td>
-                                        <td v-if="sala_venta.is_feria == '1'" style="padding: 0;">
-                                            <input type="number" v-model="pro.descuento">
+                                        <td v-if="sala_venta.is_feria == '1'"
+                                            :style="enableEdit && selRow == i && 'padding: 0;'">
+                                            <input type="number" v-model="pro.descuento"
+                                                v-if="enableEdit && selRow == i" style="font-size: 14px;">
+                                            <span v-else>{{pro.descuento}}</span>
                                         </td>
-                                        <td v-if="sala_venta.is_feria == '1'" style="padding: 0;">
-                                            <input type="date" v-model="pro.vigencia">
+                                        <td v-if="sala_venta.is_feria == '1'"
+                                            :style="enableEdit && selRow == i && 'padding: 0;'">
+                                            <input type="date" v-model="pro.vigencia" v-if="enableEdit && selRow == i"
+                                                style="font-size: 14px;">
+                                            <span v-else>{{pro.vigencia}}</span>
                                         </td>
                                         <td style="text-align: center;">
-                                            <div class="toggle-switch">
+                                            <div class="toggle-switch" v-if="enableEdit && selRow == i">
                                                 <input :id="'toggle-opc' + pro.nombre" type="checkbox"
-                                                    class="toggle-input" :checked="Number(pro.opcionar) !== 1" disabled>
+                                                    @change="pro.opcionar = pro.opcionar == '0' ? '1' : '0'"
+                                                    class="toggle-input" :checked="Number(pro.opcionar) !== 1">
                                                 <label class="toggle-label" :for="'toggle-opc' + pro.nombre"
-                                                    style="transform: rotate(180deg);" aria-disabled="true"></label>
+                                                    style="transform: rotate(180deg);"></label>
                                             </div>
+                                            <span v-else>{{pro.opcionar == '1' ? 'Sí' : 'No'}}</span>
                                         </td>
                                         <td style="text-align: center;">
-                                            <div class="toggle-switch">
+                                            <div class="toggle-switch" v-if="enableEdit && selRow == i">
                                                 <input :id="'toggle-vis' + pro.nombre" type="checkbox"
-                                                    class="toggle-input" :checked="Number(pro.visualizar) !== 1"
-                                                    disabled>
+                                                    @change="pro.visualizar = pro.visualizar == '0' ? '1' : '0'"
+                                                    class="toggle-input" :checked="Number(pro.visualizar) !== 1">
                                                 <label class="toggle-label" :for="'toggle-vis' + pro.nombre"
-                                                    style="transform: rotate(180deg);" aria-disabled="true"></label>
+                                                    style="transform: rotate(180deg);"></label>
                                             </div>
+                                            <span v-else>{{pro.visualizar == '1' ? 'Sí' : 'No'}}</span>
                                         </td>
                                         <td style="text-align: center;">
                                             <span @click.stop.prevent="reqRemovePro(pro)" class="delete">✖</span>
@@ -2274,6 +2327,12 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-19-24'></div>
+                        <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: center; padding-top: .5rem;">
+                            <button @click="toggleEdit">
+                                {{enableEdit ? 'Guardar proyecto' : 'Editar proyecto'}}
+                            </button>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-2-5"></div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
@@ -2310,7 +2369,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.colores['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>
@@ -2412,7 +2471,7 @@
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-8">
                                 <select v-model="filtros.sedes['is_active']" class="pure-input-1">
-                                    <option value="">[Todos]</option>
+                                    <option value="">Activos/Inactivos</option>
                                     <option value="1">Activos</option>
                                     <option value="0">Inactivos</option>
                                 </select>

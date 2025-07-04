@@ -3,7 +3,7 @@
 -- =============================================
 --START_PARAM
 set @id_proyecto = NULL,
-    @id_sala = NULL,
+    @id_sala_venta = NULL,
     @descuento = NULL,
     @opcionar = '0',
     @visualizar = '0',
@@ -14,6 +14,6 @@ update dim_sala_proyecto
 set descuento = @descuento, 
     opcionar = if(@opcionar = '0', 0, 1), 
     visualizar = if(@visualizar = '0', 0, 1), 
-    vigencia = @vigencia
-where id_proyecto = @id_proyecto and id_sala_venta = @id_sala;
+    vigencia = if(@vigencia = '', NULL, @vigencia)
+where id_proyecto = @id_proyecto and id_sala_venta = @id_sala_venta;
 SELECT 'OK' AS result;
