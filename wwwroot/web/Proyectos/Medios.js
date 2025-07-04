@@ -89,6 +89,7 @@
             stop: false,
             showBar: true,
             loading: false,
+            newName: '',
 
         };
     },
@@ -356,7 +357,12 @@
 
                         const reader = new FileReader();
                         reader.onload = (e) => {
-                            this.previews.push({ src: e.target.result, file });
+                            const defaultName = file.name.split('.').slice(0, -1).join('.') || file.name;
+                            this.previews.push({
+                                src: e.target.result,
+                                file: file,
+                                newName: defaultName
+                            });
                             this.files.push(file);
                         };
                         reader.readAsDataURL(file);
@@ -448,9 +454,32 @@
             this.previewsAvo.splice(index, 1);
             this.filesAvo.splice(index, 1);
         },
-        handleFileChange(event) {
+        handleFileChange(event, isAvo) {
             const selectedFiles = event.target.files;
-            this.processFiles(selectedFiles);
+            this.processFilesUnified(selectedFiles, isAvo);
+        },
+        processFilesUnified(files, isAvo) {
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.type.startsWith('image/')) {
+                    const fileList = isAvo ? this.filesAvo : this.files;
+                    const previewList = isAvo ? this.previewsAvo : this.previews;
+
+                    const exists = fileList.some(existingFile => existingFile.name === file.name);
+                    if (!exists) {
+                        fileList.push(file);
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            previewList.push({
+                                src: e.target.result,
+                                file: file,
+                                newName: file.name.split('.').slice(0, -1).join('.')
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            }
         },
         handleDragOver(event) {
             event.preventDefault();
@@ -459,22 +488,6 @@
             const regExp = /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
             return (match && match[1].length === 11) ? match[1] : null;
-        },
-        processFiles(files) {
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (file.type.startsWith('image/')) {
-                    const exists = this.files.some(existingFile => existingFile.name === file.name);
-                    if (!exists) {
-                        this.files.push(file);
-                        const reader = new FileReader();
-                        reader.onload = (e) => {
-                            this.previews.push({ src: e.target.result, file: file });
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }
-            }
         },
         openModal(link) {
             const id = this.getVideoId(link);
@@ -706,7 +719,6 @@
         async uploadFiles() {
             const form = new FormData();
 
-
             function getFile(f) {
                 if (!f) return null;
                 return f instanceof File ? f : f.file || null;
@@ -766,16 +778,17 @@
 
                 this.S3Files = fileList.map((file, index) => ({
                     file,
-                    name: file.name,
+                    name: this.newName,
                     orden: index,
                     id_documento: response.data[index]?.Id,
                     id_proyecto: GlobalVariables.id_proyecto,
                     tipo: ['logo', 'slide', 'planta'][index]
                 }));
             } else {
+                const previewsSource = this.submode === 5 ? this.previewsAvo : this.previews;
                 this.S3Files = response.data.map((item, index) => ({
                     id_documento: item.Id,
-                    name: item.FileName,
+                    name: previewsSource[index]?.newName || item.Name,
                     id_proyecto: GlobalVariables.id_proyecto,
                     tipo: folder,
                     orden: index,
@@ -789,7 +802,7 @@
                     .filter(item => item?.isVideo === true || (item?.link))
                     .map((item, idx) => ({
                         id_documento: '1',
-                        name: 'Video',
+                        name: this.previewsAvo[idx]?.newName || item.Name,
                         id_proyecto: GlobalVariables.id_proyecto,
                         tipo: folder,
                         orden: startIndex + idx,
@@ -909,7 +922,7 @@
                 }
             }
             if (this.submode === 2 || this.submode === 5) {
-                await this.clearAllImages();
+                 await this.clearAllImages();
                 const res = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
                     id_proyecto: GlobalVariables.id_proyecto,
                     tipo: folder,
@@ -925,10 +938,10 @@
 
                 if (isVideo) {
                     if (this.submode === 5) {
-                        this.previewsAvo.push({ previewSrc: file.link, videoUrl: file.link, isVideo: true });
+                        this.previewsAvo.push({ previewSrc: file.link, videoUrl: file.link, isVideo: true, newName: file.nombre_documento });
                         this.filesAvo.push(file);
                     } else if (this.submode === 2) {
-                        this.previews.push({ previewSrc: file.link, videoUrl: file.link, isVideo: true });
+                        this.previews.push({ previewSrc: file.link, videoUrl: file.link, isVideo: true, newName: file.nombre_documento });
                         this.files.push(file);
                     }
                     continue;
@@ -938,7 +951,7 @@
                 const blob = await this.fetchImageAsBlob(imagePath);
                 if (!blob) continue;
 
-                const fileObj = new File([blob], file.documento, { type: blob.type });
+                const fileObj = new File([blob], file.nombre_documento, { type: blob.type });
 
                 const src = await new Promise(resolve => {
                     const reader = new FileReader();
@@ -958,10 +971,10 @@
                         this.plantaFile = fileObj;
                     }
                 } else if (this.submode === 2) {
-                    this.previews.push({ src, file: fileObj });
+                    this.previews.push({ src, file: fileObj , newName: file.nombre_documento });
                     this.files.push(fileObj);
                 } else if (this.submode === 5) {
-                    this.previewsAvo.push({ src, file: fileObj });
+                    this.previewsAvo.push({ src, file: fileObj , newName: file.nombre_documento });
                     this.filesAvo.push(fileObj);
                 }
             }

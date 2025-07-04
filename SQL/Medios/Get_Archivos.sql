@@ -8,7 +8,7 @@ set @tipo = 'imagenes',
     @id_maestro_documento = 0;
 --END_PARAM
 
-select a.id_documento, documento, llave, b.orden, a.is_active, tipo, c.id_grupo_proyecto, descripcion , video as nombre , link
+select a.id_documento, documento, llave, b.orden, a.is_active, tipo, c.id_grupo_proyecto, descripcion , video as nombre , link, nombre as nombre_documento
 from fact_documentos a
 left join fact_documento_proyecto b on a.id_documento = b.id_documento
 left join dim_grupo_proyecto c on c.id_grupo_proyecto = b.id_grupo_proyecto
