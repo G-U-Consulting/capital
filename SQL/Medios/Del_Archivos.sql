@@ -13,7 +13,10 @@ set is_active = 0
 where
     id_proyecto = @id_proyecto
     and tipo = @tipo
-    and id_grupo_proyecto = @id_grupo_proyecto
+    and (
+        @id_grupo_proyecto is null
+        or id_grupo_proyecto = @id_grupo_proyecto
+    )
     and (
         @id_maestro_documento is null
         or id_maestro_documento <=> @id_maestro_documento

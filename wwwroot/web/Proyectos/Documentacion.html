@@ -26,7 +26,8 @@
                         <img :src="item.src" @click.stop.prevent="" 
                             @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                             @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'"/>
-                        <div class="image-name-overlay">{{ item.file.name }}</div>
+                        <!-- <div class="image-name-overlay">{{ item.file.name }}</div> -->
+                        <input v-model="item.newName" class="image-name-overlay editable" @click.stop />
                         <div class="download-btn">
                             <a :href="getURLFile(item.file)" :download="item.file.name">
                                 <img src="../../img/ico/download.jpg">

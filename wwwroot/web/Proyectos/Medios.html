@@ -153,7 +153,7 @@
                     <div class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard positTex'>
                             <select v-model="selectImg" @change="checkAndLoad">
-                                <option :value="null" disabled>[Seleccione uno ...]</option>
+                                <option :value="null">[Seleccione uno ...]</option>
                                 <option v-for='item in grupo_proyectos' v-bind:value='item.id_grupo_proyecto'>
                                     {{ item.grupo }}
                                 </option>
@@ -166,30 +166,30 @@
                     <div class='pure-u-1-1 pure-u-md-1-24 positTex'></div>
                 </div>
             </div>
-            <div v-if="modeimg && ismodulImg" class="pure-u-1" @mousemove="updateCursor"
-                @mouseleave="tooltipVisible = false" style="position: relative;padding-top: 1em;">
-                <label for="file-input" class="preview-container" style="height: calc(100dvh - 17rem); cursor: pointer;"
+            <div v-if="modeimg && ismodulImg" class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
+                style="position: relative;padding-top: 1em;">
+                <label for="file-input-normal" class="preview-container" style="height: calc(100dvh - 23rem); cursor: pointer;"
                     @dragover.prevent="handleDragOver" @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
                     @mouseleave="tooltipVisible = false">
                     <div v-if="previews.length === 0" class="center-absolute ">
                         Arrastra o haz clic para cargar imágenes.
                     </div>
                     <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
-                        @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false"
-                        @mouseleave="tooltipVisible = true" style="position: relative;">
-                        <img :src="item.src" @click.stop.prevent=""
-                            @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
+                        @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false" @mouseleave="tooltipVisible = true"
+                        style="position: relative;">
+            
+                        <img :src="item.src" @click.stop.prevent="" @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                             @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
-                        <div class="image-name-overlay">{{ item.file.name }}</div>
+                        <input v-model="item.newName" class="image-name-overlay editable" @click.stop />
+            
                         <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
                     </div>
-                    <div v-if="tooltipVisible" class="cursor-tooltip"
-                        :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                    <div v-if="tooltipVisible" class="cursor-tooltip" :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
                         {{tooltipMsg}}
                     </div>
                 </label>
-                <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="*"
-                    @change="handleFileChange" ref="fileInput" />
+                <input type="file" id="file-input-normal" class="hidden-input" style="display: none;" multiple accept="*"
+                     @change="handleFileChange($event, false)" ref="inputNormal" />
             </div>
         </div>
         <div v-if="!modeimg">
@@ -439,7 +439,7 @@
             </div>
             <div v-if="modeAvo && ismodulAvo" class="pure-u-1" @mousemove="updateCursor"
                 @mouseleave="tooltipVisible = false" style="position: relative;padding-top: 1em;">
-                <label for="file-input" class="preview-container" style="height: calc(100dvh - 25rem); cursor: pointer;"
+                <label for="file-input-avo" class="preview-container" style="height: calc(100dvh - 23rem); cursor: pointer;"
                     @dragover.prevent="handleDragOver" @drop.prevent="handleDropAvo" @mouseenter="tooltipVisible = true"
                     @mouseleave="tooltipVisible = false">
                     <div v-if="previewsAvo.length === 0" class="center-absolute ">
@@ -459,7 +459,7 @@
                             <img :src="item.src" @click.stop.prevent=""
                                 @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                                 @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
-                            <div class="image-name-overlay">{{ item.file.name }}</div>
+                            <input v-model="item.newName" class="image-name-overlay editable" @click.stop />
                         </template>
                         <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
                     </div>
@@ -468,8 +468,8 @@
                         {{tooltipMsg}}
                     </div>
                 </label>
-                <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="image/*"
-                    @change="handleFileChange" ref="fileInput" />
+                <input type="file" id="file-input-avo" class="hidden-input" style="display: none;" multiple accept="image/*"
+                    @change="handleFileChange($event, true)" ref="inputAvo" />
             </div>
             <div v-if="videoId" class="video-modal" @click="closeVideo">
                 <iframe width="80%" height="80%" :src="`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`"

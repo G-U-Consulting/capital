@@ -817,7 +817,6 @@
         },
         drop(index) {
             if (this.dragIndex === null || this.dragIndex === index) return;
-            // Reordena previews y files en paralelo
             const draggedPreview = this.previews[this.dragIndex];
             const draggedFile = this.files[this.dragIndex];
             this.previews.splice(this.dragIndex, 1);
@@ -864,7 +863,6 @@
                 return;
             }
             const form = new FormData();
-            // Agrega archivos reales
             this.files.forEach(file => {
                 if (file) form.append("file", file);
             });
@@ -883,7 +881,6 @@
                     this.message = s3Resp.errorMessage || "Error al subir archivos a S3.";
                     return;
                 }
-                // Aquí puedes registrar en tu base de datos, limpiar arrays, etc.
                 this.message = "Archivos subidos y registrados correctamente.";
                 this.files = [];
                 this.previews = [];

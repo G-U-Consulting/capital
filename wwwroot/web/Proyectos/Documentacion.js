@@ -89,7 +89,7 @@ export default {
                                 });
                                 await this.previews.push(f);
                             }
-                            else await this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result });
+                            else await this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result,newName: file.name.split('.').slice(0, -1).join('.') });
                             this.files.push(file);
                         };
                         reader.readAsDataURL(file);
@@ -187,6 +187,7 @@ export default {
                 id_documento: item.Id,
                 id_proyecto: id_pro,
                 tipo: 'docs',
+                nombre: this.previews[i]?.newName || item.Name,
                 orden: i
             }));
 
