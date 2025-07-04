@@ -59,7 +59,9 @@ export default {
                 return;
             }
             if (event.dataTransfer.files.length > 0) {
-                const droppedFiles = event.dataTransfer.files;
+                let droppedFiles = { ...event.dataTransfer.files };
+                for (const key in droppedFiles)
+                    droppedFiles[key] = { newName: droppedFiles[key].name, file: droppedFiles[key] };
                 this.processFiles(droppedFiles);
             }
         },
@@ -68,7 +70,9 @@ export default {
             this.files.splice(index, 1);
         },
         async handleFileChange(event) {
-            const selectedFiles = event.target.files;
+            let selectedFiles = { ...event.target.files };
+            for (const key in selectedFiles)
+                selectedFiles[key] = { newName: selectedFiles[key].name, file: selectedFiles[key] };
             this.processFiles(selectedFiles);
         },
         async processFiles(files) {
@@ -123,7 +127,7 @@ export default {
             if (["ppt", "pptx", "pptm", "pot", "potx", "potm", "pps", "ppsx", "ppsm",].includes(ext)) return base + 'PowerPoint.png';
             if (["mdb", "accdb"].includes(ext)) return base + 'Access.png';
             if (["mdb", "accdb"].includes(ext)) return base + 'Visio.png';
-            if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext)) 
+            if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext))
                 return base + ext + '.png';
             else return false;
         },
@@ -136,14 +140,12 @@ export default {
         },
         async onSave() {
             showProgress();
-            console.log(this.previews);
             let form = new FormData();
             this.previews.forEach(pre => form.append(pre.file.name, pre.file));
             let res = await httpFunc("/file/upload", form);
-            console.log(res);
             if (res.isError) showMessage(res.errorMessage);
             else this.uploadS3(res.data);
-            
+
             hideProgress();
         },
         async loadFiles() {
@@ -151,17 +153,17 @@ export default {
             let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
                 { tipo: 'docs', id_proyecto: this.proyecto.id_proyecto }),
                 base = '/file/S3get/';
-                if (res.data) {
+            if (res.data) {
                 let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento, newName: f.nombre_documento } });
-                    let files = await this.openFiles(paths);
-                    await this.processFiles(files);
-                
+                let files = await this.openFiles(paths);
+                await this.processFiles(files);
+
                 let previews = [];
                 let interval = setInterval(() => {
-                    if(this.previews.length == files.length) {
-                        Promise.all(files.map(async f => {
+                    if (this.previews.length == files.length) {
+                        Promise.all(files.map(async ({newName, file}) => {
                             await this.previews.forEach(pre => {
-                                if (pre.file.name == f.name) previews.push(pre);
+                                if (pre.file.name == file.name) previews.push(pre);
                             });
                         })).then(a => this.previews = [...previews]).then(a => {
                             this.files = [];
@@ -173,11 +175,11 @@ export default {
         },
         async uploadS3(data) {
             showProgress();
-        
+
             const response = await httpFunc("/file/S3upload", data),
                 id_pro = this.proyecto.id_proyecto;
             console.log(response);
-        
+
             if (response.isError) {
                 showMessage(response.errorMessage);
                 hideProgress();
@@ -191,7 +193,7 @@ export default {
                 orden: i
             }));
 
-            let res = await httpFunc("/generic/genericST/Medios:Del_Archivos", 
+            let res = await httpFunc("/generic/genericST/Medios:Del_Archivos",
                 { id_proyecto: id_pro, tipo: 'docs' });
 
             if (res.isError) {
@@ -203,13 +205,13 @@ export default {
             S3Files.forEach(async archivo => {
                 res = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
                     nombre: archivo.nombre || '',
-                    codigo: archivo.codigo || '', 
+                    codigo: archivo.codigo || '',
                     orden: archivo.orden,
                     id_documento: archivo.id_documento,
                     id_proyecto: archivo.id_proyecto,
                     tipo: archivo.tipo
                 });
-        
+
                 if (res.isError) {
                     showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
                     hideProgress();
