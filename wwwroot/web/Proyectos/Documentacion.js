@@ -59,10 +59,10 @@ export default {
                 return;
             }
             if (event.dataTransfer.files.length > 0) {
-                let droppedFiles = { ...event.dataTransfer.files };
+                let droppedFiles = { ...event.dataTransfer.files }, files = [];
                 for (const key in droppedFiles)
-                    droppedFiles[key] = { newName: droppedFiles[key].name, file: droppedFiles[key] };
-                this.processFiles(droppedFiles);
+                    files.push({ newName: droppedFiles[key].name, file: droppedFiles[key] });
+                this.processFiles(files);
             }
         },
         async removeImage(index) {
@@ -70,10 +70,10 @@ export default {
             this.files.splice(index, 1);
         },
         async handleFileChange(event) {
-            let selectedFiles = { ...event.target.files };
+            let selectedFiles = { ...event.target.files }, files = [];
             for (const key in selectedFiles)
-                selectedFiles[key] = { newName: selectedFiles[key].name, file: selectedFiles[key] };
-            this.processFiles(selectedFiles);
+                files.push({ newName: selectedFiles[key].name, file: selectedFiles[key] });
+            this.processFiles(files);
         },
         async processFiles(files) {
             let noDocs = [];
@@ -161,7 +161,7 @@ export default {
                 let previews = [];
                 let interval = setInterval(() => {
                     if (this.previews.length == files.length) {
-                        Promise.all(files.map(async ({newName, file}) => {
+                        Promise.all(files.map(async ({ newName, file }) => {
                             await this.previews.forEach(pre => {
                                 if (pre.file.name == file.name) previews.push(pre);
                             });
