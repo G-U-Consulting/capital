@@ -74,7 +74,7 @@ export default {
         async processFiles(files) {
             let noDocs = [];
             for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+                const file = files[i].file;
                 const exists = this.files.some(existingFile => existingFile.name === file.name);
                 if (!exists) {
                     let ext = file.name.split('.').pop();
@@ -82,14 +82,14 @@ export default {
                         const reader = new FileReader();
                         reader.onload = async (e) => {
                             if (file.type.startsWith('image/')) {
-                                let f = { src: e.target.result, file: file };
+                                let f = { src: e.target.result, file: file, newName: files[i].newName };
                                 Object.defineProperty(f, 'content', {
                                     get() { return this.src; },
                                     set(val) { this.src = val; }
                                 });
                                 await this.previews.push(f);
                             }
-                            else await this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result,newName: file.name.split('.').slice(0, -1).join('.') });
+                            else await this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result, newName: files[i].newName });
                             this.files.push(file);
                         };
                         reader.readAsDataURL(file);
@@ -104,11 +104,11 @@ export default {
         async openFiles(paths) {
             let files = [];
             try {
-                files = await Promise.all(paths.map(async ({ path, name }) => {
+                files = await Promise.all(paths.map(async ({ path, name, newName }) => {
                     const res = await fetch(path);
                     if (!res.ok) throw new Error(`Error al cargar ${path}: ${res.statusText}`);
                     const blob = await res.blob();
-                    return new File([blob], name, { type: blob.type });
+                    return { newName, file: new File([blob], name, { type: blob.type }) };
                 }));
             } catch (error) {
                 console.error("Error al cargar archivos:", error);
@@ -152,9 +152,9 @@ export default {
                 { tipo: 'docs', id_proyecto: this.proyecto.id_proyecto }),
                 base = '/file/S3get/';
                 if (res.data) {
-                let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento } });
-                let files = await this.openFiles(paths);
-                await this.processFiles(files);
+                let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento, newName: f.nombre_documento } });
+                    let files = await this.openFiles(paths);
+                    await this.processFiles(files);
                 
                 let previews = [];
                 let interval = setInterval(() => {
