@@ -104,29 +104,24 @@
         jsUrl: "./web/Proyectos/MiCalendario.js",
         allow: ["*"]
     },
-    "SalaInfo": {
-        templateUrl: "./web/Proyectos/SalaInfo.html",
-        jsUrl: "./web/Proyectos/SalaInfo.js",
-        allow: ["*"]
-    },
-    "SalaMedios": {
-        templateUrl: "./web/Proyectos/SalaMedios.html",
-        jsUrl: "./web/Proyectos/SalaMedios.js",
+    "SeleccionSalas": {
+        templateUrl: "./web/ConfigSalas/Seleccion.html",
+        jsUrl: "./web/ConfigSalas/Seleccion.js",
         allow: ["*"]
     },
     "SalaPersonal": {
-        templateUrl: "./web/Proyectos/SalaPersonal.html",
-        jsUrl: "./web/Proyectos/SalaPersonal.js",
+        templateUrl: "./web/ConfigSalas/SalaPersonal.html",
+        jsUrl: "./web/ConfigSalas/SalaPersonal.js",
         allow: ["*"]
     },
     "SalaCalendario": {
-        templateUrl: "./web/Proyectos/SalaCalendario.html",
-        jsUrl: "./web/Proyectos/SalaCalendario.js",
+        templateUrl: "./web/ConfigSalas/SalaCalendario.html",
+        jsUrl: "./web/ConfigSalas/SalaCalendario.js",
         allow: ["*"]
     },
     "ProgMensual":{
-        templateUrl: "./web/Proyectos/ProgMensual.html",
-        jsUrl: "./web/Proyectos/ProgMensual.js",
+        templateUrl: "./web/ConfigSalas/ProgMensual.html",
+        jsUrl: "./web/ConfigSalas/ProgMensual.js",
         allow: ["*"]
     },
     "Informes": {
@@ -169,14 +164,14 @@
         category: "ConfigProyectos",
         allow: ["*"]
     },
-    "SalasVentas": {
-        templateUrl: "./web/Test/Archivos.html",
-        jsUrl: "./web/Test/Archivos.js",
-        title: "Prueba de archivos",
+    "ConfigSalas": {
+        templateUrl: "./web/ConfigSalas/ConfigSalas.html",
+        jsUrl: "./web/ConfigSalas/ConfigSalas.js",
+        title: "Salas de ventas",
         desc: "",
         imgSrc: "./img/ico/menu/006-group.png",
         zone: "ZM",
-        category: "TestArchivos",
+        category: "ConfigSalas",
         allow: ["*"]
     },
     "ConfigGeneral": {

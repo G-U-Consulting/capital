@@ -24,12 +24,8 @@ export default {
             estados_proyecto: [],
             tipos_vis: [],
             emails: [],
-            salas_ventas: [],
             colores: [],
             sedes: [],
-            pro_sala: [],
-            proyectos: [],
-            proyectos_sala: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -50,10 +46,8 @@ export default {
             estado_proyecto: {},
             tipo_vis: {},
             subsidio: {},
-            sala_venta: {},
             color: {},
             sede: {},
-            proyecto_sala: {},
 
             ruta: [],
             medioIsActive: 0,
@@ -81,7 +75,6 @@ export default {
                 estados_proyecto: { is_active: '' },
                 tipos_vis: { is_active: '' },
                 subsidios: { is_active: '' },
-                salas_ventas: { is_active: '', id_sede: '', id_zona_proyecto: '', id_ciudadela: '' },
                 colores: { is_active: '' },
                 sedes: { is_active: '' },
             },
@@ -326,15 +319,6 @@ export default {
             }
             hideProgress();
         },
-        async onSaveSala() {
-            let sala = { ...this.sala_venta }, isNew = this.mode == 1;
-            let id_sala_venta = await this.onSave();
-            if (isNew) {
-                this.setMode(2);
-                this.sala_venta = { id_sede: '', id_zona_proyecto: '', id_ciudadela: '', ...sala, id_sala_venta };
-                this.loadProjects(this.sala_venta);
-            }
-        },
         async loadImg() {
             this.clearAllImages();
             let folder = this.mainmode == 1 ? 'General' : 'Sostenibilidad',
@@ -360,7 +344,6 @@ export default {
             if (this.mainmode == 17) return [this.estado_proyecto, "EstadoProyecto", this.estados_proyecto];
             if (this.mainmode == 18) return [this.tipo_vis, "TipoVIS", this.tipos_vis];
             if (this.mainmode == 19) return [{}, "Email", this.emails];
-            if (this.mainmode == 20) return [this.sala_venta, "SalaVenta", this.salas_ventas];
             if (this.mainmode == 21) return [this.color, "Color", this.colores];
             if (this.mainmode == 22) return [this.sede, "Sede", this.sedes];
             return null;
@@ -386,7 +369,6 @@ export default {
             if (this.mainmode == 17) path.text = "Estados Publicación";
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
             if (this.mainmode == 19) path.text = "Emails Receptores";
-            if (this.mainmode == 20) path.text = "Salas Ventas";
             if (this.mainmode == 21) path.text = "Gama de Colores";
             if (this.mainmode == 22) path.text = "Sedes";
             path.action = () => {
@@ -468,7 +450,6 @@ export default {
                 this.estados_proyecto,
                 this.tipos_vis,
                 this.emails,
-                this.salas_ventas,
                 this.colores,
                 this.sedes,
 
@@ -784,86 +765,6 @@ export default {
         async requestDelete(item) {
             showConfirm("Se eliminará permanentemente.", this.deleteItem, null, item);
         },
-        async removePro(pro) {
-            showProgress();
-            let res = await httpFunc("/generic/genericST/Maestros:Del_ProyectoSala", pro);
-            if (res.isError) {
-                console.error(res);
-                showMessage('Error: ' + res.errorMessage);
-            } else {
-                this.proyecto_sala = {};
-                this.selRow = null;
-                this.enableEdit = false;
-                await this.loadProjects(this.sala_venta);
-            }
-        },
-        async reqRemovePro(pro) {
-            showConfirm(`Se retirará el proyecto <b>${pro.nombre}</b> de la sala de ventas <b>${this.sala_venta.sala_venta}</b>.`,
-                this.removePro, null, pro);
-        },
-        async loadProjects(sv) {
-            showProgress();
-            let res = await httpFunc(`/generic/genericDS/Maestros:Get_ProyectoSala`, { id_sala: sv.id_sala_venta });
-            if (res.isError) {
-                this.pro_sala = [];
-                console.error(res);
-                showMessage('Error: ' + res.errorMessage);
-            } else[this.proyectos, this.pro_sala] = res.data;
-            hideProgress();
-        },
-        async addProjects() {
-            showProgress();
-            let projects = [...this.proyectos_sala], errorMessage = null;
-            if (projects.length) {
-                console.log(projects);
-                await Promise.all(projects.map(async pro => {
-                    if (pro.id_proyecto) {
-                        let res = await httpFunc(`/generic/genericST/Maestros:Ins_ProyectoSala`,
-                            { id_sala: this.sala_venta.id_sala_venta, id_proyecto: pro.id_proyecto });
-                        if (res.isError) {
-                            console.error(res);
-                            errorMessage |= 'Error: ' + res.errorMessage;
-                        }
-                    }
-                }));
-                errorMessage && showMessage(errorMessage);
-                this.proyectos_sala = [];
-                await this.loadProjects(this.sala_venta);
-            }
-            hideProgress();
-        },
-        async onSelectPro(pro, i) {
-            if (this.selRow != i && pro.is_active == '1') {
-                this.enableEdit && await this.onSavePro();
-                this.proyecto_sala = { ...pro };
-                this.enableEdit = false;
-                this.selRow = i;
-            }
-        },
-        async onSavePro() {
-            showProgress();
-            if (this.selRow != null)
-                this.proyecto_sala = this.pro_sala[this.selRow];
-            let res = await httpFunc('/generic/genericST/Maestros:Upd_ProyectoSala', this.proyecto_sala);
-            if (res.data === 'OK') {
-                this.proyecto_sala = {};
-                this.selRow = null;
-                this.enableEdit = false;
-                await this.loadProjects(this.sala_venta);
-            } else {
-                console.error(res);
-                showMessage('Error: ' + (res.errorMessage || res.data));
-            }
-            hideProgress();
-        },
-        async toggleEdit() {
-            this.enableEdit ? await this.onSavePro()
-                : this.selRow !== null ? this.enableEdit = true : this.enableEdit = false;
-        },
-        async toggleFeria(sv) {
-            sv.is_feria = sv.is_feria == '0' ? '1' : '0';
-            await httpFunc(`/generic/genericST/Maestros:Upd_SalaVenta`, sv);
-        }
     },
     computed: {
         f_smmlv: {

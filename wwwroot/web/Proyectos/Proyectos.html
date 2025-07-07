@@ -79,36 +79,6 @@
                         Mi Calendario
                     </div>
                 </div>
-                <div class="lateralMenuGroup">
-                    <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
-                        Salas de Ventas
-                    </div>
-                    <div v-on:click="setMainMode('SalaInfo')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaInfo'}">
-                        <img src="./img/ico/svg/sidebar/Gestión de personal.svg" />
-                        Información Básica
-                    </div>
-                    <!-- <div v-on:click="setMainMode('SalaMedios')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaMedios'}">
-                        <img src="./img/ico/svg/sidebar/Calendario.svg" />
-                        Gestión de medios
-                    </div> -->
-                    <div v-on:click="setMainMode('SalaPersonal')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaPersonal'}">
-                        <img src="./img/ico/svg/sidebar/Gestión de personal.svg" />
-                        Gestión de Personal
-                    </div>
-                    <div v-on:click="setMainMode('SalaCalendario')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'SalaCalendario'}">
-                        <img src="./img/ico/svg/sidebar/Calendario.svg" />
-                        Calendario
-                    </div>
-                    <div v-on:click="setMainMode('ProgMensual')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'ProgMensual'}">
-                        <img src="./img/ico/svg/sidebar/Programación mensual.svg" />
-                        Programación mensual
-                    </div>
-                </div>
             </div>
         </div>
     </div>
