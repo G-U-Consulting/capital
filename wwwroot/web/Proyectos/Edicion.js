@@ -187,7 +187,9 @@
             viewMode: 'Tabla',
             onlyActive: false,
             frontImg: '',
-            interval: null
+            interval: null,
+            selectedProject: null,
+            selectedTipo: null,
         };
     },
     computed: {
@@ -227,12 +229,6 @@
         await this.setViewMode();
         await this.setMainMode();
         await this.loadOnlyActive();
-        this.proyectos.forEach(async pro => {
-            let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
-                { tipo: 'logo', id_proyecto: pro.id_proyecto });
-            if (res.data && res.data.length)
-                pro.img = '/file/S3get/' + res.data[0].llave;
-        });
         //TODO - Quitar
         //this.selectProject(this.proyectos[0]);
     },
@@ -260,6 +256,7 @@
             this.pie_legal = resp[8];
             this.fiduciaria = resp[9];
             this.salas_venta = resp[12];
+        
 
             this.banco_constructor = resp[10]
                 .filter(item => item.banco !== "Carta de compromiso del Cliente")
@@ -272,6 +269,13 @@
             if (cartaCompromiso) {
                 this.bancos_financiador.unshift(cartaCompromiso);
             }
+
+            this.proyectos.forEach(async pro => {
+            let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
+                { tipo: 'logo', id_proyecto: pro.id_proyecto });
+            if (res.data && res.data.length)
+                pro.img = '/file/S3get/' + res.data[0].llave;
+        });
 
             if (this.inputParameter != null) {
                 this.selectProject(this.inputParameter);
@@ -405,7 +409,7 @@
                 }
             });
 
-            const tipo = (resp[0][0].tipo_proyecto || '')
+            const tipo = (resp[0][0].id_tipo_proyecto || '')
                 .split(',')
                 .map(id => parseInt(id));
 
@@ -545,7 +549,7 @@
             const tipo = this.tipo
                 .filter(item => item.checked)
                 .map(item => item.id_tipo_proyecto);
-            this.objProyecto.tipo_proyecto = tipo.join(',');
+            this.objProyecto.id_tipo_proyecto = tipo.join(',');
 
             const estadopublicacion = this.estado_publicacion
                 .filter(item => item.checked)
@@ -658,7 +662,8 @@
             const tipo = this.tipo
                 .filter(item => item.checked)
                 .map(item => item.id_tipo_proyecto);
-            this.editObjProyecto.tipo_proyecto = tipo.join(',');
+            this.editObjProyecto.id_tipo_proyecto = tipo.join(',');
+            
 
             const estadopublicacion = this.estado_publicacion
                 .filter(item => item.checked)
@@ -674,7 +679,7 @@
                 .filter(item => item.checked)
                 .map(item => item.id_bancos_financiador);
             this.editObjProyecto.bancos_financiadores = bancosfinanciador.join(',');
-
+      
             try {
                 showProgress();
                 const result = await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", this.editObjProyecto);
@@ -891,5 +896,10 @@
                 console.error("Upload error:", error);
             }
         },
+        tortaProject(item) {
+            
+            this.selectedProject = item;
+            console.log(this.selectedProject)
+        }
     }
 };

@@ -71,16 +71,88 @@
                 </table>
             </div>
 
-            <div class="main-content matrix-cont" v-if="viewMode == 'Matriz'">
-                <div class="item-matrix" v-for="item in getFilteredList('proyectos')" @click="selectProject(item,'portada');">
-                    <div class="img-matrix">
-                        <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
-                    </div>
-                    <div class="bottom-matrix">
-                        <span>{{item.nombre}}</span>
+            <div class="main-content matrix-cont" v-if="viewMode == 'Matriz'" style="display: flex;">
+                <div class="project-list">
+                    <div class="item-matrix" v-for="item in getFilteredList('proyectos')" :key="item.id"
+                        @click="tortaProject(item)" @dblclick="selectProject(item,'portada')">
+                        <div class="img-matrix">
+                            <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
+                        </div>
+                        <div class="bottom-matrix">
+                            <span>{{ item.nombre }}</span>
+                        </div>
+                        <div class="extra-label" v-if="item.label">
+                            {{ item.label }}
+                        </div>
                     </div>
                 </div>
+                <transition name="slide-left">
+                    <div v-if="selectedProject" class="detail-panel">
+                        <div class="detail-logo" v-if="selectedProject.img">
+                            <img :src="selectedProject.img" />
+                        </div>
+                        <table class="detail-table">
+                            <tr>
+                                <td><strong>Tipo de Proyecto:</strong></td>
+                                <td>{{ selectedProject.tipo_proyecto }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Proyecto VIS</strong></td>
+                                <td>{{ selectedProject.tipo_vis}}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área/Etapa/Etapas</strong></td>
+                                <td>{{ selectedProject.etapas }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Aptos/Casas totales</strong></td>
+                                <td>{{ selectedProject.total }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área total</strong></td>
+                                <td>{{ selectedProject.areaTotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área priv. cubierta desde</strong></td>
+                                <td>{{ selectedProject.areaPrivadaDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área const. desde</strong></td>
+                                <td>{{ selectedProject.areaConstruida }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Precio desde</strong></td>
+                                <td>{{ selectedProject.precioDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Precio hasta</strong></td>
+                                <td>{{ selectedProject.precioHasta }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha entrega desde</strong></td>
+                                <td>{{ selectedProject.fechaEntregaDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha entrega hasta</strong></td>
+                                <td>{{ selectedProject.fechaEntregaHasta }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Información adicional</strong></td>
+                                <td>{{ selectedProject.infoAdicional }}</td>
+                            </tr>
+                            <tr v-if="selectedProject.zonasComunes">
+                                <td><strong>Zonas comunes</strong></td>
+                                <td>
+                                    <ul>
+                                        <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </transition>
             </div>
+
 
         </div>
     </div>

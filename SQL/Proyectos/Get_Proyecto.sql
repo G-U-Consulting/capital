@@ -86,4 +86,5 @@ select
     ) as tipo_proyecto
 
 from fact_proyectos a
+join dim_tipo_proyecto b on a.id_tipo_proyecto = b.id_tipo_proyecto
 where a.id_proyecto = @id_proyecto;

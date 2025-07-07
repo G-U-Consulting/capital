@@ -252,8 +252,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Agrupamiento de Imágenes</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -321,10 +321,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Grupo de Imágenes</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
                             <input type="text" v-model="grupoImg.grupo" maxlength="50" />
@@ -352,8 +352,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Categorías de Medios</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -422,11 +422,11 @@
                 </div>
             </div>
 
-            <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+            <div v-if="mode == 1 || mode == 2" style="padding: 1em">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Categoria</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content" style="margin-top: 1em; margin-bottom: 3em;">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="categoriaMedio.categoria" maxlength="50" />
                         </div>
@@ -526,10 +526,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Medio</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
                             <input type="text" v-model="medioPublicitario.medio" maxlength="50" />
@@ -558,9 +558,10 @@
                         </div>
                     </div>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <div style="display: block; height: 1.3rem;"></div>
-                            <button v-on:click="onSave()">Guardar</button>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-1">
+                            <div style="display: block; height: 1.3rem; text-align: center;">
+                                <button v-on:click="onSave()">Guardar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -650,10 +651,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div :class="'pure-u-1-24 ' + (mode == 1 ? 'pure-u-md-1-6' : 'pure-u-md-1-24')"></div>
-                <div :class="'pure-u-22-24 ' + (mode == 1 ? 'pure-u-md-2-3' : 'pure-u-md-22-24') + ' menuCard'">
+                <div :class="'pure-u-1-24 ' + (mode == 1 ? 'pure-u-md-1-24' : 'pure-u-md-1-24')"></div>
+                <div :class="'pure-u-22-24 ' + (mode == 1 ? 'pure-u-md-22-24' : 'pure-u-md-22-24') + ' menuCard'">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Banco</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24" v-if="mode == 1">
                             <input type="text" v-model="banco.banco" maxlength="50" />
                         </div>
@@ -721,8 +722,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Fiduciarias</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -789,10 +790,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Fiduciaria</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="fiduciaria.fiduciaria" maxlength="50" />
                         </div>
@@ -891,10 +892,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Zona</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre Zona</span>
                             <input type="text" v-model="zonaProyecto.zona_proyecto" maxlength="200" />
@@ -909,9 +910,9 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onSave()">Guardar</button>
-                        </div>
+                    </div>
+                    <div class="formInputStandard pure-u-1-2 pure-u-md-1-1" style="text-align: center;">
+                        <button v-on:click="onSave()">Guardar</button>
                     </div>
                 </div>
             </div>
@@ -1010,10 +1011,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Ciudadela</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-3-4">
                             <span>Nombre Ciudadela</span>
                             <input type="text" v-model="ciudadela.ciudadela" maxlength="50" />
@@ -1039,9 +1040,9 @@
                             </select>
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-2-5"></div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onSave()">Guardar</button>
-                        </div>
+                    </div>
+                    <div class="formInputStandard pure-u-1-2 pure-u-md-1-1" style="text-align: center;">
+                        <button v-on:click="onSave()">Guardar</button>
                     </div>
                 </div>
             </div>
@@ -1057,8 +1058,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Instructivos Consignación y cierre</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -1127,7 +1128,7 @@
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
                 <div class="pure-u-1-1 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Instructivo</h2>
-                    <div class="pure-g">
+                    <div class="pure-g ¿">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <input type="text" v-model="instructivo.instructivo" maxlength="50" />
                         </div>
@@ -1181,8 +1182,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Pies Legales Cotizaciones</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -1295,8 +1296,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Trámites</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -1402,8 +1403,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Otros Documentos</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -1602,7 +1603,7 @@
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: calc(100vh - 17rem);" class="pure-g">
                 <div class="pure-u-1-1 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Subsidio VIS</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="pure-u-1-1 pure-u-md-1-3">
                             <div class="formInputStandard">
                                 <span>Periodo (año)</span>
@@ -1648,7 +1649,7 @@
                         </div>
                     </div>
                     <div class="pure-g">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-1" style="text-align: center;">
                             <button v-on:click="onSaveSubsidio()">Guardar</button>
                         </div>
                     </div>
@@ -1666,8 +1667,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Tipos de Financiación</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -1735,10 +1736,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Tipo Financiación</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="tipo_financiacion.tipo_financiacion" maxlength="50" />
                         </div>
@@ -1760,8 +1761,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Tipo Unidades y Ventas</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -1829,10 +1830,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Tipo Proyecto</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="tipo_proyecto.tipo_proyecto" maxlength="50" />
                         </div>
@@ -1854,8 +1855,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Estados de Publicación</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -1923,10 +1924,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Estado Publicación</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="estado_proyecto.estado_publicacion" maxlength="50" />
                         </div>
@@ -1948,8 +1949,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Tipologías de Proyecto</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -2016,10 +2017,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Tipología Proyecto</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <input type="text" v-model="tipo_vis.tipo_vis" maxlength="50" />
                         </div>
@@ -2043,10 +2044,10 @@
             <div v-if="mode == 0 || mode == 1">{{setMode(2)}}</div>
 
             <div v-if="mode == 2" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-8"></div>
-                <div class="pure-u-22-24 pure-u-md-3-4 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Editar Emails Receptores</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="pure-u-1-2 pure-u-md-11-24" v-for="email in emails">
                             <div class="formInputStandard pure-u-md-22-24">
                                 <label>Email {{email.id_email}}</label>
@@ -2056,7 +2057,7 @@
                             <div class="pure-u-1-12"></div>
                         </div>
                     </div>
-                    <div class="formInputStandard pure-u-1-2 pure-u-md-1-5" style="margin-top: 1rem;">
+                    <div class="formInputStandard pure-u-1-2 pure-u-md-1-5" style="margin-top: 1rem; text-align: center;width: 100%;">
                         <button v-on:click="onUpdateEmail()">Guardar</button>
                     </div>
                 </div>
@@ -2353,8 +2354,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Gama de Colores</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -2425,19 +2426,20 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Color</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Estado</span>
                             <input type="text" v-model="color.estado" maxlength="50" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-12" style="text-align: center;">
                             <span>Color</span>
                             <input type="color" v-model="color.color" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
+                            <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onSave()">Guardar</button>
                         </div>
                     </div>
@@ -2455,8 +2457,8 @@
             </div>
 
             <div v-if="mode == 0" style="padding: 1em">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>Sedes</h2>
                     <div class="searchBox">
                         <div class="pure-g">
@@ -2523,10 +2525,10 @@
             </div>
 
             <div v-if="mode == 1 || mode == 2" style="padding: 1em; height: max-content;" class="pure-g">
-                <div class="pure-u-1-24 pure-u-md-1-6"></div>
-                <div class="pure-u-22-24 pure-u-md-2-3 menuCard">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Sede</h2>
-                    <div class="pure-g">
+                    <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Sede</span>
                             <input type="text" v-model="sede.sede" maxlength="50" />
@@ -2535,10 +2537,10 @@
                             <span>Alias</span>
                             <input type="text" v-model="sede.alias" maxlength="3" />
                         </div>
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                    </div>
+                     <div class="formInputStandard pure-u-1-2 pure-u-md-1-1" style="text-align: center;">
                             <button v-on:click="onSave()">Guardar</button>
                         </div>
-                    </div>
                 </div>
             </div>
         </div>

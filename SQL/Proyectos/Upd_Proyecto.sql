@@ -40,6 +40,7 @@ set
     @tipos_excluidos = '',
     @link_waze = '',
     @linea_whatsapp = '',
+    @id_tipo_proyecto = 0,
 
     @email_receptor_1 = '',
     @email_receptor_2 = '',
@@ -108,6 +109,7 @@ set
     tipos_excluidos = @tipos_excluidos,
     link_waze = @link_waze,
     linea_whatsapp = @linea_whatsapp,
+    id_tipo_proyecto = nullif(@id_tipo_proyecto, 0),
 
     email_receptor_1 = @email_receptor_1,
     email_receptor_2 = @email_receptor_2,
@@ -205,29 +207,29 @@ set
     end if;
 
     
-    set @datos = @tipo_proyecto;
-    set @tabla = 'fact_tipo_proyecto';
-    set @campo = 'id_tipo_proyecto';
-    set @i = 1;
+    -- set @datos = @tipo_proyecto;
+    -- set @tabla = 'fact_tipo_proyecto';
+    -- set @campo = 'id_tipo_proyecto';
+    -- set @i = 1;
 
-    if trim(@datos) <> '' then
-        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
-        prepare stmt from @sql;
-        execute stmt;
-        deallocate prepare stmt;
+    -- if trim(@datos) <> '' then
+    --     set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+    --     prepare stmt from @sql;
+    --     execute stmt;
+    --     deallocate prepare stmt;
 
-        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
-        while @i <= @n do
-            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
-            if @item <> '' then
-                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
-                prepare stmt from @sql;
-                execute stmt;
-                deallocate prepare stmt;
-            end if;
-            set @i = @i + 1;
-        end while;
-    end if;
+    --     set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+    --     while @i <= @n do
+    --         set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+    --         if @item <> '' then
+    --             set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+    --             prepare stmt from @sql;
+    --             execute stmt;
+    --             deallocate prepare stmt;
+    --         end if;
+    --         set @i = @i + 1;
+    --     end while;
+    -- end if;
 
     
 

@@ -61,7 +61,8 @@ select
     a.link_cartilla_negocios,
     a.id_banco_constructor,
     a.id_bancos_financiador,
-    a.id_zona_proyecto
+    a.id_zona_proyecto,
+    case when j.tipo_vis = 'No VIS' then 'NO' else 'SI' end as tipo_vis
 from fact_proyectos a
 left join dim_ciudadela b on a.id_ciudadela = b.id_ciudadela
 left join dim_estado_publicacion c on a.id_estado_publicacion = c.id_estado_publicacion
@@ -70,4 +71,5 @@ left join dim_pie_legal e on a.id_pie_legal = e.id_pie_legal
 left join dim_fiduciaria f on a.id_fiduciaria = f.id_fiduciaria
 left join dim_sede g on a.id_sede = g.id_sede   
 left join dim_zona_proyecto h on a.id_zona_proyecto = h.id_zona_proyecto
-left join dim_sala_venta i on a.id_sala_venta = i.id_sala_venta;
+left join dim_sala_venta i on a.id_sala_venta = i.id_sala_venta
+left join dim_tipo_vis j on a.id_tipo_vis = j.id_tipo_vis;
