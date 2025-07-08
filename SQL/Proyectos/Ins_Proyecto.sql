@@ -61,7 +61,7 @@ set
     @link_brochure = '',
     @banco_constructor = '',
     @bancos_financiadores = '',
-    @estado_publicacion = '';
+    @estado_publicacion = '',
     @tipo_proyecto = '';
 --END_PARAM
 
