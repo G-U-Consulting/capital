@@ -178,7 +178,7 @@
             ],
             casoValidator: [],
             filtros: {
-                proyectos: { id_zona_proyecto: '' },
+                proyectos: { id_zona_proyecto: '', id_sede: '', id_ciudadela: '' },
             },
             previews: [],
             files: [],
@@ -188,8 +188,7 @@
             onlyActive: false,
             frontImg: '',
             interval: null,
-            selectedProject: null,
-            selectedTipo: null,
+            selectedProject: null
         };
     },
     computed: {
@@ -222,6 +221,12 @@
             const sedeId = this.objProyecto?.id_sede || this.editObjProyecto?.id_sede;
             if (!sedeId) return [];
             return this.ciudadela.filter(z => z.id_sede === sedeId);
+        },
+        proyectosLanzamiento() {
+            return this.getFilteredList('proyectos').filter(p => p.lanzamiento === '1');
+        },
+        proyectosNormales() {
+            return this.getFilteredList('proyectos').filter(p => p.lanzamiento !== '1');
         }
     },
     async mounted() {
@@ -239,7 +244,7 @@
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
             hideProgress();
             resp = resp.data;
-
+            console.log("Variables cargadas:", this.proyectos);
             resp[0].forEach(item => item.checked = false);
             this.estado_publicacion = resp[0];
             resp[1].forEach(item => item.checked = false);
@@ -256,7 +261,6 @@
             this.pie_legal = resp[8];
             this.fiduciaria = resp[9];
             this.salas_venta = resp[12];
-        
 
             this.banco_constructor = resp[10]
                 .filter(item => item.banco !== "Carta de compromiso del Cliente")
@@ -271,11 +275,11 @@
             }
 
             this.proyectos.forEach(async pro => {
-            let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
-                { tipo: 'logo', id_proyecto: pro.id_proyecto });
-            if (res.data && res.data.length)
-                pro.img = '/file/S3get/' + res.data[0].llave;
-        });
+                let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
+                    { tipo: 'logo', id_proyecto: pro.id_proyecto });
+                if (res.data && res.data.length)
+                    pro.img = '/file/S3get/' + res.data[0].llave;
+            });
 
             if (this.inputParameter != null) {
                 this.selectProject(this.inputParameter);
@@ -409,7 +413,7 @@
                 }
             });
 
-            const tipo = (resp[0][0].id_tipo_proyecto || '')
+            const tipo = (resp[0][0].tipo_proyecto || '')
                 .split(',')
                 .map(id => parseInt(id));
 
@@ -549,7 +553,7 @@
             const tipo = this.tipo
                 .filter(item => item.checked)
                 .map(item => item.id_tipo_proyecto);
-            this.objProyecto.id_tipo_proyecto = tipo.join(',');
+            this.objProyecto.tipo_proyecto = tipo.join(',');
 
             const estadopublicacion = this.estado_publicacion
                 .filter(item => item.checked)
@@ -662,7 +666,7 @@
             const tipo = this.tipo
                 .filter(item => item.checked)
                 .map(item => item.id_tipo_proyecto);
-            this.editObjProyecto.id_tipo_proyecto = tipo.join(',');
+            this.editObjProyecto.tipo_proyecto = tipo.join(',');
             
 
             const estadopublicacion = this.estado_publicacion
@@ -679,7 +683,7 @@
                 .filter(item => item.checked)
                 .map(item => item.id_bancos_financiador);
             this.editObjProyecto.bancos_financiadores = bancosfinanciador.join(',');
-      
+
             try {
                 showProgress();
                 const result = await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", this.editObjProyecto);
@@ -714,6 +718,7 @@
         onClear(table) {
             let item = this.filtros[table];
             item = Object.keys(item).forEach((key) => key !== 'is_active' && (item[key] = ''));
+            
         },
         async clearAllImages() {
             this.previews = [];
@@ -897,9 +902,7 @@
             }
         },
         tortaProject(item) {
-            
             this.selectedProject = item;
-            console.log(this.selectedProject)
         }
     }
 };

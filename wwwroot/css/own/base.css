@@ -2282,7 +2282,7 @@ tr.destacada {
   padding: 1rem;
   margin-top: .75rem;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border: 1px #999 solid;
+  border: 1px #ccc solid;
   border-radius: 8px;
   overflow-y: auto;
 }
@@ -2380,3 +2380,62 @@ tr.destacada {
     max-width: 80%;
   }
 }
+.selected-row {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+  border: 2px solid #000;
+}
+.lanzamientos-section {
+  margin: .75rem .75rem 0 .75rem;
+  padding: .5rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+.lanzamiento-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  
+}
+.lanzamiento-list {
+  justify-content: center;
+  gap: 10px;
+}
+.division-lanzamientos {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 1rem 0;
+}
+@media (max-width: 600px) {
+  .lanzamientos-section {
+    margin-top: 28rem;
+  }  
+  
+}
+.detail-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.detail-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-editar {
+  background-color: #00829b;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: auto;
+  min-width: 200px;
+  text-align: center;
+}
+
+.btn-editar:hover {
+  background-color: #006b83;
+}
+

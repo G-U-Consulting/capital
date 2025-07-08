@@ -37,6 +37,8 @@ select
     a.latitud, 
     a.otra_info, 
     a.linea_whatsapp, 
+    a.id_sede,
+    a.id_ciudadela,
     a.direccion, 
     a.lanzamiento, 
     a.ciudad_lanzamiento, 
