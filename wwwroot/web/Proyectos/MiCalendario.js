@@ -3,7 +3,6 @@ export default {
         return {
             mainmode: 0,
             mode: 0,
-            ruta: [],
             proyecto: null,
             sala: {},
             hito: {},
@@ -28,8 +27,8 @@ export default {
         };
     },
     async mounted() {
-        this.proyecto = await GlobalVariables.miniModuleCallback("SalaCalendario", null);
-        this.setMainMode('SalaCalendario');
+        this.proyecto = await GlobalVariables.miniModuleCallback("MiCalendario", null);
+        this.setMainMode('MiCalendario');
         await this.loadData();
         this.setToday();
         await this.loadViewMode();

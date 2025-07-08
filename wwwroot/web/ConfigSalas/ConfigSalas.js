@@ -19,7 +19,6 @@ export default {
     },
     methods: {
         setRuta(subpath) {
-            console.log(subpath);
             this.ruta = [{
                 text: 'ZM', action: () =>
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
@@ -36,10 +35,10 @@ export default {
             this.setRuta(ruta);
         },
         getPathName() {
-            if (this.mainmode == 'SeleccionSalas') return this.sala ? `${this.sala.sala_venta} (Edición)` : 'Nuevo';
-            if (this.mainmode == 'SalaPersonal') return 'Gestión de Personal';
-            if (this.mainmode == 'SalaCalendario') return 'Calendario';
-            if (this.mainmode == 'ProgMensual') return 'Programación Mensual';
+            if (this.mainmode == 'SeleccionSalas') return this.sala ? `${this.sala.sala_venta} - Edición` : 'Nuevo';
+            if (this.mainmode == 'SalaPersonal') return `${this.sala.sala_venta} - Gestión de Personal`;
+            if (this.mainmode == 'SalaCalendario') return `${this.sala.sala_venta} - Calendario`;
+            if (this.mainmode == 'ProgMensual') return `${this.sala.sala_venta} - Programación Mensual`;
             return '';
         },
         async miniModuleCallback(type, data) {

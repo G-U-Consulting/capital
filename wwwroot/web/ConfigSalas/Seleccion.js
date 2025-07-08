@@ -41,20 +41,6 @@ export default {
         hideProgress();
     },
     methods: {
-        setRuta() {
-            let subpath = [this.getMainPath()];
-            let nuevo = { text: 'Nuevo', action: () => { this.mode = 1; this.setRuta() } },
-                editar = { text: 'Edición', action: () => { this.mode = 2; this.setRuta() } };
-            if (this.mode == 1) subpath.push(nuevo);
-            if (this.mode == 2) subpath.push(editar);
-            if (this.mode == 3) subpath = [...subpath, editar,
-            { text: 'Configuración', action: () => { this.mode = 3; this.setRuta() } }];
-            this.ruta = [{
-                text: 'ZM', action: () =>
-                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, { text: 'Salas', action: () => { this.mainmode = 0; this.mode = 0; this.setRuta() } }];
-            this.ruta = [...this.ruta, ...subpath];
-        },
         setMainMode(mode) {
             this.mainmode = mode;
             if (this.sala_venta) {
@@ -62,7 +48,6 @@ export default {
                 this.loadProjects(this.sala_venta);
             }
             else this.mode = 0;
-            this.setRuta();
         },
         setMode(mode) {
             if (mode == 0) this.loadData();
@@ -74,7 +59,7 @@ export default {
                 ruta.push({ text: 'Nueva', action: () => this.setMode(1) });
             }
             if (mode == 2 || mode == 3) {
-                ruta.push({ text: `${this.sala_venta.sala_venta} (Edición)`, action: () => this.onSelect(this.sala_venta) });
+                ruta.push({ text: `${this.sala_venta.sala_venta} - Edición`, action: () => this.onSelect(this.sala_venta) });
             }
             if (mode == 3) {
                 ruta.push({ text: 'Configuración', action: () => this.load_checked() });
@@ -98,9 +83,9 @@ export default {
                 const resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_${itemname}`, item, this.mode == 1);
                 hideProgress();
                 if (this.mode == 1) id = resp.id;
-                else throw resp;
+                if (resp.data !== 'OK') throw resp;
             } catch (e) {
-                if (e.isError) showMessage('Error: ' + e.errorMessage);
+                if (e.isError) showMessage('Error: ' + e.errorMessage || e.data);
                 console.error(e);
             }
             return id;
@@ -108,7 +93,7 @@ export default {
         async onSaveSala() {
             let sala = { ...this.sala_venta };
             let id_sala_venta = await this.onSave();
-            if (this.mode == 1) {
+            if (this.mode == 1 && id_sala_venta) {
                 this.sala_venta = { id_sede: '', id_zona_proyecto: '', id_ciudadela: '', ...sala, id_sala_venta };
                 this.onSelect(this.sala_venta);
                 this.loadProjects(this.sala_venta);
@@ -117,14 +102,6 @@ export default {
         getItem() {
             if (this.mainmode == 0) return [this.sala_venta, "SalaVenta", this.salas_ventas];
             return null;
-        },
-        getMainPath() {
-            let path = {};
-            if (this.mainmode == 0) path.text = "Salas Ventas";
-            path.action = () => {
-                this.mode = 0; this.setRuta(); this.loadData();
-            };
-            return path;
         },
         clearItem(item) {
             if (item) {

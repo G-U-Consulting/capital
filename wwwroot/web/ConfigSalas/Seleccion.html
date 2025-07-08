@@ -3,7 +3,7 @@
 <div v-if="mode == 0" style="padding-top: 1em">
     <div class="pure-u-1-24"></div>
     <div class="pure-u-22-24 menuCard">
-        <div class="searchBox">
+        <div class="searchBox" style="padding: 1rem 5px;">
             <div class="pure-g">
                 <div class="pure-u-1-1 pure-u-md-5-24">
                     <input type="text" placeholder="Nombre" v-model="filtros.salas_ventas['sala_venta']"
@@ -54,7 +54,7 @@
                     <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
                         @click="exportExcel('salas_ventas')" title="Descargar datos a Excel" />
                 </div>
-                <div class="pure-u-1-1 pure-u-md-1-6">
+                <div class="pure-u-1-1 pure-u-md-1-6" style="text-align: right;">
                     <button v-on:click="setMode(1)">Nueva Sala</button>
                 </div>
             </div>
@@ -194,10 +194,10 @@
             <div class="pure-u-1-2 pure-u-md-1-4" v-if="mode == 2">
             </div>
             <div class="formInputStandard pure-u-1-2 pure-u-md-1-4" v-if="mode == 2" style="text-align: right;">
-                <button style="margin-top: 1.5rem;" @click="load_checked">Configuración</button>
+                <button style="margin-top: 1.5rem;" @click="load_checked">Configurar sala</button>
             </div>
             <div class="pure-u-1-1 pure-u-md-1-1"
-                style="margin: .5rem 0; height: calc(100vh - 32.8rem); overflow-y: auto;">
+                style="margin: .5rem 0; height: calc(100vh - 30rem); overflow-y: auto;">
                 <table class="dataTable" style="table-layout: auto;" v-if="mode == 2">
                     <thead>
                         <tr>
@@ -253,15 +253,15 @@
                     </tbody>
                 </table>
             </div>
-            <div class='pure-u-1-1 pure-u-md-19-24'></div>
-            <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: center; padding-top: .5rem;">
-                <button @click="toggleEdit" v-if="mode == 2 && pro_sala && pro_sala.length">
-                    {{enableEdit ? 'Guardar proyecto' : 'Editar proyecto'}}
-                </button>
-            </div>
             <div class="pure-u-1-1 pure-u-md-2-5"></div>
             <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                 <button v-on:click="onSaveSala()">Guardar</button>
+            </div>
+            <div class="pure-u-1-1 pure-u-md-1-5"></div>
+            <div class='pure-u-1-1 pure-u-md-1-5' style="text-align: center; padding-top: .5rem;">
+                <button @click="toggleEdit" v-if="mode == 2 && selRow !== null">
+                    {{enableEdit ? 'Guardar fila' : 'Editar fila'}}
+                </button>
             </div>
         </div>
     </div>

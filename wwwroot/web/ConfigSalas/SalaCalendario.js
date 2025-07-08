@@ -11,15 +11,19 @@ export default {
             nameMonths: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
             viewMode: {},
             optionMode: [
+                { name: "1 semana", months: 1, initMonth: 0, year: new Date().getFullYear(), class: "s1" },
+                { name: "1 mes", months: 3, initMonth: 0, year: new Date().getFullYear(), class: "m1" },
                 { name: "6 meses", months: 6, initMonth: 0, year: new Date().getFullYear(), class: "m6" },
                 { name: "12 meses", months: 12, initMonth: 0, year: new Date().getFullYear(), class: "m12" }
             ],
             selDate: null,
             viewMonths: {},
-            day: {},
+            currentDay: {},
             hitos: [],
+            tableDays: [],
             hitoPro: false,
             modal: null,
+            currentWeek: -1
         };
     },
     async mounted() {
@@ -64,6 +68,7 @@ export default {
                 const fecha = new Date(year, month, -i);
                 daysView.push({
                     weekDay: (fecha.getDay() + 6) % 7,
+                    weekCount: 0,
                     monthDay: fecha.getDate(),
                     currentMonth: false,
                     month: fecha.getMonth(),
@@ -79,6 +84,7 @@ export default {
                 const fecha = new Date(year, month, i);
                 const day = {
                     weekDay: (fecha.getDay() + 6) % 7,
+                    weekCount: Math.floor((i + firstWeekday - 1) / 7),
                     monthDay: i,
                     currentMonth: true,
                     month: fecha.getMonth(),
@@ -90,7 +96,7 @@ export default {
                     date: fecha
                 }
                 daysView.push(day);
-                if (day.isSelected) this.day = day;
+                if (day.isSelected) this.currentDay = day;
             }
 
             let i = 1;
@@ -98,6 +104,7 @@ export default {
                 const fecha = new Date(year, month + 1, i);
                 daysView.push({
                     weekDay: (fecha.getDay() + 6) % 7,
+                    weekCount: Math.floor((currentMonthDays + firstWeekday + i - 1) / 7),
                     monthDay: i,
                     currentMonth: false,
                     month: fecha.getMonth(),
@@ -128,6 +135,23 @@ export default {
                 }
             this.viewMonths = temp;
             this.loadEvents();
+            if (this.viewMode.class == 'm1' || this.viewMode.class == 's1') this.setTableDetails(current);
+        },
+        setTableDetails(date) {
+            let days = [];
+            if (this.viewMode.class == 'm1')
+                days = this.viewMonths[this.nameMonths[date.getMonth()]].days.filter(d => d.currentMonth);
+            if (this.viewMode.class == 's1')
+                days = this.viewMonths[this.nameMonths[date.getMonth()]].days.filter(d => d.weekCount === this.currentDay.weekCount);
+            let events = [];
+            days.forEach(day => {
+                if (day.events.length - (day.isHoliday ? 1 : 0))
+                    day.events.forEach((e, i) => !(day.isHoliday && i == 0) && events.push(
+                        { ...day, e_titulo: e.titulo, e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala', e_hora: this.formatDatetime(e.fecha, 'time') }))
+                else
+                    events.push({ ...day, e_titulo: '-', e_tipo: '-', e_hora: '-', e_rol: '-' })
+            });
+            this.tableDays = events;
         },
         async updateViewMode(mode) {
             let upd = this.viewMode.class;
@@ -139,10 +163,17 @@ export default {
             }
         },
         setDate(dir) {
-            let date = this.selDate, fact = this.viewMode.months, m = date.getMonth();
-            date.setMonth(date.getMonth() + (fact * dir));
-            if (Math.abs(m - date.getMonth()) !== fact % 12)
-                date.setDate(0);
+            let date = this.selDate, m = date.getMonth(), y = date.getFullYear();
+            if (this.viewMode.class !== 's1') {
+                let fact = this.viewMode.months;
+                if (this.viewMode.class == 'm1') fact = 1;
+                date.setMonth(date.getMonth() + (fact * dir));
+                if (Math.abs((date.getFullYear() - y) * 12 + (date.getMonth() - m)) !== fact)
+                    date.setDate(0);
+            }
+            else {
+                date.setDate(date.getDate() + (7 * dir));
+            }
             this.setViewMonths();
         },
         setToday() {
@@ -159,7 +190,8 @@ export default {
             day.isSelected = true;
             this.selDate = new Date(this.viewMode.year, day.month, day.monthDay);
             this.viewMonths[this.nameMonths[m]].selected = true;
-            this.day = day;
+            this.currentDay = day;
+            this.setTableDetails(this.selDate);
         },
         isToday() {
             const today = new Date();
@@ -189,7 +221,7 @@ export default {
                 showMessage('Error: ' + (res.errorMessage || res.data));
             }
             await this.loadData();
-            this.loadEvents(this.day);
+            this.loadEvents(this.currentDay);
             this.modal.style.display = 'none';
             hideProgress();
         },
@@ -200,8 +232,8 @@ export default {
         },
         async toggleHoliday() {
             showProgress();
-            if (this.day.isHoliday) {
-                let event = this.day.events.find(e => e.festivo === '1');
+            if (this.currentDay.isHoliday) {
+                let event = this.currentDay.events.find(e => e.festivo === '1');
                 if (event && event.id_hito) {
                     let res = await httpFunc("/generic/genericST/Proyectos:Del_Hito", { id_hito: event.id_hito });
                     if (res.data !== 'OK') {
@@ -209,7 +241,7 @@ export default {
                         showMessage('Error: ' + (res.errorMessage || res.data));
                     } else {
                         await this.loadData();
-                        this.loadEvents(this.day);
+                        this.loadEvents(this.currentDay);
                     }
                 }
             } else {
@@ -223,7 +255,7 @@ export default {
                     showMessage('Error: ' + (res.errorMessage || res.data));
                 } else {
                     await this.loadData();
-                    this.loadEvents(this.day);
+                    this.loadEvents(this.currentDay);
                 }
             }
             hideProgress();
@@ -239,15 +271,15 @@ export default {
                 this.hitos.forEach(h => {
                     let day = null;
                     const fecha = new Date(h.fecha),
-                        month = this.viewMonths[this.nameMonths[fecha.getMonth()]];
+                        month = this.viewMonths[this.nameMonths[fecha.getMonth()]] || this.viewMonths[this.nameMonths[fecha.getMonth() - 1]] || this.viewMonths[this.nameMonths[fecha.getMonth() + 1]];
                     if (month && fecha.getFullYear() == this.viewMode.year)
-                        day = month.days.find(d => d.monthDay === fecha.getDate() && d.currentMonth);
+                        day = month.days.find(d => (d.monthDay === fecha.getDate() && d.month === fecha.getMonth() && (d.currentMonth || this.viewMode.class === 's1')));
                     if (day && month && fecha.getFullYear() == this.viewMode.year) {
                         if (temp.includes(day)) {
                             day.events = [];
                             temp.push(day);
                         }
-                        day['events'].push(h);
+                        day.events.push(h);
                         h.festivo == '1' && (day.isHoliday = true);
                     }
                 });
@@ -269,7 +301,7 @@ export default {
                     showMessage('Error: ' + (res.errorMessage || res.data));
                 } else {
                     await this.loadData();
-                    this.loadEvents(this.day);
+                    this.loadEvents(this.currentDay);
                     this.modal.style.display = 'none';
                 }
             }
