@@ -2,15 +2,22 @@
 -- Proceso: Proyecto/Get_Hito
 -- =============================================
 --START_PARAM
-set @id_sala = NULL,
-    @id_proyecto NULL;
+set @id_sala = NULL;
 --END_PARAM
 
-select id_sala_venta, sala_venta, id_sede
-from dim_sala_venta 
-where id_sala_venta = @id_sala and is_active = 1;
+select p.id_proyecto, p.nombre
+from fact_proyectos p join dim_sala_proyecto sp
+on p.id_proyecto = sp.id_proyecto
+where sp.id_sala_venta = @id_sala and p.is_active = 1
+order by p.nombre;
 
-select id_hito, titulo, descripcion, date_format(fecha, '%Y-%m-%d %T') as fecha, color, festivo, id_proyecto
-from dim_hito_sala
-where id_sala_venta = @id_sala and id_proyecto is null or id_proyecto = @id_proyecto
+select id_hito, titulo, descripcion, date_format(fecha, '%Y-%m-%d %T') as fecha, color, festivo, id_proyecto,
+    (select p.nombre from fact_proyectos p where h.id_proyecto is not null and p.id_proyecto = h.id_proyecto) as nombre_pro
+from dim_hito_sala h
+where id_sala_venta = @id_sala
 order by fecha;
+
+select id_cargo, cargo, `Descripcion` as descripcion 
+from dim_cargo
+where is_active = 1
+order by cargo;

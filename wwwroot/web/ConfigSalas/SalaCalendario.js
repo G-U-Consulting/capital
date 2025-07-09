@@ -11,7 +11,7 @@ export default {
             nameMonths: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
             viewMode: {},
             optionMode: [
-                { name: "1 semana", months: 1, initMonth: 0, year: new Date().getFullYear(), class: "s1" },
+                { name: "1 semana", months: 3, initMonth: 0, year: new Date().getFullYear(), class: "s1" },
                 { name: "1 mes", months: 3, initMonth: 0, year: new Date().getFullYear(), class: "m1" },
                 { name: "6 meses", months: 6, initMonth: 0, year: new Date().getFullYear(), class: "m6" },
                 { name: "12 meses", months: 12, initMonth: 0, year: new Date().getFullYear(), class: "m12" }
@@ -20,14 +20,19 @@ export default {
             viewMonths: {},
             currentDay: {},
             hitos: [],
+            proyectos: [],
+            cargos: [],
             tableDays: [],
-            hitoPro: false,
             modal: null,
-            currentWeek: -1
+            currentWeek: -1,
+
+            eventType: 'Sala',
+            id_obj: null,
+            pro_filter: null,
         };
     },
     async mounted() {
-        this.proyecto = await GlobalVariables.miniModuleCallback("SalaCalendario", null);
+        this.sala = await GlobalVariables.miniModuleCallback('GetSala');
         this.setMainMode('SalaCalendario');
         await this.loadData();
         this.setToday();
@@ -41,10 +46,8 @@ export default {
         },
         async loadData() {
             showProgress();
-            let [salas, hitos] = (await httpFunc("/generic/genericDS/Proyectos:Get_Hito",
-                { id_sala: this.proyecto.id_sala_venta, id_proyecto: this.proyecto.id_proyecto })).data;
-            if (salas.length) this.sala = salas[0];
-            this.hitos = hitos;
+            [this.proyectos, this.hitos, this.cargos] = (await httpFunc("/generic/genericDS/Proyectos:Get_Hito",
+                { id_sala: this.sala.id_sala_venta })).data;
             hideProgress();
         },
         async loadViewMode() {
@@ -147,9 +150,11 @@ export default {
             days.forEach(day => {
                 if (day.events.length - (day.isHoliday ? 1 : 0))
                     day.events.forEach((e, i) => !(day.isHoliday && i == 0) && events.push(
-                        { ...day, e_titulo: e.titulo, e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala', e_hora: this.formatDatetime(e.fecha, 'time') }))
-                else
-                    events.push({ ...day, e_titulo: '-', e_tipo: '-', e_hora: '-', e_rol: '-' })
+                        {
+                            ...day, e_titulo: e.titulo, e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
+                            e_hora: this.formatDatetime(e.fecha, 'time'), color: e.color, event: e
+                        }));
+                else events.push({ ...day, e_titulo: '-', e_tipo: '-', e_hora: '-', e_rol: '-', color: day.isHoliday ? '#c80000' : null });
             });
             this.tableDays = events;
         },
@@ -197,11 +202,17 @@ export default {
             const today = new Date();
             return this.equalsDate(this.selDate, today);
         },
-        openModal(mode) {
+        openModal(mode, e) {
             this.mode = mode;
             if (mode == 1) {
                 this.hito = { hora: '00:00', color: '#006ec9' };
-                this.hitoPro = true;
+                this.id_obj = null;
+                this.eventType = 'Sala';
+            }
+            if (mode == 2 && e) {
+                this.id_obj = e.id_proyecto || null;
+                this.eventType = e.id_proyecto ? 'Proyecto' : 'Sala';
+                this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
             }
             this.modal && (this.modal.style.display = 'flex');
         },
@@ -211,8 +222,8 @@ export default {
         },
         async onSave() {
             showProgress();
-            this.hito.fecha = `${this.selDate.getFullYear()}-${this.selDate.getMonth() + 1}-${this.selDate.getDate()} ${this.hito.hora}`;
-            if (this.hitoPro) this.hito.id_proyecto = this.proyecto.id_proyecto;
+            this.hito.fecha = `${this.formatDatetime(null, 'bdate', this.selDate)} ${this.hito.hora}`;
+            if (this.eventType === 'Proyecto') this.hito.id_proyecto = this.id_obj;
             else delete this.hito.id_proyecto;
             let res = await httpFunc(`/generic/genericST/Proyectos:${this.mode == 1 ? 'Ins' : 'Upd'}_Hito`,
                 { ...this.hito, id_sala: this.sala.id_sala_venta });
@@ -260,6 +271,19 @@ export default {
             }
             hideProgress();
         },
+        loadEvent(day, month, temp, h) {
+            const fecha = new Date(h.fecha);
+            if (month && fecha.getFullYear() == this.viewMode.year)
+                day = month.days.find(d => (d.monthDay === fecha.getDate() && d.month === fecha.getMonth() && (d.currentMonth || this.viewMode.class === 's1')));
+            if (day && month && fecha.getFullYear() == this.viewMode.year) {
+                if (temp.includes(day)) {
+                    day.events = [];
+                    temp.push(day);
+                }
+                day.events.push(h);
+                h.festivo == '1' && (day.isHoliday = true);
+            }
+        },
         loadEvents(day) {
             if (day) {
                 day['events'] = [...this.hitos.filter(h => this.equalsDate(new Date(h.fecha), day.date))];
@@ -267,27 +291,32 @@ export default {
                 else day.isHoliday = false;
             }
             else {
-                let temp = [];
+                let p_temp = [], temp = [], n_temp = [];
                 this.hitos.forEach(h => {
-                    let day = null;
-                    const fecha = new Date(h.fecha),
-                        month = this.viewMonths[this.nameMonths[fecha.getMonth()]] || this.viewMonths[this.nameMonths[fecha.getMonth() - 1]] || this.viewMonths[this.nameMonths[fecha.getMonth() + 1]];
-                    if (month && fecha.getFullYear() == this.viewMode.year)
-                        day = month.days.find(d => (d.monthDay === fecha.getDate() && d.month === fecha.getMonth() && (d.currentMonth || this.viewMode.class === 's1')));
-                    if (day && month && fecha.getFullYear() == this.viewMode.year) {
-                        if (temp.includes(day)) {
-                            day.events = [];
-                            temp.push(day);
-                        }
-                        day.events.push(h);
-                        h.festivo == '1' && (day.isHoliday = true);
+                    if (!this.pro_filter || h.id_proyecto == this.pro_filter || h.festivo === '1') {
+                        let p_day = null, day = null, n_day = null;
+                        const fecha = new Date(h.fecha),
+                            p_month = this.viewMonths[this.nameMonths[fecha.getMonth()]],
+                            month = this.viewMonths[this.nameMonths[fecha.getMonth() - 1]],
+                            n_month = this.viewMonths[this.nameMonths[fecha.getMonth() + 1]];
+                        this.loadEvent(p_day, p_month, p_temp, h);
+                        this.loadEvent(day, month, temp, h);
+                        this.loadEvent(n_day, n_month, n_temp, h);
                     }
                 });
             }
+            this.setTableDetails(this.selDate);
         },
         selEvent(e) {
             this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
-            this.hitoPro = e.id_proyecto ? true : false;
+            if (this.hito.id_proyecto) {
+                this.eventType = 'Proyecto';
+                this.id_obj = this.hito.id_proyecto;
+            }
+            else {
+                this.eventType = 'Sala';
+                this.id_obj = null;
+            }
             this.mode = 2;
         },
         async reqDeleteEvent(e) {
@@ -316,6 +345,8 @@ export default {
                 meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
             if (type === 'date')
                 return `${day}/${month}/${year}`;
+            if (type === 'bdate')
+                return `${year}-${month}-${day}`;
             if (type === 'time')
                 return `${hour}:${minutes} ${meridian}`;
             if (type === 'vtime')
