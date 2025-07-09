@@ -1412,13 +1412,14 @@ tr.selected input {
 }
 .item-matrix {
   margin: .75rem;
-  margin-bottom: 0;
-  width: 10rem;
+  margin-bottom: .5rem;
+  min-width: 10rem;        
+  max-width: 10rem;  
   height: fit-content;
   border: 1px #999 solid;
   border-radius: 4px;
   transition: transform .15s ease-in-out;
-  cursor: pointer;
+  
 }
 .item-matrix:hover{
   transform: scale(1.025);
@@ -1437,6 +1438,12 @@ tr.selected input {
 }
 .bottom-matrix {
   background-color: #666;
+  color: white;
+  text-align: center;
+  padding: 5px 0;
+}
+.bottom-adm {
+  background-color: #ccc;
   color: white;
   text-align: center;
   padding: 5px 0;
@@ -2288,15 +2295,13 @@ tr.destacada {
 }
 .detail-logo{
   width: 100%;
-  height: 20%;
+  height: 10%;
   display: flex;
   justify-content: center;
-  align-items: center;
   margin-bottom: 1rem;
 }
 .detail-logo img {
-  max-width: 55%;
-  max-height: 55%;
+  max-width: 35%;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -2346,6 +2351,12 @@ tr.destacada {
   width: 100%;
   box-sizing: border-box;
 }
+.table-wrapper {
+  flex: 1;
+  flex-wrap: wrap;
+  display: flex;
+  flex-direction: column;
+}
 
 @media (max-width: 1024px) {
   .main-content.matrix-cont {
@@ -2389,15 +2400,29 @@ tr.destacada {
   padding: .5rem;
   border-radius: 8px;
   border: 1px solid #ccc;
+  cursor: pointer; 
+
 }
+.proyectos-section {
+  margin: .75rem .75rem 0 .75rem;
+  padding: .5rem;
+  min-height: calc(100dvh - 35.5rem);
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  cursor: pointer; 
+  overflow-x: hidden;
+}
+
 .lanzamiento-title {
   font-size: 1.1rem;
   font-weight: bold;
   
 }
 .lanzamiento-list {
-  justify-content: center;
-  gap: 10px;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-left: 1rem;
 }
 .division-lanzamientos {
   border: none;
@@ -2408,7 +2433,6 @@ tr.destacada {
   .lanzamientos-section {
     margin-top: 28rem;
   }  
-  
 }
 .detail-body {
   flex: 1;
@@ -2438,4 +2462,25 @@ tr.destacada {
 .btn-editar:hover {
   background-color: #006b83;
 }
-
+.lanzamiento-list::-webkit-scrollbar {
+  height: 6px;
+}
+.lanzamiento-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+.lanzamiento-wrapper {
+  overflow-x: auto;
+  text-align: center;
+  width: 100%;
+}
+.lanzamiento-tag {
+    display: inline-block;
+    padding: 0.3em 0.6em;
+    border-radius: 0.25em;
+    background-color: #e0f2f7;
+    color: #006b83;
+    font-size: 0.85em;
+    font-weight: bold;
+    white-space: nowrap;
+}

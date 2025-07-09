@@ -51,39 +51,45 @@
         </div>
         <div>
             <div class="main-content matrix-cont" v-if="viewMode == 'Tabla'">
-                <table class="dataTable" style="table-layout: auto;margin-top: .75rem;margin-right: .75rem;">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%;">Logo</th>
-                            <th style="width: 10%;">Nombre</th>
-                            <th style="width: 10%;">Sede</th>
-                            <th style="width: 40%;">Zona</th>
-                            <th style="width: 15%;">Ciudadela</th>
-                            <th style="width: 10%;">Activo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="item in getFilteredList('proyectos')" @click="tortaProject(item);"
-                            @dblclick="selectProject(item,'portada')"
-                            :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
-                            <td style="height: 3.2em;">
-                                <img v-if="item.img" class="img-row" :src="item.img" :alt="`img_${item.nombre}`">
-                            </td>
-                            <td>{{item.nombre}}</td>
-                            <td>{{item.sede}}</td>
-                            <td>{{item.zona_proyecto}}</td>
-                            <td>{{item.ciudadela}}</td>
-                            <td style="text-align: center;">
-                                <div class="toggle-switch" @click.stop.prevent="toggleState(item)">
-                                    <input :id="'toggle' + item.nombre" type="checkbox" class="toggle-input"
-                                        :checked="Number(item.is_active) !== 1">
-                                    <label class="toggle-label" :for="'toggle' + item.nombre"
-                                        style="transform: rotate(180deg);"></label>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table class="dataTable" style="table-layout: auto;margin-top: .75rem;margin-right: .75rem !important;">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Logo</th>
+                                <th style="width: 10%;">Nombre</th>
+                                <th style="width: 5%;">Sede</th>
+                                <th style="width: 35%;">Zona</th>
+                                <th style="width: 10%;">Ciudadela</th>
+                                <th style="width: 15%;">Estado de Lanzamiento</th>
+                                <th style="width: 10%;">Activo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in proyectosTabla":key="item.id" @click="tortaProject(item);"
+                                @dblclick="selectProject(item,'portada')"
+                                :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
+                                <td style="height: 3.2em;">
+                                    <img v-if="item.img" class="img-row" :src="item.img" :alt="`img_${item.nombre}`">
+                                </td>
+                                <td>{{item.nombre}}</td>
+                                <td>{{item.sede}}</td>
+                                <td>{{item.zona_proyecto}}</td>
+                                <td>{{item.ciudadela}}</td>
+                                <td>
+                                    <span v-if="item.es_lanzamiento" class="lanzamiento-tag">🚀 Próximo Lanzamiento</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div class="toggle-switch" @click.stop.prevent="toggleState(item)">
+                                        <input :id="'toggle' + item.nombre" type="checkbox" class="toggle-input"
+                                            :checked="Number(item.is_active) !== 1">
+                                        <label class="toggle-label" :for="'toggle' + item.nombre"
+                                            style="transform: rotate(180deg);"></label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div v-if="selectedProject" class="detail-panel">
                     <div class="detail-logo" v-if="selectedProject.img">
                         <img :src="selectedProject.img" />
@@ -146,30 +152,38 @@
                             </td>
                         </tr>
                     </table>
+                    <div class="detail-footer">
+                        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
+                    </div>
                 </div>
                 <div v-else class="detail-panel"></div>
             </div>
             <div class="main-content matrix-cont" v-if="viewMode == 'Matriz'" style="display: flex;">
-                <div style="flex: 1; display: flex; flex-direction: column;">
+                <div style="flex: 1; display: flex; flex-direction: column;min-width: 0;">
                     <div v-if="proyectosLanzamiento.length" class="lanzamientos-section">
                         <span class="lanzamiento-title">🚀 Próximos Lanzamientos</span>
-                        <div class="project-list lanzamiento-list">
-                            <div class="item-matrix" v-for="item in proyectosLanzamiento" :key="item.id" @click="tortaProject(item)"
-                                @dblclick="selectProject(item,'portada')"
-                                :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
-                                <div class="img-matrix">
-                                    <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
-                                </div>
-                                <div class="bottom-matrix">
-                                    <span>{{ item.nombre }}</span>
-                                </div>
-                                <div class="extra-label" v-if="item.label">
-                                    {{ item.label }}
+                        <div class="lanzamiento-wrapper">
+                            <div class="project-list lanzamiento-list">
+                                <div class="item-matrix" v-for="item in proyectosLanzamiento" :key="item.id" @click="tortaProject(item)"
+                                    @dblclick="selectProject(item,'portada')"
+                                    :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
+                                    <div class="img-matrix">
+                                        <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
+                                    </div>
+                                    <div class="bottom-matrix">
+                                        <span>{{ item.nombre }}</span>
+                                    </div>
+                                    <div class="bottom-adm" @click.stop @dblclick.stop>
+                                        <span>{{ adm }}</span>
+                                    </div>
+                                    <div class="extra-label" v-if="item.label">
+                                        {{ item.label }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div>
+                    <div class="proyectos-section">
                         <div class="project-list">
                             <div class="item-matrix" v-for="item in proyectosNormales" :key="item.id" @click="tortaProject(item)"
                                 @dblclick="selectProject(item,'portada')"
@@ -179,6 +193,9 @@
                                 </div>
                                 <div class="bottom-matrix">
                                     <span>{{ item.nombre }}</span>
+                                </div>
+                                <div class="bottom-adm" @click.stop @dblclick.stop>
+                                    <span>{{ adm }}</span>
                                 </div>
                                 <div class="extra-label" v-if="item.label">
                                     {{ item.label }}
@@ -250,7 +267,7 @@
                         </tr>
                     </table>
                     <div class="detail-footer">
-                        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Editar Proyecto</button>
+                        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
                     </div>
                 </div>
                 <div v-else class="detail-panel"></div>

@@ -127,7 +127,7 @@
                 avance_obra_visible: 0,
                 link_avance_obra: "",
                 incluir_brochure: 0,
-                link_brochure: ""
+                link_brochure: "",
             },
 
             camposPorSubmode: {
@@ -188,7 +188,8 @@
             onlyActive: false,
             frontImg: '',
             interval: null,
-            selectedProject: null
+            selectedProject: null,
+            adm: "0 Solicitudes @Adm",
         };
     },
     computed: {
@@ -212,6 +213,13 @@
                 ) : [];
             };
         },
+        proyectosTabla() {
+        return this.getFilteredList('proyectos').map(p => ({
+            ...p,
+            es_lanzamiento: String(p.lanzamiento) === '1',
+            is_active: String(p.is_active) === '1'
+        }));
+    },
         zonasFiltradas() {
             const sedeId = this.objProyecto?.id_sede || this.editObjProyecto?.id_sede;
             if (!sedeId) return [];
