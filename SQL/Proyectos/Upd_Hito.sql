@@ -18,6 +18,8 @@ set titulo = @titulo,
     fecha = @fecha, 
     color = @color, 
     festivo = if(@festivo = '1', 1, 0),
+    frecuencia = @frecuencia,
+    limite = if(@frecuencia is null, null, @limite),
     id_sala_venta = @id_sala,
     id_proyecto = @id_proyecto
 where id_hito = @id_hito;

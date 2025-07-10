@@ -16,6 +16,12 @@ export default {
                 { name: "6 meses", months: 6, initMonth: 0, year: new Date().getFullYear(), class: "m6" },
                 { name: "12 meses", months: 12, initMonth: 0, year: new Date().getFullYear(), class: "m12" }
             ],
+            frecuencias: [
+                { name: '1 vez', value: null, checked: true },
+                { name: 'Diario', value: 'd', checked: false },
+                { name: 'Semanal', value: 'w', checked: false },
+                { name: 'Mensual', value: 'm', checked: false },
+            ],
             selDate: null,
             viewMonths: {},
             currentDay: {},
@@ -204,15 +210,18 @@ export default {
         },
         openModal(mode, e) {
             this.mode = mode;
+            let fre = this.frecuencias[0];
             if (mode == 1) {
                 this.hito = { hora: '00:00', color: '#006ec9' };
                 this.id_obj = null;
                 this.eventType = 'Sala';
+                this.onChangeFreq(fre);
             }
             if (mode == 2 && e) {
                 this.id_obj = e.id_proyecto || null;
                 this.eventType = e.id_proyecto ? 'Proyecto' : 'Sala';
                 this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
+                this.onChangeFreq(this.frecuencias.find(f => f.value == this.hito.frecuencia) || fre);
             }
             this.modal && (this.modal.style.display = 'flex');
         },
@@ -222,7 +231,9 @@ export default {
         },
         async onSave() {
             showProgress();
-            this.hito.fecha = `${this.formatDatetime(null, 'bdate', this.selDate)} ${this.hito.hora}`;
+            if (this.hito.fecha) this.hito.fecha = `${this.hito.fecha.split(' ')[0]} ${this.hito.hora}`;
+            else this.hito.fecha = `${this.formatDatetime(null, 'bdate', this.selDate)} ${this.hito.hora}`;
+            if (!this.hito.limite) delete this.hito.limite;
             if (this.eventType === 'Proyecto') this.hito.id_proyecto = this.id_obj;
             else delete this.hito.id_proyecto;
             let res = await httpFunc(`/generic/genericST/Proyectos:${this.mode == 1 ? 'Ins' : 'Upd'}_Hito`,
@@ -232,7 +243,7 @@ export default {
                 showMessage('Error: ' + (res.errorMessage || res.data));
             }
             await this.loadData();
-            this.loadEvents(this.currentDay);
+            this.setViewMonths();
             this.modal.style.display = 'none';
             hideProgress();
         },
@@ -271,15 +282,39 @@ export default {
             }
             hideProgress();
         },
-        loadEvent(day, month, temp, h) {
+        setRecurringEvents(e) {
+            if (this.viewMode.months >= 0 && this.viewMode.initMonth >= 0 && e.frecuencia) {
+                let endMonth = this.viewMonths[this.nameMonths[this.viewMode.initMonth + this.viewMode.months - 1]],
+                    lastday = endMonth.days[endMonth.days.length - 1].date,
+                    lim = e.limite ? new Date(`${e.limite} 23:59:59`) : false, fecha = new Date(e.fecha), d = 0, m = 0, o = fecha.getDate();
+                lastday.setDate(lastday.getDate() + 1);
+                if (lastday < lim || !lim) lim = lastday;
+                if (e.frecuencia == 'd') d = 1;
+                if (e.frecuencia == 'w') d = 7;
+                if (e.frecuencia == 'm') m = 1;
+                let i = 0;
+                while (fecha <= lim) {
+                    let month = this.viewMonths[this.nameMonths[fecha.getMonth()]];
+                    if (month) {
+                        let day = month.days.find(d => d.currentMonth && d.monthDay == fecha.getDate() && this.viewMode.year == fecha.getFullYear());
+                        if (day && day.events) day.events.push(e);
+                    }
+                    fecha.setDate(fecha.getDate() + d);
+                    if (m) {
+                        let m1 = fecha.getMonth();
+                        fecha.setMonth(m1 + m);
+                        if (fecha.getMonth() - m1 > m) fecha.setDate(0);
+                        else fecha.setDate(o);
+                    }
+                    i++;
+                }
+            }
+        },
+        loadEvent(day, month, h) {
             const fecha = new Date(h.fecha);
             if (month && fecha.getFullYear() == this.viewMode.year)
                 day = month.days.find(d => (d.monthDay === fecha.getDate() && d.month === fecha.getMonth() && (d.currentMonth || this.viewMode.class === 's1')));
-            if (day && month && fecha.getFullYear() == this.viewMode.year) {
-                if (temp.includes(day)) {
-                    day.events = [];
-                    temp.push(day);
-                }
+            if (day && month && fecha.getFullYear() == this.viewMode.year && !h.frecuencia) {
                 day.events.push(h);
                 h.festivo == '1' && (day.isHoliday = true);
             }
@@ -291,17 +326,17 @@ export default {
                 else day.isHoliday = false;
             }
             else {
-                let p_temp = [], temp = [], n_temp = [];
                 this.hitos.forEach(h => {
                     if (!this.pro_filter || h.id_proyecto == this.pro_filter || h.festivo === '1') {
                         let p_day = null, day = null, n_day = null;
                         const fecha = new Date(h.fecha),
-                            p_month = this.viewMonths[this.nameMonths[fecha.getMonth()]],
-                            month = this.viewMonths[this.nameMonths[fecha.getMonth() - 1]],
+                            p_month = this.viewMonths[this.nameMonths[fecha.getMonth() - 1]],
+                            month = this.viewMonths[this.nameMonths[fecha.getMonth()]],
                             n_month = this.viewMonths[this.nameMonths[fecha.getMonth() + 1]];
-                        this.loadEvent(p_day, p_month, p_temp, h);
-                        this.loadEvent(day, month, temp, h);
-                        this.loadEvent(n_day, n_month, n_temp, h);
+                        this.loadEvent(p_day, p_month, h);
+                        this.loadEvent(day, month, h);
+                        this.loadEvent(n_day, n_month, h);
+                        h.frecuencia && this.setRecurringEvents(h);
                     }
                 });
             }
@@ -317,7 +352,16 @@ export default {
                 this.eventType = 'Sala';
                 this.id_obj = null;
             }
-            this.mode = 2;
+            this.openModal(2, e);
+        },
+        onChangeFreq(fre) {
+            this.frecuencias.forEach(f => f.checked = false);
+            fre.checked = true;
+            if (fre.value) this.hito.frecuencia = fre.value;
+            else {
+                delete this.hito.limite;
+                delete this.hito.frecuencia;
+            }
         },
         async reqDeleteEvent(e) {
             showConfirm(`Se eliminará el hito <b>${e.titulo}</b> permanentemente.`, this.delEvent, null, e);
@@ -330,7 +374,7 @@ export default {
                     showMessage('Error: ' + (res.errorMessage || res.data));
                 } else {
                     await this.loadData();
-                    this.loadEvents(this.currentDay);
+                    this.setViewMonths();
                     this.modal.style.display = 'none';
                 }
             }
