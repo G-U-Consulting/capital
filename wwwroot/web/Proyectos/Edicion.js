@@ -252,7 +252,6 @@
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
             hideProgress();
             resp = resp.data;
-            console.log("Variables cargadas:", this.proyectos);
             resp[0].forEach(item => item.checked = false);
             this.estado_publicacion = resp[0];
             resp[1].forEach(item => item.checked = false);

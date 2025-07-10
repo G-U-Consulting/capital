@@ -69,7 +69,7 @@
                                 <tr>
                                     <th class="usuario">Usuario</th>
                                     <th>Nombres</th>
-                                    <th>Cargo</th>
+                                    <th>Categoría</th>
                                     <th class="rol">Roles Asignados</th>
                                     <th>Identificación</th>
                                     <th>Estado</th>
@@ -148,9 +148,9 @@
                         <!--FIN TODO-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
-                                <label for="cargo" style="display: block; margin-bottom: 0.3rem;">Cargo</label>
+                                <label for="cargo" style="display: block; margin-bottom: 0.3rem;">Categoría</label>
                                 <select id="cargo" v-model="newUser.id_cargo" class="pure-input-1">
-                                    <option value="" disabled selected>Seleccione Cargo</option>
+                                    <option value="" disabled selected>Seleccione Categoría</option>
                                     <option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo">
                                         {{ item.cargo }}
                                     </option>
@@ -300,10 +300,10 @@
                         <!--FIN TODO-->
                         <div class='pure-u-1-1 pure-u-md-1-4'>
                             <div class='formInputStandard'>
-                                <label for="editCargo" style="display: block; margin-bottom: 0.3rem;">Cargo</label>
+                                <label for="editCargo" style="display: block; margin-bottom: 0.3rem;">Categoría</label>
                                 <select :disabled="isLocked" :class="{ 'campo-bloqueado': isLocked }" id="editCargo"
                                     v-model="editUser.id_cargo" class="pure-input-1">
-                                    <option value="" disabled selected>Seleccione Cargo</option>
+                                    <option value="" disabled selected>Seleccione Categoría</option>
                                     <option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo">
                                         {{ item.cargo }}
                                     </option>
