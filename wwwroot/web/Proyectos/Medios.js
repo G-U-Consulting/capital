@@ -151,6 +151,8 @@
         },
         allItems() {
             let items = [];
+
+            
             if (this.tablas && this.tablas.length) {
                 if (!this.tablas[0].activo && this.plantaPreview) {
                     items.push({ src: this.plantaPreview });
@@ -1272,6 +1274,7 @@
             }
             this.modalVisible = true;
             history.pushState(null, "", "#modal-carrusel");
+            
             var tag = document.createElement("script");
             tag.src = "https://www.youtube.com/iframe_api";
             var firstScriptTag = document.getElementsByTagName("script")[0];
@@ -1287,7 +1290,7 @@
         /////////////////////////////////////////////////////
 
         // fullScreen() {
-        //     let cont = document.getElementById("cont-rotafolio");
+        //     let cont = document.getElementById("cont-rotafolio"); 
 
         //     if (cont.requestFullscreen) {
         //         cont.requestFullscreen();

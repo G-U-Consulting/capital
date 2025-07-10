@@ -205,72 +205,75 @@
                     </div>
                 </div>
                 <div v-if="selectedProject" class="detail-panel">
-                    <div class="detail-logo" v-if="selectedProject.img">
-                        <img :src="selectedProject.img" />
-                    </div>
-                    <table class="detail-table">
-                        <tr>
-                            <td><strong>Tipo de Proyecto:</strong></td>
-                            <td>{{ selectedProject.tipo_proyecto }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Proyecto VIS</strong></td>
-                            <td>{{ selectedProject.tipo_vis }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Área/Etapa/Etapas</strong></td>
-                            <td>{{ selectedProject.etapas }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Aptos/Casas totales</strong></td>
-                            <td>{{ selectedProject.total }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Área total</strong></td>
-                            <td>{{ selectedProject.areaTotal }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Área priv. cubierta desde</strong></td>
-                            <td>{{ selectedProject.areaPrivadaDesde }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Área const. desde</strong></td>
-                            <td>{{ selectedProject.areaConstruida }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Precio desde</strong></td>
-                            <td>{{ selectedProject.precioDesde }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Precio hasta</strong></td>
-                            <td>{{ selectedProject.precioHasta }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Fecha entrega desde</strong></td>
-                            <td>{{ selectedProject.fechaEntregaDesde }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Fecha entrega hasta</strong></td>
-                            <td>{{ selectedProject.fechaEntregaHasta }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Información adicional</strong></td>
-                            <td>{{ selectedProject.infoAdicional }}</td>
-                        </tr>
-                        <tr v-if="selectedProject.zonasComunes">
-                            <td><strong>Zonas comunes</strong></td>
-                            <td>
-                                <ul>
-                                    <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="detail-footer">
-                        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
-                    </div>
-                </div>
-                <div v-else class="detail-panel"></div>
+    <div class="detail-logo" v-if="selectedProject.img">
+        <img :src="selectedProject.img" />
+    </div>
+
+    <div class="scrollable-content">
+        <table class="detail-table">
+            <tr>
+                <td><strong>Tipo de Proyecto:</strong></td>
+                <td>{{ selectedProject.tipo_proyecto }}</td>
+            </tr>
+            <tr>
+                <td><strong>Proyecto VIS</strong></td>
+                <td>{{ selectedProject.tipo_vis }}</td>
+            </tr>
+            <tr>
+                <td><strong>Área/Etapa/Etapas</strong></td>
+                <td>{{ selectedProject.etapas }}</td>
+            </tr>
+            <tr>
+                <td><strong>Aptos/Casas totales</strong></td>
+                <td>{{ selectedProject.total }}</td>
+            </tr>
+            <tr>
+                <td><strong>Área total</strong></td>
+                <td>{{ selectedProject.areaTotal }}</td>
+            </tr>
+            <tr>
+                <td><strong>Área priv. cubierta desde</strong></td>
+                <td>{{ selectedProject.areaPrivadaDesde }}</td>
+            </tr>
+            <tr>
+                <td><strong>Área const. desde</strong></td>
+                <td>{{ selectedProject.areaConstruida }}</td>
+            </tr>
+            <tr>
+                <td><strong>Precio desde</strong></td>
+                <td>{{ selectedProject.precioDesde }}</td>
+            </tr>
+            <tr>
+                <td><strong>Precio hasta</strong></td>
+                <td>{{ selectedProject.precioHasta }}</td>
+            </tr>
+            <tr>
+                <td><strong>Fecha entrega desde</strong></td>
+                <td>{{ selectedProject.fechaEntregaDesde }}</td>
+            </tr>
+            <tr>
+                <td><strong>Fecha entrega hasta</strong></td>
+                <td>{{ selectedProject.fechaEntregaHasta }}</td>
+            </tr>
+            <tr>
+                <td><strong>Información adicional</strong></td>
+                <td>{{ selectedProject.infoAdicional }}</td>
+            </tr>
+            <tr v-if="selectedProject.zonasComunes">
+                <td><strong>Zonas comunes</strong></td>
+                <td>
+                    <ul>
+                        <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="detail-footer">
+        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
+    </div>
+</div>
+<div v-else class="detail-panel"></div>
             </div>
         </div>
     </div>
@@ -361,7 +364,7 @@
                     </select>
                 </div>
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-4'>
+            <!-- <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Sala de Ventas</span>
                     <select v-model='objProyecto.id_sala_venta'>
@@ -371,7 +374,7 @@
                         </option>
                     </select>
                 </div>
-            </div>
+            </div> -->
             <!-- <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Tipo</span>
@@ -394,6 +397,22 @@
                                 <input type="checkbox" value='1' v-model="item.checked" />
                                 <span class="checkmark"></span>
                                 {{ item.tipo_proyecto }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                Sala de Ventas
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1'>
+                <div class='formInputStandard'>
+                    <div class='pure-g'>
+                        <div v-for='item in salas_venta' class='pure-u-1-4'>
+                            <label class="check">
+                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <span class="checkmark"></span>
+                                {{ item.sala_venta }}
                             </label>
                         </div>
                     </div>
@@ -1084,7 +1103,7 @@
                     </select>
                 </div>
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-4'>
+            <!-- <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Sala de Ventas</span>
                     <select v-model='editObjProyecto.id_sala_venta'>
@@ -1094,7 +1113,7 @@
                         </option>
                     </select>
                 </div>
-            </div>
+            </div> -->
             <!-- <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Tipo</span>
@@ -1117,6 +1136,22 @@
                                 <input type="checkbox" value='1' v-model="item.checked" />
                                 <span class="checkmark"></span>
                                 {{ item.tipo_proyecto }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                Sala de Ventas
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1'>
+                <div class='formInputStandard'>
+                    <div class='pure-g'>
+                        <div v-for='item in salas_venta' class='pure-u-1-4'>
+                            <label class="check">
+                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <span class="checkmark"></span>
+                                {{ item.sala_venta }}
                             </label>
                         </div>
                     </div>
