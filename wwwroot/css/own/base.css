@@ -2441,7 +2441,7 @@ tr .cal-event-count {
 .proyectos-section {
   margin: .75rem .75rem 0 .75rem;
   padding: .5rem;
-  min-height: calc(100dvh - 37.3rem);
+  height: 22rem;
   border-radius: 8px;
   border: 1px solid #ccc;
   cursor: pointer; 

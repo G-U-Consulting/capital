@@ -26,6 +26,9 @@ export default {
             emails: [],
             colores: [],
             sedes: [],
+            cajasCompensacion: [],
+            tiposTramite: [],
+            tiposRegistro: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -48,6 +51,9 @@ export default {
             subsidio: {},
             color: {},
             sede: {},
+            cajaCompensacion: {},
+            tipoTramite: {},
+            tipoRegistro: {},
 
             ruta: [],
             medioIsActive: 0,
@@ -77,6 +83,9 @@ export default {
                 subsidios: { is_active: '' },
                 colores: { is_active: '' },
                 sedes: { is_active: '' },
+                cajasCompensacion: { is_active: '' },
+                tiposTramite: { is_active: '' },
+                tiposRegistro: { is_active: '' },
             },
 
             tooltipVisible: false,
@@ -346,6 +355,9 @@ export default {
             if (this.mainmode == 19) return [{}, "Email", this.emails];
             if (this.mainmode == 21) return [this.color, "Color", this.colores];
             if (this.mainmode == 22) return [this.sede, "Sede", this.sedes];
+            if (this.mainmode == 23) return [this.cajaCompensacion, "CajasCompensacion", this.cajasCompensacion];
+            if (this.mainmode == 24) return [this.tipoTramite, "TiposTramite", this.tiposTramite];
+            if (this.mainmode == 25) return [this.tipoRegistro, "TiposRegistro", this.tiposRegistro];
             return null;
         },
         getMainPath() {
@@ -371,6 +383,9 @@ export default {
             if (this.mainmode == 19) path.text = "Emails Receptores";
             if (this.mainmode == 21) path.text = "Gama de Colores";
             if (this.mainmode == 22) path.text = "Sedes";
+            if (this.mainmode == 23) path.text = "Caja de Compensación";
+            if (this.mainmode == 24) path.text = "Tipos de Trámites";
+            if (this.mainmode == 25) path.text = "Tipos de Registro";
             path.action = () => {
                 this.mode = 0; this.setRuta(); this.loadData();
             };
@@ -456,6 +471,9 @@ export default {
                 this.factores,
                 this.tipos_factor,
                 this.bancos_factores,
+                this.cajasCompensacion,
+                this.tiposTramite,
+                this.tiposRegistro,
             ] = (await httpFunc("/generic/genericDS/Maestros:Get_Maestros", {})).data;
         },
         fileUpload(e) {

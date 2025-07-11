@@ -90,6 +90,7 @@
             showBar: true,
             loading: false,
             newName: '',
+            modalEmbedUrl: null,
 
         };
     },
@@ -214,6 +215,7 @@
                 const grupo_avo = await this.actualizarDatos('avances de obra');
 
                 await this.construirTablas(grupo_img, grupo_vid, grupo_vir, grupo_avo);
+                
             }
             if (index == 1) {
                 this.loadImg()
@@ -501,6 +503,17 @@
             const match = url.match(/(?:v=|\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
             return match ? match[1] : null;
         },
+        openModalRv(url) {
+            const embedUrl = this.isEmbedUrl(url);
+            if (embedUrl) {
+                this.modalEmbedUrl = embedUrl;
+            } else {
+                showMessage("URL no soportada.");
+            }
+        },
+        isEmbedUrl(url) {
+            return url;
+        },
         async addRow() {
             this.videos.push({ title: '', description: '', link: '' });
         },
@@ -703,6 +716,7 @@
             this.isExpanded.logo = false;
             this.isExpanded.slide = false;
             this.isExpanded.planta = false;
+            this.modalEmbedUrl = null;
             this.modalVideoId = null;
         },
         removePreview(type) {
