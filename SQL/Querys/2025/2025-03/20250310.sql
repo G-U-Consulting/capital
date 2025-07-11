@@ -526,3 +526,48 @@ create table dim_tarea_usuario(
 	id_usuario int not null references fact_usuarios(id_usuario),
 	constraint chk_fecha_alta_mayor check(deadline >= alta)
 );
+
+create table dim_caja_compensacion(
+	id_caja int primary key auto_increment,
+	caja varchar(100) not null unique,
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+insert into dim_caja_compensacion(caja) values
+('Compensar'),
+('Colpatria'),
+('Cafam'),
+('Comfenalco'),
+('Comfama'),
+('Comfandi'),
+('Comfenalco Valle'),
+('Comfenalco Antioquia'),
+('Comfenalco Santander'),
+('Comfamiliar Risaralda');
+
+create table dim_tipo_tramite(
+	id_tipo_tramite int primary key auto_increment,
+	tipo_tramite varchar(50) not null unique,
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+insert into dim_tipo_tramite(tipo_tramite) values
+('Asesoría Firma Digital Documents por Docusign'),
+('Asesoría Pago con Cupón'),
+('Asesoría Pago por PSE'),
+('Cesión'),
+('Consulta Fecha de Entrega del Apartamento'),
+('Créditos'),
+('Descargar cupón de pago'),
+('Entrega Documentos'),
+('Entrega Escritura Cliente'),
+('Estado de cuenta'),
+('Firma de Promesa'),
+('Otrosi'),
+('Solicitud Cliente Cambio Plan de Pagos'),
+('Solicitud de Reformas'),
+('Solicitud Posventa'),
+('Subsidio');
+
