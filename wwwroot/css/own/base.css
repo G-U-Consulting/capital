@@ -1977,37 +1977,43 @@ tr.destacada {
 .cal-table-today {
   border: 2px #c80000 solid;
 }
+.cal-table-selected {
+  border: 2px #0c5968 solid;
+}
+.cal-table-today.cal-table-selected {
+  border: 2px #832020 solid;
+}
+.cal-opc {
+  display: flex;
+  gap: 2px;
+  justify-content: space-between;
+  padding-top: 0;
+}
+.cal-opc > label {
+  width: 4.5rem;
+  text-align: center;
+  padding: 5px;
+}
+.modal-scroll .cal-opc {
+  display: flex;
+  gap: 30px;
+  width: 6.5rem;
+  justify-content: flex-start;
+}
 .cal-opc > label {
   width: 7rem;
   text-align: center;
   padding: 5px 10px;
 }
 
-.cal-opc {
-  display: grid;
-  grid: 1fr 1fr / 1fr 1fr;
-  gap: 5px 0;
-  padding-top: 0;
-}
-@media (min-width: 1590px) {
-  .cal-opc {
-    display: flex;
-    gap: 2px;
-    justify-content: space-between;
-  }
-  .cal-opc > label {
-    width: 6.5rem;
-  }
-}
 .modal-scroll .cal-opc {
   display: flex;
-  gap: 30px;
-  justify-content: flex-start;
+  gap: 2px;
+  padding-top: 0;
+  justify-content: space-between;
+  width: 6.5rem;
 }
-.calendar.s1 {
-  grid: repeat(3, 1fr) / 1fr;
-}
-.calendar.m1 {
+.calendar.s1, .calendar.m1 {
   grid: repeat(3, 1fr) / 1fr;
 }
 .calendar.m6 {
@@ -2104,6 +2110,11 @@ tr.destacada {
   color: white;
   font-weight: bold;
   font-size: 10px;
+}
+tr .cal-event-count {
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
 }
 .cal-today.cal-sel-day {
   background: #7ba0b480;

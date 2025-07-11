@@ -11,10 +11,10 @@ export default {
             nameMonths: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
             viewMode: {},
             optionMode: [
-                { name: "1 semana", months: 3, initMonth: 0, year: new Date().getFullYear(), class: "s1" },
-                { name: "1 mes", months: 3, initMonth: 0, year: new Date().getFullYear(), class: "m1" },
-                { name: "6 meses", months: 6, initMonth: 0, year: new Date().getFullYear(), class: "m6" },
-                { name: "12 meses", months: 12, initMonth: 0, year: new Date().getFullYear(), class: "m12" }
+                { name: "1W", months: 3, initMonth: 0, year: new Date().getFullYear(), class: "s1" },
+                { name: "1M", months: 3, initMonth: 0, year: new Date().getFullYear(), class: "m1" },
+                { name: "6M", months: 6, initMonth: 0, year: new Date().getFullYear(), class: "m6" },
+                { name: "12M", months: 12, initMonth: 0, year: new Date().getFullYear(), class: "m12" }
             ],
             frecuencias: [
                 { name: '1 vez', value: null, checked: true },
@@ -28,6 +28,7 @@ export default {
             hitos: [],
             proyectos: [],
             cargos: [],
+            h_cargos: [],
             tableDays: [],
             modal: null,
             currentWeek: -1,
@@ -35,6 +36,11 @@ export default {
             eventType: 'Sala',
             id_obj: null,
             pro_filter: null,
+
+            tooltipVisible: false,
+            tooltipX: 0,
+            tooltipY: 0,
+            tooltipMsg: '',
         };
     },
     async mounted() {
@@ -63,6 +69,16 @@ export default {
             await this.updateViewMode(vm || 'm6');
             hideProgress();
         },
+        async loadFields() {
+            this.h_cargos = (await httpFunc("/generic/genericDT/Proyectos:Get_HitoCargo",
+                { id_hito: this.hito.id_hito })).data;
+        },
+        async loadChecked() {
+            await this.loadFields();
+            this.cargos = this.cargos.map(c => (
+                { ...c, checked: !!this.h_cargos.filter(hc => hc.id_cargo == c.id_cargo).length }
+            ));
+        },
         getMonthCalendar(baseDate) {
             const daysView = [];
             const year = baseDate.getFullYear();
@@ -80,6 +96,7 @@ export default {
                     weekCount: 0,
                     monthDay: fecha.getDate(),
                     currentMonth: false,
+                    viewMonth: month,
                     month: fecha.getMonth(),
                     localeDate: fecha.toLocaleDateString(),
                     isToday: false,
@@ -96,6 +113,7 @@ export default {
                     weekCount: Math.floor((i + firstWeekday - 1) / 7),
                     monthDay: i,
                     currentMonth: true,
+                    viewMonth: month,
                     month: fecha.getMonth(),
                     localeDate: fecha.toLocaleDateString(),
                     isToday: this.equalsDate(fecha, today),
@@ -116,6 +134,7 @@ export default {
                     weekCount: Math.floor((currentMonthDays + firstWeekday + i - 1) / 7),
                     monthDay: i,
                     currentMonth: false,
+                    viewMonth: month,
                     month: fecha.getMonth(),
                     localeDate: fecha.toLocaleDateString(),
                     isToday: false,
@@ -146,7 +165,7 @@ export default {
             this.loadEvents();
             if (this.viewMode.class == 'm1' || this.viewMode.class == 's1') this.setTableDetails(current);
         },
-        setTableDetails(date) {
+        async setTableDetails(date) {
             let days = [];
             if (this.viewMode.class == 'm1')
                 days = this.viewMonths[this.nameMonths[date.getMonth()]].days.filter(d => d.currentMonth);
@@ -157,11 +176,12 @@ export default {
                 if (day.events.length - (day.isHoliday ? 1 : 0))
                     day.events.forEach((e, i) => !(day.isHoliday && i == 0) && events.push(
                         {
-                            ...day, e_titulo: e.titulo, e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
+                            day, e_titulo: e.titulo, e_categorias: e.categorias ? e.categorias.split(',') : [], e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
                             e_hora: this.formatDatetime(e.fecha, 'time'), color: e.color, event: e
                         }));
-                else events.push({ ...day, e_titulo: '-', e_tipo: '-', e_hora: '-', e_rol: '-', color: day.isHoliday ? '#c80000' : null });
+                else events.push({ day, e_titulo: day.isHoliday ? 'Festivo': '-', e_tipo: '-', e_hora: '-', e_categorias: [], color: day.isHoliday ? '#c80000' : null });
             });
+            await Promise.resolve();
             this.tableDays = events;
         },
         async updateViewMode(mode) {
@@ -191,7 +211,7 @@ export default {
             this.selDate = new Date();
             this.setViewMonths();
         },
-        selDay(day, m) {
+        async selDay(day, scroll) {
             const selectedMonthKey = Object.keys(this.viewMonths).find(key => this.viewMonths[key].selected);
             if (selectedMonthKey) {
                 const selectedDay = this.viewMonths[selectedMonthKey].days.find(d => d.isSelected);
@@ -199,30 +219,35 @@ export default {
                 this.viewMonths[selectedMonthKey].selected = false;
             }
             day.isSelected = true;
-            this.selDate = new Date(this.viewMode.year, day.month, day.monthDay);
-            this.viewMonths[this.nameMonths[m]].selected = true;
+            this.selDate = day.date;
+            this.viewMonths[this.nameMonths[day.viewMonth]].selected = true;
             this.currentDay = day;
-            this.setTableDetails(this.selDate);
+            await this.setTableDetails(this.selDate);
+            if (scroll) document.getElementById(`tab-m${day.month}-d${day.monthDay}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
         },
         isToday() {
             const today = new Date();
             return this.equalsDate(this.selDate, today);
         },
-        openModal(mode, e) {
-            this.mode = mode;
+        async openModal(mode, e) {
             let fre = this.frecuencias[0];
             if (mode == 1) {
                 this.hito = { hora: '00:00', color: '#006ec9' };
                 this.id_obj = null;
                 this.eventType = 'Sala';
                 this.onChangeFreq(fre);
+                this.cargos.forEach(c => c.checked = false);
             }
             if (mode == 2 && e) {
                 this.id_obj = e.id_proyecto || null;
                 this.eventType = e.id_proyecto ? 'Proyecto' : 'Sala';
                 this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
                 this.onChangeFreq(this.frecuencias.find(f => f.value == this.hito.frecuencia) || fre);
+                showProgress();
+                await this.loadChecked();
+                hideProgress();
             }
+            this.mode = mode;
             this.modal && (this.modal.style.display = 'flex');
         },
         closeModal(e, forzar) {
@@ -236,8 +261,9 @@ export default {
             if (!this.hito.limite) delete this.hito.limite;
             if (this.eventType === 'Proyecto') this.hito.id_proyecto = this.id_obj;
             else delete this.hito.id_proyecto;
+            let cargos = this.cargos.filter(c => c.checked).map(c => c.id_cargo).join(',');
             let res = await httpFunc(`/generic/genericST/Proyectos:${this.mode == 1 ? 'Ins' : 'Upd'}_Hito`,
-                { ...this.hito, id_sala: this.sala.id_sala_venta });
+                { ...this.hito, id_sala: this.sala.id_sala_venta, cargos });
             if (res.data !== 'OK') {
                 console.error(res);
                 showMessage('Error: ' + (res.errorMessage || res.data));
@@ -399,6 +425,10 @@ export default {
         },
         equalsDate(f1, f2) {
             return f1 && f2 && f1.getDate() === f2.getDate() && f1.getMonth() === f2.getMonth() && f1.getFullYear() === f2.getFullYear();
+        },
+        updateCursor(event) {
+            this.tooltipX = event.clientX + 10;
+            this.tooltipY = event.clientY + 10;
         }
     }
 }

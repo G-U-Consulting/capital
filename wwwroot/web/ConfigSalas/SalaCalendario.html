@@ -19,7 +19,7 @@
             </div>
         </div>
         <div style="display: flex; align-items: center; padding: 5px 0;">
-            <div class="pure-u-1-1 pure-u-md-10-24">
+            <div class="pure-u-1-1 pure-u-md-1-3">
                 <div class="btn-view-group">
                     <div class="radio-group cal-opc">
                         <label v-for="opt in optionMode" :for="`view-${opt.class}`">
@@ -30,7 +30,7 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+            <div class="pure-u-1-1 pure-u-md-1-12"></div>
             <div class="pure-u-1-1 pure-u-md-3-8">
                 <div class="btn-view-group">
                     <div class="radio-group" style="gap: 1rem; padding-top: 0;">
@@ -41,7 +41,7 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+            <div class="pure-u-1-1 pure-u-md-1-12"></div>
             <div class="pure-u-1-1 pure-u-md-5-24">
                 <select v-model="pro_filter" @change="setViewMonths">
                     <option :value="null">Toda la sala</option>
@@ -70,10 +70,11 @@
                     </div>
                     <div class="cal-matrix">
                         <div class="cal-day" v-for="day in viewMonths[nameMonths[i]].days"
+                            :id="`mat-m${day.month}-d${day.monthDay}-${day.currentMonth ? 'c' : day.viewMonth}`"
                             v-bind:class="{'cal-today': day.isToday, 'cal-fade-day': !day.currentMonth, 
                             'cal-sel-day': day.isSelected, 'cal-holiday': day.isHoliday, 
-                            'cal-sel-week': viewMode.class == 's1' && currentDay.weekCount == day.weekCount && i == currentDay.month}" @click="day.currentMonth && selDay(day, i)"
-                            :style="day.events && day.events.filter(e => e.festivo != '1').length ? 
+                            'cal-sel-week': viewMode.class == 's1' && currentDay.weekCount == day.weekCount && i == currentDay.month}"
+                            @click="day.currentMonth && selDay(day, true)" :style="day.events && day.events.filter(e => e.festivo != '1').length ? 
                             `background-color: ${day.events.filter(e => e.festivo != '1')[0].color}40;` : ''"
                             @dblclick="day.currentMonth && day.events && day.events.filter(e => e.festivo != '1').length && openModal(3)">
                             <span>
@@ -94,23 +95,35 @@
                             <th style="max-width: 7rem;">Fecha</th>
                             <th>Titulo</th>
                             <th style="max-width: 6rem;">Tipo</th>
-                            <th style="max-width: 7rem;">Rol</th>
+                            <th style="max-width: 7rem;">Categoria</th>
                             <th style="max-width: 6rem;">Hora</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="day in tableDays" @click="selDate = day.date;setViewMonths();"
-                            @dblclick="day.event ? (openModal(2, day.event)) : openModal(1)" style="cursor: pointer;"
-                            v-bind:class="{'cal-table-selected': day.isSelected, 'cal-table-today': day.isToday, 'deshabilitada': !day.currentMonth}"
-                            :style="day.color ? 'background: ' + day.color + '40;' : day.isSelected ? 'background: #ddd;' : null">
-                            <td>{{formatDatetime(null, 'date', day.date)}}</td>
+                        <tr v-for="day in tableDays" @click="selDay(day.day)"
+                            @dblclick="day.day.currentMonth && day.event ? (openModal(2, day.event)) : day.day.currentMonth ? openModal(1) : null"
+                            style="cursor: pointer;" :id="`tab-m${day.day.month}-d${day.day.monthDay}`"
+                            v-bind:class="{'cal-table-selected': day.day.isSelected, 'cal-table-today': day.day.isToday, 'deshabilitada': !day.day.currentMonth}"
+                            :style="day.color ? 'background: ' + day.color + '40;' : day.day.isSelected ? 'background: #ddd;' : null">
+                            <td>{{formatDatetime(null, 'date', day.day.date)}}</td>
                             <td>{{day.e_titulo}}</td>
                             <td>{{day.e_tipo}}</td>
-                            <td>{{day.e_rol}}</td>
+                            <td :style="day.e_categorias.length > 1 ? 'padding: 0;' : ''">
+                                <span v-if="!day.e_categorias.length">-</span>
+                                <span v-else-if="day.e_categorias.length == 1">{{day.e_categorias[0]}}</span>
+                                <div v-else style="text-align: center;"
+                                    @mouseenter="tooltipVisible = true; tooltipMsg = day.e_categorias.join(`<br>`)"
+                                    @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
+                                    <span class="cal-event-count">{{day.e_categorias.length}}</span>
+                                </div>
+                            </td>
                             <td>{{day.e_hora}}</td>
                         </tr>
                     </tbody>
                 </table>
+                <div v-if="tooltipVisible" class="cursor-tooltip" v-html="tooltipMsg"
+                    :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                </div>
             </div>
         </div>
     </div>
@@ -129,7 +142,7 @@
                 <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                     <span>Tipo de Hito</span>
                     <div style="display: flex; justify-content: space-around;">
-                        <select v-model="eventType" style="min-width: 191px;" @change="eventType == 'Sala' && (id_obj = null);">
+                        <select v-model="eventType" @change="eventType == 'Sala' && (id_obj = null);">
                             <option value="Sala">Sala</option>
                             <option value="Proyecto">Proyecto</option>
                             <option value="Torre">Torre</option>
@@ -172,9 +185,9 @@
 
                 <div class='pure-u-1-1 pure-u-md-4-5 formInputStandard' style="padding: .5rem;">
                     <span>Repetir</span>
-                    <div class="radio-group cal-opc">
+                    <div class="radio-group cal-opc" style="width: 98%;">
                         <label v-for="fre in frecuencias" :for="`freq-${fre.name}`" @click="onChangeFreq(fre)">
-                            <input type="radio" name="freq" :id="`freq-${fre.class}`" :checked="fre.checked"/>
+                            <input type="radio" name="freq" :id="`freq-${fre.name}`" :checked="fre.checked" />
                             <span>{{fre.name}}</span>
                         </label>
                     </div>
@@ -214,7 +227,8 @@
                     <div class="pure-u-5-6 pure-u-md-5-6">
                         <h4 class="event-title">
                             {{ e.titulo }} - {{ e.id_proyecto ? e.nombre_pro : sala.sala_venta }} - {{
-                            formatDatetime(e.fecha, 'time') }} ({{(frecuencias.find(f => f.value == e.frecuencia) || frecuencias[0]).name}})
+                            formatDatetime(e.fecha, 'time') }} ({{(frecuencias.find(f => f.value == e.frecuencia) ||
+                            frecuencias[0]).name}})
                         </h4>
                         <p class="event-description">{{ e.descripcion }}</p>
                     </div>

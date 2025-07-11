@@ -526,3 +526,9 @@ create table dim_tarea_usuario(
 	id_usuario int not null references fact_usuarios(id_usuario),
 	constraint chk_fecha_alta_mayor check(deadline >= alta)
 );
+
+create table dim_hito_cargo(
+	id_hito int not null references dim_hito_sala(id_hito),
+	id_cargo int not null references dim_cargo(id_cargo),
+	primary key(id_hito, id_cargo)
+);
