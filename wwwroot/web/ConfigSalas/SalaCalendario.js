@@ -174,12 +174,12 @@ export default {
             let events = [];
             days.forEach(day => {
                 if (day.events.length - (day.isHoliday ? 1 : 0))
-                    day.events.forEach((e, i) => !(day.isHoliday && i == 0) && events.push(
+                    day.events.forEach(e => e.festivo != '1' && events.push(
                         {
                             day, e_titulo: e.titulo, e_categorias: e.categorias ? e.categorias.split(',') : [], e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
                             e_hora: this.formatDatetime(e.fecha, 'time'), color: e.color, event: e
                         }));
-                else events.push({ day, e_titulo: day.isHoliday ? 'Festivo': '-', e_tipo: '-', e_hora: '-', e_categorias: [], color: day.isHoliday ? '#c80000' : null });
+                else events.push({ day, e_titulo: day.isHoliday ? 'Festivo' : '-', e_tipo: '-', e_hora: '-', e_categorias: [], color: day.isHoliday ? '#c80000' : null });
             });
             await Promise.resolve();
             this.tableDays = events;
@@ -223,7 +223,8 @@ export default {
             this.viewMonths[this.nameMonths[day.viewMonth]].selected = true;
             this.currentDay = day;
             await this.setTableDetails(this.selDate);
-            if (scroll) document.getElementById(`tab-m${day.month}-d${day.monthDay}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (scroll) 
+                document.getElementById(`tab-m${day.month}-d${day.monthDay}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         },
         isToday() {
             const today = new Date();
@@ -336,8 +337,9 @@ export default {
                 }
             }
         },
-        loadEvent(day, month, h) {
+        loadEvent(month, h) {
             const fecha = new Date(h.fecha);
+            let day = null;
             if (month && fecha.getFullYear() == this.viewMode.year)
                 day = month.days.find(d => (d.monthDay === fecha.getDate() && d.month === fecha.getMonth() && (d.currentMonth || this.viewMode.class === 's1')));
             if (day && month && fecha.getFullYear() == this.viewMode.year && !h.frecuencia) {
@@ -354,14 +356,13 @@ export default {
             else {
                 this.hitos.forEach(h => {
                     if (!this.pro_filter || h.id_proyecto == this.pro_filter || h.festivo === '1') {
-                        let p_day = null, day = null, n_day = null;
                         const fecha = new Date(h.fecha),
                             p_month = this.viewMonths[this.nameMonths[fecha.getMonth() - 1]],
                             month = this.viewMonths[this.nameMonths[fecha.getMonth()]],
                             n_month = this.viewMonths[this.nameMonths[fecha.getMonth() + 1]];
-                        this.loadEvent(p_day, p_month, h);
-                        this.loadEvent(day, month, h);
-                        this.loadEvent(n_day, n_month, h);
+                        this.loadEvent(p_month, h);
+                        this.loadEvent(month, h);
+                        this.loadEvent(n_month, h);
                         h.frecuencia && this.setRecurringEvents(h);
                     }
                 });

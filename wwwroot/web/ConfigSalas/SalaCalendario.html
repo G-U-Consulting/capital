@@ -92,18 +92,18 @@
                 <table class="dataTable">
                     <thead>
                         <tr>
-                            <th style="max-width: 7rem;">Fecha</th>
-                            <th>Titulo</th>
-                            <th style="max-width: 6rem;">Tipo</th>
-                            <th style="max-width: 7rem;">Categoria</th>
-                            <th style="max-width: 6rem;">Hora</th>
+                            <th style="width: 16%;">Fecha</th>
+                            <th style="width: 33%;">Titulo</th>
+                            <th style="width: 14%;">Tipo</th>
+                            <th style="width: 21%;">Categoria</th>
+                            <th style="width: 16%;">Hora</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="day in tableDays" @click="selDay(day.day)"
+                        <tr v-for="day in tableDays" @click="day.day.currentMonth && selDay(day.day)"
                             @dblclick="day.day.currentMonth && day.event ? (openModal(2, day.event)) : day.day.currentMonth ? openModal(1) : null"
-                            style="cursor: pointer;" :id="`tab-m${day.day.month}-d${day.day.monthDay}`"
-                            v-bind:class="{'cal-table-selected': day.day.isSelected, 'cal-table-today': day.day.isToday, 'deshabilitada': !day.day.currentMonth}"
+                            :id="`tab-m${day.day.month}-d${day.day.monthDay}`"
+                            v-bind:class="{'cal-table-selected': day.day.isSelected, 'cal-table-today': day.day.isToday, 'cal-deshabilitada': !day.day.currentMonth}"
                             :style="day.color ? 'background: ' + day.color + '40;' : day.day.isSelected ? 'background: #ddd;' : null">
                             <td>{{formatDatetime(null, 'date', day.day.date)}}</td>
                             <td>{{day.e_titulo}}</td>
@@ -112,7 +112,7 @@
                                 <span v-if="!day.e_categorias.length">-</span>
                                 <span v-else-if="day.e_categorias.length == 1">{{day.e_categorias[0]}}</span>
                                 <div v-else style="text-align: center;"
-                                    @mouseenter="tooltipVisible = true; tooltipMsg = day.e_categorias.join(`<br>`)"
+                                    @mouseenter="tooltipVisible = true; tooltipMsg = day.e_categorias.join(`&lt;br&gt;`)"
                                     @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
                                     <span class="cal-event-count">{{day.e_categorias.length}}</span>
                                 </div>

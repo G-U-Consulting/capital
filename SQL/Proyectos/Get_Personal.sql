@@ -5,10 +5,6 @@
 set @id_sala = NULL;
 --END_PARAM
 
-select id_sala_venta, sala_venta, encuesta_vpn, id_sede, id_playlist
-from dim_sala_venta 
-where id_sala_venta = @id_sala and is_active = 1;
-
 select u.id_usuario, u.usuario, u.nombres, date_format(u.created_on, '%Y-%m-%d %T') as created_on,
     (select count(*) from fact_roles_usuarios ru where u.id_usuario = ru.id_usuario) as cuenta,
     c.cargo, u.identificacion, if(u.is_active, 1, 0) as is_active, ps.permanente

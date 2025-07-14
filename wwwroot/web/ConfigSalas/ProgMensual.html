@@ -2,8 +2,47 @@
     <span class="hoverLink">{{ r.text }}</span>
     <span v-if="i < ruta.length - 1"> / </span>
 </div>
-<div style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 7rem);">
-            <div>
-                <img src="../../img/background/MEN AT WORK.JPG" alt="">
-            </div>
+
+<div v-if="mode == 0" style="padding: 1em">
+    <div class="pure-u-1-24 pure-u-md-1-24"></div>
+    <div class="pure-u-22-24 pure-u-md-22-24 menuCard" style="height: calc(100vh - 9rem);">
+        <h2 style="margin-bottom: .5rem;">{{sala.sala_venta}}</h2>
+        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
+            Programación mensual {{formatDatetime(null, 'date-my', selDate)}}
+        </div>
+
+        <div style="max-height: calc(100vh - 23.5rem); overflow-y: auto; margin: .5rem;">
+            <table class="dataTable" style="table-layout: auto;">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">Fecha</th>
+                        <th style="width: 12%;">Dia</th>
+                        <th style="width: 12%;">Categorías</th>
+                        <th style="width: 30%;">Nombre</th>
+                        <th style="width: 17%;">Cédula</th>
+                        <th style="width: 17%;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="user in getFilteredList('usuarios')" style="cursor: auto;"
+                        v-bind:class="{'deshabilitada': user.is_active == '0', 'destacada': user.id_usuario == usuario.id_usuario }">
+                        <td>{{user.identificacion}}</td>
+                        <td>{{user.nombres}}</td>
+                        <td>{{user.cargo}}</td>
+                        <td style="text-align: center;">
+                            <div class="toggle-switch" @click.stop.prevent="toggleFix(user)">
+                                <input :id="'toggle' + user.identificacion" type="checkbox" class="toggle-input"
+                                    :checked="Number(user.permanente) !== 1">
+                                <label class="toggle-label" :for="'toggle' + user.identificacion"
+                                    style="transform: rotate(180deg);"></label>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <span @click.stop.prevent="onDelUser(user)" class="delete">✖</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
