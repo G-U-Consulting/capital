@@ -14,4 +14,4 @@ set @alta = NULL,
 insert into dim_tarea_usuario(alta, deadline, descripcion, id_estado, id_prioridad, id_proyecto, id_usuario) 
 values(@alta, @deadline, @descripcion, @id_estado, @id_prioridad, @id_proyecto, @id_usuario);
 
-select 'OK' as result;
+select concat('OK-id_tarea:', last_insert_id()) as result;

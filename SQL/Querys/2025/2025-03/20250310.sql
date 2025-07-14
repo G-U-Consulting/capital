@@ -532,6 +532,25 @@ create table dim_hito_cargo(
 	id_cargo int not null references dim_cargo(id_cargo),
 	primary key(id_hito, id_cargo)
 );
+create table dim_estado_programacion(
+	id_estado int primary key auto_increment,
+	estado varchar(200) not null
+);
+insert into dim_estado_programacion(estado) values
+('En sala'),
+('En casa'),
+('Descansa'),
+('Licencia'),
+('Vacaciones'),
+('Incapacidad');
+create table dim_programacion_sala(
+	id_programacion int primary key auto_increment,
+	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+	id_usuario int not null references fact_usuarios(id_usuario),
+	fecha date not null,
+	id_estado int not null references dim_estado_programacion(id_estado),
+	unique(id_sala_venta, id_usuario, fecha)
+);
 
 create table dim_caja_compensacion(
 	id_caja int primary key auto_increment,
