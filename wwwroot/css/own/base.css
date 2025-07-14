@@ -2434,6 +2434,7 @@ tr .cal-event-count {
   margin: .75rem .75rem 0 .75rem;
   padding: .5rem;
   border-radius: 8px;
+  height: 16.8rem;
   border: 1px solid #ccc;
   cursor: pointer; 
 

@@ -96,6 +96,8 @@ export default {
             draggedFile: null,
             dragIndex: null,
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
+            expandedVisible: false,
+            expandedImage: null,
         };
     },
     async mounted() {
@@ -783,6 +785,15 @@ export default {
         async requestDelete(item) {
             showConfirm("Se eliminará permanentemente.", this.deleteItem, null, item);
         },
+        expandImagenes(item) {
+            console.log(item)
+            this.expandedImage = item.src;
+            this.expandedVisible = true;
+        },
+        closeExpanded() {
+            this.expandedVisible = false;
+            this.expandedImage = null;
+        }
     },
     computed: {
         f_smmlv: {
