@@ -42,4 +42,4 @@ if trim(@datos) <> '' then
     end while;
 end if;
 
-select 'OK' as result;
+select concat('OK-id_tarea:', @id_hito) as result;
