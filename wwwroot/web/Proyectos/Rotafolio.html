@@ -70,13 +70,13 @@
                     </div>
                     <div class="btn-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
-                        <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)"
+                        <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1, false)"
                             style="transform: rotate(180deg);">
                         <img src="../../img/ico/play.png" @click="resetInterval" style="background: white;"
                             class="btn-rotafolio" v-show="stop">
                         <img src="../../img/ico/pause.png" @click="pause" style="background: white;"
                             class="btn-rotafolio" v-show="!stop">
-                        <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1)">
+                        <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1, false)">
                         <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen"
                             class="btn-rotafolio btn-fullscreen">
                         <div class="btn-left-rotafolio">
@@ -88,12 +88,12 @@
                     </div>
                     <div class="btn-left-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-left-bar': showBar && isVideo(files[playIndex], false) && !loading}">
-                        <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(-1)"
+                        <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(-1, false)"
                             style="transform: rotate(180deg);">
                     </div>
                     <div class="btn-right-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-right-bar': showBar && isVideo(files[playIndex], false) && !loading}">
-                        <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(1)">
+                        <img src="../../img/ico/arrow.png" class="btn-lat-rotafolio" @click="setIndex(1, false)">
                         <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen"
                             class="btn-lat-rotafolio btn-fullscreen">
                     </div>

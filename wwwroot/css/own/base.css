@@ -2033,9 +2033,20 @@ tr.destacada {
 .calendar.m12 {
   grid: repeat(4, 1fr) / repeat(3, 1fr);
 }
+.cal-prog-height {
+  height: 228px;
+}
+@media (min-width: 1590px) {
+  .cal-prog-height {
+    height: 238px;
+  }
+}
 @media (min-width: 1900px) {
   .calendar.m12 {
     grid: repeat(3, 1fr) / repeat(4, 1fr);
+  }
+  .cal-prog-height {
+    height: 253px;
   }
 }
 .cal-month {
@@ -2250,6 +2261,19 @@ tr .cal-event-count {
   font-size: 1rem; 
   color: #444;
 }
+.prog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 5rem;
+}
+.prog-grid-btn {
+  display: inline-grid; 
+  grid: 1fr 1fr / 1fr 1fr; 
+  gap: .8rem; 
+  justify-items: end;
+}
+
 .maestros .searchBox {
   padding-left: 5px;
   padding-right: 5px;

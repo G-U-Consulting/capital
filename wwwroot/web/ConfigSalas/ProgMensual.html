@@ -5,44 +5,135 @@
 
 <div v-if="mode == 0" style="padding: 1em">
     <div class="pure-u-1-24 pure-u-md-1-24"></div>
-    <div class="pure-u-22-24 pure-u-md-22-24 menuCard" style="height: calc(100vh - 9rem);">
-        <h2 style="margin-bottom: .5rem;">{{sala.sala_venta}}</h2>
+    <div class="pure-u-22-24 pure-u-md-22-24 menuCard" style="height: calc(100vh - 8rem);">
         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
-            Programación mensual {{formatDatetime(null, 'date-my', selDate)}}
+            Programación mensual - {{formatDatetime(null, 'date-my', selDate)}}
         </div>
 
-        <div style="max-height: calc(100vh - 23.5rem); overflow-y: auto; margin: .5rem;">
+        <div style="display: flex; gap: 5px;" class="cal-prog-height">
+            <div class="calendar pure-u-1-1 pure-u-md-1-3">
+                <div v-if="viewMonths" class="cal-month"
+                    v-for="i in Array.from({length: viewMode.months}, (_, i) => i + viewMode.initMonth)"
+                    v-bind:class="{'cal-sel-month': viewMonths[nameMonths[i]].selected}">
+                    <div class="cal-header">
+                        <div class="cal-name-month">
+                            <span>{{`${nameMonths[i]} - ${viewMonths[nameMonths[i]].year}`}}</span>
+                        </div>
+                    </div>
+                    <div class="cal-header">
+                        <div class="cal-name-day" v-for="name in nameDays">
+                            <span>{{name}}</span>
+                        </div>
+                    </div>
+                    <div class="cal-matrix">
+                        <div class="cal-day" v-for="day in viewMonths[nameMonths[i]].days"
+                            :id="`mat-m${day.month}-d${day.monthDay}-${day.currentMonth ? 'c' : day.viewMonth}`"
+                            v-bind:class="{'cal-today': day.isToday, 'cal-fade-day': !day.currentMonth, 
+                            'cal-sel-day': day.isSelected, 'cal-holiday': day.isHoliday}"
+                            @click="day.currentMonth && selDay(day)" :style="day.events && 
+                                day.events.filter(e => e.festivo != '1').length  ? 
+                                `background-color: ${day.events.filter(e => e.festivo != '1')[0].color}40;` : ''">
+                            <span>{{day.monthDay}}</span>
+                            <div class="hide-editor" v-bind:class="{'cal-event-count': day.events && 
+                            day.events.filter(e => e.festivo != '1').length}">
+                                <span>{{day.events.filter(e => e.festivo != '1').length}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pure-u-1-1 pure-u-md-2-3" style="padding-left: .5rem;">
+                <div class="prog-header">
+                    <div class="radio-group cal-opc" style="flex-direction: column; gap: 5px">
+                        <label for="filter-day">
+                            <input type="radio" name="filter-radio" id="filter-day" :checked="filterMode == 'd'"
+                                @click="filterMode = 'd'" />
+                            <span>Mostrar Día</span>
+                        </label>
+                        <label for="filter-month">
+                            <input type="radio" name="filter-radio" id="filter-month" :checked="filterMode == 'm'"
+                                @click="filterMode = 'm'" />
+                            <span>Mostrar Mes</span>
+                        </label>
+                    </div>
+                    <div class="prog-grid-btn">
+                        <button>Descargar Plantilla</button>
+                        <button>Cargar Excel</button>
+                        <button>Eliminar Fila</button>
+                        <button @click="newRow()">Agregar Fila</button>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: baseline; margin-top: .5rem;">
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        Filtrar por nombre:
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-3">
+                        <select v-model="filtros.programaciones['id_usuario']">
+                            <option value="">[Seleccione]</option>
+                            <option v-for="u in usuarios" :value="u.id_usuario">{{u.nombres}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: baseline; margin-top: .5rem;">
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        Filtrar por categoría:
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-3">
+                        <select v-model="filtros.programaciones['id_cargo']">
+                            <option value="">[Seleccione]</option>
+                            <option v-for="c in cargos" :value="c.id_cargo">{{c.cargo}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="height: calc(100vh - 30rem); overflow-y: auto; margin: .5rem 0;">
             <table class="dataTable" style="table-layout: auto;">
                 <thead>
                     <tr>
                         <th style="width: 12%;">Fecha</th>
                         <th style="width: 12%;">Dia</th>
-                        <th style="width: 12%;">Categorías</th>
+                        <th style="width: 12%;">Categoría</th>
                         <th style="width: 30%;">Nombre</th>
                         <th style="width: 17%;">Cédula</th>
                         <th style="width: 17%;">Estado</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="user in getFilteredList('usuarios')" style="cursor: auto;"
-                        v-bind:class="{'deshabilitada': user.is_active == '0', 'destacada': user.id_usuario == usuario.id_usuario }">
-                        <td>{{user.identificacion}}</td>
-                        <td>{{user.nombres}}</td>
-                        <td>{{user.cargo}}</td>
-                        <td style="text-align: center;">
-                            <div class="toggle-switch" @click.stop.prevent="toggleFix(user)">
-                                <input :id="'toggle' + user.identificacion" type="checkbox" class="toggle-input"
-                                    :checked="Number(user.permanente) !== 1">
-                                <label class="toggle-label" :for="'toggle' + user.identificacion"
-                                    style="transform: rotate(180deg);"></label>
-                            </div>
+                    <tr v-if="editNewRow" class="editable" v-bind:class="{'destacada': selRow == null}">
+                        <td><input type="date" v-model="programacion.fecha"></td>
+                        <td>{{getWeekDay(programacion.fecha)}}</td>
+                        <td>{{selUser.cargo}}</td>
+                        <td>
+                            <select v-model="selUser">
+                                <option :value="{}" disabled>[Seleccione]</option>
+                                <option v-for="user in usuarios" :value="user">{{user.nombres}}</option>
+                            </select>
                         </td>
-                        <td style="text-align: center;">
-                            <span @click.stop.prevent="onDelUser(user)" class="delete">✖</span>
+                        <td>{{selUser.identificacion}}</td>
+                        <td>
+                            <select v-model="programacion.id_estado">
+                                <option value="" disabled>[Seleccione]</option>
+                                <option v-for="e in estados" :value="e.id_estado">{{e.estado}}</option>
+                            </select>
                         </td>
+                    </tr>
+                    <tr v-for="(p, i) in getFilteredList('programaciones')" @click="onSelect(p, i)"
+                        v-bind:class="{'destacada': selRow == i}">
+                        <td>{{p.fecha}}</td>
+                        <td>{{getWeekDay(p.fecha)}}</td>
+                        <td>{{p.cargo}}</td>
+                        <td>{{p.nombres}}</td>
+                        <td>{{p.identificacion}}</td>
+                        <td>{{p.estado}}</td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+        <div class="pure-u-1-1 pure-u-md-2-5"></div>
+        <div class="pure-u-1-1 pure-u-md-1-5" style="margin-top: .5rem;">
+            <button @click="onSave">Guardar</button>
         </div>
     </div>
 </div>

@@ -188,11 +188,11 @@ export default {
             this.interval = null;
             this.stop = true;
         },
-        setIndex(i) {
+        setIndex(i, autoplay = true) {
             this.files[this.playIndex].current = false;
             this.playIndex = ((this.playIndex || this.files.length) + i) % this.files.length;
             this.files[this.playIndex].current = true;
-            this.resetInterval();
+            autoplay && this.resetInterval();
         },
         resetInterval() {
             this.interval && clearInterval(this.interval);
@@ -235,7 +235,7 @@ export default {
                     this.zoom = false;
                     return true;
                 } else {
-                    next && this.setIndex(1);
+                    next && this.setIndex(1, false);
                 }
             } else return false;
         },
