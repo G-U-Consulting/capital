@@ -233,7 +233,7 @@
                         <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
                             @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false"
                             @mouseleave="tooltipVisible = true" style="position: relative;">
-                            <img :src="item.src" @click.stop.prevent=""
+                            <img :src="item.src" @click.stop.prevent="expandImagenes(item)"
                                 @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                                 @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
                             <div class="image-name-overlay">{{ item.file.name }}</div>
@@ -252,7 +252,9 @@
                     <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple
                         accept="image/*" @change="handleFileChange" ref="fileInput" />
                 </div>
-
+                <div v-if="expandedVisible" class="image-modal" @click="closeExpanded">
+                    <img :src="expandedImage" class="expanded-img" />
+                </div>
                 <div class='pure-u-1-1 pure-u-md-2-5'></div>
                 <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
                     <button v-on:click="onUpdateImg()" style="margin-top: .8rem;">Guardar</button>

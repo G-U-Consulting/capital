@@ -91,6 +91,8 @@
             loading: false,
             newName: '',
             modalEmbedUrl: null,
+            expandedVisible: false,
+            expandedImage: null,
 
         };
     },
@@ -1464,5 +1466,13 @@
                 tabindex: 0
             };
         },
+        expandImagenes(item) {
+            this.expandedImage = item.src;
+            this.expandedVisible = true;
+        },
+        closeExpanded() {
+            this.expandedVisible = false;
+            this.expandedImage = null;
+        }
     }
 };
