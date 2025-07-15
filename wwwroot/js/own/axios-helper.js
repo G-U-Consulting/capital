@@ -51,7 +51,6 @@ async function httpFunc(path, data, getID = false) {
         return resp.data;
     }
     console.log(resp);
-    if (resp.status == 401) window.open('/login.html');
-    //if (resp.status == 403) 
+    if (resp.status == 401) window.location.href = '/login.html';
     throw new Error({ message: resp.statusText, path: path, data: data });
 }

@@ -127,8 +127,14 @@ mainVue = {
             this.moduleSelected.moduleName = name;
             document.title = this.moduleSelected.title;
             if (this.moduleSelected.moduleObj == null) {
-                this.moduleSelected.moduleObj = await import(this.moduleSelected.jsUrl);
-                this.moduleSelected.moduleObj = this.moduleSelected.moduleObj.default;
+                try {
+                    this.moduleSelected.moduleObj = await import(this.moduleSelected.jsUrl);
+                    this.moduleSelected.moduleObj = this.moduleSelected.moduleObj.default;
+                }
+                catch(e) {
+                    window.location.href = '/login.html';
+                    console.error(e);
+                }
             }
             if (this.moduleSelected.moduleObj.template == null || this.moduleSelected.moduleObj.template == "")
                 this.moduleSelected.moduleObj.template = await (await fetch(this.moduleSelected.templateUrl)).text();
