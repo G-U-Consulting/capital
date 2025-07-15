@@ -9,6 +9,7 @@ export default {
             programaciones: [],
             usuarios: [],
             hitos: [],
+            cargos: [],
             estados: [],
             nameDays: ["lun", "mar", "mié", "jue", "vie", "sáb", "dom"],
             nameMonths: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
@@ -26,7 +27,6 @@ export default {
 
             editNewRow: false,
             selRow: null,
-            enableEdit: false,
 
             filtros: {
                 programaciones: { fecha: '', id_usuario: '', id_cargo: '' }
@@ -236,7 +236,6 @@ export default {
             if (this.selRow != i) {
                 this.programacion = { ...p };
                 this.editNewRow = false;
-                this.enableEdit = false;
                 this.selRow = i;
             }
         },
@@ -262,9 +261,25 @@ export default {
         cancel() {
             this.editNewRow = false;
             this.selRow = null;
-            this.enableEdit = false;
             this.selUser = {};
         },
+        async reqDelete() {
+            if (!this.editNewRow && this.selRow)
+                showConfirm(`Se eliminará la asignación permanentemente.`, this.onDelete, null, this.programacion);
+        },
+        async onDelete(prog) {
+            showProgress();
+            let res = await httpFunc(`/generic/genericST/Salas:Del_Programacion`, prog);
+            if (res.data === 'OK') {
+                await this.loadData();
+                this.programacion = {};
+                this.cancel();
+            } else {
+                console.error(res);
+                showMessage('Error: ' + (res.errorMessage || res.data));
+            }
+            hideProgress();
+        }
     },
     computed: {
         getFilteredList() {

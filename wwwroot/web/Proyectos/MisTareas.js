@@ -43,8 +43,10 @@ export default {
             hideProgress();
         },
         onChangePro() {
-            let id_pro = this.selPro.id_proyecto;
-            id_pro ? this.filtros.tareas.id_proyecto = id_pro : delete this.filtros.tareas.id_proyecto;
+            if (this.selPro) {
+                let id_pro = this.selPro.id_proyecto;
+                id_pro ? this.filtros.tareas.id_proyecto = id_pro : delete this.filtros.tareas.id_proyecto;
+            } else delete this.filtros.tareas.id_proyecto;
             this.cancel();
         },
         onChangeActive(e) {
@@ -57,7 +59,7 @@ export default {
             this.selRow = null;
         },
         onSelect(t, i) {
-            if (this.selRow != i) {
+            if (this.selRow != i && t.id_estado != '4') {
                 this.tarea = { ...t };
                 this.editNewRow = false;
                 this.enableEdit = false;

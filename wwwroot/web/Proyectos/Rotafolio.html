@@ -10,7 +10,8 @@
 
             <div style="display: flex; width: 100%; gap: 2rem; align-items: center;">
                 <div class="cont-list-resources" v-bind:class="{'open': showList}">
-                    <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}" v-if="!loading && files.length">
+                    <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}"
+                        v-if="!loading && files.length">
                         <img src="../../img/ico/deploy.png">
                     </div>
                     <div class="list-resources">
@@ -26,7 +27,7 @@
                             </div>
                             <div class="menu-content" v-bind:class="{'open': grupo.expanded}">
                                 <div class="item-content" v-for="file in grupo.files"
-                                    v-bind:class="{'current': file.current}" @click="selectFile(file)" 
+                                    v-bind:class="{'current': file.current}" @click="selectFile(file)"
                                     @mouseenter="tooltipVisible = true; tooltipMsg = file.link || file.documento"
                                     @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
                                     <img :src="file.link ? '../../img/ico/youtobe.png' : '/file/S3get/' + file.llave"
@@ -42,18 +43,21 @@
                 </div>
                 <div class="cont-rotafolio" id="cont-rotafolio" @mousemove="setShowBar" @mousedown="setShowBar"
                     :style="zoom && 'border: 4px #006b80 solid'">
-                    <div class="zoom-box" id="zoom-box" v-show="zoom" @dblclick="zoom = false; c_zoomFactor = 1" @mousemove="dragImage"
-                        @mousedown="drag" @mouseup="noDrag" @mouseleave="noDrag" @wheel="handleWheel"></div>
+                    <div class="zoom-box" id="zoom-box" v-show="zoom" @dblclick="zoom = false; c_zoomFactor = 1"
+                        @mousemove="dragImage" @mousedown="drag" @mouseup="noDrag" @mouseleave="noDrag"
+                        @wheel="handleWheel"></div>
                     <div class="zoom-slide" v-show="zoom">
-                        <input type="range" min="1" max="2" step="0.01" value="1" v-model="c_zoomFactor" @input="changeZoom(50, 50)">
+                        <input type="range" min="1" max="2" step="0.01" value="1" v-model="c_zoomFactor"
+                            @input="changeZoom(50, 50)">
                         <span>{{parseInt(c_zoomFactor * 100)}}%</span>
                     </div>
                     <div class="player-rotafolio" v-if="!loading && files.length && files[playIndex].content">
-                        <img :src="files[playIndex].content" @load="onloadimg"
-                            :key="'i' + playIndex" id="img-rotafolio" @mousemove="movelupa" @wheel="handleWheel">
+                        <img :src="files[playIndex].content" @load="onloadimg" :key="'i' + playIndex" id="img-rotafolio"
+                            @mousemove="movelupa" @wheel="handleWheel">
                         <div class="zoom-lens" id="zoom-lens" v-show="lupa"></div>
                     </div>
-                    <div class="player-rotafolio" v-else-if="!loading && files.length && isVideo(files[playIndex], true)">
+                    <div class="player-rotafolio"
+                        v-else-if="!loading && files.length && isVideo(files[playIndex], true)">
                         <iframe @load="initVideo" id="v-player"
                             :src="`${files[playIndex].link}?autoplay=1&enablejsapi=1&mute=1`" :key="'v' + playIndex"
                             frameborder="0" allow="autoplay; encrypted-media" @mousemove="setShowBar"
@@ -70,20 +74,25 @@
                     </div>
                     <div class="btn-bar-rotafolio" v-if="files.length"
                         v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
-                        <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1, false)"
-                            style="transform: rotate(180deg);">
-                        <img src="../../img/ico/play.png" @click="resetInterval" style="background: white;"
-                            class="btn-rotafolio" v-show="stop">
-                        <img src="../../img/ico/pause.png" @click="pause" style="background: white;"
-                            class="btn-rotafolio" v-show="!stop">
-                        <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1, false)">
-                        <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen"
-                            class="btn-rotafolio btn-fullscreen">
-                        <div class="btn-left-rotafolio">
-                            <!-- <img src="../../img/ico/svg/lupa.svg" @click="toggleLupa" 
+                        <div class="btn-cont-rotafolio">
+                            <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1, false)"
+                                style="transform: rotate(180deg);">
+                            <img src="../../img/ico/play.png" @click="resetInterval" style="background: white;"
+                                class="btn-rotafolio" v-show="stop">
+                            <img src="../../img/ico/pause.png" @click="pause" style="background: white;"
+                                class="btn-rotafolio" v-show="!stop">
+                            <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1, false)">
+                            <img :src="`../../img/ico/${full ? 'normal' : 'full'}screen.png`" @click="fullScreen"
+                                class="btn-rotafolio btn-fullscreen">
+                            <div class="btn-left-rotafolio">
+                                <!-- <img src="../../img/ico/svg/lupa.svg" @click="toggleLupa" 
                                 class="btn-rotafolio"> -->
-                            <img src="../../img/ico/svg/zoom-out.svg" @click="zoom = true;c_zoomFactor = 1.25;changeZoom(50, 50)" 
-                                class="btn-rotafolio">
+                                <img src="../../img/ico/svg/zoom-out.svg"
+                                    @click="zoom = true;c_zoomFactor = 1.25;changeZoom(50, 50)" class="btn-rotafolio">
+                            </div>
+                        </div>
+                        <div class="subtitle-cont-rotafolio">
+                            {{files[playIndex].documento}}
                         </div>
                     </div>
                     <div class="btn-left-bar-rotafolio" v-if="files.length"

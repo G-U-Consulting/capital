@@ -1586,19 +1586,35 @@ tr.selected input {
 .btn-bar-rotafolio {
   position: absolute;
   margin: 0 auto;
-  height: 10%;
+  height: calc(8% + 1.5rem);
   width: 100%;
-  bottom: -10%;
+  bottom: calc(-8% - 1.5rem);
   display: flex;
-  gap: 3%;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   transition: transform .3s ease-in-out;
   pointer-events: none;
   user-select: none;
 }
+.btn-bar-rotafolio > .btn-cont-rotafolio {
+  display: flex;
+  gap: 3%;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  flex-grow: 1;
+  max-height: 100%;
+}
+.btn-bar-rotafolio > .subtitle-cont-rotafolio {
+  padding-top: 4px;
+  height: 1.5rem;
+  color: white;
+  text-align: center;
+  box-shadow: #000000e0 0px -33px 13px -20px inset;
+  text-shadow: 1px 1px 0 #000000e0, -1px -1px #000000e0, 1px -1px #000000e0, -1px 1px #000000e0;
+  font-weight: bold;
+}
 .show-bar {
-  transform: translate(0, -100%);
+  transform: translate(0, calc(-100% - 1.5rem));
 }
 .btn-left-bar-rotafolio {
   position: absolute;
@@ -2034,20 +2050,7 @@ tr.destacada {
   grid: repeat(4, 1fr) / repeat(3, 1fr);
 }
 .cal-prog-height {
-  height: 228px;
-}
-@media (min-width: 1590px) {
-  .cal-prog-height {
-    height: 238px;
-  }
-}
-@media (min-width: 1900px) {
-  .calendar.m12 {
-    grid: repeat(3, 1fr) / repeat(4, 1fr);
-  }
-  .cal-prog-height {
-    height: 253px;
-  }
+  height: fit-content;
 }
 .cal-month {
   display: inline-flex;
@@ -2058,6 +2061,10 @@ tr.destacada {
   user-select: none;
   border-radius: 6px;
   overflow: hidden;
+}
+.cal-month.prog {
+  font-size: 11px;
+  min-height: 195px;
 }
 .cal-sel-month {
   border: 2px #0c5968 solid;
@@ -2100,6 +2107,9 @@ tr.destacada {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+.cal-day.prog {
+  padding: 5%;
 }
 .cal-today {
   background: #c5e3fd8f;
@@ -2265,7 +2275,7 @@ tr .cal-event-count {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 5rem;
+  margin-bottom: 3rem;
 }
 .prog-grid-btn {
   display: inline-grid; 
