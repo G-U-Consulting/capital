@@ -10,6 +10,7 @@ set @id_documento = 1,
     @id_grupo_proyecto = 4,
     @video = '',
     @descripcion = '',
+    @extension = '',
     @link = '',
     @tipo = '';
 --END_PARAM
@@ -22,6 +23,7 @@ insert into fact_documento_proyecto (
     id_grupo_proyecto,
     video,
     descripcion,
+    extension,
     link,
     tipo
 ) values (
@@ -33,6 +35,7 @@ insert into fact_documento_proyecto (
     @id_grupo_proyecto,
     @video,
     @descripcion,
+    @extension,
     @link,
     @tipo
 );

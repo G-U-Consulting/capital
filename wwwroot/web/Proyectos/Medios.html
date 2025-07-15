@@ -365,7 +365,7 @@
                                     <span class="delete" @click.stop="removeRowReco(index)"
                                         title="Eliminar item">✖</span>
                                     <img src="../../img/ico/menu/ojo.svg" class="video-icon"
-                                        @click.stop="openModalRv(video.link)" title="Ver video">
+                                        @click.stop="openModalRv(video.link)" title="Ver Recorridos">
                                 </div>
                             </td>
                         </tr>
@@ -489,11 +489,8 @@
         <div class="cont-rotafolio" id="cont-rotafolio" @mousemove="setShowBar" @mousedown="setShowBar">
             <div class="player-rotafolio">	
                 <img v-if="isImage(allItems[playIndex])" :src="getImageUrl(allItems[playIndex])">
-
-                <iframe v-else-if="isVideo(allItems[playIndex])" @load="initVideo" id="v-player" :key="playIndex"
-                    :src="formatURL(allItems[playIndex].previewSrc || allItems[playIndex].videoUrl)" frameborder="0"
-                    allow="autoplay; encrypted-media" allowfullscreen>
-                </iframe>
+                <iframe v-if="isVideo(allItems[playIndex])" :src="formatURL(allItems[playIndex])" frameborder="0"
+                    allow="autoplay; encrypted-media" allowfullscreen id="v-player" :key="playIndex" @load="initVideo" />
             </div>
             <div class="btn-bar-rotafolio"
                 v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">

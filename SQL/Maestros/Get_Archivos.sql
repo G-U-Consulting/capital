@@ -8,7 +8,12 @@ set @tipo = 'imagenes',
     @id_maestro_documento = 0;
 --END_PARAM
 
-select a.id_documento,documento,llave, orden, a.is_active, b.id_grupo_proyecto, b.tipo, b.link, b.video, b.descripcion, nombre as nombre_documento
+select a.id_documento,documento,
+case 
+        when b.extension is null or b.extension = '' then a.llave
+        when right(a.llave, char_length(b.extension) + 1) = concat('.', b.extension) then a.llave
+        else concat(a.llave, '.', b.extension)
+    end as llave, orden, a.is_active, b.id_grupo_proyecto, b.tipo, b.link, b.video, b.descripcion, nombre as nombre_documento
 from fact_documentos a
 join fact_documento_proyecto b on a.id_documento = b.id_documento
 where FIND_IN_SET(b.tipo, @tipo collate utf8mb4_unicode_ci) and (id_proyecto = @id_proyecto 
