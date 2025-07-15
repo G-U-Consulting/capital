@@ -39,6 +39,7 @@ export default {
         this.setToday();
         this.viewMode = { name: "1M", months: 1, initMonth: 0, year: new Date().getFullYear(), class: "m1" };
         this.setViewMonths();
+        this.fillDays();
     },
     methods: {
         setMainMode(mode) {
@@ -47,6 +48,14 @@ export default {
         async loadData() {
             [this.programaciones, this.hitos, this.usuarios, this.estados, this.cargos] =
                 (await httpFunc("/generic/genericDS/Salas:Get_Programacion", { id_sala: this.sala.id_sala_venta })).data;
+        },
+        fillDays() {
+            let days = this.viewMonths[this.nameMonths[this.viewMode.initMonth]].days.filter(d => d.currentMonth);
+            days.forEach(d => {
+                let e = this.programaciones.some(p => this.equalsDate(d.date, new Date(p.fecha + ' 05:00')));
+                if(!e) this.programaciones.push({fecha: this.formatDatetime(null, 'bdate', d.date)});
+            });
+            this.programaciones.sort((a, b) => new Date(a.fecha).getDate() - new Date(b.fecha).getDate());
         },
         getMonthCalendar(baseDate) {
             const daysView = [];
@@ -198,6 +207,17 @@ export default {
                 }
             });
         },
+        setDate(dir) {
+            let date = this.selDate, m = date.getMonth(), y = date.getFullYear();
+            date.setMonth(date.getMonth() + dir);
+            if (Math.abs((date.getFullYear() - y) * 12 + (date.getMonth() - m)) !== 1)
+                date.setDate(0);
+            this.setViewMonths();
+        },
+        isToday() {
+            const today = new Date();
+            return this.equalsDate(this.selDate, today);
+        },
         equalsDate(f1, f2) {
             return f1 && f2 && f1.getDate() === f2.getDate() && f1.getMonth() === f2.getMonth() && f1.getFullYear() === f2.getFullYear();
         },
@@ -288,7 +308,7 @@ export default {
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
                     ) : []
-                ) : [];
+                ).filter(p => this.filterMode == 'm' || this.equalsDate(this.selDate, new Date(p.fecha))) : [];
             };
         },
     }

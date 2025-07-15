@@ -243,16 +243,18 @@ export default {
                 this.selRow = i;
             }
         },
-        async onSavePro() {
-            showProgress();
-            if (this.selRow != null)
+        async onSavePro(pro) {
+            if (pro) this.proyecto_sala = pro;
+            else if(this.selRow != null) {
+                showProgress();
                 this.proyecto_sala = this.pro_sala[this.selRow];
+            }
             let res = await httpFunc('/generic/genericST/Maestros:Upd_ProyectoSala', this.proyecto_sala);
             if (res.data === 'OK') {
                 this.proyecto_sala = {};
                 this.selRow = null;
                 this.enableEdit = false;
-                await this.loadProjects(this.sala_venta);
+                if (!pro) await this.loadProjects(this.sala_venta);
             } else {
                 console.error(res);
                 showMessage('Error: ' + (res.errorMessage || res.data));

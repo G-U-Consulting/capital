@@ -227,24 +227,21 @@
                                 <span v-else>{{pro.vigencia}}</span>
                             </td>
                             <td style="text-align: center;">
-                                <div class="toggle-switch" v-if="enableEdit && selRow == i">
+                                <div class="toggle-switch">
                                     <input :id="'toggle-opc' + pro.nombre" type="checkbox"
-                                        @change="pro.opcionar = pro.opcionar == '0' ? '1' : '0'" class="toggle-input"
+                                        @change="pro.opcionar = pro.opcionar == '0' ? '1' : '0'; onSavePro(pro)" class="toggle-input"
                                         :checked="Number(pro.opcionar) !== 1">
                                     <label class="toggle-label" :for="'toggle-opc' + pro.nombre"
                                         style="transform: rotate(180deg);"></label>
                                 </div>
-                                <span v-else>{{pro.opcionar == '1' ? 'Sí' : 'No'}}</span>
                             </td>
                             <td style="text-align: center;">
-                                <div class="toggle-switch" v-if="enableEdit && selRow == i">
+                                <div class="toggle-switch" @click.stop.prevent="pro.visualizar = pro.visualizar == '0' ? '1' : '0'; onSavePro(pro)">
                                     <input :id="'toggle-vis' + pro.nombre" type="checkbox"
-                                        @change="pro.visualizar = pro.visualizar == '0' ? '1' : '0'"
                                         class="toggle-input" :checked="Number(pro.visualizar) !== 1">
                                     <label class="toggle-label" :for="'toggle-vis' + pro.nombre"
                                         style="transform: rotate(180deg);"></label>
                                 </div>
-                                <span v-else>{{pro.visualizar == '1' ? 'Sí' : 'No'}}</span>
                             </td>
                             <td style="text-align: center;">
                                 <span @click.stop.prevent="reqRemovePro(pro)" class="delete">✖</span>

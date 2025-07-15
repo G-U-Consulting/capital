@@ -12,7 +12,7 @@ on p.id_usuario = u.id_usuario join dim_estado_programacion e
 on p.id_estado = e.id_estado join dim_cargo c
 on u.id_cargo = c.id_cargo
 where p.id_sala_venta = @id_sala
-order by fecha, u.nombres;
+order by fecha, c.cargo, u.nombres;
 
 select h.id_hito, h.titulo, h.descripcion, date_format(h.fecha, '%Y-%m-%d %T') as fecha, 
     h.color, h.festivo, h.id_proyecto, h.frecuencia, date_format(h.limite, '%Y-%m-%d') as limite,

@@ -421,7 +421,7 @@ create table dim_sala_proyecto(
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
 	id_proyecto int not null references fact_proyectos(id_proyecto),
 	descuento int default 0,
-	visualizar bit default 0,
+	visualizar bit default 1,
 	opcionar bit default 0,
 	vigencia date,
 	fecha_asignacion date default current_date,
