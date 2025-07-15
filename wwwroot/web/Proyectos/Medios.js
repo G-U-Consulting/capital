@@ -340,12 +340,19 @@
 
                         const reader = new FileReader();
                         reader.onload = (e) => {
-                            const defaultName = file.name.split('.').slice(0, -1).join('.') || file.name;
+                            const hasExtension = file.name.includes('.');
+                            const defaultName = hasExtension
+                                ? file.name.split('.').slice(0, -1).join('.')
+                                : file.name;
+
+                            const extension = hasExtension
+                                ? file.name.split('.').pop()
+                                : file.type.split('/').pop();
                             this.previews.push({
                                 src: e.target.result,
                                 file: file,
                                 newName: defaultName,
-                                extension: file.name.split('.').pop()
+                                extension: extension
                             });
                             this.files.push(file);
                         };
@@ -445,6 +452,7 @@
         processFilesUnified(files, isAvo) {
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+
                 if (file.type.startsWith('image/')) {
                     const fileList = isAvo ? this.filesAvo : this.files;
                     const previewList = isAvo ? this.previewsAvo : this.previews;
@@ -452,15 +460,26 @@
                     const exists = fileList.some(existingFile => existingFile.name === file.name);
                     if (!exists) {
                         fileList.push(file);
+
                         const reader = new FileReader();
                         reader.onload = (e) => {
+                            const hasExtension = file.name.includes('.');
+                            const newName = hasExtension
+                                ? file.name.split('.').slice(0, -1).join('.')
+                                : file.name;
+
+                            const extension = hasExtension
+                                ? file.name.split('.').pop()
+                                : file.type.split('/').pop();
+
                             previewList.push({
                                 src: e.target.result,
                                 file: file,
-                                newName: file.name.split('.').slice(0, -1).join('.') || file.name,
-                                extension: file.name.split('.').pop()
+                                newName: newName,
+                                extension: extension
                             });
                         };
+
                         reader.readAsDataURL(file);
                     }
                 }
@@ -733,6 +752,22 @@
                 this.S3UploadFiles();
             }
         },
+        detectImageExtensionFromSrc(src) {
+            if (typeof src !== 'string') return 'unknown';
+            const base64 = src.split(',')[1];
+            if (!base64) return 'unknown';
+
+            const binary = atob(base64.slice(0, 20));
+            const bytes = [...binary].map(c => c.charCodeAt(0));
+            const header = bytes.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            if (header.startsWith('89504e47')) return 'png';
+            if (header.startsWith('ffd8ff')) return 'jpg';
+            if (header.startsWith('47494638')) return 'gif';
+            if (header.startsWith('52494646') && header.includes('57454250')) return 'webp';
+
+            return 'unknown';
+        },
         async S3UploadFiles() {
             const getFile = (f) => f instanceof File ? f : f?.file || null;
 
@@ -768,15 +803,22 @@
                 }));
             } else {
                 const previewsSource = this.submode === 5 ? this.previewsAvo : this.previews;
-                this.S3Files = response.data.map((item, index) => ({
-                    id_documento: item.Id,
-                    name: previewsSource[index]?.newName || item.Name,
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    tipo: folder,
-                    orden: index,
-                    link: item.Url,
-                    extension: previewsSource[index]?.extension || ''
-                }));
+                this.S3Files = response.data.map((item, index) => {
+                    const preview = previewsSource[index];
+                    const extension = preview?.extension
+                        || this.detectImageExtensionFromSrc(preview?.src)
+                        || '';
+
+                    return {
+                        id_documento: item.Id,
+                        name: preview?.newName || item.Name,
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        tipo: folder,
+                        orden: index,
+                        link: item.Url,
+                        extension: extension
+                    };
+                });
             }
             if (this.submode === 5 && Array.isArray(this.filesAvo)) {
                 const startIndex = this.S3Files.length;
