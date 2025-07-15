@@ -81,8 +81,6 @@
             previewSrc: null,
             modalVisible: false,
             plantaPreviewAll: [],
-
-
             playIndex: 0,
             interval: null,
             time: 8000,
@@ -93,7 +91,6 @@
             modalEmbedUrl: null,
             expandedVisible: false,
             expandedImage: null,
-
         };
     },
     watch: {
@@ -154,13 +151,10 @@
         },
         allItems() {
             let items = [];
-
-            
             if (this.tablas && this.tablas.length) {
                 if (!this.tablas[0].activo && this.plantaPreview) {
                     items.push({ src: this.plantaPreview });
                 }
-
                 if (!this.tablas[1].activo) {
                     if (this.slidePreview) items.push({ src: this.slidePreview });
                     if (this.logoPreview) items.push({ src: this.logoPreview });
@@ -170,16 +164,10 @@
                 if (this.tablas[2] && !this.tablas[2].activo && this.previews) {
                     items = items.concat(this.previews);
                 }
-                // if (this.tablas[3] && !this.tablas[3].activo && this.previewsAvo) {
-                //     items = items.concat(this.previewsAvo);
-                // }
+                if (this.tablas[3] && !this.tablas[3].activo && this.videos?.length) {
+                    items = items.concat(this.videos.filter(v => v.link));
+                }
             }
-            if (this.videos?.length) {
-                items = items.concat(this.videos.filter(v => v.link));
-            }
-            // if (this.videosReco?.length) {
-            //     items = items.concat(this.videosReco.filter(v => v.link));
-            // }
             return items;
         }
     },
@@ -188,6 +176,7 @@
         GlobalVariables.miniModuleCallback("StartMediaMdule", null);
         this.setSubmode(0);
         this.updatePlantaPreviewAll();
+        this.playIndex = 0;
 
     },
     methods: {
@@ -273,18 +262,6 @@
                     activo: true,
                     error: true
                 },
-                // {
-                //     titulo: 'Agrupamiento de Recorridos Virtuales',
-                //     datos: grupo_vir,
-                //     activo: false,
-                //     error: false
-                // },
-                // {
-                //     titulo: 'Periodos de Avances de obra',
-                //     datos: grupo_avo,
-                //     activo: false,
-                //     error: false
-                // }
             ];
         },
         dragStart(index) {
@@ -363,11 +340,19 @@
 
                         const reader = new FileReader();
                         reader.onload = (e) => {
-                            const defaultName = file.name.split('.').slice(0, -1).join('.') || file.name;
+                            const hasExtension = file.name.includes('.');
+                            const defaultName = hasExtension
+                                ? file.name.split('.').slice(0, -1).join('.')
+                                : file.name;
+
+                            const extension = hasExtension
+                                ? file.name.split('.').pop()
+                                : file.type.split('/').pop();
                             this.previews.push({
                                 src: e.target.result,
                                 file: file,
-                                newName: defaultName
+                                newName: defaultName,
+                                extension: extension
                             });
                             this.files.push(file);
                         };
@@ -467,6 +452,7 @@
         processFilesUnified(files, isAvo) {
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+
                 if (file.type.startsWith('image/')) {
                     const fileList = isAvo ? this.filesAvo : this.files;
                     const previewList = isAvo ? this.previewsAvo : this.previews;
@@ -474,14 +460,26 @@
                     const exists = fileList.some(existingFile => existingFile.name === file.name);
                     if (!exists) {
                         fileList.push(file);
+
                         const reader = new FileReader();
                         reader.onload = (e) => {
+                            const hasExtension = file.name.includes('.');
+                            const newName = hasExtension
+                                ? file.name.split('.').slice(0, -1).join('.')
+                                : file.name;
+
+                            const extension = hasExtension
+                                ? file.name.split('.').pop()
+                                : file.type.split('/').pop();
+
                             previewList.push({
                                 src: e.target.result,
                                 file: file,
-                                newName: file.name.split('.').slice(0, -1).join('.')
+                                newName: newName,
+                                extension: extension
                             });
                         };
+
                         reader.readAsDataURL(file);
                     }
                 }
@@ -594,20 +592,6 @@
             }
             this.editando = { tablaIndex: null, itemIndex: null };
         },
-        // selectItem(i, j) {
-        //     const tabla = this.tablas[i];
-        //     if (tabla.titulo === 'General de C. Capital' || tabla.activo) return;
-
-        //     this.selected.tablaIndex = i;
-        //     this.selected.itemIndex = j;
-
-        //     this.editando.tablaIndex = i;
-        //     this.editando.itemIndex = j;
-
-        //     this.$nextTick(() => {
-        //         this.$refs.editInput?.focus?.();
-        //     });
-        // },
         selectItem(tablaIndex, itemIndex) {
             const tabla = this.tablas[tablaIndex];
             if (tabla.titulo === 'Agrupaciones Generales' || tabla.titulo === 'Imágenes Principales' || tabla.activo) return;
@@ -733,7 +717,6 @@
         configclearAllImages() {
             showConfirm("Se eliminará permanentemente.", this.clearAllImages, null, null);
         },
-        //////////////////////////////////////
         async uploadFiles() {
             const form = new FormData();
 
@@ -768,6 +751,22 @@
                 this.serverFiles = response.data;
                 this.S3UploadFiles();
             }
+        },
+        detectImageExtensionFromSrc(src) {
+            if (typeof src !== 'string') return 'unknown';
+            const base64 = src.split(',')[1];
+            if (!base64) return 'unknown';
+
+            const binary = atob(base64.slice(0, 20));
+            const bytes = [...binary].map(c => c.charCodeAt(0));
+            const header = bytes.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            if (header.startsWith('89504e47')) return 'png';
+            if (header.startsWith('ffd8ff')) return 'jpg';
+            if (header.startsWith('47494638')) return 'gif';
+            if (header.startsWith('52494646') && header.includes('57454250')) return 'webp';
+
+            return 'unknown';
         },
         async S3UploadFiles() {
             const getFile = (f) => f instanceof File ? f : f?.file || null;
@@ -804,14 +803,22 @@
                 }));
             } else {
                 const previewsSource = this.submode === 5 ? this.previewsAvo : this.previews;
-                this.S3Files = response.data.map((item, index) => ({
-                    id_documento: item.Id,
-                    name: previewsSource[index]?.newName || item.Name,
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    tipo: folder,
-                    orden: index,
-                    link: item.Url
-                }));
+                this.S3Files = response.data.map((item, index) => {
+                    const preview = previewsSource[index];
+                    const extension = preview?.extension
+                        || this.detectImageExtensionFromSrc(preview?.src)
+                        || '';
+
+                    return {
+                        id_documento: item.Id,
+                        name: preview?.newName || item.Name,
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        tipo: folder,
+                        orden: index,
+                        link: item.Url,
+                        extension: extension
+                    };
+                });
             }
             if (this.submode === 5 && Array.isArray(this.filesAvo)) {
                 const startIndex = this.S3Files.length;
@@ -824,7 +831,7 @@
                         id_proyecto: GlobalVariables.id_proyecto,
                         tipo: folder,
                         orden: startIndex + idx,
-                        link: item.Url || item.link
+                        link: item.Url || item.link,
                     }));
 
                 this.S3Files.push(...filteredAndMappedItems);
@@ -847,7 +854,6 @@
                 }
             }
 
-
             for (const archivo of this.S3Files) {
                 const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
                     nombre: archivo.name || '',
@@ -856,7 +862,8 @@
                     id_proyecto: archivo.id_proyecto,
                     id_grupo_proyecto: this.selectedGrupoId,
                     tipo: archivo.tipo,
-                    link: archivo.link
+                    link: archivo.link,
+                    extension: archivo.extension || ''
                 });
 
                 if (result.isError) {
@@ -891,7 +898,6 @@
 
                 this.videos = resp.data || [];
 
-
                 this.videos = this.videos.map(video => ({
                     nombre: video.nombre || '',
                     descripcion: video.descripcion || '',
@@ -908,7 +914,6 @@
                 });
 
                 this.videosReco = resp.data || [];
-
 
                 this.videosReco = this.videosReco.map(video => ({
                     nombre: video.nombre || '',
@@ -1015,9 +1020,6 @@
             this.filesAvo = [];
             this.previews = [];
             this.previewsAvo = [];
-            // this.logoPreview = null;
-            // this.slidePreview = null;
-            // this.plantaPreview = null;
 
         },
         async GrupUploadFiles() {
@@ -1288,36 +1290,22 @@
                 showMessage('No hay imágenes ni videos activos para previsualizar.');
                 return;
             }
+        
             this.modalVisible = true;
-            history.pushState(null, "", "#modal-carrusel");
-            
+        
+            this.playIndex = 0;
+        
             var tag = document.createElement("script");
             tag.src = "https://www.youtube.com/iframe_api";
             var firstScriptTag = document.getElementsByTagName("script")[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
+        
             if (this.allItems.length) this.resetInterval();
         },
         closePrevi() {
             this.modalVisible = false;
             history.pushState(null, "", window.location.pathname);
         },
-
-        /////////////////////////////////////////////////////
-
-        // fullScreen() {
-        //     let cont = document.getElementById("cont-rotafolio"); 
-
-        //     if (cont.requestFullscreen) {
-        //         cont.requestFullscreen();
-        //     } else if (cont.mozRequestFullScreen) {
-        //         cont.mozRequestFullScreen();
-        //     } else if (cont.webkitRequestFullscreen) {
-        //         cont.webkitRequestFullscreen();
-        //     } else if (cont.msRequestFullscreen) {
-        //         cont.msRequestFullscreen();
-        //     }
-        // },
         async setTime() {
             let res = await httpFunc('/generic/genericDT/General:Get_Variable', { nombre_variable: 'CarDurac' });
             if (res.data.length && res.data[0].valor)
@@ -1331,26 +1319,25 @@
             return item && (typeof valueToCheck === 'string' && valueToCheck.match(/\.(jpeg|jpg|png|gif)$/i) || isBase64);
         },
         isVideo(item) {
-            return item && (item.previewSrc || item.videoUrl)?.includes('youtube.com');
+            const url = item?.previewSrc || item?.videoUrl || item?.link || '';
+            return url.includes('youtube') || url.endsWith('.mp4');
         },
-        formatURL(url) {
-            try {
-                const urlObj = new URL(url);
-                if (urlObj.hostname.includes("youtube.com") && urlObj.searchParams.has("v")) {
-                    return `https://www.youtube.com/embed/${urlObj.searchParams.get("v")}?autoplay=1&enablejsapi=1&mute=1`;
-                } else if (urlObj.hostname.includes("youtu.be")) {
-                    return `https://www.youtube.com/embed/${urlObj.pathname.slice(1)}?autoplay=1&enablejsapi=1&mute=1`;
-                }
-                return url;
-            } catch (e) {
-                return '';
+        formatURL(item) {
+            const url = item?.previewSrc || item?.videoUrl || item?.link || '';
+            if (!url) return '';
+        
+            if (url.includes("youtube.com/watch")) {
+                const videoId = url.split("v=")[1]?.split("&")[0];
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+            } else if (url.includes("youtu.be/")) {
+                const videoId = url.split("youtu.be/")[1]?.split("?")[0];
+                return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
             }
+            return url;
         },
         initVideo() {
-            // inicialización opcional para videos YouTube embebidos
         },
         play() {
-            // this.fullScreen();
             this.resetInterval();
         },
         pause() {
