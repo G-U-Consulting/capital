@@ -534,7 +534,7 @@ create table dim_hito_cargo(
 );
 create table dim_estado_programacion(
 	id_estado int primary key auto_increment,
-	estado varchar(200) not null
+	estado varchar(200) not null unique
 );
 insert into dim_estado_programacion(estado) values
 ('En sala'),

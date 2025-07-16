@@ -94,6 +94,55 @@ app.Map("/util/Json2Excel", async (HttpRequest request, HttpResponse response) =
     }
 
 }).WithName("Json2Excel");
+app.Map("/util/ImportProg/{op}/{sp}/{id_sala}", async (HttpContext context, HttpResponse response, HttpRequest request, string op, string sp, string id_sala) => {
+    string err = "";
+    try {
+        response.ContentType = "application/json";
+        JArray files = await WebBDUt.FileUpload(context, rootPath);
+        string json = string.Empty;
+        sp = sp.Replace(':', '/');
+        for (int x = 0; x < files.Count; x++)
+        {
+            JObject obj = (JObject)files[x];
+            string path = Path.Combine(rootPath, "wwwroot", obj.GetValue("serverPath")?.ToString());
+            json = WebBDUt.ExcelToJson(path);
+            if (File.Exists(path)) File.Delete(path);
+            if (string.IsNullOrEmpty(json))
+            {
+                response.StatusCode = 500;
+                return WebBDUt.NewBasicResponse(true, "Error processing file: " + obj.GetValue("fileName")?.ToString()).ToString(Newtonsoft.Json.Formatting.None);
+            }
+            else
+            {
+                JObject jsonObj = JObject.Parse(json);
+                JArray table = (JArray?)jsonObj["Table1"] ?? [];
+
+                for (int i = 0; i < table.Count; i++)
+                {
+                    JObject row = (JObject)table[i];
+                    row.Add("id_sala_venta", id_sala);
+                    if (row["fecha"] == null || string.IsNullOrEmpty(id_sala)
+                        || (row["id_usuario"] == null && row["cedula"] == null)
+                        || (row["id_estado"] == null && row["estado"] == null))
+                        continue;
+                    string date = row["fecha"].ToString();
+                    if (DateTime.TryParse(date, out DateTime parsedDate))
+                        row["fecha"] = parsedDate.ToString("yyyy-MM-dd HH:mm:ss");
+                    string res = (await Generic.ProcessRequest(request, response, op, sp, row.ToString(), rootPath)).ToString(Newtonsoft.Json.Formatting.None);
+                    JObject jres = JObject.Parse(res);
+                    if (jres["isError"] != null && (bool)jres["isError"])
+                        err += (jres["errorMessage"] ?? jres["data"]) + ": " + row.ToString() + "\n";
+                }
+            }
+        }
+        return WebBDUt.NewBasicResponse(false, err == "" ? "OK" : err).ToString(Newtonsoft.Json.Formatting.None);
+    } catch (Exception ex) {
+        Logger.Log("util/ImportProg    " + ex.Message + Environment.NewLine + err + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+
+}).WithName("ImportProg");
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";
     try {
@@ -199,27 +248,9 @@ app.Map("/api/internal/{op}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("ApiInternal");
-app.Map("/file/upload", async (HttpContext context) => {
-    var form = await context.Request.ReadFormAsync();
-    var files = form.Files;
-    string serverPath = "upload";
-    string uploadsFolder = Path.Combine(rootPath, "wwwroot", serverPath);
-    if (!Directory.Exists(uploadsFolder)) 
-        Directory.CreateDirectory(uploadsFolder);
-    JArray ret = new JArray();
-    JObject tmp;
-    foreach (var file in files) {
-        tmp = new JObject();
-        string serverName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-        string filePath = Path.Combine(uploadsFolder, serverName);
-        using (var stream = new FileStream(filePath, FileMode.Create)) {
-            await file.CopyToAsync(stream);
-        }
-        tmp["fileName"] = file.FileName;
-        tmp["serverName"] = serverName;
-        tmp["serverPath"] = serverPath +"/" +serverName;
-        ret.Add(tmp);
-    }
+app.Map("/file/upload", async (HttpContext context) =>
+{
+    var ret = await WebBDUt.FileUpload(context, rootPath);
     return WebBDUt.NewBasicResponse(false, ret).ToString();
 });
 app.Map("/file/S3upload", async (HttpContext context) => {

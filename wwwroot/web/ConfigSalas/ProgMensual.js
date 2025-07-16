@@ -45,17 +45,18 @@ export default {
         setMainMode(mode) {
             this.mainmode = mode;
         },
-        async loadData() {
+        async loadData(fill) {
             [this.programaciones, this.hitos, this.usuarios, this.estados, this.cargos] =
                 (await httpFunc("/generic/genericDS/Salas:Get_Programacion", { id_sala: this.sala.id_sala_venta })).data;
+            fill && this.fillDays();
         },
         fillDays() {
             let days = this.viewMonths[this.nameMonths[this.viewMode.initMonth]].days.filter(d => d.currentMonth);
             days.forEach(d => {
-                let e = this.programaciones.some(p => this.equalsDate(d.date, new Date(p.fecha + ' 05:00')));
+                let e = this.programaciones.some(p => this.equalsDate(d.date, new Date(p.fecha + ' 00:00')));
                 if(!e) this.programaciones.push({fecha: this.formatDatetime(null, 'bdate', d.date)});
             });
-            this.programaciones.sort((a, b) => new Date(a.fecha).getDate() - new Date(b.fecha).getDate());
+            this.programaciones.sort((a, b) => new Date(a.fecha + ' 00:00').getDate() - new Date(b.fecha + ' 00:00').getDate());
         },
         getMonthCalendar(baseDate) {
             const daysView = [];
@@ -154,6 +155,7 @@ export default {
             this.selDate = day.date;
             this.viewMonths[this.nameMonths[day.viewMonth]].selected = true;
             this.currentDay = day;
+            //document.querySelector('.tab-' + this.formatDatetime(day.date, 'bdate'))?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         },
         setRecurringEvents(e) {
             if (this.viewMode.months >= 0 && this.viewMode.initMonth >= 0 && e.frecuencia) {
@@ -232,7 +234,7 @@ export default {
             if (type === 'date')
                 return `${day}/${month}/${year}`;
             if (type === 'date-my')
-                return `${month}/${year}`;
+                return `${this.nameMonths[date.getMonth()]} ${year}`;
             if (type === 'bdate')
                 return `${year}-${month}-${day}`;
             if (type === 'time')
@@ -253,7 +255,7 @@ export default {
             this.selRow = null;
         },
         onSelect(p, i) {
-            if (this.selRow != i) {
+            if (this.selRow != i && p.id_usuario) {
                 this.programacion = { ...p };
                 this.editNewRow = false;
                 this.selRow = i;
@@ -267,8 +269,7 @@ export default {
                 let res = await httpFunc(`/generic/genericST/Salas:Ins_Programacion`,
                     { ...this.programacion, id_sala_venta: this.sala.id_sala_venta, id_usuario: this.selUser.id_usuario });
                 if (res.data === 'OK') {
-                    this.programaciones =
-                        (await httpFunc("/generic/genericDT/Salas:Get_Programacion", { id_sala: this.sala.id_sala_venta })).data;
+                    this.loadData(true);
                     this.programacion = {};
                     this.cancel();
                 } else {
@@ -291,13 +292,23 @@ export default {
             showProgress();
             let res = await httpFunc(`/generic/genericST/Salas:Del_Programacion`, prog);
             if (res.data === 'OK') {
-                await this.loadData();
+                await this.loadData(true);
                 this.programacion = {};
                 this.cancel();
             } else {
                 console.error(res);
                 showMessage('Error: ' + (res.errorMessage || res.data));
             }
+            hideProgress();
+        },
+        async fileUpload(e) {
+            let files = Array(...e.target.files);
+            showProgress();
+            let form = new FormData();
+            files.forEach(f => form.append(f.name, f));
+            let res = await httpFunc(`/util/ImportProg/genericST/Salas:Ins_Programacion/${this.sala.id_sala_venta}`, form);
+            if (res.isError) showMessage(res.errorMessage);
+            else await this.loadData();
             hideProgress();
         }
     },
@@ -308,7 +319,9 @@ export default {
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
                     ) : []
-                ).filter(p => this.filterMode == 'm' || this.equalsDate(this.selDate, new Date(p.fecha))) : [];
+                ).filter(p => (this.filterMode == 'm' && new Date(p.fecha + ' 00:00').getFullYear() == this.selDate.getFullYear()
+                    && new Date(p.fecha + ' 00:00').getMonth() == this.selDate.getMonth()) 
+                    || this.equalsDate(this.selDate, new Date(p.fecha + ' 00:00'))) : [];
             };
         },
     }

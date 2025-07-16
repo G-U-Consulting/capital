@@ -95,37 +95,75 @@ public static class WebBDUt {
         ParseParameters(data, out pars, out vals);
         return await ExecuteLocalSQLJson<T>(path, pars, vals, cnString);
     }
-    public async static Task<T> ExecuteLocalSQL<T>(string path, string[] pars, object[] vals, string? cnString) {
+
+    public async static Task<JArray> FileUpload(HttpContext context, string rootPath)
+    {
+        var form = await context.Request.ReadFormAsync();
+        var files = form.Files;
+        string serverPath = "upload";
+        string uploadsFolder = Path.Combine(rootPath, "wwwroot", serverPath);
+        if (!Directory.Exists(uploadsFolder)) 
+            Directory.CreateDirectory(uploadsFolder);
+        JArray ret = [];
+        JObject tmp;
+        foreach (var file in files) {
+            tmp = [];
+            string serverName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string filePath = Path.Combine(uploadsFolder, serverName);
+            using (var stream = new FileStream(filePath, FileMode.Create)) {
+                await file.CopyToAsync(stream);
+            }
+            tmp["fileName"] = file.FileName;
+            tmp["serverName"] = serverName;
+            tmp["serverPath"] = serverPath + "/" + serverName;
+            ret.Add(tmp);
+        }
+        return ret;
+    }
+    public async static Task<T> ExecuteLocalSQL<T>(string path, string[] pars, object[] vals, string? cnString)
+    {
         if (cnString == null)
             cnString = DefaultDBConnetionString;
         string type = null;
         object ret = null;
-        if (typeof(T) == typeof(DataTable)) {
+        if (typeof(T) == typeof(DataTable))
+        {
             type = "DT";
             ret = new DataTable();
-        } else if (typeof(T) == typeof(DataSet)) {
+        }
+        else if (typeof(T) == typeof(DataSet))
+        {
             type = "DS";
             ret = new DataSet();
-        } else if (typeof(T) == typeof(string)) {
+        }
+        else if (typeof(T) == typeof(string))
+        {
             type = "ST";
             ret = null;
         }
-        if (type != null) {
-            await using (MySqlConnection conn = new MySqlConnection(cnString)) {
+        if (type != null)
+        {
+            await using (MySqlConnection conn = new MySqlConnection(cnString))
+            {
                 LocalSQLInfo sqlInfo = GetLocalSQL(path);
-                await using (MySqlCommand cmd = new MySqlCommand(sqlInfo.Text, conn)) {
+                await using (MySqlCommand cmd = new MySqlCommand(sqlInfo.Text, conn))
+                {
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandTimeout = 3600 * 2;
-                    if (pars != null && vals != null) {
+                    if (pars != null && vals != null)
+                    {
                         int len = Math.Min(pars.Length, vals.Length);
-                        
+
                         if (!sqlInfo.HasTypes)
                             for (int i = 0; i < len; i++) cmd.Parameters.AddWithValue(pars[i], vals[i]);
-                        else {
+                        else
+                        {
                             Tuple<MySqlDbType, int, int> tuple;
                             MySqlParameter param = null;
-                            for (int i = 0; i < len; i++) {
-                                if (sqlInfo.Types.TryGetValue(pars[i], out tuple)) {
+                            for (int i = 0; i < len; i++)
+                            {
+                                if (sqlInfo.Types.TryGetValue(pars[i], out tuple))
+                                {
                                     if (tuple.Item3 != 0)
                                         param = new MySqlParameter() { ParameterName = pars[i], MySqlDbType = tuple.Item1, Precision = (byte)tuple.Item2, Scale = (byte)tuple.Item3 };
                                     else if (tuple.Item2 != 0)
@@ -134,19 +172,25 @@ public static class WebBDUt {
                                         param = new MySqlParameter(pars[i], tuple.Item1);
                                     param.Value = vals[i];
                                     cmd.Parameters.Add(param);
-                                } else
+                                }
+                                else
                                     cmd.Parameters.AddWithValue(pars[i], vals[i]);
                             }
                         }
                     }
                     conn.Open();
-                    if (type == "DS") {
+                    if (type == "DS")
+                    {
                         MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                         da.Fill((DataSet)ret);
-                    } else if (type == "DT") {
+                    }
+                    else if (type == "DT")
+                    {
                         MySqlDataAdapter da = new MySqlDataAdapter(cmd);
                         da.Fill((DataTable)ret);
-                    } else if (type == "ST") {
+                    }
+                    else if (type == "ST")
+                    {
                         ret = cmd.ExecuteScalar().ToString();
                     }
                     conn.Close();
@@ -610,33 +654,56 @@ public static class WebBDUt {
         ds.Tables.Add(dt);
         return SetToFile(ds, false);
     }
-    
-    public static JObject SetToFile(DataSet ds, bool isTxt) {
+    public static string ExcelToJson(string path)
+    {
+        string json = string.Empty;
+        try
+        {
+            DataSet ds = ConvertExcelToDataSet(path);
+            json = JsonConvert.SerializeObject(ds);
+        }
+        catch (Exception e)
+        {
+            Logger.Log("util/ImportExcelCSV    " + e.Message + Environment.NewLine + e.StackTrace);
+        }
+        return json;
+    }
+    public static JObject SetToFile(DataSet ds, bool isTxt)
+    {
         JObject ret = new JObject();
         string message = null;
         string retUrl = null;
         bool isError = false;
-        if (ds.Tables.Count == 0) {
+        if (ds.Tables.Count == 0)
+        {
             message = "Error - Sin resultados";
             isError = true;
-        } else if (ds.Tables.Count == 1 && ds.Tables[0].Rows.Count == 0) {
+        }
+        else if (ds.Tables.Count == 1 && ds.Tables[0].Rows.Count == 0)
+        {
             message = "Error - Resultados vacios";
             isError = true;
-        } else if (ds.Tables.Count == 1 && ds.Tables[0].Rows.Count == 1 && ds.Tables[0].Columns.Count == 1)
+        }
+        else if (ds.Tables.Count == 1 && ds.Tables[0].Rows.Count == 1 && ds.Tables[0].Columns.Count == 1)
             message = ds.Tables[0].Rows[0][0].ToString();
-        else if (isTxt) {
+        else if (isTxt)
+        {
             string url = Guid.NewGuid().ToString() + ".txt";
             string fileUri = Path.Combine(RootPath, "wwwroot", "docs", url);
-            using (StreamWriter file = new StreamWriter(fileUri,false,Encoding.UTF8)) {
+            using (StreamWriter file = new StreamWriter(fileUri, false, Encoding.UTF8))
+            {
                 DataTable dt = ds.Tables[0];
                 String Data = ToCsv(dt);
                 file.Write(Data);
             }
             retUrl = url;
-        } else {
+        }
+        else
+        {
             ClosedXML.Excel.XLWorkbook wp = new ClosedXML.Excel.XLWorkbook();
             DataTable dt;
-            for (int i = 0; i < ds.Tables.Count; i++) {
+            for (int i = 0; i < ds.Tables.Count; i++)
+            {
                 dt = ds.Tables[i];
                 dt.TableName = "Hoja" + (i + 1);
                 wp.AddWorksheet(dt);

@@ -69,8 +69,13 @@
                             </label>
                         </div>
                         <div class="prog-grid-btn">
-                            <button>Descargar Plantilla</button>
-                            <button>Cargar Excel</button>
+                            <a href="../../docs/plantilla_programacion_sala.xlsx" download="plantilla_programacion_sala.xlsx">
+                                <button>Descargar Plantilla</button>
+                            </a>
+                            <div style="width: 100%;">
+                                <label for="sub-image" class="file" style="text-align: center;">Cargar Excel</label>
+                                <input id="sub-image" type="file" @input="fileUpload" style="display: none;" />
+                            </div>
                             <button @click="reqDelete">Eliminar Fila</button>
                             <button @click="newRow()">Agregar Fila</button>
                         </div>
@@ -132,11 +137,11 @@
                             </td>
                         </tr>
                         <tr v-for="(p, i) in getFilteredList('programaciones')" @click="onSelect(p, i)"
-                            v-bind:class="{'destacada': selRow == i}">
-                            <td>{{formatDatetime(p.fecha, 'date')}}</td>
+                            :class="`tab-${p.fecha}`"  v-bind:class="{'destacada': selRow == i}">
+                            <td>{{formatDatetime(p.fecha + ' 00:00', 'date')}}</td>
                             <td>{{getWeekDay(p.fecha)}}</td>
                             <td>{{p.cargo}}</td>
-                            <td :style="`background-color: ${p.id_estado == '1' ? '#00c80040' : p.id_estado ?'#c8000040' : ''}`">
+                            <td :style="`background-color: ${p.id_estado == '1' ? '#00c80040' : ''}`">
                                 {{p.nombres}}</td>
                             <td>{{p.identificacion}}</td>
                             <td>{{p.estado}}</td>
