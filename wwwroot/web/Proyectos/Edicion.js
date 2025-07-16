@@ -14,7 +14,7 @@
                 id_ciudadela: 0,
                 id_tipo_proyecto: 0,
                 otra_info: "",
-                id_sala_venta: 0,
+                sala_venta: 0,
                 id_estado_publicacion: 0,
 
                 subsidios_vis: "",
@@ -76,7 +76,7 @@
                 id_ciudadela: 0,
                 id_tipo_proyecto: 0,
                 otra_info: "",
-                id_sala_venta: 0,
+                sala_venta: 0,
                 id_estado_publicacion: 0,
 
                 subsidios_vis: "",
@@ -262,12 +262,13 @@
             this.opcionesVisuales = resp[3];
             resp[6].forEach(item => item.checked = false);
             this.tipo = resp[6];
+            resp[12].forEach(item => item.checked = false);
+            this.salas_venta = resp[12];
             this.sede = resp[4];
             this.zona_proyecto = resp[5];
             this.ciudadela = resp[7];
             this.pie_legal = resp[8];
             this.fiduciaria = resp[9];
-            this.salas_venta = resp[12];
 
             this.banco_constructor = resp[10]
                 .filter(item => item.banco !== "Carta de compromiso del Cliente")
@@ -455,6 +456,16 @@
                 const id = parseInt(item.id_bancos_financiador);
                 item.checked = listaFinanciadores.includes(id);
             });
+
+            const salaVenta = (resp[0][0].salas_venta || '')
+                .split(',')
+                .map(id => parseInt(id));
+
+            this.salas_venta.forEach(item => {
+                const id = parseInt(item.id_sala_venta);
+                item.checked = salaVenta.includes(id);
+            });
+
             for (const key of Object.keys(this.camposPorSubmode)) {
                 const numericKey = parseInt(key, 10);
                 this.submode = numericKey;
@@ -579,6 +590,11 @@
 
             this.objProyecto.bancos_financiadores = bancosSeleccionados.join(',');
 
+            const sala_venta = this.salas_venta
+                .filter(item => item.checked)
+                .map(item => item.id_sala_venta);
+            this.objProyecto.sala_venta = sala_venta.join(',');
+
             try {
                 showProgress();
                 const result = await httpFunc("/generic/genericST/Proyectos:Ins_Proyecto", this.objProyecto);
@@ -690,6 +706,11 @@
                 .filter(item => item.checked)
                 .map(item => item.id_bancos_financiador);
             this.editObjProyecto.bancos_financiadores = bancosfinanciador.join(',');
+
+            const sala_venta = this.salas_venta
+                .filter(item => item.checked)
+                .map(item => item.id_sala_venta);
+            this.editObjProyecto.sala_venta = sala_venta.join(',');
 
             try {
                 showProgress();
