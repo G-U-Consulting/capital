@@ -10,7 +10,8 @@ set
     @id_sede = 0,
     @id_zona_proyecto = 0,
     @id_ciudadela = 0,
-    @id_sala_venta = 0,
+    @sala_venta = 0,
+
     @otra_info = '',
 
 
@@ -206,6 +207,30 @@ set
         end while;
     end if;
 
+
+ set @datos = @sala_venta;
+    set @tabla = 'fact_sala_venta';
+    set @campo = 'id_sala_venta';
+    set @i = 1;
+
+    if trim(@datos) <> '' then
+        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+        prepare stmt from @sql;
+        execute stmt;
+        deallocate prepare stmt;
+
+        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+        while @i <= @n do
+            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+            if @item <> '' then
+                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+                prepare stmt from @sql;
+                execute stmt;
+                deallocate prepare stmt;
+            end if;
+            set @i = @i + 1;
+        end while;
+    end if;
     
     -- set @datos = @tipo_proyecto;
     -- set @tabla = 'fact_tipo_proyecto';

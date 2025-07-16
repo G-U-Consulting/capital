@@ -21,10 +21,12 @@ from dim_opcion_visual
 where is_active = 1;
 
 select id_sede , sede
-from dim_sede;
+from dim_sede
+where is_active = 1;
 
 select id_zona_proyecto, zona_proyecto, id_sede
-from dim_zona_proyecto;
+from dim_zona_proyecto
+where is_active = 1;
 
 select id_tipo_proyecto, tipo_proyecto 
 from dim_tipo_proyecto
@@ -43,10 +45,13 @@ from dim_fiduciaria
 where is_active = 1;
 
 select id_banco as id_banco_constructor, banco
-from dim_banco_constructor;
+from dim_banco_constructor
+where is_active = 1;
 
 select id_banco as id_bancos_financiador, banco
-from dim_banco_constructor;
+from dim_banco_constructor
+where is_active = 1;
 
 select id_sala_venta, sala_venta
-from dim_sala_venta;
+from dim_sala_venta
+where is_active = 1;

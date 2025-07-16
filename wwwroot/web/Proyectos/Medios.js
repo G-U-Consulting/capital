@@ -173,9 +173,10 @@
     },
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
-        GlobalVariables.miniModuleCallback("StartMediaMdule", null);
+        GlobalVariables.miniModuleCallback("ImagenesVideos", null);
         this.setSubmode(0);
         this.updatePlantaPreviewAll();
+        await this.setMainMode();
         this.playIndex = 0;
 
     },
@@ -191,10 +192,15 @@
                 ...(this.videosReco?.filter(v => v.link) || [])
             ];
         },
+        setMainMode() {
+            this.setMode(0);
+        },
         setMode(mode) {
             this.mode = mode;
             if (mode == 0)
-                GlobalVariables.miniModuleCallback("StartMediaMdule", null);
+                // GlobalVariables.miniModuleCallback("SartProjectModule", null)
+            if (mode == 1)
+                GlobalVariables.miniModuleCallback("ImagenesVideos", null)
         },
         async setSubmode(index) {
             this.submode = index;
