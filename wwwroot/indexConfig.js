@@ -29,6 +29,16 @@
         category: "ROLES",
         allow: ["*"]
     },
+    "Agenda": {
+        templateUrl: "./web/Agenda/Agenda.html",
+        jsUrl: "./web/Agenda/Agenda.js",
+        title: "Agenda",
+        desc: "Permite administrar los usuarios y roles de la aplicación",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZU",
+        category: "AGENDA",
+        allow: ["*"]
+    },
     "Categorias": {
         templateUrl: "./web/Categorias/Categorias.html",
         jsUrl: "./web/Categorias/Categorias.js",
@@ -203,9 +213,6 @@ const zones = {
         categories: [
             { key:"USUARIOS", name: "Usuarios"},
             { key:"ROLES", name: "Roles"},
-            { key:"CATEGORIAS", name: "Categorias Adm"},
-            { key:"CONFIGURACION", name: "Configuración"},
-            { key:" ", name: "Informes"}
         ]
     },
     "ZA": {

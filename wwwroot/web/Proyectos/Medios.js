@@ -173,7 +173,7 @@
     },
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
-        GlobalVariables.miniModuleCallback("ImagenesVideos", null);
+        GlobalVariables.miniModuleCallback("ImagenesVideos", GlobalVariables.proyecto);
         this.setSubmode(0);
         this.updatePlantaPreviewAll();
         await this.setMainMode();

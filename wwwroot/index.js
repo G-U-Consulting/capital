@@ -17,6 +17,7 @@ var GlobalVariables = {
     id_proyecto: null,
     getPreferences: null,
     setPreferences: null,
+    proyecto: null,
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null, mvm = null;
