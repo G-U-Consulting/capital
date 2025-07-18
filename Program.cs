@@ -94,8 +94,8 @@ app.Map("/util/Json2Excel", async (HttpRequest request, HttpResponse response) =
     }
 
 }).WithName("Json2Excel");
-app.Map("/util/ImportProg/{op}/{sp}/{id_sala}", async (HttpContext context, HttpResponse response, HttpRequest request, string op, string sp, string id_sala) => {
-    string err = "";
+app.Map("/util/ImportProg/{op}/{sp}/{pars}", async (HttpContext context, HttpResponse response, HttpRequest request, string op, string sp, string pars) => {
+    var errorList = new JArray();
     try {
         response.ContentType = "application/json";
         JArray files = await WebBDUt.FileUpload(context, rootPath);
@@ -116,32 +116,62 @@ app.Map("/util/ImportProg/{op}/{sp}/{id_sala}", async (HttpContext context, Http
             {
                 JObject jsonObj = JObject.Parse(json);
                 JArray table = (JArray?)jsonObj["Table1"] ?? [];
+                var fileErrors = new JArray();
 
                 for (int i = 0; i < table.Count; i++)
                 {
                     JObject row = (JObject)table[i];
-                    row.Add("id_sala_venta", id_sala);
-                    if (row["fecha"] == null || string.IsNullOrEmpty(id_sala)
-                        || (row["id_usuario"] == null && row["cedula"] == null)
-                        || (row["id_estado"] == null && row["estado"] == null))
-                        continue;
-                    string date = row["fecha"].ToString();
-                    if (DateTime.TryParse(date, out DateTime parsedDate))
-                        row["fecha"] = parsedDate.ToString("yyyy-MM-dd HH:mm:ss");
+                    if (!string.IsNullOrEmpty(pars))
+                    {
+                        JObject par = JObject.Parse(pars);
+                        foreach (JProperty prop in par.Properties())
+                            row[prop.Name] = par[prop.Name];
+                    }
+                    foreach (JProperty prop in row.Properties())
+                    {
+                        if (prop.Name.StartsWith("fecha", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            string? date = row[prop.Name]?.ToString();
+                            if (!string.IsNullOrEmpty(date) && DateTime.TryParse(date, out DateTime parsedDate))
+                                row[prop.Name] = parsedDate.ToString("yyyy-MM-dd HH:mm:ss");
+                        }
+                    }
                     string res = (await Generic.ProcessRequest(request, response, op, sp, row.ToString(), rootPath)).ToString(Newtonsoft.Json.Formatting.None);
                     JObject jres = JObject.Parse(res);
                     if (jres["isError"] != null && (bool)jres["isError"])
-                        err += (jres["errorMessage"] ?? jres["data"]) + ": " + row.ToString() + "\n";
+                    {
+                        var rowError = new JObject {
+                            ["rowIndex"] = i,
+                            ["rowData"] = row,
+                            ["errorMessage"] = jres["errorMessage"] ?? jres["data"]
+                        };
+                        // Si hay errores de campo específicos, puedes agregarlos aquí como un array:
+                        if (jres["fieldErrors"] != null)
+                            rowError["fieldErrors"] = jres["fieldErrors"];
+                        fileErrors.Add(rowError);
+                    }
+                }
+
+                if (fileErrors.Count > 0)
+                {
+                    errorList.Add(new JObject {
+                        ["fileName"] = obj.GetValue("fileName")?.ToString(),
+                        ["errors"] = fileErrors
+                    });
                 }
             }
         }
-        return WebBDUt.NewBasicResponse(false, err == "" ? "OK" : err).ToString(Newtonsoft.Json.Formatting.None);
-    } catch (Exception ex) {
-        Logger.Log("util/ImportProg    " + ex.Message + Environment.NewLine + err + Environment.NewLine + ex.StackTrace);
+        if (errorList.Count == 0)
+            return WebBDUt.NewBasicResponse(false, "OK").ToString(Newtonsoft.Json.Formatting.None);
+        else
+            return WebBDUt.NewBasicResponse(true, errorList).ToString(Newtonsoft.Json.Formatting.None);
+    }
+    catch (Exception ex)
+    {
+        Logger.Log("util/ImportProg    " + ex.Message + Environment.NewLine + errorList.ToString() + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
-
 }).WithName("ImportProg");
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";

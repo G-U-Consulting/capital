@@ -24,6 +24,7 @@ export default {
             programacion: {},
 
             selDate: new Date(),
+            currentDay: {},
 
             editNewRow: false,
             selRow: null,
@@ -54,7 +55,7 @@ export default {
             let days = this.viewMonths[this.nameMonths[this.viewMode.initMonth]].days.filter(d => d.currentMonth);
             days.forEach(d => {
                 let e = this.programaciones.some(p => this.equalsDate(d.date, new Date(p.fecha + ' 00:00')));
-                if(!e) this.programaciones.push({fecha: this.formatDatetime(null, 'bdate', d.date)});
+                if (!e) this.programaciones.push({ fecha: this.formatDatetime(null, 'bdate', d.date) });
             });
             this.programaciones.sort((a, b) => new Date(a.fecha + ' 00:00').getDate() - new Date(b.fecha + ' 00:00').getDate());
         },
@@ -143,6 +144,7 @@ export default {
         setToday() {
             this.selDate = new Date();
             this.setViewMonths();
+            this.selRow = null;
         },
         async selDay(day) {
             const selectedMonthKey = Object.keys(this.viewMonths).find(key => this.viewMonths[key].selected);
@@ -155,7 +157,13 @@ export default {
             this.selDate = day.date;
             this.viewMonths[this.nameMonths[day.viewMonth]].selected = true;
             this.currentDay = day;
-            //document.querySelector('.tab-' + this.formatDatetime(day.date, 'bdate'))?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            await Promise.resolve();
+            let $row = document.querySelector('.tab-' + this.formatDatetime(day.date, 'bdate'));
+            if ($row) {
+                let index = parseInt($row.id);
+                $row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                this.onSelect(this.getFilteredList('programaciones')[index], index);
+            } else this.selRow = null;
         },
         setRecurringEvents(e) {
             if (this.viewMode.months >= 0 && this.viewMode.initMonth >= 0 && e.frecuencia) {
@@ -215,6 +223,8 @@ export default {
             if (Math.abs((date.getFullYear() - y) * 12 + (date.getMonth() - m)) !== 1)
                 date.setDate(0);
             this.setViewMonths();
+            this.fillDays();
+            this.selRow = null;
         },
         isToday() {
             const today = new Date();
@@ -249,6 +259,15 @@ export default {
                 return days[new Date(date).getDay()];
             }
         },
+        getWeekCount(date) {
+            if (date) {
+                let firstDay = new Date(date.getFullYear(), date.getMonth(), 1),
+                    firstWeekday = (firstDay.getDay() + 6) % 7, // lunes = 0
+                    day = date.getDate(),
+                    weekCount = Math.floor((day + firstWeekday - 1) / 7);
+                return weekCount;
+            }
+        },
         newRow() {
             this.editNewRow = !this.editNewRow;
             this.programacion = {};
@@ -260,6 +279,7 @@ export default {
                 this.editNewRow = false;
                 this.selRow = i;
             }
+            if (!p.id_usuario) this.selRow = null;
         },
         async onSave() {
             if (this.editNewRow) {
@@ -286,7 +306,10 @@ export default {
         },
         async reqDelete() {
             if (!this.editNewRow && this.selRow)
-                showConfirm(`Se eliminará la asignación permanentemente.`, this.onDelete, null, this.programacion);
+                showConfirm(`Se eliminarán todas las asignaciones de la tabla.`, this.onDeleteAll, null, null);
+        },
+        async reqDeleteAll() {
+            showConfirm(`Se eliminará la asignación permanentemente.`, this.onDelete, null, this.programacion);
         },
         async onDelete(prog) {
             showProgress();
@@ -301,14 +324,49 @@ export default {
             }
             hideProgress();
         },
+        async onDeleteAll() {
+            showProgress();
+            await Promise.all(await this.getFilteredList('programaciones').filter(p => p.id_usuario)
+                .map(async prog => await httpFunc(`/generic/genericST/Salas:Del_Programacion`, prog)));
+            await this.loadData();
+            this.fillDays();
+            hideProgress();
+        },
         async fileUpload(e) {
             let files = Array(...e.target.files);
             showProgress();
             let form = new FormData();
             files.forEach(f => form.append(f.name, f));
-            let res = await httpFunc(`/util/ImportProg/genericST/Salas:Ins_Programacion/${this.sala.id_sala_venta}`, form);
-            if (res.isError) showMessage(res.errorMessage);
-            else await this.loadData();
+            let res = await httpFunc(`/util/ImportProg/genericST/Salas:Ins_Programacion/{id_sala_venta: ${this.sala.id_sala_venta}}`, form);
+            if (res.isError) showMessage(JSON.stringify(res.errorMessage));
+            await this.loadData();
+            this.fillDays();
+            hideProgress();
+        },
+        isHoliday(text) {
+            let fecha = new Date(text + ' 00:00'), month = this.viewMonths[this.nameMonths[fecha.getMonth()]];
+            if (month) {
+                let day = month.days.find(d => d.currentMonth && d.monthDay == fecha.getDate() && this.viewMode.year == fecha.getFullYear());
+                return day.isHoliday;
+            }
+        },
+        async downloadTemplate() {
+            try {
+                showProgress();
+                let datos = this.getFilteredList('programaciones').filter(p => p.id_usuario).map(p => (
+                    {
+                        fecha: new Date(p.fecha + ' 00:00'), cedula: parseInt(p.identificacion), estado: p.estado, dia: this.getWeekDay(p.fecha),
+                        asesor: p.nombres, sala: this.sala.sala_venta, categoria: p.cargo, festivo: this.isHoliday(p.fecha) ? 'Sí' : 'No'
+                    }
+                ));
+                console.log(datos);
+                var archivo = (await httpFunc("/util/Json2Excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoProgSalas" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
             hideProgress();
         }
     },
@@ -320,8 +378,11 @@ export default {
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
                     ) : []
                 ).filter(p => (this.filterMode == 'm' && new Date(p.fecha + ' 00:00').getFullYear() == this.selDate.getFullYear()
-                    && new Date(p.fecha + ' 00:00').getMonth() == this.selDate.getMonth()) 
-                    || this.equalsDate(this.selDate, new Date(p.fecha + ' 00:00'))) : [];
+                    && new Date(p.fecha + ' 00:00').getMonth() == this.selDate.getMonth())
+                    || (this.filterMode == 's' && new Date(p.fecha + ' 00:00').getFullYear() == this.selDate.getFullYear()
+                        && new Date(p.fecha + ' 00:00').getMonth() == this.selDate.getMonth()
+                        && this.getWeekCount(new Date(p.fecha + ' 00:00')) == this.getWeekCount(this.selDate))
+                    || (this.filterMode == 'd' && this.equalsDate(this.selDate, new Date(p.fecha + ' 00:00')))) : [];
             };
         },
     }

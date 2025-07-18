@@ -2275,11 +2275,11 @@ tr .cal-event-count {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 .prog-grid-btn {
   display: inline-grid; 
-  grid: 1fr 1fr / 1fr 1fr; 
+  grid: repeat(3, 1fr) / 1fr 1fr; 
   gap: .8rem; 
   justify-items: end;
 }

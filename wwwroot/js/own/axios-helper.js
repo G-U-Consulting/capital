@@ -34,8 +34,11 @@ async function httpFunc(path, data, getID = false) {
                     datos: JSON.stringify(data),
                     username: GlobalVariables.username
                 };
-                if(resp.data.isError || !resp.data.data.startsWith('OK'))
-                    registro.error = (resp.data.errorMessage || resp.data.data || '').substr(0, 255);
+                if(resp.data.isError || !resp.data.data.startsWith('OK')) {
+                    let err = resp.data.errorMessage || resp.data.data || '';
+                    if (err instanceof Array || err instanceof Object) err = JSON.stringify(err);
+                    registro.error = err.substr(0, 255);
+                }
                 let res = operacion.includes('Ins') && resp.data.data && resp.data.data.split('-')[1] ? resp.data.data.split('-')[1] : null;
                 if (res) {
                     resp.data.data = 'OK';

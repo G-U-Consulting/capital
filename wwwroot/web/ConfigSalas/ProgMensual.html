@@ -41,7 +41,8 @@
                             <div class="cal-day prog" v-for="day in viewMonths[nameMonths[i]].days"
                                 :id="`mat-m${day.month}-d${day.monthDay}-${day.currentMonth ? 'c' : day.viewMonth}`"
                                 v-bind:class="{'cal-today': day.isToday, 'cal-fade-day': !day.currentMonth, 
-                            'cal-sel-day': day.isSelected, 'cal-holiday': day.isHoliday}"
+                                'cal-sel-day': day.isSelected, 'cal-holiday': day.isHoliday,
+                                'cal-sel-week': filterMode == 's' && currentDay.weekCount == day.weekCount && i == currentDay.month}"
                                 @click="day.currentMonth && selDay(day)" :style="day.events && 
                                 day.events.filter(e => e.festivo != '1').length  ? 
                                 `background-color: ${day.events.filter(e => e.festivo != '1')[0].color}40;` : ''">
@@ -60,20 +61,28 @@
                             <label for="filter-day">
                                 <input type="radio" name="filter-radio" id="filter-day" :checked="filterMode == 'd'"
                                     @click="filterMode = 'd'" />
-                                <span>Mostrar Día</span>
+                                <span>Día</span>
+                            </label>
+                            <label for="filter-week">
+                                <input type="radio" name="filter-radio" id="filter-week" :checked="filterMode == 's'"
+                                    @click="filterMode = 's'" />
+                                <span>Semana</span>
                             </label>
                             <label for="filter-month">
                                 <input type="radio" name="filter-radio" id="filter-month" :checked="filterMode == 'm'"
                                     @click="filterMode = 'm'" />
-                                <span>Mostrar Mes</span>
+                                <span>Mes</span>
                             </label>
                         </div>
                         <div class="prog-grid-btn">
-                            <a href="../../docs/plantilla_programacion_sala.xlsx" download="plantilla_programacion_sala.xlsx">
-                                <button>Descargar Plantilla</button>
-                            </a>
+                            <button @click="downloadTemplate">Exportar Excel</button>
                             <div style="width: 100%;">
                                 <label for="sub-image" class="file" style="text-align: center;">Cargar Excel</label>
+                                <input id="sub-image" type="file" @input="fileUpload" style="display: none;" />
+                            </div>
+                            <button @click="downloadTemplate">Exportar CSV</button>
+                            <div style="width: 100%;">
+                                <label for="sub-image" class="file" style="text-align: center;">Cargar CSV</label>
                                 <input id="sub-image" type="file" @input="fileUpload" style="display: none;" />
                             </div>
                             <button @click="reqDelete">Eliminar Fila</button>
@@ -89,6 +98,11 @@
                                 <option value="">[Seleccione]</option>
                                 <option v-for="u in usuarios" :value="u.id_usuario">{{u.nombres}}</option>
                             </select>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-6" style="text-align: right;">
+                            <button @click="onDeleteAll">Borrar todo</button>
                         </div>
                     </div>
                     <div style="display: flex; align-items: baseline; margin-top: .5rem;">
@@ -136,12 +150,12 @@
                                 </select>
                             </td>
                         </tr>
-                        <tr v-for="(p, i) in getFilteredList('programaciones')" @click="onSelect(p, i)"
+                        <tr :id="i" v-for="(p, i) in getFilteredList('programaciones')" @click="onSelect(p, i)"
                             :class="`tab-${p.fecha}`"  v-bind:class="{'destacada': selRow == i}">
                             <td>{{formatDatetime(p.fecha + ' 00:00', 'date')}}</td>
                             <td>{{getWeekDay(p.fecha)}}</td>
                             <td>{{p.cargo}}</td>
-                            <td :style="`background-color: ${p.id_estado == '1' ? '#00c80040' : ''}`">
+                            <td :style="`background-color: ${p.id_estado == '1' ? '#00c80030' : ''}`">
                                 {{p.nombres}}</td>
                             <td>{{p.identificacion}}</td>
                             <td>{{p.estado}}</td>
