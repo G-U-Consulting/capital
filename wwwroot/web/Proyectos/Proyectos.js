@@ -58,7 +58,10 @@ export default {
             } else if(type == "NewProject"){
                 this.pushRuta("Nuevo proyecto", 1);
                 this.proyecto = null;
-            }else if(type == "ImagenesVideos"){
+            } else if (type == "ImagenesVideos") {
+                this.lateralMenu = true;
+                this.proyecto = data;
+                if (this.ruta.length < 3)
                 this.pushRuta("Imágenes y Videos", 1);
             }else if(type == "OpenDocs"){
                 this.pushRuta("Documentación", 3);
@@ -86,7 +89,6 @@ export default {
                 return this.proyecto;
             }
             else if(type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
-            
         },
         async handleFileUpload(event) {
             const file = event.target.files[0];

@@ -386,6 +386,7 @@
             };
 
             GlobalVariables.id_proyecto = item["id_proyecto"];
+            GlobalVariables.proyecto = item;
 
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": item["id_proyecto"] });
             resp = resp.data;
@@ -474,7 +475,7 @@
             }
             this.submode = 0;
             this.setMode(mode);
-            await GlobalVariables.miniModuleCallback("SelectedProject", item);
+            await GlobalVariables.miniModuleCallback("SelectedProject", GlobalVariables.proyecto);
             if (mode == 'portada') {
                 let item = document.querySelector('.lateralMenuItemSelected');
                 item && item.classList.remove('lateralMenuItemSelected');
