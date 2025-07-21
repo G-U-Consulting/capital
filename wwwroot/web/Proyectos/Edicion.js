@@ -213,13 +213,6 @@
                 ) : [];
             };
         },
-        proyectosTabla() {
-        return this.getFilteredList('proyectos').map(p => ({
-            ...p,
-            es_lanzamiento: String(p.lanzamiento) === '1',
-            is_active: String(p.is_active) === '1'
-        }));
-    },
         zonasFiltradas() {
             const sedeId = this.objProyecto?.id_sede || this.editObjProyecto?.id_sede;
             if (!sedeId) return [];

@@ -2283,6 +2283,59 @@ tr .cal-event-count {
   gap: .8rem; 
   justify-items: end;
 }
+.error-container {
+    font-family: Arial, sans-serif;
+    margin: 2px;
+}
+
+.archivo-error {
+    background-color: #f9f9f9;
+    border-left: 3px solid #0078D4;
+    padding: 3px;
+    margin-bottom: 5px;
+    border-radius: 3px;
+}
+
+.archivo-error h2 {
+    color: #0078D4;
+    margin-top: 0;
+}
+
+.error-item {
+    background-color: #fff3f3;
+    border: 1px solid #f5c2c2;
+    padding: 3px;
+    border-radius: 3px;
+    margin-top: 3px;
+}
+
+.error-item h3 {
+    color: #d8000c;
+    margin-bottom: 2px;
+}
+
+.error-item p {
+    margin: 1px 0 2px 0;
+}
+
+.error-item table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2px;
+}
+
+.error-item th,
+.error-item td {
+    border: 1px solid #ccc;
+    padding: 2px;
+    text-align: left;
+}
+
+.error-item th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
 
 .maestros .searchBox {
   padding-left: 5px;

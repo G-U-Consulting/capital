@@ -429,6 +429,43 @@ create table dim_sala_proyecto(
 	primary key(id_sala_venta, id_proyecto)
 );
 
+create trigger tr_insert_sala_pro_futuros after insert on dim_sala_venta for each row
+begin
+	if new.pro_futuros = 1 then
+		insert into dim_sala_proyecto(id_sala_venta, id_proyecto) 
+		select new.id_sala_venta, pro.id_proyecto 
+			from fact_proyectos pro 
+			where pro.is_active = 1 and (new.id_sede is null or new.id_sede = pro.id_sede);
+	end if;
+end;
+create trigger tr_update_sala_pro_futuros after update on dim_sala_venta for each row
+begin
+	if old.pro_futuros = 0 and new.pro_futuros = 1 then
+		insert into dim_sala_proyecto(id_sala_venta, id_proyecto) 
+		select new.id_sala_venta, pro.id_proyecto 
+			from fact_proyectos pro where pro.is_active = 1 
+				and (new.id_sede is null or new.id_sede = pro.id_sede) and pro.id_proyecto not in 
+					(select sp.id_proyecto from dim_sala_proyecto sp where sp.id_sala_venta = new.id_sala_venta);
+	end if;
+end;
+create trigger tr_insert_proyecto_futuro after insert on fact_proyectos for each row
+begin
+	insert into dim_sala_proyecto(id_sala_venta, id_proyecto)
+	select sv.id_sala_venta, new.id_proyecto from dim_sala_venta sv 
+		where sv.pro_futuros = 1 and (sv.id_sede is null or sv.id_sede = new.id_sede);
+end;
+create trigger tr_update_proyecto_futuro after update on fact_proyectos for each row
+begin
+	if old.is_active = 0 and new.is_active = 1 then
+		insert into dim_sala_proyecto(id_sala_venta, id_proyecto)
+		select sv.id_sala_venta, new.id_proyecto from dim_sala_venta sv 
+			where sv.pro_futuros = 1 and (sv.id_sede is null or sv.id_sede = new.id_sede);
+	elseif old.is_active = 1 and new.is_active = 0 then
+		delete from dim_sala_proyecto where id_proyecto = new.id_proyecto
+			and (select pro_futuros from dim_sala_venta sv where sv.id_sala_venta = dim_sala_proyecto.id_sala_venta) = 1;
+	end if;
+end;
+
 create table dim_preferencias_usuario(
 	id int primary key auto_increment,
 	id_usuario int,

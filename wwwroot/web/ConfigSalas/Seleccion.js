@@ -62,7 +62,7 @@ export default {
                 ruta.push({ text: `${this.sala_venta.sala_venta} - Edición`, action: () => this.onSelect(this.sala_venta) });
             }
             if (mode == 3) {
-                ruta.push({ text: 'Configuración', action: () => this.load_checked() });
+                ruta.push({ text: 'Configuración', action: () => this.loadChecked() });
             }
             GlobalVariables.miniModuleCallback('SetRuta', ruta);
         },
@@ -73,7 +73,6 @@ export default {
         async onSelect(selected) {
             this.sala_venta = {};
             Object.keys(selected).forEach((key) => (this.sala_venta[key] = selected[key]));
-            this.sala_venta.pro_futuros = this.sala_venta.pro_futuros == '1' || this.sala_venta.pro_futuros === true;
             this.setMode(2);
             GlobalVariables.miniModuleCallback("SeleccionSala", this.sala_venta);
         },
@@ -93,13 +92,19 @@ export default {
         },
         async onSaveSala() {
             let sala = { ...this.sala_venta };
-            this.sala_venta.pro_futuros = this.sala_venta.pro_futuros || this.sala_venta.pro_futuros == '1' ? '1' : '0';
             let id_sala_venta = await this.onSave();
-            if (this.mode == 1 && id_sala_venta) {
+            if (this.mode == 1 && id_sala_venta) 
                 this.sala_venta = { id_sede: '', id_zona_proyecto: '', id_ciudadela: '', ...sala, id_sala_venta };
-                this.onSelect(this.sala_venta);
-                this.loadProjects(this.sala_venta);
+            this.onSelect(this.sala_venta);
+            this.loadProjects(this.sala_venta);
+        },
+        async onChangePF() {
+            this.sala_venta = {
+                ...this.sala_venta, id_zona_proyecto: '', id_ciudadela: '',
+                pro_futuros: this.sala_venta.pro_futuros == '1' ? '0' : '1'
             }
+            this.proyectos_sala = [];
+            console.log(this.sala_venta);
         },
         getItem() {
             if (this.mainmode == 0) return [this.sala_venta, "SalaVenta", this.salas_ventas];
@@ -247,7 +252,7 @@ export default {
         },
         async onSavePro(pro) {
             if (pro) this.proyecto_sala = pro;
-            else if(this.selRow != null) {
+            else if (this.selRow != null) {
                 showProgress();
                 this.proyecto_sala = this.pro_sala[this.selRow];
             }
@@ -269,10 +274,9 @@ export default {
         },
         async toggleFeria(sv) {
             sv.is_feria = sv.is_feria == '0' ? '1' : '0';
-            sv.pro_futuros || sv.pro_futuros == '1' ? '1' : '0';
             await httpFunc(`/generic/genericST/Maestros:Upd_SalaVenta`, sv);
         },
-        async load_checked() {
+        async loadChecked() {
             await this.loadFields();
             this.t_turnos = this.t_turnos.map(t => {
                 let checked = !!this.t_turnos_sala.filter(ts => ts.id_tipo_turno == t.id_tipo_turno).length;
@@ -290,7 +294,6 @@ export default {
                 obligatorios = this.c_obligatorios.filter(c => c.checked).map(c => c.id_campo);
             this.sala_venta.tipos_turno = turnos.join(',');
             this.sala_venta.campos_obligatorios = obligatorios.join(',');
-            this.sala_venta.pro_futuros || this.sala_venta.pro_futuros == '1' ? '1' : '0';
             let res = await httpFunc("/generic/genericST/Maestros:Upd_SalaVenta", this.sala_venta);
             hideProgress();
             if (res.isError) {

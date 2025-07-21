@@ -338,7 +338,7 @@ export default {
             let form = new FormData();
             files.forEach(f => form.append(f.name, f));
             let res = await httpFunc(`/util/ImportFiles/genericST/Salas:Ins_Programacion/{id_sala_venta: ${this.sala.id_sala_venta}}`, form);
-            if (res.isError) showMessage(JSON.stringify(res.errorMessage));
+            if (res.isError) showMessage(this.JSON2HTML(res.errorMessage));
             await this.loadData();
             this.fillDays();
             hideProgress();
@@ -350,15 +350,49 @@ export default {
                 return day.isHoliday;
             }
         },
+        JSON2HTML(errorMessage) {
+            let html = "<div class='error-container'>";
+            errorMessage.forEach((archivo, i) => {
+                html += `
+            <div class='archivo-error'>
+                <h2>Errores en el archivo: <em>${archivo.fileName}</em></h2>
+        `;
+
+                archivo.errors.forEach((error, errorIndex) => {
+                    html += `
+                <div class='error-item'>
+                    <h3>Error en la fila ${error.rowIndex + 1}</h3>
+                    <p><strong>Mensaje:</strong> ${error.errorMessage}</p>
+                    <table border="1" cellpadding="5" cellspacing="0">
+                        <thead>
+                            <tr>${Object.keys(error.rowData).map(key => `<th>${key}</th>`).join('')}</tr>
+                        </thead>
+                        <tbody>
+                            <tr>${Object.values(error.rowData).map(value => `<td>${value}</td>`).join('')}</tr>
+                        </tbody>
+                    </table>
+                </div>
+                <hr/>
+            `;
+                });
+
+                html += "</div>";
+            });
+
+            html += "</div>";
+            return html;
+
+        },
         async downloadTemplate(type) {
             try {
                 showProgress();
-                let datos = this.getFilteredList('programaciones').filter(p => p.id_usuario).map(p => (
-                    {
-                        fecha: new Date(p.fecha + ' 00:00'), cedula: parseInt(p.identificacion), estado: p.estado, dia: this.getWeekDay(p.fecha),
-                        asesor: p.nombres, sala: this.sala.sala_venta, categoria: p.cargo, festivo: this.isHoliday(p.fecha) ? 'Sí' : 'No'
-                    }
-                ));
+                let datos = this.programaciones.filter(p => (new Date(p.fecha + ' 00:00').getFullYear() == this.selDate.getFullYear()
+                    && new Date(p.fecha + ' 00:00').getMonth() == this.selDate.getMonth()) && p.id_usuario).map(p => (
+                        {
+                            fecha: new Date(p.fecha + ' 00:00'), cedula: parseInt(p.identificacion), estado: p.estado, dia: this.getWeekDay(p.fecha),
+                            asesor: p.nombres, sala: this.sala.sala_venta, categoria: p.cargo, festivo: this.isHoliday(p.fecha) ? 'Sí' : 'No'
+                        }
+                    ));
                 var archivo = (await httpFunc(`/util/Json2File/${type}`, datos)).data;
                 type === 'excel' && await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoProgSalas" });
                 window.open("./docs/" + archivo, "_blank");

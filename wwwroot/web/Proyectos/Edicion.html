@@ -65,7 +65,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in proyectosTabla":key="item.id" @click="tortaProject(item);"
+                            <tr v-for="item in getFilteredList('proyectos')":key="item.id" @click="tortaProject(item);"
                                 @dblclick="selectProject(item,'portada')"
                                 :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                 <td style="height: 3.2em;">
@@ -76,12 +76,12 @@
                                 <td>{{item.zona_proyecto}}</td>
                                 <td>{{item.ciudadela}}</td>
                                 <td>
-                                    <span v-if="item.es_lanzamiento" class="lanzamiento-tag">🚀 Próximo Lanzamiento</span>
+                                    <span v-if="item.lanzamiento == '1'" class="lanzamiento-tag">🚀 Próximo Lanzamiento</span>
                                 </td>
                                 <td style="text-align: center;">
                                     <div class="toggle-switch" @click.stop.prevent="toggleState(item)">
                                         <input :id="'toggle' + item.nombre" type="checkbox" class="toggle-input"
-                                            :checked="Number(item.is_active) !== 1">
+                                            :checked="item.is_active != '1'">
                                         <label class="toggle-label" :for="'toggle' + item.nombre"
                                             style="transform: rotate(180deg);"></label>
                                     </div>

@@ -75,12 +75,12 @@
                             </label>
                         </div>
                         <div class="prog-grid-btn">
-                            <button @click="downloadTemplate('excel')">Exportar Excel</button>
+                            <button @click="downloadTemplate('excel')">Descargar Excel</button>
                             <div style="width: 100%;">
                                 <label for="up-excel" class="file" style="text-align: center;">Cargar Excel</label>
                                 <input id="up-excel" type="file" @input="fileUpload" style="display: none;" accept=".xlsx"/>
                             </div>
-                            <button @click="downloadTemplate('csv')">Exportar CSV</button>
+                            <button @click="downloadTemplate('csv')">Descargar CSV</button>
                             <div style="width: 100%;">
                                 <label for="up-csv" class="file" style="text-align: center;">Cargar CSV</label>
                                 <input id="up-csv" type="file" @input="fileUpload" style="display: none;" accept=".csv"/>
@@ -100,7 +100,8 @@
                             </select>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-5-12" style="text-align: right;">
-                            <button style="width: 113.8px;" @click="reqDeleteAll">Borrar todo</button>
+                            <button style="width: 123.42px; padding: .2em 0;" 
+                                @click="reqDeleteAll">Borrar selección</button>
                         </div>
                     </div>
                     <div style="display: flex; align-items: baseline; margin-top: .5rem;">
