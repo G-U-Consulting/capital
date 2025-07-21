@@ -648,10 +648,12 @@ public static class WebBDUt {
         return dataSet;
     }
 
-    public static JObject SetJsonToFile(string json){
+    public static JObject SetJsonToFile(string json, bool isCsv){
         DataTable? dt = JsonConvert.DeserializeObject<DataTable>(json);
-        DataSet ds = new DataSet();
+        DataSet ds = new();
         ds.Tables.Add(dt);
+        if (isCsv)
+            return SetToFile(ds, true, true);
         return SetToFile(ds, false);
     }
     public static string ExcelToJson(string path)
@@ -664,11 +666,41 @@ public static class WebBDUt {
         }
         catch (Exception e)
         {
-            Logger.Log("util/ImportExcelCSV    " + e.Message + Environment.NewLine + e.StackTrace);
+            Logger.Log("util/ImportFiles/Excel    " + e.Message + Environment.NewLine + e.StackTrace);
+        }
+        return json;
+    }
+    public static string CsvToJson(string path)
+    {
+        string json = string.Empty;
+        try
+        {
+            string[] lines = File.ReadAllLines(path),
+                headers = lines[0].Split(',');
+            List<Dictionary<string, string>> jsonList = [];
+            for (int i = 1; i < lines.Length; i++)
+            {
+                string[] values = lines[i].Split(',');
+                Dictionary<string, string> obj = [];
+
+                for (int j = 0; j < headers.Length; j++)
+                    obj[headers[j]] = values[j];
+
+                jsonList.Add(obj);
+            }
+            json = JsonConvert.SerializeObject(jsonList);
+        }
+        catch (Exception e)
+        {
+            Logger.Log("util/ImportFiles/Csv    " + e.Message + Environment.NewLine + e.StackTrace);
         }
         return json;
     }
     public static JObject SetToFile(DataSet ds, bool isTxt)
+    {
+        return SetToFile(ds, isTxt, false);
+    }
+    public static JObject SetToFile(DataSet ds, bool isTxt, bool isCsv)
     {
         JObject ret = new JObject();
         string message = null;
@@ -688,7 +720,7 @@ public static class WebBDUt {
             message = ds.Tables[0].Rows[0][0].ToString();
         else if (isTxt)
         {
-            string url = Guid.NewGuid().ToString() + ".txt";
+            string url = Guid.NewGuid().ToString() + (isCsv ? ".csv" : ".txt");
             string fileUri = Path.Combine(RootPath, "wwwroot", "docs", url);
             using (StreamWriter file = new StreamWriter(fileUri, false, Encoding.UTF8))
             {

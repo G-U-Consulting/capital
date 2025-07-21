@@ -79,22 +79,25 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
-app.Map("/util/Json2Excel", async (HttpRequest request, HttpResponse response) => {
+app.Map("/util/Json2File/{type}", async (HttpRequest request, HttpResponse response, string type) => {
     string body = "";
     try {
         response.ContentType = "application/json";
         using (var stream = new StreamReader(request.Body)) {
             body = await stream.ReadToEndAsync();
         }
-        return WebBDUt.SetJsonToFile(body).ToString(Newtonsoft.Json.Formatting.None);
+        if (type == "csv")
+            return WebBDUt.SetJsonToFile(body, true).ToString(Newtonsoft.Json.Formatting.None);
+        else
+            return WebBDUt.SetJsonToFile(body, false).ToString(Newtonsoft.Json.Formatting.None);
     } catch (Exception ex) {
-        Logger.Log("util/Json2Excel    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        Logger.Log("util/Json2File    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
 
-}).WithName("Json2Excel");
-app.Map("/util/ImportProg/{op}/{sp}/{pars}", async (HttpContext context, HttpResponse response, HttpRequest request, string op, string sp, string pars) => {
+}).WithName("Json2File");
+app.Map("/util/ImportFiles/{op}/{sp}/{pars}", async (HttpContext context, HttpResponse response, HttpRequest request, string op, string sp, string pars) => {
     var errorList = new JArray();
     try {
         response.ContentType = "application/json";
@@ -105,7 +108,9 @@ app.Map("/util/ImportProg/{op}/{sp}/{pars}", async (HttpContext context, HttpRes
         {
             JObject obj = (JObject)files[x];
             string path = Path.Combine(rootPath, "wwwroot", obj.GetValue("serverPath")?.ToString());
-            json = WebBDUt.ExcelToJson(path);
+            json = obj.GetValue("fileName")?.ToString().EndsWith(".csv") ?? false
+                ? WebBDUt.CsvToJson(path)
+                : WebBDUt.ExcelToJson(path);
             if (File.Exists(path)) File.Delete(path);
             if (string.IsNullOrEmpty(json))
             {
@@ -114,10 +119,14 @@ app.Map("/util/ImportProg/{op}/{sp}/{pars}", async (HttpContext context, HttpRes
             }
             else
             {
-                JObject jsonObj = JObject.Parse(json);
-                JArray table = (JArray?)jsonObj["Table1"] ?? [];
-                var fileErrors = new JArray();
-
+                JArray table = [], fileErrors = [];
+                if (obj.GetValue("fileName")?.ToString().EndsWith(".xlsx") ?? false)
+                {
+                    JObject jsonObj = JObject.Parse(json);
+                    table = (JArray?)jsonObj["Table1"] ?? [];
+                }
+                else table = JArray.Parse(json);
+                
                 for (int i = 0; i < table.Count; i++)
                 {
                     JObject row = (JObject)table[i];
@@ -140,12 +149,12 @@ app.Map("/util/ImportProg/{op}/{sp}/{pars}", async (HttpContext context, HttpRes
                     JObject jres = JObject.Parse(res);
                     if (jres["isError"] != null && (bool)jres["isError"])
                     {
-                        var rowError = new JObject {
+                        var rowError = new JObject
+                        {
                             ["rowIndex"] = i,
                             ["rowData"] = row,
                             ["errorMessage"] = jres["errorMessage"] ?? jres["data"]
                         };
-                        // Si hay errores de campo específicos, puedes agregarlos aquí como un array:
                         if (jres["fieldErrors"] != null)
                             rowError["fieldErrors"] = jres["fieldErrors"];
                         fileErrors.Add(rowError);
@@ -168,11 +177,11 @@ app.Map("/util/ImportProg/{op}/{sp}/{pars}", async (HttpContext context, HttpRes
     }
     catch (Exception ex)
     {
-        Logger.Log("util/ImportProg    " + ex.Message + Environment.NewLine + errorList.ToString() + Environment.NewLine + ex.StackTrace);
+        Logger.Log("util/ImportFiles    " + ex.Message + Environment.NewLine + errorList.ToString() + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
-}).WithName("ImportProg");
+}).WithName("ImportFiles");
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";
     try {

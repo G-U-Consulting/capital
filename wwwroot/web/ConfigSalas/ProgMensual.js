@@ -304,12 +304,12 @@ export default {
             this.selRow = null;
             this.selUser = {};
         },
+        async reqDeleteAll() {
+            showConfirm(`Se eliminarán todas las asignaciones de la tabla.`, this.onDeleteAll, null, null);
+        },
         async reqDelete() {
             if (!this.editNewRow && this.selRow)
-                showConfirm(`Se eliminarán todas las asignaciones de la tabla.`, this.onDeleteAll, null, null);
-        },
-        async reqDeleteAll() {
-            showConfirm(`Se eliminará la asignación permanentemente.`, this.onDelete, null, this.programacion);
+                showConfirm(`Se eliminará la asignación permanentemente.`, this.onDelete, null, this.programacion);
         },
         async onDelete(prog) {
             showProgress();
@@ -337,7 +337,7 @@ export default {
             showProgress();
             let form = new FormData();
             files.forEach(f => form.append(f.name, f));
-            let res = await httpFunc(`/util/ImportProg/genericST/Salas:Ins_Programacion/{id_sala_venta: ${this.sala.id_sala_venta}}`, form);
+            let res = await httpFunc(`/util/ImportFiles/genericST/Salas:Ins_Programacion/{id_sala_venta: ${this.sala.id_sala_venta}}`, form);
             if (res.isError) showMessage(JSON.stringify(res.errorMessage));
             await this.loadData();
             this.fillDays();
@@ -350,7 +350,7 @@ export default {
                 return day.isHoliday;
             }
         },
-        async downloadTemplate() {
+        async downloadTemplate(type) {
             try {
                 showProgress();
                 let datos = this.getFilteredList('programaciones').filter(p => p.id_usuario).map(p => (
@@ -359,9 +359,8 @@ export default {
                         asesor: p.nombres, sala: this.sala.sala_venta, categoria: p.cargo, festivo: this.isHoliday(p.fecha) ? 'Sí' : 'No'
                     }
                 ));
-                console.log(datos);
-                var archivo = (await httpFunc("/util/Json2Excel", datos)).data;
-                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoProgSalas" })).data;
+                var archivo = (await httpFunc(`/util/Json2File/${type}`, datos)).data;
+                type === 'excel' && await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoProgSalas" });
                 window.open("./docs/" + archivo, "_blank");
             }
             catch (e) {

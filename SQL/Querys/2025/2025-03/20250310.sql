@@ -411,6 +411,7 @@ create table dim_sala_venta(
 	id_ciudadela int references dim_ciudadela(id_ciudadela),
 	codigo varchar(10),
 	is_feria bit default 0,
+	pro_futuros bit default 0,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,

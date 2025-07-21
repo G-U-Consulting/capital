@@ -73,6 +73,7 @@ export default {
         async onSelect(selected) {
             this.sala_venta = {};
             Object.keys(selected).forEach((key) => (this.sala_venta[key] = selected[key]));
+            this.sala_venta.pro_futuros = this.sala_venta.pro_futuros == '1' || this.sala_venta.pro_futuros === true;
             this.setMode(2);
             GlobalVariables.miniModuleCallback("SeleccionSala", this.sala_venta);
         },
@@ -92,6 +93,7 @@ export default {
         },
         async onSaveSala() {
             let sala = { ...this.sala_venta };
+            this.sala_venta.pro_futuros = this.sala_venta.pro_futuros || this.sala_venta.pro_futuros == '1' ? '1' : '0';
             let id_sala_venta = await this.onSave();
             if (this.mode == 1 && id_sala_venta) {
                 this.sala_venta = { id_sede: '', id_zona_proyecto: '', id_ciudadela: '', ...sala, id_sala_venta };
@@ -116,7 +118,7 @@ export default {
             try {
                 showProgress();
                 let datos = this.getFilteredList(tabla);
-                var archivo = (await httpFunc("/util/Json2Excel", datos)).data;
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
                 var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
                 window.open("./docs/" + archivo, "_blank");
             }
@@ -267,6 +269,7 @@ export default {
         },
         async toggleFeria(sv) {
             sv.is_feria = sv.is_feria == '0' ? '1' : '0';
+            sv.pro_futuros || sv.pro_futuros == '1' ? '1' : '0';
             await httpFunc(`/generic/genericST/Maestros:Upd_SalaVenta`, sv);
         },
         async load_checked() {
@@ -287,6 +290,7 @@ export default {
                 obligatorios = this.c_obligatorios.filter(c => c.checked).map(c => c.id_campo);
             this.sala_venta.tipos_turno = turnos.join(',');
             this.sala_venta.campos_obligatorios = obligatorios.join(',');
+            this.sala_venta.pro_futuros || this.sala_venta.pro_futuros == '1' ? '1' : '0';
             let res = await httpFunc("/generic/genericST/Maestros:Upd_SalaVenta", this.sala_venta);
             hideProgress();
             if (res.isError) {

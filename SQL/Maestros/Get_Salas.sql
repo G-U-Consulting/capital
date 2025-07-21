@@ -6,7 +6,7 @@
 --END_PARAM
 
 select sv.id_sala_venta, sv.sala_venta, sv.encuesta_vpn, s.sede, sv.is_active, sv.id_sede, sv.id_playlist, 
-    sv.is_feria, sv.id_zona_proyecto, z.zona_proyecto, sv.id_ciudadela, c.ciudadela
+    sv.is_feria, sv.id_zona_proyecto, z.zona_proyecto, sv.id_ciudadela, c.ciudadela, sv.pro_futuros
 from dim_sala_venta sv left join dim_sede s
 on sv.id_sede = s.id_sede left join dim_zona_proyecto z
 on sv.id_zona_proyecto = z.id_zona_proyecto left join dim_ciudadela c
