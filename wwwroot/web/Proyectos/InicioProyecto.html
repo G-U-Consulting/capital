@@ -1,5 +1,305 @@
-<!--EDICIÓN PROYECTOS-->
-<div v-if="mode == 2" class="pure-g" style="height: max-content">
+<!--PROYECTOS-->
+<!--LISTA PROYECTOS-->
+<div v-if="mode == 0" style="padding-top: 1em">
+    <div class="pure-u-1-24"></div>
+    <div class="pure-u-22-24 menuCard">
+        <div class="searchBox">
+            <!--TODO-->
+            <!--Hacer igual que usuarios agregando los filtros-->
+            <!--Falta incluir Loo, Slide y Planta general Termómetro-->
+            <div class="pure-g">
+                <div class="pure-u-1-1 pure-u-md-2-5">
+                    <input type="text" placeholder="Nombre" v-model="filtros.proyectos['nombre']" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-24">
+                    <div class="imgGraybutton" @click="onClear('proyectos')">
+                        <img src="./img/ico/eraser.png" />
+                    </div>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-6-24" style="display: flex; gap: 0.5em;">
+                    <div class="pure-u-1-3">
+                        <select class="pure-input-1" v-model="filtros.proyectos['id_zona_proyecto']">
+                            <option value="">[Zonas]</option>
+                            <option v-for="item in zona_proyecto" :value="item.id_zona_proyecto">{{item.zona_proyecto}}</option>
+                        </select>
+                    </div>
+                    <div class="pure-u-1-3">
+                        <select class="pure-input-1" v-model="filtros.proyectos['id_sede']">
+                            <option value="">[Sedes]</option>
+                            <option v-for="item in sede" :value="item.id_sede">{{item.sede}}</option>
+                        </select>
+                    </div>
+                    <div class="pure-u-1-3">
+                        <select class="pure-input-1" v-model="filtros.proyectos['id_ciudadela']">
+                            <option value="">[Ciudadelas]</option>
+                            <option v-for="item in ciudadela" :value="item.id_ciudadela">{{item.ciudadela}}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                <div class="pure-u-1-1 pure-u-md-1-12" style="display: flex; align-items: center;">
+                    <label class="check">
+                        <input type="checkbox" value='1' v-model="onlyActive" @change="onChangeStateView" />
+                        <span class="checkmark"></span>
+                        Solo activos
+                    </label>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-6" style="text-align: right;">
+                    <button v-on:click="setMode(1)" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="main-content matrix-cont" v-if="viewMode == 'Tabla'">
+                <div class="table-wrapper">
+                    <table class="dataTable" style="table-layout: auto;margin-top: .75rem;margin-right: .75rem !important;">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">Logo</th>
+                                <th style="width: 10%;">Nombre</th>
+                                <th style="width: 5%;">Sede</th>
+                                <th style="width: 35%;">Zona</th>
+                                <th style="width: 10%;">Ciudadela</th>
+                                <th style="width: 15%;">Estado de Lanzamiento</th>
+                                <th style="width: 10%;">Activo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in proyectosTabla":key="item.id" @click="tortaProject(item);"
+                                @dblclick="selectProject(item,'portada')"
+                                :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
+                                <td style="height: 3.2em;">
+                                    <img v-if="item.img" class="img-row" :src="item.img" :alt="`img_${item.nombre}`">
+                                </td>
+                                <td>{{item.nombre}}</td>
+                                <td>{{item.sede}}</td>
+                                <td>{{item.zona_proyecto}}</td>
+                                <td>{{item.ciudadela}}</td>
+                                <td>
+                                    <span v-if="item.es_lanzamiento" class="lanzamiento-tag">🚀 Próximo Lanzamiento</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <div class="toggle-switch" @click.stop.prevent="toggleState(item)">
+                                        <input :id="'toggle' + item.nombre" type="checkbox" class="toggle-input"
+                                            :checked="Number(item.is_active) !== 1">
+                                        <label class="toggle-label" :for="'toggle' + item.nombre"
+                                            style="transform: rotate(180deg);"></label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div v-if="selectedProject" class="detail-panel">
+                    <div class="detail-logo" v-if="selectedProject.img">
+                        <img :src="selectedProject.img" />
+                    </div>
+                    <table class="detail-table">
+                        <tr>
+                            <td><strong>Tipo de Proyecto:</strong></td>
+                            <td>{{ selectedProject.tipo_proyecto }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Proyecto VIS</strong></td>
+                            <td>{{ selectedProject.tipo_vis}}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Área/Etapa/Etapas</strong></td>
+                            <td>{{ selectedProject.etapas }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aptos/Casas totales</strong></td>
+                            <td>{{ selectedProject.total }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Área total</strong></td>
+                            <td>{{ selectedProject.areaTotal }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Área priv. cubierta desde</strong></td>
+                            <td>{{ selectedProject.areaPrivadaDesde }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Área const. desde</strong></td>
+                            <td>{{ selectedProject.areaConstruida }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Precio desde</strong></td>
+                            <td>{{ selectedProject.precioDesde }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Precio hasta</strong></td>
+                            <td>{{ selectedProject.precioHasta }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fecha entrega desde</strong></td>
+                            <td>{{ selectedProject.fechaEntregaDesde }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fecha entrega hasta</strong></td>
+                            <td>{{ selectedProject.fechaEntregaHasta }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Información adicional</strong></td>
+                            <td>{{ selectedProject.infoAdicional }}</td>
+                        </tr>
+                        <tr v-if="selectedProject.zonasComunes">
+                            <td><strong>Zonas comunes</strong></td>
+                            <td>
+                                <ul>
+                                    <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="detail-footer">
+                        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
+                    </div>
+                </div>
+                <div v-else class="detail-panel"></div>
+            </div>
+            <div class="main-content matrix-cont" v-if="viewMode == 'Matriz'" style="display: flex;">
+                <div style="flex: 1; display: flex; flex-direction: column;min-width: 0;">
+                    <div v-if="proyectosLanzamiento.length" class="lanzamientos-section">
+                        <span class="lanzamiento-title">🚀 Próximos Lanzamientos</span>
+                        <div class="lanzamiento-wrapper">
+                            <div class="project-list lanzamiento-list">
+                                <div class="item-matrix" v-for="item in proyectosLanzamiento" :key="item.id" @click="tortaProject(item)"
+                                    @dblclick="selectProject(item,'portada')"
+                                    :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
+                                    <div class="img-matrix">
+                                        <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
+                                    </div>
+                                    <div class="bottom-matrix">
+                                        <span>{{ item.nombre }}</span>
+                                    </div>
+                                    <div class="bottom-adm" @click.stop @dblclick.stop>
+                                        <span>{{ adm }}</span>
+                                    </div>
+                                    <div class="extra-label" v-if="item.label">
+                                        {{ item.label }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="proyectos-section">
+                        <div class="project-list">
+                            <div class="item-matrix" v-for="item in proyectosNormales" :key="item.id" @click="tortaProject(item)"
+                                @dblclick="selectProject(item,'portada')"
+                                :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
+                                <div class="img-matrix">
+                                    <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
+                                </div>
+                                <div class="bottom-matrix">
+                                    <span>{{ item.nombre }}</span>
+                                </div>
+                                <div class="bottom-adm" @click.stop @dblclick.stop>
+                                    <span>{{ adm }}</span>
+                                </div>
+                                <div class="extra-label" v-if="item.label">
+                                    {{ item.label }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="selectedProject" class="detail-panel">
+    <div class="detail-logo" v-if="selectedProject.img">
+        <img :src="selectedProject.img" />
+    </div>
+    <div class="scrollable-content">
+        <table class="detail-table">
+            <tr>
+                <td><strong>Tipo de Proyecto:</strong></td>
+                <td>{{ selectedProject.tipo_proyecto }}</td>
+            </tr>
+            <tr>
+                <td><strong>Proyecto VIS</strong></td>
+                <td>{{ selectedProject.tipo_vis }}</td>
+            </tr>
+            <tr>
+                <td><strong>Área/Etapa/Etapas</strong></td>
+                <td>{{ selectedProject.etapas }}</td>
+            </tr>
+            <tr>
+                <td><strong>Aptos/Casas totales</strong></td>
+                <td>{{ selectedProject.total }}</td>
+            </tr>
+            <tr>
+                <td><strong>Área total</strong></td>
+                <td>{{ selectedProject.areaTotal }}</td>
+            </tr>
+            <tr>
+                <td><strong>Área priv. cubierta desde</strong></td>
+                <td>{{ selectedProject.areaPrivadaDesde }}</td>
+            </tr>
+            <tr>
+                <td><strong>Área const. desde</strong></td>
+                <td>{{ selectedProject.areaConstruida }}</td>
+            </tr>
+            <tr>
+                <td><strong>Precio desde</strong></td>
+                <td>{{ selectedProject.precioDesde }}</td>
+            </tr>
+            <tr>
+                <td><strong>Precio hasta</strong></td>
+                <td>{{ selectedProject.precioHasta }}</td>
+            </tr>
+            <tr>
+                <td><strong>Fecha entrega desde</strong></td>
+                <td>{{ selectedProject.fechaEntregaDesde }}</td>
+            </tr>
+            <tr>
+                <td><strong>Fecha entrega hasta</strong></td>
+                <td>{{ selectedProject.fechaEntregaHasta }}</td>
+            </tr>
+            <tr>
+                <td><strong>Información adicional</strong></td>
+                <td>{{ selectedProject.infoAdicional }}</td>
+            </tr>
+            <tr v-if="selectedProject.zonasComunes">
+                <td><strong>Zonas comunes</strong></td>
+                <td>
+                    <ul>
+                        <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="detail-footer">
+        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
+    </div>
+</div>
+<div v-else class="detail-panel"></div>
+            </div>
+        </div>
+    </div>
+    <div class="pure-u-2-24"></div>
+    <div class="pure-u-20-24">
+        <div class="btn-view-group">
+            <div class="radio-group">
+                <input type="radio" name="view" id="view-table" :checked="viewMode == 'Tabla'"
+                    @click="updateViewMode('Tabla')" />
+                <label for="view-table"><span>Ver Tabla</span></label>
+                <input type="radio" name="view" id="view-matrix" :checked="viewMode == 'Matriz'"
+                    @click="updateViewMode('Matriz')" />
+                <label for="view-matrix"><span>Ver Matriz</span></label>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div v-if="mode == 'portada'" class="pure-g" style="height: calc(100vh - 3.5em - 2.3rem); overflow: hidden;">
+    <div class="pure-u-1-1 cont-portada">
+        <img id="img-portada" class="img-portada" v-if="frontImg"
+            :src="frontImg" :key="frontImg" @load="onloadimg"/>
+    </div>
+</div>
+
+<!--NUEVO PROYECTO-->
+<div v-if="mode == 1" class="pure-g" style="height: max-content">
     <div class="pure-u-1-24"></div>
     <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
         <div class="pure-g steps">
@@ -18,23 +318,23 @@
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                 Datos generales
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-2'>
+            <div class='pure-u-1-1 pure-u-md-1-2' >
                 <div class='formInputStandard'>
                     <span>Nombre</span>
-                    <input type='text' v-model='editObjProyecto.nombre' maxlen='100' />
+                    <input type='text' v-model='objProyecto.nombre' maxlen='100' v-bind:class="{errorInput:casoValidator.nombre != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard'>
                     <span>Dirección del Proyecto</span>
-                    <input type='text' v-model='editObjProyecto.direccion' maxlen='100' />
+                    <input type='text' v-model='objProyecto.direccion' maxlen='100' v-bind:class="{errorInput:casoValidator.direccion != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Sede</span>
-                    <select v-model='editObjProyecto.id_sede'>
-                        <option value=''>Seleccione</option>
+                    <select v-model='objProyecto.id_sede'>
+                        <option value='' disabled selected>Seleccione</option>
                         <option v-for='item in sede' :value='item.id_sede'>
                             {{ item.sede }}
                         </option>
@@ -44,8 +344,8 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Zona</span>
-                    <select v-model='editObjProyecto.id_zona_proyecto'>
-                        <option value=''>Seleccione</option>
+                    <select v-model='objProyecto.id_zona_proyecto'>
+                        <option value='' disabled selected>Seleccione</option>
                         <option v-for='item in zonasFiltradas' :value='item.id_zona_proyecto'>
                             {{ item.zona_proyecto }}
                         </option>
@@ -55,7 +355,7 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Ciudadela</span>
-                    <select v-model='editObjProyecto.id_ciudadela'>
+                    <select v-model='objProyecto.id_ciudadela'>
                         <option value=''>Seleccione</option>
                         <option v-for='item in ciudadelaFiltradas' v-bind:value='item.id_ciudadela'>
                             {{ item.ciudadela }}
@@ -66,9 +366,9 @@
             <!-- <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Sala de Ventas</span>
-                    <select v-model='editObjProyecto.id_sala_venta'>
+                    <select v-model='objProyecto.id_sala_venta'>
                         <option value=''>Seleccione</option>
-                        <option v-for='item in salas_venta' v-bind:value='item.id_sala_venta' :key='item.id_sala_venta'>
+                        <option v-for='item in salas_venta' v-bind:value='item.id_sala_venta'>
                             {{ item.sala_venta }}
                         </option>
                     </select>
@@ -77,7 +377,7 @@
             <!-- <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Tipo</span>
-                    <select v-model='editObjProyecto.id_tipo_proyecto'>
+                    <select v-model='objProyecto.id_tipo_proyecto'>
                         <option value='' disabled selected>Seleccione</option>
                         <option v-for='item in tipo' v-bind:value='item.id_tipo_proyecto'>
                             {{ item.tipo_proyecto }}
@@ -101,7 +401,7 @@
                     </div>
                 </div>
             </div>
-             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                 Salas de Ventas
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1'>
@@ -126,7 +426,7 @@
                     <div class='pure-g'>
                         <div v-for='item in estado_publicacion' class='pure-u-1-4'>
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked"   />
+                                <input type="checkbox" vvalue='1' v-model="item.checked"   />
                                 <span class="checkmark"></span>
                                 {{ item.estado_publicacion }}
                             </label>
@@ -135,7 +435,7 @@
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1'> </div>
-        </div>                    
+        </div>
         <!--Tipología y financiación-->
         <div class="pure-g" v-show="submode == 1">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
@@ -144,9 +444,9 @@
             <!-- <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Banco Constructor</span>
-                    <select v-model='editObjProyecto.id_banco_constructor'>
-                        <option value=''>Seleccione</option>
-                        <option v-for='item in bancos' :value='item.id_banco_constructor'>
+                    <select v-model='objProyecto.id_banco_constructor' v-bind:class="{errorInput:casoValidator.id_banco_constructor != null}">
+                        <option value='' disabled selected>Seleccione</option>
+                        <option v-for='item in bancos' v-bind:value='item.id_banco_constructor'>
                             {{ item.banco }}
                         </option>
                     </select>
@@ -207,7 +507,7 @@
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
-                    <select id="torre" class="pure-input-1">
+                    <select v-model='objProyecto.id_torre' class="pure-input-1" v-bind:class="{errorInput:casoValidator.id_torre != null}">
                         <option value="" disabled selected>Torre</option>
                         <!--<option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo"> {{ item.cargo }} </option>-->
                     </select>
@@ -215,7 +515,7 @@
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
-                    <select id="tipo" class="pure-input-1">
+                    <select v-model='objProyecto.id_tipo' class="pure-input-1" v-bind:class="{errorInput:casoValidator.id_tipo != null}">
                         <option value="" disabled selected>Tipo</option>
                         <!--<option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo"> {{ item.cargo }} </option>-->
                     </select>
@@ -225,7 +525,7 @@
                 <button style="margin-top: 0.4rem;" v-on:click="setMode(1)">Agregar</button>
             </div>
             <div class='pure-u-3-4 pure-u-md-12-24'>
-                <input style="margin-top: 0.4rem;" type='text' v-model='editObjProyecto.subsidios_vis' maxlen='100' />
+                <input style="margin-top: 0.4rem;" type='text' v-model='objProyecto.subsidios_vis' maxlen='100' v-bind:class="{errorInput:casoValidator.tipo_vis != null}"/>
             </div>
             <!--Fin TODO-->
             <!--TODO Acabados y reformas-->
@@ -237,7 +537,7 @@
                     <div class='pure-g'>
                         <div class='pure-u-1-2'>
                             <label class="check">
-                                <input type='checkbox' value='0' v-model='editObjProyecto.acabados' name='acabados' />
+                                <input type='checkbox' value='0' v-model='objProyecto.acabados' name='acabados' v-bind:class="{errorInput:casoValidator.acabados != null}" />
                                 <span class="checkmark"></span>
                                 Acabados
                             </label>
@@ -250,7 +550,7 @@
                     <div class='pure-g'>
                         <div class='pure-u-1-2'>
                             <label class="check">
-                                <input type='checkbox' value='0' v-model='editObjProyecto.reformas' name='reformas' />
+                                <input type='checkbox' value='0' v-model='objProyecto.reformas' name='reformas' />
                                 <span class="checkmark"></span>
                                 Reformas
                             </label>
@@ -275,7 +575,7 @@
                     </div>
                 </div>
             </div>
-        </div>                    
+        </div>
         <!--Datos de pago-->
         <div class="pure-g" v-show="submode == 2">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
@@ -288,19 +588,19 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Días para consignar separación</span>
-                    <input type='number' v-model='editObjProyecto.dias_separacion' maxlen='100' />
+                    <input type='number' v-model='objProyecto.dias_separacion' maxlen='100' v-bind:class="{errorInput:casoValidator.dias_separacion != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Dias para cierre en sala</span>
-                    <input type='number' v-model='editObjProyecto.dias_cierre_sala' maxlen='100' />
+                    <input type='number' v-model='objProyecto.dias_cierre_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.dias_cierre_sala != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-3'>
                 <div class='formInputStandard'>
                     <span>Máximo meses para pago Cuota Inicial</span>
-                    <input type='number' v-model='editObjProyecto.meses_ci' maxlen='100' />
+                    <input type='number' v-model='objProyecto.meses_ci' maxlen='100' v-bind:class="{errorInput:casoValidator.meses_ci != null}"/>
                 </div>
             </div>
             <!--Datos Sala: Coordinación y cotizaciones-->
@@ -311,7 +611,7 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <label for="coordinacion" style="display: block; margin-bottom: 0.3rem;">Coordinación</label>
-                    <select id="coordinacion" class="pure-input-1">
+                    <select v-model="objProyecto.id_coordinacion" class="pure-input-1" v-bind:class="{errorInput:casoValidator.id_coordinacion != null}">
                         <option value="" disabled selected>Seleccione Coordinacion</option>
                         <!--<option v-for="item in usuarios" :key="item.id_cargo" :value="item.id_cargo">{{ item.cargo }}</option>-->
                     </select>
@@ -321,25 +621,25 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Meta VentasUnidades / Mes</span>
-                    <input type='number' v-model='editObjProyecto.meta_ventas' maxlen='100' />
+                    <input type='number' v-model='objProyecto.meta_ventas' maxlen='100' v-bind:class="{errorInput:casoValidator.meta_ventas != null}" />
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Email Coordinación de Sala</span>
-                    <input type='text' v-model='editObjProyecto.email_coordinacion_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.email_coordinacion_sala != null}" />
+                    <input type='text' v-model='objProyecto.email_coordinacion_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.email_coordinacion_sala != null}" />
                 </div>
             </div>
             <!--<div class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard'>
                             <span title="Días antes de la fecha de Pago CI BankAmig">Días pago Banco Amigo</span>
-                            <input type='number' v-model='editObjProyecto.dias_pago_ci_banco_amigo' maxlen='100' />
+                            <input type='number' v-model='objProyecto.dias_pago_ci_banco_amigo' maxlen='100' />
                         </div>
                     </div>
                     <div class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard'>
                             <span title="Días antes de la fecha de Pago CI BankNoAmig">Días pago Banco no Amigo</span>
-                            <input type='number' v-model='editObjProyecto.dias_pago_ci_banco_no_amigo' maxlen='100' />
+                            <input type='number' v-model='objProyecto.dias_pago_ci_banco_no_amigo' maxlen='100' />
                         </div>
                     </div>-->
             <!--Datos Cotizaciones-->
@@ -349,16 +649,16 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>E-mail para cotizaciones y opciones</span>
-                    <input type='email' v-model='editObjProyecto.email_cotizaciones' maxlen='100' />
+                    <input type='email' v-model='objProyecto.email_cotizaciones' maxlen='100' v-bind:class="{errorInput:casoValidator.email_cotizaciones != null}"/>
                 </div>
             </div>
             <!--TODO incluir opción sibn pie legal-->
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Pie Legal Cotizaciones</span>
-                    <select v-model='editObjProyecto.id_pie_legal'>
+                    <select v-model='objProyecto.id_pie_legal' v-bind:class="{errorInput:casoValidator.id_pie_legal != null}">
                         <option value='' disabled selected>Seleccione</option>
-                        <option v-for='item in pie_legal' v-bind:value='item.id_pie_legal'>
+                        <option v-for='item in pie_legal' v-bind:value='item.id_pie_legal' >
                             {{ item.pie_legal }}
                         </option>
                     </select>
@@ -377,14 +677,14 @@
                 <div class='pure-u-1-1 pure-u-md-1-2'>
                     <div class='formInputStandard'>
                         <span>Centro Costos</span>
-                        <input type='text' v-model='editObjProyecto.centro_costos' maxlen='100' />
+                        <input type='text' v-model='objProyecto.centro_costos' maxlen='100' v-bind:class="{errorInput:casoValidator.centro_costos != null}"/>
                     </div>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-2'>
                     <div class='formInputStandard'>
                         <span>Fiduciaria</span>
-                        <select v-model='editObjProyecto.id_fiduciaria'>
-                            <option value=''>Seleccione</option>
+                        <select v-model='objProyecto.id_fiduciaria' v-bind:class="{errorInput:casoValidator.id_fiduciaria != null}">
+                            <option value='' disabled selected>Seleccione</option>
                             <option v-for='item in fiduciaria' v-bind:value='item.id_fiduciaria'>
                                 {{ item.fiduciaria }}
                             </option>
@@ -398,7 +698,7 @@
                     <div class='pure-g'>
                         <div v-for='item in opcionesVisuales' class='pure-u-1-2'>
                             <label class="check">
-                                <input type='checkbox' value='1' v-model='item.checked' />
+                                <input type='checkbox' value='1' v-model='item.checked' v-bind:class="{errorInput:casoValidator.opcionesVisuales != null}"/>
                                 <span class="checkmark"></span>
                                 {{item.opcion_visual}}
                             </label>
@@ -415,15 +715,14 @@
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                 Lanzamiento del Proyecto
             </div>
-            <div class="pure-u-1-1 pure-u-md-1-6">
-                <div class="formInputStandard">
-                    <span>Es Lanzamiento:</span>
-                    <div class="pure-g switch">
-                        <div class="pure-u-1-1">
-                            <div class="toggle-switch" :class="{ inactive: editObjProyecto.lanzamiento === '1' }">
-                                <input id="lanzamiento-toggle" type="checkbox" class="toggle-input"
-                                    :checked="editObjProyecto.lanzamiento === '0'" 
-                                @change="editObjProyecto.lanzamiento = $event.target.checked ? '0' : '1'" />
+            <div class='pure-u-1-1 pure-u-md-1-8'>
+                <div class='formInputStandard'>
+                    <span>Es Lanzamiento</span>
+                    <div class='pure-g switch'>
+                        <div class='pure-u-1-1'>
+                            <div class="toggle-switch" :class="{'inactive': Number(objProyecto.lanzamiento) === 1}">
+                                <input id="lanzamiento-toggle" type="checkbox" v-model="objProyecto.lanzamiento" :true-value="1" :false-value="0"
+                                    class="toggle-input" />
                                 <label class="toggle-label" for="lanzamiento-toggle"></label>
                             </div>
                         </div>
@@ -433,19 +732,19 @@
             <div class='pure-u-1-1 pure-u-md-1-5'>
                 <div class='formInputStandard'>
                     <span>Ciudad de Lanzamiento</span>
-                    <input type='text' v-model='editObjProyecto.ciudad_lanzamiento' maxlen='100' />
+                    <input type='text' v-model='objProyecto.ciudad_lanzamiento' maxlen='100' v-bind:class="{errorInput:casoValidator.ciudad_lanzamiento != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
                     <span>Fecha Lanzamiento</span>
-                    <input type='date' v-model='editObjProyecto.fecha_lanzamiento' maxlen='100' />
+                    <input type='date' v-model='objProyecto.fecha_lanzamiento' maxlen='100' v-bind:class="{errorInput:casoValidator.fecha_lanzamiento != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
                     <span>Coord. geográficas</span>
-                    <input type='text' v-model='editObjProyecto.latitud' maxlen='100' />
+                    <input type='text' v-model='objProyecto.latitud' maxlen='100' v-bind:class="{errorInput:casoValidator.latitud != null}"/>
                 </div>
             </div>
             <!--Lanzamiento VIP-->
@@ -455,14 +754,15 @@
             <div class='pure-u-1-1 pure-u-md-1-1'>
                 <label>Bloquear libres al alcanzar X opciones (BOG por torre, MED por Torre/Tipo)</label>
             </div>
-            <div class="pure-u-1-1 pure-u-md-1-6" style="margin-top: 0.2em">
-                <div class="formInputStandard">
-                    <div class="pure-g switch">
-                        <div class="pure-u-1-1">
-                            <div class="toggle-switch" :class="{ inactive: Number(editObjProyecto.bloqueo_libres) === 1 }">
-                                <input id="bloqueo_libres-toggle" type="checkbox" class="toggle-input"
-                                    :checked="Number(editObjProyecto.bloqueo_libres) === 0"
-                                    @change="editObjProyecto.bloqueo_libres = $event.target.checked ? 0 : 1" />
+            <div class='pure-u-1-1 pure-u-md-1-8' style="margin-top: 0.2em">
+                <div class='formInputStandard'>
+                    <div class='pure-g switch'>
+                        <div class='pure-u-1-1'>
+                            <div class="toggle-switch" :class="{'inactive': Number(objProyecto.bloqueo_libres) === 0}">
+                                <input id="bloqueo_libres-toggle" type="checkbox"
+                                    :checked="Number(objProyecto.bloqueo_libres) === 1"
+                                    @click="objProyecto.bloqueo_libres = Number(objProyecto.bloqueo_libres) === 0 ? 1 : 0"
+                                    class="toggle-input">
                                 <label class="toggle-label" for="bloqueo_libres-toggle"></label>
                             </div>
                         </div>
@@ -474,7 +774,7 @@
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard positTex'>
-                    <input type='number' v-model='editObjProyecto.inmuebles_opcionados' maxlen='100' />
+                    <input type='number' v-model='objProyecto.inmuebles_opcionados' maxlen='100' v-bind:class="{errorInput:casoValidator.inmuebles_opcionados != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
@@ -482,7 +782,7 @@
             </div>
             <div class='pure-u-1-1 pure-u-md-1-3'>
                 <div class='formInputStandard positTex'>
-                    <input type='text' v-model='editObjProyecto.tipos_excluidos' maxlen='100' />
+                    <input type='text' v-model='objProyecto.tipos_excluidos' maxlen='100' v-bind:class="{errorInput:casoValidator.tipos_excluidos != null}"/>
                 </div>
             </div>
             <!--Waze, Whatsapp y Otros-->
@@ -492,13 +792,13 @@
             <div class='pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard'>
                     <span>Link a la ruta con navegador Waze</span>
-                    <input type='text' v-model='editObjProyecto.link_waze' maxlen='100' />
+                    <input type='text' v-model='objProyecto.link_waze' maxlen='100' v-bind:class="{errorInput:casoValidator.link_waze != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard'>
                     <span>Línea de contacto de Whatsapp</span>
-                    <input type='tel' v-model='editObjProyecto.linea_whatsapp' maxlen='100' />
+                    <input type='tel' v-model='objProyecto.linea_whatsapp' maxlen='100' v-bind:class="{errorInput:casoValidator.linea_whatsapp != null}"/>
                 </div>
             </div>
             <!--Email receptores-->
@@ -508,25 +808,25 @@
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>E-mail receptor 1</span>
-                    <input type='email' v-model='editObjProyecto.email_receptor_1' maxlen='100' />
+                    <input type='email' v-model='objProyecto.email_receptor_1' maxlen='100' v-bind:class="{errorInput:casoValidator.email_receptor_1 != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>E-mail receptor 2</span>
-                    <input type='email' v-model='editObjProyecto.email_receptor_2' maxlen='100' />
+                    <input type='email' v-model='objProyecto.email_receptor_2' maxlen='100' v-bind:class="{errorInput:casoValidator.email_receptor_2 != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>E-mail receptor 3</span>
-                    <input type='email' v-model='editObjProyecto.email_receptor_3' maxlen='100' />
+                    <input type='email' v-model='objProyecto.email_receptor_3' maxlen='100' v-bind:class="{errorInput:casoValidator.email_receptor_3 != null}"/>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>E-mail receptor 4</span>
-                    <input type='email' v-model='editObjProyecto.email_receptor_4' maxlen='100' />
+                    <input type='email' v-model='objProyecto.email_receptor_4' maxlen='100' v-bind:class="{errorInput:casoValidator.email_receptor_4 != null}"/>
                 </div>
             </div>
         </div>
@@ -542,17 +842,17 @@
             <div class='pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard'>
                     <span>Link General de inventario</span>
-                    <input type='text' v-model='editObjProyecto.link_general_onelink' maxlen='100' />
+                    <input type='text' v-model='objProyecto.link_general_onelink' maxlen='100' v-bind:class="{errorInput:casoValidator.link_general_onelink != null}"/>
                 </div>
             </div>
             <!--Link específico de inventario-->
             <div class='pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard'>
                     <span>Link específico de inventario</span>
-                    <input type='text' v-model='editObjProyecto.link_especifico_onelink' maxlen='100' />
+                    <input type='text' v-model='objProyecto.link_especifico_onelink' maxlen='100' v-bind:class="{errorInput:casoValidator.link_especifico_onelink != null}"/>
                 </div>
             </div>
-        
+
             <!--Links de especificaciones y Cartilla Negocios-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
                 Link Especificaciones Técnicas y Cartilla de Negocio
@@ -565,10 +865,10 @@
                         <div class='pure-g switch-box'>
                             <div class='pure-u-1-1'>
                                 <div class="toggle-switch"
-                                    :class="{'inactive': Number(editObjProyecto.incluir_especificaciones_tecnicias) === 0}">
+                                    :class="{'inactive': Number(objProyecto.incluir_especificaciones_tecnicias) === 0}">
                                     <input id="incluir_especificaciones_tecnicias-toggle" type="checkbox"
-                                        :checked="Number(editObjProyecto.incluir_especificaciones_tecnicias) === 1"
-                                        @click="editObjProyecto.incluir_especificaciones_tecnicias = Number(editObjProyecto.incluir_especificaciones_tecnicias) === 0 ? 1 : 0"
+                                        :checked="Number(objProyecto.incluir_especificaciones_tecnicias) === 1"
+                                        @click="objProyecto.incluir_especificaciones_tecnicias = Number(objProyecto.incluir_especificaciones_tecnicias) === 0 ? 1 : 0"
                                         class="toggle-input">
                                     <label class="toggle-label" for="incluir_especificaciones_tecnicias-toggle"></label>
                                 </div>
@@ -578,7 +878,7 @@
                     <div class='pure-u-1-1 pure-u-md-5-6'>
                         <div class='formInputStandard'>
                             <span>Link a especificaciones Técnicas PDF web</span>
-                            <input type='text' v-model='editObjProyecto.link_especificaciones_tecnicias' maxlen='100' />
+                            <input type='text' v-model='objProyecto.link_especificaciones_tecnicias' maxlen='100' v-bind:class="{errorInput:casoValidator.link_especificaciones_tecnicias != null}"/>
                         </div>
                     </div>
                 </div>
@@ -589,10 +889,10 @@
                         <div class="pure-g switch-box">
                             <div class='pure-u-1-1'>
                                 <div class="toggle-switch"
-                                    :class="{'inactive': Number(editObjProyecto.incluir_cartilla_negocios_cotizacion) === 0}">
+                                    :class="{'inactive': Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 0}">
                                     <input id="incluir_cotizacion-toggle" type="checkbox"
-                                        :checked="Number(editObjProyecto.incluir_cartilla_negocios_cotizacion) === 1"
-                                        @click="editObjProyecto.incluir_cartilla_negocios_cotizacion = Number(editObjProyecto.incluir_cartilla_negocios_cotizacion) === 0 ? 1 : 0"
+                                        :checked="Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 1"
+                                        @click="objProyecto.incluir_cartilla_negocios_cotizacion = Number(objProyecto.incluir_cartilla_negocios_cotizacion) === 0 ? 1 : 0"
                                         class="toggle-input">
                                     <label class="toggle-label" for="incluir_cotizacion-toggle"></label>
                                 </div>
@@ -604,10 +904,10 @@
                         <div class='pure-g switch-box'>
                             <div class='pure-u-1-1'>
                                 <div class="toggle-switch"
-                                    :class="{'inactive': Number(editObjProyecto.incluir_cartilla_negocios_opcion) === 0}">
+                                    :class="{'inactive': Number(objProyecto.incluir_cartilla_negocios_opcion) === 0}">
                                     <input id="incluir_opcion-toggle" type="checkbox"
-                                        :checked="Number(editObjProyecto.incluir_cartilla_negocios_opcion) === 1"
-                                        @click="editObjProyecto.incluir_cartilla_negocios_opcion = Number(editObjProyecto.incluir_cartilla_negocios_opcion) === 0 ? 1 : 0"
+                                        :checked="Number(objProyecto.incluir_cartilla_negocios_opcion) === 1"
+                                        @click="objProyecto.incluir_cartilla_negocios_opcion = Number(objProyecto.incluir_cartilla_negocios_opcion) === 0 ? 1 : 0"
                                         class="toggle-input">
                                     <label class="toggle-label" for="incluir_opcion-toggle"></label>
                                 </div>
@@ -617,8 +917,8 @@
                     <div class='pure-u-1-1 pure-u-md-2-3'>
                         <div class='formInputStandard'>
                             <span>Link a Cartilla de Negocios Fiduciarios</span>
-                            <input type='text' v-model='editObjProyecto.link_cartilla_negocios' maxlen='100' 
-                                    title="Link a Cartilla de Negocios Fiduciarios en emails de cotización y Opción" />
+                            <input type='text' v-model='objProyecto.link_cartilla_negocios' maxlen='100' 
+                                    title="Link a Cartilla de Negocios Fiduciarios en emails de cotización y Opción" v-bind:class="{errorInput:casoValidator.link_cartilla_negocios != null}"/>
                         </div>
                     </div>
                 </div>
@@ -633,10 +933,10 @@
                     <span>Leads</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
-                            <div class="toggle-switch" :class="{'inactive': Number(editObjProyecto.frame_seguimiento_visible) === 0}">
+                            <div class="toggle-switch" :class="{'inactive': Number(objProyecto.frame_seguimiento_visible) === 0}">
                                 <input id="seguimiento_leads-toggle" type="checkbox"
-                                    :checked="Number(editObjProyecto.frame_seguimiento_visible) === 1"
-                                    @click="editObjProyecto.frame_seguimiento_visible = Number(editObjProyecto.frame_seguimiento_visible) === 0 ? 1 : 0"
+                                    :checked="Number(objProyecto.frame_seguimiento_visible) === 1"
+                                    @click="objProyecto.frame_seguimiento_visible = Number(objProyecto.frame_seguimiento_visible) === 0 ? 1 : 0"
                                     class="toggle-input">
                                 <label class="toggle-label" for="seguimiento_leads-toggle"></label>
                             </div>
@@ -646,7 +946,7 @@
                 <div class='pure-u-1-1 pure-u-md-5-6'>
                     <div class='formInputStandard'>
                         <span>Link a Leads de iFrame</span>
-                        <input type='text' v-model='editObjProyecto.link_seguimiento_leads' maxlen='100' />
+                        <input type='text' v-model='objProyecto.link_seguimiento_leads' maxlen='100' v-bind:class="{errorInput:casoValidator.link_seguimiento_leads != null}"/>
                     </div>
                 </div>
             </div>
@@ -657,10 +957,10 @@
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch"
-                                :class="{'inactive': Number(editObjProyecto.frame_evaluacion_conocimiento) === 0}">
+                                :class="{'inactive': Number(objProyecto.frame_evaluacion_conocimiento) === 0}">
                                 <input id="evaluacion_conocimientos-toggle" type="checkbox"
-                                    :checked="Number(editObjProyecto.frame_evaluacion_conocimiento) === 1"
-                                    @click="editObjProyecto.frame_evaluacion_conocimiento = Number(editObjProyecto.frame_evaluacion_conocimiento) === 0 ? 1 : 0"
+                                    :checked="Number(objProyecto.frame_evaluacion_conocimiento) === 1"
+                                    @click="objProyecto.frame_evaluacion_conocimiento = Number(objProyecto.frame_evaluacion_conocimiento) === 0 ? 1 : 0"
                                     class="toggle-input">
                                 <label class="toggle-label" for="evaluacion_conocimientos-toggle"></label>
                             </div>
@@ -670,7 +970,7 @@
                 <div class='pure-u-1-1 pure-u-md-5-6'>
                     <div class='formInputStandard'>
                         <span>Link acceso a evaluación de conocimientos</span>
-                        <input type='text' v-model='editObjProyecto.link_evaluacion_conocimiento' maxlen='100' />
+                        <input type='text' v-model='objProyecto.link_evaluacion_conocimiento' maxlen='100' v-bind:class="{errorInput:casoValidator.frame_evaluacion_conocimiento != null}"/>
                     </div>
                 </div>
             </div>
@@ -680,10 +980,10 @@
                     <span>Avance</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
-                            <div class="toggle-switch" :class="{'inactive': Number(editObjProyecto.avance_obra_visible) === 0}">
+                            <div class="toggle-switch" :class="{'inactive': Number(objProyecto.avance_obra_visible) === 0}">
                                 <input id="avance_obra_visible-toggle" type="checkbox"
-                                    :checked="Number(editObjProyecto.avance_obra_visible) === 1"
-                                    @click="editObjProyecto.avance_obra_visible = Number(editObjProyecto.avance_obra_visible) === 0 ? 1 : 0"
+                                    :checked="Number(objProyecto.avance_obra_visible) === 1"
+                                    @click="objProyecto.avance_obra_visible = Number(objProyecto.avance_obra_visible) === 0 ? 1 : 0"
                                     class="toggle-input">
                                 <label class="toggle-label" for="avance_obra_visible-toggle"></label>
                             </div>
@@ -693,7 +993,7 @@
                 <div class='pure-u-1-1 pure-u-md-5-6'>
                     <div class='formInputStandard'>
                         <span>Link a avance externo de obra</span>
-                        <input type='text' v-model='editObjProyecto.link_avance_obra' maxlen='100' />
+                        <input type='text' v-model='objProyecto.link_avance_obra' maxlen='100' v-bind:class="{errorInput:casoValidator.link_avance_obra != null}"/>
                     </div>
                 </div>
             </div>
@@ -703,10 +1003,10 @@
                     <span>Brochure</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
-                            <div class="toggle-switch" :class="{'inactive': Number(editObjProyecto.incluir_brochure) === 0}">
+                            <div class="toggle-switch" :class="{'inactive': Number(objProyecto.incluir_brochure) === 0}">
                                 <input id="incluir_brochure-toggle" type="checkbox"
-                                    :checked="Number(editObjProyecto.incluir_brochure) === 1"
-                                    @click="editObjProyecto.incluir_brochure = Number(editObjProyecto.incluir_brochure) === 0 ? 1 : 0"
+                                    :checked="Number(objProyecto.incluir_brochure) === 1"
+                                    @click="objProyecto.incluir_brochure = Number(objProyecto.incluir_brochure) === 0 ? 1 : 0"
                                     class="toggle-input">
                                 <label class="toggle-label" for="incluir_brochure-toggle"></label>
                             </div>
@@ -716,14 +1016,14 @@
                 <div class='pure-u-1-1 pure-u-md-5-6'>
                     <div class='formInputStandard'>
                         <span>Link a brochure PDF web</span>
-                        <input type='text' v-model='editObjProyecto.link_brochure' maxlen='100' />
+                        <input type='text' v-model='objProyecto.link_brochure' maxlen='100' v-bind:class="{errorInput:casoValidator.link_brochure != null}"/>
                     </div>
                 </div>
             </div>
             <!-- <div class="pure-u-1-1" style="text-align:right;padding-top: 1em;">
                 <button>Guardar</button>
             </div> -->
-        </div>                    
+        </div>
         <!--Unidades-->
         <div class="pure-g" v-show="submode == 6">
             <h1>Unidades</h1>
@@ -734,6 +1034,6 @@
         </div>
     </div>
     <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
-        <button @click="updateProject">Actualizar</button>
+        <button @click="newProject">Guardar</button>
     </div>
 </div>
