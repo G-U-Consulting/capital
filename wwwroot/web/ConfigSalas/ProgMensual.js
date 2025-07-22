@@ -28,6 +28,9 @@ export default {
 
             editNewRow: false,
             selRow: null,
+            modal: null,
+            tableError: '',
+            listError: '',
 
             filtros: {
                 programaciones: { fecha: '', id_usuario: '', id_cargo: '' }
@@ -41,6 +44,7 @@ export default {
         this.viewMode = { name: "1M", months: 1, initMonth: 0, year: new Date().getFullYear(), class: "m1" };
         this.setViewMonths();
         this.fillDays();
+        this.modal = document.getElementById('modalOverlay');
     },
     methods: {
         setMainMode(mode) {
@@ -338,10 +342,14 @@ export default {
             let form = new FormData();
             files.forEach(f => form.append(f.name, f));
             let res = await httpFunc(`/util/ImportFiles/genericST/Salas:Ins_Programacion/{id_sala_venta: ${this.sala.id_sala_venta}}`, form);
-            if (res.isError) showMessage(this.JSON2HTML(res.errorMessage));
+            if (res.isError) {
+                this.JSON2HTML(res.errorMessage);
+                this.modal && (this.modal.style.display = 'flex');
+            }
             await this.loadData();
             this.fillDays();
             hideProgress();
+            e.target.value = '';
         },
         isHoliday(text) {
             let fecha = new Date(text + ' 00:00'), month = this.viewMonths[this.nameMonths[fecha.getMonth()]];
@@ -350,38 +358,54 @@ export default {
                 return day.isHoliday;
             }
         },
+        translateSqlError(msg, rowData) {
+            if (msg.includes("Column 'id_usuario' cannot be null"))
+                return `No se encontró el asesor con cédula '<b>${rowData.cedula}</b>' en la sala <i>${this.sala.sala_venta}</i>.`;
+            if (msg.includes("Column 'id_estado' cannot be null"))
+                return `No se ingresó un estado válido: '${rowData.estado}'`;
+            if (msg.includes("Duplicate entry"))
+                return `El asesor con cédula <b>${rowData.cedula}</b> ya tiene una asignación el día <b>${rowData.fecha ? this.formatDatetime(rowData.fecha, 'date') : rowData.fecha}</b>.`;
+            if (msg.includes("chk_prog_fecha_valida"))
+                return `No se ingresó una fecha válida: '${rowData.fecha}'.`;
+            else return `Error interno: ${msg}`;
+        },
         JSON2HTML(errorMessage) {
-            let html = "<div class='error-container'>";
-            errorMessage.forEach((archivo, i) => {
-                html += `
-            <div class='archivo-error'>
-                <h2>Errores en el archivo: <em>${archivo.fileName}</em></h2>
-        `;
+            let keys = ['fecha', 'cedula', 'estado'];
+            let tablaHTML = `
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Fila</th><th>Fecha</th><th>Cédula</th><th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+            let listaErrores = "<ul>";
 
-                archivo.errors.forEach((error, errorIndex) => {
-                    html += `
-                <div class='error-item'>
-                    <h3>Error en la fila ${error.rowIndex + 1}</h3>
-                    <p><strong>Mensaje:</strong> ${error.errorMessage}</p>
-                    <table border="1" cellpadding="5" cellspacing="0">
-                        <thead>
-                            <tr>${Object.keys(error.rowData).map(key => `<th>${key}</th>`).join('')}</tr>
-                        </thead>
-                        <tbody>
-                            <tr>${Object.values(error.rowData).map(value => `<td>${value}</td>`).join('')}</tr>
-                        </tbody>
-                    </table>
-                </div>
-                <hr/>
-            `;
+            errorMessage.forEach(archivo => {
+                listaErrores += `<li><strong>Archivo: ${archivo.fileName}</strong><ul>`;
+                archivo.errors.forEach(error => {
+                    const fila = error.rowIndex + 2;
+                    const celdas = keys.map(key =>
+                        `<td>${key == 'fecha' && error.rowData[key]
+                            ? this.formatDatetime(error.rowData[key], 'date')
+                            : error.rowData[key]}</td>`
+                    ).join('');
+                    tablaHTML += `<tr><td>${fila}</td>${celdas}</tr>`;
+                    listaErrores += `<li>Fila ${fila}: ${this.translateSqlError(error.errorMessage, error.rowData)}</li>`;
                 });
-
-                html += "</div>";
+                listaErrores += "</ul></li>";
             });
 
-            html += "</div>";
-            return html;
+            tablaHTML += "</tbody></table>";
+            listaErrores += "</ul>";
 
+            this.tableError = tablaHTML;
+            this.listError = listaErrores;
+        },
+        closeModal(e, forzar) {
+            if (this.modal && (e.target === this.modal || forzar))
+                this.modal.style.display = 'none';
         },
         async downloadTemplate(type) {
             try {

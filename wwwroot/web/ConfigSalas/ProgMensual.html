@@ -78,12 +78,14 @@
                             <button @click="downloadTemplate('excel')">Descargar Excel</button>
                             <div style="width: 100%;">
                                 <label for="up-excel" class="file" style="text-align: center;">Cargar Excel</label>
-                                <input id="up-excel" type="file" @input="fileUpload" style="display: none;" accept=".xlsx"/>
+                                <input id="up-excel" type="file" @input="fileUpload" style="display: none;"
+                                    accept=".xlsx" />
                             </div>
                             <button @click="downloadTemplate('csv')">Descargar CSV</button>
                             <div style="width: 100%;">
                                 <label for="up-csv" class="file" style="text-align: center;">Cargar CSV</label>
-                                <input id="up-csv" type="file" @input="fileUpload" style="display: none;" accept=".csv"/>
+                                <input id="up-csv" type="file" @input="fileUpload" style="display: none;"
+                                    accept=".csv" />
                             </div>
                             <button @click="reqDelete">Eliminar Fila</button>
                             <button @click="newRow()">Agregar Fila</button>
@@ -100,8 +102,8 @@
                             </select>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-5-12" style="text-align: right;">
-                            <button style="width: 123.42px; padding: .2em 0;" 
-                                @click="reqDeleteAll">Borrar selección</button>
+                            <button style="width: 123.42px; padding: .2em 0;" @click="reqDeleteAll">Borrar
+                                selección</button>
                         </div>
                     </div>
                     <div style="display: flex; align-items: baseline; margin-top: .5rem;">
@@ -150,7 +152,7 @@
                             </td>
                         </tr>
                         <tr :id="i" v-for="(p, i) in getFilteredList('programaciones')" @click="onSelect(p, i)"
-                            :class="`tab-${p.fecha}`"  v-bind:class="{'destacada': selRow == i}"
+                            :class="`tab-${p.fecha}`" v-bind:class="{'destacada': selRow == i}"
                             :style="`background-color: ${p.id_estado == '1' ? '#00c80028' : ''}`">
                             <td>{{formatDatetime(p.fecha + ' 00:00', 'date')}}</td>
                             <td>{{getWeekDay(p.fecha)}}</td>
@@ -168,6 +170,20 @@
         <div class="pure-u-1-1 pure-u-md-2-5"></div>
         <div class="pure-u-1-1 pure-u-md-1-5" style="margin-top: .5rem;">
             <button @click="onSave">Guardar</button>
+        </div>
+    </div>
+
+    <div class="cal-modal-overlay" id="modalOverlay" @click="closeModal">
+        <div class="modal-container pure-g">
+            <div class="resumen-errores">
+                <p><strong>Se encontraron errores en las siguientes filas:</strong></p>
+                <div id="error-table-scroll" style="max-height: 35vh; overflow-y: auto;" v-html="tableError">
+                </div>
+                <p><strong>Lista detalle de errores:</strong></p>
+                <div id="error-list-scroll" style="max-height: 30vh; overflow-y: auto; margin-bottom: 1rem;" v-html="listError">
+                </div>
+                <button @click="closeModal($event, true)" style="display: block; margin: 0 auto;">Aceptar</button>
+            </div>
         </div>
     </div>
 </div>

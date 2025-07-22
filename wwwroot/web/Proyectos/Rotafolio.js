@@ -129,8 +129,7 @@ export default {
                         const blob = await res.blob(),
                             file = new File([blob], f.name, { type: blob.type }),
                             reader = new FileReader();
-                        reader.onload = async (e) =>
-                            file.type.startsWith('image/') && (temp[i].content = e.target.result);
+                        reader.onload = async (e) => temp[i].content = e.target.result;
                         reader.readAsDataURL(file);
                     }
                 })).then(f => {
@@ -313,7 +312,7 @@ export default {
 
             if (this.lupa && img) {
                 const zoomFactor = 2;
-
+                
                 this.zoomLens.style.backgroundImage = `url(${img.src})`;
                 this.zoomLens.style.backgroundSize = `${img.width * zoomFactor}px ${img.height * zoomFactor}px`;
             }

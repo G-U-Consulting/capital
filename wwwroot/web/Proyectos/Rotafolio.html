@@ -28,7 +28,7 @@
                             <div class="menu-content" v-bind:class="{'open': grupo.expanded}">
                                 <div class="item-content" v-for="file in grupo.files"
                                     v-bind:class="{'current': file.current}" @click="selectFile(file)"
-                                    @mouseenter="tooltipVisible = true; tooltipMsg = file.link || file.documento"
+                                    @mouseenter="tooltipVisible = true; tooltipMsg = file.link || file.nombre_documento || file.documento"
                                     @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
                                     <img :src="file.link ? '../../img/ico/youtobe.png' : '/file/S3get/' + file.llave"
                                         :alt="file.documento" style="background-color: white;">
@@ -92,7 +92,7 @@
                             </div>
                         </div>
                         <div class="subtitle-cont-rotafolio">
-                            {{files[playIndex].documento}}
+                            {{files[playIndex].nombre_documento || files[playIndex].documento}}
                         </div>
                     </div>
                     <div class="btn-left-bar-rotafolio" v-if="files.length"

@@ -9,11 +9,8 @@ set @tipo = 'imagenes',
 --END_PARAM
 
 select a.id_documento,
-case 
-        when b.extension is null or b.extension = '' then a.documento
-        when right(a.documento, char_length(b.extension) + 1) = concat('.', b.extension) then a.documento
-        else concat(a.documento, '.', b.extension)
-    end as documento,llave, orden, a.is_active, b.id_grupo_proyecto, b.tipo, b.link, b.video, b.descripcion, nombre as nombre_documento
+        a.documento,
+        llave, orden, a.is_active, b.id_grupo_proyecto, b.tipo, b.link, b.video, b.descripcion, nombre as nombre_documento
 from fact_documentos a
 join fact_documento_proyecto b on a.id_documento = b.id_documento
 where FIND_IN_SET(b.tipo, @tipo collate utf8mb4_unicode_ci) and (id_proyecto = @id_proyecto 
