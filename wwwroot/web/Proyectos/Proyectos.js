@@ -3,102 +3,148 @@ export default {
         return {
             mainmode: 0,
             ruta: [],
-            proyecto: null,            
+            proyecto: null,
             fileSelected: null,
             lateralMenu: false,
             showList: true
         };
     },
+
     async mounted() {
         GlobalVariables.miniModuleCallback = this.miniModuleCallback;
-        
-        await this.setMainMode('EdicionProyectos');
+        await this.setMainMode('InicioProyecto');
     },
-    unmounted(){
+
+    unmounted() {
         GlobalVariables.miniModuleCallback = null;
     },
+
     methods: {
-        async setMainMode(mode) {
-            if(this.mainmode == mode && mode != 'EdicionProyectos')return;
-            this.ruta = [];
-            this.pushRuta("Proyectos", 0);
-            if(this.proyecto != null)
-                this.pushRuta(this.proyecto["nombre"], 2);
-            this.miniModule = await GlobalVariables.loadMiniModule(mode, this.proyecto, "#projectsMainContent");
-            this.mainmode = mode;
-            return;
-        },
         pushRuta(text, clickMode) {
             const existe = this.ruta.find(r => r.clickMode === clickMode);
             if (!existe) {
                 this.ruta.push({ text, clickMode });
             }
         },
-        
-        selRuta(item) {
-            if (this.miniModule.setMode && item.clickMode != null) {
-                const index = this.ruta.findIndex(r => r.clickMode === item.clickMode);
-                if (index === -1 || index === this.ruta.length - 1) return;
-                this.ruta.splice(index + 1);
-                this.miniModule.setMode(item.clickMode);
+
+        setRuta(subpath) {
+            this.ruta = [{
+                text: 'ZA',
+                action: null,
+            }, {
+                text: 'Proyectos',
+                action: () => {
+                    this.lateralMenu = false;
+                    this.proyecto = null;
+                    this.setMainMode('InicioProyecto');
+                    this.setRuta([]);
+                }
+            }, ...subpath];
+        },
+
+        async setMainMode(mode, sel = false) {
+            if (this.mainmode === mode && mode !== 'InicioProyecto') return;
+
+            this.mainmode = mode;
+            this.miniModule = await GlobalVariables.loadMiniModule(mode, this.proyecto, "#projectsMainContent");
+
+            let ruta = [];
+            if (mode !== 'InicioProyecto' || sel) {
+                ruta.push({ text: this.getPathName(mode), action: () => {} });
+            }
+            this.setRuta(ruta);
+        },
+
+        getPathName(mode) {
+            if (mode === 'EdicionProyectos') return `${this.proyecto.nombre} / Edición Proyecto`;
+            if (mode === 'Unidades') return `${this.proyecto.nombre} / Unidades`;
+            if (mode === 'Clientes') return `${this.proyecto.nombre} / Clientes`;
+            if (mode === 'Medios') return `${this.proyecto.nombre} / Imágenes y Vídeos`;
+            if (mode === 'Documentacion') return `${this.proyecto.nombre} / Documentación`;
+            if (mode === 'Bancos') return `${this.proyecto.nombre} / Bancos`;
+            if (mode === 'Recorridos') return `${this.proyecto.nombre} / Recorridos`;
+            if (mode === 'Rotafolio') return `${this.proyecto.nombre} / Rotafolio`;
+            if (mode === 'ProcesoNegocio') return `${this.proyecto.nombre} / Proceso Negocio`;
+            if (mode === 'MiCalendario') return `${this.proyecto.nombre} / Calendario`;
+            return '';
+        },
+
+        async miniModuleCallback(type, data) {
+            switch (type) {
+                case "SartProjectModule":
+                    this.lateralMenu = false;
+                    this.proyecto = null;
+                    break;
+
+                case "SelectedProject":
+                    this.lateralMenu = true;
+                    this.proyecto = data;
+                    if (this.ruta.length <= 2) this.pushRuta(this.proyecto["nombre"], 0);
+                    break;
+
+                case "NewProject":
+                    this.pushRuta("Nuevo Proyecto", 1);
+                    this.proyecto = null;
+                    break;
+
+                case "ImagenesVideos":
+                    this.pushRuta("Imagenes y Videos", 2);
+                    return this.proyecto;
+                    break;
+
+                case "OpenDocs":
+                    this.pushRuta("Documentación", 3);
+                    return this.proyecto;
+
+                case "Bancos":
+                    this.pushRuta("Bancos", 4);
+                    return this.proyecto;
+
+                case "Rotafolio":
+                    this.pushRuta("Rotafolio", 5);
+                    return this.proyecto;
+
+                case "Recorridos":
+                    this.pushRuta("Recorridos", 6);
+                    return this.proyecto;
+
+                case "ProcesoNegocio":
+                    this.pushRuta("Proceso de Negocio", 7);
+                    return this.proyecto;
+
+                case "Clientes":
+                    this.pushRuta("Clientes", 8);
+                    return this.proyecto;
+
+                case "MisTareas":
+                    this.pushRuta("Mis Tareas", 9);
+                    return this.proyecto;
+
+                case "MiCalendario":
+                    this.pushRuta("Mi Calendario", 10);
+                    return this.proyecto;
+
+                case "ToggleLateralMenu":
+                    this.lateralMenu = !this.lateralMenu;
+                    break;
+
+                case "SetRuta":
+                    this.setRuta(data);
+                    break;
             }
         },
 
-        async miniModuleCallback(type, data){
-            if(type == "SartProjectModule"){
-                this.lateralMenu = false;
-                this.proyecto = null;
-            } else if(type == "SelectedProject"){
-                this.lateralMenu = true;
-                this.proyecto = data;
-                if(this.ruta.length < 2)
-                    this.pushRuta(this.proyecto["nombre"], 0);
-                //TODO Quitar
-                //this.setMainMode("Unidades");
-            } else if(type == "NewProject"){
-                this.pushRuta("Nuevo proyecto", 1);
-                this.proyecto = null;
-            } else if (type == "ImagenesVideos") {
-                this.lateralMenu = true;
-                this.proyecto = data;
-                if (this.ruta.length < 3)
-                this.pushRuta("Imágenes y Videos", 1);
-            }else if(type == "OpenDocs"){
-                this.pushRuta("Documentación", 3);
-                return this.proyecto;
-            }else if(type == "Bancos"){
-                this.pushRuta("Bancos", 4);
-                return this.proyecto;
-            }else if(type == "Rotafolio"){
-                this.pushRuta("Rotafolio", 5);
-                return this.proyecto;
-            }else if(type == "Recorridos"){
-                this.pushRuta("Recorridos", 6);
-                return this.proyecto;
-            }else if(type == "ProcesoNegocio"){
-                this.pushRuta("Proceso de Negocio", 7);
-                return this.proyecto;
-            }else if(type == "Clientes"){
-                this.pushRuta("Clientes", 8);
-                return this.proyecto;
-            }else if(type == "MisTareas"){
-                this.pushRuta("Mis Tareas", 9)
-                return this.proyecto;
-            }else if(type == "MiCalendario"){
-                this.pushRuta("Mi Calendario", 10)
-                return this.proyecto;
-            }
-            else if(type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
-        },
         async handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
                 this.fileSelected = file;
             }
         },
+
         async removeFile() {
             this.fileSelected = null;
         },
+
         toggleList() {
             this.showList = !this.showList;
         }

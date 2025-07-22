@@ -176,7 +176,6 @@
         GlobalVariables.miniModuleCallback("ImagenesVideos", GlobalVariables.proyecto);
         this.setSubmode(0);
         this.updatePlantaPreviewAll();
-        await this.setMainMode();
         this.playIndex = 0;
 
     },
@@ -191,16 +190,6 @@
                 ...(this.videos?.filter(v => v.link) || []),
                 ...(this.videosReco?.filter(v => v.link) || [])
             ];
-        },
-        setMainMode() {
-            this.setMode(0);
-        },
-        setMode(mode) {
-            this.mode = mode;
-            if (mode == 0)
-                // GlobalVariables.miniModuleCallback("SartProjectModule", null)
-            if (mode == 1)
-                GlobalVariables.miniModuleCallback("ImagenesVideos", null)
         },
         async setSubmode(index) {
             this.submode = index;
@@ -232,10 +221,12 @@
             const modulo = modulos[index];
             if (!modulo) return;
             try {
+                showProgress();
                 const res = await httpFunc("/generic/genericDT/Medios:Get_variables", {
                     id_proyecto: GlobalVariables.id_proyecto,
                     modulo
                 });
+                hideProgress();
                 this.grupo_proyectos = res.data;
 
             } catch (error) {

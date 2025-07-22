@@ -64,6 +64,11 @@
         jsUrl: "./web/Proyectos/Edicion.js",
         allow: ["*"]
     },
+    "InicioProyecto": {
+        templateUrl: "./web/Proyectos/InicioProyecto.html",
+        jsUrl: "./web/Proyectos/InicioProyecto.js",
+        allow: ["*"]
+    },
     "Medios": {
         templateUrl: "./web/Proyectos/Medios.html",
         jsUrl: "./web/Proyectos/Medios.js",
