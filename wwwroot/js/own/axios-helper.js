@@ -27,7 +27,7 @@ async function httpFunc(path, data, getID = false) {
     var resp = await axios.post(path, data);
     if (resp.status == 200) {
         if(path.includes('/genericST/')){ 
-            operacion = path.split(':')[1];
+            operacion = path.substr(path.indexOf(':') + 1);
             if (operacion.includes('Upd') || operacion.includes('Ins') || operacion.includes('Del')){
                 registro = {
                     operacion,

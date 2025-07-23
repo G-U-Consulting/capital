@@ -362,11 +362,12 @@ export default {
             if (msg.includes("Column 'id_usuario' cannot be null"))
                 return `No se encontró el asesor con cédula '<b>${rowData.cedula}</b>' en la sala <i>${this.sala.sala_venta}</i>.`;
             if (msg.includes("Column 'id_estado' cannot be null"))
-                return `No se ingresó un estado válido: '${rowData.estado}'`;
+                return `No se ingresó un estado válido: '${rowData.estado}'.`;
             if (msg.includes("Duplicate entry"))
                 return `El asesor con cédula <b>${rowData.cedula}</b> ya tiene una asignación el día <b>${rowData.fecha ? this.formatDatetime(rowData.fecha, 'date') : rowData.fecha}</b>.`;
             if (msg.includes("chk_prog_fecha_valida"))
                 return `No se ingresó una fecha válida: '${rowData.fecha}'.`;
+            if (msg.includes("<b>") || msg.includes('<i>')) return msg;
             else return `Error interno: ${msg}`;
         },
         JSON2HTML(errorMessage) {

@@ -587,8 +587,8 @@ create table dim_programacion_sala(
 	id_usuario int not null references fact_usuarios(id_usuario),
 	fecha date not null,
 	id_estado int not null references dim_estado_programacion(id_estado),
-	unique(id_sala_venta, id_usuario, fecha),
-	constraint chk_prog_fecha_valida check(fecha >= '2000-01-01' and fecha < '3000-01-01');
+	unique(id_usuario, fecha),
+	constraint chk_prog_fecha_valida check(fecha >= '2000-01-01' and fecha < '3000-01-01')
 );
 create table dim_caja_compensacion(
 	id_caja int primary key auto_increment,
