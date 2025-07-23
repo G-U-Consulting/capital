@@ -91,6 +91,7 @@
             modalEmbedUrl: null,
             expandedVisible: false,
             expandedImage: null,
+            archivosPreview: [],
         };
     },
     watch: {
@@ -150,26 +151,41 @@
             return '../../img/ico/youtobe.png';
         },
         allItems() {
-            let items = [];
-            if (this.tablas && this.tablas.length) {
-                if (!this.tablas[0].activo && this.plantaPreview) {
-                    items.push({ src: this.plantaPreview });
-                }
-                if (!this.tablas[1].activo) {
-                    if (this.slidePreview) items.push({ src: this.slidePreview });
-                    if (this.logoPreview) items.push({ src: this.logoPreview });
-                    if (this.plantaPreview) items.push({ src: this.plantaPreview });
-                }
+    let items = [];
 
-                if (this.tablas[2] && !this.tablas[2].activo && this.previews) {
-                    items = items.concat(this.previews);
-                }
-                if (this.tablas[3] && !this.tablas[3].activo && this.videos?.length) {
-                    items = items.concat(this.videos.filter(v => v.link));
-                }
+    if (this.tablas && this.tablas.length) {
+        if (!this.tablas[1].activo) {
+            const grupo1 = [];
+            if (this.slidePreview) grupo1.push({ src: this.slidePreview });
+            if (this.logoPreview) grupo1.push({ src: this.logoPreview });
+            if (this.plantaPreview) grupo1.push({ src: this.plantaPreview });
+            if (this.archivosPreview?.length) {
+                grupo1.push(...this.archivosPreview.filter(a => a.src && a.is_active === '1'));
             }
-            return items;
+            if (grupo1.length) {
+                items = items.concat(grupo1);
+            }
         }
+
+        if (this.tablas[2] && !this.tablas[2].activo && this.previews?.length) {
+            items = items.concat(this.previews);
+        }
+
+        if (this.tablas[3] && !this.tablas[3].activo && this.videos?.length) {
+            const videosActivos = this.videos.filter(v => v.link);
+            if (videosActivos.length) {
+                items = items.concat(videosActivos);
+            }
+        }
+
+        if (!this.tablas[0].activo && this.plantaPreview) {
+            items.push({ src: this.plantaPreview });
+        }
+    }
+
+    return items;
+}
+
     },
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
@@ -177,7 +193,6 @@
         this.setSubmode(0);
         this.updatePlantaPreviewAll();
         this.playIndex = 0;
-
     },
     methods: {
         updatePlantaPreviewAll() {
@@ -219,7 +234,66 @@
                 5: 'avances de obra'
             };
             const modulo = modulos[index];
-            if (!modulo) return;
+            if (!modulo) {
+                const tipos = [];
+
+                if (this.tablas?.[1] && !this.tablas[1].activo) {
+                    tipos.push('logo', 'slide', 'planta', 'imagenes');
+                }
+
+                if (this.tablas?.[3] && !this.tablas[3].activo) {
+                    tipos.push('videos');
+                }
+
+                if (!tipos.length) return;
+
+                try {
+                    const response = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', {
+                        tipo: tipos.join(','),
+                        id_proyecto: GlobalVariables.id_proyecto
+                    });
+
+                    const archivos = response.data || [];
+
+                    // Solo activos
+                    let archivosTemp = archivos
+                        .filter(a => a.is_active === '1')
+                        .map((a, i) => ({
+                            src: '',
+                            llave: a.llave,
+                            nombre: a.documento,
+                            orden: a.orden,
+                            tipo: a.tipo,
+                            is_active: a.is_active
+                        }));
+
+                    await Promise.all(archivosTemp.map(async (a, i) => {
+                        try {
+                            const res = await fetch('/file/S3get/' + a.llave);
+                            if (!res.ok) throw new Error(`Error al cargar ${a.llave}: ${res.statusText}`);
+                            const blob = await res.blob();
+                            const reader = new FileReader();
+
+                            await new Promise(resolve => {
+                                reader.onload = e => {
+                                    archivosTemp[i].src = e.target.result;
+                                    resolve();
+                                };
+                                reader.readAsDataURL(blob);
+                            });
+                        } catch (e) {
+                            console.warn(`No se pudo cargar archivo ${a.llave}:`, e);
+                        }
+                    }));
+
+                    this.archivosPreview = archivosTemp;
+
+                } catch (error) {
+                    console.error("Error al obtener archivos S3:", error);
+                }
+
+                return;
+            }
             try {
                 showProgress();
                 const res = await httpFunc("/generic/genericDT/Medios:Get_variables", {
@@ -1283,10 +1357,13 @@
             this.videoId = null;
         },
         async openPrevi() {
-            if (!this.allItems.length) {
-                showMessage('No hay imágenes ni videos activos para previsualizar.');
-                return;
-            }
+                  
+            // if (!this.allItems.length) {
+            //     showMessage('No hay imágenes ni videos activos para previsualizar.');
+            //     return;
+            // }
+
+            this.setSubmode(0)
         
             this.modalVisible = true;
         

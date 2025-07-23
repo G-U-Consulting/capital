@@ -3,12 +3,15 @@
 <div v-if="mode == 0" style="padding-top: 1em">
     <div class="pure-u-1-24"></div>
     <div class="pure-u-22-24 menuCard">
-        <div class="searchBox">
-            <!--TODO-->
-            <!--Hacer igual que usuarios agregando los filtros-->
-            <!--Falta incluir Loo, Slide y Planta general Termómetro-->
+        <div class="searchBox" style="padding: 1rem 5px;">
             <div class="pure-g">
-                <div class="pure-u-1-1 pure-u-md-2-5">
+                <div class="pure-u-1-1 pure-u-md-1-8" style="padding-right: 5px;">
+                    <select class="pure-input-1" v-model="filtros.proyectos['id_sala_venta']">
+                        <option value="">[Todas las Salas]</option>
+                        <option v-for="item in salas_venta" :value="item.id_sala_venta">{{item.sala_venta}}</option>
+                    </select>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-5-24">
                     <input type="text" placeholder="Nombre" v-model="filtros.proyectos['nombre']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-24">
@@ -16,22 +19,22 @@
                         <img src="./img/ico/eraser.png" />
                     </div>
                 </div>
-                <div class="pure-u-1-1 pure-u-md-6-24" style="display: flex; gap: 0.5em;">
+                <div class="pure-u-1-1 pure-u-md-8-24" style="display: flex; gap: 0.5em;">
                     <div class="pure-u-1-3">
                         <select class="pure-input-1" v-model="filtros.proyectos['id_zona_proyecto']">
-                            <option value="">[Zonas]</option>
+                            <option value="">[Todas las Zonas]</option>
                             <option v-for="item in zona_proyecto" :value="item.id_zona_proyecto">{{item.zona_proyecto}}</option>
                         </select>
                     </div>
                     <div class="pure-u-1-3">
                         <select class="pure-input-1" v-model="filtros.proyectos['id_sede']">
-                            <option value="">[Sedes]</option>
+                            <option value="">[Todas las Sedes]</option>
                             <option v-for="item in sede" :value="item.id_sede">{{item.sede}}</option>
                         </select>
                     </div>
                     <div class="pure-u-1-3">
                         <select class="pure-input-1" v-model="filtros.proyectos['id_ciudadela']">
-                            <option value="">[Ciudadelas]</option>
+                            <option value="">[Todas las Ciudadelas]</option>
                             <option v-for="item in ciudadela" :value="item.id_ciudadela">{{item.ciudadela}}</option>
                         </select>
                     </div>
@@ -65,7 +68,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in proyectosTabla":key="item.id" @click="tortaProject(item);"
+                            <tr v-for="item in getFilteredList('proyectos')" :key="item.id" @click="tortaProject(item);"
                                 @dblclick="selectProject(item,'portada')"
                                 :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                 <td style="height: 3.2em;">
@@ -76,12 +79,12 @@
                                 <td>{{item.zona_proyecto}}</td>
                                 <td>{{item.ciudadela}}</td>
                                 <td>
-                                    <span v-if="item.es_lanzamiento" class="lanzamiento-tag">🚀 Próximo Lanzamiento</span>
+                                    <span v-if="item.lanzamiento == '1'" class="lanzamiento-tag">🚀 Próximo Lanzamiento</span>
                                 </td>
                                 <td style="text-align: center;">
-                                    <div class="toggle-switch" @click.stop.prevent="toggleState(item)">
+                                    <div class="toggle-switch" @click.stop.prevent="toggleState(item)" @dblclick.stop.prevent>
                                         <input :id="'toggle' + item.nombre" type="checkbox" class="toggle-input"
-                                            :checked="Number(item.is_active) !== 1">
+                                            :checked="item.is_active != '1'">
                                         <label class="toggle-label" :for="'toggle' + item.nombre"
                                             style="transform: rotate(180deg);"></label>
                                     </div>
@@ -164,8 +167,8 @@
                         <span class="lanzamiento-title">🚀 Próximos Lanzamientos</span>
                         <div class="lanzamiento-wrapper">
                             <div class="project-list lanzamiento-list">
-                                <div class="item-matrix" v-for="item in proyectosLanzamiento" :key="item.id" @click="tortaProject(item)"
-                                    @dblclick="selectProject(item,'portada')"
+                                <div class="item-matrix" v-for="item in proyectosLanzamiento" :key="item.id"
+                                    @click="tortaProject(item)" @dblclick="selectProject(item,'portada')"
                                     :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                     <div class="img-matrix">
                                         <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
@@ -185,8 +188,8 @@
                     </div>
                     <div class="proyectos-section">
                         <div class="project-list">
-                            <div class="item-matrix" v-for="item in proyectosNormales" :key="item.id" @click="tortaProject(item)"
-                                @dblclick="selectProject(item,'portada')"
+                            <div class="item-matrix" v-for="item in proyectosNormales" :key="item.id"
+                                @click="tortaProject(item)" @dblclick="selectProject(item,'portada')"
                                 :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                 <div class="img-matrix">
                                     <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
@@ -205,74 +208,81 @@
                     </div>
                 </div>
                 <div v-if="selectedProject" class="detail-panel">
-    <div class="detail-logo" v-if="selectedProject.img">
-        <img :src="selectedProject.img" />
-    </div>
-    <div class="scrollable-content">
-        <table class="detail-table">
-            <tr>
-                <td><strong>Tipo de Proyecto:</strong></td>
-                <td>{{ selectedProject.tipo_proyecto }}</td>
-            </tr>
-            <tr>
-                <td><strong>Proyecto VIS</strong></td>
-                <td>{{ selectedProject.tipo_vis }}</td>
-            </tr>
-            <tr>
-                <td><strong>Área/Etapa/Etapas</strong></td>
-                <td>{{ selectedProject.etapas }}</td>
-            </tr>
-            <tr>
-                <td><strong>Aptos/Casas totales</strong></td>
-                <td>{{ selectedProject.total }}</td>
-            </tr>
-            <tr>
-                <td><strong>Área total</strong></td>
-                <td>{{ selectedProject.areaTotal }}</td>
-            </tr>
-            <tr>
-                <td><strong>Área priv. cubierta desde</strong></td>
-                <td>{{ selectedProject.areaPrivadaDesde }}</td>
-            </tr>
-            <tr>
-                <td><strong>Área const. desde</strong></td>
-                <td>{{ selectedProject.areaConstruida }}</td>
-            </tr>
-            <tr>
-                <td><strong>Precio desde</strong></td>
-                <td>{{ selectedProject.precioDesde }}</td>
-            </tr>
-            <tr>
-                <td><strong>Precio hasta</strong></td>
-                <td>{{ selectedProject.precioHasta }}</td>
-            </tr>
-            <tr>
-                <td><strong>Fecha entrega desde</strong></td>
-                <td>{{ selectedProject.fechaEntregaDesde }}</td>
-            </tr>
-            <tr>
-                <td><strong>Fecha entrega hasta</strong></td>
-                <td>{{ selectedProject.fechaEntregaHasta }}</td>
-            </tr>
-            <tr>
-                <td><strong>Información adicional</strong></td>
-                <td>{{ selectedProject.infoAdicional }}</td>
-            </tr>
-            <tr v-if="selectedProject.zonasComunes">
-                <td><strong>Zonas comunes</strong></td>
-                <td>
-                    <ul>
-                        <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
-                    </ul>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div class="detail-footer">
-        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
-    </div>
-</div>
-<div v-else class="detail-panel"></div>
+                    <div class="labeled-switch">
+                        <div class="toggle-switch" @click.stop.prevent="toggleState(selectedProject)" @dblclick.stop.prevent>
+                            <input :id="'toggle' + selectedProject.nombre" type="checkbox" class="toggle-input"
+                                :checked="selectedProject.is_active != '1'">
+                            <label class="toggle-label" :for="'toggle' + selectedProject.nombre" style="transform: rotate(180deg);"></label>
+                        </div>
+                    </div>
+                    <div class="detail-logo" v-if="selectedProject.img">
+                        <img :src="selectedProject.img" />
+                    </div>
+                    <div class="scrollable-content">    
+                        <table class="detail-table">
+                            <tr>
+                                <td><strong>Tipo de Proyecto:</strong></td>
+                                <td>{{ selectedProject.tipo_proyecto }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Proyecto VIS</strong></td>
+                                <td>{{ selectedProject.tipo_vis }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área/Etapa/Etapas</strong></td>
+                                <td>{{ selectedProject.etapas }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Aptos/Casas totales</strong></td>
+                                <td>{{ selectedProject.total }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área total</strong></td>
+                                <td>{{ selectedProject.areaTotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área priv. cubierta desde</strong></td>
+                                <td>{{ selectedProject.areaPrivadaDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área const. desde</strong></td>
+                                <td>{{ selectedProject.areaConstruida }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Precio desde</strong></td>
+                                <td>{{ selectedProject.precioDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Precio hasta</strong></td>
+                                <td>{{ selectedProject.precioHasta }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha entrega desde</strong></td>
+                                <td>{{ selectedProject.fechaEntregaDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha entrega hasta</strong></td>
+                                <td>{{ selectedProject.fechaEntregaHasta }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Información adicional</strong></td>
+                                <td>{{ selectedProject.infoAdicional }}</td>
+                            </tr>
+                            <tr v-if="selectedProject.zonasComunes">
+                                <td><strong>Zonas comunes</strong></td>
+                                <td>
+                                    <ul>
+                                        <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="detail-footer">
+                        <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
+                    </div>
+                </div>
+                <div v-else class="detail-panel"></div>
             </div>
         </div>
     </div>

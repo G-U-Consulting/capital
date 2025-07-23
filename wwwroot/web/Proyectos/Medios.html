@@ -99,7 +99,7 @@
                             @change="previewImage($event, 'logoPreview')" />
                         <div v-if="logoPreview" class="image-card-preview" @click="expandImage('logo')">
                             <img :src="logoPreview" alt="Logo Preview" />
-                            <div class="delete-btn" @click="removePreview('logo')">X</div>
+                            <div class="delete-btn" @click.stop="removePreview('logo')">X</div>
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-3 image-upload-item">
@@ -112,7 +112,7 @@
                             @change="previewImage($event, 'slidePreview')" />
                         <div v-if="slidePreview" class="image-card-preview" @click="expandImage('slide')">
                             <img :src="slidePreview" alt="Slide 1 Preview"/>
-                            <div class="delete-btn" @click="removePreview('slide')">X</div>
+                            <div class="delete-btn" @click.stop="removePreview('slide')">X</div>
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-3 image-upload-item">
@@ -125,7 +125,7 @@
                             @change="previewImage($event, 'plantaPreview')" />
                         <div v-if="plantaPreview" class="image-card-preview" @click="expandImage('planta')">
                             <img :src="plantaPreview" alt="Planta Preview" />
-                            <div class="delete-btn" @click="removePreview('planta')">X</div>
+                            <div class="delete-btn" @click.stop="removePreview('planta')">X</div>
                         </div>
                     </div>
                     <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal"
@@ -492,14 +492,17 @@
                 <iframe v-if="isVideo(allItems[playIndex])" :src="formatURL(allItems[playIndex])" frameborder="0"
                     allow="autoplay; encrypted-media" allowfullscreen id="v-player" :key="playIndex" @load="initVideo" />
             </div>
-            <div class="btn-bar-rotafolio"
-                v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
-                <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)"
-                    style="transform: rotate(180deg);">
-                <img src="../../img/ico/play.png" @click="play" class="btn-rotafolio" v-show="stop">
-                <img src="../../img/ico/pause.png" @click="pause" class="btn-rotafolio" v-show="!stop"
-                    style="background: white;">
-                <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1)">
+
+            <div class="btn-bar-rotafolio" v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
+                <div class="btn-cont-rotafolio">
+                    <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1, false)"
+                        style="transform: rotate(180deg);">
+                    <img src="../../img/ico/play.png" @click="resetInterval" style="background: white;" class="btn-rotafolio"
+                        v-show="stop">
+                    <img src="../../img/ico/pause.png" @click="pause" style="background: white;" class="btn-rotafolio"
+                        v-show="!stop">
+                    <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1, false)">
+                </div>
             </div>
         </div>
     </div>
