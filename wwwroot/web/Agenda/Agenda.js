@@ -53,9 +53,11 @@ export default {
             asignaciones: [],
             modal: null,
             currentWeek: -1,
+            showMode: 'event',
 
             eventType: 'Sala',
             id_obj: null,
+            sala_filter: null,
             pro_filter: null,
 
             tooltipVisible: false,
@@ -63,7 +65,7 @@ export default {
             tooltipY: 0,
             tooltipMsg: '',
         }
-    }, 
+    },
     async mounted() {
         this.setMainMode(0);
     },
@@ -71,9 +73,9 @@ export default {
         setRuta() {
             let subpath = [this.getMainPath()];
             this.ruta = [{
-                text: 'ZU', action: () => 
-                GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, {text: 'Agenda', action: () => { this.mode = -1; this.setMode(-1) }}];
+                text: 'ZU', action: () =>
+                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+            }, { text: 'Agenda', action: () => { this.mode = -1; this.setMode(-1) } }];
             this.ruta = [...this.ruta, ...subpath];
         },
         async setMainMode(mode) {
@@ -117,10 +119,11 @@ export default {
         },
         newRow() {
             this.editNewRow = !this.editNewRow;
-            this.tarea = { alta: this.formatDate(new Date()) };
+            this.tarea = { alta: this.formatDatetime(null, 'bdate') };
             this.selRow = null;
         },
-        onSelect(t, i) {
+        async onSelect(t, i) {
+            if (this.enableEdit && this.selRow != null && this.selRow != i) await this.onSave();
             if (this.selRow != i && t.id_estado != '4') {
                 this.tarea = { ...t };
                 this.editNewRow = false;
@@ -131,8 +134,6 @@ export default {
         async onSave() {
             if (this.enableEdit || this.editNewRow) {
                 showProgress();
-                if (this.selRow)
-                    this.tarea = this.getFilteredList('tareas')[this.selRow];
                 let res = await httpFunc(`/generic/genericST/Proyectos:${this.selRow != null ? 'Upd' : 'Ins'}_Tarea`,
                     { ...this.tarea, id_usuario: this.usuario.id_usuario });
                 if (res.data === 'OK') {
@@ -170,21 +171,12 @@ export default {
             this.selRow = null;
             this.enableEdit = false;
         },
-        formatDate(date) {
-            let day = date.getDate().toString().padStart(2, '0'),
-                month = (date.getMonth() + 1).toString().padStart(2, '0'),
-                year = date.getFullYear(),
-                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
-                minutes = date.getMinutes().toString().padStart(2, '0'),
-                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
-            return `${year}-${month}-${day}`;
-        },
 
         //////////////// Mi Calendario ////////////////
         async loadCalendarData() {
             showProgress();
-            [this.salas, this.proyectos, this.hitos, this.cargos, this.asignaciones] = 
-                (await httpFunc("/generic/genericDS/Agenda:Get_Agenda", { username: GlobalVariables.username })).data;
+            let data = (await httpFunc("/generic/genericDS/Agenda:Get_Agenda", { username: GlobalVariables.username })).data;
+            [this.salas, this.proyectos, this.hitos, this.cargos, this.asignaciones, this.tareas] = data;
             hideProgress();
             this.setToday();
             await this.loadViewMode();
@@ -196,6 +188,9 @@ export default {
             let vm = await GlobalVariables.getPreferences('mesesCalendario', true);
             if (!vm) await GlobalVariables.setPreferences('mesesCalendario', 'm6', true);
             await this.updateViewMode(vm || 'm6');
+            let sm = await GlobalVariables.getPreferences('verCalendario', true);
+            if (!sm) await GlobalVariables.setPreferences('verCalendario', 'event', true);
+            await this.setShowMode(sm || 'event');
             hideProgress();
         },
         async loadFields() {
@@ -231,7 +226,9 @@ export default {
                     isToday: false,
                     isSelected: false,
                     isHoliday: false,
+                    isRestday: false,
                     events: [],
+                    tasks: [],
                     date: fecha
                 });
             }
@@ -248,7 +245,9 @@ export default {
                     isToday: this.equalsDate(fecha, today),
                     isSelected: this.equalsDate(fecha, this.selDate),
                     isHoliday: false,
+                    isRestday: false,
                     events: [],
+                    tasks: [],
                     date: fecha
                 }
                 daysView.push(day);
@@ -269,7 +268,9 @@ export default {
                     isToday: false,
                     isSelected: false,
                     isHoliday: false,
+                    isRestday: false,
                     events: [],
+                    tasks: [],
                     date: fecha
                 });
                 i++;
@@ -300,18 +301,47 @@ export default {
                 days = this.viewMonths[this.nameMonths[date.getMonth()]].days.filter(d => d.currentMonth);
             if (this.viewMode.class == 's1')
                 days = this.viewMonths[this.nameMonths[date.getMonth()]].days.filter(d => d.weekCount === this.currentDay.weekCount);
-            let events = [];
-            days.forEach(day => {
-                if (day.events.length - (day.isHoliday ? 1 : 0))
-                    day.events.forEach(e => e.festivo != '1' && events.push(
-                        {
-                            day, e_titulo: e.titulo, e_categorias: e.categorias ? e.categorias.split(',') : [], e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
-                            e_hora: this.formatDatetime(e.fecha, 'time'), color: e.color, event: e
-                        }));
-                else events.push({ day, e_titulo: day.isHoliday ? 'Festivo' : '-', e_tipo: '-', e_hora: '-', e_categorias: [], color: day.isHoliday ? '#c80000' : null });
-            });
-            await Promise.resolve();
-            this.tableDays = events;
+            if (this.showMode == 'event') {
+                let events = [];
+                days.forEach(day => {
+                    if (day.events.length - (day.isHoliday ? 1 : 0))
+                        day.events.forEach(e => e.festivo != '1' && events.push(
+                            {
+                                day,
+                                e_titulo: e.titulo,
+                                e_categorias: e.categorias ? e.categorias.split(',') : [],
+                                e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
+                                e_hora: this.formatDatetime(e.fecha, 'time'),
+                                color: e.color,
+                                event: e
+                            }));
+                    else events.push({
+                        day,
+                        e_titulo: day.isHoliday ? 'Festivo' : day.isRestday ? 'No laboral' : '-',
+                        e_tipo: '-',
+                        e_hora: '-',
+                        e_categorias: [],
+                        color: day.isHoliday ? '#c80000' : day.isRestday ? '#dadada' : null
+                    });
+                });
+                await Promise.resolve();
+                this.tableDays = events;
+            }
+            if (this.showMode == 'task') {
+                let tasks = [];
+                days.forEach(day => {
+                    if (day.tasks.length)
+                        day.tasks.forEach(t => tasks.push({ day, ...t, }));
+                    else tasks.push({
+                        day,
+                        proyecto: '-',
+                        descripcion: day.isHoliday ? 'Festivo' : day.isRestday ? 'No laboral' : '-',
+                        color: day.isHoliday ? '#c80000' : day.isRestday ? '#dadada' : null
+                    });
+                });
+                await Promise.resolve();
+                this.tableDays = tasks;
+            }
         },
         async updateViewMode(mode) {
             let upd = this.viewMode.class;
@@ -321,6 +351,14 @@ export default {
                 this.setViewMonths();
                 upd && await GlobalVariables.setPreferences('mesesCalendario', mode || 'm6');
             }
+        },
+        async setShowMode(mode) {
+            if (this.showMode != mode) {
+                this.showMode = mode;
+                this.setViewMonths();
+                await GlobalVariables.setPreferences('verCalendario', mode || 'event');
+            }
+            if (mode == 'task') this.sala_filter = null;
         },
         setDate(dir) {
             let date = this.selDate, m = date.getMonth(), y = date.getFullYear();
@@ -340,6 +378,12 @@ export default {
             this.selDate = new Date();
             this.setViewMonths();
         },
+        onDblClickDay(day) {
+            if (this.showMode == 'event')
+                day.currentMonth && day.events && day.events.filter(e => e.festivo != '1').length && openModal(3)
+            if (this.showMode == 'task')
+                day.currentMonth && day.tasks && day.tasks.length && this.openModal(4);
+        },
         async selDay(day, scroll) {
             const selectedMonthKey = Object.keys(this.viewMonths).find(key => this.viewMonths[key].selected);
             if (selectedMonthKey) {
@@ -352,7 +396,7 @@ export default {
             this.viewMonths[this.nameMonths[day.viewMonth]].selected = true;
             this.currentDay = day;
             await this.setTableDetails(this.selDate);
-            if (scroll) 
+            if (scroll)
                 document.getElementById(`tab-m${day.month}-d${day.monthDay}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         },
         isToday() {
@@ -384,59 +428,10 @@ export default {
             if (this.modal && (e.target === this.modal || forzar))
                 this.modal.style.display = 'none';
         },
-        /* async onSave() {
-            showProgress();
-            if (this.hito.fecha) this.hito.fecha = `${this.hito.fecha.split(' ')[0]} ${this.hito.hora}`;
-            else this.hito.fecha = `${this.formatDatetime(null, 'bdate', this.selDate)} ${this.hito.hora}`;
-            if (!this.hito.limite) delete this.hito.limite;
-            if (this.eventType === 'Proyecto') this.hito.id_proyecto = this.id_obj;
-            else delete this.hito.id_proyecto;
-            let cargos = this.cargos.filter(c => c.checked).map(c => c.id_cargo).join(',');
-            let res = await httpFunc(`/generic/genericST/Proyectos:${this.mode == 1 ? 'Ins' : 'Upd'}_Hito`,
-                { ...this.hito, id_sala: this.sala.id_sala_venta, cargos });
-            if (res.data !== 'OK') {
-                console.error(res);
-                showMessage('Error: ' + (res.errorMessage || res.data));
-            }
-            await this.loadCalendarData();
-            this.setViewMonths();
-            this.modal.style.display = 'none';
-            hideProgress();
-        }, */
         onCancel() {
             this.hito = {};
             if (this.mode == 1) this.modal.style.display = 'none';
             else this.modalmode = 3;
-        },
-        async toggleHoliday() {
-            /* showProgress();
-            if (this.currentDay.isHoliday) {
-                let event = this.currentDay.events.find(e => e.festivo === '1');
-                if (event && event.id_hito) {
-                    let res = await httpFunc("/generic/genericST/Proyectos:Del_Hito", { id_hito: event.id_hito });
-                    if (res.data !== 'OK') {
-                        console.error(res);
-                        showMessage('Error: ' + (res.errorMessage || res.data));
-                    } else {
-                        await this.loadCalendarData();
-                        this.loadEvents(this.currentDay);
-                    }
-                }
-            } else {
-                this.hito = {
-                    fecha: `${this.selDate.getFullYear()}-${this.selDate.getMonth() + 1}-${this.selDate.getDate()} 00:00`,
-                    color: '#c80000', titulo: `Festivo ${this.selDate.toLocaleDateString()}`, festivo: '1'
-                };
-                let res = await httpFunc("/generic/genericST/Proyectos:Ins_Hito", { ...this.hito, id_sala: this.sala.id_sala_venta, festivo: '1' });
-                if (res.data !== 'OK') {
-                    console.error(res);
-                    showMessage('Error: ' + (res.errorMessage || res.data));
-                } else {
-                    await this.loadCalendarData();
-                    this.loadEvents(this.currentDay);
-                }
-            }
-            hideProgress(); */
         },
         setRecurringEvents(e) {
             if (this.viewMode.months >= 0 && this.viewMode.initMonth >= 0 && e.frecuencia) {
@@ -484,7 +479,8 @@ export default {
             }
             else {
                 this.hitos.forEach(h => {
-                    if (!this.pro_filter || h.id_proyecto == this.pro_filter || h.festivo === '1') {
+                    if ((this.showMode == 'event' && ((!this.sala_filter || h.id_sala_venta == this.sala_filter)
+                        && (!this.pro_filter || h.id_proyecto == this.pro_filter))) || h.festivo === '1') {
                         const fecha = new Date(h.fecha),
                             p_month = this.viewMonths[this.nameMonths[fecha.getMonth() - 1]],
                             month = this.viewMonths[this.nameMonths[fecha.getMonth()]],
@@ -495,8 +491,26 @@ export default {
                         h.frecuencia && this.setRecurringEvents(h);
                     }
                 });
+                this.asignaciones.forEach(a => {
+                    if (a.is_laboral == '0') {
+                        let day = this.findDay(new Date(a.fecha + ' 00:00'));
+                        if (day) day.isRestday = true;
+                    }
+                });
+                this.showMode == 'task' && this.tareas.forEach(t => {
+                    if ((!this.pro_filter || t.id_proyecto == this.pro_filter) && t.activa == '1') {
+                        let day = this.findDay(new Date(t.deadline + ' 00:00'));
+                        day && day.tasks.push(t);
+                    }
+                })
             }
             this.setTableDetails(this.selDate);
+        },
+        findDay(date) {
+            let month = this.viewMonths[this.nameMonths[date.getMonth()]];
+            if (month)
+                return month.days.find(d => (d.monthDay === date.getDate() && d.month === date.getMonth()
+                    && this.viewMode.year == date.getFullYear() && d.currentMonth));
         },
         selEvent(e) {
             this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
@@ -517,22 +531,6 @@ export default {
             else {
                 delete this.hito.limite;
                 delete this.hito.frecuencia;
-            }
-        },
-        async reqDeleteEvent(e) {
-            showConfirm(`Se eliminará el hito <b>${e.titulo}</b> permanentemente.`, this.delEvent, null, e);
-        },
-        async delEvent(e) {
-            if (e && e.id_hito) {
-                let res = await httpFunc("/generic/genericST/Proyectos:Del_Hito", e);
-                if (res.data !== 'OK') {
-                    console.error(res);
-                    showMessage('Error: ' + (res.errorMessage || res.data));
-                } else {
-                    await this.loadCalendarData();
-                    this.setViewMonths();
-                    this.modal.style.display = 'none';
-                }
             }
         },
         formatDatetime(text, type = 'datetime', _date) {
@@ -583,6 +581,5 @@ export default {
             };
         }
     }
-    //////////////// Mi Calendario ////////////////
-    
+
 }

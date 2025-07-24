@@ -2131,6 +2131,12 @@ tr.destacada {
   color: #c80000;
   font-weight: bold;
 }
+.cal-restday {
+  background-color: #e4e4e4;
+}
+.cal-restday > span {
+  color: #4e4e4e;
+}
 .cal-event-count {
   display: inline-flex;
   justify-content: center;

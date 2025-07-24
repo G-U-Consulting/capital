@@ -534,13 +534,14 @@ create table dim_hito_sala(
 create table dim_prioridad_tarea(
 	id_prioridad int primary key auto_increment,
 	nombre varchar(20) not null,
-	prioridad int not null
+	prioridad int not null,
+	color varchar(7) not null
 );
-insert into dim_prioridad_tarea(nombre, prioridad) values
-('Baja', 10),
-('Media', 20),
-('Alta', 30),
-('Urgente', 40);
+insert into dim_prioridad_tarea(nombre, prioridad, color) values
+('Baja', 10, '#00ff00'),
+('Media', 20, '#ffff00'),
+('Alta', 30, '#ff8800'),
+('Urgente', 40, '#ff0000');
 
 create table dim_estado_tarea(
 	id_estado int primary key auto_increment,
@@ -555,7 +556,7 @@ insert into dim_estado_tarea(nombre, orden) values
 
 create table dim_tarea_usuario(
 	id_tarea int primary key auto_increment,
-	alta date not null,
+	alta date default current_time,
 	deadline date not null,
 	id_proyecto int not null references fact_proyectos(id_proyecto),
 	descripcion varchar(255) not null,
@@ -572,15 +573,16 @@ create table dim_hito_cargo(
 );
 create table dim_estado_programacion(
 	id_estado int primary key auto_increment,
-	estado varchar(200) not null unique
+	estado varchar(200) not null unique,
+	is_laboral bit not null default 0
 );
-insert into dim_estado_programacion(estado) values
-('En sala'),
-('En casa'),
-('Descansa'),
-('Licencia'),
-('Vacaciones'),
-('Incapacidad');
+insert into dim_estado_programacion(estado, is_laboral) values
+('En sala', 1),
+('En casa', 1),
+('Descansa', 0),
+('Licencia', 0),
+('Vacaciones', 0),
+('Incapacidad', 0);
 create table dim_programacion_sala(
 	id_programacion int primary key auto_increment,
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
