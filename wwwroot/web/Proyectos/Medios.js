@@ -94,47 +94,6 @@
             archivosPreview: [],
         };
     },
-    watch: {
-        previewsAvo: {
-            deep: true,
-            handler(newVal) {
-                localStorage.setItem("previewsAvo", JSON.stringify(newVal));
-            }
-        },
-        plantaPreview(val) {
-            this.updatePlantaPreviewAll();
-        },
-        slidePreview(val) {
-            this.updatePlantaPreviewAll();
-        },
-        logoPreview(val) {
-            this.updatePlantaPreviewAll();
-        },
-        previews: {
-            handler(val) {
-                this.updatePlantaPreviewAll();
-            },
-            deep: true
-        },
-        previewsAvo: {
-            handler(val) {
-                this.updatePlantaPreviewAll();
-            },
-            deep: true
-        },
-        videos: {
-            handler(val) {
-                this.updatePlantaPreviewAll();
-            },
-            deep: true
-        },
-        videosReco: {
-            handler(val) {
-                this.updatePlantaPreviewAll();
-            },
-            deep: true
-        }
-    },
     computed: {
         tabClasses() {
             return this.mediaTabs.map((_, index) => {
@@ -151,62 +110,69 @@
             return '../../img/ico/youtobe.png';
         },
         allItems() {
-    let items = [];
+            let items = [];
 
-    if (this.tablas && this.tablas.length) {
-        if (!this.tablas[1].activo) {
-            const grupo1 = [];
-            if (this.slidePreview) grupo1.push({ src: this.slidePreview });
-            if (this.logoPreview) grupo1.push({ src: this.logoPreview });
-            if (this.plantaPreview) grupo1.push({ src: this.plantaPreview });
-            if (this.archivosPreview?.length) {
-                grupo1.push(...this.archivosPreview.filter(a => a.src && a.is_active === '1'));
+            if (this.tablas && this.tablas.length && this.archivosPreview?.length) {
+                const activos = this.archivosPreview.filter(a => a.is_active === '1');
+
+                const addByTab = (index) => {
+                    if (this.tablas[index] && !this.tablas[index].activo) {
+                        const grupo = activos.filter(a => {
+                            if (index === 3) return a.tipo === 'videos';
+                            if (index === 2) return a.tipo === 'imagenes';
+                            return ['logo', 'slide', 'planta'].includes(a.tipo);
+                        }).map(a => {
+                            if (a.tipo === 'videos' && a.link) {
+                                return {
+                                    ...a,
+                                    src: this.getPreviewSrc,
+                                    isVideo: true 
+                                };
+                            }
+                            return a;
+                        });
+
+                        items = items.concat(grupo);
+                    }
+                };
+                addByTab(1);
+                addByTab(2); 
+                addByTab(0);
+                addByTab(3);           
             }
-            if (grupo1.length) {
-                items = items.concat(grupo1);
-            }
+            return items;
         }
-
-        if (this.tablas[2] && !this.tablas[2].activo && this.previews?.length) {
-            items = items.concat(this.previews);
-        }
-
-        if (this.tablas[3] && !this.tablas[3].activo && this.videos?.length) {
-            const videosActivos = this.videos.filter(v => v.link);
-            if (videosActivos.length) {
-                items = items.concat(videosActivos);
-            }
-        }
-
-        if (!this.tablas[0].activo && this.plantaPreview) {
-            items.push({ src: this.plantaPreview });
-        }
-    }
-
-    return items;
-}
-
     },
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("ImagenesVideos", GlobalVariables.proyecto);
         this.setSubmode(0);
-        this.updatePlantaPreviewAll();
-        this.playIndex = 0;
     },
     methods: {
-        updatePlantaPreviewAll() {
-            this.plantaPreviewAll = [
-                { src: this.plantaPreview },
-                { src: this.slidePreview },
-                { src: this.logoPreview },
-                ...(this.previews || []),
-                ...(this.previewsAvo || []),
-                ...(this.videos?.filter(v => v.link) || []),
-                ...(this.videosReco?.filter(v => v.link) || [])
-            ];
+        async onToggleChange() {
+            await this.loadPreviewItem();
         },
         async setSubmode(index) {
+
+            console.log(this.logoPreview  )
+            const hayPendientes =
+                this.previews.some(item => !!item.extension) ||
+                (this.previewsAvo && this.previewsAvo.some(item => !!item.extension));
+
+            if (hayPendientes) {
+                showConfirm(
+                    "Tiene elementos pendientes por guardar",
+                    () => {
+                        this.submode = index;
+                        this.previews = [];
+                        this.previewsAvo = [];
+                    },
+                    null,
+                    null
+                );
+                return;
+            }
+
             this.submode = index;
 
             if (index === 0) {
@@ -234,66 +200,7 @@
                 5: 'avances de obra'
             };
             const modulo = modulos[index];
-            if (!modulo) {
-                const tipos = [];
-
-                if (this.tablas?.[1] && !this.tablas[1].activo) {
-                    tipos.push('logo', 'slide', 'planta', 'imagenes');
-                }
-
-                if (this.tablas?.[3] && !this.tablas[3].activo) {
-                    tipos.push('videos');
-                }
-
-                if (!tipos.length) return;
-
-                try {
-                    const response = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', {
-                        tipo: tipos.join(','),
-                        id_proyecto: GlobalVariables.id_proyecto
-                    });
-
-                    const archivos = response.data || [];
-
-                    // Solo activos
-                    let archivosTemp = archivos
-                        .filter(a => a.is_active === '1')
-                        .map((a, i) => ({
-                            src: '',
-                            llave: a.llave,
-                            nombre: a.documento,
-                            orden: a.orden,
-                            tipo: a.tipo,
-                            is_active: a.is_active
-                        }));
-
-                    await Promise.all(archivosTemp.map(async (a, i) => {
-                        try {
-                            const res = await fetch('/file/S3get/' + a.llave);
-                            if (!res.ok) throw new Error(`Error al cargar ${a.llave}: ${res.statusText}`);
-                            const blob = await res.blob();
-                            const reader = new FileReader();
-
-                            await new Promise(resolve => {
-                                reader.onload = e => {
-                                    archivosTemp[i].src = e.target.result;
-                                    resolve();
-                                };
-                                reader.readAsDataURL(blob);
-                            });
-                        } catch (e) {
-                            console.warn(`No se pudo cargar archivo ${a.llave}:`, e);
-                        }
-                    }));
-
-                    this.archivosPreview = archivosTemp;
-
-                } catch (error) {
-                    console.error("Error al obtener archivos S3:", error);
-                }
-
-                return;
-            }
+            if (!modulo) return;
             try {
                 showProgress();
                 const res = await httpFunc("/generic/genericDT/Medios:Get_variables", {
@@ -306,6 +213,70 @@
             } catch (error) {
                 console.log(error);
             }
+        },
+        async loadPreviewItem() {
+            const tipos = [];
+
+            if (this.tablas?.[1] && !this.tablas[1].activo) {
+                tipos.push('logo', 'slide', 'planta');
+            }
+
+            if (this.tablas?.[2] && !this.tablas[2].activo) {
+                tipos.push('imagenes');
+            }
+
+            if (this.tablas?.[3] && !this.tablas[3].activo) {
+                tipos.push('videos');
+            }
+
+            if (!tipos.length) return;
+
+            try {
+                const response = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', {
+                    tipo: tipos.join(','),
+                    id_proyecto: GlobalVariables.id_proyecto
+                });
+
+                const archivos = response.data || [];
+
+                let archivosTemp = archivos
+                    .filter(a => a.is_active === '1')
+                    .map((a, i) => ({
+                        src: '',
+                        llave: a.llave,
+                        nombre: a.documento,
+                        orden: a.orden,
+                        tipo: a.tipo,
+                        is_active: a.is_active,
+                        link: a.link
+                    }));
+
+                await Promise.all(archivosTemp.map(async (a, i) => {
+                    try {
+                        const res = await fetch('/file/S3get/' + a.llave);
+                        if (!res.ok) throw new Error(`Error al cargar ${a.llave}: ${res.statusText}`);
+                        const blob = await res.blob();
+                        const reader = new FileReader();
+
+                        await new Promise(resolve => {
+                            reader.onload = e => {
+                                archivosTemp[i].src = e.target.result;
+                                resolve();
+                            };
+                            reader.readAsDataURL(blob);
+                        });
+                    } catch (e) {
+                        console.warn(`No se pudo cargar archivo ${a.llave}:`, e);
+                    }
+                }));
+
+                this.archivosPreview = archivosTemp;
+
+            } catch (error) {
+                console.error("Error al obtener archivos S3:", error);
+            }
+
+            return;
         },
         construirTablas(grupo_img, grupo_vid, grupo_vir, grupo_avo) {
             this.tablas = [
@@ -1159,10 +1130,8 @@
                 default:
                     this.selectedGrupoId = 0;
             }
-
-            if (this.selectedGrupoId) {
                 this.loadImg();
-            }
+   
 
         },
         modImg() {
@@ -1357,13 +1326,10 @@
             this.videoId = null;
         },
         async openPrevi() {
-                  
-            // if (!this.allItems.length) {
-            //     showMessage('No hay imágenes ni videos activos para previsualizar.');
-            //     return;
-            // }
-
-            this.setSubmode(0)
+             if (!this.allItems.length) {
+                 showMessage('No hay imágenes ni videos activos para previsualizar.');
+                 return;
+             }
         
             this.modalVisible = true;
         
@@ -1408,8 +1374,6 @@
                 return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
             }
             return url;
-        },
-        initVideo() {
         },
         play() {
             this.resetInterval();
@@ -1534,6 +1498,7 @@
         closeExpanded() {
             this.expandedVisible = false;
             this.expandedImage = null;
-        }
+        },
+        //
     }
 };
