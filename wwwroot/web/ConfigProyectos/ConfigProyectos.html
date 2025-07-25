@@ -55,6 +55,12 @@
                 Bancos
                 <span class="tooltip-text">Bancos</span>
             </div>
+            <div v-on:click="setMainMode(23)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 23}">
+                <img src="./img/ico/svg/Maestro/CajaCompensacion.svg" />
+                Cajas de Compensación
+                <span class="tooltip-text">Cajas de Compensación</span>
+            </div>
             <div v-on:click="setMainMode(7)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
                 <img src="./img/ico/svg/Maestro/Fiduciaria.svg" />
@@ -142,6 +148,24 @@
         </div>
 
         <div class="lateralMenuGroup">
+            <div v-on:click="setMainMode(24)" class="lateralMenuItem noSelect group">
+                Clientes
+            </div>
+            <div v-on:click="setMainMode(24)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 24}">
+                <img src="./img/ico/svg/Maestro/TiposTramites.svg" />
+                Tipos de Trámites
+                <span class="tooltip-text">Tipos de Trámites</span>
+            </div>
+            <div v-on:click="setMainMode(25)" class="lateralMenuItem noSelect tooltip"
+                v-bind:class="{'lateralMenuItemSelected': mainmode == 25}">
+                <img src="./img/ico/svg/Maestro/ClientesRegistro.svg" />
+                Tipos de Registro
+                <span class="tooltip-text">Tipos de Registro</span>
+            </div>
+        </div>
+
+        <div class="lateralMenuGroup">
             <div v-on:click="setMainMode(10)" class="lateralMenuItem noSelect group">
                 Documentos
             </div>
@@ -209,7 +233,7 @@
                         <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
                             @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false"
                             @mouseleave="tooltipVisible = true" style="position: relative;">
-                            <img :src="item.src" @click.stop.prevent=""
+                            <img :src="item.src" @click.stop.prevent="expandImagenes(item)"
                                 @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                                 @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
                             <div class="image-name-overlay">{{ item.file.name }}</div>
@@ -228,7 +252,9 @@
                     <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple
                         accept="image/*" @change="handleFileChange" ref="fileInput" />
                 </div>
-
+                <div v-if="expandedVisible" class="image-modal" @click="closeExpanded">
+                    <img :src="expandedImage" class="expanded-img" />
+                </div>
                 <div class='pure-u-1-1 pure-u-md-2-5'></div>
                 <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
                     <button v-on:click="onUpdateImg()" style="margin-top: .8rem;">Guardar</button>
@@ -2258,5 +2284,287 @@
                 </div>
             </div>
         </div>
+     
+        <!-- Caja de Compensación -->
+         <div v-if="mainmode == 23">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
+            </div>
+            <div v-if="mode == 0" style="padding: 1em">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+                    <h2>Caja de Compensación</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
+                                <input type="text" placeholder="Nombre" v-model="filtros.cajasCompensacion['caja']"
+                                    maxlength="50" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-12">
+                                <div class="imgGraybutton" @click="onClear('cajasCompensacion')">
+                                    <img src="./img/ico/eraser.png" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-8">
+                                <select v-model="filtros.cajasCompensacion['is_active']" class="pure-input-1">
+                                    <option value="">Activos/Inactivos</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                                    @click="exportExcel('cajasCompensacion')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-4">
+                                <button v-on:click="setMode(1)">Nueva Caja </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <table class="dataTable" style="table-layout: auto;"
+                            v-if="cajasCompensacion && cajasCompensacion.length">
+                            <thead>
+                                <tr>
+                                    <th
+                                        v-for="key in Object.keys(cajasCompensacion[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{(key[0].toUpperCase() + key.substr(1)).replaceAll("_"," ")}}
+                                    </th>
+                                    <th>Activo</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="cat in getFilteredList('cajasCompensacion')"
+                                    @click.stop.prevent="onSelect(cat)">
+                                    <td
+                                        v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{cat[key]}}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(cat)">
+                                            <input :id="'toggle' + cat.categoria" type="checkbox" class="toggle-input"
+                                                :checked="Number(cat.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + cat.categoria"
+                                                style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(cat)" class="delete">✖</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div v-if="mode == 1 || mode == 2" style="padding: 1em">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+                    <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Caja de Compensación</h2>
+                    <div class="pure-g main-content" style="margin-top: 1em; margin-bottom: 3em;">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="cajaCompensacion.caja" maxlength="50" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onSave()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+         <!-- tipos de tramites -->
+         <div v-if="mainmode == 24">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
+            </div>
+            <div v-if="mode == 0" style="padding: 1em">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+                    <h2>Tipos de Trámite</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
+                                <input type="text" placeholder="Nombre" v-model="filtros.tiposTramite['tipo_tramite']"
+                                    maxlength="50" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-12">
+                                <div class="imgGraybutton" @click="onClear('tiposTramite')">
+                                    <img src="./img/ico/eraser.png" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-8">
+                                <select v-model="filtros.tiposTramite['is_active']" class="pure-input-1">
+                                    <option value="">Activos/Inactivos</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                                    @click="exportExcel('tiposTramite')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-4">
+                                <button v-on:click="setMode(1)">Nuevo Trámite</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <table class="dataTable" style="table-layout: auto;"
+                            v-if="tiposTramite && tiposTramite.length">
+                            <thead>
+                                <tr>
+                                    <th
+                                        v-for="key in Object.keys(tiposTramite[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{(key[0].toUpperCase() + key.substr(1)).replaceAll("_"," ")}}
+                                    </th>
+                                    <th>Activo</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="cat in getFilteredList('tiposTramite')"
+                                    @click.stop.prevent="onSelect(cat)">
+                                    <td
+                                        v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{cat[key]}}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(cat)">
+                                            <input :id="'toggle' + cat.categoria" type="checkbox" class="toggle-input"
+                                                :checked="Number(cat.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + cat.categoria"
+                                                style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(cat)" class="delete">✖</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div v-if="mode == 1 || mode == 2" style="padding: 1em">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+                    <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Tipos de Trámite</h2>
+                    <div class="pure-g main-content" style="margin-top: 1em; margin-bottom: 3em;">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="tipoTramite.tipo_tramite" maxlength="50" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onSave()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+
+         <!-- tipo de registro -->
+         <div v-if="mainmode == 25">
+            <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
+            </div>
+            <div v-if="mode == 0" style="padding: 1em">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+                    <h2>Tipo de Registro</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-10-24">
+                                <input type="text" placeholder="Nombre" v-model="filtros.tiposRegistro['tipo_registro']"
+                                    maxlength="50" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-12">
+                                <div class="imgGraybutton" @click="onClear('tiposRegistro')">
+                                    <img src="./img/ico/eraser.png" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-8">
+                                <select v-model="filtros.tiposRegistro['is_active']" class="pure-input-1">
+                                    <option value="">Activos/Inactivos</option>
+                                    <option value="1">Activos</option>
+                                    <option value="0">Inactivos</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-2 pure-u-md-1-24">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                                    @click="exportExcel('tiposRegistro')" title="Descargar datos a Excel" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-4">
+                                <button v-on:click="setMode(1)">Nuevo Registro</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <table class="dataTable" style="table-layout: auto;"
+                            v-if="tiposRegistro && tiposRegistro.length">
+                            <thead>
+                                <tr>
+                                    <th
+                                        v-for="key in Object.keys(tiposRegistro[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{(key[0].toUpperCase() + key.substr(1)).replaceAll("_"," ")}}
+                                    </th>
+                                    <th>Activo</th>
+                                    <th>Eliminar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="cat in getFilteredList('tiposRegistro')"
+                                    @click.stop.prevent="onSelect(cat)">
+                                    <td
+                                        v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
+                                        {{cat[key]}}
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div class="toggle-switch" @click.stop.prevent="toggleState(cat)">
+                                            <input :id="'toggle' + cat.id_tipo_registro" type="checkbox" class="toggle-input"
+                                                :checked="Number(cat.is_active) !== 1">
+                                            <label class="toggle-label" :for="'toggle' + cat.id_tipo_registro"
+                                                style="transform: rotate(180deg);"></label>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click.stop.prevent="requestDelete(cat)" class="delete">✖</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div v-if="mode == 1 || mode == 2" style="padding: 1em">
+                <div class="pure-u-1-24 pure-u-md-1-24"></div>
+                <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+                    <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Tipo de Registro</h2>
+                    <div class="pure-g main-content" style="margin-top: 1em; margin-bottom: 3em;">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <input type="text" v-model="tipoRegistro.tipo_registro" maxlength="50" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
+                            <button v-on:click="onSave()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
     </div>
 </div>

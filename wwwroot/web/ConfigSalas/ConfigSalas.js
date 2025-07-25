@@ -48,10 +48,6 @@ export default {
             } else if (type == "SeleccionSala") {
                 this.lateralMenu = true;
                 this.sala = data;
-            } else if (type == "SalaPersonal") {
-                return this.sala;
-            } else if (type == "SalaCalendario") {
-                return this.sala;
             } else if (type == "GetSala") {
                 return this.sala;
             } else if (type == "SetRuta") {

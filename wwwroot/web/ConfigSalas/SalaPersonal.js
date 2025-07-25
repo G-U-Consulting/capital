@@ -5,7 +5,6 @@ export default {
             mode: 0,
             ruta: [],
             onlyActive: false,
-            proyecto: null,
             searchID: null,
             usuarios: [],
 
@@ -18,8 +17,7 @@ export default {
         };
     },
     async mounted() {
-        this.proyecto = await GlobalVariables.miniModuleCallback("SalaPersonal", null);
-        this.setMainMode('SalaPersonal');
+        this.sala = await GlobalVariables.miniModuleCallback("GetSala", null);
         await this.loadData();
     },
     methods: {
@@ -27,9 +25,7 @@ export default {
             this.mainmode = mode;
         },
         async loadData() {
-            let res = (await httpFunc("/generic/genericDS/Proyectos:Get_Personal", { id_sala: this.proyecto.id_sala_venta })).data;
-            if (res[0].length) this.sala = res[0][0];
-            this.usuarios = res[1];
+            this.usuarios = (await httpFunc("/generic/genericDT/Proyectos:Get_Personal", { id_sala: this.sala.id_sala_venta })).data;
         },
         async searchUser() {
             if (this.searchID) {

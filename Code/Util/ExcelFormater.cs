@@ -17,6 +17,8 @@ namespace capital.Code.Util {
                 return FormatoRoles(file, rootPath);
             else if(format == "FormatoMaestros")
                 return FormatoMaestros(file, rootPath);
+            else if(format == "FormatoProgSalas")
+                return FormatoProgSalas(file, rootPath);
             else
                 return null;
         }
@@ -201,8 +203,112 @@ namespace capital.Code.Util {
             workbook.Save();
             return file;
         }
+        
+        public static string FormatoProgSalas(string file, string rootPath)
+        {
+            string path = Path.Combine(rootPath, "wwwroot", "docs", file);
+            XLWorkbook workbook = new(path);
 
-        private static void Common_Formats(IXLWorksheet ws, IXLTable table) {
+            IXLWorksheet ws = workbook.Worksheet(1);
+            ws.ShowGridLines = false;
+
+            IXLTable table = ws.Table("Table1");
+            IXLRangeColumn rangeDate = table.Column(1),
+                rangeCC = table.Column(2),
+                rangeState = table.Column(3),
+                rangeDay = table.Column(4);
+
+            foreach (var row in table.DataRange.Rows())
+            {
+                var fecha = row.Cell(1);
+                var dia = row.Cell(4);
+                dia.FormulaA1 = $"=TEXT({fecha.Address.ToStringRelative(true)},\"dddd\")";
+            }
+                
+            rangeDate.Style.NumberFormat.Format = "dd/mm/yyyy";
+            rangeDate.Style.Fill.BackgroundColor = XLColor.FromHtml("#DAEEF3");
+            IXLDataValidation valDate = rangeDate.CreateDataValidation();
+            valDate.Date.Between(new DateTime(2000, 1, 1), new DateTime(2999, 12, 31));
+            valDate.ErrorTitle = "Fecha incorrecta";
+            valDate.ErrorMessage = "Ingrese una fecha entre 01/01/2000 - 31/12/2999";
+
+            rangeCC.Style.NumberFormat.Format = "0";
+            rangeCC.Style.Fill.BackgroundColor = XLColor.FromHtml("#DAEEF3");
+            IXLDataValidation valCC = rangeCC.CreateDataValidation();
+            valCC.WholeNumber.Between("1000", "999999999999999");
+            valCC.ErrorTitle = "Número de identificación incorrecto";
+            valCC.ErrorMessage = "Ingrese una cédula válida";
+            
+            IXLDataValidation valState = rangeState.CreateDataValidation();
+            rangeState.Style.Fill.BackgroundColor = XLColor.FromHtml("#DAEEF3");
+            valState.List("\"En sala,En casa,Descansa,Licencia,Vacaciones,Incapacidad\"");
+            valState.ErrorTitle = "Valor inválido";
+            valState.ErrorMessage = "Ingrese una de las opciones de la lista";
+
+            foreach (IXLDataValidation val in (IXLDataValidation[])[valDate, valCC, valState])
+            {
+                val.IgnoreBlanks = true;
+                val.ShowErrorMessage = true;
+            }
+            foreach (var field in table.Fields)
+            {
+                int col = field.Column.ColumnNumber();
+                switch (field.Name)
+                {
+                    case "fecha":
+                        ws.Column(col).Width = 15;
+                        field.HeaderCell.Value = "fecha";
+                        break;
+                    case "cedula":
+                        ws.Column(col).Width = 15;
+                        ws.Column(col).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                        field.HeaderCell.Value = "cedula";
+                        break;
+                    case "estado":
+                        ws.Column(col).Width = 15;
+                        field.HeaderCell.Value = "estado";
+                        break;
+                    case "asesor":
+                        ws.Column(col).Width = 30;
+                        field.HeaderCell.Value = "asesor";
+                        break;
+                    case "sala":
+                        ws.Column(col).Width = 25;
+                        field.HeaderCell.Value = "sala de ventas";
+                        break;
+                    case "dia":
+                        ws.Column(col).Width = 13;
+                        field.HeaderCell.Value = "dia";
+                        break;
+                    case "categoria":
+                        ws.Column(col).Width = 15;
+                        field.HeaderCell.Value = "categoria";
+                        break;
+                    default:
+                        ws.Column(col).Width = 10;
+                        break;
+                }
+            }
+
+            Common_Formats(ws, table);
+            var reqFields = ws.Range("A1:C1");
+            reqFields.Style.Fill.BackgroundColor = XLColor.FromHtml("#00839C");
+            IXLDataValidation valReqs = reqFields.CreateDataValidation();
+            valReqs.InputTitle = "Campo obligatorio";
+            valReqs.InputMessage = "Debe ingresar un valor para importar los datos";
+            
+            var infoFields = ws.Range("D1:H1");
+            IXLDataValidation valInfo = infoFields.CreateDataValidation();
+            valInfo.InputTitle = "Campo informativo";
+            valInfo.InputMessage = "Este valor no se tiene en cuenta al importar datos";
+            workbook.CalculateMode = XLCalculateMode.Auto;
+            workbook.Save();
+
+            return file;
+        }
+
+        private static void Common_Formats(IXLWorksheet ws, IXLTable table)
+        {
             // Header
             table.Theme = XLTableTheme.None;
             table.HeadersRow().Style.Fill.BackgroundColor = XLColor.FromHtml("#0468AF");

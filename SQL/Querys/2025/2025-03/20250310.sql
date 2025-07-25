@@ -411,6 +411,7 @@ create table dim_sala_venta(
 	id_ciudadela int references dim_ciudadela(id_ciudadela),
 	codigo varchar(10),
 	is_feria bit default 0,
+	pro_futuros bit default 0,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
@@ -421,12 +422,49 @@ create table dim_sala_proyecto(
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
 	id_proyecto int not null references fact_proyectos(id_proyecto),
 	descuento int default 0,
-	visualizar bit default 0,
+	visualizar bit default 1,
 	opcionar bit default 0,
 	vigencia date,
 	fecha_asignacion date default current_date,
 	primary key(id_sala_venta, id_proyecto)
 );
+
+create trigger tr_insert_sala_pro_futuros after insert on dim_sala_venta for each row
+begin
+	if new.pro_futuros = 1 then
+		insert into dim_sala_proyecto(id_sala_venta, id_proyecto) 
+		select new.id_sala_venta, pro.id_proyecto 
+			from fact_proyectos pro 
+			where pro.is_active = 1 and (new.id_sede is null or new.id_sede = pro.id_sede);
+	end if;
+end;
+create trigger tr_update_sala_pro_futuros after update on dim_sala_venta for each row
+begin
+	if old.pro_futuros = 0 and new.pro_futuros = 1 then
+		insert into dim_sala_proyecto(id_sala_venta, id_proyecto) 
+		select new.id_sala_venta, pro.id_proyecto 
+			from fact_proyectos pro where pro.is_active = 1 
+				and (new.id_sede is null or new.id_sede = pro.id_sede) and pro.id_proyecto not in 
+					(select sp.id_proyecto from dim_sala_proyecto sp where sp.id_sala_venta = new.id_sala_venta);
+	end if;
+end;
+create trigger tr_insert_proyecto_futuro after insert on fact_proyectos for each row
+begin
+	insert into dim_sala_proyecto(id_sala_venta, id_proyecto)
+	select sv.id_sala_venta, new.id_proyecto from dim_sala_venta sv 
+		where sv.pro_futuros = 1 and (sv.id_sede is null or sv.id_sede = new.id_sede);
+end;
+create trigger tr_update_proyecto_futuro after update on fact_proyectos for each row
+begin
+	if old.is_active = 0 and new.is_active = 1 then
+		insert into dim_sala_proyecto(id_sala_venta, id_proyecto)
+		select sv.id_sala_venta, new.id_proyecto from dim_sala_venta sv 
+			where sv.pro_futuros = 1 and (sv.id_sede is null or sv.id_sede = new.id_sede);
+	elseif old.is_active = 1 and new.is_active = 0 then
+		delete from dim_sala_proyecto where id_proyecto = new.id_proyecto
+			and (select pro_futuros from dim_sala_venta sv where sv.id_sala_venta = dim_sala_proyecto.id_sala_venta) = 1;
+	end if;
+end;
 
 create table dim_preferencias_usuario(
 	id int primary key auto_increment,
@@ -488,19 +526,22 @@ create table dim_hito_sala(
 	fecha datetime not null,
 	color varchar(7) not null,
 	festivo bit default 0,
+	frecuencia char(1),
+	limite date,
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
 	id_proyecto int references fact_proyectos(id_proyecto)
 );
 create table dim_prioridad_tarea(
 	id_prioridad int primary key auto_increment,
 	nombre varchar(20) not null,
-	prioridad int not null
+	prioridad int not null,
+	color varchar(7) not null
 );
-insert into dim_prioridad_tarea(nombre, prioridad) values
-('Baja', 10),
-('Media', 20),
-('Alta', 30),
-('Urgente', 40);
+insert into dim_prioridad_tarea(nombre, prioridad, color) values
+('Baja', 10, '#00ff00'),
+('Media', 20, '#ffff00'),
+('Alta', 30, '#ff8800'),
+('Urgente', 40, '#ff0000');
 
 create table dim_estado_tarea(
 	id_estado int primary key auto_increment,
@@ -515,7 +556,7 @@ insert into dim_estado_tarea(nombre, orden) values
 
 create table dim_tarea_usuario(
 	id_tarea int primary key auto_increment,
-	alta date not null,
+	alta date default current_time,
 	deadline date not null,
 	id_proyecto int not null references fact_proyectos(id_proyecto),
 	descripcion varchar(255) not null,
@@ -524,3 +565,74 @@ create table dim_tarea_usuario(
 	id_usuario int not null references fact_usuarios(id_usuario),
 	constraint chk_fecha_alta_mayor check(deadline >= alta)
 );
+
+create table dim_hito_cargo(
+	id_hito int not null references dim_hito_sala(id_hito),
+	id_cargo int not null references dim_cargo(id_cargo),
+	primary key(id_hito, id_cargo)
+);
+create table dim_estado_programacion(
+	id_estado int primary key auto_increment,
+	estado varchar(200) not null unique,
+	is_laboral bit not null default 0
+);
+insert into dim_estado_programacion(estado, is_laboral) values
+('En sala', 1),
+('En casa', 1),
+('Descansa', 0),
+('Licencia', 0),
+('Vacaciones', 0),
+('Incapacidad', 0);
+create table dim_programacion_sala(
+	id_programacion int primary key auto_increment,
+	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+	id_usuario int not null references fact_usuarios(id_usuario),
+	fecha date not null,
+	id_estado int not null references dim_estado_programacion(id_estado),
+	unique(id_usuario, fecha),
+	constraint chk_prog_fecha_valida check(fecha >= '2000-01-01' and fecha < '3000-01-01')
+);
+create table dim_caja_compensacion(
+	id_caja int primary key auto_increment,
+	caja varchar(100) not null unique,
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+insert into dim_caja_compensacion(caja) values
+('Compensar'),
+('Colpatria'),
+('Cafam'),
+('Comfenalco'),
+('Comfama'),
+('Comfandi'),
+('Comfenalco Valle'),
+('Comfenalco Antioquia'),
+('Comfenalco Santander'),
+('Comfamiliar Risaralda');
+
+create table dim_tipo_tramite(
+	id_tipo_tramite int primary key auto_increment,
+	tipo_tramite varchar(50) not null unique,
+	is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+insert into dim_tipo_tramite(tipo_tramite) values
+('Asesoría Firma Digital Documents por Docusign'),
+('Asesoría Pago con Cupón'),
+('Asesoría Pago por PSE'),
+('Cesión'),
+('Consulta Fecha de Entrega del Apartamento'),
+('Créditos'),
+('Descargar cupón de pago'),
+('Entrega Documentos'),
+('Entrega Escritura Cliente'),
+('Estado de cuenta'),
+('Firma de Promesa'),
+('Otrosi'),
+('Solicitud Cliente Cambio Plan de Pagos'),
+('Solicitud de Reformas'),
+('Solicitud Posventa'),
+('Subsidio');
+

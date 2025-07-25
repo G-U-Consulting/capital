@@ -78,7 +78,7 @@
                         </td>
                     </tr>
                     <tr v-for="(t, i) in getFilteredList('tareas')" @click="onSelect(t, i)"
-                        v-bind:class="{'destacada': selRow == i, 'editable': enableEdit && selRow == i}">
+                        v-bind:class="{'destacada': selRow == i, 'editable': enableEdit && selRow == i, 'deshabilitada': t.id_estado == '4'}">
                         <td>
                             <input type="date" v-model="t.alta" v-if="enableEdit && selRow == i">
                             <span v-else>{{t.alta}}</span>

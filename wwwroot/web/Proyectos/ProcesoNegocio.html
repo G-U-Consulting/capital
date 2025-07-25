@@ -210,7 +210,7 @@
         <!-- ----------------------------- Registro--------------------------- -->
         <!-- ----------------------------------------------------------------- -->
         <div class="pure-g" v-if="mode == 1">
-            <div class='pure-u-1-1' style="font-size: 2em;">
+            <div class='pure-u-1-1' style="font-size: 1.6em;">
                 {{ ObjCliente.nombres }}
             </div>
             <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index" :class="[
@@ -221,7 +221,7 @@
 
             <div v-if="activeTab == 0">
                 <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
-                    <span style="font-size: 1.8em;">Registros de visita</span>
+                    <span style="font-size: 1.5em;">Registros de visita</span>
                     <button @click="limpiarObj(1)" style="float: right;">Nueva visita</button>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-4 filtro-proyecto-inline'>
@@ -234,7 +234,7 @@
                     </select>
                 </div>
                 <div
-                    style="min-height: calc(100dvh - 37rem);max-height: calc(100dvh - 48.5rem); overflow-y: auto; margin-top: 0.5em;">
+                    style="height: 11rem; overflow-y: auto; margin-top: 0.5em;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -268,10 +268,10 @@
             </div>
             <div v-if="activeTab == 1">
                 <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
-                    <span style="font-size: 1.8em;">Registros de compras</span>
+                    <span style="font-size: 1.5em;">Registros de compras</span>
                 </div>
                 <div
-                    style="min-height: calc(100dvh - 37rem); max-height: calc(100dvh - 43rem); overflow-y: auto; margin-top: 1em;">
+                    style="height: 11rem; overflow-y: auto; margin-top: 0.5em;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -296,7 +296,7 @@
             </div>
             <div>
                 <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
-                    <span style="font-size: 1.8em;">Tipo de Registro (referido a la visita seleccionada en la
+                    <span style="font-size: 1.5em;">Tipo de Registro (referido a la visita seleccionada en la
                         tabla)</span>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-1'>

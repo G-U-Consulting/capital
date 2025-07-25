@@ -19,7 +19,7 @@ export default {
             time: 8000,
             cont: null,
             showList: false,
-            
+
             lupa: false,
             zoomLens: null,
 
@@ -121,7 +121,7 @@ export default {
         },
         async loadResources() {
             try {
-                let files = [...this.files];
+                let files = [...this.files], temp = [...this.files];
                 await Promise.all(files.map(async (f, i) => {
                     if (!f.link) {
                         const res = await fetch('/file/S3get/' + f.llave);
@@ -129,16 +129,17 @@ export default {
                         const blob = await res.blob(),
                             file = new File([blob], f.name, { type: blob.type }),
                             reader = new FileReader();
-                        reader.onload = async (e) =>
-                            file.type.startsWith('image/') && (this.files[i].content = e.target.result);
+                        reader.onload = async (e) => temp[i].content = e.target.result;
                         reader.readAsDataURL(file);
                     }
-                }));
+                })).then(f => {
+                    this.files = temp;
+                    this.loading = false;
+                    this.playIndex = 0;
+                });
             } catch (error) {
                 console.error("Error al cargar archivos:", error);
             }
-            this.loading = false;
-            this.playIndex = 0;
         },
         fullScreen() {
             if (!this.cont) this.cont = document.getElementById('cont-rotafolio');
@@ -168,12 +169,12 @@ export default {
                 this.full = true;
             }
         },
-        handleFullscreen () {
+        handleFullscreen() {
             let handleFullscreenChange = () => {
-                if (!document.fullscreenElement && 
-                    !document.webkitFullscreenElement && 
-                    !document.mozFullScreenElement && 
-                    !document.msFullscreenElement) 
+                if (!document.fullscreenElement &&
+                    !document.webkitFullscreenElement &&
+                    !document.mozFullScreenElement &&
+                    !document.msFullscreenElement)
                     this.full = false;
                 this.lupa = false;
                 this.zoom = false;
@@ -188,11 +189,11 @@ export default {
             this.interval = null;
             this.stop = true;
         },
-        setIndex(i) {
+        setIndex(i, autoplay = true) {
             this.files[this.playIndex].current = false;
             this.playIndex = ((this.playIndex || this.files.length) + i) % this.files.length;
             this.files[this.playIndex].current = true;
-            this.resetInterval();
+            autoplay && this.resetInterval();
         },
         resetInterval() {
             this.interval && clearInterval(this.interval);
@@ -235,7 +236,7 @@ export default {
                     this.zoom = false;
                     return true;
                 } else {
-                    next && this.setIndex(1);
+                    next && this.setIndex(1, false);
                 }
             } else return false;
         },
@@ -311,7 +312,7 @@ export default {
 
             if (this.lupa && img) {
                 const zoomFactor = 2;
-
+                
                 this.zoomLens.style.backgroundImage = `url(${img.src})`;
                 this.zoomLens.style.backgroundSize = `${img.width * zoomFactor}px ${img.height * zoomFactor}px`;
             }
@@ -345,8 +346,8 @@ export default {
                 const calcX = img.naturalWidth / (maxX * scaleX * 1.1753);
                 const calcY = img.naturalHeight / (maxY * scaleY * 1.1937);
 
-                const bgX = lensX * calcX * zoomFactor ;
-                const bgY = lensY * calcY * zoomFactor ;
+                const bgX = lensX * calcX * zoomFactor;
+                const bgY = lensY * calcY * zoomFactor;
 
                 this.zoomLens.style.backgroundPosition = `-${bgX}px -${bgY}px`;
             }
@@ -399,7 +400,7 @@ export default {
             let relX = e.offsetX / e.target.getBoundingClientRect().width * 100;
             let relY = e.offsetY / e.target.getBoundingClientRect().height * 100;
             let factor = [1, 1.25, 1.5, 1.75, 2];
-            e.deltaY > 0 
+            e.deltaY > 0
                 ? this.c_zoomFactor = factor.reverse().find(f => f < this.c_zoomFactor) || Math.min(...factor)
                 : this.c_zoomFactor = factor.find(f => f > this.c_zoomFactor) || Math.max(...factor);
             this.changeZoom(relX, relY);
@@ -414,8 +415,8 @@ export default {
             get() { return this.zoomFactor },
             set(val) {
                 this.zoomTimeout && clearTimeout(this.zoomTimeout);
-                val > 1 
-                    ? this.zoom = true 
+                val > 1
+                    ? this.zoom = true
                     : this.zoomTimeout = setTimeout(() => {
                         this.zoom = false;
                     }, 1000);

@@ -2,8 +2,188 @@
     <span class="hoverLink">{{ r.text }}</span>
     <span v-if="i < ruta.length - 1"> / </span>
 </div>
-<div style="display: flex; justify-content: center; align-items: center; height: calc(100dvh - 7rem);">
-            <div>
-                <img src="../../img/background/MEN AT WORK.JPG" alt="">
+
+<div v-if="mode == 0" style="padding: 1em">
+    <div class="pure-u-1-24 pure-u-md-1-24"></div>
+    <div class="pure-u-22-24 pure-u-md-22-24 menuCard" style="height: calc(100vh - 8rem);">
+        <div style="padding-bottom: 2px; border-bottom: 1px solid #00839C; margin-bottom: 5px;">
+            <div class='pure-u-1-1 pure-u-md-19-24' style="font-size: 1.5em; color: #00839C;">
+                Programación mensual - {{formatDatetime(null, 'date-my', selDate)}}
             </div>
+            <div class="pure-u-1-1 pure-u-md-5-24" style="text-align: end;">
+                <div @click="!isToday() && setToday()" class="cal-btn today"
+                    :style="isToday() ? 'background-color: #636363;' : ''">Ir a Hoy</div>
+                <div @click="setDate(-1)" class="cal-btn"
+                    style="border-top-right-radius: 0; border-bottom-right-radius: 0;">&lt;</div>
+                <div @click="setDate(1)" class="cal-btn"
+                    style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    &gt;</div>
+            </div>
+        </div>
+
+        <div style="height: calc(100vh - 14.8rem); display: flex; flex-direction: column;">
+            <div style="display: flex; gap: 5px;" class="cal-prog-height">
+                <div class="calendar pure-u-1-1 pure-u-md-1-3">
+                    <div v-if="viewMonths" class="cal-month prog"
+                        v-for="i in Array.from({length: viewMode.months}, (_, i) => i + viewMode.initMonth)"
+                        v-bind:class="{'cal-sel-month': viewMonths[nameMonths[i]].selected}">
+                        <div class="cal-header">
+                            <div class="cal-name-month">
+                                <span>{{`${nameMonths[i]} - ${viewMonths[nameMonths[i]].year}`}}</span>
+                            </div>
+                        </div>
+                        <div class="cal-header">
+                            <div class="cal-name-day" v-for="name in nameDays">
+                                <span>{{name}}</span>
+                            </div>
+                        </div>
+                        <div class="cal-matrix">
+                            <div class="cal-day prog" v-for="day in viewMonths[nameMonths[i]].days"
+                                :id="`mat-m${day.month}-d${day.monthDay}-${day.currentMonth ? 'c' : day.viewMonth}`"
+                                v-bind:class="{'cal-today': day.isToday, 'cal-fade-day': !day.currentMonth, 
+                                'cal-sel-day': day.isSelected, 'cal-holiday': day.isHoliday,
+                                'cal-sel-week': filterMode == 's' && currentDay.weekCount == day.weekCount && i == currentDay.month}"
+                                @click="day.currentMonth && selDay(day)" :style="day.events && 
+                                day.events.filter(e => e.festivo != '1').length  ? 
+                                `background-color: ${day.events.filter(e => e.festivo != '1')[0].color}40;` : ''">
+                                <span>{{day.monthDay}}</span>
+                                <div class="hide-editor" v-bind:class="{'cal-event-count': day.events && 
+                            day.events.filter(e => e.festivo != '1').length}">
+                                    <span>{{day.events.filter(e => e.festivo != '1').length}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-2-3" style="padding-left: .5rem;">
+                    <div class="prog-header">
+                        <div class="radio-group cal-opc" style="flex-direction: column; gap: 5px">
+                            <label for="filter-day">
+                                <input type="radio" name="filter-radio" id="filter-day" :checked="filterMode == 'd'"
+                                    @click="filterMode = 'd'" />
+                                <span>Día</span>
+                            </label>
+                            <label for="filter-week">
+                                <input type="radio" name="filter-radio" id="filter-week" :checked="filterMode == 's'"
+                                    @click="filterMode = 's'" />
+                                <span>Semana</span>
+                            </label>
+                            <label for="filter-month">
+                                <input type="radio" name="filter-radio" id="filter-month" :checked="filterMode == 'm'"
+                                    @click="filterMode = 'm'" />
+                                <span>Mes</span>
+                            </label>
+                        </div>
+                        <div class="prog-grid-btn">
+                            <button @click="downloadTemplate('excel')">Descargar Excel</button>
+                            <div style="width: 100%;">
+                                <label for="up-excel" class="file" style="text-align: center;">Cargar Excel</label>
+                                <input id="up-excel" type="file" @input="fileUpload" style="display: none;"
+                                    accept=".xlsx" />
+                            </div>
+                            <button @click="downloadTemplate('csv')">Descargar CSV</button>
+                            <div style="width: 100%;">
+                                <label for="up-csv" class="file" style="text-align: center;">Cargar CSV</label>
+                                <input id="up-csv" type="file" @input="fileUpload" style="display: none;"
+                                    accept=".csv" />
+                            </div>
+                            <button @click="reqDelete">Eliminar Fila</button>
+                            <button @click="newRow()">Agregar Fila</button>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: baseline; margin-top: .5rem;">
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            Filtrar por nombre:
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-3">
+                            <select v-model="filtros.programaciones['id_usuario']">
+                                <option value="">[Seleccione]</option>
+                                <option v-for="u in usuarios" :value="u.id_usuario">{{u.nombres}}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-5-12" style="text-align: right;">
+                            <button style="width: 123.42px; padding: .2em 0;" @click="reqDeleteAll">Borrar
+                                selección</button>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: baseline; margin-top: .5rem;">
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            Filtrar por categoría:
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-3">
+                            <select v-model="filtros.programaciones['id_cargo']">
+                                <option value="">[Seleccione]</option>
+                                <option v-for="c in cargos" :value="c.id_cargo">{{c.cargo}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="overflow-y: auto; margin: .5rem 0; flex-grow: 1;">
+                <table class="dataTable" style="table-layout: auto;">
+                    <thead>
+                        <tr>
+                            <th style="width: 12%;border-top: 1px #00839C;">Fecha</th>
+                            <th style="width: 12%;border-top: 1px #00839C;">Dia</th>
+                            <th style="width: 12%;border-top: 1px #00839C;">Categoría</th>
+                            <th style="width: 30%;border-top: 1px #00839C;">Nombre</th>
+                            <th style="width: 17%;border-top: 1px #00839C;">Cédula</th>
+                            <th style="width: 17%;border-top: 1px #00839C;">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="editNewRow" class="editable" v-bind:class="{'destacada': selRow == null}">
+                            <td><input type="date" v-model="programacion.fecha"></td>
+                            <td>{{getWeekDay(programacion.fecha)}}</td>
+                            <td>{{selUser.cargo}}</td>
+                            <td>
+                                <select v-model="selUser">
+                                    <option :value="{}" disabled>[Seleccione]</option>
+                                    <option v-for="user in usuarios" :value="user">{{user.nombres}}</option>
+                                </select>
+                            </td>
+                            <td>{{selUser.identificacion}}</td>
+                            <td>
+                                <select v-model="programacion.id_estado">
+                                    <option value="" disabled>[Seleccione]</option>
+                                    <option v-for="e in estados" :value="e.id_estado">{{e.estado}}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr :id="i" v-for="(p, i) in getFilteredList('programaciones')" @click="onSelect(p, i)"
+                            :class="`tab-${p.fecha}`" v-bind:class="{'destacada': selRow == i}"
+                            :style="`background-color: ${p.id_estado == '1' ? '#00c80028' : ''}`">
+                            <td>{{formatDatetime(p.fecha + ' 00:00', 'date')}}</td>
+                            <td>{{getWeekDay(p.fecha)}}</td>
+                            <td>{{p.cargo}}</td>
+                            <td>{{p.nombres}}</td>
+                            <td>{{p.identificacion}}</td>
+                            <td>{{p.estado}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="pure-u-1-1 pure-u-md-2-5"></div>
+        <div class="pure-u-1-1 pure-u-md-1-5" style="margin-top: .5rem;">
+            <button @click="onSave">Guardar</button>
+        </div>
+    </div>
+
+    <div class="cal-modal-overlay" id="modalOverlay" @click="closeModal">
+        <div class="modal-container pure-g">
+            <div class="resumen-errores">
+                <p><strong>Se encontraron errores en las siguientes filas:</strong></p>
+                <div id="error-table-scroll" style="max-height: 35vh; overflow-y: auto;" v-html="tableError">
+                </div>
+                <p><strong>Lista detalle de errores:</strong></p>
+                <div id="error-list-scroll" style="max-height: 30vh; overflow-y: auto; margin-bottom: 1rem;" v-html="listError">
+                </div>
+                <button @click="closeModal($event, true)" style="display: block; margin: 0 auto;">Aceptar</button>
+            </div>
+        </div>
+    </div>
 </div>

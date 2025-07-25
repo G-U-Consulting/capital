@@ -79,21 +79,109 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
-app.Map("/util/Json2Excel", async (HttpRequest request, HttpResponse response) => {
+app.Map("/util/Json2File/{type}", async (HttpRequest request, HttpResponse response, string type) => {
     string body = "";
     try {
         response.ContentType = "application/json";
         using (var stream = new StreamReader(request.Body)) {
             body = await stream.ReadToEndAsync();
         }
-        return WebBDUt.SetJsonToFile(body).ToString(Newtonsoft.Json.Formatting.None);
+        if (type == "csv")
+            return WebBDUt.SetJsonToFile(body, true).ToString(Newtonsoft.Json.Formatting.None);
+        else
+            return WebBDUt.SetJsonToFile(body, false).ToString(Newtonsoft.Json.Formatting.None);
     } catch (Exception ex) {
-        Logger.Log("util/Json2Excel    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        Logger.Log("util/Json2File    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
 
-}).WithName("Json2Excel");
+}).WithName("Json2File");
+app.Map("/util/ImportFiles/{op}/{sp}/{pars}", async (HttpContext context, HttpResponse response, HttpRequest request, string op, string sp, string pars) => {
+    var errorList = new JArray();
+    try {
+        response.ContentType = "application/json";
+        JArray files = await WebBDUt.FileUpload(context, rootPath);
+        string json = string.Empty;
+        sp = sp.Replace(':', '/');
+        for (int x = 0; x < files.Count; x++)
+        {
+            JObject obj = (JObject)files[x];
+            string path = Path.Combine(rootPath, "wwwroot", obj.GetValue("serverPath")?.ToString());
+            json = obj.GetValue("fileName")?.ToString().EndsWith(".csv") ?? false
+                ? WebBDUt.CsvToJson(path)
+                : WebBDUt.ExcelToJson(path);
+            if (File.Exists(path)) File.Delete(path);
+            if (string.IsNullOrEmpty(json))
+            {
+                response.StatusCode = 500;
+                return WebBDUt.NewBasicResponse(true, "Error processing file: " + obj.GetValue("fileName")?.ToString()).ToString(Newtonsoft.Json.Formatting.None);
+            }
+            else
+            {
+                JArray table = [], fileErrors = [];
+                if (obj.GetValue("fileName")?.ToString().EndsWith(".xlsx") ?? false)
+                {
+                    JObject jsonObj = JObject.Parse(json);
+                    table = (JArray?)jsonObj["Table1"] ?? [];
+                }
+                else table = JArray.Parse(json);
+                
+                for (int i = 0; i < table.Count; i++)
+                {
+                    JObject row = (JObject)table[i];
+                    if (!string.IsNullOrEmpty(pars))
+                    {
+                        JObject par = JObject.Parse(pars);
+                        foreach (JProperty prop in par.Properties())
+                            row[prop.Name] = par[prop.Name];
+                    }
+                    foreach (JProperty prop in row.Properties())
+                    {
+                        if (prop.Name.StartsWith("fecha", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            string? date = row[prop.Name]?.ToString();
+                            if (!string.IsNullOrEmpty(date) && DateTime.TryParse(date, out DateTime parsedDate))
+                                row[prop.Name] = parsedDate.ToString("yyyy-MM-dd HH:mm:ss");
+                        }
+                    }
+                    string res = (await Generic.ProcessRequest(request, response, op, sp, row.ToString(), rootPath)).ToString(Newtonsoft.Json.Formatting.None);
+                    JObject jres = JObject.Parse(res);
+                    if (jres["isError"] != null && (bool)jres["isError"])
+                    {
+                        var rowError = new JObject
+                        {
+                            ["rowIndex"] = i,
+                            ["rowData"] = row,
+                            ["errorMessage"] = jres["errorMessage"] ?? jres["data"]
+                        };
+                        if (jres["fieldErrors"] != null)
+                            rowError["fieldErrors"] = jres["fieldErrors"];
+                        fileErrors.Add(rowError);
+                    }
+                }
+
+                if (fileErrors.Count > 0)
+                {
+                    errorList.Add(new JObject {
+                        ["fileName"] = obj.GetValue("fileName")?.ToString(),
+                        ["errors"] = fileErrors
+                    });
+                }
+            }
+        }
+        if (errorList.Count == 0)
+            return WebBDUt.NewBasicResponse(false, "OK").ToString(Newtonsoft.Json.Formatting.None);
+        else
+            return WebBDUt.NewBasicResponse(true, errorList).ToString(Newtonsoft.Json.Formatting.None);
+    }
+    catch (Exception ex)
+    {
+        Logger.Log("util/ImportFiles    " + ex.Message + Environment.NewLine + errorList.ToString() + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+}).WithName("ImportFiles");
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";
     try {
@@ -199,27 +287,9 @@ app.Map("/api/internal/{op}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("ApiInternal");
-app.Map("/file/upload", async (HttpContext context) => {
-    var form = await context.Request.ReadFormAsync();
-    var files = form.Files;
-    string serverPath = "upload";
-    string uploadsFolder = Path.Combine(rootPath, "wwwroot", serverPath);
-    if (!Directory.Exists(uploadsFolder)) 
-        Directory.CreateDirectory(uploadsFolder);
-    JArray ret = new JArray();
-    JObject tmp;
-    foreach (var file in files) {
-        tmp = new JObject();
-        string serverName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-        string filePath = Path.Combine(uploadsFolder, serverName);
-        using (var stream = new FileStream(filePath, FileMode.Create)) {
-            await file.CopyToAsync(stream);
-        }
-        tmp["fileName"] = file.FileName;
-        tmp["serverName"] = serverName;
-        tmp["serverPath"] = serverPath +"/" +serverName;
-        ret.Add(tmp);
-    }
+app.Map("/file/upload", async (HttpContext context) =>
+{
+    var ret = await WebBDUt.FileUpload(context, rootPath);
     return WebBDUt.NewBasicResponse(false, ret).ToString();
 });
 app.Map("/file/S3upload", async (HttpContext context) => {

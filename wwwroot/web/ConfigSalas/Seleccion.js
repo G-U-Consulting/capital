@@ -62,7 +62,7 @@ export default {
                 ruta.push({ text: `${this.sala_venta.sala_venta} - Edición`, action: () => this.onSelect(this.sala_venta) });
             }
             if (mode == 3) {
-                ruta.push({ text: 'Configuración', action: () => this.load_checked() });
+                ruta.push({ text: 'Configuración', action: () => this.loadChecked() });
             }
             GlobalVariables.miniModuleCallback('SetRuta', ruta);
         },
@@ -93,11 +93,18 @@ export default {
         async onSaveSala() {
             let sala = { ...this.sala_venta };
             let id_sala_venta = await this.onSave();
-            if (this.mode == 1 && id_sala_venta) {
+            if (this.mode == 1 && id_sala_venta) 
                 this.sala_venta = { id_sede: '', id_zona_proyecto: '', id_ciudadela: '', ...sala, id_sala_venta };
-                this.onSelect(this.sala_venta);
-                this.loadProjects(this.sala_venta);
+            this.onSelect(this.sala_venta);
+            this.loadProjects(this.sala_venta);
+        },
+        async onChangePF() {
+            this.sala_venta = {
+                ...this.sala_venta, id_zona_proyecto: '', id_ciudadela: '',
+                pro_futuros: this.sala_venta.pro_futuros == '1' ? '0' : '1'
             }
+            this.proyectos_sala = [];
+            console.log(this.sala_venta);
         },
         getItem() {
             if (this.mainmode == 0) return [this.sala_venta, "SalaVenta", this.salas_ventas];
@@ -116,7 +123,7 @@ export default {
             try {
                 showProgress();
                 let datos = this.getFilteredList(tabla);
-                var archivo = (await httpFunc("/util/Json2Excel", datos)).data;
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
                 var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
                 window.open("./docs/" + archivo, "_blank");
             }
@@ -243,16 +250,18 @@ export default {
                 this.selRow = i;
             }
         },
-        async onSavePro() {
-            showProgress();
-            if (this.selRow != null)
+        async onSavePro(pro) {
+            if (pro) this.proyecto_sala = pro;
+            else if (this.selRow != null) {
+                showProgress();
                 this.proyecto_sala = this.pro_sala[this.selRow];
+            }
             let res = await httpFunc('/generic/genericST/Maestros:Upd_ProyectoSala', this.proyecto_sala);
             if (res.data === 'OK') {
                 this.proyecto_sala = {};
                 this.selRow = null;
                 this.enableEdit = false;
-                await this.loadProjects(this.sala_venta);
+                if (!pro) await this.loadProjects(this.sala_venta);
             } else {
                 console.error(res);
                 showMessage('Error: ' + (res.errorMessage || res.data));
@@ -267,7 +276,7 @@ export default {
             sv.is_feria = sv.is_feria == '0' ? '1' : '0';
             await httpFunc(`/generic/genericST/Maestros:Upd_SalaVenta`, sv);
         },
-        async load_checked() {
+        async loadChecked() {
             await this.loadFields();
             this.t_turnos = this.t_turnos.map(t => {
                 let checked = !!this.t_turnos_sala.filter(ts => ts.id_tipo_turno == t.id_tipo_turno).length;

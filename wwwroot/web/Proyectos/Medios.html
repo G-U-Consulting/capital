@@ -51,7 +51,7 @@
                         <div class="tabla-toggle">
                             <div class="toggle-switch" :class="{ inactive: !tabla.activo }">
                                 <input :id="'toggle-' + i" type="checkbox" v-model="tabla.activo" class="toggle-input"
-                                    :class="{ errorInput: tabla.error }" />
+                                    :class="{ errorInput: tabla.error }" @change="onToggleChange"/>
                                 <label class="toggle-label" :for="'toggle-' + i"></label>
                             </div>
                         </div>
@@ -97,9 +97,9 @@
                         </label>
                         <input accept="image/*" type="file" id="archivo-logo" class="hidden-input"
                             @change="previewImage($event, 'logoPreview')" />
-                        <div v-if="logoPreview" class="image-card-preview">
-                            <img :src="logoPreview" alt="Logo Preview" @click="expandImage('logo')" />
-                            <div class="delete-btn" @click="removePreview('logo')">X</div>
+                        <div v-if="logoPreview" class="image-card-preview" @click="expandImage('logo')">
+                            <img :src="logoPreview" alt="Logo Preview" />
+                            <div class="delete-btn" @click.stop="removePreview('logo')">X</div>
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-3 image-upload-item">
@@ -110,9 +110,9 @@
                         </label>
                         <input type="file" id="archivo-slide" class="hidden-input"
                             @change="previewImage($event, 'slidePreview')" />
-                        <div v-if="slidePreview" class="image-card-preview">
-                            <img :src="slidePreview" alt="Slide 1 Preview" @click="expandImage('slide')" />
-                            <div class="delete-btn" @click="removePreview('slide')">X</div>
+                        <div v-if="slidePreview" class="image-card-preview" @click="expandImage('slide')">
+                            <img :src="slidePreview" alt="Slide 1 Preview"/>
+                            <div class="delete-btn" @click.stop="removePreview('slide')">X</div>
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-3 image-upload-item">
@@ -123,9 +123,9 @@
                         </label>
                         <input type="file" id="archivo-planta" class="hidden-input"
                             @change="previewImage($event, 'plantaPreview')" />
-                        <div v-if="plantaPreview" class="image-card-preview">
-                            <img :src="plantaPreview" alt="Planta Preview" @click="expandImage('planta')" />
-                            <div class="delete-btn" @click="removePreview('planta')">X</div>
+                        <div v-if="plantaPreview" class="image-card-preview" @click="expandImage('planta')">
+                            <img :src="plantaPreview" alt="Planta Preview" />
+                            <div class="delete-btn" @click.stop="removePreview('planta')">X</div>
                         </div>
                     </div>
                     <div v-if="isExpanded.logo || isExpanded.slide || isExpanded.planta" class="image-modal"
@@ -176,9 +176,9 @@
                     </div>
                     <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
                         @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false" @mouseleave="tooltipVisible = true"
-                        style="position: relative;">
-            
-                        <img :src="item.src" @click.stop.prevent="" @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
+                        style="position: relative;" @click.stop.prevent="expandImagenes(item)">
+
+                        <img :src="item.src" @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                             @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
                         <input v-model="item.newName" class="image-name-overlay editable" @click.stop />
                         {{item}}
@@ -192,6 +192,9 @@
                 <input type="file" id="file-input-normal" class="hidden-input" style="display: none;" multiple accept="*"
                      @change="handleFileChange($event, false)" ref="inputNormal" />
             </div>
+        <div v-if="expandedVisible" class="image-modal" @click="closeExpanded">
+            <img :src="expandedImage" class="expanded-img" />
+        </div>
         </div>
         <div v-if="!modeimg">
             <div class="pure-u-1-1">
@@ -226,7 +229,7 @@
                     <div class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard positTex'>
                             <select v-model="selectVid" @change="checkAndLoad">
-                                <option :value="null" disabled>[Seleccione uno ...]</option>
+                                <option value='null' selected>[Seleccione uno ...]</option>
                                 <option v-for='item in grupo_proyectos' v-bind:value='item.id_grupo_proyecto'>
                                     {{ item.grupo }}
                                 </option>
@@ -348,7 +351,7 @@
                             <th style="width: 20.5%;">Video</th>
                             <th style="width: 40%;">Descripción</th>
                             <th>Link</th>
-                            <!-- <th></th> -->
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -361,17 +364,16 @@
                                 <div class="center-content" @click.stop>
                                     <span class="delete" @click.stop="removeRowReco(index)"
                                         title="Eliminar item">✖</span>
-                                    <!-- <img src="../../img/ico/menu/video.svg" class="video-icon"
-                                        @click.stop="openModal(video.link)" title="Ver video"> -->
+                                    <img src="../../img/ico/menu/ojo.svg" class="video-icon"
+                                        @click.stop="openModalRv(video.link)" title="Ver Recorridos">
                                 </div>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="modalVideoId" class="modal-overlay" @click.self="closeModal">
+                <div v-if="modalEmbedUrl" class="modal-overlay" @click.self="closeModal" @keydown.esc="closeModal">
                     <div class="modal-content">
-                        <iframe :src="`https://www.youtube.com/embed/${modalVideoId}?autoplay=1&mute=1`" frameborder="0"
-                            allowfullscreen></iframe>
+                        <iframe :src="modalEmbedUrl" frameborder="0" allowfullscreen></iframe>
                     </div>
                 </div>
             </div>
@@ -457,7 +459,7 @@
                             <div class="image-name-overlay">Video</div>
                         </template>
                         <template v-else>
-                            <img :src="item.src" @click.stop.prevent=""
+                            <img :src="item.src" @click.stop.prevent="expandImagenes(item)"
                                 @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
                                 @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
                             <input v-model="item.newName" class="image-name-overlay editable" @click.stop />
@@ -479,29 +481,31 @@
                     allowfullscreen></iframe>
             </div>
         </div>
+        <div v-if="expandedVisible && submode == 5" class="image-modal" @click="closeExpanded">
+            <img :src="expandedImage" class="expanded-img" />
+        </div>
     </div>
     <div v-if="modalVisible" class="modal-overlay" @click.self="closePrevi">
         <div class="cont-rotafolio" id="cont-rotafolio" @mousemove="setShowBar" @mousedown="setShowBar">
             <div class="player-rotafolio">	
                 <img v-if="isImage(allItems[playIndex])" :src="getImageUrl(allItems[playIndex])">
-
-                <iframe v-else-if="isVideo(allItems[playIndex])" @load="initVideo" id="v-player" :key="playIndex"
-                    :src="formatURL(allItems[playIndex].previewSrc || allItems[playIndex].videoUrl)" frameborder="0"
-                    allow="autoplay; encrypted-media" allowfullscreen>
-                </iframe>
+                <iframe v-if="isVideo(allItems[playIndex])" :src="formatURL(allItems[playIndex])" frameborder="0"
+                    allow="autoplay; encrypted-media" allowfullscreen id="v-player" :key="playIndex" @load="initVideo" />
             </div>
-            <div class="btn-bar-rotafolio"
-                v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
-                <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1)"
-                    style="transform: rotate(180deg);">
-                <img src="../../img/ico/play.png" @click="play" class="btn-rotafolio" v-show="stop">
-                <img src="../../img/ico/pause.png" @click="pause" class="btn-rotafolio" v-show="!stop"
-                    style="background: white;">
-                <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1)">
+
+            <div class="btn-bar-rotafolio" v-bind:class="{'show-bar': showBar && !isVideo(files[playIndex], false) && !loading}">
+                <div class="btn-cont-rotafolio">
+                    <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(-1, false)"
+                        style="transform: rotate(180deg);">
+                    <img src="../../img/ico/play.png" @click="resetInterval" style="background: white;" class="btn-rotafolio"
+                        v-show="stop">
+                    <img src="../../img/ico/pause.png" @click="pause" style="background: white;" class="btn-rotafolio"
+                        v-show="!stop">
+                    <img src="../../img/ico/arrow.png" class="btn-rotafolio" @click="setIndex(1, false)">
+                </div>
             </div>
         </div>
     </div>
-
     <div class="pure-u-1-1" style="text-align:center;padding-top: 1em;">
         <button v-if="submode == 2 || submode == 1 || submode == 5" @click="uploadFiles">Guardar</button>
         <button v-else-if="submode == 3" @click="insertarVideosEnGrupo()">Guardar</button>

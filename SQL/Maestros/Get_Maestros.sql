@@ -91,3 +91,13 @@ select id_factor, factor, unidad from dim_factor order by id_factor;
 select id_tipo_factor, tipo_factor from dim_tipo_factor;
 
 select id_banco, id_factor, id_tipo_factor, valor from dim_banco_factor where id_proyecto is NULL;
+
+select id_caja, caja, is_active
+from dim_caja_compensacion
+order by caja;
+
+select id_tipo_tramite, tipo_tramite, is_active
+from dim_tipo_tramite;
+
+select id_tipo_registro, tipo_registro, is_active
+from dim_tipo_registro;

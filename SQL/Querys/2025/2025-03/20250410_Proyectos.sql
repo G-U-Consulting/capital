@@ -145,6 +145,16 @@ create table fact_banco_financiador (
         references dim_banco_constructor(id_banco)
 );
 
+create table fact_sala_venta (
+	id_proyecto int not null,
+	id_sala_venta int not null,
+	primary key (id_proyecto, id_sala_venta),
+	constraint fk_fsala_proyecto foreign key (id_proyecto) 
+		references fact_proyectos(id_proyecto),
+	constraint fk_fsala_sala foreign key (id_sala_venta) 
+		references dim_sala_venta(id_sala_venta)
+);
+
 create table fact_estado_publicacion (
     id_proyecto int not null,
     id_estado_publicacion int not null,
@@ -261,8 +271,10 @@ create table fact_documento_proyecto (
 	video varchar(255),
 	descripcion varchar(255),
 	link varchar(255),
+	nombre varchar(255),
     orden int,
 	tipo varchar(100),
+	extension varchar(10),
     is_active bit default 1,
     created_on datetime default current_timestamp,
     created_by varchar(200) default current_user,

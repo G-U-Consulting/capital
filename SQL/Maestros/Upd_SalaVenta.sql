@@ -12,6 +12,7 @@ set
     @campos_obligatorios = '',
     @is_active = '0',
     @is_feria = '0',
+    @pro_futuros = '0',
     @id_zona_proyecto = NULL,
     @id_ciudadela = NULL;
 --END_PARAM
@@ -24,6 +25,7 @@ UPDATE dim_sala_venta
         id_zona_proyecto = if(@id_zona_proyecto = '', NULL, @id_zona_proyecto),
         id_ciudadela = if(@id_ciudadela = '', NULL, @id_ciudadela),
         is_feria = if(@is_feria = '0', 0, 1),
+        pro_futuros = if(@pro_futuros = '0', 0, 1),
         is_active = if(@is_active = '0', 0, 1)
     WHERE id_sala_venta = @id_sala_venta;
 
