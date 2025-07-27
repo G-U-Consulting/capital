@@ -4,6 +4,7 @@ export default {
             mode: -1,
             submode: 0,
             proyectos: [],
+            proyectoSalas: [],
             estado_publicacion: [],
             selectedEstadoPublicacion: [],
             objProyecto: {
@@ -67,69 +68,6 @@ export default {
                 incluir_brochure: 0,
                 link_brochure: ""
             },
-            editObjProyecto: {
-                id_proyecto: 0,
-                nombre: "",
-                direccion: "",
-                id_sede: 0,
-                id_zona_proyecto: 0,
-                id_ciudadela: 0,
-                id_tipo_proyecto: 0,
-                otra_info: "",
-                sala_venta: 0,
-                id_estado_publicacion: 0,
-
-                subsidios_vis: "",
-                dias_separacion: "",
-                dias_cierre_sala: "",
-                meses_ci: "",
-                dias_pago_ci_banco_amigo: "",
-                dias_pago_ci_banco_no_amigo: "",
-                email_cotizaciones: "",
-                meta_ventas: "",
-                email_coordinacion_sala: "",
-                id_pie_legal: 0,
-                id_banco_constructor: 0,
-                id_bancos_financiador: 0,
-                id_tipo_financiacion: 0,
-                id_tipo_vis: 0,
-
-                centro_costos: "",
-                id_fiduciaria: 0,
-                id_opcion_visual: 0,
-
-                lanzamiento: 0,
-                ciudad_lanzamiento: "",
-                fecha_lanzamiento: "",
-                latitud: "",
-                bloqueo_libres: "",
-                inmuebles_opcionados: "",
-                tipos_excluidos: "",
-                link_waze: "",
-                linea_whatsapp: "",
-
-                email_receptor_1: "",
-                email_receptor_2: "",
-                email_receptor_3: "",
-                email_receptor_4: "",
-
-                link_general_onelink: "",
-                link_especifico_onelink: "",
-                incluir_especificaciones_tecnicias: "",
-                link_especificaciones_tecnicias: "",
-                incluir_cartilla_negocios_cotizacion: "",
-                incluir_cartilla_negocios_opcion: "",
-                link_cartilla_negocios: "",
-                frame_seguimiento_visible: "",
-                link_seguimiento_leads: "",
-                frame_evaluacion_conocimiento: "",
-                link_evaluacion_conocimiento: "",
-                avance_obra_visible: 0,
-                link_avance_obra: "",
-                incluir_brochure: 0,
-                link_brochure: "",
-            },
-
             camposPorSubmode: {
                 0: ["nombre"],
                 1: ["id_banco_constructor"],
@@ -204,30 +142,52 @@ export default {
                 }
             });
         },
+
         getFilteredList() {
             return (tabla) => {
-                return this[tabla] ? this[tabla].filter(item =>
-                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
-                        this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
-                    ) : []
-                ) : [];
+                if (!this[tabla]) return [];
+
+                const filtrosTabla = this.filtros[tabla];
+                if (!filtrosTabla) return this[tabla];
+
+                const hayFiltros = Object.entries(filtrosTabla).some(
+                    ([key, val]) => key !== 'id_sala_venta' && val !== ''
+                );
+                if (!hayFiltros) return this[tabla];
+
+                return this[tabla].filter(item =>
+                    Object.keys(filtrosTabla).every(key =>
+                        key === 'id_sala_venta' || // ❗️no aplicar ese filtro aquí
+                        filtrosTabla[key] === '' ||
+                        String(item[key]).toLowerCase().includes(filtrosTabla[key].toLowerCase())
+                    )
+                );
             };
         },
-        zonasFiltradas() {
-            const sedeId = this.objProyecto?.id_sede || this.editObjProyecto?.id_sede;
-            if (!sedeId) return [];
-            return this.zona_proyecto.filter(z => z.id_sede === sedeId);
+
+
+        proyectosFiltrados() {
+            const lista = this.getFilteredList('proyectos');
+            const idSala = Number(this.filtros.proyectos?.id_sala_venta);
+
+            if (!idSala) return lista;
+
+            const idsPermitidos = new Set(
+                this.proyectoSalas
+                    .filter(rel => rel.id_sala_venta == idSala)
+                    .map(rel => Number(rel.id_proyecto))
+            );
+
+            return lista.filter(p => idsPermitidos.has(Number(p.id_proyecto)));
         },
-        ciudadelaFiltradas() {
-            const sedeId = this.objProyecto?.id_sede || this.editObjProyecto?.id_sede;
-            if (!sedeId) return [];
-            return this.ciudadela.filter(z => z.id_sede === sedeId);
-        },
+
+
         proyectosLanzamiento() {
-            return this.getFilteredList('proyectos').filter(p => p.lanzamiento === '1');
+            return this.proyectosFiltrados.filter(p => p.lanzamiento === '1');
         },
+
         proyectosNormales() {
-            return this.getFilteredList('proyectos').filter(p => p.lanzamiento !== '1');
+            return this.proyectosFiltrados.filter(p => p.lanzamiento !== '1');
         }
     },
     async mounted() {
@@ -242,6 +202,7 @@ export default {
         async setMainMode() {
             showProgress();
             this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
+            this.proyectoSalas = (await httpFunc("/generic/genericDT/Proyectos:Get_ProyectosSalas", {})).data;
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
             hideProgress();
             resp = resp.data;
@@ -736,11 +697,6 @@ export default {
 
             }
             this.submode = 0;
-        },
-        onClear(table) {
-            let item = this.filtros[table];
-            item = Object.keys(item).forEach((key) => key !== 'is_active' && (item[key] = ''));
-            
         },
         async clearAllImages() {
             this.previews = [];

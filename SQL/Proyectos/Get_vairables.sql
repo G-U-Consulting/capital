@@ -2,6 +2,7 @@
 -- Proceso: Proyectos/Get_vairables
 -- =============================================
 --START_PARAM
+ set @id_proyecto = 0;
 --END_PARAM
 
 select id_estado_publicacion, estado_publicacion
@@ -52,6 +53,11 @@ select id_banco as id_bancos_financiador, banco
 from dim_banco_constructor
 where is_active = 1;
 
-select id_sala_venta, sala_venta
-from dim_sala_venta
-where is_active = 1;
+select a.id_sala_venta, a.sala_venta
+from dim_sala_venta a
+where a.is_active = 1;
+
+select a.id_sala_venta, a.sala_venta, id_proyecto
+from dim_sala_venta a
+join dim_sala_proyecto b on a.id_sala_venta = b.id_sala_venta
+where a.is_active = 1 and b.id_proyecto = @id_proyecto;
