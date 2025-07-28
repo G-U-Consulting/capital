@@ -341,13 +341,19 @@ export default {
             showProgress();
             let form = new FormData();
             files.forEach(f => form.append(f.name, f));
-            let res = await httpFunc(`/util/ImportFiles/genericST/Salas:Ins_Programacion/{id_sala_venta: ${this.sala.id_sala_venta}}`, form);
-            if (res.isError) {
-                this.JSON2HTML(res.errorMessage);
-                this.modal && (this.modal.style.display = 'flex');
+            try {
+                let res = await httpFunc(`/util/ImportFiles/genericST/Salas:Ins_Programacion/{id_sala_venta: ${this.sala.id_sala_venta}}`, form);
+                if (res.isError) {
+                    this.JSON2HTML(res.errorMessage);
+                    this.modal && (this.modal.style.display = 'flex');
+                }
+                await this.loadData();
+                this.fillDays();
             }
-            await this.loadData();
-            this.fillDays();
+            catch (e) {
+                console.error(e);
+                showMessage(e + '\nNo se pudo cargar el archivo');
+            }
             hideProgress();
             e.target.value = '';
         },

@@ -2062,6 +2062,21 @@ tr.destacada {
   border-radius: 6px;
   overflow: hidden;
 }
+@media (min-width: 1415px) {
+  .cal-month {
+    min-height: 235px;
+  }
+}
+@media (min-width: 1615px) {
+  .cal-month {
+    min-height: 250px;
+  }
+}
+@media (min-width: 1900px) {
+  .calendar.m12 {
+    grid: repeat(3, 1fr) / repeat(4, 1fr);
+  }
+}
 .cal-month.prog {
   font-size: 11px;
   min-height: 195px;

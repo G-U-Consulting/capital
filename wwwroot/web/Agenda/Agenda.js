@@ -5,6 +5,7 @@ export default {
             mode: 0,
             cargos: [],
             ruta: [],
+            showList: true,
             /// Mis Tareas
             proyectos: [],
             tareas: [],
@@ -59,6 +60,7 @@ export default {
             id_obj: null,
             sala_filter: null,
             pro_filter: null,
+            filter_sort: 'dias',
 
             tooltipVisible: false,
             tooltipX: 0,
@@ -75,7 +77,7 @@ export default {
             this.ruta = [{
                 text: 'ZU', action: () =>
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, { text: 'Agenda', action: () => { this.mode = -1; this.setMode(-1) } }];
+            }, { text: 'Agenda', action: () => { this.mode = 0; this.setMode(0) } }];
             this.ruta = [...this.ruta, ...subpath];
         },
         async setMainMode(mode) {
@@ -332,7 +334,7 @@ export default {
                 days.forEach(day => {
                     if (day.tasks.length)
                         day.tasks.forEach(t => tasks.push({ day, ...t, }));
-                    else tasks.push({
+                    else if (this.filter_sort == 'dias') tasks.push({
                         day,
                         proyecto: '-',
                         descripcion: day.isHoliday ? 'Festivo' : day.isRestday ? 'No laboral' : '-',
@@ -340,7 +342,12 @@ export default {
                     });
                 });
                 await Promise.resolve();
-                this.tableDays = tasks;
+                this.tableDays = tasks.sort((a, b) => {
+                    if (this.filter_sort == 'deadline') 
+                        return new Date(b.deadline + ' 00:00').getTime() - new Date(a.deadline + ' 00:00').getTime();
+                    if (this.filter_sort == 'prioridad') 
+                        return parseInt(b.orden_p) - parseInt(a.orden_p);
+                });
             }
         },
         async updateViewMode(mode) {
@@ -380,7 +387,7 @@ export default {
         },
         onDblClickDay(day) {
             if (this.showMode == 'event')
-                day.currentMonth && day.events && day.events.filter(e => e.festivo != '1').length && openModal(3)
+                day.currentMonth && day.events && day.events.filter(e => e.festivo != '1').length && this.openModal(3)
             if (this.showMode == 'task')
                 day.currentMonth && day.tasks && day.tasks.length && this.openModal(4);
         },
@@ -430,7 +437,7 @@ export default {
         },
         onCancel() {
             this.hito = {};
-            if (this.mode == 1) this.modal.style.display = 'none';
+            if (this.modalmode == 1) this.modal.style.display = 'none';
             else this.modalmode = 3;
         },
         setRecurringEvents(e) {
