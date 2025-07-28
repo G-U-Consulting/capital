@@ -41,10 +41,18 @@ create temporary table tmp_unidades as(
         cuota_inicial_banco varchar(50) path '$."cuota_inicial_banco"',
         ean varchar(50) path '$."ean"',
         asoleacion varchar(50) path '$."asoleacion"',
-        altura varchar(50) path '$."altura"'
+        altura varchar(50) path '$."altura"',
+        cerca_porteria varchar(50) path '$."cerca_porteria"',
+        cerca_juegos_infantiles varchar(50) path '$."cerca_juegos_infantiles"',
+        cerca_piscina varchar(50) path '$."cerca_piscina"',
+        tiene_balcon varchar(50) path '$."tiene_balcon"',
+        tiene_parq_sencillo varchar(50) path '$."tiene_parq_sencillo"',
+        tiene_parq_doble varchar(50) path '$."tiene_parq_doble"',
+        tiene_deposito varchar(50) path '$."tiene_deposito"',
+        tiene_acabados varchar(50) path '$."tiene_acabados"'
     ))  as a
 );
---TODO hacer validación de datos antes de continuar
+-- TODO hacer validación de datos antes de continuar
 insert into fact_torres(id_proyecto, nombre_torre, consecutivo, created_by)
 select distinct @id_proyecto, concat('Torre ', torre), torre, @usuario
 from tmp_unidades a
@@ -75,7 +83,8 @@ set
 insert into fact_unidades(
 	id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, localizacion, observacion_apto, fecha_fec,
 	fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
-	valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, created_by 
+	valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, cerca_porteria, 
+    cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, created_by 
 ) select distinct
     @id_proyecto as id_proyecto,
 	id_torre as id_torre,
@@ -106,6 +115,14 @@ insert into fact_unidades(
 	id_cuenta_convenio as id_cuenta_convenio,
 	asoleacion as asoleacion,
 	altura as altura,
+	convert(cerca_porteria, unsigned) as cerca_porteria,
+	convert(cerca_juegos_infantiles, unsigned) as cerca_juegos_infantiles,
+	convert(cerca_piscina, unsigned) as cerca_piscina,
+	convert(tiene_balcon, unsigned) as tiene_balcon,
+	convert(tiene_parq_sencillo, unsigned) as tiene_parq_sencillo,
+	convert(tiene_parq_doble, unsigned) as tiene_parq_doble,
+	convert(tiene_deposito, unsigned) as tiene_deposito,
+	convert(tiene_acabados, unsigned) as tiene_acabados,
 	@usuario as created_by
 from tmp_unidades;
 

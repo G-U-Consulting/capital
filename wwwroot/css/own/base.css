@@ -2177,6 +2177,9 @@ tr .cal-event-count {
   color: #929292;
   font-weight: normal;
 }
+tr.cal-row-info > td {
+  border: 1px #afafaf solid;
+}
 .cal-btn {
   border-radius: 5px; 
   display: inline-block; 

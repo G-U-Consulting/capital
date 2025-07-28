@@ -6,7 +6,7 @@ set @id_sala = NULL;
 --END_PARAM
 
 select p.id_programacion, p.id_usuario, p.id_sala_venta, date_format(p.fecha, '%Y-%m-%d') as fecha,
-    p.id_estado, e.estado, u.id_usuario, u.nombres, u.identificacion, c.id_cargo, c.cargo
+    p.id_estado, e.estado, e.color, u.id_usuario, u.nombres, u.identificacion, c.id_cargo, c.cargo
 from dim_programacion_sala p join fact_usuarios u
 on p.id_usuario = u.id_usuario join dim_estado_programacion e
 on p.id_estado = e.id_estado join dim_cargo c
@@ -31,7 +31,7 @@ left join dim_cargo c on u.id_cargo = c.id_cargo
 join dim_personal_sala ps on u.id_usuario = ps.id_usuario
 where ps.id_sala_venta = @id_sala;
 
-select id_estado, estado
+select id_estado, estado, color
 from dim_estado_programacion
 order by estado;
 

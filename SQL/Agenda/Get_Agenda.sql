@@ -40,7 +40,7 @@ from dim_cargo
 where is_active = 1
 order by cargo;
 
-select date_format(ps.fecha, '%Y-%m-%d') as fecha, ps.id_sala_venta, ps.id_estado, e.estado, e.is_laboral
+select date_format(ps.fecha, '%Y-%m-%d') as fecha, ps.id_sala_venta, ps.id_estado, e.estado, e.is_laboral, e.color
 from dim_programacion_sala ps
 join dim_estado_programacion e on ps.id_estado = e.id_estado
 join dim_sala_venta sv on ps.id_sala_venta = sv.id_sala_venta

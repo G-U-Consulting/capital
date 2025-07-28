@@ -295,9 +295,11 @@
                                 <tr v-for="day in tableDays" @click="day.day.currentMonth && selDay(day.day)"
                                     @dblclick="day.day.currentMonth && day.event ? (openModal(2, day.event)) : null"
                                     :id="`tab-m${day.day.month}-d${day.day.monthDay}`"
-                                    v-bind:class="{'cal-table-selected': day.day.isSelected, 'cal-table-today': day.day.isToday, 'cal-deshabilitada': !day.day.currentMonth}"
-                                    :style="day.color ? 'background: ' + day.color + '40;' : day.day.isSelected ? 'background: #ddd;' : null">
-                                    <td>{{formatDatetime(null, 'date', day.day.date)}}</td>
+                                    v-bind:class="{'cal-table-selected': day.day.isSelected, 'cal-table-today': day.day.isToday, 
+                                    'cal-deshabilitada': !day.day.currentMonth, 'cal-row-info': day.e_tipo && day.e_tipo != '-'}"
+                                    :style="day.color ? 'background: ' + day.color + ';' : day.day.isSelected ? 'background: #ddd;' : null">
+                                    <td @mouseenter="tooltipVisible = true; tooltipMsg = day.day.progState || 'Sin asignación'" @mousemove="updateCursor"
+                                        @mouseleave="tooltipVisible = false;">{{formatDatetime(null, 'date', day.day.date)}}</td>
                                     <td>{{day.e_titulo}}</td>
                                     <td>{{day.e_tipo}}</td>
                                     <td v-if="!day.e_categorias"></td>
@@ -327,9 +329,11 @@
                             <tbody>
                                 <tr v-for="t in tableDays" @click="t.day.currentMonth && selDay(t.day)"
                                     :id="`tab-m${t.day.month}-d${t.day.monthDay}`"
-                                    v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday, 'cal-deshabilitada': !t.day.currentMonth}"
-                                    :style="t.color ? 'background: ' + t.color + '40;' : t.day.isSelected ? 'background: #ddd;' : null">
-                                    <td>{{formatDatetime(null, 'date', t.day.date)}}</td>
+                                    v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday, 
+                                    'cal-deshabilitada': !t.day.currentMonth, 'cal-row-info': !!t.prioridad}"
+                                    :style="t.color ? 'background: ' + t.color + ';' : t.day.isSelected ? 'background: #ddd;' : null">
+                                    <td @mouseenter="tooltipVisible = true; tooltipMsg = t.day.progState || 'Sin asignación'" @mousemove="updateCursor"
+                                        @mouseleave="tooltipVisible = false;">{{formatDatetime(null, 'date', t.day.date)}}</td>
                                     <td>{{t.proyecto}}</td>
                                     <td>{{t.descripcion}}</td>
                                     <td>{{t.prioridad}}</td>

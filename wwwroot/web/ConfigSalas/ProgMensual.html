@@ -102,8 +102,8 @@
                             </select>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-5-12" style="text-align: right;">
-                            <button style="width: 123.42px; padding: .2em 0;" @click="reqDeleteAll">Borrar
-                                selección</button>
+                            <button style="width: 123.42px; padding: .2em 0;" 
+                                @click="onSelEdit">Editar fila</button>
                         </div>
                     </div>
                     <div style="display: flex; align-items: baseline; margin-top: .5rem;">
@@ -115,6 +115,10 @@
                                 <option value="">[Seleccione]</option>
                                 <option v-for="c in cargos" :value="c.id_cargo">{{c.cargo}}</option>
                             </select>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-5-12" style="text-align: right;">
+                            <button style="width: 123.42px; padding: .2em 0;" 
+                                @click="reqDeleteAll">Borrar selección</button>
                         </div>
                     </div>
                 </div>
@@ -153,13 +157,21 @@
                         </tr>
                         <tr :id="i" v-for="(p, i) in getFilteredList('programaciones')" @click="onSelect(p, i)"
                             :class="`tab-${p.fecha}`" v-bind:class="{'destacada': selRow == i}"
-                            :style="`background-color: ${p.id_estado == '1' ? '#00c80028' : ''}`">
+                            :style="`background-color: ${p.color + '25'}`">
                             <td>{{formatDatetime(p.fecha + ' 00:00', 'date')}}</td>
                             <td>{{getWeekDay(p.fecha)}}</td>
                             <td>{{p.cargo}}</td>
                             <td>{{p.nombres}}</td>
                             <td>{{p.identificacion}}</td>
-                            <td>{{p.estado}}</td>
+                            <td :style="editRow && selRow == i ? 'padding: 0;' : null">
+                                <select v-if="editRow && selRow == i" v-model="programacion.id_estado">
+                                    <option value="" disabled>[Seleccione]</option>
+                                    <option v-for="e in estados" :value="e.id_estado">{{e.estado}}</option>
+                                </select>
+                                <span v-else>
+                                    {{p.estado || 'Sin asignación'}}
+                                </span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

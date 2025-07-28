@@ -2,6 +2,7 @@
 	data() {
 		return {
 			mode: 0,
+			ruta: [],
 			torres: [],
 			aptos: [],
 			estados: [],
@@ -22,35 +23,44 @@
 				type: "",
 				value: null
 			},
-			apto: {}
+			torre: {},
+			apto: {},
+
+			filtros: {
+				aptos: { apartamento: '', id_estado_unidad: '', codigo_planta: '', localizacion: ''}
+			}
 		};
 	},
 	three: null,
 	async mounted() {
+		this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => this.mode = 0 }];
+		this.setRuta();
 		//this.computeViews();
 		await this.loadUnidades();
 	},
 	methods: {
+		setRuta() {
+			GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+		},
 		async loadUnidades() {
 			showProgress();
 			let [torres, aptos, estados] = (await
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
 			if (torres.length && aptos.length) {
-				let number_fileds = ['valor_separacion', 'piso', 'area_total', 'area_privada_cub'];
+				let number_fileds = ['valor_separacion', 'area_total', 'area_privada_cub'];
 				aptos.forEach(a => number_fileds.forEach(key => a[key] = parseFloat(a[key].replace(',', '.'))));
-				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], id_torre: t.id_torre }));
+				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], torre_id: t.id_torre }));
 				aptos.forEach(a => {
-					let torre = torres.find(t => t.id_torre === a.id_torre);
+					let torre = torres.find(t => t.torre_id === a.id_torre);
 					if (torre) {
 						let i = torre.pisos.findIndex(p => p.idpiso == a.piso && p.idtorre == torre.idtorre);
-						if (i == -1) torre.pisos.push({ idpiso: a.piso, idtorre: torre.idtorre, unidades: [a] });
+						if (i == -1) torre.pisos.push({ idtorre: torre.idtorre, idpiso: (a.piso + ''), unidades: [a] });
 						else torre.pisos[i].unidades.push(a);
 					}
 				});
 				torres.sort((a, b) => a.idtorre - b.idtorre);
 				torres.forEach(item => item.pisos.sort((a, b) => a.idpiso - b.idpiso));
-				console.log(torres);
 				this.torres = torres;
 				this.computeViews();
 			};
@@ -110,15 +120,30 @@
 				this.torres.sort((a, b) => a.idtorre - b.idtorre);
 				this.torres.forEach(item => item.pisos.sort((a, b) => a.idpiso - b.idpiso));
 				this.mode = 1;
-				console.log(JSON.stringify(this.torres));
 			} catch (error) {
-				console.log(error);
+				console.error(error);
 			}
+		},
+		async confirmUpload() {
+			showProgress();
+			console.log(this.torres);
+			let res = null;
+			try {
+				res = await (httpFunc('/generic/genericST/Unidades:Ins_Unidades',
+					{ id_proyecto: GlobalVariables.id_proyecto, unidades: JSON.stringify(this.torres), Usuario: GlobalVariables.username }));
+				if (res.isError || res.data !== 'OK') throw res;
+				this.computeViews();
+			} catch (e) {
+				console.error(e);
+				showMessage('Error: ' + e.errorMessage || e.data);
+			}
+			hideProgress();
 		},
 		computeViews: function () {
 			this.mode = 3;
 			setTimeout(this.threeInit, 10);
-			console.log(this.torres);
+			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => this.computeViews() }];
+			this.setRuta();
 		},
 		threeInit: async function () {
 			var three = { units: [] };
@@ -254,15 +279,30 @@
 			this.$options.three.selectItem(this.selection);
 		},
 		onSelectTorre(torre) {
-			console.log(torre);
+			this.torre = torre;
 			this.aptos = [];
 			torre.pisos.forEach(p => this.aptos.push(...p.unidades))
-			console.log(this.aptos);
 			this.mode = 4;
+			this.ruta = [ this.ruta[0], { text: `Torre ${torre.idtorre}`, action: () => this.onSelectTorre(torre) }];
+			this.setRuta();
 		},
 		onSelectApto(apto) {
 			this.apto = apto;
 			this.mode = 5;
+			this.ruta = [ this.ruta[0], this.ruta[1], 
+				{ text: `Unidad ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
+			this.setRuta();
 		}
-	}
+	},
+	computed: {
+        getFilteredList() {
+            return (tabla) => {
+                return this[tabla] ? this[tabla].filter(item =>
+                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
+                        this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
+                    ) : []
+                ) : [];
+            };
+        }
+    },
 };

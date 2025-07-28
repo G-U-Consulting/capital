@@ -26,6 +26,7 @@ export default {
             selDate: new Date(),
             currentDay: {},
 
+            editRow: false,
             editNewRow: false,
             selRow: null,
             modal: null,
@@ -277,9 +278,11 @@ export default {
             this.programacion = {};
             this.selRow = null;
         },
-        onSelect(p, i) {
+        async onSelect(p, i) {
+            if (this.selRow != i && this.editRow) await this.onSave();
             if (this.selRow != i && p.id_usuario) {
                 this.programacion = { ...p };
+                this.editRow = false;
                 this.editNewRow = false;
                 this.selRow = i;
             }
@@ -298,9 +301,32 @@ export default {
                     this.cancel();
                 } else {
                     console.error(res);
-                    showMessage('Error: ' + (res.errorMessage || res.data));
+                    let err = (res.errorMessage || res.data || 'Error interno')
+                    showMessage('Error: ' + err.replaceAll('<b>', '').replaceAll('</b>', '').replaceAll('<i>', '').replaceAll('</i>', ''));
                 }
                 hideProgress();
+            }
+            if (this.editRow && this.programacion.id_programacion) {
+                showProgress();
+                let res = await httpFunc(`/generic/genericST/Salas:Upd_Programacion`,
+                    { ...this.programacion });
+                if (res.data === 'OK') {
+                    this.loadData(true);
+                    this.programacion = {};
+                    this.cancel();
+                } else {
+                    console.error(res);
+                    let err = (res.errorMessage || res.data || 'Error interno')
+                    showMessage('Error: ' + err.replaceAll('<b>', '').replaceAll('</b>', '').replaceAll('<i>', '').replaceAll('</i>', ''));
+                }
+                this.editRow = false;
+                hideProgress();
+            }
+        },
+        onSelEdit() {
+            if (this.selRow != null) {
+                this.programacion = {...this.getFilteredList('programaciones')[this.selRow]};
+                this.editRow = !this.editRow
             }
         },
         cancel() {

@@ -231,6 +231,8 @@ export default {
                     isRestday: false,
                     events: [],
                     tasks: [],
+                    progState: null,
+                    stateColor: null,
                     date: fecha
                 });
             }
@@ -250,6 +252,8 @@ export default {
                     isRestday: false,
                     events: [],
                     tasks: [],
+                    progState: null,
+                    stateColor: null,
                     date: fecha
                 }
                 daysView.push(day);
@@ -273,6 +277,8 @@ export default {
                     isRestday: false,
                     events: [],
                     tasks: [],
+                    progState: null,
+                    stateColor: null,
                     date: fecha
                 });
                 i++;
@@ -314,16 +320,16 @@ export default {
                                 e_categorias: e.categorias ? e.categorias.split(',') : [],
                                 e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
                                 e_hora: this.formatDatetime(e.fecha, 'time'),
-                                color: e.color,
+                                color: e.color + '50',
                                 event: e
                             }));
                     else events.push({
                         day,
-                        e_titulo: day.isHoliday ? 'Festivo' : day.isRestday ? 'No laboral' : '-',
+                        e_titulo: day.isHoliday ? 'Festivo' : '-',
                         e_tipo: '-',
                         e_hora: '-',
                         e_categorias: [],
-                        color: day.isHoliday ? '#c80000' : day.isRestday ? '#dadada' : null
+                        color: day.isHoliday ? '#c8000020' : (day.stateColor + '20')
                     });
                 });
                 await Promise.resolve();
@@ -333,19 +339,19 @@ export default {
                 let tasks = [];
                 days.forEach(day => {
                     if (day.tasks.length)
-                        day.tasks.forEach(t => tasks.push({ day, ...t, }));
+                        day.tasks.forEach(t => tasks.push({ day, ...t, color: t.color + '50' }));
                     else if (this.filter_sort == 'dias') tasks.push({
                         day,
                         proyecto: '-',
-                        descripcion: day.isHoliday ? 'Festivo' : day.isRestday ? 'No laboral' : '-',
-                        color: day.isHoliday ? '#c80000' : day.isRestday ? '#dadada' : null
+                        descripcion: day.isHoliday ? 'Festivo' : '-',
+                        color: day.isHoliday ? '#c8000020' : (day.stateColor + '20')
                     });
                 });
                 await Promise.resolve();
                 this.tableDays = tasks.sort((a, b) => {
-                    if (this.filter_sort == 'deadline') 
-                        return new Date(b.deadline + ' 00:00').getTime() - new Date(a.deadline + ' 00:00').getTime();
-                    if (this.filter_sort == 'prioridad') 
+                    if (this.filter_sort == 'deadline')
+                        return new Date(a.deadline + ' 00:00').getTime() - new Date(b.deadline + ' 00:00').getTime();
+                    if (this.filter_sort == 'prioridad')
                         return parseInt(b.orden_p) - parseInt(a.orden_p);
                 });
             }
@@ -499,9 +505,11 @@ export default {
                     }
                 });
                 this.asignaciones.forEach(a => {
-                    if (a.is_laboral == '0') {
-                        let day = this.findDay(new Date(a.fecha + ' 00:00'));
-                        if (day) day.isRestday = true;
+                    let day = this.findDay(new Date(a.fecha + ' 00:00'));
+                    if (day) {
+                        day.progState = a.estado;
+                        day.stateColor = a.color;
+                        if (a.is_laboral == '0') day.isRestday = true;
                     }
                 });
                 this.showMode == 'task' && this.tareas.forEach(t => {

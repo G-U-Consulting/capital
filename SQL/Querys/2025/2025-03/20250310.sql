@@ -574,15 +574,16 @@ create table dim_hito_cargo(
 create table dim_estado_programacion(
 	id_estado int primary key auto_increment,
 	estado varchar(200) not null unique,
-	is_laboral bit not null default 0
+	is_laboral bit not null default 0,
+	color varchar(7) not null
 );
-insert into dim_estado_programacion(estado, is_laboral) values
-('En sala', 1),
-('En casa', 1),
-('Descansa', 0),
-('Licencia', 0),
-('Vacaciones', 0),
-('Incapacidad', 0);
+insert into dim_estado_programacion(estado, is_laboral, color) values
+('En sala', 1, '#00839C'),
+('En casa', 1, '#1af716'),
+('Descansa', 0, '#ff2d2d'),
+('Licencia', 0, '#da00aa'),
+('Vacaciones', 0, '#70009c'),
+('Incapacidad', 0, '#810000');
 create table dim_programacion_sala(
 	id_programacion int primary key auto_increment,
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),

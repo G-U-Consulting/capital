@@ -24,8 +24,11 @@ if exists (select 1 from dim_programacion_sala where id_usuario = @userid and fe
         from dim_programacion_sala ps 
         join dim_sala_venta sv on ps.id_sala_venta = sv.id_sala_venta
         where ps.id_usuario = @userid and ps.fecha = @fecha;
-    select concat('El asesor con cédula <b>', @cedula, '</b> ya está asignado para el día <b>', date_format(@fecha, '%d/%m/%Y'), 
-    '</b> en la sala de ventas <i>', @nombre_sala,'</i>.') into @err;
+    select concat(
+        'El asesor con cédula <b>', ifnull(@cedula, (select identificacion from fact_usuarios where id_usuario = @id_usuario)), 
+        '</b> ya está asignado para el día <b>', ifnull(date_format(@fecha, '%d/%m/%Y'), ''), 
+        '</b> en la sala de ventas <i>', ifnull(@nombre_sala, ''), '</i>.'
+    ) into @err;
     signal sqlstate '45000'
         set message_text = @err;
 elseif exists (select 1 from dim_programacion_sala where id_usuario = @userid and fecha = @fecha and id_sala_venta = @id_sala_venta) then
