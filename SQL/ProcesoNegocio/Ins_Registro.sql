@@ -12,11 +12,12 @@ set @id_cliente = '',
     @otro_texto = '',
     @id_proyecto = '',
     @descripcion = '',
-    @id_presupuesto_vivienda = '';  
+    @id_presupuesto_vivienda = '',
+    @id_tipo_tramite = '';  
 --END_PARAM
 
-insert into fact_visitas (id_cliente, id_categoria_medio, id_medio, id_motivo_compra, id_referencia, otro_texto ,id_proyecto, descripcion, id_presupuesto_vivienda)
-    values (@id_cliente, @id_categoria, @id_medio, @id_motivo_compra, @id_referencia, @otro_texto, @id_proyecto, @descripcion, @id_presupuesto_vivienda);
+insert into fact_visitas (id_cliente, id_categoria_medio, id_medio, id_motivo_compra, id_referencia, otro_texto ,id_proyecto, descripcion, id_presupuesto_vivienda,id_tipo_tramite)
+    values (@id_cliente, @id_categoria, @id_medio, @id_motivo_compra, @id_referencia, @otro_texto, @id_proyecto, @descripcion, @id_presupuesto_vivienda,@id_tipo_tramite);
 
 
     set @id_visita = last_insert_id();

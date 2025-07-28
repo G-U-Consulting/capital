@@ -19,6 +19,7 @@ select a.id_visita,
       g.nombre as proyecto,
       a.descripcion,
       a.id_presupuesto_vivienda,
+      a.id_tipo_tramite,
       (
         select group_concat(id_tipo_registro)
         from fact_tipo_registro

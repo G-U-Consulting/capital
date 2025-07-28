@@ -242,7 +242,7 @@
         async setMainMode() {
             showProgress();
             this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
-            var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
+            var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {"id_proyecto": GlobalVariables.id_proyecto});
             hideProgress();
             resp = resp.data;
             resp[0].forEach(item => item.checked = false);
@@ -255,8 +255,8 @@
             this.opcionesVisuales = resp[3];
             resp[6].forEach(item => item.checked = false);
             this.tipo = resp[6];
-            resp[12].forEach(item => item.checked = false);
-            this.salas_venta = resp[12];
+            resp[13].forEach(item => item.checked = false);
+            this.salas_venta = resp[13];
             this.sede = resp[4];
             this.zona_proyecto = resp[5];
             this.ciudadela = resp[7];
