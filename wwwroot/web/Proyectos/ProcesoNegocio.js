@@ -47,9 +47,11 @@ export default {
         otro_texto: '',
         descripcion: '',
         id_cliente: '',
+        id_tipo_tramite: '',
       },
       modo_atencion: [],
       tipo_registro: [],
+      tipo_tramite:[],
       visitas: [],
       iscliente: false,
       cliente: '',
@@ -125,6 +127,7 @@ export default {
     this.tipo_registro = resp.data[4];
     this.modo_atencion = resp.data[5];
     this.presupuesto_vivienda = resp.data[6];
+    this.tipo_tramite = resp.data[7];
     this.campoObligatorio();
     window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
   },
@@ -211,6 +214,7 @@ export default {
           otro_texto: '',
           descripcion: '',
           id_presupuesto_vivienda: '',
+          id_tipo_tramite: '',
         }
         if (Array.isArray(this.tipo_registro)) {
           this.tipo_registro.forEach(item => item.checked = false);
@@ -339,6 +343,7 @@ export default {
       this.ObjVisita.otro_texto = resp.data[0][0].otro_texto;
       this.ObjVisita.descripcion = resp.data[0][0].descripcion;
       this.ObjVisita.id_presupuesto_vivienda = resp.data[0][0].id_presupuesto_vivienda;
+      this.ObjVisita.id_tipo_tramite = resp.data[0][0].id_tipo_tramite;
 
       var tFSeleccionada = resp.data[0][0].tipo_registro;
       this.tipo_registro.forEach(item => {
@@ -471,5 +476,8 @@ export default {
         this.registroCompras = [];
       }
     },
+    sincliente(){
+      this.mode = 2;
+    }
   },
 }

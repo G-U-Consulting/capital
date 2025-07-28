@@ -30,3 +30,7 @@ where is_active = 1;
 
 select id_presupuesto_vivienda, rango
 from presupuesto_vivienda;
+
+select id_tipo_tramite, tipo_tramite
+from dim_tipo_tramite
+where is_active = 1

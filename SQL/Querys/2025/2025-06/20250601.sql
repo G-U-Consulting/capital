@@ -87,6 +87,7 @@ create table fact_visitas (
     id_medio int,
     id_motivo_compra int,
     id_presupuesto_vivienda int,
+    id_tipo_tramite int,
     id_referencia int,
     otro_texto varchar(100),
     is_active bit default 1,
@@ -145,7 +146,6 @@ insert into dim_modo_atencion (modo_atencion)
 values ('Rápida'),
 ('Información'),
 ('Cierre'),
-('Trámites'),
 ('Otro');
 
 insert into presupuesto_vivienda (rango, minimo, maximo) 
