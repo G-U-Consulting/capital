@@ -2348,22 +2348,53 @@ tr.cal-row-info > td {
   cursor: pointer;
 }
 
-.torre {
-    background-color: white;
-    color: black;
-    height: 5rem;
-    width: 9rem;
-    border-radius: 0.5rem;
-    text-align: center;
-    border: 3px solid #00839C;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.lista-torres {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 15.2rem);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
-    .torre:hover {
-        background-color: #e5e6e9;
-    }
+.torre {
+  background-color: white;
+  color: black;
+  height: 7.5rem;
+  width: 9rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  border: 3px solid #00839C;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 .5rem;
+  margin: 4px auto;
+}
+.torre:hover {
+    background-color: #e5e6e9;
+}
+.torre.sel-torre {
+  color: white;
+  background: #00839C;
+  border: 3px #173d5b solid;
+}
+.torre > div {
+  margin: 1px 0;
+  display: flex; 
+  align-items: center; 
+  gap: .5rem
+}
+.torre > div {
+  margin: 1px 0;
+  display: flex; 
+  align-items: center; 
+  gap: .5rem
+}
+.torre > div > .cal-event-count {
+  width: 22px; 
+  height: 20px; 
+  font-size: 12px; 
+  border: 1px black solid;
+}
 
 
 .tab-registro {

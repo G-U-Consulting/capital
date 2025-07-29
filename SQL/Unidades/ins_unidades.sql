@@ -88,7 +88,9 @@ insert into fact_unidades(
 ) select distinct
     @id_proyecto as id_proyecto,
 	id_torre as id_torre,
-	null as id_estado_unidad,
+	ifnull((select id_estado_unidad 
+        from dim_estado_unidad e 
+        where e.estado_unidad = estatus), 1) as id_estado_unidad,
 	concat('Apto ', apartamento) as nombre_unidad,
 	convert(apartamento, int) as numero_apartamento,
 	convert(piso, int) as piso,

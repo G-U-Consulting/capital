@@ -41,8 +41,8 @@
             </table>
         </div>
     </div>
-    <div v-show="mode == 3" class="pure-g" style="height: 100%;">
-        <div class="pure-u-1-4">
+    <div v-show="mode == 3" style="display: flex; height: 100%; gap: 1rem;">
+        <div style="width: 190px;">
             <div>
                 <div class='formInputStandard'>
                     <span>Tipo Visualizacion</span><br />
@@ -69,12 +69,26 @@
                 </div>
             </div>
             <div v-show="viewProperties.viewType == 'classic'">
-                <div style="text-align: center;">
-                    <button>Actualizar con CSV</button>
+                <div class="lista-torres">
+                    <div v-for="item in torres" class="torre" @click="toggleTorre(item)"
+                        v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.id_torre)}">
+                        <div style="align-self: center;">
+                            <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
+                        </div>
+                        <div v-for="e in [...estados].reverse()">
+                            <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
+                                <span :style="`color: ${e.color_fuente}`">
+                                    {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
+                                    && a.id_torre === item.id_torre).length}}
+                                </span>
+                            </div>
+                            <span>{{e.estado_unidad_plural}}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div v-if="viewProperties.viewType == '3d'" class="pure-u-3-4 pure-g">
+        <div v-if="viewProperties.viewType == '3d'" style="flex-grow: 1;">
             <div class="pure-u-1-4" style="height: calc(100vh - 13rem); overflow: auto;">
                 <div v-for="titem in torres">
                     <div class="hoverRow" style="padding: 0.2rem 0.5rem;" v-on:click="selectItem('torre', titem)"
@@ -100,19 +114,158 @@
                 <div id="container" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
-        <div v-if="viewProperties.viewType == 'classic'" class="pure-u-3-4">
+        <div v-if="viewProperties.viewType == 'classic'" style="flex-grow: 1;">
             <div class="pure-g">
-                <div v-for="item in torres" v-bind:class="['pure-u-1-'+viewProperties.cols, 'torre']"
-                    style="margin: 0.5rem" @click="onSelectTorre(item)">
-                    <div>
-                        Torre {{item.idtorre}}
+                <div class="pure-u-1-1" style="padding: 1rem; padding-bottom: 0;">
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-1-6">
+                            <input type="text" placeholder="Apartamento" v-model="filtros.aptos['apartamento']"
+                                maxlength="5" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-12">
+                            <div class="imgGraybutton" @click="onClearFilters">
+                                <img src="./img/ico/eraser.png" />
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-6">
+                            <select v-model="filtros.aptos['codigo_planta']" class="pure-input-1">
+                                <option value="">[Tipos]</option>
+                                <option v-for="t in tipos" :value="t">{{t}}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                        <div class="pure-u-1-1 pure-u-md-1-8">
+                            <select v-model="filtros.aptos['piso']" class="pure-input-1">
+                                <option value="">[Pisos]</option>
+                                <option v-for="p in pisos" :value="p">{{p}}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                        <div class="pure-u-1-1 pure-u-md-1-6">
+                            <select v-model="filtros.aptos['id_estado_unidad']" class="pure-input-1">
+                                <option value="">[Estados]</option>
+                                <option v-for="e in estados" :value="e.id_estado_unidad">
+                                    {{e.estado_unidad}}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                        <div class="pure-u-1-1 pure-u-md-1-6">
+                            <select v-model="filtros.aptos['localizacion']" class="pure-input-1">
+                                <option value="">[Localización]</option>
+                                <option value="Interior">Interior</option>
+                                <option value="Exterior">Exterior</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <div class="cal-event-count">
-                            <span>0</span>
+
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="tiene_balcon">
+                                <input type="checkbox" id="tiene_balcon" v-model="filtros.aptos['tiene_balcon']"
+                                    true-value="1" false-value="" />
+                                <span class="checkmark"></span>
+                                Tiene Balcón
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="tiene_parq_sencillo">
+                                <input type="checkbox" id="tiene_parq_sencillo"
+                                    v-model="filtros.aptos['tiene_parq_sencillo']" true-value="1" false-value="" />
+                                <span class="checkmark"></span>
+                                Parq. Sencillo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="tiene_parq_doble">
+                                <input type="checkbox" id="tiene_parq_doble" v-model="filtros.aptos['tiene_parq_doble']"
+                                    true-value="1" false-value="" />
+                                <span class="checkmark"></span>
+                                Parq. Doble
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="tiene_deposito">
+                                <input type="checkbox" id="tiene_deposito" v-model="filtros.aptos['tiene_deposito']"
+                                    true-value="1" false-value="" />
+                                <span class="checkmark"></span>
+                                Tiene Depósito
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="tiene_acabados">
+                                <input type="checkbox" id="tiene_acabados" v-model="filtros.aptos['tiene_acabados']"
+                                    true-value="1" false-value="" />
+                                <span class="checkmark"></span>
+                                Tiene Acabados
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="cerca_porteria">
+                                <input type="checkbox" id="cerca_porteria" v-model="filtros.aptos['cerca_porteria']"
+                                    true-value="1" false-value="" />
+                                <span class="checkmark"></span>
+                                Cerca Portería
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="cerca_juegos_infantiles">
+                                <input type="checkbox" id="cerca_juegos_infantiles"
+                                    v-model="filtros.aptos['cerca_juegos_infantiles']" true-value="1" false-value="" />
+                                <span class="checkmark"></span>
+                                Cerca Juegos Inf.
+                            </label>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="cerca_piscina">
+                                <input type="checkbox" id="cerca_piscina" v-model="filtros.aptos['cerca_piscina']"
+                                    true-value="1" false-value="" />
+                                <span class="checkmark"></span>
+                                Cerca Piscina
+                            </label>
                         </div>
                     </div>
                 </div>
+                <div style="height: calc(100vh - 17.5rem); overflow-y: auto; width: 100%;">
+                    <table class="dataTable" style="table-layout: auto;">
+                        <thead>
+                            <tr>
+                                <th>Torre</th>
+                                <th>Número</th>
+                                <th>Piso</th>
+                                <th>Estatus</th>
+                                <th>Tipo</th>
+                                <th>Localización</th>
+                                <th>Observación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="apto in getFilteredList('aptos')" @click="onSelectApto(apto)">
+                                <td>{{apto.idtorre}}</td>
+                                <td>{{apto.apartamento}}</td>
+                                <td>{{apto.piso}}</td>
+                                <td>{{apto.estatus}}</td>
+                                <td>{{apto.codigo_planta}}</td>
+                                <td>{{apto.localizacion}}</td>
+                                <td>{{apto.observacion_apto}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
@@ -120,61 +273,6 @@
         v-on:change="handleChangeFile" />
 
     <div v-show="mode == 4" class="pure-g" style="height: 100%;">
-        <div class="searchBox pure-u-1-1">
-            <div class="pure-g">
-                <div class="pure-u-1-1 pure-u-md-1-4">
-                    <input type="text" placeholder="Apartamento" v-model="filtros.aptos['apartamento']"
-                        maxlength="20" />
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-12">
-                    <div class="imgGraybutton"
-                        @click="filtros.aptos = { apartamento: '', id_estado_unidad: '', codigo_planta: '', localizacion: ''}">
-                        <img src="./img/ico/eraser.png" />
-                    </div>
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-6">
-                    <select v-model="filtros.aptos['id_estado_unidad']" class="pure-input-1">
-                        <option value="">[Estados]</option>
-                        <option v-for="e in estados" :value="e.id_estado_unidad">
-                            {{e.estado_unidad}}</option>
-                    </select>
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                <div class="pure-u-1-1 pure-u-md-1-6">
-                    <input type="text" placeholder="Tipo" v-model="filtros.aptos['codigo_planta']" maxlength="20" />
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                <div class="pure-u-1-1 pure-u-md-1-6">
-                    <select v-model="filtros.aptos['localizacion']" class="pure-input-1">
-                        <option value="">[Localización]</option>
-                        <option value="Interior">Interior</option>
-                        <option value="Exterior">Exterior</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div style="height: calc(100vh - 15rem); overflow-y: auto;">
-            <table class="dataTable">
-                <thead>
-                    <tr>
-                        <th>Apartamento</th>
-                        <th>Estatus</th>
-                        <th>Tipo</th>
-                        <th>Localización</th>
-                        <th>Observación</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="apto in getFilteredList('aptos')" @click="onSelectApto(apto)">
-                        <td>{{apto.apartamento}}</td>
-                        <td>{{apto.estatus}}</td>
-                        <td>{{apto.codigo_planta}}</td>
-                        <td>{{apto.localizacion}}</td>
-                        <td>{{apto.observacion_apto}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
     <div v-show="mode == 5" class="pure-g" style="height: 100%;">
 
@@ -200,7 +298,7 @@
                 <div class="pure-u-1-2 pure-u-md-1-4">
                     <div class="formInputStandard">
                         <label>Tipo</label>
-                        <input type="text" v-model="apto.tipo" class="pure-input-1" />
+                        <input type="text" v-model="apto.codigo_planta" class="pure-input-1" />
                     </div>
                 </div>
                 <div class="pure-u-1-2 pure-u-md-1-4">
@@ -335,7 +433,11 @@
                 <div class="pure-u-1-2 pure-u-md-1-4">
                     <div class="formInputStandard">
                         <label>Altura</label>
-                        <input type="text" v-model="apto.altura" class="pure-input-1" />
+                        <select v-model="apto.altura" class="pure-input-1">
+                            <option value="BAJO">BAJO</option>
+                            <option value="MEDIO">MEDIO</option>
+                            <option value="ALTO">ALTO</option>
+                        </select>
                     </div>
                 </div>
 
@@ -367,7 +469,7 @@
             <div class="pure-u-1-1"></div>
             <div class="pure-u-7-24"></div>
             <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
-                <button @click="onSelectTorre(torre)" class="pure-button pure-button-primary">Cancelar</button>
+                <button @click="computeViews()" class="pure-button pure-button-primary">Cancelar</button>
             </div>
             <div class="pure-u-1-12"></div>
             <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">

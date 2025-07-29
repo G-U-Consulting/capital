@@ -6,6 +6,7 @@
 			torres: [],
 			aptos: [],
 			estados: [],
+			tipos: [],
 			preview: [],
 			loading: true,
 			stats: {
@@ -27,7 +28,14 @@
 			apto: {},
 
 			filtros: {
-				aptos: { apartamento: '', id_estado_unidad: '', codigo_planta: '', localizacion: ''}
+				aptos: {
+					apartamento: '',
+					id_estado_unidad: '',
+					codigo_planta: '',
+					localizacion: '',
+					torres: [],
+					piso: ''
+				}
 			}
 		};
 	},
@@ -47,21 +55,31 @@
 			let [torres, aptos, estados] = (await
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
+			let pisos = new Set(), tipos = new Set();
 			if (torres.length && aptos.length) {
 				let number_fileds = ['valor_separacion', 'area_total', 'area_privada_cub'];
 				aptos.forEach(a => number_fileds.forEach(key => a[key] = parseFloat(a[key].replace(',', '.'))));
-				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], torre_id: t.id_torre }));
+				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], id_torre: t.id_torre }));
 				aptos.forEach(a => {
-					let torre = torres.find(t => t.torre_id === a.id_torre);
+					pisos.add(a.piso);
+					tipos.add(a.codigo_planta);
+					let torre = torres.find(t => t.id_torre === a.id_torre);
 					if (torre) {
 						let i = torre.pisos.findIndex(p => p.idpiso == a.piso && p.idtorre == torre.idtorre);
+						a.idtorre = torre.idtorre;
 						if (i == -1) torre.pisos.push({ idtorre: torre.idtorre, idpiso: (a.piso + ''), unidades: [a] });
 						else torre.pisos[i].unidades.push(a);
 					}
 				});
-				torres.sort((a, b) => a.idtorre - b.idtorre);
-				torres.forEach(item => item.pisos.sort((a, b) => a.idpiso - b.idpiso));
+				torres.sort((a, b) => parseInt(a.idtorre) - parseInt(b.idtorre));
+				torres.forEach(item => item.pisos.sort((a, b) => parseInt(a.idpiso) - parseInt(b.idpiso)));
+				aptos.sort((a, b) => a.idtorre == b.idtorre
+					? parseInt(a.apartamento) - parseInt(b.apartamento)
+					: parseInt(a.idtorre) - parseInt(b.idtorre))
 				this.torres = torres;
+				this.aptos = aptos;
+				this.pisos = [...pisos].sort((a, b) => parseInt(a) - parseInt(b));
+				this.tipos = [...tipos].sort();
 				this.computeViews();
 			};
 			this.loading = false;
@@ -129,9 +147,13 @@
 			console.log(this.torres);
 			let res = null;
 			try {
-				res = await (httpFunc('/generic/genericST/Unidades:Ins_Unidades',
-					{ id_proyecto: GlobalVariables.id_proyecto, unidades: JSON.stringify(this.torres), Usuario: GlobalVariables.username }));
+				res = await (httpFunc('/generic/genericST/Unidades:Ins_Unidades', {
+					id_proyecto: GlobalVariables.id_proyecto,
+					unidades: JSON.stringify(this.torres),
+					Usuario: GlobalVariables.username
+				}));
 				if (res.isError || res.data !== 'OK') throw res;
+				await this.loadUnidades();
 				this.computeViews();
 			} catch (e) {
 				console.error(e);
@@ -278,31 +300,38 @@
 			}
 			this.$options.three.selectItem(this.selection);
 		},
-		onSelectTorre(torre) {
-			this.torre = torre;
-			this.aptos = [];
-			torre.pisos.forEach(p => this.aptos.push(...p.unidades))
-			this.mode = 4;
-			this.ruta = [ this.ruta[0], { text: `Torre ${torre.idtorre}`, action: () => this.onSelectTorre(torre) }];
-			this.setRuta();
+		toggleTorre(torre) {
+			let i = this.filtros.aptos.torres.indexOf(torre.id_torre);
+			i === -1 ? this.filtros.aptos.torres.push(torre.id_torre) : this.filtros.aptos.torres.splice(i, 1);
+		},
+		onClearFilters() {
+			this.filtros.aptos = {
+				apartamento: '',
+				id_estado_unidad: '',
+				codigo_planta: '',
+				localizacion: '',
+				torres: [],
+				piso: ''
+			}
 		},
 		onSelectApto(apto) {
 			this.apto = apto;
 			this.mode = 5;
-			this.ruta = [ this.ruta[0], this.ruta[1], 
-				{ text: `Unidad ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
+			this.ruta = [this.ruta[0], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
 		}
 	},
 	computed: {
-        getFilteredList() {
-            return (tabla) => {
-                return this[tabla] ? this[tabla].filter(item =>
-                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
-                        this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
-                    ) : []
-                ) : [];
-            };
-        }
-    },
+		getFilteredList() {
+			return (tabla) => {
+				return this[tabla] ? this[tabla].filter(item =>
+					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
+						if (tabla == 'aptos' && key == 'torres')
+							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.id_torre);
+						else return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
+					}) : []
+				) : [];
+			};
+		}
+	},
 };
