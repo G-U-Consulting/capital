@@ -58,7 +58,7 @@ export default {
         },
         async loadData() {
             showProgress();
-            [this.proyectos, this.hitos, this.cargos] = (await httpFunc("/generic/genericDS/Proyectos:Get_Hito",
+            [this.proyectos, this.hitos, this.cargos] = (await httpFunc("/generic/genericDS/Salas:Get_Hito",
                 { id_sala: this.sala.id_sala_venta })).data;
             hideProgress();
         },
@@ -70,7 +70,7 @@ export default {
             hideProgress();
         },
         async loadFields() {
-            this.h_cargos = (await httpFunc("/generic/genericDT/Proyectos:Get_HitoCargo",
+            this.h_cargos = (await httpFunc("/generic/genericDT/Salas:Get_HitoCargo",
                 { id_hito: this.hito.id_hito })).data;
         },
         async loadChecked() {
@@ -263,7 +263,7 @@ export default {
             if (this.eventType === 'Proyecto') this.hito.id_proyecto = this.id_obj;
             else delete this.hito.id_proyecto;
             let cargos = this.cargos.filter(c => c.checked).map(c => c.id_cargo).join(',');
-            let res = await httpFunc(`/generic/genericST/Proyectos:${this.mode == 1 ? 'Ins' : 'Upd'}_Hito`,
+            let res = await httpFunc(`/generic/genericST/Salas:${this.mode == 1 ? 'Ins' : 'Upd'}_Hito`,
                 { ...this.hito, id_sala: this.sala.id_sala_venta, cargos });
             if (res.data !== 'OK') {
                 console.error(res);
@@ -284,7 +284,7 @@ export default {
             if (this.currentDay.isHoliday) {
                 let event = this.currentDay.events.find(e => e.festivo === '1');
                 if (event && event.id_hito) {
-                    let res = await httpFunc("/generic/genericST/Proyectos:Del_Hito", { id_hito: event.id_hito });
+                    let res = await httpFunc("/generic/genericST/Salas:Del_Hito", { id_hito: event.id_hito });
                     if (res.data !== 'OK') {
                         console.error(res);
                         showMessage('Error: ' + (res.errorMessage || res.data));
@@ -298,7 +298,7 @@ export default {
                     fecha: `${this.selDate.getFullYear()}-${this.selDate.getMonth() + 1}-${this.selDate.getDate()} 00:00`,
                     color: '#c80000', titulo: `Festivo ${this.selDate.toLocaleDateString()}`, festivo: '1'
                 };
-                let res = await httpFunc("/generic/genericST/Proyectos:Ins_Hito", { ...this.hito, id_sala: this.sala.id_sala_venta, festivo: '1' });
+                let res = await httpFunc("/generic/genericST/Salas:Ins_Hito", { ...this.hito, id_sala: this.sala.id_sala_venta, festivo: '1' });
                 if (res.data !== 'OK') {
                     console.error(res);
                     showMessage('Error: ' + (res.errorMessage || res.data));
@@ -395,7 +395,7 @@ export default {
         },
         async delEvent(e) {
             if (e && e.id_hito) {
-                let res = await httpFunc("/generic/genericST/Proyectos:Del_Hito", e);
+                let res = await httpFunc("/generic/genericST/Salas:Del_Hito", e);
                 if (res.data !== 'OK') {
                     console.error(res);
                     showMessage('Error: ' + (res.errorMessage || res.data));

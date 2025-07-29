@@ -1,30 +1,23 @@
 ﻿-- =============================================
--- Proceso: Proyectos/Upd_Hito
+-- Proceso: Salas/Ins_Hito
 -- =============================================
 --START_PARAM
-set @id_hito = NULL,
-    @titulo = NULL, 
+set @titulo = NULL, 
     @descripcion = NULL, 
     @fecha = NULL, 
     @color = NULL, 
     @festivo = '0',
+    @frecuencia = NULL,
+    @limite = NULL,
     @id_sala = NULL,
-    @id_proyecto = NULL,
-    @cargos = '';
+    @id_proyecto = NULL;
 --END_PARAM
 
-update dim_hito_sala
-set titulo = @titulo,
-    descripcion = @descripcion, 
-    fecha = @fecha, 
-    color = @color, 
-    festivo = if(@festivo = '1', 1, 0),
-    frecuencia = @frecuencia,
-    limite = if(@frecuencia is null, null, @limite),
-    id_sala_venta = @id_sala,
-    id_proyecto = @id_proyecto
-where id_hito = @id_hito;
+insert into dim_hito_sala(titulo, descripcion, fecha, color, festivo, frecuencia, limite, id_sala_venta, id_proyecto) 
+values(@titulo, @descripcion, @fecha, @color, if(@festivo = '1', 1, 0), @frecuencia, 
+    if(@frecuencia is null, null, @limite), @id_sala, @id_proyecto);
 
+set @id_hito = last_insert_id();
 set @datos = @cargos;
 set @tabla = 'dim_hito_cargo';
 set @campo = 'id_cargo';
@@ -49,4 +42,4 @@ if trim(@datos) <> '' then
     end while;
 end if;
 
-select 'OK' as result;
+select concat('OK-id_tarea:', @id_hito) as result;

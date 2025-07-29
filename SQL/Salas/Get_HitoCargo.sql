@@ -1,5 +1,5 @@
 -- =============================================
--- Proceso: Proyecto/Get_HitoCargo
+-- Proceso: Salas/Get_HitoCargo
 -- =============================================
 --START_PARAM
 set @id_hito = NULL;

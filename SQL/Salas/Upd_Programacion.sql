@@ -1,5 +1,5 @@
 -- =============================================
--- Proceso: Salas/Ins_Programacion
+-- Proceso: Salas/Upd_Programacion
 -- =============================================
 --START_PARAM
 set @id_programacion = NULL,

@@ -1,5 +1,5 @@
 -- =============================================
--- Proceso: Auditoria/Get_Agenda
+-- Proceso: Agenda/Get_Agenda
 -- =============================================
 --START_PARAM
 set @username = 'prueba';

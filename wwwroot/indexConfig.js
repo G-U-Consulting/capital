@@ -32,7 +32,7 @@
     "Agenda": {
         templateUrl: "./web/Agenda/Agenda.html",
         jsUrl: "./web/Agenda/Agenda.js",
-        title: "Agenda",
+        title: "Mi Agenda",
         desc: "Permite administrar los usuarios y roles de la aplicación",
         imgSrc: "./img/ico/menu/006-group.png",
         zone: "ZU",

@@ -1,5 +1,5 @@
 ﻿-- =============================================
--- Proceso: Proyectos/Ins_Personal
+-- Proceso: Salas/Ins_Personal
 -- =============================================
 --START_PARAM
 set @id_sala = NULL,

@@ -102,7 +102,7 @@ export default {
             showProgress();
             let usuarios = [];
             [usuarios, this.proyectos, this.tareas, this.prioridades, this.estados] =
-                (await httpFunc("/generic/genericDS/Proyectos:Get_Tarea", { username: GlobalVariables.username })).data;
+                (await httpFunc("/generic/genericDS/Agenda:Get_Tarea", { username: GlobalVariables.username })).data;
             usuarios.length && (this.usuario = usuarios[0]);
             this.selPro = this.proyectos.find(p => p.id_proyecto === this.proyecto.id_proyecto);
             this.onChangePro();
@@ -136,11 +136,11 @@ export default {
         async onSave() {
             if (this.enableEdit || this.editNewRow) {
                 showProgress();
-                let res = await httpFunc(`/generic/genericST/Proyectos:${this.selRow != null ? 'Upd' : 'Ins'}_Tarea`,
+                let res = await httpFunc(`/generic/genericST/Agenda:${this.selRow != null ? 'Upd' : 'Ins'}_Tarea`,
                     { ...this.tarea, id_usuario: this.usuario.id_usuario });
                 if (res.data === 'OK') {
                     this.tareas =
-                        (await httpFunc("/generic/genericDT/Proyectos:Get_Tareas", { id_usuario: this.usuario.id_usuario })).data;
+                        (await httpFunc("/generic/genericDT/Agenda:Get_Tareas", { id_usuario: this.usuario.id_usuario })).data;
                     this.tarea = {};
                     this.cancel();
                 } else {
@@ -152,10 +152,10 @@ export default {
         },
         async onDelete(tarea) {
             showProgress();
-            let res = await httpFunc(`/generic/genericST/Proyectos:Del_Tarea`, tarea);
+            let res = await httpFunc(`/generic/genericST/Agenda:Del_Tarea`, tarea);
             if (res.data === 'OK') {
                 this.tareas =
-                    (await httpFunc("/generic/genericDT/Proyectos:Get_Tareas", { id_usuario: this.usuario.id_usuario })).data;
+                    (await httpFunc("/generic/genericDT/Agenda:Get_Tareas", { id_usuario: this.usuario.id_usuario })).data;
                 this.tarea = {};
                 this.cancel();
             } else {
@@ -196,7 +196,7 @@ export default {
             hideProgress();
         },
         async loadFields() {
-            this.h_cargos = (await httpFunc("/generic/genericDT/Proyectos:Get_HitoCargo",
+            this.h_cargos = (await httpFunc("/generic/genericDT/Salas:Get_HitoCargo",
                 { id_hito: this.hito.id_hito })).data;
         },
         async loadChecked() {

@@ -1,5 +1,5 @@
 ﻿-- =============================================
--- Proceso: Proyectos/Upd_Tarea
+-- Proceso: Agenda/Upd_Tarea
 -- =============================================
 --START_PARAM
 set @id_tarea = NULL,
