@@ -82,6 +82,17 @@ export default {
         }
       ],
       cotizacionActiva: null,
+      mostrarModal: false,
+      asuntoSeleccionado: '',
+      asuntos: [
+        "Seguimiento a la opción",
+        "Seguimiento a la consignación",
+        "Seguimiento al cierre",
+        "Seguimiento a la venta",
+        "Seguimiento al desistimiento",
+        "Solicitud Plazo de Pago",
+        "Solicitud Especial"
+      ]
     };
   },
   computed: {
@@ -102,6 +113,12 @@ export default {
       if (!this.filtroProyecto) return this.visitas;
       return this.visitas.filter(v => v.proyecto === this.filtroProyecto);
     },
+    tramite() {
+      return this.modo_atencion.some(item => item.modo_atencion === 'Tramites' && item.checked);
+    },
+    Otro() {
+      return this.modo_atencion.some(item => item.modo_atencion === 'Otro' && item.checked);
+    }
     
   },
   watch: {
@@ -298,6 +315,7 @@ export default {
     },
 
     ///////// mode 1
+
     async nuevaVisita() {
       this.ObjVisita.id_proyecto = GlobalVariables.id_proyecto;
       this.ObjVisita.id_cliente = this.id_cliente;
@@ -373,6 +391,10 @@ export default {
       this.contadorProyectos = contador;
     },
     //////// mode 2
+     async showAtencionModal(){
+      this.mostrarModal = true
+    },
+
     async getCotizaciones() {
       let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', { id_cliente: this.id_cliente });
       this.cotizaciones = resp.data[0];
@@ -420,7 +442,7 @@ export default {
       this.cotizacionActiva = cotId;
     },
     async guardarCotizacion() {
-      showProgress();
+      this.mostrarModal = false;
       try {
         for (let i = 0; i < this.cotizaciones.length; i++) {
           let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cotizacion', this.cotizaciones[i]);
@@ -434,7 +456,6 @@ export default {
           }
         }
       } catch (error) {
-        hideProgress();
         showMessage("Error al crear la cotización.");
       }
     },
