@@ -146,6 +146,7 @@ insert into dim_modo_atencion (modo_atencion)
 values ('Rápida'),
 ('Información'),
 ('Cierre'),
+('Tramites'),
 ('Otro');
 
 insert into presupuesto_vivienda (rango, minimo, maximo) 
