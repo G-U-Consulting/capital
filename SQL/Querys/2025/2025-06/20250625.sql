@@ -85,5 +85,8 @@ create table fact_unidades(
 	tiene_acabados bit default 0,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	updated_on datetime default current_timestamp,
+	updated_by varchar(200),
+	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto)
 );

@@ -254,6 +254,7 @@ h2 {
       width: 100%;
       max-width: 10em;
       box-sizing: border-box;
+      text-align: center;
   }
   
 
@@ -291,6 +292,15 @@ h2 {
     color: #00839C;
     font-size: 1.0rem;
     border-bottom: 1px solid #00839C;
+}
+
+.formDivision.right-button{
+  max-height: calc(2rem + 1px); 
+  overflow: hidden; 
+  display: flex; 
+  justify-content: space-between; 
+  padding-bottom: 1px; 
+  gap: .5rem;
 }
 
     .hoverLink:hover {
@@ -2348,10 +2358,18 @@ tr.cal-row-info > td {
   cursor: pointer;
 }
 
+.filtros-unidades {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+.filtros-unidades > div {
+  width: 15%;
+}
 .lista-torres {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 15.2rem);
+  height: calc(100vh - 13.7rem);
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -2359,7 +2377,6 @@ tr.cal-row-info > td {
   background-color: white;
   color: black;
   height: 7.5rem;
-  width: 9rem;
   border-radius: 0.5rem;
   text-align: center;
   border: 3px solid #00839C;
@@ -2368,6 +2385,7 @@ tr.cal-row-info > td {
   justify-content: center;
   padding: 0 .5rem;
   margin: 4px auto;
+  cursor: pointer;
 }
 .torre:hover {
     background-color: #e5e6e9;

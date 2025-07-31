@@ -1,168 +1,434 @@
 ﻿<div class="pure-u-1-24"></div>
-<div class="pure-u-22-24 menuCard" style="height: calc(100vh  - 8rem); overflow-y: auto; margin-top: 1em;">
-    <!-- Carga del archivo -->
-    <div v-show="mode == 0 && !loading" style="text-align: center;">
-        Actualmente no hay unidades cargadas
-        <br />
-        <br />
-        <button v-on:click="openFileDialog()">Cargar unidades desde CSV</button>
-    </div>
-    <!-- Vista previa -->
-    <div v-show="mode == 1">
-        <div style="height: calc(100vh - 13rem); width: 100%; overflow: auto;">
-            <table class="dataTable" style="table-layout: auto;">
-                <thead>
-                    <tr>
-                        <th v-for="(item, key) in preview[0]">{{key}}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in preview">
-                        <td v-for="(sitem, key) in item">{{item[key]}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div style="text-align: center;">
-            <table style="margin: 0px auto;">
-                <tbody>
-                    <tr>
-                        <td style="text-align: left;">Total torres</td>
-                        <td style="font-weight: bold;">{{stats.torres}}</td>
-                        <td rowspan="2" style="padding: 0rem 2rem;">
-                            <button v-on:click="confirmUpload()">Continuar</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: left;">Total unidades</td>
-                        <td style="font-weight: bold;">{{stats.unidades}}</td>
-                    </tr>
-                </tbody>
-            </table>
+<div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
+    <div class="pure-g steps">
+        <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-4">
+            <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]" @click="mode >= 3 && (tabmode = index)">
+                {{ tab }}
+            </div>
         </div>
     </div>
-    <div v-show="mode == 3" style="display: flex; height: 100%; gap: 1rem;">
-        <div style="width: 190px;">
+</div>
+
+<div class="pure-u-1-24"></div>
+<div class="pure-u-1-24"></div>
+<div class="pure-u-22-24 menuCard" style="height: calc(100vh  - 10rem); overflow-y: auto;">
+
+    <div v-if="tabmode == 0">
+        <!-- Carga del archivo -->
+        <div v-show="mode == 0 && !loading" style="text-align: center;">
+            Actualmente no hay unidades cargadas
+            <br />
+            <br />
+            <button v-on:click="openFileDialog()">Cargar unidades desde CSV</button>
+        </div>
+        <!-- Vista previa -->
+        <div v-show="mode == 1">
+            <div style="height: calc(100vh - 16rem); width: 100%; overflow: auto;">
+                <table class="dataTable" style="table-layout: auto;">
+                    <thead>
+                        <tr>
+                            <th v-for="(item, key) in preview[0]">{{key}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in preview">
+                            <td v-for="(sitem, key) in item">{{item[key]}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="text-align: center;">
+                <table style="margin: 0px auto;">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: left;">Total torres</td>
+                            <td style="font-weight: bold;">{{stats.torres}}</td>
+                            <td rowspan="2" style="padding: 0rem 2rem;">
+                                <button v-on:click="confirmUpload">Continuar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Total unidades</td>
+                            <td style="font-weight: bold;">{{stats.unidades}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div v-show="mode == 3" style="display: flex; height: 100%; gap: 1rem;">
             <div>
-                <div class='formInputStandard'>
-                    <span>Tipo Visualizacion</span><br />
-                    <label><input type='radio' name="viewType" v-model='viewProperties.viewType' value="3d" />3D</label>
-                    <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
-                            value="classic" />Clasica</label>
+                <div style="width: fit-content; margin: 0 auto;">
+                    <div style="padding: .1rem;">
+                        <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
+                                value="3d" />3D</label>
+                        <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
+                                value="classic" />Clasica</label>
+                    </div>
                 </div>
-            </div>
-            <div v-show="viewProperties.viewType == '3d'">
-                <div class='formInputStandard'>
-                    <span>Filas</span>
-                    <input type='number' v-model='viewProperties.rows' />
+                <div v-if="viewProperties.viewType == '3d'">
+                    <div class='formInputStandard'>
+                        <span>Filas</span>
+                        <input type='number' v-model='viewProperties.rows' />
+                    </div>
+                    <div class='formInputStandard'>
+                        <span>Columnas</span>
+                        <input type='number' v-model='viewProperties.cols' />
+                    </div>
+                    <div class='formInputStandard'>
+                        <span>Torres por fila</span>
+                        <input type='number' v-model='viewProperties.megarows' />
+                    </div>
+                    <div style="text-align: center;">
+                        <button v-on:click="addCube()">Vista previa</button>
+                    </div>
                 </div>
-                <div class='formInputStandard'>
-                    <span>Columnas</span>
-                    <input type='number' v-model='viewProperties.cols' />
-                </div>
-                <div class='formInputStandard'>
-                    <span>Torres por fila</span>
-                    <input type='number' v-model='viewProperties.megarows' />
-                </div>
-                <div style="text-align: center;">
-                    <button v-on:click="addCube()">Vista previa</button>
-                </div>
-            </div>
-            <div v-show="viewProperties.viewType == 'classic'">
-                <div class="lista-torres">
-                    <div v-for="item in torres" class="torre" @click="toggleTorre(item)"
-                        v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.id_torre)}">
-                        <div style="align-self: center;">
-                            <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
-                        </div>
-                        <div v-for="e in [...estados].reverse()">
-                            <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
-                                <span :style="`color: ${e.color_fuente}`">
-                                    {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
-                                    && a.id_torre === item.id_torre).length}}
-                                </span>
+                <div v-if="viewProperties.viewType == 'classic'">
+                    <div class="lista-torres">
+                        <div v-for="item in torres" class="torre" @click="toggleTorre(item)"
+                            v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre)}">
+                            <div style="align-self: center;">
+                                <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
                             </div>
-                            <span>{{e.estado_unidad_plural}}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div v-if="viewProperties.viewType == '3d'" style="flex-grow: 1;">
-            <div class="pure-u-1-4" style="height: calc(100vh - 13rem); overflow: auto;">
-                <div v-for="titem in torres">
-                    <div class="hoverRow" style="padding: 0.2rem 0.5rem;" v-on:click="selectItem('torre', titem)"
-                        v-bind:class="{selected: (selection != null?(selection.value == titem): false)}">
-                        Torre {{titem.idtorre}}
-                    </div>
-                    <div v-for="pitem in titem.pisos" style="padding-left: 1rem;">
-                        <div class="hoverRow" style="padding: 0.2rem 0.5rem;" v-on:click="selectItem('piso', pitem)"
-                            v-bind:class="{selected: (selection != null?(selection.value == pitem): false)}">
-                            Piso {{pitem.idpiso}}
-                        </div>
-                        <div v-for="uitem in pitem.unidades" style="padding-left: 1rem;">
-                            <div class="hoverRow" style="padding: 0.2rem 0.5rem;"
-                                v-on:click="selectItem('unidad', uitem)"
-                                v-bind:class="{selected: (selection != null?(selection.value == uitem): false)}">
-                                {{uitem.apartamento}}
+                            <div v-for="e in [...estados].reverse()">
+                                <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
+                                    <span :style="`color: ${e.color_fuente}`">
+                                        {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
+                                        && a.id_torre === item.id_torre).length}}
+                                    </span>
+                                </div>
+                                <span>{{e.estado_unidad_plural}}</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="pure-u-3-4" style="height: 100%;">
-                <div id="container" style="width: 100%; height: 100%;"></div>
+            <div v-if="viewProperties.viewType == '3d'" style="flex-grow: 1;">
+                <div class="pure-u-1-4" style="height: calc(100vh - 16rem); overflow: auto;">
+                    <div v-for="titem in torres">
+                        <div class="hoverRow" style="padding: 0.2rem 0.5rem;" v-on:click="selectItem('torre', titem)"
+                            v-bind:class="{selected: (selection != null?(selection.value == titem): false)}">
+                            Torre {{titem.idtorre}}
+                        </div>
+                        <div v-for="pitem in titem.pisos" style="padding-left: 1rem;">
+                            <div class="hoverRow" style="padding: 0.2rem 0.5rem;" v-on:click="selectItem('piso', pitem)"
+                                v-bind:class="{selected: (selection != null?(selection.value == pitem): false)}">
+                                Piso {{pitem.idpiso}}
+                            </div>
+                            <div v-for="uitem in pitem.unidades" style="padding-left: 1rem;">
+                                <div class="hoverRow" style="padding: 0.2rem 0.5rem;"
+                                    v-on:click="selectItem('unidad', uitem)"
+                                    v-bind:class="{selected: (selection != null?(selection.value == uitem): false)}">
+                                    {{uitem.apartamento}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-3-4" style="height: 100%;">
+                    <div id="container" style="width: 100%; height: 100%;"></div>
+                </div>
+            </div>
+            <div v-if="viewProperties.viewType == 'classic'" style="flex-grow: 1;">
+                <div class="pure-g">
+                    <div class="pure-u-1-1 pure-u-md-1-1 formDivision right-button">
+                        <span style="font-size: 1.5em;">Unidades {{filters2text}}</span>
+                        <div style="min-width: 150px;">
+                            <label for="up-csv" class="file">Actualizar con CSV</label>
+                            <input id="up-csv" type="file" @input="handleChangeFile($event, true)"
+                                style="display: none;" accept=".csv" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-1" style="padding-top: .5rem;">
+                        <div class="filtros-unidades">
+                            <div style="display: flex;">
+                                <input type="text" placeholder="ID Unidad" v-model="filtros.aptos['apartamento']"
+                                    maxlength="10" />
+                                <div style="display: inline;" class="imgGraybutton" @click="onClearFilters">
+                                    <img src="./img/ico/eraser.png" />
+                                </div>
+                            </div>
+                            <div>
+                                <select v-model="filtros.aptos['codigo_planta']" class="pure-input-1">
+                                    <option value="">[Tipos]</option>
+                                    <option v-for="t in tipos" :value="t">{{t}}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select v-model="filtros.aptos['piso']" class="pure-input-1">
+                                    <option value="">[Pisos]</option>
+                                    <option v-for="p in pisos" :value="p">{{p}}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select v-model="filtros.aptos['id_estado_unidad']" class="pure-input-1">
+                                    <option value="">[Estados]</option>
+                                    <option v-for="e in estados" :value="e.id_estado_unidad">
+                                        {{e.estado_unidad}}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select v-model="filtros.aptos['localizacion']" class="pure-input-1">
+                                    <option value="">[Localización]</option>
+                                    <option value="Interior">Interior</option>
+                                    <option value="Exterior">Exterior</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            <div class="formInputStandard">
+                                <label class="check" for="tiene_balcon">
+                                    <input type="checkbox" id="tiene_balcon" v-model="filtros.aptos['tiene_balcon']"
+                                        true-value="1" false-value="" />
+                                    <span class="checkmark"></span>
+                                    Tiene Balcón
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            <div class="formInputStandard">
+                                <label class="check" for="tiene_parq_sencillo">
+                                    <input type="checkbox" id="tiene_parq_sencillo"
+                                        v-model="filtros.aptos['tiene_parq_sencillo']" true-value="1" false-value="" />
+                                    <span class="checkmark"></span>
+                                    Parq. Sencillo
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            <div class="formInputStandard">
+                                <label class="check" for="tiene_parq_doble">
+                                    <input type="checkbox" id="tiene_parq_doble"
+                                        v-model="filtros.aptos['tiene_parq_doble']" true-value="1" false-value="" />
+                                    <span class="checkmark"></span>
+                                    Parq. Doble
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            <div class="formInputStandard">
+                                <label class="check" for="tiene_deposito">
+                                    <input type="checkbox" id="tiene_deposito" v-model="filtros.aptos['tiene_deposito']"
+                                        true-value="1" false-value="" />
+                                    <span class="checkmark"></span>
+                                    Tiene Depósito
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            <div class="formInputStandard">
+                                <label class="check" for="tiene_acabados">
+                                    <input type="checkbox" id="tiene_acabados" v-model="filtros.aptos['tiene_acabados']"
+                                        true-value="1" false-value="" />
+                                    <span class="checkmark"></span>
+                                    Tiene Acabados
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            <div class="formInputStandard">
+                                <label class="check" for="cerca_porteria">
+                                    <input type="checkbox" id="cerca_porteria" v-model="filtros.aptos['cerca_porteria']"
+                                        true-value="1" false-value="" />
+                                    <span class="checkmark"></span>
+                                    Cerca Portería
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            <div class="formInputStandard">
+                                <label class="check" for="cerca_juegos_infantiles">
+                                    <input type="checkbox" id="cerca_juegos_infantiles"
+                                        v-model="filtros.aptos['cerca_juegos_infantiles']" true-value="1"
+                                        false-value="" />
+                                    <span class="checkmark"></span>
+                                    Cerca Juegos Inf.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-2 pure-u-md-1-4">
+                            <div class="formInputStandard">
+                                <label class="check" for="cerca_piscina">
+                                    <input type="checkbox" id="cerca_piscina" v-model="filtros.aptos['cerca_piscina']"
+                                        true-value="1" false-value="" />
+                                    <span class="checkmark"></span>
+                                    Cerca Piscina
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="height: calc(100vh - 21.2rem); overflow-y: auto; width: 100%;">
+                        <table class="dataTable" style="table-layout: auto;">
+                            <thead>
+                                <tr>
+                                    <th>Torre</th>
+                                    <th>ID Unidad</th>
+                                    <th>Piso</th>
+                                    <th>Estatus</th>
+                                    <th>Tipo</th>
+                                    <th>Localización</th>
+                                    <th style="width: 33%;">Observación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="apto in getFilteredList('aptos')" @click="onSelectApto(apto)">
+                                    <td>{{apto.idtorre}}</td>
+                                    <td>{{apto.apartamento}}</td>
+                                    <td>{{apto.piso}}</td>
+                                    <td>{{apto.estatus}}</td>
+                                    <td>{{apto.codigo_planta}}</td>
+                                    <td>{{apto.localizacion}}</td>
+                                    <td>{{apto.observacion_apto}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
             </div>
         </div>
-        <div v-if="viewProperties.viewType == 'classic'" style="flex-grow: 1;">
+        <input type="file" id="fileUpload" style="height:1.2em; width:1.2em; display:none;" accept=".csv"
+            v-on:change="handleChangeFile($event)" />
+
+        <div v-show="mode == 4" class="pure-g" style="height: 100%;">
+        </div>
+        <div v-show="mode == 5" class="pure-g" style="height: 100%;">
+
             <div class="pure-g">
-                <div class="pure-u-1-1" style="padding: 1rem; padding-bottom: 0;">
-                    <div class="pure-g">
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <input type="text" placeholder="Apartamento" v-model="filtros.aptos['apartamento']"
-                                maxlength="5" />
+                <div class="pure-u-1-1 pure-u-md-1-1">
+                    <h2>Editar Unidad</h2>
+                </div>
+
+                <!-- Datos principales -->
+                <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>ID Unidad</label>
+                            <input type="text" :value="apto.apartamento" class="pure-input-1" disabled/>
                         </div>
-                        <div class="pure-u-1-1 pure-u-md-1-12">
-                            <div class="imgGraybutton" @click="onClearFilters">
-                                <img src="./img/ico/eraser.png" />
-                            </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Torre</label>
+                            <input type="number" :value="apto.idtorre" class="pure-input-1" disabled/>
                         </div>
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <select v-model="filtros.aptos['codigo_planta']" class="pure-input-1">
-                                <option value="">[Tipos]</option>
-                                <option v-for="t in tipos" :value="t">{{t}}</option>
-                            </select>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Piso</label>
+                            <input type="number" :value="apto.piso" class="pure-input-1" disabled/>
                         </div>
-                        <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                        <div class="pure-u-1-1 pure-u-md-1-8">
-                            <select v-model="filtros.aptos['piso']" class="pure-input-1">
-                                <option value="">[Pisos]</option>
-                                <option v-for="p in pisos" :value="p">{{p}}</option>
-                            </select>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <select v-model="filtros.aptos['id_estado_unidad']" class="pure-input-1">
-                                <option value="">[Estados]</option>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Estado</label>
+                            <select v-model="apto.id_estado_unidad" class="pure-input-1">
                                 <option v-for="e in estados" :value="e.id_estado_unidad">
-                                    {{e.estado_unidad}}</option>
-                            </select>
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                        <div class="pure-u-1-1 pure-u-md-1-6">
-                            <select v-model="filtros.aptos['localizacion']" class="pure-input-1">
-                                <option value="">[Localización]</option>
-                                <option value="Interior">Interior</option>
-                                <option value="Exterior">Exterior</option>
+                                    {{e.estado_unidad}}
+                                </option>
                             </select>
                         </div>
                     </div>
 
                     <div class="pure-u-1-2 pure-u-md-1-4">
                         <div class="formInputStandard">
-                            <label class="check" for="tiene_balcon">
-                                <input type="checkbox" id="tiene_balcon" v-model="filtros.aptos['tiene_balcon']"
-                                    true-value="1" false-value="" />
+                            <label>Tipo</label>
+                            <input type="text" v-model="apto.codigo_planta" class="pure-input-1" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Localización</label>
+                            <select v-model="apto.localizacion" class="pure-input-1">
+                                <option value="Interior">Interior</option>
+                                <option value="Exterior">Exterior</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Asoleación</label>
+                            <select v-model="apto.asoleacion" class="pure-input-1">
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Altura</label>
+                            <select v-model="apto.altura" class="pure-input-1">
+                                <option value="BAJO">BAJO</option>
+                                <option value="MEDIO">MEDIO</option>
+                                <option value="ALTO">ALTO</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Numero de alcobas</label>
+                            <input type="number" v-model="apto.num_alcobas" class="pure-input-1" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Numero de baños</label>
+                            <input type="number" v-model="apto.num_banos" class="pure-input-1" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Área privada cub</label>
+                            <input type="text" v-model="f_area_privada_cub" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Área privada lib</label>
+                            <input type="text" v-model="f_area_privada_lib" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
+
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Área total</label>
+                            <input type="text" v-model="f_area_total" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Acue</label>
+                            <input type="text" v-model="f_acue" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Area Total + Acue</label>
+                            <input type="text" v-model="f_total_acue" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard" style="margin-top: 1.5rem;">
+                            <label class="check" for="c_inv_terminado">
+                                <input type="checkbox" id="c_inv_terminado" v-model="apto.inv_terminado" true-value="1"
+                                    false-value="0" />
+                                <span class="checkmark"></span>
+                                Inventario Terminado
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label class="check" for="c_tiene_balcon">
+                                <input type="checkbox" id="c_tiene_balcon" v-model="apto.tiene_balcon" true-value="1"
+                                    false-value="0" />
                                 <span class="checkmark"></span>
                                 Tiene Balcón
                             </label>
@@ -170,29 +436,29 @@
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-4">
                         <div class="formInputStandard">
-                            <label class="check" for="tiene_parq_sencillo">
-                                <input type="checkbox" id="tiene_parq_sencillo"
-                                    v-model="filtros.aptos['tiene_parq_sencillo']" true-value="1" false-value="" />
+                            <label class="check" for="c_tiene_parq_sencillo">
+                                <input type="checkbox" id="c_tiene_parq_sencillo" v-model="apto.tiene_parq_sencillo"
+                                    true-value="1" false-value="0" />
                                 <span class="checkmark"></span>
-                                Parq. Sencillo
+                                Parqueadero Sencillo
                             </label>
                         </div>
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-4">
                         <div class="formInputStandard">
-                            <label class="check" for="tiene_parq_doble">
-                                <input type="checkbox" id="tiene_parq_doble" v-model="filtros.aptos['tiene_parq_doble']"
-                                    true-value="1" false-value="" />
+                            <label class="check" for="c_tiene_parq_doble">
+                                <input type="checkbox" id="c_tiene_parq_doble" v-model="apto.tiene_parq_doble"
+                                    true-value="1" false-value="0" />
                                 <span class="checkmark"></span>
-                                Parq. Doble
+                                Parqueadero Doble
                             </label>
                         </div>
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-4">
                         <div class="formInputStandard">
-                            <label class="check" for="tiene_deposito">
-                                <input type="checkbox" id="tiene_deposito" v-model="filtros.aptos['tiene_deposito']"
-                                    true-value="1" false-value="" />
+                            <label class="check" for="c_tiene_deposito">
+                                <input type="checkbox" id="c_tiene_deposito" v-model="apto.tiene_deposito"
+                                    true-value="1" false-value="0" />
                                 <span class="checkmark"></span>
                                 Tiene Depósito
                             </label>
@@ -200,9 +466,9 @@
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-4">
                         <div class="formInputStandard">
-                            <label class="check" for="tiene_acabados">
-                                <input type="checkbox" id="tiene_acabados" v-model="filtros.aptos['tiene_acabados']"
-                                    true-value="1" false-value="" />
+                            <label class="check" for="c_tiene_acabados">
+                                <input type="checkbox" id="c_tiene_acabados" v-model="apto.tiene_acabados"
+                                    true-value="1" false-value="0" />
                                 <span class="checkmark"></span>
                                 Tiene Acabados
                             </label>
@@ -210,9 +476,9 @@
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-4">
                         <div class="formInputStandard">
-                            <label class="check" for="cerca_porteria">
-                                <input type="checkbox" id="cerca_porteria" v-model="filtros.aptos['cerca_porteria']"
-                                    true-value="1" false-value="" />
+                            <label class="check" for="c_cerca_porteria">
+                                <input type="checkbox" id="c_cerca_porteria" v-model="apto.cerca_porteria"
+                                    true-value="1" false-value="0" />
                                 <span class="checkmark"></span>
                                 Cerca Portería
                             </label>
@@ -220,260 +486,109 @@
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-4">
                         <div class="formInputStandard">
-                            <label class="check" for="cerca_juegos_infantiles">
-                                <input type="checkbox" id="cerca_juegos_infantiles"
-                                    v-model="filtros.aptos['cerca_juegos_infantiles']" true-value="1" false-value="" />
+                            <label class="check" for="c_cerca_juegos_infantiles">
+                                <input type="checkbox" id="c_cerca_juegos_infantiles"
+                                    v-model="apto.cerca_juegos_infantiles" true-value="1" false-value="0" />
                                 <span class="checkmark"></span>
-                                Cerca Juegos Inf.
+                                Cerca Juegos Infantiles
                             </label>
                         </div>
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-4">
                         <div class="formInputStandard">
-                            <label class="check" for="cerca_piscina">
-                                <input type="checkbox" id="cerca_piscina" v-model="filtros.aptos['cerca_piscina']"
-                                    true-value="1" false-value="" />
+                            <label class="check" for="c_cerca_piscina">
+                                <input type="checkbox" id="c_cerca_piscina" v-model="apto.cerca_piscina" true-value="1"
+                                    false-value="0" />
                                 <span class="checkmark"></span>
                                 Cerca Piscina
                             </label>
                         </div>
                     </div>
-                </div>
-                <div style="height: calc(100vh - 17.5rem); overflow-y: auto; width: 100%;">
-                    <table class="dataTable" style="table-layout: auto;">
-                        <thead>
-                            <tr>
-                                <th>Torre</th>
-                                <th>Número</th>
-                                <th>Piso</th>
-                                <th>Estatus</th>
-                                <th>Tipo</th>
-                                <th>Localización</th>
-                                <th>Observación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="apto in getFilteredList('aptos')" @click="onSelectApto(apto)">
-                                <td>{{apto.idtorre}}</td>
-                                <td>{{apto.apartamento}}</td>
-                                <td>{{apto.piso}}</td>
-                                <td>{{apto.estatus}}</td>
-                                <td>{{apto.codigo_planta}}</td>
-                                <td>{{apto.localizacion}}</td>
-                                <td>{{apto.observacion_apto}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
 
-            </div>
-        </div>
-    </div>
-    <input type="file" id="fileUpload" style="height:1.2em; width:1.2em; display:none;" accept=".csv"
-        v-on:change="handleChangeFile" />
+                    <div class="pure-u-1-1 pure-u-md-1-1">
+                        <div class="formInputStandard">
+                            <label>Observación</label>
+                            <input type="text" v-model="apto.observacion_apto" class="pure-input-1" />
+                        </div>
+                    </div>
 
-    <div v-show="mode == 4" class="pure-g" style="height: 100%;">
-    </div>
-    <div v-show="mode == 5" class="pure-g" style="height: 100%;">
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Valor Separación</label>
+                            <input type="text" v-model="f_valor_separacion" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Valor Reformas</label>
+                            <input type="text" v-model="f_valor_reformas" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Valor Acabados</label>
+                            <input type="text" v-model="f_valor_descuento" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Valor Descuento</label>
+                            <input type="text" v-model="f_valor_acabados" class="pure-input-1" @keyup="validarFormato"
+                                style="text-align: right;" />
+                        </div>
+                    </div>
 
-        <div class="pure-g">
-            <div class="pure-u-1-1 pure-u-md-1-1">
-                <h2>Editar Apartamento</h2>
-            </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Banco</label>
+                            <input type="text" v-model="apto.cuota_inicial_banco" class="pure-input-1" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Tipo de Cuenta</label>
+                            <input type="text" v-model="apto.cuenta_tipo" class="pure-input-1" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Número de Cuenta</label>
+                            <input type="text" v-model="apto.cuenta_numero" class="pure-input-1" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Convenio</label>
+                            <input type="text" v-model="apto.convenio" class="pure-input-1" />
+                        </div>
+                    </div>
 
-            <!-- Datos principales -->
-            <div style="height: calc(100vh - 15rem);">
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Apartamento</label>
-                        <input type="text" v-model="apto.apartamento" class="pure-input-1" />
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>Pate</label>
+                            <input type="text" v-model="apto.pate" class="pure-input-1" />
+                        </div>
                     </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Piso</label>
-                        <input type="number" v-model="apto.piso" class="pure-input-1" />
+                    <div class="pure-u-1-2 pure-u-md-1-4">
+                        <div class="formInputStandard">
+                            <label>EAN</label>
+                            <input type="text" v-model="apto.ean" class="pure-input-1" />
+                        </div>
                     </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Tipo</label>
-                        <input type="text" v-model="apto.codigo_planta" class="pure-input-1" />
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Estado</label>
-                        <select v-model="apto.id_estado_unidad" class="pure-input-1">
-                            <option v-for="e in estados" :value="e.id_estado_unidad">
-                                {{e.estado_unidad}}
-                            </option>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Localización</label>
-                        <select v-model="apto.localizacion" class="pure-input-1">
-                            <option value="Interior">Interior</option>
-                            <option value="Exterior">Exterior</option>
-                        </select>
-                    </div>
                 </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Observación</label>
-                        <input type="text" v-model="apto.observacion_apto" class="pure-input-1" />
-                    </div>
+                <div class="pure-u-1-1"></div>
+                <div class="pure-u-7-24"></div>
+                <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
+                    <button @click="computeViews" class="pure-button pure-button-primary">Cancelar</button>
                 </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Área privada cubierta</label>
-                        <input type="number" v-model="apto.area_privada_cub" class="pure-input-1" step="any" />
-                    </div>
+                <div class="pure-u-1-12"></div>
+                <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
+                    <button @click="onSave" class="pure-button pure-button-primary">Guardar</button>
                 </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Área total</label>
-                        <input type="number" v-model="apto.area_total" class="pure-input-1" step="any" />
-                    </div>
-                </div>
-
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label class="check" for="tiene_balcon">
-                            <input type="checkbox" id="tiene_balcon" v-model="apto.tiene_balcon" true-value="1"
-                                false-value="0" />
-                            <span class="checkmark"></span>
-                            Tiene Balcón
-                        </label>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label class="check" for="tiene_parq_sencillo">
-                            <input type="checkbox" id="tiene_parq_sencillo" v-model="apto.tiene_parq_sencillo"
-                                true-value="1" false-value="0" />
-                            <span class="checkmark"></span>
-                            Parqueadero Sencillo
-                        </label>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label class="check" for="tiene_parq_doble">
-                            <input type="checkbox" id="tiene_parq_doble" v-model="apto.tiene_parq_doble" true-value="1"
-                                false-value="0" />
-                            <span class="checkmark"></span>
-                            Parqueadero Doble
-                        </label>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label class="check" for="tiene_deposito">
-                            <input type="checkbox" id="tiene_deposito" v-model="apto.tiene_deposito" true-value="1"
-                                false-value="0" />
-                            <span class="checkmark"></span>
-                            Tiene Depósito
-                        </label>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label class="check" for="tiene_acabados">
-                            <input type="checkbox" id="tiene_acabados" v-model="apto.tiene_acabados" true-value="1"
-                                false-value="0" />
-                            <span class="checkmark"></span>
-                            Tiene Acabados
-                        </label>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label class="check" for="cerca_porteria">
-                            <input type="checkbox" id="cerca_porteria" v-model="apto.cerca_porteria" true-value="1"
-                                false-value="0" />
-                            <span class="checkmark"></span>
-                            Cerca Portería
-                        </label>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label class="check" for="cerca_juegos_infantiles">
-                            <input type="checkbox" id="cerca_juegos_infantiles" v-model="apto.cerca_juegos_infantiles"
-                                true-value="1" false-value="0" />
-                            <span class="checkmark"></span>
-                            Cerca Juegos Infantiles
-                        </label>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label class="check" for="cerca_piscina">
-                            <input type="checkbox" id="cerca_piscina" v-model="apto.cerca_piscina" true-value="1"
-                                false-value="0" />
-                            <span class="checkmark"></span>
-                            Cerca Piscina
-                        </label>
-                    </div>
-                </div>
-
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Asoleación</label>
-                        <select v-model="apto.asoleacion" class="pure-input-1">
-                            <option value="AM">AM</option>
-                            <option value="PM">PM</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Altura</label>
-                        <select v-model="apto.altura" class="pure-input-1">
-                            <option value="BAJO">BAJO</option>
-                            <option value="MEDIO">MEDIO</option>
-                            <option value="ALTO">ALTO</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Valor Separación</label>
-                        <input type="number" v-model="apto.valor_separacion" class="pure-input-1" />
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Cuenta Banco</label>
-                        <input type="text" v-model="apto.cuenta_numero" class="pure-input-1" />
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Banco</label>
-                        <input type="text" v-model="apto.cuota_inicial_banco" class="pure-input-1" />
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>EAN</label>
-                        <input type="text" v-model="apto.ean" class="pure-input-1" />
-                    </div>
-                </div>
-            </div>
-            <div class="pure-u-1-1"></div>
-            <div class="pure-u-7-24"></div>
-            <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
-                <button @click="computeViews()" class="pure-button pure-button-primary">Cancelar</button>
-            </div>
-            <div class="pure-u-1-12"></div>
-            <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
-                <button class="pure-button pure-button-primary">Guardar</button>
             </div>
         </div>
     </div>

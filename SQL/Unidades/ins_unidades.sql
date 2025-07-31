@@ -88,14 +88,14 @@ insert into fact_unidades(
 ) select distinct
     @id_proyecto as id_proyecto,
 	id_torre as id_torre,
-	ifnull((select id_estado_unidad 
+	(select id_estado_unidad 
         from dim_estado_unidad e 
-        where e.estado_unidad = estatus), 1) as id_estado_unidad,
+        where e.estado_unidad = estatus) as id_estado_unidad,
 	concat('Apto ', apartamento) as nombre_unidad,
 	convert(apartamento, int) as numero_apartamento,
 	convert(piso, int) as piso,
 	tipo as tipo,
-	codigo_planta as codigo_planta,
+	if(codigo_planta is null or codigo_planta = '', tipo, codigo_planta) as codigo_planta,
 	localizacion as localizacion,
 	left(observacion_apto, 500) as observacion_apto,
 	convert(fecha_fec, date) as fecha_fec,
