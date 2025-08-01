@@ -499,6 +499,10 @@ export default {
     },
     sincliente(){
       this.mode = 2;
+    },
+    abrirNuevoModulo() {
+      const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + GlobalVariables.id_proyecto;
+      window.open(url, '_blank');
     }
   },
 }

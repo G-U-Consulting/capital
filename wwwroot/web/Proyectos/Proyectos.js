@@ -12,7 +12,14 @@ export default {
 
     async mounted() {
         GlobalVariables.miniModuleCallback = this.miniModuleCallback;
-        await this.setMainMode('InicioProyecto');
+        const params = new URLSearchParams(GlobalVariables.urlParams);
+        if (!params.get('SubLoc')) {
+            await this.setMainMode('InicioProyecto');
+            return;
+        }
+        const subLoc = params.get('SubLoc');
+        const id_proyecto = params.get('id_proyecto');
+        this.setProyecto(id_proyecto, subLoc);
     },
 
     unmounted() {
@@ -40,6 +47,14 @@ export default {
                     this.setRuta([]);
                 }
             }, ...subpath];
+        },
+
+        async setProyecto(id,subLoc) {
+            var resp = await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto", { "id_proyecto": id });
+            this.proyecto = resp.data[0];
+            this.setMainMode(subLoc);
+            GlobalVariables.id_proyecto = id;
+            GlobalVariables.proyecto = this.proyecto;
         },
 
         async setMainMode(mode, sel = false) {

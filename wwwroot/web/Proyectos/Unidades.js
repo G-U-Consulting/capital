@@ -10,7 +10,8 @@
                 projects: [],
                 project: null,
                 groups: []
-            }
+            },
+            mensaje: "Hola",
         };
     },
     async mounted() {

@@ -18,6 +18,7 @@ var GlobalVariables = {
     getPreferences: null,
     setPreferences: null,
     proyecto: null,
+    urlParams: null,
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null, mvm = null;
@@ -46,6 +47,7 @@ mainVue = {
             get: (searchParams, prop) => searchParams.get(prop),
         });
         var url = window.location.href;
+        GlobalVariables.urlParams = url;
         if (url.indexOf("?") > 0)
             url = url.substring(0, url.indexOf("?"));
         if (pars.loc != null)
