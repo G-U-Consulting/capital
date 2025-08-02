@@ -2413,7 +2413,18 @@ tr.cal-row-info > td {
   font-size: 12px; 
   border: 1px black solid;
 }
-
+.unidades-tabla-modal {
+  height: calc(100vh - 15rem); 
+  overflow-y: auto; width: 100%;
+  margin-top: 1rem;
+}
+.unidades-tabla-modal th {
+  text-align: center;
+}
+.grouped-apto td {
+  background-color: #0c62a4;
+  color: white;
+}
 
 .tab-registro {
   padding: 10px 16px;

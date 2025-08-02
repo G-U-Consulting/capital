@@ -39,6 +39,14 @@ create table dim_cuenta_convenio(
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
+
+create table dim_agrupacion_unidad(
+	id_agrupacion int primary key auto_increment,
+	id_proyecto int not null references fact_proyectos(id_proyecto),
+	nombre varchar(50) not null,
+	constraint uk_agrupacion_unidad_proyecto unique(id_proyecto, nombre)
+);
+
 create table fact_unidades(
 	id_unidad int not null auto_increment,
 	constraint pk_id_unidad primary key(id_unidad),
@@ -88,5 +96,6 @@ create table fact_unidades(
 	created_by varchar(200) default current_user,
 	updated_on datetime default current_timestamp,
 	updated_by varchar(200),
+	id_agrupacion int references dim_agrupacion_unidad(id_agrupacion),
 	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto)
 );
