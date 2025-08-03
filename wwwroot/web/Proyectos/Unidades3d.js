@@ -17,6 +17,9 @@
 			aptos: [],
 			estados: [],
 			tipos: [],
+			agrupaciones: [],
+			groupedAptos: [],
+			ids_unidades: [],
 			preview: [],
 			loading: true,
 			stats: {
@@ -36,6 +39,7 @@
 			},
 			torre: {},
 			apto: {},
+			grupo: {},
 
 			filtros: {
 				aptos: {
@@ -45,8 +49,19 @@
 					localizacion: '',
 					torres: [],
 					piso: ''
+				},
+				agrupaciones: {},
+				groupedAptos: {
+					apartamento: '',
+					id_estado_unidad: '',
+					codigo_planta: '',
+					localizacion: '',
+					piso: '',
 				}
-			}
+			},
+			editNewRow: false,
+			selRow: null,
+			editRow: false,
 		};
 	},
 	three: null,
@@ -59,6 +74,21 @@
 	methods: {
 		setRuta() {
 			GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+		},
+		setTabmode(index) {
+			if (this.mode > 0 && index === 0) this.computeViews();
+			else if (this.tabmode !== 0 || this.mode >= 3) {
+				this.tabmode = index;
+				this.ruta = [this.ruta[0], { text: this.tabs[index], action: () => this.setTabmode(index) }];
+				this.setRuta();
+			}
+			this.onClearFilters('aptos');
+			if (index === 1) {
+				this.loadAgrupacion();
+				if (this.selRow !== null)
+					this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow].id_agrupacion + '';
+				else this.filtros.aptos.id_agrupacion = 'null';
+			}
 		},
 		async loadUnidades() {
 			showProgress();
@@ -93,6 +123,12 @@
 				this.computeViews();
 			};
 			this.loading = false;
+			hideProgress();
+		},
+		async loadAgrupacion() {
+			showProgress();
+			this.agrupaciones = (await
+				httpFunc('/generic/genericDT/Unidades:Get_Agrupacion', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			hideProgress();
 		},
 		openFileDialog: function () {
@@ -175,8 +211,9 @@
 			hideProgress();
 		},
 		computeViews: function () {
+			this.tabmode = 0;
 			this.mode = 3;
-			setTimeout(this.threeInit, 10);
+			this.viewProperties === '3d' && setTimeout(this.threeInit, 10);
 			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => this.computeViews() }];
 			this.setRuta();
 		},
@@ -317,14 +354,32 @@
 			let i = this.filtros.aptos.torres.indexOf(torre.idtorre);
 			i === -1 ? this.filtros.aptos.torres.push(torre.idtorre) : this.filtros.aptos.torres.splice(i, 1);
 		},
-		onClearFilters() {
-			this.filtros.aptos = {
-				apartamento: '',
-				id_estado_unidad: '',
-				codigo_planta: '',
-				localizacion: '',
-				torres: [],
-				piso: ''
+		toggleApto(apto) {
+			let i = this.ids_unidades.indexOf(apto.id_unidad);
+			i === -1 ? this.ids_unidades.push(apto.id_unidad) : this.ids_unidades.splice(i, 1);
+		},
+		onClearFilters(table) {
+			if (table === 'aptos')
+				this.filtros.aptos = {
+					apartamento: '',
+					id_estado_unidad: '',
+					codigo_planta: '',
+					localizacion: '',
+					torres: [],
+					piso: '',
+					id_agrupacion: ''
+				}
+			if (table === 'groupedAptos')
+				this.filtros.groupedAptos = {
+					apartamento: '',
+					id_estado_unidad: '',
+					codigo_planta: '',
+					localizacion: '',
+					piso: '',
+				}
+			if (table === 'agrupaciones') {
+				this.filtros.agrupaciones = {};
+				this.onCancelGroup();
 			}
 		},
 		onSelectApto(apto) {
@@ -381,6 +436,68 @@
 			if (e.target.value == '') e.target.value = '0';
 			e.target.value = e.target.value.replace(/^0+(\d)/, '$1');
 		},
+		async onSaveGroup() {
+			const i = this.selRow;
+			if (this.grupo.nombre) {
+				showProgress();
+				let res = null;
+				try {
+					res = await (httpFunc(`/generic/genericST/Unidades:${this.grupo.id_agrupacion ? 'Upd' : 'Ins'}_Agrupacion`, {
+						nombre: this.grupo.nombre,
+						id_proyecto: GlobalVariables.id_proyecto,
+						id_agrupacion: this.grupo.id_agrupacion
+					}));
+					if (res.isError || res.data !== 'OK') throw res;
+					await this.loadAgrupacion();
+				} catch (e) {
+					console.error(e);
+					showMessage('Error: ' + e.errorMessage || e.data);
+				}
+				hideProgress();
+			}
+			this.onCancelGroup();
+			this.selRow = i;
+		},
+		async onSelectGroup(i) {
+			if (this.editNewRow)
+				await this.onSaveGroup();
+			if (this.editRow && this.selRow !== null && this.selRow !== i) {
+				this.grupo.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow].id_agrupacion;
+				await this.onSaveGroup();
+			}
+			let id = this.getFilteredList('agrupaciones')[i].id_agrupacion + '';
+			this.filtros.aptos.id_agrupacion = id;
+			this.selRow = i;
+			this.groupedAptos = this.aptos.filter(a => !a.id_agrupacion || a.id_agrupacion === id);
+		},
+		async onEditGroup(grupo, i) {
+			this.onSelectGroup(i);
+			this.grupo = { ...grupo };
+			this.editRow = true;
+		},
+		onCancelGroup() {
+			this.selRow = null;
+			this.grupo = {};
+			this.editRow = false;
+			this.editNewRow = false;
+		},
+		requestDelete(item) {
+			console.log(item);
+		},
+		openModal() {
+			if (this.selRow !== null) {
+				let $modal = document.getElementById('modalOverlay');
+				$modal && ($modal.style.display = 'flex');
+				let ids_unidades = [];
+				this.groupedAptos.filter(a => a.id_agrupacion).forEach(a => ids_unidades.push(a.id_unidad));
+				this.ids_unidades = [...ids_unidades];
+			}
+		},
+		closeModal() {
+			let $modal = document.getElementById('modalOverlay');
+			$modal && ($modal.style.display = 'none');
+			this.ids_unidades = [];
+		}
 	},
 	computed: {
 		f_area_privada_cub: {
