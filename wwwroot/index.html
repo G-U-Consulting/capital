@@ -30,7 +30,7 @@
 <body>
     <div id="indexMainDiv" style="display:none">
         <div>
-            <div class="header noSelect">
+            <div class="header noSelect" v-if="!ocultarLayout">
                 <div style="position: absolute; left: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
                     <span class="pure-hidden-sm pure-hidden-xs" style="color: white; font-size: 1.5em;">
                         {{ moduleSelected == null ? "Menú principal" : moduleSelected.title }}
@@ -53,7 +53,7 @@
         </div>
         
         <div>
-            <div class="sidenav">
+            <div class="sidenav" v-if="!ocultarLayout">
                 <div v-for="(item, key) in zones" :key="key" :class="['zone', 'noSelect', { 
                         preSelectedZone: zonePreSelected == item, 
                         selectedZone: zoneSelected == item, 

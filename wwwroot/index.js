@@ -18,6 +18,7 @@ var GlobalVariables = {
     getPreferences: null,
     setPreferences: null,
     proyecto: null,
+    urlParams: null,
 };
 const mainDivId = "#mainContentDiv";
 var vm = null, mainVue = null, mvm = null;
@@ -38,6 +39,7 @@ mainVue = {
             categorySelected: null,
             apiKeys: {},
             nombreUsuario: "",
+            ocultarLayout: false,
         }
     },
     async mounted() {
@@ -46,10 +48,16 @@ mainVue = {
             get: (searchParams, prop) => searchParams.get(prop),
         });
         var url = window.location.href;
+        GlobalVariables.urlParams = url;
         if (url.indexOf("?") > 0)
             url = url.substring(0, url.indexOf("?"));
         if (pars.loc != null)
             url += "?loc=" + pars.loc;
+            if (pars.SubLoc) {
+                this.ocultarLayout = true;
+            } else {
+                this.ocultarLayout = false;
+            }
         //window.history.replaceState({}, document.title, url);
         showProgress();
         var data = (await httpFunc("/auth/getUserProfile", {})).data;

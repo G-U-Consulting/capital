@@ -59,6 +59,12 @@
         category: "PROYECTOS",
         allow: ["*"]
     }, 
+    "ProcesosUnidades": {
+        external: true, 
+        templateUrl: "./web/Proyectos/Unidades.html",
+        jsUrl: "./web/Proyectos/Unidades.js",
+        allow: ["*"]
+    },
     "EdicionProyectos": {
         templateUrl: "./web/Proyectos/Edicion.html",
         jsUrl: "./web/Proyectos/Edicion.js",
@@ -75,6 +81,7 @@
         allow: ["*"]
     },
     "Unidades": {
+        external: true, 
         templateUrl: "./web/Proyectos/Unidades3d.html",
         jsUrl: "./web/Proyectos/Unidades3d.js",
         allow: ["*"]

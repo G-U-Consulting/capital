@@ -6,13 +6,22 @@ export default {
             proyecto: null,
             fileSelected: null,
             lateralMenu: false,
-            showList: true
+            showList: true,
+            ocultarLayout: true,
         };
     },
 
     async mounted() {
         GlobalVariables.miniModuleCallback = this.miniModuleCallback;
-        await this.setMainMode('InicioProyecto');
+        const params = new URLSearchParams(GlobalVariables.urlParams);
+        if (!params.get('SubLoc')) {
+            await this.setMainMode('InicioProyecto');
+            this.ocultarLayout = false;
+            return;
+        }
+        const subLoc = params.get('SubLoc');
+        const id_proyecto = params.get('id_proyecto');
+        this.setProyecto(id_proyecto, subLoc);
     },
 
     unmounted() {
@@ -42,6 +51,14 @@ export default {
             }, ...subpath];
         },
 
+        async setProyecto(id,subLoc) {
+            var resp = await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto", { "id_proyecto": id });
+            this.proyecto = resp.data[0];
+            this.setMainMode(subLoc);
+            GlobalVariables.id_proyecto = id;
+            GlobalVariables.proyecto = this.proyecto;
+        },
+
         async setMainMode(mode, sel = false) {
             if (this.mainmode === mode && mode !== 'InicioProyecto') return;
 
@@ -57,7 +74,6 @@ export default {
 
         getPathName(mode) {
             if (mode === 'EdicionProyectos') return `${this.proyecto.nombre} / Edición Proyecto`;
-            if (mode === 'Unidades') return `${this.proyecto.nombre} / Unidades`;
             if (mode === 'Clientes') return `${this.proyecto.nombre} / Clientes`;
             if (mode === 'Medios') return `${this.proyecto.nombre} / Imágenes y Vídeos`;
             if (mode === 'Documentacion') return `${this.proyecto.nombre} / Documentación`;
