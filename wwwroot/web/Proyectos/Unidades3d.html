@@ -594,32 +594,46 @@
         </div>
     </div>
 
-    <div style="display: flex; gap: 1rem;" v-if="tabmode == 1">
-        <div style="width: 35%;">
-            <div style="display: flex; width: 100%;">
-                <input type="text" placeholder="Nombre" v-model="filtros.agrupaciones['nombre']" maxlength="50"
-                    @input="onCancelGroup()" />
-                <div style="display: inline;" class="imgGraybutton" @click="onClearFilters('agrupaciones')">
-                    <img src="./img/ico/eraser.png" />
+    <div style="display: flex; flex-direction: column; gap: .5rem; height: 100%;" v-if="tabmode == 2">
+        <div style="height: 50%;">
+            <div class="formDivision right-button" style="width: 100%;">
+                <span style="font-size: 1.5em;">
+                    Agrupaciones:
+                </span>
+                <div style="display: flex; min-width: 40%;">
+                    <input type="text" placeholder="Agrupación ID" v-model="filtros.agrupaciones['nombre']"
+                        maxlength="50" @input="selRow = null; selectedAptos = []; onCancelGroup()" />
+                    <div style="display: inline;" class="imgGraybutton" @click="onClearFilters('agrupaciones')">
+                        <img src="./img/ico/eraser.png" />
+                    </div>
                 </div>
-                <button style="display: inline-block; margin-left: 1rem; width: 8em;"
-                    @click="grupo = {}; editNewRow = true;">
-                    Nueva
-                </button>
+                <div style="min-width: 8em">
+                    <button style="display: inline-block; width: 8em;" @click="toggleNewRow">
+                        Agregar
+                    </button>
+                </div>
             </div>
-            <div style="width: 100%; height: calc(100vh - 15rem); overflow-y: auto; margin-top: .7rem;">
+            <div style="width: 100%; height: calc(100% - 3rem); overflow-y: auto; margin-top: .5rem;">
                 <table class="dataTable" style="table-layout: auto;">
                     <thead>
                         <tr>
-                            <th>Agrupacion</th>
-                            <th>Editar</th>
-                            <th>Eliminar</th>
+                            <th style="width: 20%;">Agrupación ID</th>
+                            <th style="width: 45%;">Descripción</th>
+                            <th style="width: 15%;">Importe Total</th>
+                            <th style="width: 10%;">Editar</th>
+                            <th style="width: 10%;">Eliminar</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-if="editNewRow" v-bind:class="{'destacada': selRow == null}">
                             <td style="padding: 0;">
                                 <input type="text" v-model="grupo.nombre" maxlength="50">
+                            </td>
+                            <td style="padding: 0;">
+                                <input type="text" v-model="grupo.descripcion" maxlength="200">
+                            </td>
+                            <td style="text-align: right;">
+                                <span>{{0}}</span>
                             </td>
                             <td style="text-align: center;">
                                 <span @click.stop.prevent="onSaveGroup" class="delete">💾</span>
@@ -634,6 +648,14 @@
                                 <span v-if="!editRow || selRow !== i">{{group.nombre}}</span>
                                 <input v-else type="text" v-model="grupo.nombre" style="border: 0;" maxlength="50">
                             </td>
+                            <td :style="editRow && selRow === i && 'padding: 0;'">
+                                <span v-if="!editRow || selRow !== i">{{group.descripcion}}</span>
+                                <input v-else type="text" v-model="grupo.descripcion" style="border: 0;"
+                                    maxlength="200">
+                            </td>
+                            <td style="text-align: right;">
+                                <span>{{group.total_importe}}</span>
+                            </td>
                             <td style="text-align: center;">
                                 <span v-if="!editRow || selRow !== i" @click.stop.prevent="onEditGroup(group, i)"
                                     class="delete">✏️</span>
@@ -641,7 +663,7 @@
                             </td>
                             <td style="text-align: center;">
                                 <span
-                                    @click.stop.prevent="editRow && selRow !== i ? onCancelGroup() : requestDelete(group)"
+                                    @click.stop.prevent="editRow && selRow !== i ? onCancelGroup() : (requestDelete(group, i))"
                                     class="delete">✖</span>
                             </td>
                         </tr>
@@ -649,31 +671,36 @@
                 </table>
             </div>
         </div>
-        <div style="flex-grow: 1;">
+        <div style="height: 50%;">
             <div class="formDivision right-button" style="width: 100%;">
                 <span style="font-size: 1.5em;">
-                    Unidades {{selRow !== null ? `en ${getFilteredList('agrupaciones')[selRow].nombre}` : ''}}
+                    Detalles de la agrupación: {{selRow !== null && getFilteredList('agrupaciones')[selRow]
+                    ? `${getFilteredList('agrupaciones')[selRow].nombre}` : ''}}
                 </span>
                 <div style="min-width: 8em;">
                     <button @click="openModal">Agregar</button>
                 </div>
             </div>
-            <div style="width: 100%; height: calc(100vh - 15rem); overflow-y: auto; margin-top: .6rem;">
+            <div style="width: 100%; height: calc(100% - 3rem); overflow-y: auto; margin-top: .5rem;">
                 <table class="dataTable" style="table-layout: auto;">
                     <thead>
                         <tr>
                             <th>Torre</th>
                             <th>ID Unidad</th>
-                            <th>Estatus</th>
+                            <th>Piso</th>
                             <th>Tipo</th>
+                            <th>Localización</th>
+                            <th>Importe</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="apto in getFilteredList('aptos')">
+                        <tr v-for="apto in selectedAptos">
                             <td>{{apto.idtorre}}</td>
                             <td>{{apto.apartamento}}</td>
-                            <td>{{apto.estatus}}</td>
+                            <td>{{apto.piso}}</td>
                             <td>{{apto.codigo_planta}}</td>
+                            <td>{{apto.localizacion}}</td>
+                            <td>{{0}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -683,7 +710,12 @@
 
     <div class="cal-modal-overlay" id="modalOverlay">
         <div class="modal-container pure-g" style="min-width: 70vw; max-width: 85vw;">
-            <div class="modal-scroll" style="width: 100%;">
+            <div class="pure-u-1-1">
+                <h2 style="text-align: center; margin-bottom: 1rem;">
+                    {{ grupo.nombre }}
+                </h2>
+            </div>
+            <div class="modal-scroll" style="width: 100%; min-height: calc(100vh - 15rem);">
                 <div class="filtros-unidades">
                     <div style="display: flex;">
                         <input type="text" placeholder="ID Unidad" v-model="filtros.groupedAptos['apartamento']"
@@ -696,6 +728,12 @@
                         <select v-model="filtros.groupedAptos['codigo_planta']" class="pure-input-1">
                             <option value="">[Tipos]</option>
                             <option v-for="t in tipos" :value="t">{{t}}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select v-model="filtros.groupedAptos['id_torre']" class="pure-input-1">
+                            <option value="">[Torres]</option>
+                            <option v-for="t in torres" :value="t.id_torre">Torre {{t.idtorre}}</option>
                         </select>
                     </div>
                     <div>
@@ -747,7 +785,8 @@
                                     <label class="check" :for="`grouped-${apto.id_unidad}`"
                                         style="display: inline; padding-left: 15px;">
                                         <input type="checkbox" :id="`grouped-${apto.id_unidad}`" style="display: none;"
-                                            :checked="ids_unidades.includes(apto.id_unidad)" @click="toggleApto(apto)" />
+                                            :checked="ids_unidades.includes(apto.id_unidad)"
+                                            @click="toggleApto(apto)" />
                                         <span class="checkmark" style="background-color: white;"></span>
                                     </label>
                                 </td>
@@ -762,7 +801,14 @@
             </div>
             <div class="pure-u-1-12"></div>
             <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
-                <button class="pure-button pure-button-primary">Guardar</button>
+                <button class="pure-button pure-button-primary" @click="onSaveModal">Guardar</button>
+            </div>
+            <div class="pure-u-7-24" style="text-align: right; padding-top: 1rem;">
+                <label class="check" for="m_agrupados">
+                    <input type="checkbox" id="m_agrupados" v-model="filtroAgrupado" @change="modalGroupedAptos" />
+                    <span class="checkmark"></span>
+                    Ver unidades agrupadas
+                </label>
             </div>
         </div>
     </div>

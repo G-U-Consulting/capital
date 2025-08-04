@@ -7,18 +7,20 @@
 			tabmode: 0,
 			tabs: [
 				"Unidades",
-				"Agrupaciones",
 				"Listas de Precios",
+				"Agrupaciones",
 				"Otros",
 			],
 
 			torres: [],
+			pisos: [],
 			u_torres: [],
 			aptos: [],
 			estados: [],
 			tipos: [],
 			agrupaciones: [],
 			groupedAptos: [],
+			selectedAptos: [],
 			ids_unidades: [],
 			preview: [],
 			loading: true,
@@ -53,15 +55,18 @@
 				agrupaciones: {},
 				groupedAptos: {
 					apartamento: '',
-					id_estado_unidad: '',
+					id_estado_unidad: '1',
 					codigo_planta: '',
 					localizacion: '',
 					piso: '',
+					id_torre: ''
 				}
 			},
 			editNewRow: false,
 			selRow: null,
 			editRow: false,
+
+			filtroAgrupado: false
 		};
 	},
 	three: null,
@@ -75,7 +80,7 @@
 		setRuta() {
 			GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
 		},
-		setTabmode(index) {
+		async setTabmode(index) {
 			if (this.mode > 0 && index === 0) this.computeViews();
 			else if (this.tabmode !== 0 || this.mode >= 3) {
 				this.tabmode = index;
@@ -83,8 +88,8 @@
 				this.setRuta();
 			}
 			this.onClearFilters('aptos');
-			if (index === 1) {
-				this.loadAgrupacion();
+			if (index === 2) {
+				await this.loadAgrupacion();
 				if (this.selRow !== null)
 					this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow].id_agrupacion + '';
 				else this.filtros.aptos.id_agrupacion = 'null';
@@ -130,6 +135,10 @@
 			this.agrupaciones = (await
 				httpFunc('/generic/genericDT/Unidades:Get_Agrupacion', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			hideProgress();
+			if (this.selRow === null) {
+				this.grupo = {};
+				this.onSelectGroup(0);
+			}
 		},
 		openFileDialog: function () {
 			document.getElementById("fileUpload").value = null;
@@ -350,6 +359,12 @@
 			}
 			this.$options.three.selectItem(this.selection);
 		},
+		async toggleNewRow() {
+			let b = this.editNewRow;
+			if (b) this.onSaveGroup();
+			this.onCancelGroup();
+			this.editNewRow = !b;
+		},
 		toggleTorre(torre) {
 			let i = this.filtros.aptos.torres.indexOf(torre.idtorre);
 			i === -1 ? this.filtros.aptos.torres.push(torre.idtorre) : this.filtros.aptos.torres.splice(i, 1);
@@ -376,10 +391,13 @@
 					codigo_planta: '',
 					localizacion: '',
 					piso: '',
+					id_torre: ''
 				}
 			if (table === 'agrupaciones') {
 				this.filtros.agrupaciones = {};
 				this.onCancelGroup();
+				this.selRow = null;
+				if (this.agrupaciones.length) this.onSelectGroup(0);
 			}
 		},
 		onSelectApto(apto) {
@@ -437,26 +455,23 @@
 			e.target.value = e.target.value.replace(/^0+(\d)/, '$1');
 		},
 		async onSaveGroup() {
-			const i = this.selRow;
 			if (this.grupo.nombre) {
 				showProgress();
 				let res = null;
 				try {
 					res = await (httpFunc(`/generic/genericST/Unidades:${this.grupo.id_agrupacion ? 'Upd' : 'Ins'}_Agrupacion`, {
-						nombre: this.grupo.nombre,
-						id_proyecto: GlobalVariables.id_proyecto,
-						id_agrupacion: this.grupo.id_agrupacion
+						...this.grupo, id_proyecto: GlobalVariables.id_proyecto
 					}));
 					if (res.isError || res.data !== 'OK') throw res;
+					if (!this.grupo.id_agrupacion) this.selRow = null;
 					await this.loadAgrupacion();
 				} catch (e) {
 					console.error(e);
-					showMessage('Error: ' + e.errorMessage || e.data);
+					showMessage('Error:   ' + e.errorMessage || e.data);
 				}
 				hideProgress();
 			}
 			this.onCancelGroup();
-			this.selRow = i;
 		},
 		async onSelectGroup(i) {
 			if (this.editNewRow)
@@ -465,38 +480,93 @@
 				this.grupo.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow].id_agrupacion;
 				await this.onSaveGroup();
 			}
-			let id = this.getFilteredList('agrupaciones')[i].id_agrupacion + '';
-			this.filtros.aptos.id_agrupacion = id;
-			this.selRow = i;
-			this.groupedAptos = this.aptos.filter(a => !a.id_agrupacion || a.id_agrupacion === id);
+			if (this.agrupaciones.length) {
+				let id = this.getFilteredList('agrupaciones')[i].id_agrupacion + '';
+				this.selectedAptos = this.aptos.filter(a => a.id_agrupacion === id);
+				this.selRow = i;
+				this.groupedAptos = this.aptos.filter(a => !a.id_agrupacion || a.id_agrupacion === id);
+			}
+			this.onClearFilters('groupedAptos');
+			this.filtros.groupedAptos.id_estado_unidad = '1';
 		},
 		async onEditGroup(grupo, i) {
-			this.onSelectGroup(i);
-			this.grupo = { ...grupo };
-			this.editRow = true;
+			if (!this.editNewRow) {
+				this.onSelectGroup(i);
+				this.grupo = { ...grupo };
+				this.editRow = true;
+			}
 		},
 		onCancelGroup() {
-			this.selRow = null;
 			this.grupo = {};
 			this.editRow = false;
 			this.editNewRow = false;
 		},
-		requestDelete(item) {
-			console.log(item);
+		async onDeleteGroup(group) {
+			showProgress();
+			let res = null;
+			try {
+				res = await (httpFunc('/generic/genericST/Unidades:Del_Agrupacion', group));
+				if (res.isError || res.data !== 'OK') throw res;
+				await this.loadUnidades();
+				this.selRow = null;
+				await this.setTabmode(2);
+			} catch (e) {
+				console.error(e);
+				showMessage('Error: ' + e.errorMessage || e.data);
+			}
+			hideProgress();
+		},
+		requestDelete(item, i) {
+			if (item.id_agrupacion) {
+				this.onSelectGroup(i);
+				let msg = `Se eliminará la agrupación <b>${item.nombre}</b> permanentemente. `;
+				if (this.selectedAptos.length) msg += 'Las unidades asignadas quedarán sin agrupación.'
+				showConfirm(msg, this.onDeleteGroup, null, item);
+			}
 		},
 		openModal() {
 			if (this.selRow !== null) {
+				this.filtroAgrupado = false;
+				this.editRow = false;
+				this.editNewRow = false;
 				let $modal = document.getElementById('modalOverlay');
 				$modal && ($modal.style.display = 'flex');
 				let ids_unidades = [];
 				this.groupedAptos.filter(a => a.id_agrupacion).forEach(a => ids_unidades.push(a.id_unidad));
 				this.ids_unidades = [...ids_unidades];
+				this.grupo = { ...this.getFilteredList('agrupaciones')[this.selRow] };
 			}
 		},
 		closeModal() {
 			let $modal = document.getElementById('modalOverlay');
 			$modal && ($modal.style.display = 'none');
 			this.ids_unidades = [];
+		},
+		async onSaveModal() {
+			if (this.grupo.id_agrupacion) {
+				showProgress();
+				let res = null;
+				try {
+					res = await (httpFunc(`/generic/genericST/Unidades:Upd_GrupoUnidad`, {
+						ids_unidades: this.ids_unidades.join(','),
+						id_agrupacion: this.grupo.id_agrupacion
+					}));
+					if (res.isError || res.data !== 'OK') throw res;
+					await this.loadUnidades();
+					await this.setTabmode(2);
+					this.onSelectGroup(this.selRow);
+					this.closeModal();
+				} catch (e) {
+					console.error(e);
+					showMessage('Error: ' + e.errorMessage || e.data);
+				}
+				hideProgress();
+			}
+			this.onCancelGroup();
+		},
+		modalGroupedAptos(e) {
+			this.onClearFilters('groupedAptos');
+			if (this.filtroAgrupado) this.filtros.groupedAptos.id_agrupacion = this.grupo.id_agrupacion;
 		}
 	},
 	computed: {
@@ -542,6 +612,8 @@
 					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
 						if (tabla == 'aptos' && key == 'torres')
 							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
+						if (tabla == 'groupedAptos' && key == 'id_torre')
+							return this.filtros[tabla][key] === '' || String(item[key]) === this.filtros[tabla][key];
 						else return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
 					}) : []
 				) : [];

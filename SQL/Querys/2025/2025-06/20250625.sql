@@ -44,6 +44,7 @@ create table dim_agrupacion_unidad(
 	id_agrupacion int primary key auto_increment,
 	id_proyecto int not null references fact_proyectos(id_proyecto),
 	nombre varchar(50) not null,
+	descripcion varchar(200),
 	constraint uk_agrupacion_unidad_proyecto unique(id_proyecto, nombre)
 );
 

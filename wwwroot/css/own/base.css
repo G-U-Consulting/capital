@@ -399,6 +399,7 @@ table thead th {
     background-color: #00839C;
     color: white;
     z-index: 2;
+    border-top: 1px #00839C solid;
   }
 .table-container {
     max-height: 50vh;
@@ -2414,7 +2415,7 @@ tr.cal-row-info > td {
   border: 1px black solid;
 }
 .unidades-tabla-modal {
-  height: calc(100vh - 15rem); 
+  height: calc(100vh - 18rem); 
   overflow-y: auto; width: 100%;
   margin-top: 1rem;
 }
