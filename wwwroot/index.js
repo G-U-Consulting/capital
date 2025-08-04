@@ -39,6 +39,7 @@ mainVue = {
             categorySelected: null,
             apiKeys: {},
             nombreUsuario: "",
+            ocultarLayout: false,
         }
     },
     async mounted() {
@@ -52,6 +53,11 @@ mainVue = {
             url = url.substring(0, url.indexOf("?"));
         if (pars.loc != null)
             url += "?loc=" + pars.loc;
+            if (pars.SubLoc) {
+                this.ocultarLayout = true;
+            } else {
+                this.ocultarLayout = false;
+            }
         //window.history.replaceState({}, document.title, url);
         showProgress();
         var data = (await httpFunc("/auth/getUserProfile", {})).data;

@@ -501,8 +501,23 @@ export default {
       this.mode = 2;
     },
     abrirNuevoModulo() {
-      const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + GlobalVariables.id_proyecto;
-      window.open(url, '_blank');
+      const idProyecto = GlobalVariables.id_proyecto;
+      const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + idProyecto;
+
+      const features = [
+        'toolbar=no',
+        'location=no',
+        'status=no',
+        'menubar=no',
+        'scrollbars=yes',
+        'resizable=yes',
+        'width=1280',
+        'height=800',
+        'top=100',
+        'left=100'
+      ].join(',');
+
+      window.open(url, 'VentanaModuloUnidades', features);
     }
   },
 }

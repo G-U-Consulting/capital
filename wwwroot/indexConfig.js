@@ -63,9 +63,6 @@
         external: true, 
         templateUrl: "./web/Proyectos/Unidades.html",
         jsUrl: "./web/Proyectos/Unidades.js",
-        title: "Procesos Unidades",
-        desc: "Se abre en pestaña nueva",
-        imgsrc: "./img/ico/menu/086-group.png",
         allow: ["*"]
     },
     "EdicionProyectos": {

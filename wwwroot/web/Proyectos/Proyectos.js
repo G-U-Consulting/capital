@@ -6,7 +6,8 @@ export default {
             proyecto: null,
             fileSelected: null,
             lateralMenu: false,
-            showList: true
+            showList: true,
+            ocultarLayout: true,
         };
     },
 
@@ -15,6 +16,7 @@ export default {
         const params = new URLSearchParams(GlobalVariables.urlParams);
         if (!params.get('SubLoc')) {
             await this.setMainMode('InicioProyecto');
+            this.ocultarLayout = false;
             return;
         }
         const subLoc = params.get('SubLoc');
@@ -72,7 +74,6 @@ export default {
 
         getPathName(mode) {
             if (mode === 'EdicionProyectos') return `${this.proyecto.nombre} / Edición Proyecto`;
-            if (mode === 'Unidades') return `${this.proyecto.nombre} / Unidades`;
             if (mode === 'Clientes') return `${this.proyecto.nombre} / Clientes`;
             if (mode === 'Medios') return `${this.proyecto.nombre} / Imágenes y Vídeos`;
             if (mode === 'Documentacion') return `${this.proyecto.nombre} / Documentación`;
