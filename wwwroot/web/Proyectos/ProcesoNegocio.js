@@ -244,6 +244,12 @@ export default {
     },
     async busquedaCliente() {
       let cliente = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cliente', { cliente: this.cliente });
+      let obj = {
+        id_proyecto: GlobalVariables.id_proyecto,
+        username: GlobalVariables.username,
+        cliente: this.cliente,
+      };
+      await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_SaveCliente', obj);
       cliente = cliente.data;
 
       if (cliente && cliente[0] && cliente[0][0]) {
@@ -499,6 +505,11 @@ export default {
     },
     sincliente(){
       this.mode = 2;
+    },
+    async continuarCliente() {
+        let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_SaveCliente', { username: GlobalVariables.username, id_proyecto: Number(GlobalVariables.id_proyecto) });
+        this.cliente = resp.data[0][0].cliente;
+      this.busquedaCliente();
     },
     abrirNuevoModulo() {
       const idProyecto = GlobalVariables.id_proyecto;

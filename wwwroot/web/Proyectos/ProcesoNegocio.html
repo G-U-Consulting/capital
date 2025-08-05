@@ -25,7 +25,6 @@
                     Bienvenida a Cliente
                 </div>
                 <div class="pure-g" style="align-items: center; justify-content: space-between; margin: 1em 0;">
-                    <!-- Input + icono -->
                     <div class="pure-u-md-12-24" style="display: flex; align-items: center;">
                         <input type="text" v-model="cliente" maxlength="100" placeholder="Ingrese número de documento o nombre"
                             class="pure-u-md-22-24"  @keyup.enter="busquedaCliente" />
@@ -34,9 +33,14 @@
                             <img src="./img/ico/svg/search.svg" @click="busquedaCliente" />
                         </div>
                     </div>
+
+                    <!-- Botón Continuar con el cliente -->
+                    <div class="pure-u-md-3-24" style="text-align: right;">
+                        <button @click="continuarCliente">Último Cliente</button>
+                    </div>
                 
                     <!-- Botón Cotizar sin cliente -->
-                    <div class="pure-u-md-8-24" style="text-align: right;">
+                    <div class="pure-u-md-3-24" style="text-align: right;">
                         <button @click="sincliente">Cotizar sin cliente</button>
                     </div>
                 
@@ -489,7 +493,7 @@
                         <th>Ítem</th>
                         <th>Fecha</th>
                         <th>Tipo</th>
-                        <th>Descripción</th>
+                        <th>Observación</th>
                         <th>Importe</th>
                         <th>Descuento</th>
                     </tr>

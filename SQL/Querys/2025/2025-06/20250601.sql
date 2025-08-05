@@ -34,6 +34,16 @@ create table dim_tipo_registro (
 	created_by varchar(200) default current_user
 );
 
+create table fact_cliente_actual (
+    id_cliente int auto_increment primary key,
+    id_proyecto int,
+    username varchar(200),
+    cliente varchar(200),
+    is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+
 create table dim_modo_atencion (
     id_modo_atencion int auto_increment primary key,
     modo_atencion varchar(100),
