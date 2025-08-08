@@ -21,6 +21,9 @@ export default {
         }
         const subLoc = params.get('SubLoc');
         const id_proyecto = params.get('id_proyecto');
+        const id_cliente = params.get('id_cliente');
+        this.id_cotizacion = params.get('id_cotizacion');
+        this.id_cliente = id_cliente;
         this.setProyecto(id_proyecto, subLoc);
     },
 
@@ -57,6 +60,8 @@ export default {
             this.setMainMode(subLoc);
             GlobalVariables.id_proyecto = id;
             GlobalVariables.proyecto = this.proyecto;
+            GlobalVariables.id_cliente = this.id_cliente;
+            GlobalVariables.id_cotizacion = this.id_cotizacion;
         },
 
         async setMainMode(mode, sel = false) {

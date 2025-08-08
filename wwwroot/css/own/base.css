@@ -2783,3 +2783,8 @@ tr.cal-row-info > td {
 .asunto-modal-close:hover {
   color: red;
 }
+.seleccionado {
+    background-color: #d4f1ff;
+    font-weight: bold;
+    cursor: pointer;
+}

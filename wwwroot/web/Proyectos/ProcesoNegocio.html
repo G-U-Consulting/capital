@@ -439,97 +439,101 @@
         <!-- ----------------------------------------------------------------- -->
         <!-- --------------------------- Cotización--------------------------- -->
         <!-- ----------------------------------------------------------------- -->
-        <div class="pure-g" v-if="mode == 2">
-            <div class='pure-u-1-1' style="font-size: 2em;">
-                {{ ObjCliente.nombres }}
+        <div style="display: flex; flex-direction: column; gap: .5rem; height: 100%;" v-if="mode == 2">
+            <div style="height: 50%;">
+                <div class='pure-u-1-1' style="font-size: 2em;">
+                    {{ ObjCliente.nombres }}
+                </div>
+                <div class='formDivision' style="margin-top: 0.5em;">
+                    <span style="font-size: 1.8em;">Cotizaciones</span>
+                    <button style="float: right;" @click="addCotizacion">Nueva Cotización</button>
+                </div>
+                <div style="width: 100%; height: calc(100% - 3rem); overflow-y: auto; margin-top: 0.5rem;">
+                    <table class="dataTable">
+                        <thead>
+                            <tr>
+                                <th class="col-1-6">Cotización</th>
+                                <th class="col-1-6">Fecha</th>
+                                <th class="col-3-6">Descripción</th>
+                                <th class="col-1-6">Importe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, index) in cotizaciones" :key="index">
+                                <td class="col-1-6" @click="seleccionarCotizacion(item.cotizacion)"
+                                    :class="{ seleccionado: cotizacionSeleccionada === item.cotizacion }">
+                                    {{ item.cotizacion }}
+                                </td>
+                                <td class="col-1-6" @click="seleccionarCotizacion(item.cotizacion)"
+                                    :class="{ seleccionado: cotizacionSeleccionada === item.cotizacion }">
+                                    {{ item.fecha }}
+                                </td>
+                                <td class="col-3-6">
+                                    <input type="text" v-model="item.descripcion" placeholder="Descripción"
+                                        @focus="seleccionarCotizacion(item.cotizacion)" />
+                                </td>
+                                <td class="col-1-6" @click="seleccionarCotizacion(item.cotizacion)"
+                                    :class="{ seleccionado: cotizacionSeleccionada === item.cotizacion }">
+                                    {{ item.importe }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
-                <span style="font-size: 1.8em;">Cotizaciones</span>
-                <button style="float: right;" @click="addCotizacion">Nueva Cotización</button>
+            <div style="height: 50%;">
+                 <div class='formDivision' style="margin-top: 0.5em;">
+                    <span style="font-size: 1.8em;">Cotizaciones</span>
+                    <button style="float: right;" @click="abrirNuevoModulo">Agregar Unidades</button>
+                </div>
+                <div style="width: 100%; height: calc(100% - 3rem); overflow-y: auto; margin-top: 0.5rem;">
+                    <table class="dataTable">
+                        <thead>
+                            <tr>
+                                <th>Ítem</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Observación</th>
+                                <th>Importe</th>
+                                <th>Descuento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, index) in unidades" :key="index">
+                                <td>{{ item.id_unidad }}</td>
+                                <td>{{ item.created_on }}</td>
+                                <td>{{ item.tipo }}</td>
+                                <td>{{ item.observacion_apto }}</td>
+                                <td>{{ item.valor_descuento }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div
-                style="min-height: calc(100dvh - 37rem);max-height: calc(100dvh - 47rem); overflow-y: auto; margin-top: 0.5em;">
-                <table class="dataTable">
-                    <thead>
-                        <tr>
-                            <th class="col-1-6">Cotización</th>
-                            <th class="col-1-6">Fecha</th>
-                            <th class="col-3-6">Descripción</th>
-                            <th class="col-1-6">Importe</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(item, index) in cotizaciones" :key="index">
-                            <td class="col-1-6">
-                                {{item.cotizacion}}
-                            </td>
-                            <td class="col-1-6">
-                                {{item.fecha}}
-                            </td>
-                            <td class="col-3-6">
-                                <input type="text" v-model="item.descripcion" placeholder="Descripción" @focus="setCotizacionActiva(item.cotizacion)"/>
-                            </td>
-                            <td class="col-1-6">
-                                {{item.importe}}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="pure-u-1-1"
-                style="margin-top: 0.5em; display: flex; align-items: center; justify-content: space-between;">
-                <div class="pure-u-1-1 pure-u-md-1-3" style="display: flex; align-items: center; gap: 6.5em;">
-                    <samp class="pure-u-1-1 pure-u-md-1-3">Lista Activa:</samp>
-                    <select v-model="">
-                        <option value="" selected>[Seleccione]</option>
-                        <option value="">Opción 1</option>
+            <!-- <div class="pure-u-1-1"
+                        style="margin-top: 0.5em; display: flex; align-items: center; justify-content: space-between;">
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="display: flex; align-items: center; gap: 6.5em;">
+                            <samp class="pure-u-1-1 pure-u-md-1-3">Lista Activa:</samp>
+                            <select v-model="">
+                                <option value="" selected>[Seleccione]</option>
+                                <option value="">Opción 1</option>
+                            </select>
+                        </div>
+                 
+                    </div> -->
+            <div v-if="mostrarModal" class="asunto-modal-overlay">
+                <div class="asunto-modal-box">
+                    <span class="asunto-modal-close" @click="mostrarModal = false">×</span>
+                    <h3>Seleccione el Seguimiento</h3>
+                    <select class="asunto-select" v-model="asuntoSeleccionado">
+                        <option disabled value="">Seleccione el seguimiento...</option>
+                        <option v-for="(opcion, index) in asuntos" :key="index">{{ opcion }}</option>
                     </select>
-                </div>
-                <button @click="abrirNuevoModulo">Agregar Unidades</button>
-            </div>
-            <table class="dataTable" style="margin-top: 1em;">
-                <thead>
-                    <tr>
-                        <th>Ítem</th>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Observación</th>
-                        <th>Importe</th>
-                        <th>Descuento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Item1</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </tbody>
-            </table>
-        <div v-if="mostrarModal" class="asunto-modal-overlay">
-            <div class="asunto-modal-box">
-                <span class="asunto-modal-close" @click="mostrarModal = false">×</span>
-                <h3>Seleccione el Seguimiento</h3>
-                <select class="asunto-select" v-model="asuntoSeleccionado">
-                    <option disabled value="">Seleccione el seguimiento...</option>
-                    <option v-for="(opcion, index) in asuntos" :key="index">{{ opcion }}</option>
-                </select>
-                <div style="text-align: center; margin-top: 1em;">
-                    <button @click="guardarCotizacion">Confirmar</button>
+                    <div style="text-align: center; margin-top: 1em;">
+                        <button @click="guardarCotizacion">Confirmar</button>
+                    </div>
                 </div>
             </div>
-        </div>
         </div>
         <!-- ----------------------------------------------------------------- -->
         <!-- ----------------------------- Opción ---------------------------- -->

@@ -63,6 +63,7 @@ export default {
       filtroProyecto: '',
       contadorProyectos: {},
       cotizaciones: [],
+      unidades: [],
       registroCompras: [
         {
           fecha: '2025-06-01',
@@ -92,7 +93,9 @@ export default {
         "Seguimiento al desistimiento",
         "Solicitud Plazo de Pago",
         "Solicitud Especial"
-      ]
+      ],
+      cotizacionSeleccionada: null,
+      cotizaciones: []
     };
   },
   computed: {
@@ -507,13 +510,22 @@ export default {
       this.mode = 2;
     },
     async continuarCliente() {
-        let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_SaveCliente', { username: GlobalVariables.username, id_proyecto: Number(GlobalVariables.id_proyecto) });
-        this.cliente = resp.data[0][0].cliente;
+      let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_SaveCliente', { username: GlobalVariables.username, id_proyecto: Number(GlobalVariables.id_proyecto) });
+      const cliente = resp?.data?.[0]?.[0]?.cliente;
+      if (cliente === null || cliente === undefined || cliente === '') {
+        showMessage("Debe seleccionar un cliente para continuar.");
+        return;
+      }
+      this.cliente = resp.data[0][0].cliente;
       this.busquedaCliente();
     },
     abrirNuevoModulo() {
+      if(this.cotizacionSeleccionada == null){
+        showMessage("Debe seleccionar una cotización para agregar unidades.");
+        return;
+      }
       const idProyecto = GlobalVariables.id_proyecto;
-      const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + idProyecto;
+      const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + idProyecto + '&id_cliente=' + this.id_cliente + '&id_cotizacion=' + this.cotizacionSeleccionada;
 
       const features = [
         'toolbar=no',
@@ -529,6 +541,11 @@ export default {
       ].join(',');
 
       window.open(url, 'VentanaModuloUnidades', features);
+    },
+    async seleccionarCotizacion(cotizacionId) {
+      this.cotizacionSeleccionada = cotizacionId;
+      let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', { id_cliente: this.id_cliente, id_cotizacion: cotizacionId });
+      this.unidades = respa.data[0];
     }
   },
 }

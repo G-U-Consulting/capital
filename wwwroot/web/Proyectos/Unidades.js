@@ -374,6 +374,17 @@
 			this.ruta = [this.ruta[0], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
 		},
+		async addUnidad() {
+			let res = await (httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', {
+					id_proyecto: GlobalVariables.id_proyecto,
+					Usuario: GlobalVariables.username,
+					id_unidad: this.apto.id_unidad,
+					id_cliente: GlobalVariables.id_cliente,
+					id_cotizacion: GlobalVariables.id_cotizacion
+				}));
+				this.mode = 3;
+				await this.loadUnidades();
+		},
 		async onSave() {
 			showProgress();
 			let res = null;
