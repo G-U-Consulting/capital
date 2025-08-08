@@ -34,6 +34,32 @@ create table dim_tipo_registro (
 	created_by varchar(200) default current_user
 );
 
+create table fact_cliente_actual (
+    id_cliente int auto_increment primary key,
+    id_proyecto int,
+    username varchar(200),
+    cliente varchar(200),
+    is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
+
+create table fact_negocios_unidades (
+    id_negocio int auto_increment primary key,
+    id_cliente int not null,
+    id_unidad int not null,
+    id_proyecto int,
+    id_cotizacion int,
+    Usuario varchar(200),
+    is_active bit default 1,
+    created_on datetime default current_timestamp,
+    created_by varchar(200) default current_user,
+    constraint fk_id_cliente_fact_negocios foreign key (id_cliente) references fact_clientes (id_cliente),
+    constraint fk_id_unidad_fact_negocios foreign key (id_unidad) references fact_unidades (id_unidad),
+    constraint fk_id_proyecto_fact_negocios foreign key (id_proyecto) references fact_proyectos (id_proyecto)
+);
+
+
 create table dim_modo_atencion (
     id_modo_atencion int auto_increment primary key,
     modo_atencion varchar(100),

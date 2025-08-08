@@ -374,6 +374,17 @@
 			this.ruta = [this.ruta[0], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
 		},
+		async addUnidad() {
+			let res = await (httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', {
+					id_proyecto: GlobalVariables.id_proyecto,
+					Usuario: GlobalVariables.username,
+					id_unidad: this.apto.id_unidad,
+					id_cliente: GlobalVariables.id_cliente,
+					id_cotizacion: GlobalVariables.id_cotizacion
+				}));
+				this.mode = 3;
+				await this.loadUnidades();
+		},
 		async onSave() {
 			showProgress();
 			let res = null;
@@ -526,6 +537,10 @@
 			return (tabla) => {
 				return this[tabla] ? this[tabla].filter(item =>
 					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
+						if (tabla === 'aptos') {
+							const estatus = String(item.estatus || '').trim().toLowerCase();
+							if (estatus !== 'libre') return false;
+						}
 						if (tabla == 'aptos' && key == 'torres')
 							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
 						else return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());

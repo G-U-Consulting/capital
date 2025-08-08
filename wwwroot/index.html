@@ -96,7 +96,7 @@
                     <div class="pure-u-1-1 pure-u-md-16-24 contentHeight" style="cursor: pointer" v-on:click="closeMenu()"></div>
                 </div>
             </div>
-            <div class="sidecontent">
+            <div :class="{ 'sidecontent': !ocultarLayout }">
                 <div id="indexMenuDiv" style="display: none; background-image: url('./img/background/floor-plan-1857175_1280.jpg'); background-attachment: fixed; background-repeat: no-repeat; background-size: cover;" class="contentHeight">
                 </div>
                 <div id="mainContentDiv">
