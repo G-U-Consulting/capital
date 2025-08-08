@@ -63,6 +63,7 @@ select
     a.created_by,
     a.id_tipo_financiacion,
     a.id_tipo_vis,
+    a.id_lista,
     id_opcion_visual,
     (
         select group_concat(id_estado_publicacion)

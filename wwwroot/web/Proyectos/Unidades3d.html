@@ -1,7 +1,7 @@
 ﻿<div class="pure-u-1-24"></div>
 <div class="pure-u-22-24" style="margin: 0em 0em 0.5em 0em;">
     <div class="pure-g steps">
-        <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-4">
+        <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-5">
             <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]" @click="setTabmode(index)">
                 {{ tab }}
             </div>
@@ -13,7 +13,36 @@
 <div class="pure-u-1-24"></div>
 <div class="pure-u-22-24 menuCard" style="height: calc(100vh  - 10rem); overflow-y: auto;">
 
-    <div v-if="tabmode == 0">
+    <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 0">
+        <div>
+            <div class="lista-torres" style="height: calc(100vh - 12rem);">
+                <div v-for="item in torres" class="torre" @click="setTorre(item)"
+                    v-bind:class="{'sel-torre': item.id_torre === torre.id_torre}">
+                    <div style="align-self: center;">
+                        <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
+                    </div>
+                    <div v-for="e in [...estados].reverse()">
+                        <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
+                            <span :style="`color: ${e.color_fuente}`">
+                                {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
+                                && a.id_torre === item.id_torre).length}}
+                            </span>
+                        </div>
+                        <span>{{e.estado_unidad_plural}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="flex-grow: 1;">
+            <div class="pure-g">
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-bottom: .5rem;">
+                    Torre {{torre.idtorre}}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="tabmode == 1">
         <!-- Carga del archivo -->
         <div v-show="mode == 0 && !loading" style="text-align: center;">
             Actualmente no hay unidades cargadas
@@ -503,6 +532,13 @@
 
                     <div class="pure-u-1-2 pure-u-md-1-5">
                         <div class="formInputStandard">
+                            <label>Valor Unidad / Lista {{apto.lista}}</label>
+                            <input type="text" :value="f_valor_unidad" class="pure-input-1" style="text-align: right;"
+                                disabled />
+                        </div>
+                    </div>
+                    <div class="pure-u-1-2 pure-u-md-1-5">
+                        <div class="formInputStandard">
                             <label>Valor Separación</label>
                             <input type="text" v-model="f_valor_separacion" class="pure-input-1" @keyup="validarFormato"
                                 style="text-align: right;" />
@@ -529,7 +565,6 @@
                                 style="text-align: right;" />
                         </div>
                     </div>
-                    <div class="pure-u-1-2 pure-u-md-1-5"></div>
 
                     <div class="pure-u-1-2 pure-u-md-1-5">
                         <div class="formInputStandard">
@@ -594,7 +629,102 @@
         </div>
     </div>
 
-    <div style="display: flex; flex-direction: column; gap: .5rem; height: 100%;" v-if="tabmode == 2">
+    <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 2">
+        <div>
+            <div class="lista-torres" style="height: calc(100vh - 12rem);">
+                <div v-for="item in torres" class="torre" @click="setTorre(item)"
+                    v-bind:class="{'sel-torre': item.id_torre === torre.id_torre}">
+                    <div style="align-self: center;">
+                        <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
+                    </div>
+                    <div v-for="e in [...estados].reverse()">
+                        <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
+                            <span :style="`color: ${e.color_fuente}`">
+                                {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
+                                && a.id_torre === item.id_torre).length}}
+                            </span>
+                        </div>
+                        <span>{{e.estado_unidad_plural}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="flex-grow: 1;">
+            <div class="pure-g">
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-bottom: .5rem;">
+                    Lista de Precios Vigente:
+                </h2>
+                <div class="pure-u-1-2 pure-u-md-1-4">
+                    <button>Exportar Plantilla</button>
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-2"></div>
+                <!-- <div class="pure-u-1-2 pure-u-md-1-4" style="text-align: right;">
+                    <button>Importar nueva Lista</button>
+                </div> -->
+                <div class="pure-u-1-2 pure-u-md-1-4" style="text-align: right;">
+                    <label for="up-list-csv" class="file">Importar Listas</label>
+                    <input id="up-list-csv" type="file" @input="uploadList" style="display: none;" accept=".csv" />
+                </div>
+                <div class="pure-u-1-1" style="height: calc(100vh - 26rem); overflow-y: auto; margin-top: .5rem;">
+                    <table class="dataTable" style="table-layout: auto;">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%;">Lista ID</th>
+                                <th style="width: 20%;">Fecha</th>
+                                <th style="width: 60%;">Descripción</th>
+                                <th style="width: 10%;">Editar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(l, i) in listas"
+                                v-bind:class="{'cal-table-selected': selRow2 == i, 
+                                    'cal-table-today': torre.id_lista == l.id_lista, 'red-background': torre.id_lista == l.id_lista}"
+                                @click="if(selRow2 != i) { editRow = false; lista = {}; }; selRow2 = i; console.log(l, torre)">
+                                <td>{{l.lista}}</td>
+                                <td>{{l.updated_on}}</td>
+                                <td :style="editRow && selRow2 === i && 'padding: 0;'">
+                                    <span v-if="!editRow || selRow2 !== i">{{l.descripcion}}</span>
+                                    <input v-else type="text" v-model="lista.descripcion" style="border: 0;"
+                                        maxlength="200">
+                                </td>
+                                <td style="text-align: center;">
+                                    <span v-if="!editRow || selRow2 !== i" @click.stop.prevent="onEditList(l, i)"
+                                        class="delete">✏️</span>
+                                    <span v-else @click.stop.prevent="onSaveList" class="delete">💾</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- <div class="pure-u-1-1 pure-u-md-2-3"
+                    style="display: flex; gap: 2rem; align-items: center; margin-top: 1rem;">
+                    <label for="lista-vigente">Lista vigente por defecto:</label>
+                    <select name="lista-vigente" id="lista-vigente" style="width: 10rem;" v-model="projectList">
+                        <option value="">[Seleccione]</option>
+                        <option v-for="l in listas" :value="l.id_lista">{{l.lista}}</option>
+                    </select>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-1" style="text-align: right; margin-top: 1rem;">
+                    <button @click="onSetLista">Establecer vigente</button>
+                </div> -->
+                <div class="pure-u-1-1 pure-u-md-2-3"
+                    style="display: flex; gap: 2rem; align-items: center; margin-top: 1rem;">
+                    <label for="email-auto">Alerta cambios automáticos de lista:</label>
+                    <input type="text" id="email-auto" style="width: 14rem;">
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-3" style="text-align: right; margin-top: 1rem;">
+                    <button @click="onSetLista">Establecer vigente</button>
+                </div>
+
+                <div class="pure-u-2-5"></div>
+                <div class="pure-u-1-5" style="margin-top: 4rem; text-align: center;">
+                    <button>Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: .5rem; height: 100%;" v-if="tabmode == 3">
         <div style="height: 50%;">
             <div class="formDivision right-button" style="width: 100%;">
                 <span style="font-size: 1.5em;">
@@ -602,7 +732,7 @@
                 </span>
                 <div style="display: flex; min-width: 40%;">
                     <input type="text" placeholder="Agrupación ID" v-model="filtros.agrupaciones['nombre']"
-                        maxlength="50" @input="selRow = null; selectedAptos = []; onCancelGroup()" />
+                        maxlength="50" @input="selRow3 = null; selectedAptos = []; onCancelGroup()" />
                     <div style="display: inline;" class="imgGraybutton" @click="onClearFilters('agrupaciones')">
                         <img src="./img/ico/eraser.png" />
                     </div>
@@ -625,7 +755,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-if="editNewRow" v-bind:class="{'destacada': selRow == null}">
+                        <tr v-if="editNewRow" v-bind:class="{'destacada': selRow3 == null}">
                             <td style="padding: 0;">
                                 <input type="text" v-model="grupo.nombre" maxlength="50">
                             </td>
@@ -643,13 +773,13 @@
                             </td>
                         </tr>
                         <tr v-for="(group, i) in getFilteredList('agrupaciones')" @click="onSelectGroup(i)"
-                            v-bind:class="{'destacada': selRow == i}">
-                            <td :style="editRow && selRow === i && 'padding: 0;'">
-                                <span v-if="!editRow || selRow !== i">{{group.nombre}}</span>
+                            v-bind:class="{'destacada': selRow3 == i}">
+                            <td :style="editRow && selRow3 === i && 'padding: 0;'">
+                                <span v-if="!editRow || selRow3 !== i">{{group.nombre}}</span>
                                 <input v-else type="text" v-model="grupo.nombre" style="border: 0;" maxlength="50">
                             </td>
-                            <td :style="editRow && selRow === i && 'padding: 0;'">
-                                <span v-if="!editRow || selRow !== i">{{group.descripcion}}</span>
+                            <td :style="editRow && selRow3 === i && 'padding: 0;'">
+                                <span v-if="!editRow || selRow3 !== i">{{group.descripcion}}</span>
                                 <input v-else type="text" v-model="grupo.descripcion" style="border: 0;"
                                     maxlength="200">
                             </td>
@@ -657,13 +787,13 @@
                                 <span>{{group.total_importe}}</span>
                             </td>
                             <td style="text-align: center;">
-                                <span v-if="!editRow || selRow !== i" @click.stop.prevent="onEditGroup(group, i)"
+                                <span v-if="!editRow || selRow3 !== i" @click.stop.prevent="onEditGroup(group, i)"
                                     class="delete">✏️</span>
                                 <span v-else @click.stop.prevent="onSaveGroup" class="delete">💾</span>
                             </td>
                             <td style="text-align: center;">
                                 <span
-                                    @click.stop.prevent="editRow && selRow !== i ? onCancelGroup() : (requestDelete(group, i))"
+                                    @click.stop.prevent="editRow && selRow3 !== i ? onCancelGroup() : (requestDelete(group, i))"
                                     class="delete">✖</span>
                             </td>
                         </tr>
@@ -674,8 +804,8 @@
         <div style="height: 50%;">
             <div class="formDivision right-button" style="width: 100%;">
                 <span style="font-size: 1.5em;">
-                    Detalles de la agrupación: {{selRow !== null && getFilteredList('agrupaciones')[selRow]
-                    ? `${getFilteredList('agrupaciones')[selRow].nombre}` : ''}}
+                    Detalles de la agrupación: {{selRow3 !== null && getFilteredList('agrupaciones')[selRow3]
+                    ? `${getFilteredList('agrupaciones')[selRow3].nombre}` : ''}}
                 </span>
                 <div style="min-width: 8em;">
                     <button @click="openModal">Agregar</button>
@@ -807,8 +937,71 @@
                 <label class="check" for="m_agrupados">
                     <input type="checkbox" id="m_agrupados" v-model="filtroAgrupado" @change="modalGroupedAptos" />
                     <span class="checkmark"></span>
-                    Ver unidades agrupadas
+                    Ver unidades del grupo seleccionado
                 </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="cal-modal-overlay" id="modalOverlayList" @click.stop.prevent="closeListModal">
+        <div class="modal-container" style="min-width: 70vw; max-width: 85vw;">
+            <div style="display: flex; gap: 1rem; max-height: 75vh; min-height: 60vh;">
+                <div>
+                    <div class="lista-torres" style="height: 100%; gap: 5px; overflow-y: auto;">
+                        <div style="max-width: 15rem; border-radius: .5rem; border: 3px solid #00839C; text-align: center; padding: .5rem 1rem;"
+                            v-for="list in listas">
+                            <span>Lista {{list.lista}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex-grow: 1;">
+
+                    <div class="cont-list-resources" style="width: 100%; border: 0; border-radius: 0;">
+                        <div class="list-resources">
+                            <div class="menu-section" v-if="previewList && previewList[viewList]"
+                                v-for="torre in previewList[viewList].torres">
+                                <div v-if="i == 0" class="menu-title" @click="toggleExpand"
+                                    style="border-bottom: 2px #bbb solid;">
+                                    <span>{{true ? 'Colapsar todo' : 'Expandir todo'}}</span>
+                                    <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': true}">
+                                </div>
+                                <div class="menu-title" @click="console.log($event)">
+                                    <span>Torre {{torre.torre}}</span>
+                                    <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': true}">
+                                </div>
+                                <div class="menu-content" v-bind:class="{'open': true}" style="padding: 0;">
+                                    <table class="dataTable" style="table-layout: auto;">
+                                        <thead>
+                                            <tr>
+                                                <th>Unidad ID</th>
+                                                <th>Precio</th>
+                                                <th>En smlv</th>
+                                                <th>Precio m2</th>
+                                                <th>Precio alt</th>
+                                                <th>En smlv alt</th>
+                                                <th>Precio m2 alt</th>
+                                                <th>Agregar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="precio in torre.listas">
+                                                <td>{{precio.apartamento}}</td>
+                                                <td>{{precio.precio}}</td>
+                                                <td>{{precio.en_smlv}}</td>
+                                                <td>{{precio.precio_m2}}</td>
+                                                <td>{{precio.precio_alt}}</td>
+                                                <td>{{precio.en_smlv_alt}}</td>
+                                                <td>{{precio.precio_m2_alt}}</td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>

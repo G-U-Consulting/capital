@@ -80,54 +80,66 @@ update tmp_unidades a
 set 
     a.id_cuenta_convenio = b.id_cuenta_convenio;
 
+insert into dim_lista_precios(lista, id_proyecto, updated_by)
+select t.lista, @id_proyecto, @Usuario 
+from tmp_unidades t 
+left join dim_lista_precios l on t.lista = l.lista and l.id_proyecto = @id_proyecto
+where l.id_lista is null
+group by t.lista
+on duplicate key update
+    updated_on = current_timestamp, 
+    updated_by = @Usuario;
+
 insert into fact_unidades(
     id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
-    valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, cerca_porteria, 
+    valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, id_lista, cerca_porteria, 
     cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, created_by 
 ) 
 select distinct
     @id_proyecto as id_proyecto,
-    id_torre as id_torre,
-    (select id_estado_unidad 
+    t.id_torre as id_torre,
+    (select e.id_estado_unidad 
         from dim_estado_unidad e 
-        where e.estado_unidad = estatus) as id_estado_unidad,
-    concat('Apto ', apartamento) as nombre_unidad,
-    convert(apartamento, int) as numero_apartamento,
-    convert(piso, int) as piso,
-    tipo as tipo,
-    if(codigo_planta is null or codigo_planta = '', tipo, codigo_planta) as codigo_planta,
-    localizacion as localizacion,
-    left(observacion_apto, 500) as observacion_apto,
-    convert(fecha_fec, date) as fecha_fec,
-    convert(fecha_edi, date) as fecha_edi,
-    convert(fecha_edi_mostrar, date) as fecha_edi_mostrar,
-    convert(inv_terminado, unsigned) as inv_terminado,
-    convert(num_alcobas, int) as num_alcobas,
-    convert(num_banos, int) as num_banos,
-    convert(area_privada_cub, decimal(20, 2)) as area_privada_cub,
-    convert(area_privada_lib, decimal(20, 2)) as area_privada_lib,
-    convert(area_total, decimal(20, 2)) as area_total,
-    convert(acue, decimal(20, 2)) as acue,
-    convert(area_total_mas_acue, decimal(20, 2)) as area_total_mas_acue,
-    convert(valor_separacion, decimal(20, 2)) as valor_separacion,
-    convert(valor_acabados, decimal(20, 2)) as valor_acabados,
-    convert(valor_reformas, decimal(20, 2)) as valor_reformas,
-    convert(valor_descuento, decimal(20, 2)) as valor_descuento,
-    pate as pate,
-    id_cuenta_convenio as id_cuenta_convenio,
-    asoleacion as asoleacion,
-    altura as altura,
-    convert(cerca_porteria, unsigned) as cerca_porteria,
-    convert(cerca_juegos_infantiles, unsigned) as cerca_juegos_infantiles,
-    convert(cerca_piscina, unsigned) as cerca_piscina,
-    convert(tiene_balcon, unsigned) as tiene_balcon,
-    convert(tiene_parq_sencillo, unsigned) as tiene_parq_sencillo,
-    convert(tiene_parq_doble, unsigned) as tiene_parq_doble,
-    convert(tiene_deposito, unsigned) as tiene_deposito,
-    convert(tiene_acabados, unsigned) as tiene_acabados,
+        where e.estado_unidad = t.estatus) as id_estado_unidad,
+    concat('Apto ', t.apartamento) as nombre_unidad,
+    convert(t.apartamento, int) as numero_apartamento,
+    convert(t.piso, int) as piso,
+    t.tipo as tipo,
+    if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta) as codigo_planta,
+    t.localizacion as localizacion,
+    left(t.observacion_apto, 500) as observacion_apto,
+    convert(t.fecha_fec, date) as fecha_fec,
+    convert(t.fecha_edi, date) as fecha_edi,
+    convert(t.fecha_edi_mostrar, date) as fecha_edi_mostrar,
+    convert(t.inv_terminado, unsigned) as inv_terminado,
+    convert(t.num_alcobas, int) as num_alcobas,
+    convert(t.num_banos, int) as num_banos,
+    convert(t.area_privada_cub, decimal(20, 2)) as area_privada_cub,
+    convert(t.area_privada_lib, decimal(20, 2)) as area_privada_lib,
+    convert(t.area_total, decimal(20, 2)) as area_total,
+    convert(t.acue, decimal(20, 2)) as acue,
+    convert(t.area_total_mas_acue, decimal(20, 2)) as area_total_mas_acue,
+    convert(t.valor_separacion, decimal(20, 2)) as valor_separacion,
+    convert(t.valor_acabados, decimal(20, 2)) as valor_acabados,
+    convert(t.valor_reformas, decimal(20, 2)) as valor_reformas,
+    convert(t.valor_descuento, decimal(20, 2)) as valor_descuento,
+    t.pate as pate,
+    t.id_cuenta_convenio as id_cuenta_convenio,
+    t.asoleacion as asoleacion,
+    t.altura as altura,
+    if(t.lista is null or t.lista = '', null, 
+        (select l.id_lista from dim_lista_precios l where l.lista = t.lista and l.id_proyecto = @id_proyecto)) as id_lista,
+    convert(t.cerca_porteria, unsigned) as cerca_porteria,
+    convert(t.cerca_juegos_infantiles, unsigned) as cerca_juegos_infantiles,
+    convert(t.cerca_piscina, unsigned) as cerca_piscina,
+    convert(t.tiene_balcon, unsigned) as tiene_balcon,
+    convert(t.tiene_parq_sencillo, unsigned) as tiene_parq_sencillo,
+    convert(t.tiene_parq_doble, unsigned) as tiene_parq_doble,
+    convert(t.tiene_deposito, unsigned) as tiene_deposito,
+    convert(t.tiene_acabados, unsigned) as tiene_acabados,
     @Usuario as created_by
-from tmp_unidades
+from tmp_unidades t
 on duplicate key update
     id_estado_unidad = values(id_estado_unidad),
     nombre_unidad = values(nombre_unidad),
@@ -155,6 +167,7 @@ on duplicate key update
     id_cuenta_convenio = values(id_cuenta_convenio),
     asoleacion = values(asoleacion),
     altura = values(altura),
+    id_lista = values(id_lista),
     cerca_porteria = values(cerca_porteria),
     cerca_juegos_infantiles = values(cerca_juegos_infantiles),
     cerca_piscina = values(cerca_piscina),

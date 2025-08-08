@@ -4,8 +4,9 @@
 			mode: 0,
 			ruta: [],
 			tabsIncomplete: [],
-			tabmode: 0,
+			tabmode: 1,
 			tabs: [
+				"Torres",
 				"Unidades",
 				"Listas de Precios",
 				"Agrupaciones",
@@ -22,7 +23,11 @@
 			groupedAptos: [],
 			selectedAptos: [],
 			ids_unidades: [],
+			listas: [],
+			precios: [],
 			preview: [],
+			previewList: {},
+			viewList: null,
 			loading: true,
 			stats: {
 				torres: 0,
@@ -42,6 +47,8 @@
 			torre: {},
 			apto: {},
 			grupo: {},
+			lista: {},
+			projectList: '',
 
 			filtros: {
 				aptos: {
@@ -63,7 +70,8 @@
 				}
 			},
 			editNewRow: false,
-			selRow: null,
+			selRow2: null,
+			selRow3: null,
 			editRow: false,
 
 			filtroAgrupado: false
@@ -75,25 +83,43 @@
 		this.setRuta();
 		//this.computeViews();
 		await this.loadUnidades();
+		this.setTabmode(0);
 	},
 	methods: {
 		setRuta() {
 			GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
 		},
 		async setTabmode(index) {
-			if (this.mode > 0 && index === 0) this.computeViews();
-			else if (this.tabmode !== 0 || this.mode >= 3) {
+			if (index === 0) {
+				if (this.torres.length) {
+					this.torre = this.torres[0];
+					this.tabmode = index;
+				}
+				else this.setTabmode(1);
+			}
+			if (this.mode > 0 && index === 1) this.computeViews();
+			else if (this.tabmode !== 1 || this.mode >= 3) {
 				this.tabmode = index;
 				this.ruta = [this.ruta[0], { text: this.tabs[index], action: () => this.setTabmode(index) }];
 				this.setRuta();
 			}
 			this.onClearFilters('aptos');
 			if (index === 2) {
+				await this.loadListas();
+				this.projectList = GlobalVariables.proyecto.id_lista;
+				if (this.torres.length) {
+					this.torre ||= this.torres[0];
+					this.tabmode = index;
+				}
+				if (this.listas.length) this.selRow2 ||= 0;
+			}
+			if (index === 3) {
 				await this.loadAgrupacion();
-				if (this.selRow !== null)
-					this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow].id_agrupacion + '';
+				if (this.selRow3 !== null)
+					this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow3].id_agrupacion + '';
 				else this.filtros.aptos.id_agrupacion = 'null';
 			}
+			this.editRow = false;
 		},
 		async loadUnidades() {
 			showProgress();
@@ -102,9 +128,9 @@
 			this.estados = estados;
 			let pisos = new Set(), tipos = new Set();
 			if (torres.length && aptos.length) {
-				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];
+				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];
 				aptos.forEach(a => number_fileds.forEach(key => a[key] = a[key].replace(',', '.')));
-				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], id_torre: t.id_torre }));
+				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], id_torre: t.id_torre, id_lista: t.id_lista }));
 				aptos.forEach(a => {
 					a.piso && pisos.add(a.piso);
 					a.codigo_planta && tipos.add(a.codigo_planta);
@@ -135,10 +161,16 @@
 			this.agrupaciones = (await
 				httpFunc('/generic/genericDT/Unidades:Get_Agrupacion', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			hideProgress();
-			if (this.selRow === null) {
+			if (this.selRow3 === null) {
 				this.grupo = {};
 				this.onSelectGroup(0);
 			}
+		},
+		async loadListas() {
+			showProgress();
+			this.listas = (await
+				httpFunc('/generic/genericDT/Unidades:Get_ListaPrecios', { id_proyecto: GlobalVariables.id_proyecto })).data;
+			hideProgress();
 		},
 		openFileDialog: function () {
 			document.getElementById("fileUpload").value = null;
@@ -220,7 +252,7 @@
 			hideProgress();
 		},
 		computeViews: function () {
-			this.tabmode = 0;
+			this.tabmode = 1;
 			this.mode = 3;
 			this.viewProperties === '3d' && setTimeout(this.threeInit, 10);
 			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => this.computeViews() }];
@@ -369,6 +401,9 @@
 			let i = this.filtros.aptos.torres.indexOf(torre.idtorre);
 			i === -1 ? this.filtros.aptos.torres.push(torre.idtorre) : this.filtros.aptos.torres.splice(i, 1);
 		},
+		setTorre(torre) {
+			this.torre = torre;
+		},
 		toggleApto(apto) {
 			let i = this.ids_unidades.indexOf(apto.id_unidad);
 			i === -1 ? this.ids_unidades.push(apto.id_unidad) : this.ids_unidades.splice(i, 1);
@@ -396,7 +431,7 @@
 			if (table === 'agrupaciones') {
 				this.filtros.agrupaciones = {};
 				this.onCancelGroup();
-				this.selRow = null;
+				this.selRow3 = null;
 				if (this.agrupaciones.length) this.onSelectGroup(0);
 			}
 		},
@@ -463,7 +498,7 @@
 						...this.grupo, id_proyecto: GlobalVariables.id_proyecto
 					}));
 					if (res.isError || res.data !== 'OK') throw res;
-					if (!this.grupo.id_agrupacion) this.selRow = null;
+					if (!this.grupo.id_agrupacion) this.selRow3 = null;
 					await this.loadAgrupacion();
 				} catch (e) {
 					console.error(e);
@@ -476,24 +511,45 @@
 		async onSelectGroup(i) {
 			if (this.editNewRow)
 				await this.onSaveGroup();
-			if (this.editRow && this.selRow !== null && this.selRow !== i) {
-				this.grupo.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow].id_agrupacion;
+			if (this.editRow && this.selRow3 !== null && this.selRow3 !== i) {
+				this.grupo.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow3].id_agrupacion;
 				await this.onSaveGroup();
 			}
 			if (this.agrupaciones.length) {
 				let id = this.getFilteredList('agrupaciones')[i].id_agrupacion + '';
 				this.selectedAptos = this.aptos.filter(a => a.id_agrupacion === id);
-				this.selRow = i;
+				this.selRow3 = i;
 				this.groupedAptos = this.aptos.filter(a => !a.id_agrupacion || a.id_agrupacion === id);
 			}
 			this.onClearFilters('groupedAptos');
-			this.filtros.groupedAptos.id_estado_unidad = '1';
 		},
 		async onEditGroup(grupo, i) {
 			if (!this.editNewRow) {
 				this.onSelectGroup(i);
 				this.grupo = { ...grupo };
 				this.editRow = true;
+			}
+		},
+		async onEditList(list, i) {
+			this.selRow2 = i;
+			this.lista = { ...list };
+			this.editRow = true;
+		},
+		async onSaveList() {
+			if (this.lista.id_lista) {
+				showProgress();
+				let res = null;
+				try {
+					res = await httpFunc(`/generic/genericST/Unidades:Upd_Lista`, this.lista);
+					if (res.isError || res.data !== 'OK') throw res;
+					this.lista = {};
+					this.editRow = false;
+					await this.loadListas();
+				} catch (e) {
+					console.error(e);
+					showMessage('Error:   ' + e.errorMessage || e.data);
+				}
+				hideProgress();
 			}
 		},
 		onCancelGroup() {
@@ -508,8 +564,8 @@
 				res = await (httpFunc('/generic/genericST/Unidades:Del_Agrupacion', group));
 				if (res.isError || res.data !== 'OK') throw res;
 				await this.loadUnidades();
-				this.selRow = null;
-				await this.setTabmode(2);
+				this.selRow3 = null;
+				await this.setTabmode(3);
 			} catch (e) {
 				console.error(e);
 				showMessage('Error: ' + e.errorMessage || e.data);
@@ -525,8 +581,10 @@
 			}
 		},
 		openModal() {
-			if (this.selRow !== null) {
+			if (this.selRow3 !== null) {
 				this.filtroAgrupado = false;
+				this.filtros.groupedAptos.id_agrupacion = '';
+				this.filtros.groupedAptos.id_estado_unidad = '1';
 				this.editRow = false;
 				this.editNewRow = false;
 				let $modal = document.getElementById('modalOverlay');
@@ -534,7 +592,7 @@
 				let ids_unidades = [];
 				this.groupedAptos.filter(a => a.id_agrupacion).forEach(a => ids_unidades.push(a.id_unidad));
 				this.ids_unidades = [...ids_unidades];
-				this.grupo = { ...this.getFilteredList('agrupaciones')[this.selRow] };
+				this.grupo = { ...this.getFilteredList('agrupaciones')[this.selRow3] };
 			}
 		},
 		closeModal() {
@@ -553,8 +611,8 @@
 					}));
 					if (res.isError || res.data !== 'OK') throw res;
 					await this.loadUnidades();
-					await this.setTabmode(2);
-					this.onSelectGroup(this.selRow);
+					await this.setTabmode(3);
+					this.onSelectGroup(this.selRow3);
 					this.closeModal();
 				} catch (e) {
 					console.error(e);
@@ -564,9 +622,113 @@
 			}
 			this.onCancelGroup();
 		},
-		modalGroupedAptos(e) {
+		modalGroupedAptos() {
 			this.onClearFilters('groupedAptos');
 			if (this.filtroAgrupado) this.filtros.groupedAptos.id_agrupacion = this.grupo.id_agrupacion;
+		},
+		formatList(list = []) {
+			if (list && list.length) {
+				let keys = list[0];
+				list.shift();
+				let temp = list.map(l => {
+					let obj = {};
+					keys.forEach((k, i) => obj[k] = l[i]);
+					return obj;
+				}).filter(l => l.precio !== null && l.precio !== undefined);
+				let res = {};
+				temp.forEach(l => {
+					if (res[l.lista] && res[l.lista].lista)
+						if (res[l.lista].torres[l.torre] && res[l.lista].torres[l.torre].torre)
+							res[l.lista].torres[l.torre].listas.push(l);
+						else res[l.lista].torres[l.torre] = { torre: l.torre, listas: [l] };
+					else {
+						res[l.lista] = { lista: l.lista, torres: {} };
+						res[l.lista].torres[l.torre] = { torre: l.torre, listas: [l] };
+					}
+				});
+				this.previewList = { ...res };
+				let keyList = Object.keys(res);
+				if (keyList.length) this.viewList = keyList[0];
+				this.openListModal();
+				return temp;
+			};
+		},
+		uploadList(e) {
+			var self = this;
+			showProgress();
+			const file = e.target.files[0];
+			Papa.parse(file, {
+				complete(results) {
+					//TODO Check for errores
+					let res = self.formatList(results.data);
+					//if (res && res.length) self.confirmUploadList(res);
+					hideProgress();
+				}
+			});
+		},
+		async confirmUploadList(data) {
+			showProgress();
+			let res = null;
+			try {
+				res = await (httpFunc(`/generic/genericST/Unidades:Ins_ListaPrecios`, {
+					id_proyecto: GlobalVariables.id_proyecto,
+					listas: JSON.stringify(data),
+					Usuario: GlobalVariables.username
+				}));
+				if (res.isError || res.data !== 'OK') throw res;
+				await this.loadUnidades();
+				await this.setTabmode(2);
+			} catch (e) {
+				console.error(e);
+				showMessage('Error: ' + e.errorMessage || e.data);
+			}
+			hideProgress();
+		},
+		async onSetDefaultLista() {
+			showProgress();
+			let res = null;
+			try {
+				let obj = { id_proyecto: GlobalVariables.id_proyecto };
+				if (this.projectList) obj.id_lista = this.projectList;
+				res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaProyecto`, obj);
+				if (res.isError || res.data !== 'OK') throw res;
+				GlobalVariables.proyecto.id_lista = this.projectList;
+				await this.loadUnidades();
+				await this.setTabmode(2);
+			} catch (e) {
+				console.error(e);
+				showMessage('Error: ' + e.errorMessage || e.data);
+			}
+			hideProgress();
+		},
+		async onSetLista() {
+			showProgress();
+			let res = null;
+			try {
+				let i = this.selRow2, t = {...this.torre};
+				let obj = { id_torre: t.id_torre };
+				if (this.selRow2 !== null) obj.id_lista = this.listas[this.selRow2].id_lista;
+				res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaTorre`, obj);
+				if (res.isError || res.data !== 'OK') throw res;
+				GlobalVariables.proyecto.id_lista = this.projectList;
+				await this.loadUnidades();
+				await this.setTabmode(2);
+				t.id_lista = obj.id_lista;
+				this.selRow2 = i;
+				this.torre = t;
+			} catch (e) {
+				console.error(e);
+				showMessage('Error: ' + e.errorMessage || e.data);
+			}
+			hideProgress();
+		},
+		openListModal() {
+			let $modal = document.getElementById('modalOverlayList');
+			$modal && ($modal.style.display = 'flex');
+		},
+		closeListModal(e) {
+			if (e.target.matches('#modalOverlayList'))
+				e.target.style.display = 'none';
 		}
 	},
 	computed: {
@@ -605,6 +767,10 @@
 		f_valor_acabados: {
 			get() { return this.formatNumber(this.apto['valor_acabados'], false); },
 			set(val) { this.apto['valor_acabados'] = this.cleanNumber(val); }
+		},
+		f_valor_unidad: {
+			get() { return this.formatNumber(this.apto['valor_unidad'], false); },
+			set(val) { this.apto['valor_unidad'] = this.cleanNumber(val); }
 		},
 		getFilteredList() {
 			return (tabla) => {

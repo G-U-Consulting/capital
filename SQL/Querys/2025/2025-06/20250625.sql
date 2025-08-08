@@ -1,10 +1,20 @@
-﻿create table fact_torres(
+﻿create table dim_lista_precios(
+	id_lista int primary key auto_increment,
+	lista varchar(50) not null,
+	id_proyecto int not null references fact_proyectos(id_proyecto),
+	descripcion varchar(200),
+	updated_on datetime default current_timestamp,
+	updated_by varchar(50),
+	constraint uk_lista_precios_proyecto unique(lista, id_proyecto)
+);
+create table fact_torres(
 	id_torre int not null auto_increment,
 	constraint pk_id_torre primary key(id_torre),
 	id_proyecto int not null,
 	constraint fk_id_proyecto_fact_torres foreign key(id_proyecto) references fact_proyectos(id_proyecto),
 	nombre_torre varchar(50),
 	consecutivo int,
+	id_lista int references dim_lista_precios(id_lista),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
@@ -83,6 +93,7 @@ create table fact_unidades(
 	id_cuenta_convenio int,
 	constraint fk_id_cuenta_convenio_fact_unidades foreign key(id_cuenta_convenio) references dim_cuenta_convenio(id_cuenta_convenio),
 	asoleacion varchar(50),
+	id_lista int references dim_lista_precios(id_lista),
 	altura varchar(50),
 	cerca_porteria bit default 0,
 	cerca_juegos_infantiles bit default 0,
@@ -99,4 +110,19 @@ create table fact_unidades(
 	updated_by varchar(200),
 	id_agrupacion int references dim_agrupacion_unidad(id_agrupacion),
 	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto)
+);
+
+create table dim_precio_unidad(
+	id_lista int not null references dim_lista_precios(id_lista),
+	id_unidad int not null references fact_unidades(id_unidad),
+	id_precio int,
+	precio decimal(20, 2) default 0,
+	en_smlv decimal(20, 2) default 0,
+	precio_m2 decimal(20, 2) default 0,
+	precio_alt decimal(20, 2) default 0,
+	en_smlv_alt decimal(20, 2) default 0,
+	precio_m2_alt decimal(20, 2) default 0,
+	updated_on datetime default current_timestamp,
+	updated_by varchar(50),
+	primary key(id_lista, id_unidad)
 );

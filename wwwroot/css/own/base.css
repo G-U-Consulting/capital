@@ -2365,7 +2365,7 @@ tr.cal-row-info > td {
   justify-content: space-between;
 }
 .filtros-unidades > div {
-  width: 15%;
+  width: 14%;
 }
 .lista-torres {
   display: flex;
@@ -2425,6 +2425,9 @@ tr.cal-row-info > td {
 .grouped-apto td {
   background-color: #0c62a4;
   color: white;
+}
+.red-background {
+  background-color: #c8000020 !important;
 }
 
 .tab-registro {
