@@ -141,5 +141,3 @@ insert into fact_unidades(
 from tmp_unidades t;
 
 select 'OK' as respuesta;
-
-select * from fact_unidades where id_proyecto = 3 and numero_apartamento = 1940;

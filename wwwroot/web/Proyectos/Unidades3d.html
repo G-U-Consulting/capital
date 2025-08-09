@@ -632,8 +632,8 @@
     <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 2">
         <div>
             <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                <div v-for="item in torres" class="torre" @click="setTorre(item)"
-                    v-bind:class="{'sel-torre': item.id_torre === torre.id_torre}">
+                <div v-for="item in torres" class="torre" @click="toggleTorre(item); setTorresList()"
+                    v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre)}">
                     <div style="align-self: center;">
                         <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
                     </div>
@@ -676,10 +676,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(l, i) in listas"
+                            <tr v-if="this.filtros.aptos.torres.length" v-for="(l, i) in listas"
                                 v-bind:class="{'cal-table-selected': selRow2 == i, 
                                     'cal-table-today': torre.id_lista == l.id_lista, 'red-background': torre.id_lista == l.id_lista}"
-                                @click="if(selRow2 != i) { editRow = false; lista = {}; }; selRow2 = i; console.log(l, torre)">
+                                @click="if(selRow2 != i) { editRow = false; lista = {}; }; selRow2 = i;">
                                 <td>{{l.lista}}</td>
                                 <td>{{l.updated_on}}</td>
                                 <td :style="editRow && selRow2 === i && 'padding: 0;'">
@@ -945,31 +945,42 @@
 
     <div class="cal-modal-overlay" id="modalOverlayList" @click.stop.prevent="closeListModal">
         <div class="modal-container" style="min-width: 70vw; max-width: 85vw;">
-            <div style="display: flex; gap: 1rem; max-height: 75vh; min-height: 60vh;">
+            <h2 style="text-align: center; margin-bottom: .5rem;">Previsualización Listas de Precios</h2>
+            <div style="display: flex; gap: 1rem; height: 72vh;">
                 <div>
                     <div class="lista-torres" style="height: 100%; gap: 5px; overflow-y: auto;">
-                        <div style="max-width: 15rem; border-radius: .5rem; border: 3px solid #00839C; text-align: center; padding: .5rem 1rem;"
-                            v-for="list in listas">
+                        <div class="lista-precio" v-for="list in listas" @click="viewList = list.lista;"
+                            v-bind:class="{'current-list': list.lista == viewList}">
                             <span>Lista {{list.lista}}</span>
                         </div>
                     </div>
                 </div>
                 <div style="flex-grow: 1;">
 
-                    <div class="cont-list-resources" style="width: 100%; border: 0; border-radius: 0;">
-                        <div class="list-resources">
+                    <div class="cont-list-resources"
+                        style="width: 100%; border: 0; border-radius: 0; margin: 0; height: 100%; max-height: none;">
+                        <div class="list-resources" style="overflow-y: auto;">
                             <div class="menu-section" v-if="previewList && previewList[viewList]"
-                                v-for="torre in previewList[viewList].torres">
+                                v-for="(torre, i) in previewList[viewList].torres">
                                 <div v-if="i == 0" class="menu-title" @click="toggleExpand"
                                     style="border-bottom: 2px #bbb solid;">
-                                    <span>{{true ? 'Colapsar todo' : 'Expandir todo'}}</span>
-                                    <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': true}">
+                                    <span>{{torre.expanded ? 'Colapsar todo' : 'Expandir todo'}}</span>
+                                    <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': torre.expanded}">
                                 </div>
-                                <div class="menu-title" @click="console.log($event)">
-                                    <span>Torre {{torre.torre}}</span>
-                                    <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': true}">
+                                <div class="menu-title" style="justify-content: flex-end; gap: 1rem" 
+                                    @click="torre.expanded = !torre.expanded">
+                                    <span style="margin-right: auto;">Torre {{torre.torre}}</span>
+                                    <div @click.stop.prevent="toggleSelectedTorre(torre)">
+                                        <label class="check" :for="`selected-t-${torre.torre}`"
+                                            style="display: inline; padding-left: 15px;">
+                                            <input type="checkbox" :id="`selected-t-${torre.torre}`"
+                                                style="display: none;" v-model="torre.selected" />
+                                            <span class="checkmark" style="background-color: white;"></span>
+                                        </label>
+                                    </div>
+                                    <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': torre.expanded}">
                                 </div>
-                                <div class="menu-content" v-bind:class="{'open': true}" style="padding: 0;">
+                                <div class="menu-content" v-bind:class="{'open': torre.expanded}" style="padding: 0;">
                                     <table class="dataTable" style="table-layout: auto;">
                                         <thead>
                                             <tr>
@@ -992,7 +1003,15 @@
                                                 <td>{{precio.precio_alt}}</td>
                                                 <td>{{precio.en_smlv_alt}}</td>
                                                 <td>{{precio.precio_m2_alt}}</td>
-                                                <td></td>
+                                                <td style="text-align: center;"
+                                                    @click="toggleSelectedApto(precio, torre)">
+                                                    <label class="check" :for="`selected-${precio.apartamento}`"
+                                                        style="display: inline; padding-left: 15px;">
+                                                        <input type="checkbox" :id="`selected-${precio.apartamento}`"
+                                                            style="display: none;" v-model="precio.selected" />
+                                                        <span class="checkmark" style="background-color: white;"></span>
+                                                    </label>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -1000,9 +1019,9 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
+            <button @click="confirmUploadList" style="display: block; margin: 1rem auto 0;">Guardar</button>
         </div>
     </div>
 </div>

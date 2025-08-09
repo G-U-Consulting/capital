@@ -400,6 +400,7 @@ table thead th {
     color: white;
     z-index: 2;
     border-top: 1px #00839C solid;
+    text-align: center;
   }
 .table-container {
     max-height: 50vh;
@@ -1810,7 +1811,7 @@ div.btn-left-rotafolio img {
 
 .menu-title {
   cursor: pointer;
-  padding: 5px;
+  padding: 5px 10px;
   background-color: #f2f2f2;
   width: 100%;
   text-align: left;
@@ -1818,19 +1819,17 @@ div.btn-left-rotafolio img {
   outline: none;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   user-select: none;
 }
 .menu-title span {
   display: inline-block;
-  margin-left: 5px;
   font-size: 15px;
 }
 .menu-title img {
   display: inline-block;
   height: 25px;
   width: auto;
-  margin-left: auto;
-  margin-right: 5px;
   transition: transform .15s ease-in-out;
   user-select: none;
 }
@@ -2435,6 +2434,21 @@ tr.cal-row-info > td {
 }
 .red-background {
   background-color: #c8000020 !important;
+}
+
+.lista-precio {
+  max-width: 15rem; 
+  border-radius: .5rem; 
+  border: 3px solid #00839C; 
+  text-align: center; 
+  padding: .5rem 1rem;
+  cursor: pointer;
+}
+
+.lista-precio.current-list {
+  color: white;
+  background: #00839C;
+  border: 3px #173d5b solid;
 }
 
 .tab-registro {

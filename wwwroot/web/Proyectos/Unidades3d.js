@@ -108,7 +108,9 @@
 				await this.loadListas();
 				this.projectList = GlobalVariables.proyecto.id_lista;
 				if (this.torres.length) {
-					this.torre ||= this.torres[0];
+					this.filtros.aptos.torres = [this.torres[0].idtorre];
+					this.selRow2 = this.listas.findIndex(l => l.id_lista === this.torres[0].id_lista);
+					if (this.selRow2 == -1) this.selRow2 = 0;
 					this.tabmode = index;
 				}
 				if (this.listas.length) this.selRow2 ||= 0;
@@ -401,6 +403,21 @@
 			let i = this.filtros.aptos.torres.indexOf(torre.idtorre);
 			i === -1 ? this.filtros.aptos.torres.push(torre.idtorre) : this.filtros.aptos.torres.splice(i, 1);
 		},
+		setTorresList() {
+			let torres = this.filtros.aptos.torres;
+			if (torres.length) {
+				let id_lista = this.torres.find(t => t.idtorre == torres[0])?.id_lista;
+				if (id_lista && torres.every(t => {
+					let id = this.torres.find(e => e.idtorre == t)?.id_lista;
+					return id == id_lista;
+				})) {
+					this.torre.id_lista = id_lista;
+					this.selRow2 = this.listas.findIndex(l => l.id_lista === id_lista);
+					if (this.selRow2 == -1) this.selRow2 = 0;
+				}
+				else this.torre = {};
+			}
+		},
 		setTorre(torre) {
 			this.torre = torre;
 		},
@@ -637,47 +654,60 @@
 				}).filter(l => l.precio !== null && l.precio !== undefined);
 				let res = {};
 				temp.forEach(l => {
+					l.selected = true;
 					if (res[l.lista] && res[l.lista].lista)
 						if (res[l.lista].torres[l.torre] && res[l.lista].torres[l.torre].torre)
 							res[l.lista].torres[l.torre].listas.push(l);
-						else res[l.lista].torres[l.torre] = { torre: l.torre, listas: [l] };
+						else res[l.lista].torres[l.torre] = { torre: l.torre, listas: [l], expanded: false, selected: true };
 					else {
 						res[l.lista] = { lista: l.lista, torres: {} };
-						res[l.lista].torres[l.torre] = { torre: l.torre, listas: [l] };
+						res[l.lista].torres[l.torre] = { torre: l.torre, listas: [l], expanded: false, selected: true };
 					}
 				});
 				this.previewList = { ...res };
 				let keyList = Object.keys(res);
 				if (keyList.length) this.viewList = keyList[0];
 				this.openListModal();
-				return temp;
 			};
 		},
 		uploadList(e) {
 			var self = this;
 			showProgress();
 			const file = e.target.files[0];
-			Papa.parse(file, {
-				complete(results) {
-					//TODO Check for errores
-					let res = self.formatList(results.data);
-					//if (res && res.length) self.confirmUploadList(res);
-					hideProgress();
-				}
-			});
+			if (file) {
+				Papa.parse(file, {
+					complete(results) {
+						self.formatList(results.data);
+						e.target.value = '';
+						hideProgress();
+					}
+				});
+			}
 		},
-		async confirmUploadList(data) {
+		toggleSelectedTorre(torre) {
+			torre.selected = !torre.selected;
+			torre.listas.forEach(a => a.selected = torre.selected);
+		},
+		toggleSelectedApto(apto, torre) {
+			if (apto.selected) torre.selected = false;
+			apto.selected = !apto.selected;
+			if (torre.listas.every(a => a.selected)) torre.selected = true;
+		},
+		async confirmUploadList() {
 			showProgress();
 			let res = null;
 			try {
 				res = await (httpFunc(`/generic/genericST/Unidades:Ins_ListaPrecios`, {
 					id_proyecto: GlobalVariables.id_proyecto,
-					listas: JSON.stringify(data),
+					listas: JSON.stringify(this.previewList),
 					Usuario: GlobalVariables.username
 				}));
 				if (res.isError || res.data !== 'OK') throw res;
 				await this.loadUnidades();
 				await this.setTabmode(2);
+				let $modal = document.getElementById('modalOverlayList');
+				$modal && ($modal.style.display = 'none');
+				this.previewList = {};
 			} catch (e) {
 				console.error(e);
 				showMessage('Error: ' + e.errorMessage || e.data);
@@ -702,25 +732,33 @@
 			hideProgress();
 		},
 		async onSetLista() {
-			showProgress();
-			let res = null;
-			try {
-				let i = this.selRow2, t = {...this.torre};
-				let obj = { id_torre: t.id_torre };
-				if (this.selRow2 !== null) obj.id_lista = this.listas[this.selRow2].id_lista;
-				res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaTorre`, obj);
-				if (res.isError || res.data !== 'OK') throw res;
-				GlobalVariables.proyecto.id_lista = this.projectList;
-				await this.loadUnidades();
-				await this.setTabmode(2);
-				t.id_lista = obj.id_lista;
-				this.selRow2 = i;
-				this.torre = t;
-			} catch (e) {
-				console.error(e);
-				showMessage('Error: ' + e.errorMessage || e.data);
+			let filtros = [...this.filtros.aptos.torres];
+			if (filtros.length) {
+				showProgress();
+				let res = null;
+				try {
+					let i = this.selRow2, t = { ...this.torre };
+					let ids_torres = filtros.map(t => {
+						let torre = this.torres.find(e => e.idtorre == t);
+						return torre.id_torre;
+					}).join(',');
+					let obj = { ids_torres };
+					if (this.selRow2 !== null) obj.id_lista = this.listas[this.selRow2].id_lista;
+					res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaTorre`, obj);
+					if (res.isError || res.data !== 'OK') throw res;
+					GlobalVariables.proyecto.id_lista = this.projectList;
+					await this.loadUnidades();
+					await this.setTabmode(2);
+					t.id_lista = obj.id_lista;
+					this.selRow2 = i;
+					this.torre = t;
+					this.filtros.aptos.torres = filtros;
+				} catch (e) {
+					console.error(e);
+					showMessage('Error: ' + e.errorMessage || e.data);
+				}
+				hideProgress();
 			}
-			hideProgress();
 		},
 		openListModal() {
 			let $modal = document.getElementById('modalOverlayList');
