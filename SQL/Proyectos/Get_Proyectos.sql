@@ -65,6 +65,7 @@ select
     a.id_bancos_financiador,
     a.id_zona_proyecto,
     a.id_lista,
+    a.alerta_cambio_lista,
     case when j.tipo_vis = 'No VIS' then 'NO' else 'SI' end as tipo_vis
 from fact_proyectos a
 left join dim_ciudadela b on a.id_ciudadela = b.id_ciudadela

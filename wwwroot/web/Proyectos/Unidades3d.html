@@ -34,10 +34,147 @@
             </div>
         </div>
         <div style="flex-grow: 1;">
-            <div class="pure-g">
-                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-bottom: .5rem;">
-                    Torre {{torre.idtorre}}
+            <div class="pure-g" style="height: calc(100vh - 12rem); overflow-y: auto;">
+                <div class="pure-u-1-1 pure-u-md-1-1 formDivision right-button">
+                    <span style="font-size: 1.5em;">Torre {{torre.idtorre}}</span>
+                    <div style="min-width: 150px;">
+                        <label for="up-csv" class="file">Actualizar con CSV</label>
+                        <input id="up-csv" type="file" @input="handleChangeFile($event, true)" style="display: none;"
+                            accept=".csv" />
+                    </div>
+                </div>
+                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
+                    <div style="width: 50%; display: flex; align-items: center; gap: 3rem">
+                        <label>Orden de salida</label>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="number" style="width: 5rem;">
+                            <span class="icon-button" style="padding: 0; margin: 0; height: fit-content;">
+                                <img src="../../img/ico/up.png" alt="" style="margin: 0; height: 25px; width: 25px;">
+                            </span>
+                            <span class="icon-button" style="padding: 0;  margin: 0; height: fit-content;">
+                                <img src="../../img/ico/down.png" alt="" style="margin: 0; height: 25px; width: 25px;">
+                            </span>
+                        </div>
+                    </div>
+                    <div style="width: 25%; display: flex; padding: .5rem;">
+                        <label class="check" for="en_venta">
+                            <input type="checkbox" id="en_venta" v-model="" />
+                            <span class="checkmark"></span>
+                            En venta
+                        </label>
+                    </div>
+                    <div style="width: 25%;"></div>
+                </div>
+                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
+                    <div style="width: 33%; display: flex; align-items: center;">
+                        <label style="width: 50%;">Aptos por piso</label>
+                        <input type="number" style="width: 50%;">
+                    </div>
+                    <div style="width: 33%; display: flex; align-items: center; gap: 1rem;">
+                        <label style="width: 50%; text-align: right;">ID Sinco</label>
+                        <input type="text" style="width: 50%;">
+                    </div>
+                </div>
+
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
+                    Fechas importantes estimadas
                 </h2>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <label>Punto de equilibrio</label>
+                        <input type="date" v-model="" class="pure-input-1" />
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <label>Inicio de obras</label>
+                        <input type="date" v-model="" class="pure-input-1" />
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <label>Escrituración</label>
+                        <input type="date" v-model="" class="pure-input-1" />
+                    </div>
+                </div>
+
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
+                    Personalización del pago del cliente
+                </h2>
+                <div class="pure-u-1-1" style="padding: .5rem;">
+                    <div style="display: flex;">
+                        <label class="check" for="pro_pago">
+                            <input type="checkbox" id="pro_pago" v-model="" />
+                            <span class="checkmark"></span>
+                            Permitir propuestas de pago
+                        </label>
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <label>Tasa base</label>
+                        <select v-model="" class="pure-input-1">
+                            <option>[Seleccione]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <label>Antes P.Equ.</label>
+                        <select v-model="" class="pure-input-1">
+                            <option>[Seleccione]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <label>Después P.Equ.</label>
+                        <select v-model="" class="pure-input-1">
+                            <option>[Seleccione]</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
+                    Integración Fiduciaria API 1
+                </h2>
+                <div class="pure-u-1-1 pure-u-md-1-2"
+                    style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
+                    <label>Fiduciaria</label>
+                    <select v-model="" class="pure-input-1" style="width: 50%;">
+                        <option>[Seleccione]</option>
+                    </select>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-2"
+                    style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
+                    <label>Código proyecto en fiduciaria</label>
+                    <select v-model="" class="pure-input-1" style="width: 50%;">
+                        <option>[Seleccione]</option>
+                    </select>
+                </div>
+
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
+                    Cupón de pago Avisor Fiduciaria
+                </h2>
+                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
+                    <label style="width: 50%;">
+                        NIT Fiduciaria sobrescribe Doc-Cliente
+                    </label>
+                    <select v-model="" class="pure-input-1" style="width: 25%; margin-left: 1rem;">
+                        <option>[Seleccione]</option>
+                    </select>
+                    <div style="width: 25%;"></div>
+                </div>
+                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
+                    <label style="width: 50%;">
+                        Instructivo Consignación y Cierre
+                    </label>
+                    <select v-model="" class="pure-input-1" style="width: 50%;">
+                        <option>[Seleccione]</option>
+                    </select>
+                </div>
+
             </div>
         </div>
     </div>
@@ -300,7 +437,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="apto in getFilteredList('aptos')" @click="onSelectApto(apto)">
+                                <tr v-for="apto in getFilteredList('aptos')" @dblclick="onSelectApto(apto)">
                                     <td>{{apto.idtorre}}</td>
                                     <td>{{apto.apartamento}}</td>
                                     <td>{{apto.piso}}</td>
@@ -651,8 +788,9 @@
         </div>
         <div style="flex-grow: 1;">
             <div class="pure-g">
-                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-bottom: .5rem;">
-                    Lista de Precios Vigente:
+                <h2 class="formDivision pure-u-1-1"
+                    style="font-size: 1.5em; margin-bottom: .5rem; display: flex; gap: 1rem; align-items: center;">
+                    <span>Lista de Precios Vigente: {{listas.find(l => l.id_lista === torre.id_lista)?.lista}}</span>
                 </h2>
                 <div class="pure-u-1-2 pure-u-md-1-4">
                     <button>Exportar Plantilla</button>
@@ -665,7 +803,7 @@
                     <label for="up-list-csv" class="file">Importar Listas</label>
                     <input id="up-list-csv" type="file" @input="uploadList" style="display: none;" accept=".csv" />
                 </div>
-                <div class="pure-u-1-1" style="height: calc(100vh - 26rem); overflow-y: auto; margin-top: .5rem;">
+                <div class="pure-u-1-1" style="height: calc(100vh - 24rem); overflow-y: auto; margin-top: .5rem;">
                     <table class="dataTable" style="table-layout: auto;">
                         <thead>
                             <tr>
@@ -679,7 +817,8 @@
                             <tr v-if="this.filtros.aptos.torres.length" v-for="(l, i) in listas"
                                 v-bind:class="{'cal-table-selected': selRow2 == i, 
                                     'cal-table-today': torre.id_lista == l.id_lista, 'red-background': torre.id_lista == l.id_lista}"
-                                @click="if(selRow2 != i) { editRow = false; lista = {}; }; selRow2 = i;">
+                                @click="if(selRow2 != i) { editRow = false; lista = {}; }; selRow2 = i;"
+                                @dblclick="detailList(l)">
                                 <td>{{l.lista}}</td>
                                 <td>{{l.updated_on}}</td>
                                 <td :style="editRow && selRow2 === i && 'padding: 0;'">
@@ -696,29 +835,32 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- <div class="pure-u-1-1 pure-u-md-2-3"
-                    style="display: flex; gap: 2rem; align-items: center; margin-top: 1rem;">
+
+                <div class="pure-u-1-1 pure-u-md-1-3 formInputStandard" style="margin-top: .5rem;">
+                    <label for="email-auto">Alerta cambios de lista:</label>
+                    <input v-model="projectAlert" type="text" id="email-auto" style="width: 14rem;"
+                        v-bind:class="{'errorInput': projectAlert && !isEmail(projectAlert)}">
+                </div>
+
+                <div class="pure-u-1-1 pure-u-md-1-3 formInputStandard" style="margin-top: .5rem;">
                     <label for="lista-vigente">Lista vigente por defecto:</label>
-                    <select name="lista-vigente" id="lista-vigente" style="width: 10rem;" v-model="projectList">
+                    <select name="lista-vigente" id="lista-vigente" style="width: 10rem;" v-model="projectList"
+                        @change="onSetDefaultLista">
                         <option value="">[Seleccione]</option>
-                        <option v-for="l in listas" :value="l.id_lista">{{l.lista}}</option>
+                        <option v-for="l in listas" :value="l.id_lista">Lista {{l.lista}}</option>
                     </select>
                 </div>
-                <div class="pure-u-1-1 pure-u-md-1-1" style="text-align: right; margin-top: 1rem;">
-                    <button @click="onSetLista">Establecer vigente</button>
-                </div> -->
-                <div class="pure-u-1-1 pure-u-md-2-3"
-                    style="display: flex; gap: 2rem; align-items: center; margin-top: 1rem;">
-                    <label for="email-auto">Alerta cambios automáticos de lista:</label>
-                    <input type="text" id="email-auto" style="width: 14rem;">
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-3" style="text-align: right; margin-top: 1rem;">
-                    <button @click="onSetLista">Establecer vigente</button>
+                <div class="pure-u-1-1 pure-u-md-1-3" style="text-align: right; margin-top: 2.2rem;">
+                    <button
+                        @click="filtros.aptos.torres.length && selRow2 !== null &&
+                            reqOperation(`Se asignará la lista ${listas[selRow2].lista} a las siguientes torres: ${filtros.aptos.torres.join(', ')}`, onSetLista)">
+                        Establecer vigente
+                    </button>
                 </div>
 
                 <div class="pure-u-2-5"></div>
-                <div class="pure-u-1-5" style="margin-top: 4rem; text-align: center;">
-                    <button>Guardar</button>
+                <div class="pure-u-1-5" style="margin-top: .5rem; text-align: center;">
+                    <button @click="onSaveTabLists">Guardar</button>
                 </div>
             </div>
         </div>
@@ -945,9 +1087,10 @@
 
     <div class="cal-modal-overlay" id="modalOverlayList" @click.stop.prevent="closeListModal">
         <div class="modal-container" style="min-width: 70vw; max-width: 85vw;">
-            <h2 style="text-align: center; margin-bottom: .5rem;">Previsualización Listas de Precios</h2>
+            <h2 style="text-align: center; margin-bottom: .5rem;">{{listFromCSV ? 'Previsualización Listas de Precios' :
+                `Detalles de lista ${viewList}`}}</h2>
             <div style="display: flex; gap: 1rem; height: 72vh;">
-                <div>
+                <div v-if="listFromCSV">
                     <div class="lista-torres" style="height: 100%; gap: 5px; overflow-y: auto;">
                         <div class="lista-precio" v-for="list in listas" @click="viewList = list.lista;"
                             v-bind:class="{'current-list': list.lista == viewList}">
@@ -967,10 +1110,10 @@
                                     <span>{{torre.expanded ? 'Colapsar todo' : 'Expandir todo'}}</span>
                                     <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': torre.expanded}">
                                 </div>
-                                <div class="menu-title" style="justify-content: flex-end; gap: 1rem" 
+                                <div class="menu-title" style="justify-content: flex-end; gap: 1rem"
                                     @click="torre.expanded = !torre.expanded">
                                     <span style="margin-right: auto;">Torre {{torre.torre}}</span>
-                                    <div @click.stop.prevent="toggleSelectedTorre(torre)">
+                                    <div v-if="listFromCSV" @click.stop.prevent="toggleSelectedTorre(torre)">
                                         <label class="check" :for="`selected-t-${torre.torre}`"
                                             style="display: inline; padding-left: 15px;">
                                             <input type="checkbox" :id="`selected-t-${torre.torre}`"
@@ -987,28 +1130,30 @@
                                                 <th>Unidad ID</th>
                                                 <th>Precio</th>
                                                 <th>En smlv</th>
-                                                <th>Precio m2</th>
+                                                <th>Precio m²</th>
                                                 <th>Precio alt</th>
                                                 <th>En smlv alt</th>
-                                                <th>Precio m2 alt</th>
-                                                <th>Agregar</th>
+                                                <th>Precio m² alt</th>
+                                                <th v-if="listFromCSV">Agregar</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr v-for="precio in torre.listas">
-                                                <td>{{precio.apartamento}}</td>
-                                                <td>{{precio.precio}}</td>
-                                                <td>{{precio.en_smlv}}</td>
-                                                <td>{{precio.precio_m2}}</td>
-                                                <td>{{precio.precio_alt}}</td>
-                                                <td>{{precio.en_smlv_alt}}</td>
-                                                <td>{{precio.precio_m2_alt}}</td>
-                                                <td style="text-align: center;"
-                                                    @click="toggleSelectedApto(precio, torre)">
-                                                    <label class="check" :for="`selected-${precio.apartamento}`"
+                                            <tr v-for="p in torre.precios">
+                                                <td>{{p.apartamento}}</td>
+                                                <td style="text-align: right;">{{formatNumber(p.precio)}}</td>
+                                                <td style="text-align: right;">{{formatNumber(p.en_smlv)}}</td>
+                                                <td style="text-align: right;">{{formatNumber(p.precio_m2, true, 2)}}
+                                                </td>
+                                                <td style="text-align: right;">{{formatNumber(p.precio_alt)}}</td>
+                                                <td style="text-align: right;">{{formatNumber(p.en_smlv_alt)}}</td>
+                                                <td style="text-align: right;">{{formatNumber(p.precio_m2_alt, true,
+                                                    2)}}</td>
+                                                <td style="text-align: center;" v-if="listFromCSV"
+                                                    @click="toggleSelectedApto(p, torre)">
+                                                    <label class="check" :for="`selected-${p.apartamento}`"
                                                         style="display: inline; padding-left: 15px;">
-                                                        <input type="checkbox" :id="`selected-${precio.apartamento}`"
-                                                            style="display: none;" v-model="precio.selected" />
+                                                        <input type="checkbox" :id="`selected-${p.apartamento}`"
+                                                            style="display: none;" v-model="p.selected" />
                                                         <span class="checkmark" style="background-color: white;"></span>
                                                     </label>
                                                 </td>
@@ -1021,7 +1166,10 @@
                     </div>
                 </div>
             </div>
-            <button @click="confirmUploadList" style="display: block; margin: 1rem auto 0;">Guardar</button>
+            <button v-if="listFromCSV" @click="confirmUploadList"
+                style="display: block; margin: 1rem auto 0;">Guardar</button>
+            <button v-else class="closeListModal" @click="closeListModal"
+                style="display: block; margin: 1rem auto 0;">Cancelar</button>
         </div>
     </div>
 </div>

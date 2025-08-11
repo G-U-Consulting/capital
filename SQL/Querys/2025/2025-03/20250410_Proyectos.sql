@@ -249,7 +249,8 @@ create table fact_proyectos(
 	constraint fk_id_banco_constructor_fact_proyectos foreign key(id_banco_constructor) references dim_banco_constructor(id_banco),
 	id_bancos_financiador int,
 	constraint fk_id_bancos_financiador_fact_proyectos foreign key(id_bancos_financiador) references dim_banco_constructor(id_banco),
-	id_lista int references dim_lista_precios(id_lista)
+	id_lista int references dim_lista_precios(id_lista),
+	alerta_cambio_lista varchar(200)
 );
 
 create table fact_documentos (

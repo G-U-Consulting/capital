@@ -28,6 +28,7 @@
 			preview: [],
 			previewList: {},
 			viewList: null,
+			listFromCSV: false,
 			loading: true,
 			stats: {
 				torres: 0,
@@ -49,6 +50,7 @@
 			grupo: {},
 			lista: {},
 			projectList: '',
+			projectAlert: '',
 
 			filtros: {
 				aptos: {
@@ -107,6 +109,7 @@
 			if (index === 2) {
 				await this.loadListas();
 				this.projectList = GlobalVariables.proyecto.id_lista;
+				this.projectAlert = GlobalVariables.proyecto.alerta_cambio_lista || '';
 				if (this.torres.length) {
 					this.filtros.aptos.torres = [this.torres[0].idtorre];
 					this.selRow2 = this.listas.findIndex(l => l.id_lista === this.torres[0].id_lista);
@@ -170,8 +173,12 @@
 		},
 		async loadListas() {
 			showProgress();
-			this.listas = (await
+			let lists = (await
 				httpFunc('/generic/genericDT/Unidades:Get_ListaPrecios', { id_proyecto: GlobalVariables.id_proyecto })).data;
+			if(lists.every(l => !Number.isNaN(Number(l.lista))))
+				lists.sort((a, b) => Number(a.lista) - Number(b.lista));
+			else lists.sort();
+			this.listas = [...lists];
 			hideProgress();
 		},
 		openFileDialog: function () {
@@ -416,7 +423,9 @@
 					if (this.selRow2 == -1) this.selRow2 = 0;
 				}
 				else this.torre = {};
-			}
+			} else this.torre = {};
+			this.editRow = false; 
+			this.lista = {};
 		},
 		setTorre(torre) {
 			this.torre = torre;
@@ -475,11 +484,12 @@
 			}
 			hideProgress();
 		},
-		formatNumber(value, dec = true) {
+		formatNumber(value, dec = true, ndec = 0) {
 			if (!value) return "";
 			let [parteEntera, parteDecimal] = value.split(".");
 			parteEntera = parteEntera.replace(/\D/g, "");
 			parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
+			parteDecimal = dec && ndec > 0 ? parteDecimal.padEnd(ndec, '0') : "";
 
 			let groups = [];
 			let len = parteEntera.length;
@@ -491,8 +501,11 @@
 				formattedEntera += '.' + groups[i];
 
 			let result = formattedEntera;
-			if (parteDecimal)
+			if (parteDecimal) {
+				if (ndec > 0 && parteDecimal.length > ndec) 
+					parteDecimal = Math.round(parseInt(parteDecimal) / Math.pow(10, parteDecimal.length - ndec)).toString();
 				result += "," + parteDecimal;
+			}
 
 			return result;
 		},
@@ -657,16 +670,17 @@
 					l.selected = true;
 					if (res[l.lista] && res[l.lista].lista)
 						if (res[l.lista].torres[l.torre] && res[l.lista].torres[l.torre].torre)
-							res[l.lista].torres[l.torre].listas.push(l);
-						else res[l.lista].torres[l.torre] = { torre: l.torre, listas: [l], expanded: false, selected: true };
+							res[l.lista].torres[l.torre].precios.push(l);
+						else res[l.lista].torres[l.torre] = { torre: l.torre, precios: [l], expanded: false, selected: true };
 					else {
 						res[l.lista] = { lista: l.lista, torres: {} };
-						res[l.lista].torres[l.torre] = { torre: l.torre, listas: [l], expanded: false, selected: true };
+						res[l.lista].torres[l.torre] = { torre: l.torre, precios: [l], expanded: false, selected: true };
 					}
 				});
 				this.previewList = { ...res };
 				let keyList = Object.keys(res);
 				if (keyList.length) this.viewList = keyList[0];
+				this.listFromCSV = true;
 				this.openListModal();
 			};
 		},
@@ -686,12 +700,12 @@
 		},
 		toggleSelectedTorre(torre) {
 			torre.selected = !torre.selected;
-			torre.listas.forEach(a => a.selected = torre.selected);
+			torre.precios.forEach(a => a.selected = torre.selected);
 		},
 		toggleSelectedApto(apto, torre) {
-			if (apto.selected) torre.selected = false;
 			apto.selected = !apto.selected;
-			if (torre.listas.every(a => a.selected)) torre.selected = true;
+			if (torre.precios.every(a => a.selected)) torre.selected = true;
+			else torre.selected = false;
 		},
 		async confirmUploadList() {
 			showProgress();
@@ -714,22 +728,28 @@
 			}
 			hideProgress();
 		},
-		async onSetDefaultLista() {
-			showProgress();
-			let res = null;
-			try {
-				let obj = { id_proyecto: GlobalVariables.id_proyecto };
-				if (this.projectList) obj.id_lista = this.projectList;
-				res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaProyecto`, obj);
-				if (res.isError || res.data !== 'OK') throw res;
-				GlobalVariables.proyecto.id_lista = this.projectList;
-				await this.loadUnidades();
-				await this.setTabmode(2);
-			} catch (e) {
-				console.error(e);
-				showMessage('Error: ' + e.errorMessage || e.data);
+		async onSaveTabLists() {
+			if(this.projectAlert && !this.isEmail(this.projectAlert))
+				showMessage("Error: Debe ingresar un correo válido");
+			else {
+				showProgress();
+				let res = null;
+				try {
+					let obj = { id_proyecto: GlobalVariables.id_proyecto };
+					if (this.projectList) obj.id_lista = this.projectList;
+					if (this.projectAlert) obj.alerta_cambio_lista = this.projectAlert;
+					res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaProyecto`, obj);
+					if (res.isError || res.data !== 'OK') throw res;
+					GlobalVariables.proyecto.id_lista = this.projectList;
+					GlobalVariables.proyecto.alerta_cambio_lista = this.projectAlert;
+					await this.loadUnidades();
+					await this.setTabmode(2);
+				} catch (e) {
+					console.error(e);
+					showMessage('Error: ' + e.errorMessage || e.data);
+				}
+				hideProgress();
 			}
-			hideProgress();
 		},
 		async onSetLista() {
 			let filtros = [...this.filtros.aptos.torres];
@@ -747,6 +767,7 @@
 					res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaTorre`, obj);
 					if (res.isError || res.data !== 'OK') throw res;
 					GlobalVariables.proyecto.id_lista = this.projectList;
+					GlobalVariables.proyecto.alerta_cambio_lista = this.projectAlert;
 					await this.loadUnidades();
 					await this.setTabmode(2);
 					t.id_lista = obj.id_lista;
@@ -767,7 +788,36 @@
 		closeListModal(e) {
 			if (e.target.matches('#modalOverlayList'))
 				e.target.style.display = 'none';
-		}
+			if (e.target.matches('.closeListModal'))
+				document.getElementById('modalOverlayList').style.display = 'none';
+		},
+		reqOperation(msg, okCallback, item){
+			showConfirm(msg, okCallback, null, item);
+		},
+		async detailList(lista) {
+			showProgress();
+			let precios = (await httpFunc('/generic/genericDT/Unidades:Get_PreciosLista', 
+				{ id_lista: lista.id_lista, torres: this.filtros.aptos.torres.join(',') })).data;
+			if (precios.length) {
+				let torres = {};
+				precios.forEach(p => {
+					Object.keys(p).forEach(k => p[k] = p[k].replace(',', '.'));
+					if (torres[p.torre]) torres[p.torre].precios.push(p);
+					else torres[p.torre] = { torre: p.torre, precios: [p], expanded: false }
+				});
+				let obj = {};
+				obj[lista.lista] = { lista: lista.lista, torres };
+				this.previewList = obj;
+				this.viewList = lista.lista;
+				this.listFromCSV = false;
+				this.openListModal();
+			}
+			hideProgress();
+		},
+		isEmail(email) {
+            let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
+            return !email || regex.test(email);
+        },
 	},
 	computed: {
 		f_area_privada_cub: {

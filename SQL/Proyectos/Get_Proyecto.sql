@@ -64,6 +64,7 @@ select
     a.id_tipo_financiacion,
     a.id_tipo_vis,
     a.id_lista,
+    a.alerta_cambio_lista,
     id_opcion_visual,
     (
         select group_concat(id_estado_publicacion)
