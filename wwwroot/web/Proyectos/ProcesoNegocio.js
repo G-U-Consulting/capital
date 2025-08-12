@@ -312,8 +312,8 @@ export default {
       }
 
     },
-      async setSubmode(index) {
-        this.campoObligatorio();
+    async setSubmode(index) {
+      this.campoObligatorio();
       if (index == 1) {
         let resp2 = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { cliente: this.cliente });
         this.visitas = resp2.data[0];
@@ -337,9 +337,9 @@ export default {
         .filter(item => item.checked)
         .map(item => item.id_modo_atencion);
       this.ObjVisita.modo_atencion = estadopublicacion.join(',');
-      if(this.ObjVisita.id_visita != null){
-          showMessage("Esta visita no se puede actualizar.");
-          return;
+      if (this.ObjVisita.id_visita != null) {
+        showMessage("Esta visita no se puede actualizar.");
+        return;
       }
       if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
       if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
@@ -400,7 +400,7 @@ export default {
       this.contadorProyectos = contador;
     },
     //////// mode 2
-     async showAtencionModal(){
+    async showAtencionModal() {
       this.mostrarModal = true
     },
 
@@ -418,13 +418,13 @@ export default {
       const mm = pad(nuevaFecha.getMinutes());
       const ss = pad(nuevaFecha.getSeconds());
       const formatoFecha = `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
-  
+
       let siguienteId = 1;
       if (this.cotizaciones.length > 0) {
         const ids = this.cotizaciones.map(c => parseInt(c.cotizacion) || 0);
         siguienteId = Math.max(...ids) + 1;
       }
-  
+
       this.cotizaciones.push({
         cotizacion: siguienteId,
         fecha: formatoFecha,
@@ -432,7 +432,7 @@ export default {
         importe: 0,
         id_cliente: this.id_cliente,
       });
-  
+
       this.cotizacionActiva = siguienteId;
     },
     eliminarCotizacionActivaSiVacia(event) {
@@ -472,17 +472,17 @@ export default {
       let res = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto", {
         id_proyecto: GlobalVariables.id_proyecto
       })).data;
-    
+
       if (res.length) this.proyecto = res[0];
-    
+
       let id_sala_venta = this.proyecto.id_sala_venta;
-      let modulo = this.mode+1;
+      let modulo = this.mode + 1;
       let resp = (await httpFunc("/generic/genericDS/ProcesoNegocio:Get_Obligatorio", {
         id_sala_venta,
         modulo
       })).data;
-        this.camposObligatorios = resp[0].map(r => r.campobd);
-        this.nombreCampos = resp[0].map(r => r.campo)
+      this.camposObligatorios = resp[0].map(r => r.campobd);
+      this.nombreCampos = resp[0].map(r => r.campo)
     },
     validarCampos(obj, camposObligatorios) {
       for (let i = 0; i < camposObligatorios.length; i++) {
@@ -506,7 +506,7 @@ export default {
         this.registroCompras = [];
       }
     },
-    sincliente(){
+    sincliente() {
       this.mode = 2;
     },
     async continuarCliente() {
@@ -520,7 +520,7 @@ export default {
       this.busquedaCliente();
     },
     abrirNuevoModulo() {
-      if(this.cotizacionSeleccionada == null){
+      if (this.cotizacionSeleccionada == null) {
         showMessage("Debe seleccionar una cotización para agregar unidades.");
         return;
       }
@@ -544,8 +544,46 @@ export default {
     },
     async seleccionarCotizacion(cotizacionId) {
       this.cotizacionSeleccionada = cotizacionId;
-      let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', { id_cliente: this.id_cliente, id_cotizacion: cotizacionId });
-      this.unidades = respa.data[0];
-    }
-  },
+
+      let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {
+        id_cliente: this.id_cliente,
+        id_cotizacion: cotizacionId,
+        id_proyecto: GlobalVariables.id_proyecto,
+      });
+
+      const parseNumber = (str) => {
+        if (typeof str === 'string') {
+          return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+        }
+        return Number(str) || 0;
+      };
+
+      const unidades = respa.data[0].map(unidad => ({
+        ...unidad,
+        valor_unidad: parseNumber(unidad.valor_unidad),
+        valor_descuento: parseNumber(unidad.valor_descuento)
+      }));
+
+      this.unidades = unidades;
+
+      const sumaValores = unidades.reduce((total, unidad) => total + unidad.valor_unidad, 0);
+      const sumaDescuentos = unidades.reduce((total, unidad) => total + unidad.valor_descuento, 0);
+      const totalFinal = sumaValores - sumaDescuentos;
+
+      const cotizacion = this.cotizaciones.find(c => c.cotizacion === cotizacionId);
+      if (cotizacion) {
+        cotizacion.unidades = unidades;
+        cotizacion.importeTotal = totalFinal;
+      }
+    },
+
+    formatoMoneda(valor) {
+    if (isNaN(valor)) return '';
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0
+    }).format(valor);
+    },
+  }
 }

@@ -533,6 +533,10 @@
 			get() { return this.formatNumber(this.apto['valor_acabados'], false); },
 			set(val) { this.apto['valor_acabados'] = this.cleanNumber(val); }
 		},
+		f_valor_unidad: {
+			get() { return this.formatNumber(this.apto['valor_unidad'], false); },
+			set(val) { this.apto['valor_unidad'] = this.cleanNumber(val); }
+		},
 		getFilteredList() {
 			return (tabla) => {
 				return this[tabla] ? this[tabla].filter(item =>

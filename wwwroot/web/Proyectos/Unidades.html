@@ -39,8 +39,8 @@
                 <div>
                     <div style="width: fit-content; margin: 0 auto;">
                         <div style="padding: .1rem;">
-                            <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
-                                    value="3d" />3D</label>
+                            <!-- <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
+                                    value="3d" />3D</label> -->
                             <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
                                     value="classic" />Clasica</label>
                         </div>
@@ -247,7 +247,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="apto in getFilteredList('aptos')" @click="onSelectApto(apto)">
+                                    <tr v-for="apto in getFilteredList('aptos')" @dblclick="onSelectApto(apto)">
                                         <td>{{apto.idtorre}}</td>
                                         <td>{{apto.apartamento}}</td>
                                         <td>{{apto.piso}}</td>
@@ -269,12 +269,7 @@
             <div v-show="mode == 4" class="pure-g" style="height: 100%;">
             </div>
             <div v-show="mode == 5" class="pure-g" style="height: 100%;">
-
                 <div class="pure-g">
-                    <div class="pure-u-1-1 pure-u-md-1-1">
-                        <h2>Editar Unidad</h2>
-                    </div>
-
                     <!-- Datos principales -->
                     <div style="height: calc(100vh - 12.5rem); overflow-y: auto;">
                         <div class="pure-u-1-2 pure-u-md-1-5">
@@ -298,7 +293,7 @@
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Estado</label>
-                                <select v-model="apto.id_estado_unidad" class="pure-input-1">
+                                <select v-model="apto.id_estado_unidad" class="pure-input-1" disabled>
                                     <option v-for="e in estados" :value="e.id_estado_unidad">
                                         {{e.estado_unidad}}
                                     </option>
@@ -308,14 +303,14 @@
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Tipo</label>
-                                <input type="text" v-model="apto.codigo_planta" class="pure-input-1" />
+                                <input type="text" v-model="apto.codigo_planta" class="pure-input-1" disabled/>
                             </div>
                         </div>
-
+                    
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Localización</label>
-                                <select v-model="apto.localizacion" class="pure-input-1">
+                                <select v-model="apto.localizacion" class="pure-input-1" disabled>
                                     <option value="Interior">Interior</option>
                                     <option value="Exterior">Exterior</option>
                                 </select>
@@ -324,7 +319,7 @@
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Asoleación</label>
-                                <select v-model="apto.asoleacion" class="pure-input-1">
+                                <select v-model="apto.asoleacion" class="pure-input-1" disabled>
                                     <option value="AM">AM</option>
                                     <option value="PM">PM</option>
                                 </select>
@@ -333,7 +328,7 @@
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Altura</label>
-                                <select v-model="apto.altura" class="pure-input-1">
+                                <select v-model="apto.altura" class="pure-input-1" disabled>
                                     <option value="BAJO">BAJO</option>
                                     <option value="MEDIO">MEDIO</option>
                                     <option value="ALTO">ALTO</option>
@@ -343,57 +338,56 @@
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Numero de alcobas</label>
-                                <input type="number" v-model="apto.num_alcobas" class="pure-input-1" />
+                                <input type="number" v-model="apto.num_alcobas" class="pure-input-1" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Numero de baños</label>
-                                <input type="number" v-model="apto.num_banos" class="pure-input-1" />
+                                <input type="number" v-model="apto.num_banos" class="pure-input-1" disabled/>
                             </div>
                         </div>
-
+                    
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Área privada cubierta</label>
-                                <input type="text" v-model="f_area_privada_cub" class="pure-input-1"
-                                    @keyup="validarFormato" style="text-align: right;" />
+                                <input type="text" v-model="f_area_privada_cub" class="pure-input-1" @keyup="validarFormato"
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Área privada libre</label>
-                                <input type="text" v-model="f_area_privada_lib" class="pure-input-1"
-                                    @keyup="validarFormato" style="text-align: right;" />
+                                <input type="text" v-model="f_area_privada_lib" class="pure-input-1" @keyup="validarFormato"
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Área total</label>
                                 <input type="text" v-model="f_area_total" class="pure-input-1" @keyup="validarFormato"
-                                    style="text-align: right;" />
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Acue</label>
                                 <input type="text" v-model="f_acue" class="pure-input-1" @keyup="validarFormato"
-                                    style="text-align: right;" />
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Area Total + Acue</label>
                                 <input type="text" v-model="f_total_acue" class="pure-input-1" @keyup="validarFormato"
-                                    style="text-align: right;" />
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
-
+                    
                         <div class="pure-u-1-2 pure-u-md-1-4">
                             <div class="formInputStandard">
                                 <label class="check" for="c_tiene_balcon">
-                                    <input type="checkbox" id="c_tiene_balcon" v-model="apto.tiene_balcon"
-                                        true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_tiene_balcon" v-model="apto.tiene_balcon" true-value="1" false-value="0" disabled/>
                                     <span class="checkmark"></span>
                                     Tiene Balcón
                                 </label>
@@ -402,8 +396,8 @@
                         <div class="pure-u-1-2 pure-u-md-1-4">
                             <div class="formInputStandard">
                                 <label class="check" for="c_tiene_parq_sencillo">
-                                    <input type="checkbox" id="c_tiene_parq_sencillo" v-model="apto.tiene_parq_sencillo"
-                                        true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_tiene_parq_sencillo" v-model="apto.tiene_parq_sencillo" true-value="1"
+                                        false-value="0" disabled/>
                                     <span class="checkmark"></span>
                                     Parqueadero Sencillo
                                 </label>
@@ -412,8 +406,8 @@
                         <div class="pure-u-1-2 pure-u-md-1-4">
                             <div class="formInputStandard">
                                 <label class="check" for="c_tiene_parq_doble">
-                                    <input type="checkbox" id="c_tiene_parq_doble" v-model="apto.tiene_parq_doble"
-                                        true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_tiene_parq_doble" v-model="apto.tiene_parq_doble" true-value="1"
+                                        false-value="0" disabled/>
                                     <span class="checkmark"></span>
                                     Parqueadero Doble
                                 </label>
@@ -422,8 +416,8 @@
                         <div class="pure-u-1-2 pure-u-md-1-4">
                             <div class="formInputStandard">
                                 <label class="check" for="c_tiene_deposito">
-                                    <input type="checkbox" id="c_tiene_deposito" v-model="apto.tiene_deposito"
-                                        true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_tiene_deposito" v-model="apto.tiene_deposito" true-value="1"
+                                        false-value="0" disabled/>
                                     <span class="checkmark"></span>
                                     Tiene Depósito
                                 </label>
@@ -432,8 +426,8 @@
                         <div class="pure-u-1-2 pure-u-md-1-4">
                             <div class="formInputStandard">
                                 <label class="check" for="c_tiene_acabados">
-                                    <input type="checkbox" id="c_tiene_acabados" v-model="apto.tiene_acabados"
-                                        true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_tiene_acabados" v-model="apto.tiene_acabados" true-value="1"
+                                        false-value="0" />
                                     <span class="checkmark"></span>
                                     Tiene Acabados
                                 </label>
@@ -442,8 +436,8 @@
                         <div class="pure-u-1-2 pure-u-md-1-4">
                             <div class="formInputStandard">
                                 <label class="check" for="c_cerca_porteria">
-                                    <input type="checkbox" id="c_cerca_porteria" v-model="apto.cerca_porteria"
-                                        true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_cerca_porteria" v-model="apto.cerca_porteria" true-value="1"
+                                        false-value="0" disabled/>
                                     <span class="checkmark"></span>
                                     Cerca Portería
                                 </label>
@@ -452,8 +446,8 @@
                         <div class="pure-u-1-2 pure-u-md-1-4">
                             <div class="formInputStandard">
                                 <label class="check" for="c_cerca_juegos_infantiles">
-                                    <input type="checkbox" id="c_cerca_juegos_infantiles"
-                                        v-model="apto.cerca_juegos_infantiles" true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_cerca_juegos_infantiles" v-model="apto.cerca_juegos_infantiles"
+                                        true-value="1" false-value="0" disabled/>
                                     <span class="checkmark"></span>
                                     Cerca Juegos Infantiles
                                 </label>
@@ -462,100 +456,105 @@
                         <div class="pure-u-1-2 pure-u-md-1-4">
                             <div class="formInputStandard">
                                 <label class="check" for="c_cerca_piscina">
-                                    <input type="checkbox" id="c_cerca_piscina" v-model="apto.cerca_piscina"
-                                        true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_cerca_piscina" v-model="apto.cerca_piscina" true-value="1"
+                                        false-value="0" disabled/>
                                     <span class="checkmark"></span>
                                     Cerca Piscina
                                 </label>
                             </div>
                         </div>
-
+                    
                         <div class="pure-u-1-1 pure-u-md-1-1">
                             <div class="formInputStandard">
                                 <label>Observación</label>
-                                <input type="text" v-model="apto.observacion_apto" class="pure-input-1" />
+                                <input type="text" v-model="apto.observacion_apto" class="pure-input-1" disabled/>
                             </div>
                         </div>
-
+                    
+                        <div class="pure-u-1-2 pure-u-md-1-5">
+                            <div class="formInputStandard">
+                                <label>Valor Unidad / Lista {{apto.lista}}</label>
+                                <input type="text" :value="f_valor_unidad" class="pure-input-1" style="text-align: right;" disabled />
+                            </div>
+                        </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Valor Separación</label>
-                                <input type="text" v-model="f_valor_separacion" class="pure-input-1"
-                                    @keyup="validarFormato" style="text-align: right;" />
+                                <input type="text" v-model="f_valor_separacion" class="pure-input-1" @keyup="validarFormato"
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Valor Reformas</label>
-                                <input type="text" v-model="f_valor_reformas" class="pure-input-1"
-                                    @keyup="validarFormato" style="text-align: right;" />
+                                <input type="text" v-model="f_valor_reformas" class="pure-input-1" @keyup="validarFormato"
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Valor Acabados</label>
-                                <input type="text" v-model="f_valor_descuento" class="pure-input-1"
-                                    @keyup="validarFormato" style="text-align: right;" />
+                                <input type="text" v-model="f_valor_descuento" class="pure-input-1" @keyup="validarFormato"
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Valor Descuento</label>
-                                <input type="text" v-model="f_valor_acabados" class="pure-input-1"
-                                    @keyup="validarFormato" style="text-align: right;" />
+                                <input type="text" v-model="f_valor_acabados" class="pure-input-1" @keyup="validarFormato"
+                                    style="text-align: right;" disabled/>
                             </div>
                         </div>
-                        <div class="pure-u-1-2 pure-u-md-1-5"></div>
-
+                    
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Banco</label>
-                                <input type="text" v-model="apto.cuota_inicial_banco" class="pure-input-1" />
+                                <input type="text" v-model="apto.cuota_inicial_banco" class="pure-input-1" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Tipo de Cuenta</label>
-                                <input type="text" v-model="apto.cuenta_tipo" class="pure-input-1" />
+                                <input type="text" v-model="apto.cuenta_tipo" class="pure-input-1" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Número de Cuenta</label>
-                                <input type="text" v-model="apto.cuenta_numero" class="pure-input-1" />
+                                <input type="text" v-model="apto.cuenta_numero" class="pure-input-1" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Convenio</label>
-                                <input type="text" v-model="apto.convenio" class="pure-input-1" />
+                                <input type="text" v-model="apto.convenio" class="pure-input-1" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5"></div>
-
+                    
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>Pate</label>
-                                <input type="text" v-model="apto.pate" class="pure-input-1" />
+                                <input type="text" v-model="apto.pate" class="pure-input-1" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard">
                                 <label>EAN</label>
-                                <input type="text" v-model="apto.ean" class="pure-input-1" />
+                                <input type="text" v-model="apto.ean" class="pure-input-1" disabled/>
                             </div>
                         </div>
                         <div class="pure-u-1-2 pure-u-md-1-5">
                             <div class="formInputStandard" style="margin-top: 1.5rem;">
                                 <label class="check" for="c_inv_terminado">
-                                    <input type="checkbox" id="c_inv_terminado" v-model="apto.inv_terminado"
-                                        true-value="1" false-value="0" />
+                                    <input type="checkbox" id="c_inv_terminado" v-model="apto.inv_terminado" true-value="1"
+                                        false-value="0" disabled/>
                                     <span class="checkmark"></span>
                                     Inventario Terminado
                                 </label>
                             </div>
                         </div>
-
+                    
                     </div>
                     <div class="pure-u-1-1"></div>
                     <div class="pure-u-7-24"></div>
