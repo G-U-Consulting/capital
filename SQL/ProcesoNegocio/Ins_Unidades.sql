@@ -10,14 +10,9 @@ set @id_cliente = '',
 
 --END_PARAM
 
-update fact_unidades
-set id_estado_unidad = 2
-where id_unidad = @id_unidad;
 
 insert into fact_negocios_unidades (id_unidad, id_proyecto, usuario, id_cliente, id_cotizacion)
     values (@id_unidad, @id_proyecto, @Usuario, @id_cliente, @id_cotizacion);
-
-
 
     select concat('OK-id_archivo:', last_insert_id(), ' ', 'Insert') as result;
         

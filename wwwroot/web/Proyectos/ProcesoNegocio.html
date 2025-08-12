@@ -448,7 +448,7 @@
                     <span style="font-size: 1.8em;">Cotizaciones</span>
                     <button style="float: right;" @click="addCotizacion">Nueva Cotización</button>
                 </div>
-                <div style="width: 100%; height: calc(100% - 3rem); overflow-y: auto; margin-top: 0.5rem;">
+                <div style="width: 100%; height: calc(100% - 7rem); overflow-y: auto; margin-top: 0.5rem;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -459,23 +459,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(item, index) in cotizaciones" :key="index">
-                                <td class="col-1-6" @click="seleccionarCotizacion(item.cotizacion)"
-                                    :class="{ seleccionado: cotizacionSeleccionada === item.cotizacion }">
-                                    {{ item.cotizacion }}
-                                </td>
-                                <td class="col-1-6" @click="seleccionarCotizacion(item.cotizacion)"
-                                    :class="{ seleccionado: cotizacionSeleccionada === item.cotizacion }">
-                                    {{ item.fecha }}
-                                </td>
+                            <tr v-for="(item, index) in cotizaciones" :key="index" @click="seleccionarCotizacion(item.cotizacion)"
+                                :class="{ seleccionado: cotizacionSeleccionada === item.cotizacion }">
+                                <td class="col-1-6">{{ item.cotizacion }}</td>
+                                <td class="col-1-6">{{ item.fecha }}</td>
                                 <td class="col-3-6">
                                     <input type="text" v-model="item.descripcion" placeholder="Descripción"
                                         @focus="seleccionarCotizacion(item.cotizacion)" />
                                 </td>
-                                <td class="col-1-6" @click="seleccionarCotizacion(item.cotizacion)"
-                                    :class="{ seleccionado: cotizacionSeleccionada === item.cotizacion }">
-                                    {{ item.importe }}
-                                </td>
+                                <td class="col-1-6" style="text-align: right;">{{ item.importeTotal ? formatoMoneda(item.importeTotal) : '' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -483,28 +475,33 @@
             </div>
             <div style="height: 50%;">
                  <div class='formDivision' style="margin-top: 0.5em;">
-                    <span style="font-size: 1.8em;">Cotizaciones</span>
+                    <span style="font-size: 1.8em;">Unidad</span>
                     <button style="float: right;" @click="abrirNuevoModulo">Agregar Unidades</button>
                 </div>
-                <div style="width: 100%; height: calc(100% - 3rem); overflow-y: auto; margin-top: 0.5rem;">
+                <div style="width: 100%; height: calc(100% - 7rem); overflow-y: auto; margin-top: 0.5rem;">
                     <table class="dataTable">
                         <thead>
                             <tr>
-                                <th>Ítem</th>
-                                <th>Fecha</th>
-                                <th>Tipo</th>
-                                <th>Observación</th>
-                                <th>Importe</th>
-                                <th>Descuento</th>
+                                <th style="width: 5%;">Ítem</th>
+                                <th style="width: 15%;">Fecha</th>
+                                <th style="width: 5%;">Tipo</th>
+                                <th style="width: 5%;">Torre</th>
+                                <th style="width: 40%;">Observación</th>
+                                <th style="width: 15%;">Importe</th>
+                                <th style="width: 15%;">Descuento</th>
+                                <th style="width: 5%;">UT</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(item, index) in unidades" :key="index">
-                                <td>{{ item.id_unidad }}</td>
+                                <td>{{ item.numero_apartamento }}</td>
                                 <td>{{ item.created_on }}</td>
                                 <td>{{ item.tipo }}</td>
+                                 <td>{{ item.consecutivo }}</td>
                                 <td>{{ item.observacion_apto }}</td>
-                                <td>{{ item.valor_descuento }}</td>
+                                <td style="text-align: right;">{{ formatoMoneda(item.valor_unidad) }}</td>
+                                <td style="text-align: right;">{{ formatoMoneda(item.valor_descuento) }}</td>
+                                <td style="text-align: center;">{{ item.inv_terminado }}</td>
                             </tr>
                         </tbody>
                     </table>

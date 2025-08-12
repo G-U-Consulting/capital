@@ -2804,7 +2804,7 @@ tr.cal-row-info > td {
   color: red;
 }
 .seleccionado {
-    background-color: #d4f1ff;
-    font-weight: bold;
+    background-color: #c8000020 !important;
+    border: 2px #832020 solid !important;
     cursor: pointer;
 }
