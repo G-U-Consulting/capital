@@ -10,7 +10,7 @@ set @id_proyecto = NULL,
 drop table if exists tmp_lista_precios;
 create temporary table tmp_lista_precios as(
     select *
-    from json_table(@listas, '$.*.torres.*.listas[*]' columns( 
+    from json_table(@listas, '$.*.torres.*.precios[*]' columns( 
         id_precio varchar(50) path '$."ID_precio"',
         lista varchar(50) path '$."lista"',
         torre varchar(50) path '$."torre"',
@@ -66,10 +66,3 @@ on duplicate key update
     updated_on = current_timestamp;
 
 select 'OK' as respuesta;
-
-/* 
-delete from dim_precio_unidad where id_lista in (select id_lista from dim_lista_precios where id_proyecto=5);
-delete from fact_unidades where id_proyecto=5;
-delete from fact_torres where id_proyecto=5;
-delete from dim_lista_precios where id_proyecto=5;
- */

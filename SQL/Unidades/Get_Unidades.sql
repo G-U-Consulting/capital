@@ -2,10 +2,13 @@
 -- Proceso: Unidades/Get_Unidades
 -- =============================================
 --START_PARAM
-set @id_proyecto = 3;
+set @id_proyecto = NULL;
 
 --END_PARAM
-select * 
+select id_torre, id_proyecto, consecutivo, id_lista, orden_salida, en_venta, aptos_piso, id_sinco, 
+    date_format(fecha_p_equ,'%Y-%m-%d') as fecha_p_equ, date_format(fecha_inicio_obra,'%Y-%m-%d') as fecha_inicio_obra, 
+    date_format(fecha_escrituracion,'%Y-%m-%d') as fecha_escrituracion, tasa_base, antes_p_equ, despues_p_equ, 
+    id_fiduciaria, cod_proyecto_fid, nit_fid_doc_cliente, id_instructivo, propuesta_pago, consecutivo as idtorre
 from fact_torres
 where id_proyecto = @id_proyecto;
 
@@ -26,4 +29,14 @@ left join dim_cuenta_convenio c on u.id_cuenta_convenio = c.id_cuenta_convenio
 where u.id_proyecto = @id_proyecto
 order by u.numero_apartamento;
 
-select * from dim_estado_unidad;
+select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente
+from dim_estado_unidad
+where is_active = 1;
+
+select id_fiduciaria, fiduciaria 
+from dim_fiduciaria
+where is_active = 1;
+
+select id_instructivo, instructivo
+from dim_instructivo
+where is_active = 1;

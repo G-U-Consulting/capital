@@ -2402,6 +2402,9 @@ tr.cal-row-info > td {
   background: #00839C;
   border: 3px #173d5b solid;
 }
+.torre.en-venta, .torre.sel-torre.en-venta{
+  border: 3px #c80000 solid;
+}
 .torre > div {
   margin: 1px 0;
   display: flex; 

@@ -4,7 +4,7 @@
 			mode: 0,
 			ruta: [],
 			tabsIncomplete: [],
-			tabmode: 1,
+			tabmode: -1,
 			tabs: [
 				"Torres",
 				"Unidades",
@@ -18,7 +18,10 @@
 			u_torres: [],
 			aptos: [],
 			estados: [],
+			fiduciarias: [],
+			instructivos: [],
 			tipos: [],
+			localizaciones: [],
 			agrupaciones: [],
 			groupedAptos: [],
 			selectedAptos: [],
@@ -39,7 +42,7 @@
 				megarows: 3,
 				rows: 3,
 				cols: 3,
-				viewType: "3d"
+				viewType: "classic"
 			},
 			selection: {
 				type: "",
@@ -81,64 +84,65 @@
 	},
 	three: null,
 	async mounted() {
-		this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => this.mode = 0 }];
-		this.setRuta();
 		//this.computeViews();
-		await this.loadUnidades();
-		this.setTabmode(0);
+		await this.loadUnidades(true);
+		if (this.torres.length) this.setTabmode(0);
+		let b = !!this.torres.length;
+		this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
+		if (b) this.ruta.push({ text: `Torres`, action: () => this.setTabmode(0) })
+		this.setRuta();
 	},
 	methods: {
 		setRuta() {
 			GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
 		},
-		async setTabmode(index) {
-			if (index === 0) {
-				if (this.torres.length) {
-					this.torre = this.torres[0];
-					this.tabmode = index;
+		async setTabmode(index, force) {
+			if (this.tabmode !== -1 || force) {
+				if (index === 0) if (this.torres.length) this.torre = this.torres[0];
+				if (index === 1) this.computeViews();
+				if (index === 2) {
+					await this.loadListas();
+					this.projectList = GlobalVariables.proyecto.id_lista;
+					this.projectAlert = GlobalVariables.proyecto.alerta_cambio_lista || '';
+					if (this.torres.length) {
+						this.filtros.aptos.torres = [this.torres[0].idtorre];
+						this.selRow2 = this.listas.findIndex(l => l.id_lista === this.torres[0].id_lista);
+						if (this.selRow2 == -1) this.selRow2 = 0;
+						this.tabmode = index;
+					}
+					if (this.listas.length) this.selRow2 ||= 0;
 				}
-				else this.setTabmode(1);
-			}
-			if (this.mode > 0 && index === 1) this.computeViews();
-			else if (this.tabmode !== 1 || this.mode >= 3) {
+				if (index === 3) {
+					await this.loadAgrupacion();
+					if (this.selRow3 !== null)
+						this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow3].id_agrupacion + '';
+					else this.filtros.aptos.id_agrupacion = 'null';
+				}
+				if (index !== 2 && index !== 3) this.onClearFilters('aptos');
+				this.editRow = false;
 				this.tabmode = index;
 				this.ruta = [this.ruta[0], { text: this.tabs[index], action: () => this.setTabmode(index) }];
 				this.setRuta();
 			}
-			this.onClearFilters('aptos');
-			if (index === 2) {
-				await this.loadListas();
-				this.projectList = GlobalVariables.proyecto.id_lista;
-				this.projectAlert = GlobalVariables.proyecto.alerta_cambio_lista || '';
-				if (this.torres.length) {
-					this.filtros.aptos.torres = [this.torres[0].idtorre];
-					this.selRow2 = this.listas.findIndex(l => l.id_lista === this.torres[0].id_lista);
-					if (this.selRow2 == -1) this.selRow2 = 0;
-					this.tabmode = index;
-				}
-				if (this.listas.length) this.selRow2 ||= 0;
-			}
-			if (index === 3) {
-				await this.loadAgrupacion();
-				if (this.selRow3 !== null)
-					this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow3].id_agrupacion + '';
-				else this.filtros.aptos.id_agrupacion = 'null';
-			}
-			this.editRow = false;
 		},
-		async loadUnidades() {
+		async loadUnidades(compute) {
 			showProgress();
-			let [torres, aptos, estados] = (await
+			let [torres, aptos, estados, fiduciarias, instructivos] = (await
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
-			let pisos = new Set(), tipos = new Set();
+			this.fiduciarias = fiduciarias;
+			this.instructivos = instructivos;
+			let pisos = new Set(), tipos = new Set(), localizaciones = new Set();
 			if (torres.length && aptos.length) {
-				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];
-				aptos.forEach(a => number_fileds.forEach(key => a[key] = a[key].replace(',', '.')));
-				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], id_torre: t.id_torre, id_lista: t.id_lista }));
+				let a_num_fields = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'],
+					t_num_fields = ['tasa_base', 'antes_p_equ', 'despues_p_equ'];
+				aptos.forEach(a => a_num_fields.forEach(key => a[key] = a[key].replace(',', '.')));
+				torres.forEach(t => t_num_fields.forEach(key => t[key] = t[key].replace(',', '.')));
+				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], ...t }));
 				aptos.forEach(a => {
 					a.piso && pisos.add(a.piso);
 					a.codigo_planta && tipos.add(a.codigo_planta);
+					a.localizacion && localizaciones.add(a.localizacion);
 					let torre = torres.find(t => t.id_torre === a.id_torre);
 					if (torre) {
 						let i = torre.pisos.findIndex(p => p.idpiso == a.piso && p.idtorre == torre.idtorre);
@@ -156,7 +160,8 @@
 				this.aptos = aptos;
 				this.pisos = [...pisos].sort((a, b) => parseInt(a) - parseInt(b));
 				this.tipos = [...tipos].sort();
-				this.computeViews();
+				this.localizaciones = [...localizaciones].sort();
+				compute && this.computeViews();
 			};
 			this.loading = false;
 			hideProgress();
@@ -233,6 +238,7 @@
 				}
 				t_torres.sort((a, b) => a.idtorre - b.idtorre);
 				t_torres.forEach(item => item.pisos.sort((a, b) => a.idpiso - b.idpiso));
+				this.tabmode = -1;
 				this.mode = 1;
 				if (update) return t_torres;
 				else this.torres = t_torres;
@@ -251,8 +257,8 @@
 					Usuario: GlobalVariables.username
 				}));
 				if (res.isError || res.data !== 'OK') throw res;
-				await this.loadUnidades();
-				this.computeViews();
+				await this.loadUnidades(true);
+				this.setTabmode(0, true);
 				this.u_torres = [];
 			} catch (e) {
 				console.error(e);
@@ -264,7 +270,9 @@
 			this.tabmode = 1;
 			this.mode = 3;
 			this.viewProperties === '3d' && setTimeout(this.threeInit, 10);
-			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => this.computeViews() }];
+			let b = !!this.torres.length;
+			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
+			if (b) this.ruta.push({ text: `Torres`, action: () => this.setTabmode(0) })
 			this.setRuta();
 		},
 		threeInit: async function () {
@@ -400,6 +408,36 @@
 			}
 			this.$options.three.selectItem(this.selection);
 		},
+
+		onClearTasas(){
+			if (this.torre.propuesta_pago != '1') {
+				this.torre.tasa_base = '0.00';
+				this.torre.antes_p_equ = '0.00';
+				this.torre.despues_p_equ = '0.00';
+			}
+		},
+		async onSaveTorre() {
+			if (this.torre.id_torre) {
+				showProgress();
+				let res = null;
+				try {
+					let torre = {...this.torre}, tmp = {...this.torre};
+					delete torre.pisos;
+					if (!torre.id_fiduciaria) delete torre.id_fiduciaria;
+					if (!torre.id_instructivo) delete torre.id_instructivo;
+					res = await httpFunc('/generic/genericST/Unidades:Upd_Torre', torre);
+					if (res.isError || res.data !== 'OK') throw res;
+					await this.loadUnidades();
+					await this.setTabmode(0);
+					this.torre = tmp;
+				} catch (e) {
+					console.error(e);
+					showMessage('Error: ' + e.errorMessage || e.data);
+				}
+				hideProgress();
+			}
+		},
+
 		async toggleNewRow() {
 			let b = this.editNewRow;
 			if (b) this.onSaveGroup();
@@ -464,32 +502,33 @@
 		onSelectApto(apto) {
 			this.apto = apto;
 			this.mode = 5;
-			this.ruta = [this.ruta[0], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
+			this.ruta = [this.ruta[0], this.ruta[1], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
 		},
 		async onSave() {
 			showProgress();
 			let res = null;
+			if (!this.apto.id_estado_unidad) delete this.apto.id_estado_unidad;
 			try {
 				res = await (httpFunc('/generic/genericST/Unidades:Upd_Unidad', {
 					...this.apto,
 					Usuario: GlobalVariables.username
 				}));
 				if (res.isError || res.data !== 'OK') throw res;
-				await this.loadUnidades();
-				this.computeViews();
+				await this.loadUnidades(true);
 			} catch (e) {
 				console.error(e);
 				showMessage('Error: ' + e.errorMessage || e.data);
 			}
 			hideProgress();
 		},
-		formatNumber(value, dec = true, ndec = 0) {
+		formatNumber(value, dec = true, ndec) {
 			if (!value) return "";
 			let [parteEntera, parteDecimal] = value.split(".");
 			parteEntera = parteEntera.replace(/\D/g, "");
 			parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
-			parteDecimal = dec && ndec > 0 ? parteDecimal.padEnd(ndec, '0') : "";
+			if (ndec >= 0)
+				parteDecimal = dec && ndec > 0 ? parteDecimal.padEnd(ndec, '0') : "";
 
 			let groups = [];
 			let len = parteEntera.length;
@@ -820,6 +859,19 @@
         },
 	},
 	computed: {
+		f_tasa_base: {
+			get() { return this.formatNumber(this.torre['tasa_base'], true); },
+			set(val) { this.torre['tasa_base'] = this.cleanNumber(val); }
+		},
+		f_antes_p_equ: {
+			get() { return this.formatNumber(this.torre['antes_p_equ'], true); },
+			set(val) { this.torre['antes_p_equ'] = this.cleanNumber(val); }
+		},
+		f_despues_p_equ: {
+			get() { return this.formatNumber(this.torre['despues_p_equ'], true); },
+			set(val) { this.torre['despues_p_equ'] = this.cleanNumber(val); }
+		},
+
 		f_area_privada_cub: {
 			get() { return this.formatNumber(this.apto['area_privada_cub'], true); },
 			set(val) { this.apto['area_privada_cub'] = this.cleanNumber(val); }
@@ -866,6 +918,8 @@
 					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
 						if (tabla == 'aptos' && key == 'torres')
 							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
+						if (tabla == 'aptos' && (key == 'codigo_planta' || key == 'piso' || key == 'localizacion'))
+							return this.filtros[tabla][key] === '' || String(item[key]) === this.filtros[tabla][key];
 						if (tabla == 'groupedAptos' && key == 'id_torre')
 							return this.filtros[tabla][key] === '' || String(item[key]) === this.filtros[tabla][key];
 						else return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());

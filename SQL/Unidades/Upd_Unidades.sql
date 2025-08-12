@@ -53,11 +53,16 @@ create temporary table tmp_unidades as(
     ))  as a
 );
 -- TODO hacer validación de datos antes de continuar
-insert into fact_torres(id_proyecto, nombre_torre, consecutivo, created_by)
-select distinct @id_proyecto, concat('Torre ', torre), torre, @usuario
+insert into fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
+select distinct @id_proyecto, concat('Torre ', torre), torre, torre, 
+    (select count(*) from tmp_unidades t where a.torre = t.torre and a.piso = t.piso), @usuario
 from tmp_unidades a
     left join fact_torres b on b.id_proyecto = @id_proyecto and a.torre = b.consecutivo
 where b.id_torre is null;
+
+update fact_torres a
+set aptos_piso = (select count(*) from tmp_unidades t where a.consecutivo = t.torre group by t.piso limit 1)
+where a.id_proyecto = @id_proyecto;
 
 update tmp_unidades a
     join fact_torres b on a.torre = b.consecutivo
@@ -180,3 +185,9 @@ on duplicate key update
     updated_on = current_timestamp;
 
 select 'OK' as respuesta;
+
+/*
+delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 5);
+delete from fact_unidades where id_proyecto = 5;
+delete from fact_torres where id_proyecto = 5;
+*/

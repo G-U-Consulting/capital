@@ -13,173 +13,7 @@
 <div class="pure-u-1-24"></div>
 <div class="pure-u-22-24 menuCard" style="height: calc(100vh  - 10rem); overflow-y: auto;">
 
-    <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 0">
-        <div>
-            <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                <div v-for="item in torres" class="torre" @click="setTorre(item)"
-                    v-bind:class="{'sel-torre': item.id_torre === torre.id_torre}">
-                    <div style="align-self: center;">
-                        <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
-                    </div>
-                    <div v-for="e in [...estados].reverse()">
-                        <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
-                            <span :style="`color: ${e.color_fuente}`">
-                                {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
-                                && a.id_torre === item.id_torre).length}}
-                            </span>
-                        </div>
-                        <span>{{e.estado_unidad_plural}}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div style="flex-grow: 1;">
-            <div class="pure-g" style="height: calc(100vh - 12rem); overflow-y: auto;">
-                <div class="pure-u-1-1 pure-u-md-1-1 formDivision right-button">
-                    <span style="font-size: 1.5em;">Torre {{torre.idtorre}}</span>
-                    <div style="min-width: 150px;">
-                        <label for="up-csv" class="file">Actualizar con CSV</label>
-                        <input id="up-csv" type="file" @input="handleChangeFile($event, true)" style="display: none;"
-                            accept=".csv" />
-                    </div>
-                </div>
-                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
-                    <div style="width: 50%; display: flex; align-items: center; gap: 3rem">
-                        <label>Orden de salida</label>
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <input type="number" style="width: 5rem;">
-                            <span class="icon-button" style="padding: 0; margin: 0; height: fit-content;">
-                                <img src="../../img/ico/up.png" alt="" style="margin: 0; height: 25px; width: 25px;">
-                            </span>
-                            <span class="icon-button" style="padding: 0;  margin: 0; height: fit-content;">
-                                <img src="../../img/ico/down.png" alt="" style="margin: 0; height: 25px; width: 25px;">
-                            </span>
-                        </div>
-                    </div>
-                    <div style="width: 25%; display: flex; padding: .5rem;">
-                        <label class="check" for="en_venta">
-                            <input type="checkbox" id="en_venta" v-model="" />
-                            <span class="checkmark"></span>
-                            En venta
-                        </label>
-                    </div>
-                    <div style="width: 25%;"></div>
-                </div>
-                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
-                    <div style="width: 33%; display: flex; align-items: center;">
-                        <label style="width: 50%;">Aptos por piso</label>
-                        <input type="number" style="width: 50%;">
-                    </div>
-                    <div style="width: 33%; display: flex; align-items: center; gap: 1rem;">
-                        <label style="width: 50%; text-align: right;">ID Sinco</label>
-                        <input type="text" style="width: 50%;">
-                    </div>
-                </div>
-
-                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
-                    Fechas importantes estimadas
-                </h2>
-                <div class="pure-u-1-3 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Punto de equilibrio</label>
-                        <input type="date" v-model="" class="pure-input-1" />
-                    </div>
-                </div>
-                <div class="pure-u-1-3 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Inicio de obras</label>
-                        <input type="date" v-model="" class="pure-input-1" />
-                    </div>
-                </div>
-                <div class="pure-u-1-3 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Escrituración</label>
-                        <input type="date" v-model="" class="pure-input-1" />
-                    </div>
-                </div>
-
-                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
-                    Personalización del pago del cliente
-                </h2>
-                <div class="pure-u-1-1" style="padding: .5rem;">
-                    <div style="display: flex;">
-                        <label class="check" for="pro_pago">
-                            <input type="checkbox" id="pro_pago" v-model="" />
-                            <span class="checkmark"></span>
-                            Permitir propuestas de pago
-                        </label>
-                    </div>
-                </div>
-                <div class="pure-u-1-3 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Tasa base</label>
-                        <select v-model="" class="pure-input-1">
-                            <option>[Seleccione]</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="pure-u-1-3 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Antes P.Equ.</label>
-                        <select v-model="" class="pure-input-1">
-                            <option>[Seleccione]</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="pure-u-1-3 pure-u-md-1-4">
-                    <div class="formInputStandard">
-                        <label>Después P.Equ.</label>
-                        <select v-model="" class="pure-input-1">
-                            <option>[Seleccione]</option>
-                        </select>
-                    </div>
-                </div>
-
-
-                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
-                    Integración Fiduciaria API 1
-                </h2>
-                <div class="pure-u-1-1 pure-u-md-1-2"
-                    style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
-                    <label>Fiduciaria</label>
-                    <select v-model="" class="pure-input-1" style="width: 50%;">
-                        <option>[Seleccione]</option>
-                    </select>
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-2"
-                    style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
-                    <label>Código proyecto en fiduciaria</label>
-                    <select v-model="" class="pure-input-1" style="width: 50%;">
-                        <option>[Seleccione]</option>
-                    </select>
-                </div>
-
-                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
-                    Cupón de pago Avisor Fiduciaria
-                </h2>
-                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
-                    <label style="width: 50%;">
-                        NIT Fiduciaria sobrescribe Doc-Cliente
-                    </label>
-                    <select v-model="" class="pure-input-1" style="width: 25%; margin-left: 1rem;">
-                        <option>[Seleccione]</option>
-                    </select>
-                    <div style="width: 25%;"></div>
-                </div>
-                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
-                    <label style="width: 50%;">
-                        Instructivo Consignación y Cierre
-                    </label>
-                    <select v-model="" class="pure-input-1" style="width: 50%;">
-                        <option>[Seleccione]</option>
-                    </select>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <div v-if="tabmode == 1">
+    <div v-if="tabmode == -1">
         <!-- Carga del archivo -->
         <div v-show="mode == 0 && !loading" style="text-align: center;">
             Actualmente no hay unidades cargadas
@@ -221,15 +55,189 @@
                 </table>
             </div>
         </div>
+        <input type="file" id="fileUpload" style="height:1.2em; width:1.2em; display:none;" accept=".csv"
+            v-on:change="handleChangeFile($event)" />
+    </div>
+
+    <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 0">
+        <div>
+            <div class="lista-torres" style="height: calc(100vh - 12rem);">
+                <div v-for="item in torres" class="torre" @click="setTorre(item)"
+                    v-bind:class="{'sel-torre': item.id_torre === torre.id_torre, 'en-venta': item.en_venta == '1'}">
+                    <div style="align-self: center;">
+                        <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
+                    </div>
+                    <div v-for="e in [...estados].reverse()">
+                        <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
+                            <span :style="`color: ${e.color_fuente}`">
+                                {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
+                                && a.id_torre === item.id_torre).length}}
+                            </span>
+                        </div>
+                        <span>{{e.estado_unidad_plural}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="flex-grow: 1;">
+            <div class="pure-g" style="height: calc(100vh - 14.2rem); overflow-y: auto;">
+                <div class="pure-u-1-1 pure-u-md-1-1 formDivision right-button">
+                    <span style="font-size: 1.5em;">Torre {{torre.idtorre}}</span>
+                    <div style="min-width: 150px;">
+                        <label for="up-csv" class="file">Actualizar con CSV</label>
+                        <input id="up-csv" type="file" @input="handleChangeFile($event, true)" style="display: none;"
+                            accept=".csv" />
+                    </div>
+                </div>
+                <div class="pure-u-1-1" style="display: flex; gap: 1rem;">
+                    <div style="width: 20%; display: flex; align-items: center; padding-left: .5rem;">
+                        <span>Orden de salida</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px; width: 18%;">
+                        <input type="number" v-model="torre.orden_salida">
+                        <span class="icon-button" style="padding: 0; margin: 0; height: fit-content;">
+                            <img src="../../img/ico/up.png" alt="" style="margin: 0; height: 25px; width: 25px;">
+                        </span>
+                        <span class="icon-button" style="padding: 0;  margin: 0; height: fit-content;">
+                            <img src="../../img/ico/down.png" alt="" style="margin: 0; height: 25px; width: 25px;">
+                        </span>
+                    </div>
+                    <div style="width: 7%;"></div>
+                    <div style="width: 20%; display: flex; padding: .5rem;">
+                        <label class="check" for="en_venta">
+                            <input type="checkbox" id="en_venta" v-model="torre.en_venta" 
+                                true-value="1" false-value="0"/>
+                            <span class="checkmark"></span>
+                            En venta
+                        </label>
+                    </div>
+                    <div style="width: 35%;"></div>
+                </div>
+                <div class="pure-u-1-1" style="display: flex; gap: 1rem; margin-top: .5rem;">
+                    <div style="width: 20%; display: flex; align-items: center; padding-left: .5rem;">
+                        <span>Aptos por piso</span>
+                    </div>
+                    <div style="width: 18%; display: flex; align-items: center;">
+                        <input type="number" v-model="torre.aptos_piso">
+                    </div>
+                    <div style="width: 32%; display: flex; align-items: center; gap: 1rem;">
+                        <span style="width: 36%; text-align: right;">ID Sinco</span>
+                        <input type="text" style="width: 64%;" v-model="torre.id_sinco">
+                    </div>
+                    <div style="width: 15%;"></div>
+                    <div style="width: 15%;"></div>
+                </div>
+
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
+                    Fechas importantes estimadas
+                </h2>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <span>Punto de equilibrio</span>
+                        <input type="date" v-model="torre.fecha_p_equ" class="pure-input-1" />
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <span>Inicio de obras</span>
+                        <input type="date" v-model="torre.fecha_inicio_obra" class="pure-input-1" />
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <span>Escrituración</span>
+                        <input type="date" v-model="torre.fecha_escrituracion" class="pure-input-1" />
+                    </div>
+                </div>
+
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
+                    Personalización del pago del cliente
+                </h2>
+                <div class="pure-u-1-1" style="padding: .5rem;">
+                    <div style="display: flex;">
+                        <label class="check" for="pro_pago">
+                            <input type="checkbox" id="pro_pago" v-model="torre.propuesta_pago" @change="onClearTasas"  
+                                true-value="1" false-value="0"/>
+                            <span class="checkmark"></span>
+                            Permitir propuestas de pago
+                        </label>
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <span>Tasa base</span>
+                        <input type="text" v-model="f_tasa_base" class="pure-input-1" style="text-align: right;"
+                            :disabled="torre.propuesta_pago != '1'" />
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <span>Antes P. Equilibrio</span>
+                        <input type="text" v-model="f_antes_p_equ" class="pure-input-1" style="text-align: right;"
+                            :disabled="torre.propuesta_pago != '1'" />
+                    </div>
+                </div>
+                <div class="pure-u-1-3 pure-u-md-1-4">
+                    <div class="formInputStandard">
+                        <span>Después P. Equilibrio</span>
+                        <input type="text" v-model="f_despues_p_equ" class="pure-input-1" style="text-align: right;"
+                            :disabled="torre.propuesta_pago != '1'" />
+                    </div>
+                </div>
+
+
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
+                    Integración Fiduciaria API 1
+                </h2>
+                <div class="pure-u-1-1 pure-u-md-1-2 formInputStandard">
+                    <span>Fiduciaria</span>
+                    <select v-model="torre.id_fiduciaria" class="pure-input-1">
+                        <option value="">[Seleccione]</option>
+                        <option v-for="f in fiduciarias" :value="f.id_fiduciaria">{{f.fiduciaria}}</option>
+                    </select>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-2 formInputStandard">
+                    <span>Código proyecto en fiduciaria</span>
+                    <input type="text" v-model="torre.cod_proyecto_fid" class="pure-input-1">
+                </div>
+
+                <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: .5rem;">
+                    Cupón de pago Avisor Fiduciaria
+                </h2>
+                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
+                    <span style="width: 50%;">
+                        NIT Fiduciaria sobrescribe Doc-Cliente
+                    </span>
+                    <input type="text" v-model="torre.nit_fid_doc_cliente" class="pure-input-1"
+                        style="width: 25%; margin-left: 1rem;">
+                    <div style="width: 25%;"></div>
+                </div>
+                <div class="pure-u-1-1" style="display: flex; align-items: center; padding: .5rem; gap: 1rem;">
+                    <span style="width: 50%;">
+                        Instructivo Consignación y Cierre
+                    </span>
+                    <select v-model="torre.id_instructivo" class="pure-input-1" style="width: 50%;">
+                        <option value="">[Seleccione]</option>
+                        <option v-for="ins in instructivos" :value="ins.id_instructivo">{{ins.instructivo}}</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button @click="onSaveTorre" style="display: block; margin: .5rem auto;">Guardar</button>
+        </div>
+    </div>
+
+    <div v-if="tabmode == 1">
         <div v-show="mode == 3" style="display: flex; height: 100%; gap: 1rem;">
             <div>
                 <div style="width: fit-content; margin: 0 auto;">
-                    <div style="padding: .1rem;">
+                    <!-- <div style="padding: .1rem;">
                         <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
                                 value="3d" />3D</label>
                         <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
                                 value="classic" />Clasica</label>
-                    </div>
+                    </div> -->
                 </div>
                 <div v-if="viewProperties.viewType == '3d'">
                     <div class='formInputStandard'>
@@ -249,9 +257,9 @@
                     </div>
                 </div>
                 <div v-if="viewProperties.viewType == 'classic'">
-                    <div class="lista-torres">
+                    <div class="lista-torres" style="height: calc(100vh - 12rem);">
                         <div v-for="item in torres" class="torre" @click="toggleTorre(item)"
-                            v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre)}">
+                            v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre), 'en-venta': item.en_venta == '1'}">
                             <div style="align-self: center;">
                                 <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
                             </div>
@@ -307,7 +315,7 @@
                     <div class="pure-u-1-1" style="padding-top: .5rem;">
                         <div class="filtros-unidades">
                             <div style="display: flex;">
-                                <input type="text" placeholder="ID Unidad" v-model="filtros.aptos['apartamento']"
+                                <input type="text" placeholder="ID Unidad" v-model="filtros.aptos['numero_apartamento']"
                                     maxlength="10" />
                                 <div style="display: inline;" class="imgGraybutton" @click="onClearFilters('aptos')">
                                     <img src="./img/ico/eraser.png" />
@@ -335,8 +343,7 @@
                             <div>
                                 <select v-model="filtros.aptos['localizacion']" class="pure-input-1">
                                     <option value="">[Localización]</option>
-                                    <option value="Interior">Interior</option>
-                                    <option value="Exterior">Exterior</option>
+                                    <option v-for="l in localizaciones" :value="l">{{l}}</option>
                                 </select>
                             </div>
                         </div>
@@ -453,8 +460,6 @@
                 </div>
             </div>
         </div>
-        <input type="file" id="fileUpload" style="height:1.2em; width:1.2em; display:none;" accept=".csv"
-            v-on:change="handleChangeFile($event)" />
 
         <div v-show="mode == 4" class="pure-g" style="height: 100%;">
         </div>
@@ -505,10 +510,7 @@
                     <div class="pure-u-1-2 pure-u-md-1-5">
                         <div class="formInputStandard">
                             <label>Localización</label>
-                            <select v-model="apto.localizacion" class="pure-input-1">
-                                <option value="Interior">Interior</option>
-                                <option value="Exterior">Exterior</option>
-                            </select>
+                            <input type="text" v-model="apto.localizacion" class="pure-input-1" />
                         </div>
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-5">
@@ -756,7 +758,7 @@
                 <div class="pure-u-1-1"></div>
                 <div class="pure-u-7-24"></div>
                 <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
-                    <button @click="computeViews" class="pure-button pure-button-primary">Cancelar</button>
+                    <button @click="computeViews" class="pure-button pure-button-primary">Volver</button>
                 </div>
                 <div class="pure-u-1-12"></div>
                 <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
@@ -770,7 +772,7 @@
         <div>
             <div class="lista-torres" style="height: calc(100vh - 12rem);">
                 <div v-for="item in torres" class="torre" @click="toggleTorre(item); setTorresList()"
-                    v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre)}">
+                    v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre), 'en-venta': item.en_venta == '1'}">
                     <div style="align-self: center;">
                         <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
                     </div>
@@ -844,8 +846,7 @@
 
                 <div class="pure-u-1-1 pure-u-md-1-3 formInputStandard" style="margin-top: .5rem;">
                     <label for="lista-vigente">Lista vigente por defecto:</label>
-                    <select name="lista-vigente" id="lista-vigente" style="width: 10rem;" v-model="projectList"
-                        @change="onSetDefaultLista">
+                    <select name="lista-vigente" id="lista-vigente" style="width: 10rem;" v-model="projectList">
                         <option value="">[Seleccione]</option>
                         <option v-for="l in listas" :value="l.id_lista">Lista {{l.lista}}</option>
                     </select>
@@ -990,7 +991,7 @@
             <div class="modal-scroll" style="width: 100%; min-height: calc(100vh - 15rem);">
                 <div class="filtros-unidades">
                     <div style="display: flex;">
-                        <input type="text" placeholder="ID Unidad" v-model="filtros.groupedAptos['apartamento']"
+                        <input type="text" placeholder="ID Unidad" v-model="filtros.groupedAptos['numero_apartamento']"
                             maxlength="10" />
                         <div style="display: inline;" class="imgGraybutton" @click="onClearFilters('groupedAptos')">
                             <img src="./img/ico/eraser.png" />
