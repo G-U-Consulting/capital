@@ -29,10 +29,13 @@
 			listas: [],
 			precios: [],
 			preview: [],
+			sortIds: [],
 			previewList: {},
 			viewList: null,
 			listFromCSV: false,
 			loading: true,
+			editUnit: false,
+			isOrdenSalida: false,
 			stats: {
 				torres: 0,
 				pisos: 0,
@@ -91,6 +94,7 @@
 		this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
 		if (b) this.ruta.push({ text: `Torres`, action: () => this.setTabmode(0) })
 		this.setRuta();
+		//await this.setOrdenPref();
 	},
 	methods: {
 		setRuta() {
@@ -166,6 +170,23 @@
 			this.loading = false;
 			hideProgress();
 		},
+		async loadOrdenPref() {
+			showProgress();
+			let op = await GlobalVariables.getPreferences('ordenTorres', true);
+			if (!op) await GlobalVariables.setPreferences('mesesCalendario', 'ordinal', true);
+			hideProgress();
+			return op || 'ordinal';
+		},
+		async setOrdenPref(mode) {
+			if (mode == null || mode == undefined) {
+				let op = await this.loadOrdenPref();
+				this.isOrdenSalida = op === 'salida';
+			}
+			else {
+				await GlobalVariables.setPreferences('mesesCalendario', mode ? 'salida' : 'ordinal', true);
+				this.isOrdenSalida = mode;
+			}
+		},
 		async loadAgrupacion() {
 			showProgress();
 			this.agrupaciones = (await
@@ -180,7 +201,7 @@
 			showProgress();
 			let lists = (await
 				httpFunc('/generic/genericDT/Unidades:Get_ListaPrecios', { id_proyecto: GlobalVariables.id_proyecto })).data;
-			if(lists.every(l => !Number.isNaN(Number(l.lista))))
+			if (lists.every(l => !Number.isNaN(Number(l.lista))))
 				lists.sort((a, b) => Number(a.lista) - Number(b.lista));
 			else lists.sort();
 			this.listas = [...lists];
@@ -409,7 +430,7 @@
 			this.$options.three.selectItem(this.selection);
 		},
 
-		onClearTasas(){
+		onClearTasas() {
 			if (this.torre.propuesta_pago != '1') {
 				this.torre.tasa_base = '0.00';
 				this.torre.antes_p_equ = '0.00';
@@ -421,10 +442,10 @@
 				showProgress();
 				let res = null;
 				try {
-					let torre = {...this.torre}, tmp = {...this.torre};
+					let torre = { ...this.torre }, tmp = { ...this.torre };
 					delete torre.pisos;
-					if (!torre.id_fiduciaria) delete torre.id_fiduciaria;
-					if (!torre.id_instructivo) delete torre.id_instructivo;
+					Object.keys(torre).forEach(k => torre[k] === '' && delete torre[k]);
+					if (this.blockTower(this.torre)) delete torre.orden_salida;
 					res = await httpFunc('/generic/genericST/Unidades:Upd_Torre', torre);
 					if (res.isError || res.data !== 'OK') throw res;
 					await this.loadUnidades();
@@ -462,7 +483,7 @@
 				}
 				else this.torre = {};
 			} else this.torre = {};
-			this.editRow = false; 
+			this.editRow = false;
 			this.lista = {};
 		},
 		setTorre(torre) {
@@ -500,10 +521,15 @@
 			}
 		},
 		onSelectApto(apto) {
-			this.apto = apto;
+			this.apto = { ...apto };
 			this.mode = 5;
 			this.ruta = [this.ruta[0], this.ruta[1], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
+			let $editCont = document.getElementById('editUnitCont');
+			this.editUnit = false;
+			if ($editCont) $editCont.addEventListener('change', (e) => {
+				if (!this.editUnit && ['INPUT', 'SELECT'].includes(e.target.tagName)) this.editUnit = true;
+			});
 		},
 		async onSave() {
 			showProgress();
@@ -515,6 +541,7 @@
 					Usuario: GlobalVariables.username
 				}));
 				if (res.isError || res.data !== 'OK') throw res;
+				this.editUnit = false;
 				await this.loadUnidades(true);
 			} catch (e) {
 				console.error(e);
@@ -541,7 +568,7 @@
 
 			let result = formattedEntera;
 			if (parteDecimal) {
-				if (ndec > 0 && parteDecimal.length > ndec) 
+				if (ndec > 0 && parteDecimal.length > ndec)
 					parteDecimal = Math.round(parseInt(parteDecimal) / Math.pow(10, parteDecimal.length - ndec)).toString();
 				result += "," + parteDecimal;
 			}
@@ -768,7 +795,7 @@
 			hideProgress();
 		},
 		async onSaveTabLists() {
-			if(this.projectAlert && !this.isEmail(this.projectAlert))
+			if (this.projectAlert && !this.isEmail(this.projectAlert))
 				showMessage("Error: Debe ingresar un correo válido");
 			else {
 				showProgress();
@@ -830,12 +857,12 @@
 			if (e.target.matches('.closeListModal'))
 				document.getElementById('modalOverlayList').style.display = 'none';
 		},
-		reqOperation(msg, okCallback, item){
-			showConfirm(msg, okCallback, null, item);
+		reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
+			showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
 		},
 		async detailList(lista) {
 			showProgress();
-			let precios = (await httpFunc('/generic/genericDT/Unidades:Get_PreciosLista', 
+			let precios = (await httpFunc('/generic/genericDT/Unidades:Get_PreciosLista',
 				{ id_lista: lista.id_lista, torres: this.filtros.aptos.torres.join(',') })).data;
 			if (precios.length) {
 				let torres = {};
@@ -854,9 +881,55 @@
 			hideProgress();
 		},
 		isEmail(email) {
-            let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
-            return !email || regex.test(email);
-        },
+			let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
+			return !email || regex.test(email);
+		},
+		async downloadTemplate() {
+			try {
+				showProgress();
+				let datos = (await httpFunc('/generic/genericDT/Unidades:Get_ExportPrecios',
+					{ id_proyecto: GlobalVariables.id_proyecto })).data;
+				console.log(datos);
+
+				let archivo = (await httpFunc(`/util/Json2File/csv`, datos)).data;
+				window.open("./docs/" + archivo, "_blank");
+			}
+			catch (e) {
+				console.error(e);
+			}
+			hideProgress();
+		},
+		setOrdenTorre(dir) {
+			if (!this.blockTower(this.torre)) {
+				let a = this.orderTorres.findIndex(t => t.id_torre === this.torre.id_torre);
+				let next = this.orderTorres[a + dir];
+				if (next && !this.blockTower(next)) {
+					let i = this.torre.orden_salida;
+					this.torre.orden_salida = next.orden_salida;
+					next.orden_salida = i;
+					this.onUpdateOrden(this.torre, next);
+				}
+			}
+		},
+		async onUpdateOrden(torre1, torre2) {
+			if (torre1 && torre2) {
+				showProgress();
+				let res = null;
+				try {
+					res = await httpFunc(`/generic/genericST/Unidades:Upd_OrdenTorres`,
+						{
+							id_torre1: torre1.id_torre, orden_torre1: torre1.orden_salida,
+							id_torre2: torre2.id_torre, orden_torre2: torre2.orden_salida,
+						}
+					);
+					if (res.isError || res.data !== 'OK') throw res;
+				} catch (e) {
+					console.error(e);
+					showMessage('Error:   ' + e.errorMessage || e.data);
+				}
+				hideProgress();
+			}
+		},
 	},
 	computed: {
 		f_tasa_base: {
@@ -871,7 +944,6 @@
 			get() { return this.formatNumber(this.torre['despues_p_equ'], true); },
 			set(val) { this.torre['despues_p_equ'] = this.cleanNumber(val); }
 		},
-
 		f_area_privada_cub: {
 			get() { return this.formatNumber(this.apto['area_privada_cub'], true); },
 			set(val) { this.apto['area_privada_cub'] = this.cleanNumber(val); }
@@ -912,6 +984,16 @@
 			get() { return this.formatNumber(this.apto['valor_unidad'], false); },
 			set(val) { this.apto['valor_unidad'] = this.cleanNumber(val); }
 		},
+		orderTorres: {
+			get() {
+				let tmp = [...this.torres]
+				if (this.isOrdenSalida == '1')
+					tmp = [...this.torres].sort((a, b) => parseInt(a.orden_salida) - parseInt(b.orden_salida));
+				this.sortIds = tmp.map(t => t.id_torre);
+				console.log(this.sortIds);
+				return tmp;
+			}
+		},
 		getFilteredList() {
 			return (tabla) => {
 				return this[tabla] ? this[tabla].filter(item =>
@@ -948,6 +1030,21 @@
 			let t = Object.keys(filters).reduce((t, key) => t += filters[key] ? `${key} ${filters[key]}; ` : '', '');
 			if (t.length >= 2) t = 'en ' + t.substring(0, t.length - 2);
 			return t;
-		}
+		},
+		blockTower() {
+			return (torre) => {
+				let b = false;
+				for (let piso of torre.pisos) {
+					for (let unidad of piso.unidades) {
+						if (unidad.id_estado_unidad != '1') {
+							b = true;
+							break;
+						}
+					}
+					if (b) break;
+				}
+				return b;
+			}
+		},
 	},
 };

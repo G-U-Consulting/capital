@@ -21,7 +21,7 @@ set @id_torre = NULL,
 --END_PARAM
 
 update fact_torres
-set orden_salida = @orden_salida,
+set orden_salida = if(@orden_salida is null, orden_salida, @orden_salida),
     en_venta = if(@en_venta = '1', 1, 0),
     aptos_piso = @aptos_piso,
     id_sinco = @id_sinco,

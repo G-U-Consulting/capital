@@ -302,6 +302,13 @@ h2 {
   padding-bottom: 1px; 
   gap: .5rem;
 }
+.check-title-cont{
+  display: flex;
+  align-items: center;
+  color: black;
+  margin-right: auto;
+  margin-left: 2rem;
+}
 
     .hoverLink:hover {
         text-decoration: underline;

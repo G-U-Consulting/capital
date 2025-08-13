@@ -54,7 +54,7 @@ create temporary table tmp_unidades as(
 );
 -- TODO hacer validación de datos antes de continuar
 insert into fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
-select distinct @id_proyecto, concat('Torre ', torre), torre, torre, 
+select distinct @id_proyecto, concat('Torre ', torre), torre, cast(torre as unsigned) * 10, 
     (select count(*) from tmp_unidades t where a.torre = t.torre and a.piso = t.piso), @usuario
 from tmp_unidades a
     left join fact_torres b on b.id_proyecto = @id_proyecto and a.torre = b.consecutivo

@@ -62,7 +62,7 @@
     <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 0">
         <div>
             <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                <div v-for="item in torres" class="torre" @click="setTorre(item)"
+                <div v-for="item in orderTorres" class="torre" @click="setTorre(item)"
                     v-bind:class="{'sel-torre': item.id_torre === torre.id_torre, 'en-venta': item.en_venta == '1'}">
                     <div style="align-self: center;">
                         <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
@@ -83,6 +83,14 @@
             <div class="pure-g" style="height: calc(100vh - 14.2rem); overflow-y: auto;">
                 <div class="pure-u-1-1 pure-u-md-1-1 formDivision right-button">
                     <span style="font-size: 1.5em;">Torre {{torre.idtorre}}</span>
+                    <div class="check-title-cont">
+                        <label class="check" for="isOrdenSalida">
+                            <input type="checkbox" id="isOrdenSalida" v-model="isOrdenSalida" 
+                                true-value="1" false-value="0"/>
+                            <span class="checkmark"></span>
+                            Ordenar por salida
+                        </label>
+                    </div>
                     <div style="min-width: 150px;">
                         <label for="up-csv" class="file">Actualizar con CSV</label>
                         <input id="up-csv" type="file" @input="handleChangeFile($event, true)" style="display: none;"
@@ -94,11 +102,11 @@
                         <span>Orden de salida</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 5px; width: 18%;">
-                        <input type="number" v-model="torre.orden_salida">
-                        <span class="icon-button" style="padding: 0; margin: 0; height: fit-content;">
+                        <input type="number" v-model="torre.orden_salida" :disabled="blockTower(torre)">
+                        <span class="icon-button" style="padding: 0; margin: 0; height: fit-content;" @click="setOrdenTorre(-1)">
                             <img src="../../img/ico/up.png" alt="" style="margin: 0; height: 25px; width: 25px;">
                         </span>
-                        <span class="icon-button" style="padding: 0;  margin: 0; height: fit-content;">
+                        <span class="icon-button" style="padding: 0;  margin: 0; height: fit-content;" @click="setOrdenTorre(1)">
                             <img src="../../img/ico/down.png" alt="" style="margin: 0; height: 25px; width: 25px;">
                         </span>
                     </div>
@@ -258,7 +266,7 @@
                 </div>
                 <div v-if="viewProperties.viewType == 'classic'">
                     <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                        <div v-for="item in torres" class="torre" @click="toggleTorre(item)"
+                        <div v-for="item in orderTorres" class="torre" @click="toggleTorre(item)"
                             v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre), 'en-venta': item.en_venta == '1'}">
                             <div style="align-self: center;">
                                 <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
@@ -471,7 +479,7 @@
                 </div>
 
                 <!-- Datos principales -->
-                <div style="height: calc(100vh - 17rem); overflow-y: auto;">
+                <div style="height: calc(100vh - 17rem); overflow-y: auto;" id="editUnitCont">
                     <div class="pure-u-1-2 pure-u-md-1-5">
                         <div class="formInputStandard">
                             <label>ID Unidad</label>
@@ -758,7 +766,7 @@
                 <div class="pure-u-1-1"></div>
                 <div class="pure-u-7-24"></div>
                 <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
-                    <button @click="computeViews" class="pure-button pure-button-primary">Volver</button>
+                    <button @click="this.editUnit ? reqOperation('¿Desea salir sin guardar?', computeViews, null, null, 'Sí', 'No') : computeViews()" class="pure-button pure-button-primary">Volver</button>
                 </div>
                 <div class="pure-u-1-12"></div>
                 <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
@@ -771,7 +779,7 @@
     <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 2">
         <div>
             <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                <div v-for="item in torres" class="torre" @click="toggleTorre(item); setTorresList()"
+                <div v-for="item in orderTorres" class="torre" @click="toggleTorre(item); setTorresList()"
                     v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre), 'en-venta': item.en_venta == '1'}">
                     <div style="align-self: center;">
                         <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
@@ -795,7 +803,7 @@
                     <span>Lista de Precios Vigente: {{listas.find(l => l.id_lista === torre.id_lista)?.lista}}</span>
                 </h2>
                 <div class="pure-u-1-2 pure-u-md-1-4">
-                    <button>Exportar Plantilla</button>
+                    <button @click="downloadTemplate">Exportar Plantilla</button>
                 </div>
                 <div class="pure-u-1-2 pure-u-md-1-2"></div>
                 <!-- <div class="pure-u-1-2 pure-u-md-1-4" style="text-align: right;">
@@ -906,7 +914,7 @@
                                 <input type="text" v-model="grupo.descripcion" maxlength="200">
                             </td>
                             <td style="text-align: right;">
-                                <span>{{0}}</span>
+                                <span>{{formatNumber(grupo.total.replace(',','.'), false)}}</span>
                             </td>
                             <td style="text-align: center;">
                                 <span @click.stop.prevent="onSaveGroup" class="delete">💾</span>
@@ -927,7 +935,7 @@
                                     maxlength="200">
                             </td>
                             <td style="text-align: right;">
-                                <span>{{group.total_importe}}</span>
+                                <span>{{formatNumber(group.total.replace(',','.'), false)}}</span>
                             </td>
                             <td style="text-align: center;">
                                 <span v-if="!editRow || selRow3 !== i" @click.stop.prevent="onEditGroup(group, i)"
@@ -973,7 +981,7 @@
                             <td>{{apto.piso}}</td>
                             <td>{{apto.codigo_planta}}</td>
                             <td>{{apto.localizacion}}</td>
-                            <td>{{0}}</td>
+                            <td>{{formatNumber(apto.valor_unidad, false)}}</td>
                         </tr>
                     </tbody>
                 </table>
