@@ -134,6 +134,7 @@ create table fact_cotizaciones (
     fecha datetime,
     descripcion varchar(100),
     importe decimal(10,2),
+    id_proyecto int,
     is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user

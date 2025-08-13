@@ -33,6 +33,8 @@ export default {
         ciudadExpedicion: '',
         fechaExpedicion: '',
         isPoliticaAceptada: 0,
+        ventanaUnidades: null,
+        currentSubmode: null,
 
       },
       ObjVisita: {
@@ -150,6 +152,7 @@ export default {
     this.tipo_tramite = resp.data[7];
     this.campoObligatorio();
     window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
+
   },
   methods: {
     async handleNext(nextIndex) {
@@ -314,13 +317,23 @@ export default {
     },
     async setSubmode(index) {
       this.campoObligatorio();
+
+      if (GlobalVariables.ventanaUnidades && !GlobalVariables.ventanaUnidades.closed) {
+        GlobalVariables.ventanaUnidades.close();
+        GlobalVariables.ventanaUnidades = null;
+      }
+
       if (index == 1) {
         let resp2 = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { cliente: this.cliente });
         this.visitas = resp2.data[0];
       }
+
       if (index == 2) {
         await this.getCotizaciones();
+        await this.refrescarImportes();
       }
+
+      this.currentSubmode = index;
     },
 
     ///////// mode 1
@@ -405,7 +418,7 @@ export default {
     },
 
     async getCotizaciones() {
-      let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', { id_cliente: this.id_cliente });
+      let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', { id_cliente: this.id_cliente, id_proyecto: GlobalVariables.id_proyecto });
       this.cotizaciones = resp.data[0];
     },
     addCotizacion() {
@@ -430,6 +443,7 @@ export default {
         fecha: formatoFecha,
         descripcion: '',
         importe: 0,
+        id_proyecto: GlobalVariables.id_proyecto,
         id_cliente: this.id_cliente,
       });
 
@@ -540,7 +554,7 @@ export default {
         'left=100'
       ].join(',');
 
-      window.open(url, 'VentanaModuloUnidades', features);
+      GlobalVariables.ventanaUnidades = window.open(url, 'VentanaModuloUnidades', features);
     },
     async seleccionarCotizacion(cotizacionId) {
       this.cotizacionSeleccionada = cotizacionId;
@@ -578,12 +592,42 @@ export default {
     },
 
     formatoMoneda(valor) {
-    if (isNaN(valor)) return '';
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0
-    }).format(valor);
+      if (isNaN(valor)) return '';
+      return new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0
+      }).format(valor);
     },
+    async refrescarImportes() {
+      const parseNumber = (str) => {
+        if (typeof str === 'string') {  
+          return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+        }
+        return Number(str) || 0;
+      };
+
+      for (const cotizacion of this.cotizaciones) {
+        let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {
+          id_cliente: this.id_cliente,
+          id_cotizacion: cotizacion.cotizacion,
+          id_proyecto: GlobalVariables.id_proyecto,
+        });
+
+        const unidades = respa.data[0].map(unidad => ({
+          ...unidad,
+          valor_unidad: parseNumber(unidad.valor_unidad),
+          valor_descuento: parseNumber(unidad.valor_descuento)
+        }));
+
+        cotizacion.unidades = unidades;
+
+        const sumaValores = unidades.reduce((total, unidad) => total + unidad.valor_unidad, 0);
+        const sumaDescuentos = unidades.reduce((total, unidad) => total + unidad.valor_descuento, 0);
+        const totalFinal = sumaValores - sumaDescuentos;
+
+        cotizacion.importeTotal = totalFinal;
+      }
+    }
   }
 }

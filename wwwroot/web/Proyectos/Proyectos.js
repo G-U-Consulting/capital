@@ -65,6 +65,12 @@ export default {
         },
 
         async setMainMode(mode, sel = false) {
+
+            if (GlobalVariables.ventanaUnidades && !GlobalVariables.ventanaUnidades.closed) {
+                GlobalVariables.ventanaUnidades.close();
+                GlobalVariables.ventanaUnidades = null;
+            }
+
             if (this.mainmode === mode && mode !== 'InicioProyecto') return;
 
             this.mainmode = mode;

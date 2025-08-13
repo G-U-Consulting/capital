@@ -7,7 +7,8 @@ set @id_cliente = 0,
     @fecha = '',
     @descripcion = '',
     @result = '',
-    @importe = 0; 
+    @importe = 0,
+    @id_proyecto = 0; 
 --END_PARAM
 
 if exists (select 1 from fact_cotizaciones where cotizacion = @cotizacion and id_cliente = @id_cliente) then
@@ -16,8 +17,8 @@ if exists (select 1 from fact_cotizaciones where cotizacion = @cotizacion and id
     where cotizacion = @cotizacion;
     select concat('OK-id_archivo:', last_insert_id(), ' ', 'update') as result;
 else
-    insert into fact_cotizaciones (id_cliente, cotizacion, fecha, descripcion, importe)
-    values (@id_cliente, @cotizacion, @fecha, @descripcion, @importe);
+    insert into fact_cotizaciones (id_cliente, cotizacion, fecha, descripcion, importe, id_proyecto)
+    values (@id_cliente, @cotizacion, @fecha, @descripcion, @importe, @id_proyecto);
     select concat('OK-id_archivo:', last_insert_id(), ' ', 'insert') as result;
 end if;
 

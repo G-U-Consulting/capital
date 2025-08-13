@@ -41,8 +41,8 @@
                         <div style="padding: .1rem;">
                             <!-- <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
                                     value="3d" />3D</label> -->
-                            <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
-                                    value="classic" />Clasica</label>
+                            <!-- <label><input type='radio' name="viewType" v-model='viewProperties.viewType'
+                                    value="classic" />Clasica</label> -->
                         </div>
                     </div>
                     <div v-if="viewProperties.viewType == '3d'">
@@ -244,6 +244,7 @@
                                         <th>Tipo</th>
                                         <th>Localización</th>
                                         <th style="width: 33%;">Observación</th>
+                                        <th style="width: 5%;">UT</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -255,6 +256,7 @@
                                         <td>{{apto.codigo_planta}}</td>
                                         <td>{{apto.localizacion}}</td>
                                         <td>{{apto.observacion_apto}}</td>
+                                        <td>{{ apto.inv_terminado == 1 ? 'SI' : 'NO' }}</td>
                                     </tr>
                                 </tbody>
                             </table>
