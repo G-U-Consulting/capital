@@ -26,10 +26,16 @@ export default {
         this.nombrePro = this.proyecto.nombre;
         this.setMainMode('Bancos');
         await this.loadData();
+        this.initMode();
     },
     methods: {
         setMainMode(mode) {
             this.mainmode = mode;
+        },
+        initMode() {
+            this.mode = 0;
+            this.ruta = [{ text: `${this.proyecto.nombre} / Bancos`, action: () => this.initMode() }];
+            GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
         },
         async loadData() {
             [this.bancos, this.factores, this.tipos_factor, this.bancos_factores] =
@@ -51,6 +57,9 @@ export default {
             });
             this.banco_factor = bfs;
             this.copy_bf = cbfs;
+            GlobalVariables.miniModuleCallback('SetRuta', [this.ruta[0],
+                { text: `Edición - ${selected.banco}`, action: () => { } }
+            ]);
         },
         onClear(table) {
             let item = this.filtros[table];

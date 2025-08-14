@@ -62,7 +62,7 @@
     <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 0">
         <div>
             <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                <div v-for="item in orderTorres" class="torre" @click="setTorre(item)"
+                <div v-for="item in sortTorres" class="torre" @click="setTorre(item)"
                     v-bind:class="{'sel-torre': item.id_torre === torre.id_torre, 'en-venta': item.en_venta == '1'}">
                     <div style="align-self: center;">
                         <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
@@ -84,9 +84,9 @@
                 <div class="pure-u-1-1 pure-u-md-1-1 formDivision right-button">
                     <span style="font-size: 1.5em;">Torre {{torre.idtorre}}</span>
                     <div class="check-title-cont">
-                        <label class="check" for="isOrdenSalida">
-                            <input type="checkbox" id="isOrdenSalida" v-model="isOrdenSalida" 
-                                true-value="1" false-value="0"/>
+                        <label class="check" for="ordenTorres">
+                            <input type="checkbox" id="ordenTorres" v-model="ordenTorres" 
+                                true-value="salida" false-value="ordinal" @change="setOrdenPref"/>
                             <span class="checkmark"></span>
                             Ordenar por salida
                         </label>
@@ -266,7 +266,7 @@
                 </div>
                 <div v-if="viewProperties.viewType == 'classic'">
                     <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                        <div v-for="item in orderTorres" class="torre" @click="toggleTorre(item)"
+                        <div v-for="item in sortTorres" class="torre" @click="toggleTorre(item)"
                             v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre), 'en-venta': item.en_venta == '1'}">
                             <div style="align-self: center;">
                                 <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
@@ -779,7 +779,7 @@
     <div style="display: flex; gap: 1rem; height: 100%;" v-if="tabmode == 2">
         <div>
             <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                <div v-for="item in orderTorres" class="torre" @click="toggleTorre(item); setTorresList()"
+                <div v-for="item in sortTorres" class="torre" @click="toggleTorre(item); setTorresList()"
                     v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre), 'en-venta': item.en_venta == '1'}">
                     <div style="align-self: center;">
                         <span style="font-weight: bold;">Torre {{item.idtorre}}</span>

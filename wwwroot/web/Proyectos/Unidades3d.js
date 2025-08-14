@@ -35,7 +35,7 @@
 			listFromCSV: false,
 			loading: true,
 			editUnit: false,
-			isOrdenSalida: false,
+			ordenTorres: 'ordinal',
 			stats: {
 				torres: 0,
 				pisos: 0,
@@ -88,13 +88,13 @@
 	three: null,
 	async mounted() {
 		//this.computeViews();
+		await this.loadOrdenPref();
 		await this.loadUnidades(true);
 		if (this.torres.length) this.setTabmode(0);
 		let b = !!this.torres.length;
 		this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
 		if (b) this.ruta.push({ text: `Torres`, action: () => this.setTabmode(0) })
 		this.setRuta();
-		//await this.setOrdenPref();
 	},
 	methods: {
 		setRuta() {
@@ -102,15 +102,15 @@
 		},
 		async setTabmode(index, force) {
 			if (this.tabmode !== -1 || force) {
-				if (index === 0) if (this.torres.length) this.torre = this.torres[0];
+				if (index === 0) if (this.sortTorres.length) this.torre = this.sortTorres[0];
 				if (index === 1) this.computeViews();
 				if (index === 2) {
 					await this.loadListas();
 					this.projectList = GlobalVariables.proyecto.id_lista;
 					this.projectAlert = GlobalVariables.proyecto.alerta_cambio_lista || '';
 					if (this.torres.length) {
-						this.filtros.aptos.torres = [this.torres[0].idtorre];
-						this.selRow2 = this.listas.findIndex(l => l.id_lista === this.torres[0].id_lista);
+						this.filtros.aptos.torres = [this.sortTorres[0].idtorre];
+						this.selRow2 = this.listas.findIndex(l => l.id_lista === this.sortTorres[0].id_lista);
 						if (this.selRow2 == -1) this.selRow2 = 0;
 						this.tabmode = index;
 					}
@@ -173,19 +173,12 @@
 		async loadOrdenPref() {
 			showProgress();
 			let op = await GlobalVariables.getPreferences('ordenTorres', true);
-			if (!op) await GlobalVariables.setPreferences('mesesCalendario', 'ordinal', true);
+			if (!op) await GlobalVariables.setPreferences('ordenTorres', 'ordinal', true);
 			hideProgress();
-			return op || 'ordinal';
+			this.ordenTorres = op || 'ordinal';
 		},
-		async setOrdenPref(mode) {
-			if (mode == null || mode == undefined) {
-				let op = await this.loadOrdenPref();
-				this.isOrdenSalida = op === 'salida';
-			}
-			else {
-				await GlobalVariables.setPreferences('mesesCalendario', mode ? 'salida' : 'ordinal', true);
-				this.isOrdenSalida = mode;
-			}
+		async setOrdenPref() {
+			await GlobalVariables.setPreferences('ordenTorres', this.ordenTorres);
 		},
 		async loadAgrupacion() {
 			showProgress();
@@ -889,8 +882,6 @@
 				showProgress();
 				let datos = (await httpFunc('/generic/genericDT/Unidades:Get_ExportPrecios',
 					{ id_proyecto: GlobalVariables.id_proyecto })).data;
-				console.log(datos);
-
 				let archivo = (await httpFunc(`/util/Json2File/csv`, datos)).data;
 				window.open("./docs/" + archivo, "_blank");
 			}
@@ -901,8 +892,8 @@
 		},
 		setOrdenTorre(dir) {
 			if (!this.blockTower(this.torre)) {
-				let a = this.orderTorres.findIndex(t => t.id_torre === this.torre.id_torre);
-				let next = this.orderTorres[a + dir];
+				let a = this.sortTorres.findIndex(t => t.id_torre === this.torre.id_torre);
+				let next = this.sortTorres[a + dir];
 				if (next && !this.blockTower(next)) {
 					let i = this.torre.orden_salida;
 					this.torre.orden_salida = next.orden_salida;
@@ -984,13 +975,12 @@
 			get() { return this.formatNumber(this.apto['valor_unidad'], false); },
 			set(val) { this.apto['valor_unidad'] = this.cleanNumber(val); }
 		},
-		orderTorres: {
+		sortTorres: {
 			get() {
 				let tmp = [...this.torres]
-				if (this.isOrdenSalida == '1')
+				if (this.ordenTorres == 'salida')
 					tmp = [...this.torres].sort((a, b) => parseInt(a.orden_salida) - parseInt(b.orden_salida));
 				this.sortIds = tmp.map(t => t.id_torre);
-				console.log(this.sortIds);
 				return tmp;
 			}
 		},
