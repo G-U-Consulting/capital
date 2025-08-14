@@ -483,26 +483,26 @@
                         <thead>
                             <tr>
                                 <th style="width: 5%;">Torre</th>
-                                <th style="width: 8%;">ID Unidad</th>
                                 <th style="width: 10%;">Tipo</th>
+                                <th style="width: 8%;">ID Unidad</th>
                                 <th style="width: 15%;">Fecha</th>
                                 <th style="width: 35%;">Observación</th>
                                 <th style="width: 15%;">Importe</th>
                                 <th style="width: 15%;">Descuento</th>
-                                <th style="width: 10%;">Lista Activa</th>
+                                <th style="width: 10%;">Lista</th>
                                 <th style="width: 5%;">UT</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(item, index) in unidades" :key="index">
                                 <td>{{ item.consecutivo }}</td>
-                                <td>{{ item.numero_apartamento }}</td>
                                 <td>{{ item.tipo }}</td>
+                                <td>{{ item.numero_apartamento }}</td>
                                 <td>{{ item.created_on }}</td>
                                 <td>{{ item.observacion_apto }}</td>
                                 <td style="text-align: right;">{{ formatoMoneda(item.valor_unidad) }}</td>
                                 <td style="text-align: right;">{{ formatoMoneda(item.valor_descuento) }}</td>
-                                <td>{{ item.lista_activa }}</td>
+                                <td>{{ item.lista }}</td>
                                 <td style="text-align: center;">{{ item.inv_terminado }}</td>
                             </tr>
                         </tbody>

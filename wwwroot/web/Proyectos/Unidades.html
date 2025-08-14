@@ -238,10 +238,10 @@
                                 <thead>
                                     <tr>
                                         <th>Torre</th>
-                                        <th>ID Unidad</th>
                                         <th>Piso</th>
-                                        <th>Estatus</th>
                                         <th>Tipo</th>
+                                        <th>ID Unidad</th>
+                                        <th>Estatus</th>
                                         <th>Localización</th>
                                         <th style="width: 33%;">Observación</th>
                                         <th style="width: 5%;">UT</th>
@@ -250,10 +250,10 @@
                                 <tbody>
                                     <tr v-for="apto in getFilteredList('aptos')" @dblclick="onSelectApto(apto)">
                                         <td>{{apto.idtorre}}</td>
-                                        <td>{{apto.apartamento}}</td>
                                         <td>{{apto.piso}}</td>
-                                        <td>{{apto.estatus}}</td>
                                         <td>{{apto.codigo_planta}}</td>
+                                        <td>{{apto.apartamento}}</td>
+                                        <td>{{apto.estatus}}</td>
                                         <td>{{apto.localizacion}}</td>
                                         <td>{{apto.observacion_apto}}</td>
                                         <td>{{ apto.inv_terminado == 1 ? 'SI' : 'NO' }}</td>

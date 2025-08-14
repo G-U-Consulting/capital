@@ -25,7 +25,16 @@ select
              where p.id_proyecto = b.id_proyecto), 
             b.id_lista)
           and pu.id_unidad = b.id_unidad
-    ) as valor_unidad
+    ) as valor_unidad,
+    (
+        select l.lista 
+        from dim_lista_precios l 
+        where l.id_lista = if(b.id_lista is null, 
+            (select p.id_lista 
+             from fact_proyectos p 
+             where p.id_proyecto = b.id_proyecto), 
+            b.id_lista)
+    ) as lista
 from fact_negocios_unidades a
 join fact_unidades b on a.id_unidad = b.id_unidad
 join fact_proyectos c on a.id_proyecto = c.id_proyecto

@@ -206,16 +206,16 @@
         category: "ConfigGeneral",
         allow: ["*"]
     },
-    "TestArchivos": {
-        templateUrl: "./web/Test/Archivos.html",
-        jsUrl: "./web/Test/Archivos.js",
-        title: "Prueba de archivos",
-        desc: "",
-        imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZM",
-        category: "TestArchivos",
-        allow: ["*"]
-    }
+    // "TestArchivos": {
+    //     templateUrl: "./web/Test/Archivos.html",
+    //     jsUrl: "./web/Test/Archivos.js",
+    //     title: "Prueba de archivos",
+    //     desc: "",
+    //     imgSrc: "./img/ico/menu/006-group.png",
+    //     zone: "ZM",
+    //     category: "TestArchivos",
+    //     allow: ["*"]
+    // }
 };
 const zones = {
     "ZU": {
