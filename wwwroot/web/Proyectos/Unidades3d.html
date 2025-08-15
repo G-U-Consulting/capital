@@ -11,7 +11,7 @@
 
 <div class="pure-u-1-24"></div>
 <div class="pure-u-1-24"></div>
-<div class="pure-u-22-24 menuCard" style="height: calc(100vh  - 10rem); overflow-y: auto;">
+<div class="pure-u-22-24 menuCard" style="height: calc(100vh  - 9.9rem); overflow-y: auto;">
 
     <div v-if="tabmode == -1">
         <!-- Carga del archivo -->
@@ -85,8 +85,8 @@
                     <span style="font-size: 1.5em;">Torre {{torre.idtorre}}</span>
                     <div class="check-title-cont">
                         <label class="check" for="ordenTorres">
-                            <input type="checkbox" id="ordenTorres" v-model="ordenTorres" 
-                                true-value="salida" false-value="ordinal" @change="setOrdenPref"/>
+                            <input type="checkbox" id="ordenTorres" v-model="ordenTorres" true-value="salida"
+                                false-value="ordinal" @change="setOrdenPref" />
                             <span class="checkmark"></span>
                             Ordenar por salida
                         </label>
@@ -103,18 +103,20 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 5px; width: 18%;">
                         <input type="number" v-model="torre.orden_salida" :disabled="blockTower(torre)">
-                        <span class="icon-button" style="padding: 0; margin: 0; height: fit-content;" @click="setOrdenTorre(-1)">
+                        <span class="icon-button" style="padding: 0; margin: 0; height: fit-content;"
+                            @click="setOrdenTorre(-1)">
                             <img src="../../img/ico/up.png" alt="" style="margin: 0; height: 25px; width: 25px;">
                         </span>
-                        <span class="icon-button" style="padding: 0;  margin: 0; height: fit-content;" @click="setOrdenTorre(1)">
+                        <span class="icon-button" style="padding: 0;  margin: 0; height: fit-content;"
+                            @click="setOrdenTorre(1)">
                             <img src="../../img/ico/down.png" alt="" style="margin: 0; height: 25px; width: 25px;">
                         </span>
                     </div>
                     <div style="width: 7%;"></div>
                     <div style="width: 20%; display: flex; padding: .5rem;">
                         <label class="check" for="en_venta">
-                            <input type="checkbox" id="en_venta" v-model="torre.en_venta" 
-                                true-value="1" false-value="0"/>
+                            <input type="checkbox" id="en_venta" v-model="torre.en_venta" true-value="1"
+                                false-value="0" />
                             <span class="checkmark"></span>
                             En venta
                         </label>
@@ -164,8 +166,8 @@
                 <div class="pure-u-1-1" style="padding: .5rem;">
                     <div style="display: flex;">
                         <label class="check" for="pro_pago">
-                            <input type="checkbox" id="pro_pago" v-model="torre.propuesta_pago" @change="onClearTasas"  
-                                true-value="1" false-value="0"/>
+                            <input type="checkbox" id="pro_pago" v-model="torre.propuesta_pago" @change="onClearTasas"
+                                true-value="1" false-value="0" />
                             <span class="checkmark"></span>
                             Permitir propuestas de pago
                         </label>
@@ -330,9 +332,9 @@
                                 </div>
                             </div>
                             <div>
-                                <select v-model="filtros.aptos['codigo_planta']" class="pure-input-1">
+                                <select v-model="filtros.aptos['id_tipo']" class="pure-input-1">
                                     <option value="">[Tipos]</option>
-                                    <option v-for="t in tipos" :value="t">{{t}}</option>
+                                    <option v-for="t in tipos" :value="t.id_tipo">{{t.tipo}}</option>
                                 </select>
                             </div>
                             <div>
@@ -766,7 +768,9 @@
                 <div class="pure-u-1-1"></div>
                 <div class="pure-u-7-24"></div>
                 <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
-                    <button @click="this.editUnit ? reqOperation('¿Desea salir sin guardar?', computeViews, null, null, 'Sí', 'No') : computeViews()" class="pure-button pure-button-primary">Volver</button>
+                    <button
+                        @click="this.editUnit ? reqOperation('¿Desea salir sin guardar?', computeViews, null, null, 'Sí', 'No') : computeViews()"
+                        class="pure-button pure-button-primary">Volver</button>
                 </div>
                 <div class="pure-u-1-12"></div>
                 <div class="pure-u-1-6" style="text-align: center; margin-top: 1rem;">
@@ -846,13 +850,15 @@
                     </table>
                 </div>
 
-                <div class="pure-u-1-1 pure-u-md-1-3 formInputStandard" style="margin-top: .5rem;">
+                <div class="pure-u-1-1 pure-u-md-1-3 formInputStandard"
+                    style="margin-top: .5rem; display: flex; flex-direction: column;">
                     <label for="email-auto">Alerta cambios de lista:</label>
                     <input v-model="projectAlert" type="text" id="email-auto" style="width: 14rem;"
                         v-bind:class="{'errorInput': projectAlert && !isEmail(projectAlert)}">
                 </div>
 
-                <div class="pure-u-1-1 pure-u-md-1-3 formInputStandard" style="margin-top: .5rem;">
+                <div class="pure-u-1-1 pure-u-md-1-3 formInputStandard"
+                    style="margin-top: .5rem; display: flex; flex-direction: column;">
                     <label for="lista-vigente">Lista vigente por defecto:</label>
                     <select name="lista-vigente" id="lista-vigente" style="width: 10rem;" v-model="projectList">
                         <option value="">[Seleccione]</option>
@@ -914,7 +920,7 @@
                                 <input type="text" v-model="grupo.descripcion" maxlength="200">
                             </td>
                             <td style="text-align: right;">
-                                <span>{{formatNumber(grupo.total.replace(',','.'), false)}}</span>
+                                <span>{{grupo.total ? formatNumber(grupo.total.replace(',','.'), false) : '0'}}</span>
                             </td>
                             <td style="text-align: center;">
                                 <span @click.stop.prevent="onSaveGroup" class="delete">💾</span>
@@ -989,6 +995,75 @@
         </div>
     </div>
 
+    <div style="display: flex; gap: 1rem; height: 100%; justify-content: space-between;" v-if="tabmode == 4">
+        <div class="lista-torres" style="height: 100%; gap: 5px; overflow-y: auto; min-width: fit-content;">
+            <div class="lista-precio" v-for="tipo in tipos" @click="viewType = tipo;"
+                v-bind:class="{'current-list': tipo == viewType}">
+                <span>{{tipo.tipo}}</span>
+            </div>
+        </div>
+        <div style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+            <div class="pure-g tab-container" style="margin: 0;">
+                <div class="tab pure-u-1-2" @click="resType = 'imagen'" style="padding: .5rem 0;"
+                    v-bind:class="{'tab-selected': resType == 'imagen'}">
+                    Planta
+                </div>
+                <div class="tab pure-u-1-2" @click="resType = 'recorrido'" style="padding: .5rem 0;"
+                    v-bind:class="{'tab-selected': resType == 'recorrido'}">
+                    Recorrido virtual
+                </div>
+            </div>
+            <div style="height: calc(100% - 5.4rem); margin-bottom: 1rem;">
+                <div v-if="playIndex >= 0 && playIndex < files.length" class="cont-resource-type">
+                    <iframe v-if="files[playIndex].link" id="v-player" :src="`${files[playIndex].link}`"
+                        :key="'v' + playIndex" frameborder="0" allowfullscreen allow="xr-spatial-tracking"
+                        style="width: 100%;">
+                    </iframe>
+                    <img v-else :src="files[playIndex].content"
+                        style="max-width: 100%; max-height: 100%; width: auto; height: auto;">
+                </div>
+                <div v-else
+                    style="border: 2px #ccc solid; width: 100%; height: 90%; display: flex; justify-content: center; align-items: center;">
+                    <span style="color: #666;">Seleccionar {{resType}}</span>
+                </div>
+            </div>
+            <div style="min-height: fit-content;">
+                <button
+                    style="display: block; margin: 0 auto; padding-left: 1rem; padding-right: 1rem;">Establecer</button>
+            </div>
+        </div>
+        <div class="cont-list-resources open"
+            style="border: 1px #888 solid; margin: 0; height: 100%; max-height: none; min-width: 200px;">
+            <div class="list-resources">
+                <div class="menu-section" v-for="grupo, i in gruposImg" style="border: 0;"
+                    v-show="grupo.modulo.toLowerCase().includes(resType)">
+                    <!-- <div v-if="i == 0" class="menu-title" @click="toggleExpand" style="border-bottom: 2px #bbb solid;">
+                        <span>{{isExpanded() ? 'Colapsar todo' : 'Expandir todo'}}</span>
+                        <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': isExpanded()}">
+                    </div> -->
+                    <div class="menu-title" style="padding: .5rem 10px;">
+                        <span>{{grupo.grupo}}</span>
+                        <!-- <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': grupo.expanded}"> -->
+                    </div>
+                    <div class="menu-content" v-bind:class="{'open': grupo.expanded}">
+                        <div class="item-content" v-for="file in grupo.files" v-bind:class="{'current': file.current}"
+                            @click="selectFile(file)"
+                            @mouseenter="tooltipVisible = true; tooltipMsg = file.nombre_documento || file.documento || file.descripcion || file.link"
+                            @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
+                            <img :src="file.link ? (file.link.includes('matterport') ? 
+                                '../../img/ico/Matterport.png' : '../../img/ico/link.jpg') : '/file/S3get/' + file.llave"
+                                :alt="file.documento" style="background-color: white;">
+                        </div>
+                        <div v-if="tooltipVisible" class="cursor-tooltip"
+                            :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                            {{tooltipMsg}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="cal-modal-overlay" id="modalOverlay">
         <div class="modal-container pure-g" style="min-width: 70vw; max-width: 85vw;">
             <div class="pure-u-1-1">
@@ -1006,9 +1081,9 @@
                         </div>
                     </div>
                     <div>
-                        <select v-model="filtros.groupedAptos['codigo_planta']" class="pure-input-1">
+                        <select v-model="filtros.groupedAptos['id_tipo']" class="pure-input-1">
                             <option value="">[Tipos]</option>
-                            <option v-for="t in tipos" :value="t">{{t}}</option>
+                            <option v-for="t in tipos" :value="t.id_tipo">{{t.tipo}}</option>
                         </select>
                     </div>
                     <div>
@@ -1149,12 +1224,14 @@
                                         <tbody>
                                             <tr v-for="p in torre.precios">
                                                 <td>{{p.apartamento}}</td>
-                                                <td style="text-align: right;">{{formatNumber(p.precio)}}</td>
-                                                <td style="text-align: right;">{{formatNumber(p.en_smlv)}}</td>
+                                                <td style="text-align: right;">{{formatNumber(p.precio, false)}}</td>
+                                                <td style="text-align: right;">{{formatNumber(p.en_smlv, false)}}</td>
                                                 <td style="text-align: right;">{{formatNumber(p.precio_m2, true, 2)}}
                                                 </td>
-                                                <td style="text-align: right;">{{formatNumber(p.precio_alt)}}</td>
-                                                <td style="text-align: right;">{{formatNumber(p.en_smlv_alt)}}</td>
+                                                <td style="text-align: right;">{{formatNumber(p.precio_alt, false)}}
+                                                </td>
+                                                <td style="text-align: right;">{{formatNumber(p.en_smlv_alt, false)}}
+                                                </td>
                                                 <td style="text-align: right;">{{formatNumber(p.precio_m2_alt, true,
                                                     2)}}</td>
                                                 <td style="text-align: center;" v-if="listFromCSV"

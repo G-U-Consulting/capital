@@ -1110,7 +1110,6 @@ textarea.editor {
   text-align: center;
   padding: 1rem 0;
   border: 1px solid #ccc;
-  padding-bottom: calc(1rem + 2px);
   transition: border .2s ease-in-out;
 }
 .tab:hover{
@@ -1123,7 +1122,17 @@ textarea.editor {
   background-color: #f1f9fa9d;
   margin-bottom: 0;
 }
-.hide-editor{
+.cont-resource-type {
+  display: flex; 
+  justify-content: center; 
+  width: 100%; 
+  max-height: 90%; 
+  border: 2px #ccc solid;
+}
+.cont-resource-type:has(iframe) {
+  height: 100%;
+}
+.hide-editor {
   display: none;
 }
 .image-name-overlay {
@@ -1809,7 +1818,7 @@ div.btn-left-rotafolio img {
   border: 0;
   border-bottom-right-radius: 3px;
   border-top-right-radius: 3px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .menu-section {

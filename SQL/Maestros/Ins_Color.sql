@@ -2,10 +2,14 @@
 -- Proceso: Maestros/Ins_Color
 -- =============================================
 --START_PARAM
-set @estado = NULL,
-    @color = NULL
+set @estado_unidad = NULL,
+    @estado_unidad_plural = NULL,
+    @color_fondo = NULL,
+    @color_fuente = NULL;
 
 --END_PARAM
 
-INSERT INTO dim_color (estado, color) VALUES (@estado, @color);
-SELECT concat('OK-id_color:', (SELECT id_color from dim_color where estado = @estado)) AS result;
+select max(id_estado_unidad) + 1 from dim_estado_unidad into @id;
+INSERT INTO dim_estado_unidad (id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente)
+values(@id, @estado_unidad, @estado_unidad_plural, @color_fondo, @color_fuente);
+SELECT concat('OK-id_color:', @id) AS result;

@@ -142,8 +142,8 @@
             <div v-on:click="setMainMode(21)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 21}">
                 <img src="./img/ico/svg/Maestro/Gamas.svg" />
-                Gama de Colores
-                <span class="tooltip-text">Gama de Colores</span>
+                Colores de estado
+                <span class="tooltip-text">Colores de estado</span>
             </div>
         </div>
 
@@ -2085,7 +2085,7 @@
             </div>
         </div>
 
-        <!-- Gama Colores -->
+        <!-- Colores de estado -->
         <div v-if="mainmode == 21">
             <div style="font-size: 1rem; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; ">
                 <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
@@ -2097,7 +2097,7 @@
             <div v-if="mode == 0" style="padding: 1em">
                 <div class="pure-u-1-24 pure-u-md-1-24"></div>
                 <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
-                    <h2>Gama de Colores</h2>
+                    <h2>Colores de estado</h2>
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-10-24">
@@ -2132,10 +2132,11 @@
                             <thead>
                                 <tr>
                                     <th
-                                        v-for="key in Object.keys(colores[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') && k != 'color')">
+                                        v-for="key in Object.keys(colores[0]).filter(k => !k.startsWith('id_') && !k.startsWith('is_') && !k.startsWith('color_'))">
                                         {{(key[0].toUpperCase() + key.substr(1)).replaceAll("_"," ")}}
                                     </th>
-                                    <th>Color</th>
+                                    <th>Color fondo</th>
+                                    <th>Color fuente</th>
                                     <th>Activo</th>
                                     <th>Eliminar</th>
                                 </tr>
@@ -2143,16 +2144,19 @@
                             <tbody>
                                 <tr v-for="col in getFilteredList('colores')" @click="onSelect(col)">
                                     <td
-                                        v-for="key in Object.keys(col).filter(k => !k.startsWith('id_') && !k.startsWith('is_') && k != 'color')">
+                                        v-for="key in Object.keys(col).filter(k => !k.startsWith('id_') && !k.startsWith('is_')  && !k.startsWith('color_'))">
                                         {{col[key]}}</td>
                                     <td>
-                                        <div class="div-color" :style="`background-color: ${col.color}`"></div>
+                                        <div class="div-color" :style="`background-color: ${col.color_fondo}`"></div>
+                                    </td>
+                                    <td>
+                                        <div class="div-color" :style="`background-color: ${col.color_fuente}`"></div>
                                     </td>
                                     <td style="text-align: center;">
                                         <div class="toggle-switch" @click.stop.prevent="toggleState(col)">
-                                            <input :id="'toggle' + col.color" type="checkbox" class="toggle-input"
+                                            <input :id="'toggle' + col.color_fondo" type="checkbox" class="toggle-input"
                                                 :checked="Number(col.is_active) !== 1">
-                                            <label class="toggle-label" :for="'toggle' + col.color"
+                                            <label class="toggle-label" :for="'toggle' + col.color_fondo"
                                                 style="transform: rotate(180deg);"></label>
                                         </div>
                                     </td>
@@ -2171,13 +2175,21 @@
                 <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Color</h2>
                     <div class="pure-g main-content">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
-                            <span>Estado</span>
-                            <input type="text" v-model="color.estado" maxlength="50" />
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Estado unidad</span>
+                            <input type="text" v-model="color.estado_unidad" maxlength="50" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                            <span>Estado unidad plural</span>
+                            <input type="text" v-model="color.estado_unidad_plural" maxlength="50" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-12" style="text-align: center;">
-                            <span>Color</span>
-                            <input type="color" v-model="color.color" />
+                            <span>Fondo</span>
+                            <input type="color" v-model="color.color_fondo" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-12" style="text-align: center;">
+                            <span>Fuente</span>
+                            <input type="color" v-model="color.color_fuente" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>

@@ -30,11 +30,16 @@
 			precios: [],
 			preview: [],
 			sortIds: [],
+			files: [],
 			previewList: {},
 			viewList: null,
+			viewType: null,
 			listFromCSV: false,
 			loading: true,
+			loadingImg: true,
+			playIndex: 0,
 			editUnit: false,
+			resType: 'imagen',
 			ordenTorres: 'ordinal',
 			stats: {
 				torres: 0,
@@ -55,6 +60,7 @@
 			apto: {},
 			grupo: {},
 			lista: {},
+			gruposImg: [],
 			projectList: '',
 			projectAlert: '',
 
@@ -65,7 +71,8 @@
 					codigo_planta: '',
 					localizacion: '',
 					torres: [],
-					piso: ''
+					piso: '',
+					id_tipo: '',
 				},
 				agrupaciones: {},
 				groupedAptos: {
@@ -74,7 +81,8 @@
 					codigo_planta: '',
 					localizacion: '',
 					piso: '',
-					id_torre: ''
+					id_torre: '',
+					id_tipo: '',
 				}
 			},
 			editNewRow: false,
@@ -82,7 +90,11 @@
 			selRow3: null,
 			editRow: false,
 
-			filtroAgrupado: false
+			filtroAgrupado: false,
+
+			tooltipVisible: false,
+			tooltipX: 0,
+			tooltipY: 0,
 		};
 	},
 	three: null,
@@ -95,6 +107,7 @@
 		this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
 		if (b) this.ruta.push({ text: `Torres`, action: () => this.setTabmode(0) })
 		this.setRuta();
+		this.listResources();
 	},
 	methods: {
 		setRuta() {
@@ -122,6 +135,9 @@
 						this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow3].id_agrupacion + '';
 					else this.filtros.aptos.id_agrupacion = 'null';
 				}
+				if (index === 4) {
+					//if (this.tipos.length) this.viewType = this.tipos[0];
+				}
 				if (index !== 2 && index !== 3) this.onClearFilters('aptos');
 				this.editRow = false;
 				this.tabmode = index;
@@ -131,12 +147,12 @@
 		},
 		async loadUnidades(compute) {
 			showProgress();
-			let [torres, aptos, estados, fiduciarias, instructivos] = (await
+			let [torres, aptos, estados, tipos, fiduciarias, instructivos] = (await
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
 			this.fiduciarias = fiduciarias;
 			this.instructivos = instructivos;
-			let pisos = new Set(), tipos = new Set(), localizaciones = new Set();
+			let pisos = new Set(), localizaciones = new Set();
 			if (torres.length && aptos.length) {
 				let a_num_fields = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'],
 					t_num_fields = ['tasa_base', 'antes_p_equ', 'despues_p_equ'];
@@ -145,7 +161,6 @@
 				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], ...t }));
 				aptos.forEach(a => {
 					a.piso && pisos.add(a.piso);
-					a.codigo_planta && tipos.add(a.codigo_planta);
 					a.localizacion && localizaciones.add(a.localizacion);
 					let torre = torres.find(t => t.id_torre === a.id_torre);
 					if (torre) {
@@ -163,7 +178,7 @@
 				this.torres = torres;
 				this.aptos = aptos;
 				this.pisos = [...pisos].sort((a, b) => parseInt(a) - parseInt(b));
-				this.tipos = [...tipos].sort();
+				this.tipos = [...tipos].sort((a, b) => a.tipo.localeCompare(b.tipo));
 				this.localizaciones = [...localizaciones].sort();
 				compute && this.computeViews();
 			};
@@ -491,17 +506,17 @@
 				this.filtros.aptos = {
 					apartamento: '',
 					id_estado_unidad: '',
-					codigo_planta: '',
+					id_tipo: '',
 					localizacion: '',
 					torres: [],
 					piso: '',
-					id_agrupacion: ''
+					id_agrupacion: '',
 				}
 			if (table === 'groupedAptos')
 				this.filtros.groupedAptos = {
 					apartamento: '',
 					id_estado_unidad: '',
-					codigo_planta: '',
+					id_tipo: '',
 					localizacion: '',
 					piso: '',
 					id_torre: ''
@@ -921,6 +936,80 @@
 				hideProgress();
 			}
 		},
+
+
+		async listResources() {
+			this.loadingImg = true;
+			this.files = [];
+			let id_proyecto = GlobalVariables.proyecto.id_proyecto;
+			if (id_proyecto) {
+				let res = await httpFunc('/generic/genericDT/Medios:Get_GrupoProyecto', { id_proyecto });
+				let grupos = res.data;
+				let modulos = ['imagenes', 'recorridos virt'];
+				if (grupos) grupos = grupos.filter(g => g.modulo === modulos[1] || (g.modulo === modulos[0] && g.grupo === 'Plantas Arquitectónicas'));
+				res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', { tipo: modulos.join(','), id_proyecto });
+				
+				modulos.forEach(mod => {
+					let data = res.data.filter(d => d.tipo == mod);
+					grupos.forEach(g => {
+						let temp = data.filter(d => d.id_grupo_proyecto == g.id_grupo_proyecto);
+						g.files = [...(g.files || []), ...temp];
+						g.expanded = true;
+					})
+				});
+				this.gruposImg = [...grupos];
+
+				await this.addResources();
+				this.files.length && (this.files[0].current = true);
+				await this.loadResources();
+			}
+		},
+		async addResources() {
+			let grupos = [...this.gruposImg];
+			grupos.forEach(g => {
+				let files = g.files.sort((a, b) => parseInt(a.orden) - parseInt(b.orden)).filter(f => f != undefined);
+				this.files = [...this.files, ...files];
+			});
+			this.gruposImg = grupos;
+		},
+		async loadResources() {
+			try {
+				let files = [...this.files], temp = [...this.files];
+				await Promise.all(files.map(async (f, i) => {
+					if (!f.link) {
+						const res = await fetch('/file/S3get/' + f.llave);
+						if (!res.ok) throw new Error(`Error al cargar ${f.llave}: ${res.statusText}`);
+						const blob = await res.blob(),
+							file = new File([blob], f.name, { type: blob.type }),
+							reader = new FileReader();
+						reader.onload = async (e) => temp[i].content = e.target.result;
+						reader.readAsDataURL(file);
+					}
+				})).then(f => {
+					this.files = temp;
+					this.loadingImg = false;
+					this.playIndex = 0;
+				});
+			} catch (error) {
+				console.error("Error al cargar archivos:", error);
+			}
+		},
+		selectFile(file) {
+			this.files.forEach(f => f.current = false);
+			file.current = true;
+			this.playIndex = this.files.indexOf(file);
+		},
+		updateCursor(event) {
+			this.tooltipX = event.clientX + 10;
+			this.tooltipY = event.clientY + 10;
+		},
+		toggleList() {
+			this.showList = !this.showList;
+		},
+		toggleExpand() {
+			let expanded = this.isExpanded();
+			this.gruposImg.forEach(g => g.expanded = !expanded);
+		},
 	},
 	computed: {
 		f_tasa_base: {
@@ -990,9 +1079,7 @@
 					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
 						if (tabla == 'aptos' && key == 'torres')
 							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
-						if (tabla == 'aptos' && (key == 'codigo_planta' || key == 'piso' || key == 'localizacion'))
-							return this.filtros[tabla][key] === '' || String(item[key]) === this.filtros[tabla][key];
-						if (tabla == 'groupedAptos' && key == 'id_torre')
+						if (key.startsWith('id_') || key == 'localizacion')
 							return this.filtros[tabla][key] === '' || String(item[key]) === this.filtros[tabla][key];
 						else return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
 					}) : []
@@ -1035,6 +1122,9 @@
 				}
 				return b;
 			}
+		},
+		isExpanded() {
+			return () => this.gruposImg.every(g => g.expanded);
 		},
 	},
 };

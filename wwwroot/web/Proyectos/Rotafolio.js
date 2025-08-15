@@ -105,8 +105,8 @@ export default {
             }
         },
         async orderResources() {
-            let grupos = this.grupos.sort((a, b) => parseInt(a.orden) - parseInt(b.orden));
-            grupos.forEach(g => {
+            let grupos = [...this.grupos];
+            grupos.sort((a, b) => parseInt(a.orden) - parseInt(b.orden)).forEach(g => {
                 let files = g.files.sort((a, b) => parseInt(a.orden) - parseInt(b.orden)).map(f => {
                     if (f.link) {
                         let link = this.formatURLYouTube(f.link);
@@ -118,6 +118,7 @@ export default {
                 });
                 this.files = [...this.files, ...files.filter(f => f != undefined)];
             });
+            this.grupos = grupos;
         },
         async loadResources() {
             try {

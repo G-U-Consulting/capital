@@ -54,7 +54,7 @@ create temporary table tmp_unidades as(
 );
 -- TODO hacer validación de datos antes de continuar
 insert into fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
-select distinct @id_proyecto, concat('Torre ', torre), torre, cast(torre as unsigned) * 10, 
+select distinct @id_proyecto, concat('Torre ', torre), torre, cast(torre as unsigned), 
     (select count(*) from tmp_unidades t where a.torre = t.torre and a.piso = t.piso), @usuario
 from tmp_unidades a
     left join fact_torres b on b.id_proyecto = @id_proyecto and a.torre = b.consecutivo
@@ -62,7 +62,7 @@ where b.id_torre is null;
 
 update fact_torres a
 set aptos_piso = (select count(*) from tmp_unidades t where a.consecutivo = t.torre group by t.piso limit 1),
-    orden_salida = consecutivo * 10
+    orden_salida = consecutivo
 where a.id_proyecto = @id_proyecto;
 
 update tmp_unidades a
@@ -96,8 +96,12 @@ on duplicate key update
     updated_on = current_timestamp, 
     updated_by = @Usuario;
 
+insert ignore into dim_tipo_unidad(tipo, id_proyecto)
+select if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta), @id_proyecto
+from tmp_unidades t;
+
 insert into fact_unidades(
-    id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, localizacion, observacion_apto, fecha_fec,
+    id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
     valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, id_lista, cerca_porteria, 
     cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, created_by 
@@ -113,6 +117,8 @@ select distinct
     convert(t.piso, int) as piso,
     t.tipo as tipo,
     if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta) as codigo_planta,
+    (select tu.id_tipo from dim_tipo_unidad tu where tu.tipo = 
+        if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta) and tu.id_proyecto = @id_proyecto) as id_tipo,
     t.localizacion as localizacion,
     left(t.observacion_apto, 500) as observacion_apto,
     convert(t.fecha_fec, date) as fecha_fec,
@@ -152,6 +158,7 @@ on duplicate key update
     piso = values(piso),
     tipo = values(tipo),
     codigo_planta = values(codigo_planta),
+    id_tipo = values(id_tipo),
     localizacion = values(localizacion),
     observacion_apto = values(observacion_apto),
     fecha_fec = values(fecha_fec),

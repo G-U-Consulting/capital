@@ -89,11 +89,9 @@ export default {
                 console.error(errormsg);
                 showMessage("Error: " + errormsg);
                 this.mode = 2;
-                //this.setRuta();
             } else {
                 await this.loadData();
-                this.mode = 0;
-                //this.setRuta();
+                this.initMode();
             }
         },
         formatNumber(value, dec = true) {

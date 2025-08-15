@@ -73,6 +73,15 @@ create table dim_agrupacion_unidad(
 	constraint uk_agrupacion_unidad_proyecto unique(id_proyecto, nombre)
 );
 
+create table dim_tipo_unidad(
+	id_tipo int primary key auto_increment,
+	tipo varchar(50) not null,
+	id_proyecto int not null references fact_proyectos(id_proyecto),
+	id_archivo_planta int references fact_documento_proyecto(id_documento_proyecto),
+	id_archivo_recorrido int references fact_documento_proyecto(id_documento_proyecto),
+	unique(tipo, id_proyecto)
+);
+
 create table fact_unidades(
 	id_unidad int not null auto_increment,
 	constraint pk_id_unidad primary key(id_unidad),
@@ -85,7 +94,7 @@ create table fact_unidades(
 	nombre_unidad varchar(50),
 	numero_apartamento int,
 	piso int,
-	tipo varchar(50),
+	id_tipo int references dim_tipo_unidad(id_tipo),
 	codigo_planta varchar(50),
 	localizacion varchar(50),
 	observacion_apto varchar(500),
