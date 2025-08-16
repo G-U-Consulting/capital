@@ -100,9 +100,9 @@
                 if (this.submode === index) {
                     return 'wizarTabActive';
                 } else if (!this.tabsIncomplete.includes(index)) {
-                    return 'wizarTabCompleted';
-                } else {
                     return 'wizarTabIncomplete';
+                } else {
+                    return 'wizarTabCompleted';
                 }
             });
         },

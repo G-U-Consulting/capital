@@ -164,8 +164,6 @@ export default {
                 );
             };
         },
-
-
         proyectosFiltrados() {
             const lista = this.getFilteredList('proyectos');
             const idSala = Number(this.filtros.proyectos?.id_sala_venta);
@@ -180,12 +178,9 @@ export default {
 
             return lista.filter(p => idsPermitidos.has(Number(p.id_proyecto)));
         },
-
-
         proyectosLanzamiento() {
             return this.proyectosFiltrados.filter(p => p.lanzamiento === '1');
         },
-
         proyectosNormales() {
             return this.proyectosFiltrados.filter(p => p.lanzamiento !== '1');
         }
@@ -203,7 +198,7 @@ export default {
             showProgress();
             this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
             this.proyectoSalas = (await httpFunc("/generic/genericDT/Proyectos:Get_ProyectosSalas", {})).data;
-            var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {});
+            var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Variables", {});
             hideProgress();
             resp = resp.data;
             resp[0].forEach(item => item.checked = false);
@@ -879,8 +874,9 @@ export default {
                 console.error("Upload error:", error);
             }
         },
-        tortaProject(item) {
+        async tortaProject(item) {
             this.selectedProject = item;
+            this.edge = item.edge_estado;
         }
     }
 };

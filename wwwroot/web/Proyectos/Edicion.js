@@ -242,7 +242,7 @@
         async setMainMode() {
             showProgress();
             this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
-            var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Vairables", {"id_proyecto": GlobalVariables.id_proyecto});
+            var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Variables", {"id_proyecto": GlobalVariables.id_proyecto});
             hideProgress();
             resp = resp.data;
             resp[0].forEach(item => item.checked = false);

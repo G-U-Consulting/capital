@@ -171,7 +171,10 @@
                                     @click="tortaProject(item)" @dblclick="selectProject(item,'portada')"
                                     :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                     <div class="img-matrix">
-                                        <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
+                                        <img v-if="item.edge_estado == 'vigente'" src="./img/ico/svg/sello-edge.svg" class="sello-certificado-mini" alt="Sello Edge">
+                                        <img v-if="item.edge_estado == 'próxima'" src="./img/ico/svg/OIP.png" class="sello-certificado-mini"
+                                            alt="Sello Próximo">
+                                        <img class="img-matrix-img" v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
                                     </div>
                                     <div class="bottom-matrix">
                                         <span>{{ item.nombre }}</span>
@@ -192,7 +195,11 @@
                                 @click="tortaProject(item)" @dblclick="selectProject(item,'portada')"
                                 :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                 <div class="img-matrix">
-                                    <img v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
+                                    <img v-if="item.edge_estado == 'vigente'" src="./img/ico/svg/sello-edge.svg" class="sello-certificado-mini"
+                                        alt="Sello Edge">
+                                    <img v-if="item.edge_estado == 'próxima'" src="./img/ico/svg/OIP.png" class="sello-certificado-mini"
+                                        alt="Sello Próximo">
+                                    <img class="img-matrix-img" v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
                                 </div>
                                 <div class="bottom-matrix">
                                     <span>{{ item.nombre }}</span>
@@ -208,6 +215,12 @@
                     </div>
                 </div>
                 <div v-if="selectedProject" class="detail-panel">
+                    <div v-if="edge == 'vigente'" class="certification-badge">
+                        <img class="certification-badge-vig" src="./img/ico/svg/sello-edge.svg" />
+                    </div>
+                    <div v-if="edge == 'próxima'" class="certification-badge proxima">
+                        <img class="certification-badge-prox" src="./img/ico/svg/OIP.png" />
+                    </div>
                     <div class="labeled-switch">
                         <div class="toggle-switch" @click.stop.prevent="toggleState(selectedProject)" @dblclick.stop.prevent>
                             <input :id="'toggle' + selectedProject.nombre" type="checkbox" class="toggle-input"
