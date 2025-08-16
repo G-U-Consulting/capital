@@ -33,11 +33,11 @@
 			files: [],
 			previewList: {},
 			viewList: null,
-			viewType: null,
+			selTipo: null,
 			listFromCSV: false,
 			loading: true,
 			loadingImg: true,
-			playIndex: 0,
+			playIndex: null,
 			editUnit: false,
 			resType: 'imagen',
 			ordenTorres: 'ordinal',
@@ -95,6 +95,7 @@
 			tooltipVisible: false,
 			tooltipX: 0,
 			tooltipY: 0,
+			expandedVisible: false,
 		};
 	},
 	three: null,
@@ -136,7 +137,17 @@
 					else this.filtros.aptos.id_agrupacion = 'null';
 				}
 				if (index === 4) {
-					//if (this.tipos.length) this.viewType = this.tipos[0];
+					if (this.tabmode !== 4) {
+						await this.loadTipos();
+						if (this.tipos.length) this.selTipo = this.tipos[0];
+						else {
+							showMessage("No se encotraron tipos para las unidades");
+							return;
+						}
+						if (this.resType === 'imagen') this.setFile(this.selTipo.id_archivo_planta);
+						if (this.resType === 'recorrido') this.setFile(this.selTipo.id_archivo_recorrido);
+						console.log(this.tipos, this.files);
+					}
 				}
 				if (index !== 2 && index !== 3) this.onClearFilters('aptos');
 				this.editRow = false;
@@ -147,7 +158,7 @@
 		},
 		async loadUnidades(compute) {
 			showProgress();
-			let [torres, aptos, estados, tipos, fiduciarias, instructivos] = (await
+			let [torres, aptos, estados, fiduciarias, instructivos] = (await
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
 			this.fiduciarias = fiduciarias;
@@ -178,11 +189,18 @@
 				this.torres = torres;
 				this.aptos = aptos;
 				this.pisos = [...pisos].sort((a, b) => parseInt(a) - parseInt(b));
-				this.tipos = [...tipos].sort((a, b) => a.tipo.localeCompare(b.tipo));
 				this.localizaciones = [...localizaciones].sort();
 				compute && this.computeViews();
 			};
+			await this.loadTipos();
 			this.loading = false;
+			hideProgress();
+		},
+		async loadTipos() {
+			showProgress();
+			let tipos = (await
+				httpFunc('/generic/genericDT/Unidades:Get_Tipos', { id_proyecto: GlobalVariables.id_proyecto })).data;
+			this.tipos = tipos.sort((a, b) => a.tipo.localeCompare(b.tipo));
 			hideProgress();
 		},
 		async loadOrdenPref() {
@@ -948,7 +966,7 @@
 				let modulos = ['imagenes', 'recorridos virt'];
 				if (grupos) grupos = grupos.filter(g => g.modulo === modulos[1] || (g.modulo === modulos[0] && g.grupo === 'Plantas Arquitectónicas'));
 				res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', { tipo: modulos.join(','), id_proyecto });
-				
+
 				modulos.forEach(mod => {
 					let data = res.data.filter(d => d.tipo == mod);
 					grupos.forEach(g => {
@@ -988,16 +1006,39 @@
 				})).then(f => {
 					this.files = temp;
 					this.loadingImg = false;
-					this.playIndex = 0;
 				});
 			} catch (error) {
 				console.error("Error al cargar archivos:", error);
 			}
 		},
-		selectFile(file) {
+		selectFile(file, fromClick) {
+			if (fromClick && file.current) {
+				if (this.resType === 'imagen') this.selTipo.id_archivo_planta = '';
+				if (this.resType === 'recorrido') this.selTipo.id_archivo_recorrido = '';
+				file.current = false;
+				this.playIndex = null;
+			}
+			else {
+				this.files.forEach(f => f.current = false);
+				file.current = true;
+				this.playIndex = this.files.indexOf(file);
+				if (this.resType === 'imagen') this.selTipo.id_archivo_planta = file.id_documento_proyecto;
+				if (this.resType === 'recorrido') this.selTipo.id_archivo_recorrido = file.id_documento_proyecto;
+			}
+		},
+		setFile(id_doc_pro) {
+			console.log(this.selTipo, id_doc_pro, this.resType);
 			this.files.forEach(f => f.current = false);
-			file.current = true;
-			this.playIndex = this.files.indexOf(file);
+			this.playIndex = null;
+			if (id_doc_pro) {
+				let file = this.files.find(f => f.id_documento_proyecto === id_doc_pro);
+				if (file) this.selectFile(file);
+			}
+		},
+		setTipo(tipo) {
+			this.selTipo = tipo;
+			if (this.resType == 'imagen') this.setFile(tipo.id_archivo_planta);
+			if (this.resType == 'recorrido') this.setFile(tipo.id_archivo_recorrido);
 		},
 		updateCursor(event) {
 			this.tooltipX = event.clientX + 10;
@@ -1010,6 +1051,30 @@
 			let expanded = this.isExpanded();
 			this.gruposImg.forEach(g => g.expanded = !expanded);
 		},
+		setResType(type) {
+			this.resType = type;
+			if (type == 'imagen') this.setFile(this.selTipo.id_archivo_planta);
+			if (type == 'recorrido') this.setFile(this.selTipo.id_archivo_recorrido);
+		},
+		async onSaveTypes() {
+			console.log(this.tipos);
+			if (this.tipos.length) {
+				showProgress();
+				let res = null;
+				try {
+					res = await httpFunc(`/generic/genericST/Unidades:Upd_Tipos`,
+						{ data: JSON.stringify(this.tipos) });
+					if (res.isError || res.data !== 'OK') throw res;
+				} catch (e) {
+					console.error(e);
+					showMessage('Error:   ' + e.errorMessage || e.data);
+				}
+				hideProgress();
+			}
+		},
+        closeExpanded() {
+            this.expandedVisible = false;
+        },
 	},
 	computed: {
 		f_tasa_base: {
