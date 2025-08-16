@@ -997,29 +997,29 @@
 
     <div style="display: flex; gap: 1rem; height: 100%; justify-content: space-between;" v-if="tabmode == 4">
         <div class="lista-torres" style="height: 100%; gap: 5px; overflow-y: auto; min-width: fit-content;">
-            <div class="lista-precio" v-for="tipo in tipos" @click="viewType = tipo;"
-                v-bind:class="{'current-list': tipo == viewType}">
+            <div class="lista-precio" v-for="tipo in tipos" @click="setTipo(tipo)"
+                v-bind:class="{'current-list': tipo == selTipo}">
                 <span>{{tipo.tipo}}</span>
             </div>
         </div>
         <div style="height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: space-between;">
             <div class="pure-g tab-container" style="margin: 0;">
-                <div class="tab pure-u-1-2" @click="resType = 'imagen'" style="padding: .5rem 0;"
+                <div class="tab pure-u-1-2" @click="setResType('imagen')" style="padding: .5rem 0;"
                     v-bind:class="{'tab-selected': resType == 'imagen'}">
                     Planta
                 </div>
-                <div class="tab pure-u-1-2" @click="resType = 'recorrido'" style="padding: .5rem 0;"
+                <div class="tab pure-u-1-2" @click="setResType('recorrido')" style="padding: .5rem 0;"
                     v-bind:class="{'tab-selected': resType == 'recorrido'}">
                     Recorrido virtual
                 </div>
             </div>
             <div style="height: calc(100% - 5.4rem); margin-bottom: 1rem;">
-                <div v-if="playIndex >= 0 && playIndex < files.length" class="cont-resource-type">
+                <div v-if="playIndex !== null && playIndex >= 0 && playIndex < files.length" class="cont-resource-type">
                     <iframe v-if="files[playIndex].link" id="v-player" :src="`${files[playIndex].link}`"
                         :key="'v' + playIndex" frameborder="0" allowfullscreen allow="xr-spatial-tracking"
                         style="width: 100%;">
                     </iframe>
-                    <img v-else :src="files[playIndex].content"
+                    <img v-else :src="files[playIndex].content" @dblclick="expandedVisible = true"
                         style="max-width: 100%; max-height: 100%; width: auto; height: auto;">
                 </div>
                 <div v-else
@@ -1028,8 +1028,10 @@
                 </div>
             </div>
             <div style="min-height: fit-content;">
-                <button
-                    style="display: block; margin: 0 auto; padding-left: 1rem; padding-right: 1rem;">Establecer</button>
+                <button @click="onSaveTypes"
+                    style="display: block; margin: 0 auto; padding-left: 1rem; padding-right: 1rem;">
+                    Establecer
+                </button>
             </div>
         </div>
         <div class="cont-list-resources open"
@@ -1037,17 +1039,17 @@
             <div class="list-resources">
                 <div class="menu-section" v-for="grupo, i in gruposImg" style="border: 0;"
                     v-show="grupo.modulo.toLowerCase().includes(resType)">
-                    <!-- <div v-if="i == 0" class="menu-title" @click="toggleExpand" style="border-bottom: 2px #bbb solid;">
+                    <div v-if="i == 0" class="menu-title" @click="toggleExpand" style="border-bottom: 2px #bbb solid;">
                         <span>{{isExpanded() ? 'Colapsar todo' : 'Expandir todo'}}</span>
                         <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': isExpanded()}">
-                    </div> -->
-                    <div class="menu-title" style="padding: .5rem 10px;">
+                    </div>
+                    <div class="menu-title" style="padding: .5rem 10px;" @click="grupo.expanded = !grupo.expanded">
                         <span>{{grupo.grupo}}</span>
-                        <!-- <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': grupo.expanded}"> -->
+                        <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': grupo.expanded}">
                     </div>
                     <div class="menu-content" v-bind:class="{'open': grupo.expanded}">
                         <div class="item-content" v-for="file in grupo.files" v-bind:class="{'current': file.current}"
-                            @click="selectFile(file)"
+                            @click="selectFile(file, true)"
                             @mouseenter="tooltipVisible = true; tooltipMsg = file.nombre_documento || file.documento || file.descripcion || file.link"
                             @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
                             <img :src="file.link ? (file.link.includes('matterport') ? 
@@ -1257,5 +1259,8 @@
             <button v-else class="closeListModal" @click="closeListModal"
                 style="display: block; margin: 1rem auto 0;">Cancelar</button>
         </div>
+    </div>
+    <div v-if="expandedVisible && tabmode === 4 && playIndex !== null" class="image-modal" @click="closeExpanded">
+        <img :src="files[playIndex].content" class="expanded-img" />
     </div>
 </div>
