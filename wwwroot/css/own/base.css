@@ -923,7 +923,9 @@ table thead th {
   object-fit: contain;
   display: block;
 }
-
+.image-modal > img {
+  max-height: 100%;
+}
 
 .cardColor {
   display: flex;
@@ -1131,6 +1133,20 @@ textarea.editor {
 }
 .cont-resource-type:has(iframe) {
   height: 100%;
+}
+.cont-resource-type > .img-wrapper {
+  max-height: 100%; 
+  width: 100%; 
+  position: relative; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+}
+.cont-resource-type > .img-wrapper > .subtitle-cont-rotafolio {
+  position: absolute; 
+  left: 0; 
+  bottom: 0; 
+  width: 100%;
 }
 .hide-editor {
   display: none;
@@ -1632,7 +1648,7 @@ tr.selected input {
   flex-grow: 1;
   max-height: 100%;
 }
-.btn-bar-rotafolio > .subtitle-cont-rotafolio {
+.btn-bar-rotafolio > .subtitle-cont-rotafolio, .cont-resource-type .subtitle-cont-rotafolio {
   padding-top: 4px;
   height: 1.5rem;
   color: white;
@@ -2382,6 +2398,10 @@ tr.cal-row-info > td {
 .filtros-unidades > div {
   width: 14%;
 }
+.filtros-unidades .formInputStandard {
+  padding-left: 0;
+  padding-right: 0;
+}
 .lista-torres {
   display: flex;
   flex-direction: column;
@@ -2419,7 +2439,7 @@ tr.cal-row-info > td {
   border: 3px #173d5b solid;
 }
 .torre.en-venta, .torre.sel-torre.en-venta{
-  border: 3px #c80000 solid;
+  border: 4px #c80000 solid;
 }
 .torre > div {
   margin: 1px 0;

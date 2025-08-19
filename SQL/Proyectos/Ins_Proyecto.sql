@@ -8,7 +8,6 @@ set
     @id_sede = 0,
     @id_zona_proyecto = 0,
     @id_ciudadela = 0,
-    @id_sala_venta = 0,
     @otra_info = '',
 
     @subsidios_vis = '',
@@ -71,8 +70,6 @@ insert into fact_proyectos (
     id_sede,
     id_zona_proyecto,
     id_ciudadela,
-    fecha_asignacion_sala,
-    id_sala_venta,
     otra_info,
 
     subsidios_vis,
@@ -129,8 +126,6 @@ select
     nullif(@id_sede, 0),
     nullif(@id_zona_proyecto, 0),
     nullif(@id_ciudadela, 0),
-    if(@id_sala_venta is null or @id_sala_venta = 0, null, now())
-    nullif(@id_sala_venta, 0),
     @otra_info,
 
     @subsidios_vis,

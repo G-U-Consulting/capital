@@ -3,7 +3,6 @@
 -- =============================================
 --START_PARAM
 set @id_torre = NULL, 
-    @orden_salida = NULL, 
     @en_venta = NULL, 
     @aptos_piso = NULL, 
     @id_sinco = NULL, 
@@ -21,8 +20,7 @@ set @id_torre = NULL,
 --END_PARAM
 
 update fact_torres
-set orden_salida = if(@orden_salida is null, orden_salida, @orden_salida),
-    en_venta = if(@en_venta = '1', 1, 0),
+set en_venta = if(@en_venta = '1', 1, 0),
     aptos_piso = @aptos_piso,
     id_sinco = @id_sinco,
     fecha_p_equ = @fecha_p_equ,

@@ -146,7 +146,6 @@
 						}
 						if (this.resType === 'imagen') this.setFile(this.selTipo.id_archivo_planta);
 						if (this.resType === 'recorrido') this.setFile(this.selTipo.id_archivo_recorrido);
-						console.log(this.tipos, this.files);
 					}
 				}
 				if (index !== 2 && index !== 3) this.onClearFilters('aptos');
@@ -933,7 +932,10 @@
 					next.orden_salida = i;
 					this.onUpdateOrden(this.torre, next);
 				}
+				else if (next && this.blockTower(next))
+					showMessage(`No es posible cambiar el orden de la torre ${next.consecutivo} con unidades vendidas, consignadas o opcionadas.`)
 			}
+			else showMessage(`No es posible cambiar el orden de la torre ${this.torre.consecutivo} con unidades vendidas, consignadas o opcionadas.`);
 		},
 		async onUpdateOrden(torre1, torre2) {
 			if (torre1 && torre2) {
@@ -1057,7 +1059,6 @@
 			if (type == 'recorrido') this.setFile(this.selTipo.id_archivo_recorrido);
 		},
 		async onSaveTypes() {
-			console.log(this.tipos);
 			if (this.tipos.length) {
 				showProgress();
 				let res = null;
@@ -1072,9 +1073,9 @@
 				hideProgress();
 			}
 		},
-        closeExpanded() {
-            this.expandedVisible = false;
-        },
+		closeExpanded() {
+			this.expandedVisible = false;
+		},
 	},
 	computed: {
 		f_tasa_base: {

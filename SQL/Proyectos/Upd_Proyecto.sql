@@ -76,12 +76,6 @@ set
     id_sede = nullif(@id_sede, 0),
     id_zona_proyecto = nullif(@id_zona_proyecto, 0),
     id_ciudadela = nullif(@id_ciudadela, 0),
-    fecha_asignacion_sala = case 
-        when @id_sala_venta is null or @id_sala_venta = 0 then null
-        when @id_sala_venta = id_sala_venta then fecha_asignacion_sala
-        else now()
-    end,
-    id_sala_venta = nullif(@id_sala_venta, 0),
     email_coordinacion_sala = @email_coordinacion_sala,
     otra_info = @otra_info,
 

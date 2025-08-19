@@ -47,10 +47,10 @@ create table dim_estado_unidad(
 	created_by varchar(200) default current_user
 );
 insert into dim_estado_unidad(id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente) values
-(1, 'Libre','Libres', '#FFF', '#000'),
-(2, 'Opcionado','Opcionados', '#0094b9', '#FFF'),
-(3, 'Consignado','Consignados', '#0c62a4', '#FFF'),
-(4, 'Vendido','Vendidos', '#173d5b', '#FFF');
+(1, 'Libre','Libres', '#FFFFFF', '#000000'),
+(2, 'Opcionado','Opcionados', '#0094b9', '#FFFFFF'),
+(3, 'Consignado','Consignados', '#0c62a4', '#FFFFFF'),
+(4, 'Vendido','Vendidos', '#173d5b', '#FFFFFF');
 
 create table dim_cuenta_convenio(
 	id_cuenta_convenio int not null auto_increment,

@@ -53,17 +53,45 @@ create temporary table tmp_unidades as(
     ))  as a
 );
 -- TODO hacer validación de datos antes de continuar
-insert into fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
-select distinct @id_proyecto, concat('Torre ', torre), torre, cast(torre as unsigned), 
-    (select count(*) from tmp_unidades t where a.torre = t.torre and a.piso = t.piso), @usuario
-from tmp_unidades a
-    left join fact_torres b on b.id_proyecto = @id_proyecto and a.torre = b.consecutivo
-where b.id_torre is null;
+INSERT INTO fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
+SELECT 
+    @id_proyecto,
+    CONCAT('Torre ', datos.torre),
+    datos.torre,
+    CAST(datos.torre AS UNSIGNED),
+    datos.max_aptos,
+    @usuario
+FROM (
+    SELECT 
+        t.torre,
+        MAX(t.cantidad) AS max_aptos
+    FROM (
+        SELECT torre, piso, COUNT(*) AS cantidad
+        FROM tmp_unidades
+        GROUP BY torre, piso
+    ) AS t
+    GROUP BY t.torre
+) AS datos
+LEFT JOIN fact_torres b 
+    ON b.id_proyecto = @id_proyecto AND datos.torre = b.consecutivo
+WHERE b.id_torre IS NULL;
 
-update fact_torres a
-set aptos_piso = (select count(*) from tmp_unidades t where a.consecutivo = t.torre group by t.piso limit 1),
-    orden_salida = consecutivo
-where a.id_proyecto = @id_proyecto;
+
+
+UPDATE fact_torres a
+JOIN (
+    SELECT torre, MAX(aptos_por_piso) AS max_aptos
+    FROM (
+        SELECT torre, piso, COUNT(*) AS aptos_por_piso
+        FROM tmp_unidades
+        GROUP BY torre, piso
+    ) AS pisos
+    GROUP BY torre
+) AS resumen ON a.consecutivo = resumen.torre
+SET a.aptos_piso = resumen.max_aptos,
+    a.orden_salida = a.consecutivo
+WHERE a.id_proyecto = @id_proyecto;
+
 
 update tmp_unidades a
     join fact_torres b on a.torre = b.consecutivo

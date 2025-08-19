@@ -102,7 +102,7 @@
                         <span>Orden de salida</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 5px; width: 18%;">
-                        <input type="number" v-model="torre.orden_salida" :disabled="blockTower(torre)">
+                        <input type="number" v-model="torre.orden_salida" disabled>
                         <span class="icon-button" style="padding: 0; margin: 0; height: fit-content;"
                             @click="setOrdenTorre(-1)">
                             <img src="../../img/ico/up.png" alt="" style="margin: 0; height: 25px; width: 25px;">
@@ -322,35 +322,43 @@
                                 style="display: none;" accept=".csv" />
                         </div>
                     </div>
-                    <div class="pure-u-1-1" style="padding-top: .5rem;">
+                    <div class="pure-u-1-1">
                         <div class="filtros-unidades">
-                            <div style="display: flex;">
-                                <input type="text" placeholder="ID Unidad" v-model="filtros.aptos['numero_apartamento']"
-                                    maxlength="10" />
-                                <div style="display: inline;" class="imgGraybutton" @click="onClearFilters('aptos')">
-                                    <img src="./img/ico/eraser.png" />
+                            <div class='formInputStandard'>
+                                <span>ID Unidad</span>
+                                <div style="display: flex;">
+                                    <input type="text" placeholder="ID Unidad"
+                                        v-model="filtros.aptos['numero_apartamento']" maxlength="10" />
+                                    <div style="display: inline;" class="imgGraybutton"
+                                        @click="onClearFilters('aptos')">
+                                        <img src="./img/ico/eraser.png" />
+                                    </div>
                                 </div>
                             </div>
-                            <div>
+                            <div class='formInputStandard'>
+                                <span>Tipo</span>
                                 <select v-model="filtros.aptos['id_tipo']" class="pure-input-1">
                                     <option value="">[Tipos]</option>
                                     <option v-for="t in tipos" :value="t.id_tipo">{{t.tipo}}</option>
                                 </select>
                             </div>
-                            <div>
+                            <div class='formInputStandard'>
+                                <span>Piso</span>
                                 <select v-model="filtros.aptos['piso']" class="pure-input-1">
                                     <option value="">[Pisos]</option>
                                     <option v-for="p in pisos" :value="p">{{p}}</option>
                                 </select>
                             </div>
-                            <div>
+                            <div class='formInputStandard'>
+                                <span>Estado</span>
                                 <select v-model="filtros.aptos['id_estado_unidad']" class="pure-input-1">
                                     <option value="">[Estados]</option>
                                     <option v-for="e in estados" :value="e.id_estado_unidad">
                                         {{e.estado_unidad}}</option>
                                 </select>
                             </div>
-                            <div>
+                            <div class='formInputStandard'>
+                                <span>Localización</span>
                                 <select v-model="filtros.aptos['localizacion']" class="pure-input-1">
                                     <option value="">[Localización]</option>
                                     <option v-for="l in localizaciones" :value="l">{{l}}</option>
@@ -440,7 +448,7 @@
                             </div>
                         </div>
                     </div>
-                    <div style="height: calc(100vh - 21.2rem); overflow-y: auto; width: 100%;">
+                    <div style="height: calc(100vh - 23rem); overflow-y: auto; width: 100%;">
                         <table class="dataTable" style="table-layout: auto;">
                             <thead>
                                 <tr>
@@ -513,7 +521,9 @@
                     <div class="pure-u-1-2 pure-u-md-1-5">
                         <div class="formInputStandard">
                             <label>Tipo</label>
-                            <input type="text" v-model="apto.codigo_planta" class="pure-input-1" />
+                            <select v-model="apto.id_tipo" class="pure-input-1">
+                                <option v-for="t in tipos" :value="t.id_tipo">{{t.tipo}}</option>
+                            </select>
                         </div>
                     </div>
 
@@ -1019,8 +1029,13 @@
                         :key="'v' + playIndex" frameborder="0" allowfullscreen allow="xr-spatial-tracking"
                         style="width: 100%;">
                     </iframe>
-                    <img v-else :src="files[playIndex].content" @dblclick="expandedVisible = true"
-                        style="max-width: 100%; max-height: 100%; width: auto; height: auto;">
+                    <div v-else class="img-wrapper">
+                        <img :src="files[playIndex].content" @dblclick="expandedVisible = true"
+                            style="max-width: 100%; max-height: 100%; width: auto; height: auto;">
+                        <div class="subtitle-cont-rotafolio">
+                            {{files[playIndex].nombre_documento || files[playIndex].documento}}
+                        </div>
+                    </div>
                 </div>
                 <div v-else
                     style="border: 2px #ccc solid; width: 100%; height: 90%; display: flex; justify-content: center; align-items: center;">

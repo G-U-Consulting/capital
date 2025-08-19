@@ -11,9 +11,6 @@ select
     if(a.is_active = true, 1, 0) AS is_active,
     h.zona_proyecto,
     b.ciudadela,
-    DATE_FORMAT(a.fecha_asignacion_sala, '%Y-%m-%d %T') AS fecha_asignacion_sala, 
-    a.id_sala_venta,
-    i.sala_venta,
     c.estado_publicacion, 
     d.tipo_proyecto, 
     e.pie_legal, 
@@ -75,5 +72,4 @@ left join dim_pie_legal e on a.id_pie_legal = e.id_pie_legal
 left join dim_fiduciaria f on a.id_fiduciaria = f.id_fiduciaria
 left join dim_sede g on a.id_sede = g.id_sede   
 left join dim_zona_proyecto h on a.id_zona_proyecto = h.id_zona_proyecto
-left join dim_sala_venta i on a.id_sala_venta = i.id_sala_venta
 left join dim_tipo_vis j on a.id_tipo_vis = j.id_tipo_vis;

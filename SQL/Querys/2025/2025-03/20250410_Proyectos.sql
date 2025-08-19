@@ -220,9 +220,6 @@ create table fact_proyectos(
 	direccion varchar(200),
 	lanzamiento int,
 	ciudad_lanzamiento varchar(200),
-	fecha_asignacion_sala datetime,
-	id_sala_venta int,
-	constraint fk_id_sala_venta_fact_proyectos foreign key(id_sala_venta) references dim_sala_venta(id_sala_venta),
 	fecha_lanzamiento date,
 	bloqueo_libres int,
 	inmuebles_opcionados int,
@@ -252,7 +249,6 @@ create table fact_proyectos(
 	id_lista int references dim_lista_precios(id_lista),
 	alerta_cambio_lista varchar(200)
 );
-
 create table fact_documentos (
     id_documento int auto_increment primary key,
     documento varchar(200) not null,
