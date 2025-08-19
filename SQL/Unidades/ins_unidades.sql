@@ -53,14 +53,30 @@ create temporary table tmp_unidades as(
     ))  as a
 );
 -- TODO hacer validación de datos antes de continuar
-insert into fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
-select distinct @id_proyecto, concat('Torre ', torre), torre, cast(torre as unsigned), 
-    (select max(aptos_por_piso) from
-        (select count(*) as aptos_por_piso from tmp_unidades t where a.torre = t.torre group by t.piso)
-    sub), @usuario
-from tmp_unidades a
-    left join fact_torres b on b.id_proyecto = @id_proyecto and a.torre = b.consecutivo
-where b.id_torre is null;
+INSERT INTO fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
+SELECT 
+    @id_proyecto,
+    CONCAT('Torre ', datos.torre),
+    datos.torre,
+    CAST(datos.torre AS UNSIGNED),
+    datos.max_aptos,
+    @usuario
+FROM (
+    SELECT 
+        t.torre,
+        MAX(t.cantidad) AS max_aptos
+    FROM (
+        SELECT torre, piso, COUNT(*) AS cantidad
+        FROM tmp_unidades
+        GROUP BY torre, piso
+    ) AS t
+    GROUP BY t.torre
+) AS datos
+LEFT JOIN fact_torres b 
+    ON b.id_proyecto = @id_proyecto AND datos.torre = b.consecutivo
+WHERE b.id_torre IS NULL;
+
+update fact_torres set aptos_fila = aptos_piso where id_proyecto = @id_proyecto;
 
 update tmp_unidades a
     join fact_torres b on a.torre = b.consecutivo

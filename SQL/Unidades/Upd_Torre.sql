@@ -4,7 +4,7 @@
 --START_PARAM
 set @id_torre = NULL, 
     @en_venta = NULL, 
-    @aptos_piso = NULL, 
+    @aptos_fila = NULL, 
     @id_sinco = NULL, 
     @fecha_p_equ = NULL, 
     @fecha_inicio_obra = NULL, 
@@ -21,7 +21,7 @@ set @id_torre = NULL,
 
 update fact_torres
 set en_venta = if(@en_venta = '1', 1, 0),
-    aptos_piso = @aptos_piso,
+    aptos_fila = @aptos_fila,
     id_sinco = @id_sinco,
     fecha_p_equ = @fecha_p_equ,
     fecha_inicio_obra = @fecha_inicio_obra,

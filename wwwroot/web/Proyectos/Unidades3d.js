@@ -477,8 +477,10 @@
 					await this.setTabmode(0);
 					this.torre = tmp;
 				} catch (e) {
+					if (e.errorMessage && e.errorMessage.includes('chk_aptos_fila_piso'))
+						showMessage('Error: El máximo número de unidades por fila es ' + this.torre.aptos_piso);
+					else showMessage('Error: ' + e.errorMessage || e.data);
 					console.error(e);
-					showMessage('Error: ' + e.errorMessage || e.data);
 				}
 				hideProgress();
 			}
@@ -1029,7 +1031,6 @@
 			}
 		},
 		setFile(id_doc_pro) {
-			console.log(this.selTipo, id_doc_pro, this.resType);
 			this.files.forEach(f => f.current = false);
 			this.playIndex = null;
 			if (id_doc_pro) {
@@ -1145,7 +1146,7 @@
 					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
 						if (tabla == 'aptos' && key == 'torres')
 							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
-						if (key.startsWith('id_') || key == 'localizacion')
+						if (key.startsWith('id_') || key == 'localizacion' || key == 'piso')
 							return this.filtros[tabla][key] === '' || String(item[key]) === this.filtros[tabla][key];
 						else return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
 					}) : []

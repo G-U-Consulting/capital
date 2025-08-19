@@ -112,7 +112,12 @@
                             <img src="../../img/ico/down.png" alt="" style="margin: 0; height: 25px; width: 25px;">
                         </span>
                     </div>
-                    <div style="width: 7%;"></div>
+
+                    <div style="width: 32%; display: flex; align-items: center; gap: 1rem;">
+                        <span style="width: 36%; text-align: right;">ID Sinco</span>
+                        <input type="text" style="width: 64%;" v-model="torre.id_sinco">
+                    </div>
+
                     <div style="width: 20%; display: flex; padding: .5rem;">
                         <label class="check" for="en_venta">
                             <input type="checkbox" id="en_venta" v-model="torre.en_venta" true-value="1"
@@ -121,18 +126,18 @@
                             En venta
                         </label>
                     </div>
-                    <div style="width: 35%;"></div>
+                    <div style="width: 10%;"></div>
                 </div>
                 <div class="pure-u-1-1" style="display: flex; gap: 1rem; margin-top: .5rem;">
                     <div style="width: 20%; display: flex; align-items: center; padding-left: .5rem;">
                         <span>Aptos por piso</span>
                     </div>
                     <div style="width: 18%; display: flex; align-items: center;">
-                        <input type="number" v-model="torre.aptos_piso">
+                        <input type="number" :value="torre.aptos_piso" disabled>
                     </div>
                     <div style="width: 32%; display: flex; align-items: center; gap: 1rem;">
-                        <span style="width: 36%; text-align: right;">ID Sinco</span>
-                        <input type="text" style="width: 64%;" v-model="torre.id_sinco">
+                        <span style="width: 36%; text-align: right;">Aptos/Fila</span>
+                        <input type="number" style="width: 64%;" v-model="torre.aptos_fila" min="0" :max="torre.aptos_piso">
                     </div>
                     <div style="width: 15%;"></div>
                     <div style="width: 15%;"></div>

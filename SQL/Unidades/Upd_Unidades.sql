@@ -92,6 +92,7 @@ SET a.aptos_piso = resumen.max_aptos,
     a.orden_salida = a.consecutivo
 WHERE a.id_proyecto = @id_proyecto;
 
+update fact_torres set aptos_fila = aptos_piso where id_proyecto = @id_proyecto;
 
 update tmp_unidades a
     join fact_torres b on a.torre = b.consecutivo
@@ -223,7 +224,7 @@ on duplicate key update
 select 'OK' as respuesta;
 
 /*
-delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 5);
-delete from fact_unidades where id_proyecto = 5;
-delete from fact_torres where id_proyecto = 5;
+delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 9);
+delete from fact_unidades where id_proyecto = 9;
+delete from fact_torres where id_proyecto = 9;
 */

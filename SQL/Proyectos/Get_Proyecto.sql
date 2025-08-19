@@ -2,7 +2,7 @@
 -- Proceso: Proyecto/Get_Proyecto
 -- =============================================
 --START_PARAM
-set @id_proyecto = 1;
+set @id_proyecto = '9';
 --END_PARAM
 
 

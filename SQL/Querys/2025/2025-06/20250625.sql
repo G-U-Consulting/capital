@@ -18,6 +18,7 @@ create table fact_torres(
 	orden_salida int not null,
 	en_venta bit default 0,
 	aptos_piso int not null,
+	aptos_fila int not null,
 	id_sinco varchar(50),
 	propuesta_pago bit default 0,
 	fecha_p_equ date,
@@ -32,7 +33,8 @@ create table fact_torres(
 	id_instructivo int references dim_instructivo(id_instructivo),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	check (aptos_fila <= aptos_piso)
 );
 create index ix_id_proyecto_fact_torres on fact_torres(id_proyecto);
 create table dim_estado_unidad(
