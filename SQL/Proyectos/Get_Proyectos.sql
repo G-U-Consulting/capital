@@ -63,7 +63,8 @@ select
     a.id_zona_proyecto,
     a.id_lista,
     a.alerta_cambio_lista,
-    case when j.tipo_vis = 'No VIS' then 'NO' else 'SI' end as tipo_vis
+    case when j.tipo_vis = 'No VIS' then 'NO' else 'SI' end as tipo_vis,
+     k.edge_estado
 from fact_proyectos a
 left join dim_ciudadela b on a.id_ciudadela = b.id_ciudadela
 left join dim_estado_publicacion c on a.id_estado_publicacion = c.id_estado_publicacion
@@ -72,4 +73,16 @@ left join dim_pie_legal e on a.id_pie_legal = e.id_pie_legal
 left join dim_fiduciaria f on a.id_fiduciaria = f.id_fiduciaria
 left join dim_sede g on a.id_sede = g.id_sede   
 left join dim_zona_proyecto h on a.id_zona_proyecto = h.id_zona_proyecto
-left join dim_tipo_vis j on a.id_tipo_vis = j.id_tipo_vis;
+left join dim_tipo_vis j on a.id_tipo_vis = j.id_tipo_vis
+left join (
+    select 
+        id_proyecto,
+        case
+            when find_in_set('6', group_concat(id_estado_publicacion)) then 'vigente'
+            when find_in_set('5', group_concat(id_estado_publicacion)) then 'próxima'
+            else 'N/A'
+        end as edge_estado
+    from fact_estado_publicacion
+    where id_estado_publicacion in (5, 6)
+    group by id_proyecto
+) k on a.id_proyecto = k.id_proyecto;

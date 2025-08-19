@@ -44,22 +44,6 @@ create table fact_cliente_actual (
 	created_by varchar(200) default current_user
 );
 
-create table fact_negocios_unidades (
-    id_negocio int auto_increment primary key,
-    id_cliente int not null,
-    id_unidad int not null,
-    id_proyecto int,
-    id_cotizacion int,
-    Usuario varchar(200),
-    is_active bit default 1,
-    created_on datetime default current_timestamp,
-    created_by varchar(200) default current_user,
-    constraint fk_id_cliente_fact_negocios foreign key (id_cliente) references fact_clientes (id_cliente),
-    constraint fk_id_unidad_fact_negocios foreign key (id_unidad) references fact_unidades (id_unidad),
-    constraint fk_id_proyecto_fact_negocios foreign key (id_proyecto) references fact_proyectos (id_proyecto)
-);
-
-
 create table dim_modo_atencion (
     id_modo_atencion int auto_increment primary key,
     modo_atencion varchar(100),
@@ -140,7 +124,28 @@ create table fact_cotizaciones (
 	created_by varchar(200) default current_user
 );  
 
-
+create table fact_negocios_unidades (
+    id_negocios_unidades int auto_increment primary key,
+    id_cotizaciones int not null,
+    id_cliente int not null,
+    id_proyecto int not null,
+    usuario varchar(200),
+    unidad int,
+    consecutivo varchar(50),
+    cotizacion int,
+    inv_terminado varchar(2),
+    numero_apartamento varchar(50),
+    tipo varchar(50),
+    torre int,
+    observacion_apto text,
+    proyecto varchar(100),
+    valor_descuento decimal(15,2),
+    valor_unidad decimal(15,2),
+    lista varchar(100),
+    is_active bit default 1,
+	created_on datetime default current_timestamp,
+	created_by varchar(200) default current_user
+);
 
 /*
 drop table fact_clientes;

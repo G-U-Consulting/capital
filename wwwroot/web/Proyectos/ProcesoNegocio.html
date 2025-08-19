@@ -444,9 +444,14 @@
                 <div class='pure-u-1-1' style="font-size: 2em;">
                     {{ ObjCliente.nombres }}
                 </div>
-                <div class='formDivision' style="margin-top: 0.5em;">
+                <div class="formDivision" style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.5em;">
                     <span style="font-size: 1.8em;">Cotizaciones</span>
-                    <button style="float: right;" @click="addCotizacion">Nueva Cotización</button>
+                    <label class="check" style="display: flex; align-items: center; gap: 0.4em;">
+                        <input type="checkbox" value="1" v-model="ishistory" />
+                        <span class="checkmark"></span>
+                        <span style="font-size: 1.1em;">Historial</span>
+                    </label>
+                    <button @click="addCotizacion">Nueva Cotización</button>
                 </div>
                 <div style="width: 100%; height: calc(100% - 7rem); overflow-y: auto; margin-top: 0.5rem;">
                     <table class="dataTable">
@@ -459,7 +464,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(item, index) in cotizaciones" :key="index" @click="seleccionarCotizacion(item.cotizacion)"
+                            <tr v-for="(item, index) in cotizacionesFiltradas" :key="index" @click="seleccionarCotizacion(item.cotizacion)"
                                 :class="{ seleccionado: cotizacionSeleccionada === item.cotizacion }">
                                 <td class="col-1-6">{{ item.cotizacion }}</td>
                                 <td class="col-1-6">{{ item.fecha }}</td>
@@ -467,7 +472,8 @@
                                     <input type="text" v-model="item.descripcion" placeholder="Descripción"
                                         @focus="seleccionarCotizacion(item.cotizacion)" />
                                 </td>
-                                <td class="col-1-6" style="text-align: right;">{{ item.importeTotal ? formatoMoneda(item.importeTotal) : '' }}</td>
+                                <td class="col-1-6" style="text-align: right;">{{ item.importeTotal ? formatoMoneda(item.importeTotal) : '' }}
+                                </td>
                             </tr>
                         </tbody>
                     </table>

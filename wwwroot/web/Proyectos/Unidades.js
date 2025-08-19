@@ -375,12 +375,21 @@
 			this.setRuta();
 		},
 		async addUnidad() {
+			console.log(this.apto);
 			let res = await (httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', {
+				    id_cliente: GlobalVariables.id_cliente,
 					id_proyecto: GlobalVariables.id_proyecto,
-					Usuario: GlobalVariables.username,
-					id_unidad: this.apto.id_unidad,
-					id_cliente: GlobalVariables.id_cliente,
-					id_cotizacion: GlobalVariables.id_cotizacion
+					usuario: GlobalVariables.username,
+				    unidad: this.apto.numero_apartamento,
+					cotizacion: GlobalVariables.id_cotizacion,
+					inv_terminado: this.apto.inv_terminado,
+					tipo: this.apto.tipo,
+				    torre: this.apto.idtorre,
+					observacion_apto: this.apto.observacion_apto,
+					valor_descuento: this.apto.valor_descuento,
+					valor_unidad: this.apto.valor_unidad,
+				    lista: this.apto.lista,
+				    numero_apartamento: this.apto.nombre_unidad,
 				}));
 				this.mode = 3;
 				await this.loadUnidades();
