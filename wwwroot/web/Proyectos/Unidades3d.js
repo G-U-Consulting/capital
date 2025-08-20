@@ -31,6 +31,7 @@
 			preview: [],
 			sortIds: [],
 			files: [],
+			selListas: [],
 			previewList: {},
 			viewList: null,
 			selTipo: null,
@@ -126,6 +127,7 @@
 						this.filtros.aptos.torres = [this.sortTorres[0].idtorre];
 						this.selRow2 = this.listas.findIndex(l => l.id_lista === this.sortTorres[0].id_lista);
 						if (this.selRow2 == -1) this.selRow2 = 0;
+						else this.selListas = [this.listas[this.selRow2].id_lista];
 						this.tabmode = index;
 					}
 					if (this.listas.length) this.selRow2 ||= 0;
@@ -498,17 +500,12 @@
 		},
 		setTorresList() {
 			let torres = this.filtros.aptos.torres;
+			this.selListas = [];
 			if (torres.length) {
-				let id_lista = this.torres.find(t => t.idtorre == torres[0])?.id_lista;
-				if (id_lista && torres.every(t => {
-					let id = this.torres.find(e => e.idtorre == t)?.id_lista;
-					return id == id_lista;
-				})) {
-					this.torre.id_lista = id_lista;
-					this.selRow2 = this.listas.findIndex(l => l.id_lista === id_lista);
-					if (this.selRow2 == -1) this.selRow2 = 0;
-				}
-				else this.torre = {};
+				torres.forEach(t => {
+					let tmp = this.torres.find(e => e.idtorre == t);
+					if (tmp) this.selListas.push(tmp.id_lista);
+				});
 			} else this.torre = {};
 			this.editRow = false;
 			this.lista = {};
@@ -867,6 +864,7 @@
 					this.selRow2 = i;
 					this.torre = t;
 					this.filtros.aptos.torres = filtros;
+					this.setTorresList();
 				} catch (e) {
 					console.error(e);
 					showMessage('Error: ' + e.errorMessage || e.data);
@@ -896,7 +894,7 @@
 				precios.forEach(p => {
 					Object.keys(p).forEach(k => p[k] = p[k].replace(',', '.'));
 					if (torres[p.torre]) torres[p.torre].precios.push(p);
-					else torres[p.torre] = { torre: p.torre, precios: [p], expanded: false }
+					else torres[p.torre] = { torre: p.torre, precios: [p], expanded: this.filtros.aptos.torres.length <= 1 }
 				});
 				let obj = {};
 				obj[lista.lista] = { lista: lista.lista, torres };
@@ -958,7 +956,13 @@
 				hideProgress();
 			}
 		},
-
+		msgListaTorres(lista) {
+			let consecutivos = [];
+			let torres = this.filtros.aptos.torres.map(t => this.torres.find(e => e.idtorre == t));
+			torres.forEach(t => t.id_lista == lista.id_lista && consecutivos.push('Torre ' + t.consecutivo));
+			console.log(lista, torres, consecutivos);
+			return consecutivos.join(`<br>`)
+		},
 
 		async listResources() {
 			this.loadingImg = true;

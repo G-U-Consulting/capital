@@ -409,6 +409,8 @@ create table dim_sala_venta(
 	id_playlist varchar(200),
 	id_zona_proyecto int references dim_zona_proyecto(id_zona_proyecto),
 	id_ciudadela int references dim_ciudadela(id_ciudadela),
+	id_cordinador int references fact_usuarios(id_usuario),
+	email_cordinacion varchar(200),
 	codigo varchar(10),
 	is_feria bit default 0,
 	pro_futuros bit default 0,

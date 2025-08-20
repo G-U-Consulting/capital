@@ -31,7 +31,7 @@ join fact_usuarios u on ps.id_usuario = u.id_usuario
 left join dim_hito_cargo hc on hc.id_hito = h.id_hito
 left join dim_cargo c on c.id_cargo = hc.id_cargo
 left join fact_proyectos pro on h.id_proyecto = pro.id_proyecto
-where u.usuario = @username and sv.is_active = 1 and (h.id_proyecto is null or pro.is_active = 1)
+where u.usuario = @username and sv.is_active = 1 and (h.id_proyecto is null or pro.is_active = 1) and u.id_cargo = c.id_cargo
 group by h.id_hito
 order by fecha;
 

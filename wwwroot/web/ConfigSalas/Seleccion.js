@@ -6,6 +6,7 @@ export default {
             ciudadelas: [],
             zonasProyectos: [],
             salas_ventas: [],
+            cordinadores: [],
             sedes: [],
             pro_sala: [],
             proyectos: [],
@@ -135,6 +136,7 @@ export default {
         async loadData() {
             [
                 this.salas_ventas,
+                this.cordinadores,
                 this.sedes,
                 this.zonasProyectos,
                 this.ciudadelas,

@@ -13,7 +13,7 @@ select id_usuario, usuario, nombres, identificacion, email, id_cargo
 from fact_usuarios
 where id_usuario = @id_usuario and is_active = 1;
 
-select id_proyecto, nombre, id_sala_venta
+select id_proyecto, nombre
 from fact_proyectos
 where is_active = 1;
 
