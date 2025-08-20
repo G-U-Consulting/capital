@@ -171,8 +171,9 @@
                                     @click="tortaProject(item)" @dblclick="selectProject(item,'portada')"
                                     :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                     <div class="img-matrix">
-                                        <img v-if="item.edge_estado == 'vigente'" src="./img/ico/svg/sello-edge.svg" class="sello-certificado-mini" alt="Sello Edge">
-                                        <img v-if="item.edge_estado == 'próxima'" src="./img/ico/svg/OIP.png" class="sello-certificado-mini"
+                                        <img v-if="item.edge_estado == 'vigente'" src="./img/ico/svg/OIP.png" class="sello-certificado-mini vigente"
+                                            alt="Sello Edge">
+                                        <img v-if="item.edge_estado == 'próxima'" src="./img/ico/svg/sello-proximo-edge.svg" class="sello-certificado-mini proxima"
                                             alt="Sello Próximo">
                                         <img class="img-matrix-img" v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
                                     </div>
@@ -195,9 +196,9 @@
                                 @click="tortaProject(item)" @dblclick="selectProject(item,'portada')"
                                 :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                 <div class="img-matrix">
-                                    <img v-if="item.edge_estado == 'vigente'" src="./img/ico/svg/sello-edge.svg" class="sello-certificado-mini"
+                                    <img v-if="item.edge_estado == 'vigente'" src="./img/ico/svg/OIP.png" class="sello-certificado-mini vigente"
                                         alt="Sello Edge">
-                                    <img v-if="item.edge_estado == 'próxima'" src="./img/ico/svg/OIP.png" class="sello-certificado-mini"
+                                    <img v-if="item.edge_estado == 'próxima'" src="./img/ico/svg/sello-proximo-edge.svg" class="sello-certificado-mini proxima"
                                         alt="Sello Próximo">
                                     <img class="img-matrix-img" v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
                                 </div>
@@ -216,10 +217,10 @@
                 </div>
                 <div v-if="selectedProject" class="detail-panel">
                     <div v-if="edge == 'vigente'" class="certification-badge">
-                        <img class="certification-badge-vig" src="./img/ico/svg/sello-edge.svg" />
+                        <img class="certification-badge-vig" src="./img/ico/svg/OIP.png" />
                     </div>
                     <div v-if="edge == 'próxima'" class="certification-badge proxima">
-                        <img class="certification-badge-prox" src="./img/ico/svg/OIP.png" />
+                        <img class="certification-badge-prox" src="./img/ico/svg/sello-proximo-edge.svg" />
                     </div>
                     <div class="labeled-switch">
                         <div class="toggle-switch" @click.stop.prevent="toggleState(selectedProject)" @dblclick.stop.prevent>

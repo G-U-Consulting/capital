@@ -55,11 +55,15 @@
 			editNewRow: false,
 			selRow: null,
 			editRow: false,
+			selectedApto: null,
+			columnasAptos: 8,
+			anchoAptosList: 1270,
 		};
 	},
 	three: null,
 	async mounted() {
 		//this.computeViews();
+		await this.cargarLogoProyecto();
 		await this.loadUnidades();
 	},
 	methods: {
@@ -374,22 +378,21 @@
 			this.ruta = [this.ruta[0], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
 		},
-		async addUnidad() {
-			console.log(this.apto);
+		async addUnidad(apto) {
 			let res = await (httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', {
 				    id_cliente: GlobalVariables.id_cliente,
 					id_proyecto: GlobalVariables.id_proyecto,
 					usuario: GlobalVariables.username,
-				    unidad: this.apto.numero_apartamento,
+				    unidad: apto.numero_apartamento,
 					cotizacion: GlobalVariables.id_cotizacion,
-					inv_terminado: this.apto.inv_terminado,
-					tipo: this.apto.tipo,
-				    torre: this.apto.idtorre,
-					observacion_apto: this.apto.observacion_apto,
-					valor_descuento: this.apto.valor_descuento,
-					valor_unidad: this.apto.valor_unidad,
-				    lista: this.apto.lista,
-				    numero_apartamento: this.apto.nombre_unidad,
+				    inv_terminado: apto.inv_terminado,
+					tipo: apto.tipo,
+				    torre: apto.idtorre,
+					observacion_apto: apto.observacion_apto,
+					valor_descuento: apto.valor_descuento,
+					valor_unidad: apto.valor_unidad,
+				    lista: apto.lista,
+				    numero_apartamento: apto.nombre_unidad,
 				}));
 				this.mode = 3;
 				await this.loadUnidades();
@@ -503,6 +506,32 @@
 			let $modal = document.getElementById('modalOverlay');
 			$modal && ($modal.style.display = 'none');
 			this.ids_unidades = [];
+		},
+		async cargarLogoProyecto() {
+			const idProyecto = GlobalVariables.id_proyecto;
+
+			const res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos', {
+				tipo: 'logo',
+				id_proyecto: idProyecto
+			});
+
+			if (res.data && res.data.length) {
+				const urlLogo = '/file/S3get/' + res.data[0].llave;
+				this.logoProyecto = urlLogo;
+			}
+		},
+		formatoMoneda(valor) {
+			if (valor == null || valor === '') return '';
+			let limpio = String(valor)
+				.replace(/[^\d,.-]/g, '')
+				.replace(',', '.');
+			const numero = parseFloat(limpio);
+			if (isNaN(numero)) return '';
+			return new Intl.NumberFormat('es-CO', {
+				style: 'currency',
+				currency: 'COP',
+				minimumFractionDigits: 0
+			}).format(numero);
 		}
 	},
 	computed: {
@@ -550,13 +579,10 @@
 			return (tabla) => {
 				return this[tabla] ? this[tabla].filter(item =>
 					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
-						if (tabla === 'aptos') {
-							const estatus = String(item.estatus || '').trim().toLowerCase();
-							if (estatus !== 'libre') return false;
-						}
 						if (tabla == 'aptos' && key == 'torres')
 							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
-						else return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
+						else
+							return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
 					}) : []
 				) : [];
 			};
@@ -582,6 +608,12 @@
 			let t = Object.keys(filters).reduce((t, key) => t += filters[key] ? `${key} ${filters[key]}; ` : '', '');
 			if (t.length >= 2) t = 'en ' + t.substring(0, t.length - 2);
 			return t;
+		},
+		aptosGridStyle() {
+			return {
+				width: `${this.anchoAptosList}px`,
+				gridTemplateColumns: `repeat(${this.columnasAptos}, 1fr)`
+			};
 		}
 	},
 };

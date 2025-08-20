@@ -104,7 +104,9 @@ export default {
     computed: {
         tabClasses() {
             return this.tabs.map((_, index) => {
-                if (this.mode === index) {
+                if (this.isTabBlocked(index)) {
+                    return 'wizarTabDisabled'; // pestaña bloqueada (gris)
+                } else if (this.mode === index) {
                     return 'wizarTabActive';
                 } else if (!this.tabsIncomplete.includes(index)) {
                     return 'wizarTabIncomplete';
@@ -112,7 +114,8 @@ export default {
                     return 'wizarTabCompleted';
                 }
             });
-        }, proyectosUnicos() {
+        },
+        proyectosUnicos() {
             const proyectos = this.visitas.map(v => v.proyecto);
             return [...new Set(proyectos)];
         }, visitasFiltradas() {
@@ -370,6 +373,18 @@ export default {
             }
 
             this.currentSubmode = index;
+        },
+        isTabBlocked(index) {
+            if (this.mode === 0 && index === 1 && !this.policyAccepted && this.iscliente && this.ObjCliente.nombres !== '') {
+                return true;
+            }
+            if (this.mode === 0 && (index === 2 || index === 3)) {
+                return true;
+            }
+            if (this.mode === 1 && index === 3) {
+                return true;
+            }
+            return false;
         },
         ///////// mode 1
         async nuevaVisita() {
