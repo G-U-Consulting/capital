@@ -166,7 +166,7 @@
 			this.instructivos = instructivos;
 			let pisos = new Set(), localizaciones = new Set();
 			if (torres.length && aptos.length) {
-				let a_num_fields = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'],
+				let a_num_fields = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'valor_complemento', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'],
 					t_num_fields = ['tasa_base', 'antes_p_equ', 'despues_p_equ'];
 				aptos.forEach(a => a_num_fields.forEach(key => a[key] = a[key].replace(',', '.')));
 				torres.forEach(t => t_num_fields.forEach(key => t[key] = t[key].replace(',', '.')));
@@ -231,7 +231,7 @@
 			if (lists.every(l => !Number.isNaN(Number(l.lista))))
 				lists.sort((a, b) => Number(a.lista) - Number(b.lista));
 			else lists.sort();
-			this.listas = [...lists];
+			this.listas = [...lists.map(l => ({ ...l, promedio_m2: l.promedio_m2.replace(',', '.') }))];
 			hideProgress();
 		},
 		openFileDialog: function () {
@@ -299,7 +299,8 @@
 			let data = this.u_torres.length ? this.u_torres : this.torres;
 			let res = null;
 			try {
-				res = await (httpFunc(`/generic/genericST/Unidades:${this.u_torres.length ? 'Upd_Unidades' : 'ins_unidades'}`, {
+				console.log(JSON.stringify(data));
+				res = await (httpFunc(`/generic/genericST/Unidades:Upd_Unidades`, {
 					id_proyecto: GlobalVariables.id_proyecto,
 					unidades: JSON.stringify(data),
 					Usuario: GlobalVariables.username
@@ -960,7 +961,6 @@
 			let consecutivos = [];
 			let torres = this.filtros.aptos.torres.map(t => this.torres.find(e => e.idtorre == t));
 			torres.forEach(t => t.id_lista == lista.id_lista && consecutivos.push('Torre ' + t.consecutivo));
-			console.log(lista, torres, consecutivos);
 			return consecutivos.join(`<br>`)
 		},
 

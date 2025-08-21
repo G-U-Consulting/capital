@@ -2,13 +2,14 @@
 -- Proceso: Unidades/Upd_Unidades
 -- =============================================
 --START_PARAM
-set @id_proyecto = 1,
-    @unidades = '{}',
+set @id_proyecto = NULL,
+    @unidades = '',
     @Usuario = '';
 --END_PARAM
 drop table if exists tmp_unidades;
 create temporary table tmp_unidades as(
-    select *, convert(null, int) as id_torre, convert(null, int) as id_cuenta_convenio, convert(null, int) as id_unidad
+    select *, convert(null, int) as id_torre, convert(null, int) as id_cuenta_convenio, convert(null, int) as id_unidad, 
+    convert(null, int) as id_parqueadero, convert(null, int) as id_parqueadero2, convert(null, int) as id_deposito
     from json_table(@unidades, '$[*].pisos[*].unidades[*]' columns( 
         apartamento varchar(50) path '$."apartamento"',
         torre varchar(50) path '$."torre"',
@@ -49,9 +50,23 @@ create temporary table tmp_unidades as(
         tiene_parq_sencillo varchar(50) path '$."tiene_parq_sencillo"',
         tiene_parq_doble varchar(50) path '$."tiene_parq_doble"',
         tiene_deposito varchar(50) path '$."tiene_deposito"',
-        tiene_acabados varchar(50) path '$."tiene_acabados"'
+        tiene_acabados varchar(50) path '$."tiene_acabados"',
+
+        parqueadero varchar(50) path '$."parqueadero"',
+        parqueadero_area varchar(50) path '$."parqueadero_area"',
+        parqueadero_ubicacion varchar(50) path '$."parqueadero_ubicacion"',
+        valor_parqueadero varchar(50) path '$."valor_parqueadero"',
+        parqueadero2 varchar(50) path '$."parqueadero2"',
+        parqueadero2_area varchar(50) path '$."parqueadero2_area"',
+        parqueadero2_ubicacion varchar(50) path '$."parqueadero2_ubicacion"',
+        valor_parqueadero2 varchar(50) path '$."valor_parqueadero2"',
+        deposito varchar(50) path '$."deposito"',
+        deposito_area varchar(50) path '$."deposito_area"',
+        deposito_ubicacion varchar(50) path '$."deposito_ubicacion"',
+        valor_deposito varchar(50) path '$."valor_deposito"'
     ))  as a
 );
+
 -- TODO hacer validación de datos antes de continuar
 INSERT INTO fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
 SELECT 
@@ -221,10 +236,124 @@ on duplicate key update
     updated_by = @Usuario,
     updated_on = current_timestamp;
 
+update tmp_unidades a
+    join fact_unidades b on a.id_torre = b.id_torre and a.apartamento = b.numero_apartamento and b.id_proyecto = @id_proyecto
+set 
+    a.id_unidad = b.id_unidad;
+
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clasificacion)
+select 
+    @id_proyecto as id_proyecto,
+    t.id_torre as id_torre,
+    concat('Parq ', t.parqueadero) as nombre_unidad,
+    convert(t.parqueadero, int) as numero_apartamento,
+    convert(t.parqueadero_ubicacion, int) as piso,
+    convert(t.parqueadero_area, decimal(20, 2)) as area_total,
+    convert(t.valor_parqueadero, decimal(20, 2)) as valor_complemento,
+    'Parqueadero' as clasificacion
+from tmp_unidades t
+where t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0'
+on duplicate key update
+    id_torre = values(id_torre),
+    nombre_unidad = values(nombre_unidad),
+    numero_apartamento = values(numero_apartamento),
+    piso = values(piso),
+    valor_complemento = values(valor_complemento),
+    clasificacion = values(clasificacion);
+update tmp_unidades a
+    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero = b.numero_apartamento and b.id_proyecto = @id_proyecto
+set 
+    a.id_parqueadero = b.id_unidad;
+
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clasificacion)
+select 
+    @id_proyecto as id_proyecto,
+    t.id_torre as id_torre,
+    concat('Parq ', t.parqueadero2) as nombre_unidad,
+    convert(t.parqueadero2, int) as numero_apartamento,
+    convert(t.parqueadero2_ubicacion, int) as piso,
+    convert(t.parqueadero2_area, decimal(20, 2)) as area_total,
+    convert(t.valor_parqueadero2, decimal(20, 2)) as valor_complemento,
+    'Parqueadero' as clasificacion
+from tmp_unidades t
+where t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0'
+on duplicate key update
+    id_torre = values(id_torre),
+    nombre_unidad = values(nombre_unidad),
+    numero_apartamento = values(numero_apartamento),
+    piso = values(piso),
+    valor_complemento = values(valor_complemento),
+    clasificacion = values(clasificacion);
+update tmp_unidades a
+    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero2 = b.numero_apartamento and b.id_proyecto = @id_proyecto
+set 
+    a.id_parqueadero2 = b.id_unidad;
+
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clasificacion)
+select 
+    @id_proyecto as id_proyecto,
+    t.id_torre as id_torre,
+    concat('Dep ', t.deposito) as nombre_unidad,
+    convert(t.deposito, int) as numero_apartamento,
+    convert(t.deposito_ubicacion, int) as piso,
+    convert(t.deposito_area, decimal(20, 2)) as area_total,
+    convert(t.valor_deposito, decimal(20, 2)) as valor_complemento,
+    'Deposito' as clasificacion
+from tmp_unidades t
+where t.deposito is not null and t.deposito != '' and t.deposito != '0'
+on duplicate key update
+    id_torre = values(id_torre),
+    nombre_unidad = values(nombre_unidad),
+    numero_apartamento = values(numero_apartamento),
+    piso = values(piso),
+    valor_complemento = values(valor_complemento),
+    clasificacion = values(clasificacion);
+update tmp_unidades a
+    join fact_unidades b on a.id_torre = b.id_torre and a.deposito = b.numero_apartamento and b.id_proyecto = @id_proyecto
+set 
+    a.id_deposito = b.id_unidad;
+
+
+insert into dim_agrupacion_unidad(id_proyecto, nombre)
+select @id_proyecto, concat('Agrupación ', ROW_NUMBER() over (order by id_unidad)) as nombre
+from tmp_unidades t
+where (t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0')
+    or (t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0')
+    or (t.deposito is not null and t.deposito != '' and t.deposito != '0')
+on duplicate key update
+    nombre = values(nombre);
+
+drop table if exists tmp_agrupaciones;
+create temporary table tmp_agrupaciones as (
+select concat('Agrupación ', ROW_NUMBER() over (order by id_unidad)) as grupo, id_unidad, id_parqueadero, id_parqueadero2, id_deposito 
+from tmp_unidades t
+where (t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0')
+    or (t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0')
+    or (t.deposito is not null and t.deposito != '' and t.deposito != '0')
+); 
+
+update fact_unidades u
+join tmp_agrupaciones t on u.id_unidad in (t.id_unidad, t.id_parqueadero, t.id_parqueadero2, t.id_deposito)
+set u.id_agrupacion = (
+    select a.id_agrupacion
+    from dim_agrupacion_unidad a
+    where a.id_proyecto = @id_proyecto and a.nombre = t.grupo
+)
+where u.id_unidad in (t.id_unidad, t.id_parqueadero, t.id_parqueadero2, t.id_deposito)
+  and u.id_proyecto = @id_proyecto;
+
+
 select 'OK' as respuesta;
 
+
+
 /*
-delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 9);
-delete from fact_unidades where id_proyecto = 9;
-delete from fact_torres where id_proyecto = 9;
+select * from dim_agrupacion_unidad;
+select * from fact_unidades where id_proyecto = 5 limit 2000;
+update fact_unidades set id_agrupacion = null where id_proyecto=5;
+delete from dim_agrupacion_unidad where id_proyecto=5;
+delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 5);
+delete from fact_unidades where id_proyecto = 5;
+delete from fact_torres where id_proyecto = 5;
+delete from dim_lista_precios where id_proyecto=5;
 */
