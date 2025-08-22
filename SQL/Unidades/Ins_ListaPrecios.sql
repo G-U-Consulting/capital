@@ -44,7 +44,7 @@ insert into dim_precio_unidad(id_lista, id_unidad, id_precio, precio, en_smlv, p
 select distinct
     (select l.id_lista from dim_lista_precios l where l.lista = t.lista and l.id_proyecto = @id_proyecto) as id_lista,
     (select u.id_unidad from fact_unidades u join fact_torres ft on u.id_torre = ft.id_torre 
-        where u.id_proyecto = @id_proyecto and ft.consecutivo = t.torre and u.numero_apartamento = t.apartamento) as id_unidad,
+        where u.id_proyecto = @id_proyecto and ft.consecutivo = t.torre and u.numero_apartamento = t.apartamento and clase = 'Apartamento') as id_unidad,
     id_precio as id_precio,
     convert(t.precio, decimal(20, 2)) as precio,
     convert(t.en_smlv, decimal(20, 2)) as en_smlv,

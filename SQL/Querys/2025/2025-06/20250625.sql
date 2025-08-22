@@ -98,7 +98,7 @@ create table fact_unidades(
 	piso int,
 	id_tipo int references dim_tipo_unidad(id_tipo),
 	codigo_planta varchar(50),
-	clasificacion varchar(50),
+	clase varchar(50),
 	localizacion varchar(50),
 	observacion_apto varchar(500),
 	fecha_fec date,
@@ -137,7 +137,7 @@ create table fact_unidades(
 	updated_on datetime default current_timestamp,
 	updated_by varchar(200),
 	id_agrupacion int references dim_agrupacion_unidad(id_agrupacion),
-	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto)
+	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto, clase)
 );
 create table dim_precio_unidad(
 	id_lista int not null references dim_lista_precios(id_lista),

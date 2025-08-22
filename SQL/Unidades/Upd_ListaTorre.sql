@@ -3,7 +3,8 @@
 -- =============================================
 --START_PARAM
 set @ids_torres = NULL,
-    @id_lista = NULL;
+    @id_lista = NULL,
+    @id_tipo = NULL;
 --END_PARAM
 
 
@@ -13,13 +14,19 @@ if trim(@ids_torres) <> '' then
     while @i <= @n do
         set @item = trim(substring_index(substring_index(@ids_torres, ',', @i), ',', -1));
         if @item <> '' then
-            update fact_torres
-            set id_lista = @id_lista
-            where id_torre = @item;
+            if @id_tipo is not null then
+                update fact_unidades
+                set id_lista = @id_lista
+                where id_torre = @item and id_estado_unidad = 1 and id_tipo = @id_tipo;
+            else
+                update fact_torres
+                set id_lista = @id_lista
+                where id_torre = @item;
 
-            update fact_unidades
-            set id_lista = @id_lista
-            where id_torre = @item and id_estado_unidad = 1;
+                update fact_unidades
+                set id_lista = @id_lista
+                where id_torre = @item and id_estado_unidad = 1;
+            end if;
         end if;
         set @i = @i + 1;
     end while;

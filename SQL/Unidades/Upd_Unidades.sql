@@ -43,6 +43,7 @@ create temporary table tmp_unidades as(
         ean varchar(50) path '$."ean"',
         asoleacion varchar(50) path '$."asoleacion"',
         altura varchar(50) path '$."altura"',
+        clase varchar(50) path '$."clase"',
         cerca_porteria varchar(50) path '$."cerca_porteria"',
         cerca_juegos_infantiles varchar(50) path '$."cerca_juegos_infantiles"',
         cerca_piscina varchar(50) path '$."cerca_piscina"',
@@ -147,7 +148,7 @@ from tmp_unidades t;
 insert into fact_unidades(
     id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
-    valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, id_lista, cerca_porteria, 
+    valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, clase, id_lista, cerca_porteria, 
     cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, created_by 
 ) 
 select distinct
@@ -184,6 +185,7 @@ select distinct
     t.id_cuenta_convenio as id_cuenta_convenio,
     t.asoleacion as asoleacion,
     t.altura as altura,
+    t.clase as clase,
     if(t.lista is null or t.lista = '', null, 
         (select l.id_lista from dim_lista_precios l where l.lista = t.lista and l.id_proyecto = @id_proyecto)) as id_lista,
     convert(t.cerca_porteria, unsigned) as cerca_porteria,
@@ -224,6 +226,7 @@ on duplicate key update
     id_cuenta_convenio = values(id_cuenta_convenio),
     asoleacion = values(asoleacion),
     altura = values(altura),
+    clase = values(clase),
     id_lista = values(id_lista),
     cerca_porteria = values(cerca_porteria),
     cerca_juegos_infantiles = values(cerca_juegos_infantiles),
@@ -241,7 +244,7 @@ update tmp_unidades a
 set 
     a.id_unidad = b.id_unidad;
 
-insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clasificacion)
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clase)
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
@@ -250,7 +253,7 @@ select
     convert(t.parqueadero_ubicacion, int) as piso,
     convert(t.parqueadero_area, decimal(20, 2)) as area_total,
     convert(t.valor_parqueadero, decimal(20, 2)) as valor_complemento,
-    'Parqueadero' as clasificacion
+    'Parqueadero' as clase
 from tmp_unidades t
 where t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0'
 on duplicate key update
@@ -259,13 +262,13 @@ on duplicate key update
     numero_apartamento = values(numero_apartamento),
     piso = values(piso),
     valor_complemento = values(valor_complemento),
-    clasificacion = values(clasificacion);
+    clase = values(clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero = b.numero_apartamento and b.id_proyecto = @id_proyecto
+    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.clase = 'Parqueadero'
 set 
     a.id_parqueadero = b.id_unidad;
 
-insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clasificacion)
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clase)
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
@@ -274,7 +277,7 @@ select
     convert(t.parqueadero2_ubicacion, int) as piso,
     convert(t.parqueadero2_area, decimal(20, 2)) as area_total,
     convert(t.valor_parqueadero2, decimal(20, 2)) as valor_complemento,
-    'Parqueadero' as clasificacion
+    'Parqueadero' as clase
 from tmp_unidades t
 where t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0'
 on duplicate key update
@@ -283,13 +286,13 @@ on duplicate key update
     numero_apartamento = values(numero_apartamento),
     piso = values(piso),
     valor_complemento = values(valor_complemento),
-    clasificacion = values(clasificacion);
+    clase = values(clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero2 = b.numero_apartamento and b.id_proyecto = @id_proyecto
+    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero2 = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.clase = 'Parqueadero'
 set 
     a.id_parqueadero2 = b.id_unidad;
 
-insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clasificacion)
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clase)
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
@@ -298,7 +301,7 @@ select
     convert(t.deposito_ubicacion, int) as piso,
     convert(t.deposito_area, decimal(20, 2)) as area_total,
     convert(t.valor_deposito, decimal(20, 2)) as valor_complemento,
-    'Deposito' as clasificacion
+    'Deposito' as clase
 from tmp_unidades t
 where t.deposito is not null and t.deposito != '' and t.deposito != '0'
 on duplicate key update
@@ -307,15 +310,26 @@ on duplicate key update
     numero_apartamento = values(numero_apartamento),
     piso = values(piso),
     valor_complemento = values(valor_complemento),
-    clasificacion = values(clasificacion);
+    clase = values(clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.deposito = b.numero_apartamento and b.id_proyecto = @id_proyecto
+    join fact_unidades b on a.id_torre = b.id_torre and a.deposito = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.clase = 'Deposito'
 set 
     a.id_deposito = b.id_unidad;
 
 
-insert into dim_agrupacion_unidad(id_proyecto, nombre)
-select @id_proyecto, concat('Agrupación ', ROW_NUMBER() over (order by id_unidad)) as nombre
+insert into dim_agrupacion_unidad(id_proyecto, nombre, descripcion)
+select @id_proyecto, concat('Agrupación ', 
+    (select concat('T', ft.consecutivo, ' - ', u.numero_apartamento) from fact_unidades u 
+        join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad)) as nombre,
+    concat(
+        (select concat('Apto ', u.numero_apartamento) from fact_unidades u where u.id_unidad = t.id_unidad),
+        if(t.id_parqueadero is not null, (select concat(', Parq. ', u.numero_apartamento) 
+            from fact_unidades u where u.id_unidad = t.id_parqueadero), ''),
+        if(t.id_parqueadero2 is not null, (select concat(', Parq2. ', u.numero_apartamento) 
+            from fact_unidades u where u.id_unidad = t.id_parqueadero2), ''),
+        if(t.id_deposito is not null, (select concat(', Depósito. ', u.numero_apartamento) 
+            from fact_unidades u where u.id_unidad = t.id_deposito), '')
+    ) as descripcion
 from tmp_unidades t
 where (t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0')
     or (t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0')
@@ -325,7 +339,10 @@ on duplicate key update
 
 drop table if exists tmp_agrupaciones;
 create temporary table tmp_agrupaciones as (
-select concat('Agrupación ', ROW_NUMBER() over (order by id_unidad)) as grupo, id_unidad, id_parqueadero, id_parqueadero2, id_deposito 
+select concat('Agrupación ', 
+    (select concat('T', ft.consecutivo, ' - ', u.numero_apartamento) from fact_unidades u 
+        join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad)) as grupo, 
+    id_unidad, id_parqueadero, id_parqueadero2, id_deposito 
 from tmp_unidades t
 where (t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0')
     or (t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0')
@@ -340,7 +357,7 @@ set u.id_agrupacion = (
     where a.id_proyecto = @id_proyecto and a.nombre = t.grupo
 )
 where u.id_unidad in (t.id_unidad, t.id_parqueadero, t.id_parqueadero2, t.id_deposito)
-  and u.id_proyecto = @id_proyecto;
+    and u.id_proyecto = @id_proyecto;
 
 
 select 'OK' as respuesta;
@@ -349,11 +366,12 @@ select 'OK' as respuesta;
 
 /*
 select * from dim_agrupacion_unidad;
-select * from fact_unidades where id_proyecto = 5 limit 2000;
-update fact_unidades set id_agrupacion = null where id_proyecto=5;
-delete from dim_agrupacion_unidad where id_proyecto=5;
-delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 5);
-delete from fact_unidades where id_proyecto = 5;
-delete from fact_torres where id_proyecto = 5;
-delete from dim_lista_precios where id_proyecto=5;
+select * from fact_unidades where id_proyecto = 9 limit 2000;
+update fact_unidades set id_agrupacion = null where id_proyecto=9;
+delete from dim_agrupacion_unidad where id_proyecto=9;
+delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 9);
+delete from fact_unidades where id_proyecto = 9;
+delete from fact_torres where id_proyecto = 9;
+update fact_proyectos set id_lista = null where id_proyecto = 9;
+delete from dim_lista_precios where id_proyecto=9;
 */

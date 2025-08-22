@@ -2,13 +2,13 @@
 -- Proceso: Unidades/Get_Agrupacion
 -- =============================================
 --START_PARAM
-set @id_proyecto = NULL;
+set @id_proyecto = 5;
 
 --END_PARAM
 
 select a.id_agrupacion, a.nombre, a.descripcion, a.id_proyecto, 
     coalesce(sum(
-    IFNULL((select pu.precio from dim_precio_unidad pu
+    if(u.clase = 'Apartamento', (select pu.precio from dim_precio_unidad pu
         where pu.id_lista = if(u.id_lista is null, 
         (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), u.id_lista) and pu.id_unidad = u.id_unidad
     ), u.valor_complemento)), 0) as total

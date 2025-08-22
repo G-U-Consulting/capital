@@ -91,6 +91,7 @@
 			selRow3: null,
 			editRow: false,
 
+			filtroTipo: '',
 			filtroAgrupado: false,
 
 			tooltipVisible: false,
@@ -131,6 +132,7 @@
 						this.tabmode = index;
 					}
 					if (this.listas.length) this.selRow2 ||= 0;
+					this.filtroTipo = '';
 				}
 				if (index === 3) {
 					await this.loadAgrupacion();
@@ -525,6 +527,7 @@
 					id_estado_unidad: '',
 					id_tipo: '',
 					localizacion: '',
+					clase: '',
 					torres: [],
 					piso: '',
 					id_agrupacion: '',
@@ -535,6 +538,7 @@
 					id_estado_unidad: '',
 					id_tipo: '',
 					localizacion: '',
+					clase: '',
 					piso: '',
 					id_torre: ''
 				}
@@ -638,7 +642,10 @@
 			}
 			if (this.agrupaciones.length) {
 				let id = this.getFilteredList('agrupaciones')[i].id_agrupacion + '';
-				this.selectedAptos = this.aptos.filter(a => a.id_agrupacion === id);
+				this.selectedAptos = this.aptos.filter(a => a.id_agrupacion === id).sort((a, b) => {
+					if (a.clase == b.clase) return Number(a.numero_apartamento) - Number(b.numero_apartamento);
+					else return a.clase.localeCompare(b.clase);
+				});
 				this.selRow3 = i;
 				this.groupedAptos = this.aptos.filter(a => !a.id_agrupacion || a.id_agrupacion === id);
 			}
@@ -855,6 +862,8 @@
 					}).join(',');
 					let obj = { ids_torres };
 					if (this.selRow2 !== null) obj.id_lista = this.listas[this.selRow2].id_lista;
+					if (this.filtroTipo) obj.id_tipo = this.filtroTipo.id_tipo;
+					console.log(obj);
 					res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaTorre`, obj);
 					if (res.isError || res.data !== 'OK') throw res;
 					GlobalVariables.proyecto.id_lista = this.projectList;
@@ -1134,6 +1143,10 @@
 		f_valor_unidad: {
 			get() { return this.formatNumber(this.apto['valor_unidad'], false); },
 			set(val) { this.apto['valor_unidad'] = this.cleanNumber(val); }
+		},
+		f_valor_complemento: {
+			get() { return this.formatNumber(this.apto['valor_complemento'], false); },
+			set(val) { this.apto['valor_complemento'] = this.cleanNumber(val); }
 		},
 		sortTorres: {
 			get() {
