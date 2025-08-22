@@ -2964,13 +2964,6 @@ tr.cal-row-info > td {
   color: #4b5563;
   text-align: center;
 }
-.aptos-layout {
-  display: flex;
-  height: calc(100vh - 12.2rem);
-  overflow: hidden;
-  gap: 16px;
-  padding: 16px;
-}
 
 /*******Sidebar Unidades Cotizacion ****/
 
@@ -3007,12 +3000,6 @@ tr.cal-row-info > td {
 .apto-card-mini.active {
   border-color: #1d4ed8;
 }
-
-
-/* .apto-card-mini:hover {
-  background: #f3f4f6;
-} */
-
 .apto-card-mini.active {
   border: 2px solid rgb(23, 61, 91);
   background-color: rgb(12, 98, 164);
@@ -3053,25 +3040,27 @@ tr.cal-row-info > td {
 
 /*******Tabla Unidades Cotizacion ****/
 
-.torres-scroll {
-  height: calc(100vh - 6rem);
+.aptos-list-agrupada {
   overflow-y: auto;
-  padding-right: 6px;
+  padding-right: 8px;
+  box-sizing: border-box;
 }
 
-.torres-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-  padding: 16px;
-}
-.torres-scroll::-webkit-scrollbar {
+.aptos-list-agrupada::-webkit-scrollbar {
   width: 6px;
 }
 
-.torres-scroll::-webkit-scrollbar-thumb {
-  background-color: #cbd5e0;
-  border-radius: 6px;
+.aptos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 8px 0;
+  box-sizing: border-box;
+}
+
+.titulo-piso {
+  margin: 16px 0 8px;
+  font-weight: bold;
 }
 
 /*******Card Unidades Cotizacion ****/
@@ -3160,12 +3149,11 @@ tr.cal-row-info > td {
   padding: 1rem;
   display: flex;
   align-items: flex-start;
-  margin-left: 1rem;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
   /* width: 100%; */
-  width: 1225px;
+  width: 1270px;
 }
 
 .filtros-center {
@@ -3236,7 +3224,7 @@ tr.cal-row-info > td {
 
 .filtros-wrapper {
   display: flex;
-  gap: 3.5rem;
+  gap: 4rem;
   height: 100%;
   padding: 0 1rem;
 }
@@ -3285,4 +3273,26 @@ tr.cal-row-info > td {
   color: #333 !important;
 }
 
-
+.titulo-torre {
+  display: block;   
+  margin: 1em auto 0;
+  background: #f3f4f6;
+  color: #333;
+  border: 1px solid #d1d5db;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 8px 14px;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  text-align: center;
+  width: fit-content;
+}
+.titulo-piso {
+  font-weight: 500;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #000;
+  margin: 1rem 0 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px dashed #d1d5db;
+}

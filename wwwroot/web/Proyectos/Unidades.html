@@ -2,27 +2,28 @@
     <div class="pure-u-1-1 pure-u-md-1-1 menuCard" style="height: calc(100vh - 2rem); overflow-y: auto; margin: 1em;">
         <div v-if="tabmode == 0">
             <!-- Vista previa -->
-            <div v-show="mode == 3" style="display: flex; height: 100%; gap: 1rem;">
+            <div v-show="mode == 3" style="display: flex; height: 100%;">
                 <div>
                     <div v-if="viewProperties.viewType == 'classic'">
-                    <div class="lista-torres" style="height: calc(100vh - 12rem);">
-                        <div v-for="item in torres.filter(t => aptos.some(a => a.id_torre === t.id_torre && a.id_estado_unidad === '1'))"
-                                class="torre" @click="toggleTorre(item)" v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre)}">
-                            <div style="align-self: center;">
-                                <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
-                            </div>
-                            <div v-for="e in [...estados].reverse()">
-                                <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
-                                    <span :style="`color: ${e.color_fuente}`">
-                                        {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
-                                        && a.id_torre === item.id_torre).length}}
-                                    </span>
+                        <div class="lista-torres" style="height: calc(100vh - 6rem);">
+                            <div v-for="item in torres"
+                                class="torre" @click="toggleTorre(item)"
+                                v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre)}">
+                                <div style="align-self: center;">
+                                    <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
                                 </div>
-                                <span>{{e.estado_unidad_plural}}</span>
+                                <div v-for="e in [...estados].reverse()">
+                                    <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
+                                        <span :style="`color: ${e.color_fuente}`">
+                                            {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad
+                                            && a.id_torre === item.id_torre).length}}
+                                        </span>
+                                    </div>
+                                    <span>{{e.estado_unidad_plural}}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 </div>
                 <div v-if="viewProperties.viewType == '3d'" style="flex-grow: 1;">
                     <div class="pure-u-1-4" style="height: calc(100vh - 16rem); overflow: auto;">
@@ -114,17 +115,22 @@
                             </div>
                         </div>
                         <div class="aptos-layout">
-                            <div class="aptos-list" :style="aptosGridStyle">
-                                <div v-for="apto in getFilteredList('aptos')" :key="apto.apartamento" class="apto-card-mini"
-                                    @click="selectedApto = apto" :class="[
-                                  { 'active': selectedApto && selectedApto.apartamento === apto.apartamento },
-                                  'estado-' + (apto.estatus || '').trim().toLowerCase()
-                                ]">
-                                    <div class="mini-header">
-                                        <span>{{ apto.apartamento }}</span>
-                                    </div>
-                                    <div class="mini-body">
-                                        <span class="estatus">{{ apto.localizacion }}</span>
+                            <div class="aptos-list-agrupada">
+                                <div v-for="(pisos, idtorre) in aptosAgrupadosPorTorreYPiso" :key="idtorre">
+                                    <div class="titulo-torre">Torre {{ idtorre }}</div>
+                                    <div v-for="[piso, aptos] in Object.entries(pisos).sort((a, b) => parseInt(b[0]) - parseInt(a[0]))" :key="piso">
+                                        <div class="titulo-piso">PISO {{ piso }}</div>
+                            
+                                        <div class="aptos-grid" :style="aptosGridStylePorTorre(idtorre)">
+                                            <div v-for="apto in aptos" :key="apto.apartamento" class="apto-card-mini" @click="selectedApto = apto"
+                                                :class="[
+                                    { active: selectedApto && selectedApto.apartamento === apto.apartamento },
+                                    'estado-' + (apto.estatus || '').trim().toLowerCase()
+                                  ]">
+                                                <div class="mini-header">{{ apto.apartamento }}</div>
+                                                <div class="mini-body"><span class="estatus">{{ apto.localizacion }}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -137,10 +143,14 @@
                                     <li><span class="label">📍 Localización:</span> {{ selectedApto.localizacion }}</li>
                                     <li><span class="label">📝 Observación:</span> {{ selectedApto.observacion_apto }}</li>
                                     <li><span class="label">🔧 UT:</span> {{ selectedApto.inv_terminado == 1 ? 'SI' : 'NO' }}</li>
-                                    <li><span class="label"> Aseror</span>{{ selectedApto.observacion_apto }}</li>
+                                    <li><span class="label">🧑‍💼 Aseror:</span>{{ asesor }}</li>
+
                                 </ul>
                                 <div class="action-footer">
-                                    <button @click="addUnidad(selectedApto)" class="pure-button pure-button-primary">Agregar</button>
+                                    <button v-if="selectedApto.estatus === 'Libre'" @click="addUnidad(selectedApto)"
+                                        class="pure-button pure-button-primary">
+                                        Agregar
+                                    </button>
                                 </div>
                             </div>
                             <div v-else class="aptos-detail">
