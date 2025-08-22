@@ -58,6 +58,7 @@
 			selectedApto: null,
 			columnasAptos: 8,
 			anchoAptosList: 1270,
+			torresFull: [],
 		};
 	},
 	three: null,
@@ -82,9 +83,11 @@
 		},
 		async loadUnidades() {
 			showProgress();
+			this.asesor = GlobalVariables.username;
 			let [torres, aptos, estados] = (await
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
+			this.NwTorre = torres;
 			let pisos = new Set(), tipos = new Set();
 			if (torres.length && aptos.length) {
 				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];
@@ -108,7 +111,7 @@
 					: parseInt(a.idtorre) - parseInt(b.idtorre))
 				this.torres = torres;
 				this.aptos = aptos;
-				this.pisos = [...pisos].sort((a, b) => parseInt(a) - parseInt(b));
+				this.pisos = [...pisos].sort((a, b) => parseInt(b) - parseInt(a));
 				this.tipos = [...tipos].sort();
 				this.computeViews();
 			};
@@ -532,6 +535,16 @@
 				currency: 'COP',
 				minimumFractionDigits: 0
 			}).format(numero);
+		},
+		aptosGridStylePorTorre(id_torre) {
+			const torre = this.NwTorre.find(t => t.idtorre == id_torre);
+			const columnas = parseInt(torre?.aptos_fila);
+			const ancho = 1270;
+			return {
+				display: 'grid',
+				width: `${ancho}px`,
+				gridTemplateColumns: `repeat(${columnas}, 1fr) !important`
+			};
 		}
 	},
 	computed: {
@@ -609,11 +622,19 @@
 			if (t.length >= 2) t = 'en ' + t.substring(0, t.length - 2);
 			return t;
 		},
-		aptosGridStyle() {
-			return {
-				width: `${this.anchoAptosList}px`,
-				gridTemplateColumns: `repeat(${this.columnasAptos}, 1fr)`
-			};
-		}
+		aptosAgrupadosPorTorreYPiso() {
+			const agrupado = {};
+			const lista = this.getFilteredList('aptos');
+			lista.forEach(apto => {
+				const torre = apto.idtorre;
+				const piso = apto.piso;
+				if (!agrupado[torre]) agrupado[torre] = {};
+				if (!agrupado[torre][piso]) agrupado[torre][piso] = [];
+
+				agrupado[torre][piso].push(apto);
+			});
+			return agrupado;
+		},
+
 	},
 };
