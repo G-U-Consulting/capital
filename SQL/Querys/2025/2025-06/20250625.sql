@@ -14,7 +14,6 @@ create table fact_torres(
 	constraint fk_id_proyecto_fact_torres foreign key(id_proyecto) references fact_proyectos(id_proyecto),
 	nombre_torre varchar(50),
 	consecutivo int,
-	id_lista int references dim_lista_precios(id_lista),
 	orden_salida int not null,
 	en_venta bit default 0,
 	aptos_piso int not null,
@@ -82,6 +81,13 @@ create table dim_tipo_unidad(
 	id_archivo_planta int references fact_documento_proyecto(id_documento_proyecto),
 	id_archivo_recorrido int references fact_documento_proyecto(id_documento_proyecto),
 	unique(tipo, id_proyecto)
+);
+
+create table dim_lista_tipo_torre(
+	id_tipo int not null references dim_tipo_unidad(id_tipo),
+	id_torre int not null references fact_torres(id_torre),
+	id_lista int references dim_lista_precios(id_lista),
+	primary key(id_tipo, id_torre)
 );
 
 create table fact_unidades(

@@ -628,20 +628,20 @@
                 </div>
             </div>
             <!--Datos Sala: Coordinación y cotizaciones-->
-            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+            <!-- <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                 Coordinación de Sala de Ventas
             </div>
-            <!--TODO Cambiar email de coordinado de sala por coordinador de sala-->
+            TODO Cambiar email de coordinado de sala por coordinador de sala
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <label for="coordinacion" style="display: block; margin-bottom: 0.3rem;">Coordinación</label>
                     <select v-model="objProyecto.id_coordinacion" class="pure-input-1" v-bind:class="{errorInput:casoValidator.id_coordinacion != null}">
                         <option value="" disabled selected>Seleccione Coordinacion</option>
-                        <!--<option v-for="item in usuarios" :key="item.id_cargo" :value="item.id_cargo">{{ item.cargo }}</option>-->
+                        <option v-for="item in usuarios" :key="item.id_cargo" :value="item.id_cargo">{{ item.cargo }}</option>
                     </select>
                 </div>
             </div>
-            <!--Fin TODO-->
+            Fin TODO
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>
                     <span>Meta VentasUnidades / Mes</span>
@@ -653,7 +653,7 @@
                     <span>Email Coordinación de Sala</span>
                     <input type='text' v-model='objProyecto.email_coordinacion_sala' maxlen='100' v-bind:class="{errorInput:casoValidator.email_coordinacion_sala != null}" />
                 </div>
-            </div>
+            </div> -->
             <!--<div class='pure-u-1-1 pure-u-md-1-4'>
                         <div class='formInputStandard'>
                             <span title="Días antes de la fecha de Pago CI BankAmig">Días pago Banco Amigo</span>
@@ -851,6 +851,15 @@
                 <div class='formInputStandard'>
                     <span>E-mail receptor 4</span>
                     <input type='email' v-model='objProyecto.email_receptor_4' maxlen='100' v-bind:class="{errorInput:casoValidator.email_receptor_4 != null}"/>
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                Metas Ventas Unidades / Mes
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-4'>
+                <div class='formInputStandard'>
+                    <span>Meta VentasUnidades / Mes</span>
+                    <input type='number' v-model='objProyecto.meta_ventas' maxlen='100' v-bind:class="{errorInput:casoValidator.meta_ventas != null}" />
                 </div>
             </div>
         </div>

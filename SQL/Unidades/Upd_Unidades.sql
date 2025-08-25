@@ -145,6 +145,11 @@ insert ignore into dim_tipo_unidad(tipo, id_proyecto)
 select if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta), @id_proyecto
 from tmp_unidades t;
 
+insert ignore into dim_lista_tipo_torre(id_torre, id_tipo)
+select ft.id_torre, tu.id_tipo 
+from fact_torres ft, dim_tipo_unidad tu 
+where ft.id_proyecto = @id_proyecto and tu.id_proyecto = @id_proyecto;
+
 insert into fact_unidades(
     id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,

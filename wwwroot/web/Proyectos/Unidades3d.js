@@ -27,6 +27,7 @@
 			selectedAptos: [],
 			ids_unidades: [],
 			listas: [],
+			listaTipoTorre: [],
 			precios: [],
 			preview: [],
 			sortIds: [],
@@ -125,14 +126,17 @@
 					this.projectList = GlobalVariables.proyecto.id_lista;
 					this.projectAlert = GlobalVariables.proyecto.alerta_cambio_lista || '';
 					if (this.torres.length) {
-						this.filtros.aptos.torres = [this.sortTorres[0].idtorre];
-						this.selRow2 = this.listas.findIndex(l => l.id_lista === this.sortTorres[0].id_lista);
+						if (!this.torre.id_torre) this.torre = this.sortTorres[0];
+						//this.filtros.aptos.torres = [this.sortTorres[0].idtorre];
+						/* this.selRow2 = this.listas.findIndex(l => l.id_lista === this.sortTorres[0].id_lista);
 						if (this.selRow2 == -1) this.selRow2 = 0;
-						else this.selListas = [this.listas[this.selRow2].id_lista];
+						else this.selListas = [this.listas[this.selRow2].id_lista]; */
+						this.selRow2 = 0;
 						this.tabmode = index;
 					}
 					if (this.listas.length) this.selRow2 ||= 0;
 					this.filtroTipo = '';
+					this.setTorresList();
 				}
 				if (index === 3) {
 					await this.loadAgrupacion();
@@ -228,12 +232,13 @@
 		},
 		async loadListas() {
 			showProgress();
-			let lists = (await
-				httpFunc('/generic/genericDT/Unidades:Get_ListaPrecios', { id_proyecto: GlobalVariables.id_proyecto })).data;
+			let [lists, listaTipoTorre] = (await
+				httpFunc('/generic/genericDS/Unidades:Get_ListaPrecios', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			if (lists.every(l => !Number.isNaN(Number(l.lista))))
 				lists.sort((a, b) => Number(a.lista) - Number(b.lista));
 			else lists.sort();
 			this.listas = [...lists.map(l => ({ ...l, promedio_m2: l.promedio_m2.replace(',', '.') }))];
+			this.listaTipoTorre = listaTipoTorre;
 			hideProgress();
 		},
 		openFileDialog: function () {
@@ -301,7 +306,6 @@
 			let data = this.u_torres.length ? this.u_torres : this.torres;
 			let res = null;
 			try {
-				console.log(JSON.stringify(data));
 				res = await (httpFunc(`/generic/genericST/Unidades:Upd_Unidades`, {
 					id_proyecto: GlobalVariables.id_proyecto,
 					unidades: JSON.stringify(data),
@@ -502,16 +506,19 @@
 			i === -1 ? this.filtros.aptos.torres.push(torre.idtorre) : this.filtros.aptos.torres.splice(i, 1);
 		},
 		setTorresList() {
-			let torres = this.filtros.aptos.torres;
+			if (!this.tiposTorre.find(tt => tt.id_tipo === this.filtroTipo.id_tipo)) {
+				this.filtroTipo = '';
+			}
 			this.selListas = [];
-			if (torres.length) {
-				torres.forEach(t => {
-					let tmp = this.torres.find(e => e.idtorre == t);
+			if (this.torre.id_torre) {
+				if (this.filtroTipo) {
+					let tmp = this.listaTipoTorre.find(l =>
+						l.id_tipo === this.filtroTipo.id_tipo && l.id_torre === this.torre.id_torre);
 					if (tmp) this.selListas.push(tmp.id_lista);
-				});
-			} else this.torre = {};
-			this.editRow = false;
-			this.lista = {};
+				}
+				else this.listaTipoTorre.forEach(l =>
+					l.id_torre === this.torre.id_torre && !!l.id_lista && this.selListas.push(l.id_lista));
+			}
 		},
 		setTorre(torre) {
 			this.torre = torre;
@@ -850,30 +857,21 @@
 			}
 		},
 		async onSetLista() {
-			let filtros = [...this.filtros.aptos.torres];
-			if (filtros.length) {
+			if (this.torre.id_torre && this.selRow2 !== null) {
 				showProgress();
-				let res = null;
+				let res = null, i = this.selRow2, torre = { ...this.torre }, filtroTipo = { ...this.filtroTipo };
 				try {
-					let i = this.selRow2, t = { ...this.torre };
-					let ids_torres = filtros.map(t => {
-						let torre = this.torres.find(e => e.idtorre == t);
-						return torre.id_torre;
-					}).join(',');
-					let obj = { ids_torres };
-					if (this.selRow2 !== null) obj.id_lista = this.listas[this.selRow2].id_lista;
-					if (this.filtroTipo) obj.id_tipo = this.filtroTipo.id_tipo;
-					console.log(obj);
+					let id_lista = this.listas[this.selRow2].id_lista;
+					let obj = { id_lista, id_torre: torre.id_torre, id_tipo: filtroTipo.id_tipo };
 					res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaTorre`, obj);
 					if (res.isError || res.data !== 'OK') throw res;
 					GlobalVariables.proyecto.id_lista = this.projectList;
 					GlobalVariables.proyecto.alerta_cambio_lista = this.projectAlert;
 					await this.loadUnidades();
 					await this.setTabmode(2);
-					t.id_lista = obj.id_lista;
+					this.torre = torre;
+					this.filtroTipo = filtroTipo;
 					this.selRow2 = i;
-					this.torre = t;
-					this.filtros.aptos.torres = filtros;
 					this.setTorresList();
 				} catch (e) {
 					console.error(e);
@@ -898,7 +896,7 @@
 		async detailList(lista) {
 			showProgress();
 			let precios = (await httpFunc('/generic/genericDT/Unidades:Get_PreciosLista',
-				{ id_lista: lista.id_lista, torres: this.filtros.aptos.torres.join(',') })).data;
+				{ id_lista: lista.id_lista, id_torre: this.torre.id_torre })).data;
 			if (precios.length) {
 				let torres = {};
 				precios.forEach(p => {
@@ -967,12 +965,14 @@
 			}
 		},
 		msgListaTorres(lista) {
-			let consecutivos = [];
-			let torres = this.filtros.aptos.torres.map(t => this.torres.find(e => e.idtorre == t));
-			torres.forEach(t => t.id_lista == lista.id_lista && consecutivos.push('Torre ' + t.consecutivo));
-			return consecutivos.join(`<br>`)
+			let lists = [];
+			if (this.torre.id_torre) {
+				this.listaTipoTorre.forEach(l =>
+					l.id_torre === this.torre.id_torre && l.id_lista === lista.id_lista && lists.push(l.tipo));
+			}
+			return lists.sort().join('<br>');
 		},
-
+		
 		async listResources() {
 			this.loadingImg = true;
 			this.files = [];
@@ -1090,6 +1090,17 @@
 		closeExpanded() {
 			this.expandedVisible = false;
 		},
+		reqUnlockApto(apto) {
+			if (apto.id_estado_unidad != '1')
+				this.reqOperation(`El estado de la unidad <b>${apto.clase} ${apto.numero_apartamento}</b> cambiará de <b>${apto.estatus}</b> a <b>Libre</b>`,
+					this.unlockApto, null, apto);
+		},
+		async unlockApto(apto) {
+			apto.estatus = 'Libre';
+			apto.id_estado_unidad = '1';
+			this.apto = apto;
+			await this.onSave();
+		}
 	},
 	computed: {
 		f_tasa_base: {
@@ -1210,5 +1221,10 @@
 		isExpanded() {
 			return () => this.gruposImg.every(g => g.expanded);
 		},
+		tiposTorre() {
+			let tipos = this.tipos.filter(t =>
+				this.torre.pisos.some(p => p.unidades.some(u => u.id_tipo === t.id_tipo)));
+			return tipos;
+		}
 	},
 };
