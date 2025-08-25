@@ -257,10 +257,8 @@ export default {
             const validarSubmode = (submodeIndex) => {
                 const camposAValidar = this.camposPorSubmode[submodeIndex] || [];
                 let submodeIncompleto = camposAValidar.some(campo => {
-                    const valor1 = this.objProyecto[campo];
-                    const valor2 = this.editObjProyecto[campo];
-                    return (!valor1 || valor1.toString().trim() === '') &&
-                        (!valor2 || valor2.toString().trim() === '');
+                    const valor = this.objProyecto[campo];
+                    return (!valor || valor.toString().trim() === '');
                 });
 
                 const validacionesEspecialesSubmode = this.validacionEspecial[submodeIndex] || [];
@@ -269,16 +267,18 @@ export default {
                         const checkboxes = this[validacion.campo];
                         if (checkboxes) {
                             const seleccionados = checkboxes.filter(item => item.checked).length;
-                            if (validacion.requerimiento && validacion.requerimiento.tipo === 'minimo' && seleccionados < validacion.requerimiento.valor) {
+                            if (
+                                validacion.requerimiento &&
+                                validacion.requerimiento.tipo === 'minimo' &&
+                                seleccionados < validacion.requerimiento.valor
+                            ) {
                                 submodeIncompleto = true;
                             }
                         }
                     } else if (validacion.tipo === 'email') {
-                        const email1 = this.objProyecto[validacion.campo];
-                        const email2 = this.editObjProyecto[validacion.campo];
-                        const valido1 = email1 && this.validarEmail(email1);
-                        const valido2 = email2 && this.validarEmail(email2);
-                        if (!valido1 && !valido2) {
+                        const email = this.objProyecto[validacion.campo];
+                        const valido = email && this.validarEmail(email);
+                        if (!valido) {
                             submodeIncompleto = true;
                         }
                     }

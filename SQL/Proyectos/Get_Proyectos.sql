@@ -63,8 +63,16 @@ select
     a.id_zona_proyecto,
     a.id_lista,
     a.alerta_cambio_lista,
-    case when j.tipo_vis = 'No VIS' then 'NO' else 'SI' end as tipo_vis,
-     k.edge_estado
+    case when j.tipo_vis = 'No VIS' then 'No VIS' else 'VIS' end as tipo_vis,
+     k.edge_estado,
+    o.total_torres,
+    o.area_total_proyecto,
+    o.min_area_privada_cub,
+    o.area_total_mas_acue,
+    t.fecha_escrituracion_min,
+    t.fecha_escrituracion_max,
+    v.valor_unidad_min,
+    v.valor_unidad_max
 from fact_proyectos a
 left join dim_ciudadela b on a.id_ciudadela = b.id_ciudadela
 left join dim_estado_publicacion c on a.id_estado_publicacion = c.id_estado_publicacion
@@ -85,4 +93,48 @@ left join (
     from fact_estado_publicacion
     where id_estado_publicacion in (5, 6)
     group by id_proyecto
-) k on a.id_proyecto = k.id_proyecto;
+) k on a.id_proyecto = k.id_proyecto
+left join (
+    select 
+        id_proyecto,
+        min(fecha_escrituracion) as fecha_escrituracion_min,
+        max(fecha_escrituracion) as fecha_escrituracion_max
+    from fact_torres
+    group by id_proyecto
+) t on a.id_proyecto = t.id_proyecto
+left join (
+    select 
+        id_proyecto,
+        count(*) as total_torres,
+        sum(area_total) as area_total_proyecto,
+        min(area_privada_cub) as min_area_privada_cub,
+        min(area_total_mas_acue) as area_total_mas_acue
+    from fact_unidades
+    group by id_proyecto
+) o on a.id_proyecto = o.id_proyecto
+left join (
+    select 
+        u.id_proyecto,
+        concat('$', replace(format(min((
+            select pu.precio 
+            from dim_precio_unidad pu
+            where pu.id_lista = if(u.id_lista is null, 
+                (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), 
+                u.id_lista
+            ) 
+            and pu.id_unidad = u.id_unidad
+        )), 0), ',', '.')) as valor_unidad_min,
+
+        concat('$', replace(format(max((
+            select pu.precio 
+            from dim_precio_unidad pu
+            where pu.id_lista = if(u.id_lista is null, 
+                (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), 
+                u.id_lista
+            ) 
+            and pu.id_unidad = u.id_unidad
+        )), 0), ',', '.')) as valor_unidad_max
+
+    from fact_unidades u
+    group by u.id_proyecto
+) v on a.id_proyecto = v.id_proyecto

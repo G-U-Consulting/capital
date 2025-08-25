@@ -88,12 +88,13 @@
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                 Tipos de Unidades de Venta
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-1'>
-                <div class='formInputStandard'>
-                    <div class='pure-g'>
-                        <div v-for='item in tipo' class='pure-u-1-4'>
+            <div class="pure-u-1-1 pure-u-md-1-1">
+                <div class="formInputStandard">
+                    <div class="pure-g">
+                        <div v-for="item in tipo" :key="item.id_tipo_proyecto" class="pure-u-1-4">
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <input type="radio" :value="item.id_tipo_proyecto" v-model="editObjProyecto.id_tipo_proyecto"
+                                    name="tipoProyecto" />
                                 <span class="checkmark"></span>
                                 {{ item.tipo_proyecto }}
                             </label>
