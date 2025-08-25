@@ -415,14 +415,14 @@
                 }
             });
 
-            const tipo = (resp[0][0].tipo_proyecto || '')
-                .split(',')
-                .map(id => parseInt(id));
+            // const tipo = (resp[0][0].tipo_proyecto || '')
+            //     .split(',')
+            //     .map(id => parseInt(id));
 
-            this.tipo.forEach(item => {
-                const id = parseInt(item.id_tipo_proyecto);
-                item.checked = tipo.includes(id);
-            });
+            // this.tipo.forEach(item => {
+            //     const id = parseInt(item.id_tipo_proyecto);
+            //     item.checked = tipo.includes(id);
+            // });
 
             const estadopublicacion = (resp[0][0].estado_publicacion || '')
                 .split(',')
@@ -925,6 +925,6 @@
         },
         tortaProject(item) {
             this.selectedProject = item;
-        }
+        },
     }
 };

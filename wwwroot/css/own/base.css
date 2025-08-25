@@ -2971,7 +2971,6 @@ tr.cal-row-info > td {
   display: flex;
   height: calc(100vh - 12.2rem);
   overflow: hidden;
-  gap: 16px;
   padding: 16px;
 }
 
@@ -3027,15 +3026,6 @@ tr.cal-row-info > td {
   margin-left: auto;
   font-weight: bolder;
   font-size: 16px;
-}
-
-.aptos-detail {
-  width: 378px;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
-  overflow-y: auto;
 }
 
 /*******Tabla Unidades Cotizacion ****/
@@ -3224,7 +3214,7 @@ tr.cal-row-info > td {
 
 .filtros-wrapper {
   display: flex;
-  gap: 4rem;
+  gap: 2rem;
   height: 100%;
   padding: 0 1rem;
 }
