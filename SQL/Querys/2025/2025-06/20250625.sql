@@ -159,3 +159,27 @@ create table dim_precio_unidad(
 	updated_by varchar(50),
 	primary key(id_lista, id_unidad)
 );
+
+create table dim_log_unidades(
+	id_log int primary key auto_increment,
+	id_unidad int not null references fact_unidades(id_unidad),
+	id_usuario int not null references fact_usuarios(id_usuario),
+	fecha datetime default current_timestamp,
+	titulo varchar(200) not null,
+	texto text,
+	id_tarea int references dim_tarea_usuario(id_tarea)
+);
+
+create trigger tr_insert_log_unidad after update on fact_unidades for each row
+begin
+	if old.id_estado_unidad <> new.id_estado_unidad then
+		select estado_unidad into @estado1 from dim_estado_unidad where id_estado_unidad = old.id_estado_unidad;
+		select estado_unidad into @estado2 from dim_estado_unidad where id_estado_unidad = new.id_estado_unidad collate utf8mb4_unicode_ci;
+		insert into dim_log_unidades(id_unidad, id_usuario, titulo, texto)
+		values(new.id_unidad, 
+			(select id_usuario from fact_usuarios where usuario collate utf8mb4_general_ci = new.updated_by),
+			concat('Cambió estado a ', @estado2), 
+			concat('Cambió estado de ', @estado1, ' a ', @estado2)
+		);
+	end if;
+end;

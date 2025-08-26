@@ -902,11 +902,12 @@
         </div>
 
         <div class="lista-torres" style="height: 100%; gap: 5px; overflow-y: auto; min-width: fit-content;">
-            <div class="lista-precio" @click="filtroTipo = ''; setTorresList();" v-bind:class="{'current-list': filtroTipo == ''}">
-                <span>Todas</span>
+            <div class="lista-precio" @click="toggleTipos(); setTorresList();" 
+                v-bind:class="{'current-list': filtroTipos.length === tiposTorre.length}">
+                <span>Todos</span>
             </div>
-            <div class="lista-precio" v-for="tipo in tiposTorre" @click="filtroTipo = tipo; setTorresList();"
-                v-bind:class="{'current-list': filtroTipo.id_tipo == tipo.id_tipo}">
+            <div class="lista-precio" v-for="tipo in tiposTorre" @click="toggleTipo(tipo); setTorresList();"
+                v-bind:class="{'current-list': filtroTipos.includes(tipo.id_tipo)}">
                 <span>{{tipo.tipo}}</span>
             </div>
         </div>
@@ -992,8 +993,8 @@
                 <div class="pure-u-1-1 pure-u-md-1-3" style="text-align: right; margin-top: 2.2rem;">
                     <button
                         @click="torre && selRow2 !== null &&
-                            reqOperation(`Se asignará la lista ${listas[selRow2].lista} a las unidades ${filtroTipo ? 
-                            ' de tipo ' + filtroTipo.tipo : ''} de la torre ${torre.idtorre}`, onSetLista)">
+                            reqOperation(`Se asignará la lista ${listas[selRow2].lista} a las unidades ${filtroTipos.length ? 
+                            ' de los tipos seleccionados ' : ''} de la torre ${torre.idtorre}`, onSetLista)">
                         Establecer vigente
                     </button>
                 </div>
