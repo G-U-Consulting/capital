@@ -390,14 +390,14 @@
                 }
             });
 
-            var tViSeleccionada = resp[0][0].id_tipo_vis;
-            this.tiposVIS.forEach(item => {
-                if (tViSeleccionada) {
-                    item.checked = (item.id_tipo_vis == tViSeleccionada);
-                } else {
-                    item.checked = false;
-                }
-            });
+            // var tViSeleccionada = resp[0][0].id_tipo_vis;
+            // this.tiposVIS.forEach(item => {
+            //     if (tViSeleccionada) {
+            //         item.checked = (item.id_tipo_vis == tViSeleccionada);
+            //     } else {
+            //         item.checked = false;
+            //     }
+            // });
             var tFSeleccionada = resp[0][0].id_tipo_financiacion;
             this.tiposFinanciacion.forEach(item => {
                 if (tFSeleccionada) {

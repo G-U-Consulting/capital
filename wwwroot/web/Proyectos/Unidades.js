@@ -41,7 +41,8 @@
 					codigo_planta: '',
 					localizacion: '',
 					torres: [],
-					piso: ''
+					piso: '',
+					clase: '',
 				},
 				agrupaciones: {},
 				groupedAptos: {
@@ -66,6 +67,7 @@
 		//this.computeViews();
 		await this.cargarLogoProyecto();
 		await this.loadUnidades();
+		this.filtros.aptos.torres = this.torres.map(t => t.idtorre);
 	},
 	methods: {
 		setRuta() {
@@ -539,7 +541,7 @@
 		aptosGridStylePorTorre(id_torre) {
 			const torre = this.NwTorre.find(t => t.idtorre == id_torre);
 			const columnas = parseInt(torre?.aptos_fila);
-			const ancho = 1270;
+			const ancho = 1190;
 			return {
 				display: 'grid',
 				width: `${ancho}px`,
@@ -635,6 +637,17 @@
 			});
 			return agrupado;
 		},
+		
 
 	},
+	watch: {
+	torres: {
+		handler(nuevasTorres) {
+			if (nuevasTorres && nuevasTorres.length) {
+				this.filtros.aptos.torres = nuevasTorres.map(t => t.idtorre);
+			}
+		},
+		immediate: true
+	}
+}
 };

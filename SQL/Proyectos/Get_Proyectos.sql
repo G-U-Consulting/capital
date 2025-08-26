@@ -97,8 +97,8 @@ left join (
 left join (
     select 
         id_proyecto,
-        min(fecha_escrituracion) as fecha_escrituracion_min,
-        max(fecha_escrituracion) as fecha_escrituracion_max
+        date_format(min(fecha_escrituracion), '%d/%m/%Y') as fecha_escrituracion_min,
+        date_format(max(fecha_escrituracion), '%d/%m/%Y') as fecha_escrituracion_max
     from fact_torres
     group by id_proyecto
 ) t on a.id_proyecto = t.id_proyecto
@@ -106,35 +106,43 @@ left join (
     select 
         id_proyecto,
         count(*) as total_torres,
-        sum(area_total) as area_total_proyecto,
-        min(area_privada_cub) as min_area_privada_cub,
-        min(area_total_mas_acue) as area_total_mas_acue
+        replace(format(sum(area_total), 2), ',', '.') as area_total_proyecto,
+        replace(format(min(area_privada_cub), 2), ',', '.') as min_area_privada_cub,
+        replace(format(min(area_total_mas_acue), 2), ',', '.') as area_total_mas_acue
     from fact_unidades
     group by id_proyecto
 ) o on a.id_proyecto = o.id_proyecto
 left join (
     select 
         u.id_proyecto,
-        concat('$', replace(format(min((
-            select pu.precio 
-            from dim_precio_unidad pu
-            where pu.id_lista = if(u.id_lista is null, 
-                (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), 
-                u.id_lista
-            ) 
-            and pu.id_unidad = u.id_unidad
-        )), 0), ',', '.')) as valor_unidad_min,
 
-        concat('$', replace(format(max((
-            select pu.precio 
-            from dim_precio_unidad pu
-            where pu.id_lista = if(u.id_lista is null, 
-                (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), 
-                u.id_lista
-            ) 
-            and pu.id_unidad = u.id_unidad
-        )), 0), ',', '.')) as valor_unidad_max
+        concat(
+            '$',
+            replace(format(min((
+                select pu.precio 
+                from dim_precio_unidad pu
+                where pu.id_lista = if(u.id_lista is null, 
+                    (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), 
+                    u.id_lista
+                ) 
+                and pu.id_unidad = u.id_unidad
+            )), 2), ',', '.')
+        ) as valor_unidad_min,
+
+        concat(
+            '$',
+            replace(format(max((
+                select pu.precio 
+                from dim_precio_unidad pu
+                where pu.id_lista = if(u.id_lista is null, 
+                    (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), 
+                    u.id_lista
+                ) 
+                and pu.id_unidad = u.id_unidad
+            )), 2), ',', '.')
+        ) as valor_unidad_max
 
     from fact_unidades u
     group by u.id_proyecto
 ) v on a.id_proyecto = v.id_proyecto
+

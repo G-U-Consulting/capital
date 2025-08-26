@@ -1925,9 +1925,9 @@ div.btn-left-rotafolio img {
   border: 1px solid #ffff;
 }
 .tab-registro {
-  padding: 7px 17px;
+  padding: 10px 16px;
   cursor: pointer;
-  border: 1px solid #ccc;
+  border: 1px solid #333;
   border-bottom: none;
   background-color: #f0f4f8;
   color: #333;
@@ -1945,7 +1945,7 @@ div.btn-left-rotafolio img {
 }
 
 .tab-registro.active {
-  background-color: #032B44;
+  background-color: #00839C;
   color: white;
   font-weight: bold;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
@@ -2427,6 +2427,7 @@ tr.cal-row-info > td {
   padding: 2px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   height: auto;
+
 }
 
 .sello-certificado-mini.vigente {
@@ -2535,21 +2536,6 @@ tr.cal-row-info > td {
   color: white;
   background: #00839C;
   border: 3px #173d5b solid;
-}
-
-.tab-registro {
-  padding: 10px 16px;
-  cursor: pointer;
-  background-color: #f0f0f0;
-  border-radius: 8px 8px 0 0;
-  position: relative;
-  transition: background-color 0.3s ease;
-}
-
-.tab-registro.active {
-  background-color: #004e6b;
-  color: white;
-  font-weight: bold;
 }
 
 .highlight-text {
@@ -2970,6 +2956,7 @@ tr.cal-row-info > td {
 .aptos-layout {
   display: flex;
   height: calc(100vh - 12.2rem);
+  gap: 1rem;
   overflow: hidden;
   padding: 16px;
 }
@@ -2991,9 +2978,10 @@ tr.cal-row-info > td {
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   font-size: 12px;
-  height: 80px;
+  /* height: 80px; */
+  
 }
 
 .apto-card-mini.active {
@@ -3038,6 +3026,19 @@ tr.cal-row-info > td {
 
 .aptos-list-agrupada::-webkit-scrollbar {
   width: 6px;
+}
+
+.aptos-list-agrupada::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.aptos-list-agrupada::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.aptos-list-agrupada::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .aptos-grid {
@@ -3148,7 +3149,7 @@ tr.cal-row-info > td {
 
 .filtros-center {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
   gap: 0.75rem;
   flex: 1;
   min-width: 0;
@@ -3275,7 +3276,7 @@ tr.cal-row-info > td {
   border-radius: 8px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
   text-align: center;
-  width: fit-content;
+  width: 100%;
 }
 .titulo-piso {
   font-weight: 500;
@@ -3285,4 +3286,18 @@ tr.cal-row-info > td {
   margin: 1rem 0 0.5rem;
   padding-bottom: 0.25rem;
   border-bottom: 1px dashed #d1d5db;
+}
+.grupo-piso {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.titulo-piso {
+  width: 70px;
+  min-width: 70px;
+  font-weight: bold;
+  padding-top: 0.5rem;
+  margin-right: 10px;
+  text-align: right;
 }

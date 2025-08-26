@@ -65,12 +65,23 @@
                                                 <img src="./img/ico/eraser.png" />
                                             </div>
                                         </div>
+
+                                        <!-- <div class='formInputStandard'> -->
+                                            <!-- <span>Clase</span> -->
+                                            <select v-model="filtros.aptos['clase']" class="pure-input-1">
+                                                <option value="">[Clase]</option>
+                                                <option value="Apartamento">Apartamento</option>
+                                                <option value="Deposito">Depósito</option>
+                                                <option value="Parqueadero">Parqueadero</option>
+                                            </select>
+                                        <!-- </div> -->
                                 
                                         <select v-model="filtros.aptos['codigo_planta']">
                                             <option value="">[Tipos]</option>
                                             <option v-for="t in tipos" :value="t">{{ t }}</option>
                                         </select>
-                                
+
+                                        
                                         <select v-model="filtros.aptos['piso']">
                                             <option value="">[Pisos]</option>
                                             <option v-for="p in pisos" :value="p">{{ p }}</option>
@@ -119,16 +130,15 @@
                                 <div v-for="(pisos, idtorre) in aptosAgrupadosPorTorreYPiso" :key="idtorre">
                                     <div class="titulo-torre">Torre {{ idtorre }}</div>
                                     <div v-for="[piso, aptos] in Object.entries(pisos).sort((a, b) => parseInt(b[0]) - parseInt(a[0]))" :key="piso">
-                                        <div class="titulo-piso">PISO {{ piso }}</div>
-                            
-                                        <div class="aptos-grid" :style="aptosGridStylePorTorre(idtorre)">
-                                            <div v-for="apto in aptos" :key="apto.apartamento" class="apto-card-mini" @click="selectedApto = apto"
-                                                :class="[
-                                    { active: selectedApto && selectedApto.apartamento === apto.apartamento },
-                                    'estado-' + (apto.estatus || '').trim().toLowerCase()
-                                  ]">
-                                                <div class="mini-header">{{ apto.apartamento }}</div>
-                                                <div class="mini-body"><span class="estatus">{{ apto.localizacion }}</div>
+                                        <div class="grupo-piso">
+                                            <div class="titulo-piso">PISO {{ piso }}</div>
+                                            <div class="aptos-grid" :style="aptosGridStylePorTorre(idtorre)">
+                                                <div v-for="apto in aptos" :key="apto.apartamento" class="apto-card-mini"
+                                                    @click="selectedApto = apto" :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento },
+                                                        'estado-' + (apto.estatus || '').trim().toLowerCase()]">
+                                                    <div class="mini-header">{{ apto.apartamento }}</div>
+                                                    <div class="mini-body"><span class="estatus">{{ apto.localizacion }}</span></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
