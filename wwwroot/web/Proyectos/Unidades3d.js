@@ -93,7 +93,7 @@
 			selRow3: null,
 			editRow: false,
 
-			filtroTipo: '',
+			filtroTipos: [],
 			filtroAgrupado: false,
 
 			tooltipVisible: false,
@@ -128,15 +128,11 @@
 					this.projectAlert = GlobalVariables.proyecto.alerta_cambio_lista || '';
 					if (this.torres.length) {
 						if (!this.torre.id_torre) this.torre = this.sortTorres[0];
-						//this.filtros.aptos.torres = [this.sortTorres[0].idtorre];
-						/* this.selRow2 = this.listas.findIndex(l => l.id_lista === this.sortTorres[0].id_lista);
-						if (this.selRow2 == -1) this.selRow2 = 0;
-						else this.selListas = [this.listas[this.selRow2].id_lista]; */
 						this.selRow2 = 0;
 						this.tabmode = index;
 					}
 					if (this.listas.length) this.selRow2 ||= 0;
-					this.filtroTipo = '';
+					if (!this.filtroTipos.length) this.toggleTipos();
 					this.setTorresList();
 				}
 				if (index === 3) {
@@ -506,19 +502,25 @@
 			let i = this.filtros.aptos.torres.indexOf(torre.idtorre);
 			i === -1 ? this.filtros.aptos.torres.push(torre.idtorre) : this.filtros.aptos.torres.splice(i, 1);
 		},
+		toggleTipo(tipo) {
+			let i = this.filtroTipos.indexOf(tipo.id_tipo);
+			i === -1 ? this.filtroTipos.push(tipo.id_tipo) : this.filtroTipos.splice(i, 1);
+		},
+		toggleTipos() {
+			if (this.filtroTipos.length === this.tiposTorre.length) this.filtroTipos = [];
+			else this.filtroTipos = this.tiposTorre.map(tt => tt.id_tipo);
+		},
 		setTorresList() {
-			if (!this.tiposTorre.find(tt => tt.id_tipo === this.filtroTipo.id_tipo)) {
-				this.filtroTipo = '';
-			}
+			this.filtroTipos = this.filtroTipos.filter(ft => this.tiposTorre.some(tt => tt.id_tipo === ft));
 			this.selListas = [];
-			if (this.torre.id_torre) {
-				if (this.filtroTipo) {
-					let tmp = this.listaTipoTorre.find(l =>
-						l.id_tipo === this.filtroTipo.id_tipo && l.id_torre === this.torre.id_torre);
-					if (tmp) this.selListas.push(tmp.id_lista);
-				}
-				else this.listaTipoTorre.forEach(l =>
-					l.id_torre === this.torre.id_torre && !!l.id_lista && this.selListas.push(l.id_lista));
+			let listas = new Set();
+			if (this.torre.id_torre && this.filtroTipos) {
+				this.filtroTipos.forEach(ft => {
+					listas.add(...this.listaTipoTorre
+						.filter(l => l.id_tipo === ft && l.id_torre === this.torre.id_torre)
+						.map(l => l.id_lista));
+				});
+				this.selListas = [...listas];
 			}
 		},
 		setTorre(torre) {
@@ -864,18 +866,16 @@
 		async onSetLista() {
 			if (this.torre.id_torre && this.selRow2 !== null) {
 				showProgress();
-				let res = null, i = this.selRow2, torre = { ...this.torre }, filtroTipo = { ...this.filtroTipo };
+				let res = null, i = this.selRow2, torre = { ...this.torre }, filtroTipos = [ ...this.filtroTipos ];
 				try {
 					let id_lista = this.listas[this.selRow2].id_lista;
-					let obj = { id_lista, id_torre: torre.id_torre, id_tipo: filtroTipo.id_tipo };
+					let obj = { id_lista, id_torre: torre.id_torre, ids_tipos: filtroTipos.join(',') };
 					res = await httpFunc(`/generic/genericST/Unidades:Upd_ListaTorre`, obj);
 					if (res.isError || res.data !== 'OK') throw res;
-					GlobalVariables.proyecto.id_lista = this.projectList;
-					GlobalVariables.proyecto.alerta_cambio_lista = this.projectAlert;
 					await this.loadUnidades();
 					await this.setTabmode(2);
 					this.torre = torre;
-					this.filtroTipo = filtroTipo;
+					this.filtroTipos = filtroTipos;
 					this.selRow2 = i;
 					this.setTorresList();
 				} catch (e) {

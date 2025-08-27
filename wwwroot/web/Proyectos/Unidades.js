@@ -538,14 +538,34 @@
 				minimumFractionDigits: 0
 			}).format(numero);
 		},
-		aptosGridStylePorTorre(id_torre) {
+		aptosGridStylePorTorre(id_torre, aptos = []) {
 			const torre = this.NwTorre.find(t => t.idtorre == id_torre);
 			const columnas = parseInt(torre?.aptos_fila);
-			const ancho = 1190;
+			const ancho = 1170;
+			if (aptos.length < columnas) {
+				return {
+					display: 'flex',
+					justifyContent: 'center',
+					flexWrap: 'wrap',
+					width: `${ancho}px`,
+					gap: '0.5rem'
+				};
+			}
+			if (aptos.length % columnas === 0) {
+				return {
+					display: 'grid',
+					width: `${ancho}px`,
+					gridTemplateColumns: `repeat(${columnas}, 137px)`,
+					justifyContent: 'center',
+					gap: '0.5rem'
+				};
+			}
 			return {
-				display: 'grid',
+				display: 'flex',
+				justifyContent: 'center',
+				flexWrap: 'wrap',
 				width: `${ancho}px`,
-				gridTemplateColumns: `repeat(${columnas}, 1fr) !important`
+				gap: '0.5rem'
 			};
 		}
 	},

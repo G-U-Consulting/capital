@@ -131,13 +131,16 @@
                                     <div class="titulo-torre">Torre {{ idtorre }}</div>
                                     <div v-for="[piso, aptos] in Object.entries(pisos).sort((a, b) => parseInt(b[0]) - parseInt(a[0]))" :key="piso">
                                         <div class="grupo-piso">
-                                            <div class="titulo-piso">PISO {{ piso }}</div>
-                                            <div class="aptos-grid" :style="aptosGridStylePorTorre(idtorre)">
+                                            <div class="titulo-piso">
+                                                <div>PISO</div>
+                                                <div>{{ piso }}</div>
+                                            </div>
+                                            <div class="aptos-grid" :style="aptosGridStylePorTorre(idtorre, aptos)">
                                                 <div v-for="apto in aptos" :key="apto.apartamento" class="apto-card-mini"
                                                     @click="selectedApto = apto" :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento },
                                                         'estado-' + (apto.estatus || '').trim().toLowerCase()]">
                                                     <div class="mini-header">{{ apto.apartamento }}</div>
-                                                    <div class="mini-body"><span class="estatus">{{ apto.localizacion }}</span></div>
+                                                    <div class="mini-body">{{ apto.localizacion }}</div>
                                                 </div>
                                             </div>
                                         </div>

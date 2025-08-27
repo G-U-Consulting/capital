@@ -21,15 +21,15 @@
                 </div>
                 <div class="pure-u-1-1 pure-u-md-8-24" style="display: flex; gap: 0.5em;">
                     <div class="pure-u-1-3">
-                        <select class="pure-input-1" v-model="filtros.proyectos['id_zona_proyecto']">
-                            <option value="">[Todas las Zonas]</option>
-                            <option v-for="item in zona_proyecto" :value="item.id_zona_proyecto">{{item.zona_proyecto}}</option>
-                        </select>
-                    </div>
-                    <div class="pure-u-1-3">
                         <select class="pure-input-1" v-model="filtros.proyectos['id_sede']">
                             <option value="">[Todas las Sedes]</option>
                             <option v-for="item in sede" :value="item.id_sede">{{item.sede}}</option>
+                        </select>
+                    </div>
+                     <div class="pure-u-1-3">
+                        <select class="pure-input-1" v-model="filtros.proyectos['id_zona_proyecto']">
+                            <option value="">[Todas las Zonas]</option>
+                            <option v-for="item in zona_proyecto" :value="item.id_zona_proyecto">{{item.zona_proyecto}}</option>
                         </select>
                     </div>
                     <div class="pure-u-1-3">
@@ -401,15 +401,16 @@
                     </select>
                 </div>
             </div> -->
-            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Tipos de Unidades de Venta
+             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                Clase Principal de Unidades de Venta
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-1'>
-                <div class='formInputStandard'>
-                    <div class='pure-g'>
-                        <div v-for='item in tipo' class='pure-u-1-4'>
+            <div class="pure-u-1-1 pure-u-md-1-1">
+                <div class="formInputStandard">
+                    <div class="pure-g">
+                        <div v-for="item in tipo" :key="item.id_tipo_proyecto" class="pure-u-1-4">
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <input type="radio" :value="item.id_tipo_proyecto" v-model="objProyecto.id_tipo_proyecto"
+                                    name="tipoProyecto" />
                                 <span class="checkmark"></span>
                                 {{ item.tipo_proyecto }}
                             </label>
@@ -501,7 +502,7 @@
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Tipologías
+                Tipologías Principal
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1'>
                 <div class='formInputStandard'>
@@ -509,7 +510,7 @@
                         <div class='pure-u-1-1 pure-u-1-6'></div>
                         <div v-for='item in tiposVIS' class='pure-u-1-6'>
                             <label class="check">
-                                <input type='checkbox' value='1' v-model='item.checked'  />
+                                <input type='radio' :value="item.id_tipo_vis" v-model="objProyecto.id_tipo_vis"  />
                                 <span class="checkmark"></span>
                                 {{item.tipo_vis}}
                             </label>
@@ -819,7 +820,7 @@
             </div>
             <!--Email receptores-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Emails receptores
+                Emails para reporte de atencion / CRM
             </div>
             <div class='pure-u-1-1 pure-u-md-1-4'>
                 <div class='formInputStandard'>

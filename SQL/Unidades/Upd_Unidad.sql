@@ -1,5 +1,5 @@
 -- =============================================
--- Proceso: Unidades/Upd_Unidades
+-- Proceso: Unidades/Upd_Unidad
 -- =============================================
 --START_PARAM
 set @Usuario = NULL,
@@ -111,7 +111,9 @@ set fecha_fec = @fecha_fec,
     tiene_parq_sencillo = convert(@tiene_parq_sencillo, unsigned),
     tiene_parq_doble = convert(@tiene_parq_doble, unsigned),
     tiene_deposito = convert(@tiene_deposito, unsigned),
-    tiene_acabados = convert(@tiene_acabados, unsigned)
+    tiene_acabados = convert(@tiene_acabados, unsigned),
+    updated_by = @Usuario,
+    updated_on = current_timestamp
 where id_unidad = @id_unidad;
 
 select 'OK' as result;
