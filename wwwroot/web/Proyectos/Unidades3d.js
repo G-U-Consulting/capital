@@ -88,6 +88,7 @@
 				}
 			},
 			editNewRow: false,
+			selRow1: null,
 			selRow2: null,
 			selRow3: null,
 			editRow: false,
@@ -824,6 +825,10 @@
 				if (res.isError || res.data !== 'OK') throw res;
 				await this.loadUnidades();
 				await this.setTabmode(2);
+				let proyecto = (await httpFunc('/generic/genericDT/Proyectos:Get_Proyecto',
+					{ id_proyecto: GlobalVariables.id_proyecto })).data[0];
+				GlobalVariables.proyecto.id_lista = proyecto.id_lista;
+				this.projectList = proyecto.id_lista;
 				let $modal = document.getElementById('modalOverlayList');
 				$modal && ($modal.style.display = 'none');
 				this.previewList = {};
@@ -972,7 +977,7 @@
 			}
 			return lists.sort().join('<br>');
 		},
-		
+
 		async listResources() {
 			this.loadingImg = true;
 			this.files = [];
@@ -1058,6 +1063,10 @@
 		},
 		updateCursor(event) {
 			this.tooltipX = event.clientX + 10;
+			this.tooltipY = event.clientY + 10;
+		},
+		updateCursorRight(event) {
+			this.tooltipX = document.body.getBoundingClientRect().width - event.clientX  + 2;
 			this.tooltipY = event.clientY + 10;
 		},
 		toggleList() {

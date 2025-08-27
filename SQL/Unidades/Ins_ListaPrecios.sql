@@ -65,4 +65,10 @@ on duplicate key update
     updated_by = @Usuario,
     updated_on = current_timestamp;
 
+update fact_proyectos 
+set id_lista = if(id_lista is null, 
+    (select id_lista from dim_lista_precios where id_proyecto = @id_proyecto 
+        order by cast(lista as unsigned) desc, id_lista desc limit 1), id_lista)
+where id_proyecto = @id_proyecto;
+
 select 'OK' as respuesta;

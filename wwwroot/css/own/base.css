@@ -2522,6 +2522,9 @@ tr.cal-row-info > td {
 .red-background {
   background-color: #c8000020 !important;
 }
+.tablaUnidades td, .tablaUnidades th {
+  padding: 0.2em 0.3em;
+}
 
 .lista-precio {
   max-width: 15rem; 
