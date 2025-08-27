@@ -56,6 +56,7 @@ export default {
             tipo_tramite: [],
             visitas: [],
             iscliente: false,
+            israpida: false,
             cliente: '',
             isboton: true,
             tab: ['Registros de visita', 'Registros de compras'],
@@ -286,6 +287,7 @@ export default {
                 }
             }
             this.iscliente = true;
+            this.israpida = false;
         },
         async busquedaCliente() {
             let cliente = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cliente', { cliente: this.cliente });
@@ -460,6 +462,10 @@ export default {
                 contador[item.proyecto]++;
             });
             this.contadorProyectos = contador;
+        },
+        antencionRapida(){
+            this.iscliente =  false;
+            this.israpida = true;
         },
         //////// mode 2
         async showAtencionModal() {
@@ -707,6 +713,6 @@ export default {
 
                 cotizacion.importeTotal = totalFinal;
             }
-        }
+        },
     }
 }
