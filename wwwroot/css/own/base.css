@@ -3069,10 +3069,11 @@ tr.cal-row-info > td {
 .aptos-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: center !important;
   gap: 0.5rem;
   /* padding: 8px 0; */
   box-sizing: border-box;
+  
 }
 
 /* .titulo-piso {
@@ -3292,7 +3293,7 @@ tr.cal-row-info > td {
 
 .titulo-torre {
   display: block;   
-  margin: 1em auto 0;
+  width: 99.5%;
   background: #f3f4f6;
   color: #333;
   border: 1px solid #d1d5db;
@@ -3303,12 +3304,12 @@ tr.cal-row-info > td {
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
   text-align: center;
   margin-bottom: 1rem;
-  width: 100%;
 }
 .grupo-piso {
   display: flex;
-  align-items: stretch;
+  /* align-items: stretch; */
   margin-bottom: 1rem;
+  gap: .5rem;
 }
 
 .titulo-piso {
@@ -3331,3 +3332,4 @@ tr.cal-row-info > td {
   /* margin-right: 10px; */
   text-align: right;
 }
+

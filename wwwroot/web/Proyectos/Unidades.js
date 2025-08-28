@@ -538,35 +538,38 @@
 				minimumFractionDigits: 0
 			}).format(numero);
 		},
-		aptosGridStylePorTorre(id_torre, aptos = []) {
-			const torre = this.NwTorre.find(t => t.idtorre == id_torre);
-			const columnas = parseInt(torre?.aptos_fila);
+		chunkArray(arr = [], size = 3) {
+			const res = [];
+			for (let i = 0; i < arr.length; i += size) {
+				res.push(arr.slice(i, i + size));
+			}
+			return res;
+		},
+
+		rowsForTorre(id_torre, aptos = []) {
+			const torre = this.NwTorre.find(t => t.idtorre == id_torre) || {};
+			const columnas = Math.max(1, parseInt(torre?.aptos_fila) || 3);
+			return this.chunkArray(aptos, columnas);
+		},
+
+		aptosRowStyle(id_torre, row = [], rowIndex = 0, totalRows = 0) {
+			const torre = this.NwTorre.find(t => t.idtorre == id_torre) || {};
+			const columnas = Math.max(1, parseInt(torre?.aptos_fila) || 3);
 			const ancho = 1170;
-			if (aptos.length < columnas) {
-				return {
-					display: 'flex',
-					justifyContent: 'center',
-					flexWrap: 'wrap',
-					width: `${ancho}px`,
-					gap: '0.5rem'
-				};
-			}
-			if (aptos.length % columnas === 0) {
-				return {
-					display: 'grid',
-					width: `${ancho}px`,
-					gridTemplateColumns: `repeat(${columnas}, 137px)`,
-					justifyContent: 'center',
-					gap: '0.5rem'
-				};
-			}
-			return {
+
+			const base = {
 				display: 'flex',
-				justifyContent: 'center',
-				flexWrap: 'wrap',
+				gap: '0.5rem',
 				width: `${ancho}px`,
-				gap: '0.5rem'
+				alignItems: 'center',
+				justifyContent: 'center',
 			};
+
+	
+			if (rowIndex < totalRows - 1) {
+				base.marginBottom = '16px';
+			}
+			return base;
 		}
 	},
 	computed: {
