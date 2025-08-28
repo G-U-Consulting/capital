@@ -8,6 +8,8 @@ export default {
             showList: true,
             /// Mis Tareas
             proyectos: [],
+            torres: [],
+            unidades: [],
             tareas: [],
             prioridades: [],
             estados: [],
@@ -178,7 +180,8 @@ export default {
         async loadCalendarData() {
             showProgress();
             let data = (await httpFunc("/generic/genericDS/Agenda:Get_Agenda", { username: GlobalVariables.username })).data;
-            [this.salas, this.proyectos, this.hitos, this.cargos, this.asignaciones, this.tareas] = data;
+            [this.salas, this.proyectos, this.torres, this.unidades, this.hitos, 
+                this.cargos, this.asignaciones, this.tareas] = data;
             hideProgress();
             this.setToday();
             await this.loadViewMode();
@@ -416,6 +419,19 @@ export default {
             const today = new Date();
             return this.equalsDate(this.selDate, today);
         },
+        cleanType() {
+            if (this.eventType === 'Torre') 
+                delete this.hito.id_unidad;
+            if (this.eventType === 'Proyecto') {
+                delete this.hito.id_unidad;
+                delete this.hito.id_torre;
+            }
+            if (this.eventType === 'Sala') {
+                delete this.hito.id_unidad;
+                delete this.hito.id_torre;
+                delete this.hito.id_proyecto;
+            }
+        },
         async openModal(mode, e) {
             let fre = this.frecuencias[0];
             if (mode == 1) {
@@ -426,8 +442,10 @@ export default {
                 this.cargos.forEach(c => c.checked = false);
             }
             if (mode == 2 && e) {
-                this.id_obj = e.id_proyecto || null;
-                this.eventType = e.id_proyecto ? 'Proyecto' : 'Sala';
+                if (e.id_unidad) this.eventType = 'Inmueble';
+                else if (e.id_torre) this.eventType = 'Torre';
+                else if (e.id_proyecto) this.eventType = 'Proyecto';
+                else this.eventType = 'Sala';
                 this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
                 this.onChangeFreq(this.frecuencias.find(f => f.value == this.hito.frecuencia) || fre);
                 showProgress();
@@ -529,14 +547,6 @@ export default {
         },
         selEvent(e) {
             this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
-            if (this.hito.id_proyecto) {
-                this.eventType = 'Proyecto';
-                this.id_obj = this.hito.id_proyecto;
-            }
-            else {
-                this.eventType = 'Sala';
-                this.id_obj = null;
-            }
             this.openModal(2, e);
         },
         onChangeFreq(fre) {

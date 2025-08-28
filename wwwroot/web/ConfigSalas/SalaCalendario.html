@@ -142,7 +142,7 @@
                 <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                     <span>Tipo de Hito</span>
                     <div style="display: flex; justify-content: space-around;">
-                        <select v-model="eventType" @change="eventType == 'Sala' && (id_obj = null);">
+                        <select v-model="eventType" @change="cleanType">
                             <option value="Sala">Sala</option>
                             <option value="Proyecto">Proyecto</option>
                             <option value="Torre">Torre</option>
@@ -150,16 +150,22 @@
                         </select>
                     </div>
                 </div>
-                <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
-                    <span>{{eventType}}</span>
+                <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard' v-if="eventType == 'Sala'">
+                    <span>Sala</span>
                     <div style="display: flex; justify-content: space-around;">
-                        <select :disabled="eventType !== 'Proyecto'" v-model="id_obj">
-                            <option v-if="eventType == 'Sala'" :value="null">{{sala.sala_venta}}</option>
-                            <option v-if="eventType == 'Proyecto'" v-for="pro in proyectos" :value="pro.id_proyecto">
-                                {{pro.nombre}}
-                            </option>
+                        <select disabled v-model="hito.id_sala_venta">
+                            <option :value="sala.id_sala_venta">{{sala.sala_venta}}</option>
                         </select>
                     </div>
+                </div>
+                <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'
+                    v-if="eventType === 'Proyecto' || eventType === 'Torre' || eventType === 'Inmueble'">
+                    <span>Proyecto</span>
+                    <select v-model="hito.id_proyecto" @change="delete hito.id_torre; delete hito.id_unidad;">
+                        <option v-for="pro in proyectos" :value="pro.id_proyecto">
+                            {{pro.nombre}}
+                        </option>
+                    </select>
                 </div>
                 <div class='pure-u-5-24 pure-u-md-5-24 formInputStandard' style="text-align: center;">
                     <span>Color</span>
@@ -168,6 +174,27 @@
                 <div class='pure-u-5-24 pure-u-md-5-24 formInputStandard'>
                     <span>Hora</span>
                     <input type='time' v-model="hito.hora" />
+                </div>
+                
+                <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'
+                    v-if="eventType === 'Torre' || eventType === 'Inmueble'">
+                    <span>Torre</span>
+                    <select v-model="hito.id_torre" :disabled="!hito.id_proyecto"
+                        @change="delete hito.id_unidad;">
+                        <option v-for="t in torres.filter(t => t.id_proyecto === hito.id_proyecto)" 
+                            :value="t.id_torre">
+                            {{t.torre}}
+                        </option>
+                    </select>
+                </div>
+                <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard' v-if="eventType === 'Inmueble'">
+                    <span>Inmueble</span>
+                    <select v-model="hito.id_unidad" :disabled="!hito.id_torre">
+                        <option v-for="un in unidades.filter(un => un.id_torre === hito.id_torre)" 
+                            :value="un.id_unidad">
+                            {{un.unidad}}
+                        </option>
+                    </select>
                 </div>
 
                 <span style="display: block; padding: .5rem; padding-bottom: 0;">

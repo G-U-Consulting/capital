@@ -2,7 +2,7 @@
 -- Proceso: Salas/Get_Programacion
 -- =============================================
 --START_PARAM
-set @id_sala = NULL;
+set @id_sala_venta = NULL;
 --END_PARAM
 
 select p.id_programacion, p.id_usuario, p.id_sala_venta, date_format(p.fecha, '%Y-%m-%d') as fecha,
@@ -11,7 +11,7 @@ from dim_programacion_sala p join fact_usuarios u
 on p.id_usuario = u.id_usuario join dim_estado_programacion e
 on p.id_estado = e.id_estado join dim_cargo c
 on u.id_cargo = c.id_cargo
-where p.id_sala_venta = @id_sala
+where p.id_sala_venta = @id_sala_venta
 order by fecha, c.cargo, u.nombres;
 
 select h.id_hito, h.titulo, h.descripcion, date_format(h.fecha, '%Y-%m-%d %T') as fecha, 
@@ -21,7 +21,7 @@ select h.id_hito, h.titulo, h.descripcion, date_format(h.fecha, '%Y-%m-%d %T') a
 from dim_hito_sala h
 left join dim_hito_cargo hc on hc.id_hito = h.id_hito
 left join dim_cargo c on c.id_cargo = hc.id_cargo
-where h.id_sala_venta = @id_sala
+where h.id_sala_venta = @id_sala_venta
 group by h.id_hito
 order by fecha;
 
@@ -29,7 +29,7 @@ select u.id_usuario, u.usuario, u.nombres, u.identificacion, c.cargo, u.is_activ
 from fact_usuarios u 
 left join dim_cargo c on u.id_cargo = c.id_cargo
 join dim_personal_sala ps on u.id_usuario = ps.id_usuario
-where ps.id_sala_venta = @id_sala;
+where ps.id_sala_venta = @id_sala_venta;
 
 select id_estado, estado, color
 from dim_estado_programacion

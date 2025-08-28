@@ -531,7 +531,9 @@ create table dim_hito_sala(
 	frecuencia char(1),
 	limite date,
 	id_sala_venta int not null references dim_sala_venta(id_sala_venta),
-	id_proyecto int references fact_proyectos(id_proyecto)
+	id_proyecto int references fact_proyectos(id_proyecto),
+	id_torre int references fact_torres(id_torre),
+	id_unidad int references fact_unidades(id_unidad)
 );
 create table dim_prioridad_tarea(
 	id_prioridad int primary key auto_increment,

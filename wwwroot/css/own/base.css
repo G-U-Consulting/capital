@@ -2265,7 +2265,7 @@ tr.cal-row-info > td {
 .cal-modal-overlay > .modal-container {
   text-align: left;
   background-color: white;
-  padding: 20px;
+  padding: 1rem;
   border-radius: 8px;
   max-width: 750px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -2273,7 +2273,7 @@ tr.cal-row-info > td {
 .cal-modal-overlay > .modal-container > .modal-scroll {
   position: relative;
   min-height: 450px;
-  max-height: 90vh;
+  max-height: 92vh;
   overflow-y: auto;
 }
 .modal-check-cont {

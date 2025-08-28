@@ -53,7 +53,7 @@ export default {
         },
         async loadData(fill) {
             [this.programaciones, this.hitos, this.usuarios, this.estados, this.cargos] =
-                (await httpFunc("/generic/genericDS/Salas:Get_Programacion", { id_sala: this.sala.id_sala_venta })).data;
+                (await httpFunc("/generic/genericDS/Salas:Get_Programacion", { id_sala_venta: this.sala.id_sala_venta })).data;
             fill && this.fillDays();
         },
         fillDays() {

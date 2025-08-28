@@ -13,16 +13,39 @@ join fact_usuarios u on ps.id_usuario = u.id_usuario
 where u.usuario = @username and sv.is_active = 1;
 
 select p.id_proyecto, p.nombre, group_concat(sp.id_sala_venta separator ',') as salas
-from fact_proyectos p join dim_sala_proyecto sp
-on p.id_proyecto = sp.id_proyecto join dim_personal_sala ps
-on sp.id_sala_venta = ps.id_sala_venta join fact_usuarios u
-on ps.id_usuario = u.id_usuario
+from fact_proyectos p 
+join dim_sala_proyecto sp on p.id_proyecto = sp.id_proyecto 
+join dim_personal_sala ps on sp.id_sala_venta = ps.id_sala_venta 
+join fact_usuarios u on ps.id_usuario = u.id_usuario
 where u.usuario = @username and p.is_active = 1
 group by id_proyecto 
 order by p.nombre;
 
+select t.id_torre, concat('Torre ', t.consecutivo) as torre, t.id_proyecto
+from fact_torres t 
+join fact_proyectos p on t.id_proyecto = p.id_proyecto
+join dim_sala_proyecto sp on p.id_proyecto = sp.id_proyecto 
+join dim_personal_sala ps on sp.id_sala_venta = ps.id_sala_venta 
+join fact_usuarios u on ps.id_usuario = u.id_usuario
+where u.usuario = @username and p.is_active = 1
+group by t.id_torre 
+order by t.id_proyecto, t.consecutivo;
+
+select un.id_unidad, concat(un.clase, ' ', un.numero_apartamento) as unidad, 
+    un.id_torre, un.id_proyecto
+from fact_unidades un
+join fact_torres t on un.id_torre = t.id_torre
+join fact_proyectos p on t.id_proyecto = p.id_proyecto
+join dim_sala_proyecto sp on p.id_proyecto = sp.id_proyecto 
+join dim_personal_sala ps on sp.id_sala_venta = ps.id_sala_venta 
+join fact_usuarios u on ps.id_usuario = u.id_usuario
+where u.usuario = @username and p.is_active = 1
+group by un.id_unidad 
+order by p.id_proyecto, t.consecutivo, un.clase, un.numero_apartamento limit 5000;
+
 select h.id_hito, h.titulo, h.descripcion, date_format(h.fecha, '%Y-%m-%d %T') as fecha, h.color, h.festivo, h.id_sala_venta, 
-    h.id_proyecto, h.frecuencia, date_format(h.limite, '%Y-%m-%d') as limite, sv.sala_venta, pro.nombre as nombre_pro,
+    h.id_proyecto, h.id_torre, h.id_unidad, h.frecuencia, t.consecutivo as torre, un.numero_apartamento as unidad,
+    date_format(h.limite, '%Y-%m-%d') as limite, sv.sala_venta, pro.nombre as nombre_pro,
     group_concat(c.cargo order by c.cargo separator ',') as categorias
 from dim_hito_sala h
 join dim_sala_venta sv on h.id_sala_venta = sv.id_sala_venta
@@ -31,6 +54,8 @@ join fact_usuarios u on ps.id_usuario = u.id_usuario
 left join dim_hito_cargo hc on hc.id_hito = h.id_hito
 left join dim_cargo c on c.id_cargo = hc.id_cargo
 left join fact_proyectos pro on h.id_proyecto = pro.id_proyecto
+left join fact_torres t on h.id_torre = t.id_torre
+left join fact_unidades un on h.id_unidad = un.id_unidad
 where u.usuario = @username and sv.is_active = 1 and (h.id_proyecto is null or pro.is_active = 1) and u.id_cargo = c.id_cargo
 group by h.id_hito
 order by fecha;

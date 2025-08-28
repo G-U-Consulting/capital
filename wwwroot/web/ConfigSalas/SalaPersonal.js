@@ -25,7 +25,7 @@ export default {
             this.mainmode = mode;
         },
         async loadData() {
-            this.usuarios = (await httpFunc("/generic/genericDT/Salas:Get_Personal", { id_sala: this.sala.id_sala_venta })).data;
+            this.usuarios = (await httpFunc("/generic/genericDT/Salas:Get_Personal", { id_sala_venta: this.sala.id_sala_venta })).data;
         },
         async searchUser() {
             if (this.searchID) {
@@ -46,7 +46,7 @@ export default {
                 else {
                     showProgress();
                     let res = (await httpFunc("/generic/genericST/Salas:Ins_Personal",
-                        { id_sala: this.sala.id_sala_venta, id_usuario }));
+                        { id_sala_venta: this.sala.id_sala_venta, id_usuario }));
                     if (res.data === 'OK') {
                         this.usuarios.push({...this.usuario, permanente: '0'});
                         this.searchID = null;
@@ -63,7 +63,7 @@ export default {
         async onDelUser(user) {
             showProgress();
             let res = (await httpFunc("/generic/genericST/Salas:Del_Personal",
-                { id_sala: this.sala.id_sala_venta, id_usuario: user.id_usuario }));
+                { id_sala_venta: this.sala.id_sala_venta, id_usuario: user.id_usuario }));
             if (res.data === 'OK') 
                 this.usuarios = this.usuarios.filter(u => u.id_usuario != user.id_usuario);
             else {
@@ -79,7 +79,7 @@ export default {
         async toggleFix(user) {
             user.permanente = user.permanente == '0' ? '1' : '0';
             let res = (await httpFunc("/generic/genericST/Salas:Upd_Personal",
-                { id_sala: this.sala.id_sala_venta, id_usuario: user.id_usuario, permanente: user.permanente }));
+                { id_sala_venta: this.sala.id_sala_venta, id_usuario: user.id_usuario, permanente: user.permanente }));
             if (res.isError) {
                 console.error(res);
                 showMessage('Error: ' + res.errorMessage)

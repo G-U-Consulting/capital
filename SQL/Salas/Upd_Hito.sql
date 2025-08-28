@@ -8,8 +8,10 @@ set @id_hito = NULL,
     @fecha = NULL, 
     @color = NULL, 
     @festivo = '0',
-    @id_sala = NULL,
+    @id_sala_venta = NULL,
     @id_proyecto = NULL,
+    @id_torre = NULL,
+    @id_unidad = NULL,
     @cargos = '';
 --END_PARAM
 
@@ -21,8 +23,10 @@ set titulo = @titulo,
     festivo = if(@festivo = '1', 1, 0),
     frecuencia = @frecuencia,
     limite = if(@frecuencia is null, null, @limite),
-    id_sala_venta = @id_sala,
-    id_proyecto = @id_proyecto
+    id_sala_venta = @id_sala_venta,
+    id_proyecto = @id_proyecto,
+    id_torre = @id_torre,
+    id_unidad = @id_unidad
 where id_hito = @id_hito;
 
 set @datos = @cargos;

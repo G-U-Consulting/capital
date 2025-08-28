@@ -9,13 +9,15 @@ set @titulo = NULL,
     @festivo = '0',
     @frecuencia = NULL,
     @limite = NULL,
-    @id_sala = NULL,
-    @id_proyecto = NULL;
+    @id_sala_venta = NULL,
+    @id_proyecto = NULL,
+    @id_torre = NULL,
+    @id_unidad = NULL;
 --END_PARAM
 
-insert into dim_hito_sala(titulo, descripcion, fecha, color, festivo, frecuencia, limite, id_sala_venta, id_proyecto) 
+insert into dim_hito_sala(titulo, descripcion, fecha, color, festivo, frecuencia, limite, id_sala_venta, id_proyecto, id_torre, id_unidad) 
 values(@titulo, @descripcion, @fecha, @color, if(@festivo = '1', 1, 0), @frecuencia, 
-    if(@frecuencia is null, null, @limite), @id_sala, @id_proyecto);
+    if(@frecuencia is null, null, @limite), @id_sala_venta, @id_proyecto, @id_torre, @id_unidad);
 
 set @id_hito = last_insert_id();
 set @datos = @cargos;

@@ -27,6 +27,8 @@ export default {
             currentDay: {},
             hitos: [],
             proyectos: [],
+            torres: [],
+            unidades: [],
             cargos: [],
             h_cargos: [],
             tableDays: [],
@@ -46,6 +48,7 @@ export default {
     async mounted() {
         this.sala = await GlobalVariables.miniModuleCallback('GetSala');
         this.setMainMode('SalaCalendario');
+        await this.loadInitData();
         await this.loadData();
         this.setToday();
         await this.loadViewMode();
@@ -56,10 +59,17 @@ export default {
         setMainMode(mode) {
             this.mainmode = mode;
         },
+        async loadInitData() {
+            showProgress();
+            [this.proyectos, this.torres, this.unidades, this.cargos] = 
+                (await httpFunc("/generic/genericDS/Salas:Get_InitHito", 
+                    { id_sala_venta: this.sala.id_sala_venta })).data;
+            hideProgress();
+        },
         async loadData() {
             showProgress();
-            [this.proyectos, this.hitos, this.cargos] = (await httpFunc("/generic/genericDS/Salas:Get_Hito",
-                { id_sala: this.sala.id_sala_venta })).data;
+            this.hitos = (await httpFunc("/generic/genericDT/Salas:Get_Hito",
+                { id_sala_venta: this.sala.id_sala_venta })).data;
             hideProgress();
         },
         async loadViewMode() {
@@ -230,18 +240,32 @@ export default {
             const today = new Date();
             return this.equalsDate(this.selDate, today);
         },
+        cleanType() {
+            if (this.eventType === 'Torre') 
+                delete this.hito.id_unidad;
+            if (this.eventType === 'Proyecto') {
+                delete this.hito.id_unidad;
+                delete this.hito.id_torre;
+            }
+            if (this.eventType === 'Sala') {
+                delete this.hito.id_unidad;
+                delete this.hito.id_torre;
+                delete this.hito.id_proyecto;
+            }
+        },
         async openModal(mode, e) {
             let fre = this.frecuencias[0];
             if (mode == 1) {
-                this.hito = { hora: '00:00', color: '#006ec9' };
-                this.id_obj = null;
+                this.hito = { hora: '00:00', color: '#006ec9', id_sala_venta: this.sala.id_sala_venta };
                 this.eventType = 'Sala';
                 this.onChangeFreq(fre);
                 this.cargos.forEach(c => c.checked = false);
             }
             if (mode == 2 && e) {
-                this.id_obj = e.id_proyecto || null;
-                this.eventType = e.id_proyecto ? 'Proyecto' : 'Sala';
+                if (e.id_unidad) this.eventType = 'Inmueble';
+                else if (e.id_torre) this.eventType = 'Torre';
+                else if (e.id_proyecto) this.eventType = 'Proyecto';
+                else this.eventType = 'Sala';
                 this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
                 this.onChangeFreq(this.frecuencias.find(f => f.value == this.hito.frecuencia) || fre);
                 showProgress();
@@ -257,21 +281,30 @@ export default {
         },
         async onSave() {
             showProgress();
-            if (this.hito.fecha) this.hito.fecha = `${this.hito.fecha.split(' ')[0]} ${this.hito.hora}`;
-            else this.hito.fecha = `${this.formatDatetime(null, 'bdate', this.selDate)} ${this.hito.hora}`;
-            if (!this.hito.limite) delete this.hito.limite;
-            if (this.eventType === 'Proyecto') this.hito.id_proyecto = this.id_obj;
-            else delete this.hito.id_proyecto;
-            let cargos = this.cargos.filter(c => c.checked).map(c => c.id_cargo).join(',');
-            let res = await httpFunc(`/generic/genericST/Salas:${this.mode == 1 ? 'Ins' : 'Upd'}_Hito`,
-                { ...this.hito, id_sala: this.sala.id_sala_venta, cargos });
-            if (res.data !== 'OK') {
-                console.error(res);
-                showMessage('Error: ' + (res.errorMessage || res.data));
+            try {
+                if (this.hito.fecha) this.hito.fecha = `${this.hito.fecha.split(' ')[0]} ${this.hito.hora}`;
+                else this.hito.fecha = `${this.formatDatetime(null, 'bdate', this.selDate)} ${this.hito.hora}`;
+                let cargos = this.cargos.filter(c => c.checked).map(c => c.id_cargo).join(',');
+                if (!cargos) throw 'Error: Debe seleccionar al menos una categoría';
+                if (this.eventType === 'Proyecto' && !this.hito.id_proyecto) 
+                    throw 'Error: Debe seleccionar una proyecto';
+                if (this.eventType === 'Torre' && !this.hito.id_torre) 
+                    throw 'Error: Debe seleccionar un torre';
+                if (this.eventType === 'Inmueble' && !this.hito.id_unidad) 
+                    throw 'Error: Debe seleccionar un inmueble';
+                Object.keys(this.hito).forEach(key => !this.hito[key] && delete this.hito[key]);
+                let res = await httpFunc(`/generic/genericST/Salas:${this.mode == 1 ? 'Ins' : 'Upd'}_Hito`,
+                    { ...this.hito, cargos });
+                if (res.data !== 'OK') {
+                    console.error(res);
+                    throw 'Error: ' + (res.errorMessage || res.data);
+                }
+                await this.loadData();
+                this.setViewMonths();
+                this.modal.style.display = 'none';
+            } catch(e) {
+                showMessage(e);
             }
-            await this.loadData();
-            this.setViewMonths();
-            this.modal.style.display = 'none';
             hideProgress();
         },
         onCancel() {
@@ -298,7 +331,7 @@ export default {
                     fecha: `${this.selDate.getFullYear()}-${this.selDate.getMonth() + 1}-${this.selDate.getDate()} 00:00`,
                     color: '#c80000', titulo: `Festivo ${this.selDate.toLocaleDateString()}`, festivo: '1'
                 };
-                let res = await httpFunc("/generic/genericST/Salas:Ins_Hito", { ...this.hito, id_sala: this.sala.id_sala_venta, festivo: '1' });
+                let res = await httpFunc("/generic/genericST/Salas:Ins_Hito", { ...this.hito, id_sala_venta: this.sala.id_sala_venta, festivo: '1' });
                 if (res.data !== 'OK') {
                     console.error(res);
                     showMessage('Error: ' + (res.errorMessage || res.data));
@@ -371,14 +404,6 @@ export default {
         },
         selEvent(e) {
             this.hito = { ...e, hora: this.formatDatetime(e.fecha, 'vtime') };
-            if (this.hito.id_proyecto) {
-                this.eventType = 'Proyecto';
-                this.id_obj = this.hito.id_proyecto;
-            }
-            else {
-                this.eventType = 'Sala';
-                this.id_obj = null;
-            }
             this.openModal(2, e);
         },
         onChangeFreq(fre) {

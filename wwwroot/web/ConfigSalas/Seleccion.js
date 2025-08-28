@@ -105,7 +105,6 @@ export default {
                 pro_futuros: this.sala_venta.pro_futuros == '1' ? '0' : '1'
             }
             this.proyectos_sala = [];
-            console.log(this.sala_venta);
         },
         getItem() {
             if (this.mainmode == 0) return [this.sala_venta, "SalaVenta", this.salas_ventas];
@@ -215,7 +214,7 @@ export default {
         },
         async loadProjects(sv) {
             showProgress();
-            let res = await httpFunc(`/generic/genericDS/Maestros:Get_ProyectoSala`, { id_sala: sv.id_sala_venta });
+            let res = await httpFunc(`/generic/genericDS/Maestros:Get_ProyectoSala`, { id_sala_venta: sv.id_sala_venta });
             if (res.isError) {
                 this.pro_sala = [];
                 console.error(res);
@@ -227,11 +226,10 @@ export default {
             showProgress();
             let projects = [...this.proyectos_sala], errorMessage = null;
             if (projects.length) {
-                console.log(projects);
                 await Promise.all(projects.map(async pro => {
                     if (pro.id_proyecto) {
                         let res = await httpFunc(`/generic/genericST/Maestros:Ins_ProyectoSala`,
-                            { id_sala: this.sala_venta.id_sala_venta, id_proyecto: pro.id_proyecto });
+                            { id_sala_venta: this.sala_venta.id_sala_venta, id_proyecto: pro.id_proyecto });
                         if (res.isError) {
                             console.error(res);
                             errorMessage |= 'Error: ' + res.errorMessage;
