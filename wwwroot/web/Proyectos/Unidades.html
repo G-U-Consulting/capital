@@ -80,7 +80,6 @@
                                             <option value="">[Tipos]</option>
                                             <option v-for="t in tipos" :value="t">{{ t }}</option>
                                         </select>
-
                                         
                                         <select v-model="filtros.aptos['piso']">
                                             <option value="">[Pisos]</option>
@@ -129,7 +128,6 @@
                             <div class="aptos-list-agrupada">
                                 <div v-for="(pisos, idtorre) in aptosAgrupadosPorTorreYPiso" :key="idtorre">
                                     <div class="titulo-torre">Torre {{ idtorre }}</div>
-                        
                                     <div v-for="[piso, aptos] in Object.entries(pisos).sort((a,b)=>parseInt(b[0]) - parseInt(a[0]))"
                                         :key="piso">
                                         <div class="grupo-piso">
@@ -137,20 +135,17 @@
                                                 <div>PISO</div>
                                                 <div>{{ piso }}</div>
                                             </div>
-                        
-                                            
                                             <div class="aptos-grid-rows">
                                                 <div v-for="(row, rIndex) in rowsForTorre(idtorre, aptos)" :key="rIndex"
                                                     :style="aptosRowStyle(idtorre, row)">
                                                     <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini"
                                                         @click="selectedApto = apto" :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento },
-                                            'estado-' + (apto.estatus || '').trim().toLowerCase()]">
+                                                        'estado-' + (apto.estatus || '').trim().toLowerCase()]">
                                                         <div class="mini-header">{{ apto.apartamento }}</div>
                                                         <div class="mini-body">{{ apto.localizacion }}</div>
                                                     </div>
                                                 </div>
                                             </div>
-                        
                                         </div>
                                     </div>
                                 </div>
@@ -164,8 +159,18 @@
                                     <li><span class="label">📍 Localización:</span> {{ selectedApto.localizacion }}</li>
                                     <li><span class="label">📝 Observación:</span> {{ selectedApto.observacion_apto }}</li>
                                     <li><span class="label">🔧 UT:</span> {{ selectedApto.inv_terminado == 1 ? 'SI' : 'NO' }}</li>
-                                    <li><span class="label">🧑‍💼 Aseror:</span>{{ asesor }}</li>
+                                    <li><span class="label">📏 Área Priv. Cub:</span> {{ selectedApto.area_privada_cub }} </li>
+                                    <li><span class="label">🏗️ Área Total Construida:</span>{{ selectedApto.area_total }} </li>
+                                    <li><span class="label">☀️ Asoleación:</span> {{ selectedApto.asoleacion == 'PM' ? 'Sol de mañana' : 'Sol de tarde' }}</li>
                                 </ul>
+                                <div class="image-gallery-container">
+                                    <div class="image-gallery">
+                                        <img src="logoProyecto" />
+                                    </div>
+                                    <div class="image-gallery">
+                                        <img src="logoProyecto" />
+                                    </div>
+                                </div>
                                 <div class="action-footer">
                                     <button v-if="selectedApto.estatus === 'Libre'" @click="addUnidad(selectedApto)"
                                         class="pure-button pure-button-primary">

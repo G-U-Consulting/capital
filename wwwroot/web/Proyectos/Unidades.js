@@ -58,7 +58,6 @@
 			editRow: false,
 			selectedApto: null,
 			columnasAptos: 8,
-			anchoAptosList: 1270,
 			torresFull: [],
 		};
 	},
@@ -90,6 +89,7 @@
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
 			this.NwTorre = torres;
+			console.log(aptos);
 			let pisos = new Set(), tipos = new Set();
 			if (torres.length && aptos.length) {
 				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];
@@ -563,14 +563,10 @@
 				width: `${ancho}px`,
 				alignItems: 'center',
 				justifyContent: 'center',
+				marginBottom: '10px'
 			};
-
-	
-			if (rowIndex < totalRows - 1) {
-				base.marginBottom = '16px';
-			}
 			return base;
-		}
+		},
 	},
 	computed: {
 		f_area_privada_cub: {
@@ -660,17 +656,15 @@
 			});
 			return agrupado;
 		},
-		
-
 	},
 	watch: {
-	torres: {
-		handler(nuevasTorres) {
-			if (nuevasTorres && nuevasTorres.length) {
-				this.filtros.aptos.torres = nuevasTorres.map(t => t.idtorre);
-			}
-		},
-		immediate: true
+		torres: {
+			handler(nuevasTorres) {
+				if (nuevasTorres && nuevasTorres.length) {
+					this.filtros.aptos.torres = nuevasTorres.map(t => t.idtorre);
+				}
+			},
+			immediate: true
+		}
 	}
-}
 };
