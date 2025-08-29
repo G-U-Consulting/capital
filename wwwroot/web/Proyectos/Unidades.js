@@ -60,6 +60,8 @@
 			columnasAptos: 8,
 			torresFull: [],
 			activeTab: 'detalle',
+			showModal: false,
+			modalImage: null
 		};
 	},
 	three: null,
@@ -559,18 +561,67 @@
 		aptosRowStyle(id_torre, row = [], rowIndex = 0, totalRows = 0) {
 			const torre = this.NwTorre.find(t => t.idtorre == id_torre) || {};
 			const columnas = Math.max(1, parseInt(torre?.aptos_fila) || 3);
-			const ancho = 1170;
+			const ancho = 100;
 
 			const base = {
 				display: 'flex',
 				gap: '0.5rem',
-				width: `${ancho}px`,
+				width: `${ancho}%`,
 				alignItems: 'center',
 				justifyContent: 'center',
 				marginBottom: '10px'
 			};
 			return base;
 		},
+		async selectApto(apto) {
+			try {
+				const { id_proyecto } = GlobalVariables;
+				const { id_unidad } = apto;
+			
+				const consultas = [
+					{
+						prop: "tipoProyecto",
+						url: "/generic/genericDT/ProcesoNegocio:Get_Tipos",
+						params: { tipo: "imagenes", id_proyecto, id_unidad },
+						formatter: (data) => `/file/S3get/${data[0].llave}`
+					},
+					{
+						prop: "plantProyecto",
+						url: "/generic/genericDT/Maestros:Get_Archivos",
+						params: { tipo: "planta", id_proyecto },
+						formatter: (data) => `/file/S3get/${data[0].llave}`
+					},
+					{
+						prop: "recorrido",
+						url: "/generic/genericDT/ProcesoNegocio:Get_Tipos",
+						params: { tipo: "recorridos virt", id_proyecto, id_unidad },
+						formatter: (data) => data[0].link
+					}
+				];
+
+				const results = await Promise.all(
+					consultas.map((q) => httpFunc(q.url, q.params))
+				);
+
+				results.forEach((res, i) => {
+					if (res.data?.length) {
+						this[consultas[i].prop] = consultas[i].formatter(res.data);
+					}
+				});
+
+				this.selectedApto = apto;
+			} catch (error) {
+				showMessage("No se pudieron cargar los datos del apartamento.");
+			}
+		},
+		openModal(img) {
+    this.modalImage = img
+    this.showModal = true
+  },
+  closeModal() {
+    this.showModal = false
+    this.modalImage = null
+  }
 	},
 	computed: {
 		f_area_privada_cub: {

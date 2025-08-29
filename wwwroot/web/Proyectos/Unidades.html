@@ -143,7 +143,7 @@
                                             </div>
                                             <div class="aptos-grid-rows">
                                                 <div v-for="(row, rIndex) in rowsForTorre(idtorre, aptos)" :key="rIndex" :style="aptosRowStyle(idtorre, row)">
-                                                    <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini" @click="selectedApto = apto" :class="[
+                                                    <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini" @click="selectApto(apto)" :class="[
                                                        { active: selectedApto && selectedApto.apartamento === apto.apartamento },
                                                        'estado-' + (apto.estatus || '').trim().toLowerCase()
                                                      ]">
@@ -161,12 +161,12 @@
                             </div>
                             <div class="aptos-detail" v-if="selectedApto">
                                 <div class="tabs-floating">
-                                    <button :class="{ active: activeTab === 'detalle' }" @click="activeTab = 'detalle'">
+                                    <div :class="{ active: activeTab === 'detalle' }" @click="activeTab = 'detalle'">
                                         📝 Detalle
-                                    </button>
-                                    <button :class="{ active: activeTab === 'imagenes' }" @click="activeTab = 'imagenes'">
+                                    </div>
+                                    <div :class="{ active: activeTab === 'imagenes' }" @click="activeTab = 'imagenes'">
                                         🖼️ Imágenes
-                                    </button>
+                                    </div>
                                 </div>
                                 <div class="tab-card">
                                     <div v-if="activeTab === 'detalle'">
@@ -195,9 +195,29 @@
                                     </div>
                                     <div v-if="activeTab === 'imagenes'">
                                         <div class="image-gallery-container">
-                                            <div class="image-gallery"><img src="logoProyecto" /></div>
-                                            <div class="image-gallery"><img src="logoProyecto" /></div>
-                                            <div class="image-gallery"><img src="logoProyecto" /></div>
+                                            <!-- Imagen 1 -->
+                                            <div class="image-gallery">
+                                                <img :src="tipoProyecto" @click="openModal(tipoProyecto)" />
+                                            </div>
+                                    
+                                            <!-- Imagen 2 -->
+                                            <div class="image-gallery">
+                                                <img :src="plantProyecto" @click="openModal(plantProyecto)" />
+                                            </div>
+                                    
+                                            <!-- Iframe -->
+                                            <div class="image-gallery">
+                                                <iframe id="v-player" :src="recorrido" :key="'v' + playIndex" frameborder="0" allowfullscreen
+                                                    allow="xr-spatial-tracking" style="width: 100%;"></iframe>
+                                            </div>
+                                        </div>
+                                    
+                                        <!-- Modal -->
+                                        <div v-if="showModal" class="modal-overlay" @click="closeModal">
+                                            <div class="modal-content" @click.stop>
+                                                <span class="close" @click="closeModal">&times;</span>
+                                                <img :src="modalImage" class="modal-img" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

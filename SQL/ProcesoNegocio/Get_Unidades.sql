@@ -45,3 +45,4 @@ where is_active = 1;
 select id_instructivo, instructivo
 from dim_instructivo
 where is_active = 1;
+
