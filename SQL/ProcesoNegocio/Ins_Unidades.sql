@@ -14,6 +14,7 @@ set @id_cliente = '2',
     @valor_descuento = '0.00',
     @valor_unidad = '249820000,00',
     @lista = '1',
+    @id_unidad = '0',
     @numero_apartamento = 'Apto 410';
 --END_PARAM
 
@@ -31,7 +32,8 @@ insert into fact_negocios_unidades (
     valor_descuento,
     valor_unidad,
     lista,
-    numero_apartamento
+    numero_apartamento,
+    id_unidad
 )
 select
     @id_cliente,
@@ -47,7 +49,8 @@ select
     @valor_descuento,
     @valor_unidad,
     @lista,
-    @numero_apartamento
+    @numero_apartamento,
+    @id_unidad
 from fact_torres t
 where t.consecutivo = convert(@torre using utf8mb4) collate utf8mb4_unicode_ci
 limit 1;

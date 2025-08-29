@@ -131,6 +131,7 @@ create table fact_negocios_unidades (
     id_proyecto int not null,
     usuario varchar(200),
     unidad int,
+    id_unidad int,
     consecutivo varchar(50),
     cotizacion int,
     inv_terminado varchar(2),
@@ -146,6 +147,9 @@ create table fact_negocios_unidades (
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
+
+
+
 
 /*
 drop table fact_clientes;

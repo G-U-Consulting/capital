@@ -64,7 +64,7 @@ select
     a.id_lista,
     a.alerta_cambio_lista,
     case when j.tipo_vis = 'No VIS' then 'No VIS' else 'VIS' end as tipo_vis,
-     k.edge_estado,
+    k.edge_estado,
     o.total_torres,
     o.area_total_proyecto,
     o.min_area_privada_cub,

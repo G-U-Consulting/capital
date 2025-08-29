@@ -645,9 +645,8 @@ export default {
         async seleccionarCotizacion(cotizacionId) {
             this.cotizacionSeleccionada = cotizacionId;
 
-            let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {
+            let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                 id_cliente: this.id_cliente,
-                cotizacion: cotizacionId,
                 id_proyecto: GlobalVariables.id_proyecto,
             });
 
@@ -693,7 +692,7 @@ export default {
             };
 
             for (const cotizacion of this.cotizaciones) {
-                let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {
+                let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                     id_cliente: this.id_cliente,
                     id_cotizacion: cotizacion.cotizacion,
                     id_proyecto: GlobalVariables.id_proyecto,
@@ -714,5 +713,18 @@ export default {
                 cotizacion.importeTotal = totalFinal;
             }
         },
+        async dropitem(item){
+
+            let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
+                id_negocios_unidades: item.id_negocios_unidades
+            });
+
+            res = res.data;
+
+            if(res == 'OK'){
+                this.seleccionarCotizacion(item);
+            }
+
+        }
     }
 }

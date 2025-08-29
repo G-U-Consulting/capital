@@ -120,6 +120,12 @@
                                 <div class="logo-right-wrapper">
                                     <div class="logo-right-outside">
                                         <img :src="logoProyecto" alt="Proyecto" />
+                                        <div v-if="edge_estado == 'vigente'">
+                                            <img class="certification-badge-vig" src="./img/ico/svg/OIP.png" />
+                                        </div>
+                                        <div v-if="edge_estado == 'próxima'">
+                                            <img class="certification-badge-prox" src="./img/ico/svg/sello-proximo-edge.svg" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -136,12 +142,15 @@
                                                 <div>{{ piso }}</div>
                                             </div>
                                             <div class="aptos-grid-rows">
-                                                <div v-for="(row, rIndex) in rowsForTorre(idtorre, aptos)" :key="rIndex"
-                                                    :style="aptosRowStyle(idtorre, row)">
-                                                    <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini"
-                                                        @click="selectedApto = apto" :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento },
-                                                        'estado-' + (apto.estatus || '').trim().toLowerCase()]">
-                                                        <div class="mini-header">{{ apto.apartamento }}</div>
+                                                <div v-for="(row, rIndex) in rowsForTorre(idtorre, aptos)" :key="rIndex" :style="aptosRowStyle(idtorre, row)">
+                                                    <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini" @click="selectedApto = apto" :class="[
+                                                       { active: selectedApto && selectedApto.apartamento === apto.apartamento },
+                                                       'estado-' + (apto.estatus || '').trim().toLowerCase()
+                                                     ]">
+                                                        <div class="mini-header">
+                                                            {{ apto.apartamento }}
+                                                            <span v-if="apto.asignado == 1" class="candado">🔒</span>
+                                                        </div>
                                                         <div class="mini-body">{{ apto.localizacion }}</div>
                                                     </div>
                                                 </div>
@@ -151,24 +160,45 @@
                                 </div>
                             </div>
                             <div class="aptos-detail" v-if="selectedApto">
-                                <h3>Valor negocio: {{ formatoMoneda(selectedApto.valor_unidad) }}</h3>
-                                <ul class="detail-list">
-                                    <li><span class="label">📐 Tipo:</span> {{ selectedApto.codigo_planta }}</li>
-                                    <li><span class="label">🏠 ID Unidad:</span> {{ selectedApto.apartamento }}</li>
-                                    <li><span class="label">📊 Estatus:</span> {{ selectedApto.estatus }}</li>
-                                    <li><span class="label">📍 Localización:</span> {{ selectedApto.localizacion }}</li>
-                                    <li><span class="label">📝 Observación:</span> {{ selectedApto.observacion_apto }}</li>
-                                    <li><span class="label">🔧 UT:</span> {{ selectedApto.inv_terminado == 1 ? 'SI' : 'NO' }}</li>
-                                    <li><span class="label">📏 Área Priv. Cub:</span> {{ selectedApto.area_privada_cub }} </li>
-                                    <li><span class="label">🏗️ Área Total Construida:</span>{{ selectedApto.area_total }} </li>
-                                    <li><span class="label">☀️ Asoleación:</span> {{ selectedApto.asoleacion == 'PM' ? 'Sol de mañana' : 'Sol de tarde' }}</li>
-                                </ul>
-                                <div class="image-gallery-container">
-                                    <div class="image-gallery">
-                                        <img src="logoProyecto" />
+                                <div class="tabs-floating">
+                                    <button :class="{ active: activeTab === 'detalle' }" @click="activeTab = 'detalle'">
+                                        📝 Detalle
+                                    </button>
+                                    <button :class="{ active: activeTab === 'imagenes' }" @click="activeTab = 'imagenes'">
+                                        🖼️ Imágenes
+                                    </button>
+                                </div>
+                                <div class="tab-card">
+                                    <div v-if="activeTab === 'detalle'">
+                                        <h3>Valor Negocio: {{ formatoMoneda(selectedApto.valor_unidad) }}</h3>
+                                        <ul class="detail-list">
+                                            <li><span class="label">📐 Tipo:</span> {{ selectedApto.codigo_planta }}</li>
+                                            <li><span class="label">🏠 ID Unidad:</span> {{ selectedApto.apartamento }}</li>
+                                            <li><span class="label">📊 Estatus:</span> {{ selectedApto.estatus }}</li>
+                                            <li><span class="label">📍 Localización:</span> {{ selectedApto.localizacion }}</li>
+                                            <li><span class="label">🔧 UT:</span> {{ selectedApto.inv_terminado == 1 ? 'SI' : 'NO' }}</li>
+                                            <li><span class="label">📏 Área Priv. Cubierta:</span>
+                                                <samp class="area-card">{{ selectedApto.area_privada_cub }}</samp>
+                                            </li>
+                                            <li><span class="label">🏗️ Área Total Construida:</span>
+                                                <samp class="area-card">{{ selectedApto.area_total }}</samp>
+                                            </li>
+                                            <li><span class="label">☀️ Asoleación:</span>
+                                                {{ selectedApto.asoleacion == 'PM' ? 'Sol de mañana' : 'Sol de tarde' }}
+                                            </li>
+                                            <li><span class="label">🤝 Asesor</span> {{asesor}}</li>
+                                            <li class="observacion-item">
+                                                <span class="label">📝 Observación:</span>
+                                                <div class="observacion-text">{{ selectedApto.observacion_apto }}</div>
+                                            </li>
+                                        </ul>
                                     </div>
-                                    <div class="image-gallery">
-                                        <img src="logoProyecto" />
+                                    <div v-if="activeTab === 'imagenes'">
+                                        <div class="image-gallery-container">
+                                            <div class="image-gallery"><img src="logoProyecto" /></div>
+                                            <div class="image-gallery"><img src="logoProyecto" /></div>
+                                            <div class="image-gallery"><img src="logoProyecto" /></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="action-footer">

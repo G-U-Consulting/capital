@@ -517,6 +517,7 @@
                                 <th style="width: 15%;">Descuento</th>
                                 <th style="width: 10%;">Lista</th>
                                 <th style="width: 5%;">UT</th>
+                                <th style="width: 8%;">Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -530,6 +531,9 @@
                                 <td style="text-align: right;">{{ formatoMoneda(item.valor_descuento) }}</td>
                                 <td>{{ item.lista }}</td>
                                 <td style="text-align: center;">{{ item.inv_terminado }}</td>
+                                <td style="text-align: center; color: red; font-size: 16px;" @click="dropitem(item)">
+                                    ✖
+                                </td>
                             </tr>
                         </tbody>
                     </table>

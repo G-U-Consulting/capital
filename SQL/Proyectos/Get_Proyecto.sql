@@ -64,6 +64,7 @@ select
     a.id_lista,
     a.alerta_cambio_lista,
     id_opcion_visual,
+    c.edge_estado,
     (
         select group_concat(id_estado_publicacion)
         from fact_estado_publicacion
@@ -92,4 +93,16 @@ select
 
 from fact_proyectos a
 join dim_tipo_proyecto b on a.id_tipo_proyecto = b.id_tipo_proyecto
+left join (
+    select 
+        id_proyecto,
+        case
+            when find_in_set('6', group_concat(id_estado_publicacion)) then 'vigente'
+            when find_in_set('5', group_concat(id_estado_publicacion)) then 'próxima'
+            else 'N/A'
+        end as edge_estado
+    from fact_estado_publicacion
+    where id_estado_publicacion in (5, 6)
+    group by id_proyecto
+) c on a.id_proyecto = c.id_proyecto
 where a.id_proyecto = @id_proyecto;

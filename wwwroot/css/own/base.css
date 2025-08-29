@@ -2456,7 +2456,7 @@ tr.cal-row-info > td {
   height: calc(100vh - 13.7rem);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: .5rem;
+  padding-right: 1rem;
 }
 
 .lista-torres::-webkit-scrollbar {
@@ -2978,9 +2978,10 @@ tr.cal-row-info > td {
 .aptos-layout {
   display: flex;
   height: calc(100vh - 12.2rem);
+  width: 100%;
   gap: 1rem;
   overflow: hidden;
-  padding: 16px;
+  padding-top: 16px;
 }
 
 .aptos-list {
@@ -3043,7 +3044,8 @@ tr.cal-row-info > td {
 /*******Tabla Unidades Cotizacion ****/
 
 .aptos-list-agrupada {
-  width: 1260px;
+  width: 100%;
+  min-width: 1260px; 
   overflow-y: auto;
   padding-right: 8px;
   box-sizing: border-box;
@@ -3084,8 +3086,10 @@ tr.cal-row-info > td {
 /*******Card Unidades Cotizacion ****/
 
 .aptos-detail {
-  width: 378px;
-  height: 100%;
+  width: 100%;
+  max-width: 380px;
+  min-width: 394px;
+  flex: 1;
   background: #ffffff;
   border: 2px solid #d1d5db;
   border-radius: 12px;
@@ -3094,18 +3098,35 @@ tr.cal-row-info > td {
   font-family: 'Segoe UI', sans-serif;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
+}
+
+.aptos-detail .action-footer {
+  margin-top: auto;
+}
+.detail-list::-webkit-scrollbar {
+  width: 6px;
+}
+.detail-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.detail-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+.detail-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .aptos-detail h3 {
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 2rem;
   font-weight: 700;
   margin-bottom: 12px;
   color: #00839C;
   border-bottom: 1px solid #e5e7eb;
   padding-bottom: 8px;
-  margin-bottom: 2rem;
+  margin: 0;
 }
 
 .detail-list {
@@ -3132,8 +3153,29 @@ tr.cal-row-info > td {
 .detail-list .label {
   font-weight: 600;
   color: #111827;
-  min-width: 115px;
+  min-width: 50%;
   display: inline-block;
+}
+
+.observacion-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.observacion-item .label {
+  font-weight: 600;
+  color: #111827;
+  border-bottom: 1px dashed #e5e7eb;
+  padding-bottom: 4px;
+  width: 100%;
+}
+
+.observacion-text {
+  font-size: 0.95rem;
+  color: #374151;
+  white-space: pre-line;
 }
 
 .action-footer {
@@ -3170,8 +3212,8 @@ tr.cal-row-info > td {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  /* width: 100%; */
-  width: 1270px;
+  width: 100%;
+  max-width: 1270px; 
 }
 
 .filtros-center {
@@ -3179,7 +3221,6 @@ tr.cal-row-info > td {
   grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
   gap: 0.75rem;
   flex: 1;
-  min-width: 0;
 }
 
 .filtros-center input[type="text"],
@@ -3244,14 +3285,13 @@ tr.cal-row-info > td {
   display: flex;
   gap: 2rem;
   height: 100%;
-  padding: 0 1rem;
 }
 
 .logo-right-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 auto;
+  width: 30%;
 }
 
 .logo-right-outside {
@@ -3263,6 +3303,7 @@ tr.cal-row-info > td {
   background: white;
   border-radius: 0.5rem;
   padding: 0.5rem;
+  gap: 3.5rem;
 }
 
 .logo-right-outside img {
@@ -3346,7 +3387,7 @@ tr.cal-row-info > td {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  height: 10vh;
+  height: 18vh;
   border: 1px solid #d1d5db;
   padding: 0.5rem;
   box-sizing: border-box;
@@ -3355,4 +3396,59 @@ tr.cal-row-info > td {
 .image-gallery img {
   max-width: 100%;
   height: auto;
+}
+.aptos-grid-rows{
+  width: 100%;
+}
+
+.area-card{
+  width: 40%;
+  text-align: right;
+}
+
+.tabs-floating {
+  display: flex;
+  margin-left: 1rem;
+  /* margin-bottom: -1.5rem; */
+  position: relative;
+  z-index: 2;
+}
+
+.tabs-floating button {
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  color: #000;
+  border-bottom: none;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 8px 8px 0 0;
+  margin-right: 4px;
+  transition: all 0.3s ease;
+}
+
+.tabs-floating button.active {
+  background: #00839C;
+  border-color: #0097a7;
+  color: #f5f5f5;
+  z-index: 3;
+}
+
+.tab-card {
+  border-radius: 8px;
+  background: #fff;
+  margin-top: 1rem;
+}
+.mini-header {
+  position: relative;
+  text-align: center;
+  font-weight: bold;
+}
+
+.candado {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: 1rem;
+  color: red;
 }

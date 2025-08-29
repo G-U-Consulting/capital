@@ -59,6 +59,7 @@
 			selectedApto: null,
 			columnasAptos: 8,
 			torresFull: [],
+			activeTab: 'detalle',
 		};
 	},
 	three: null,
@@ -86,10 +87,12 @@
 			showProgress();
 			this.asesor = GlobalVariables.username;
 			let [torres, aptos, estados] = (await
-				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
+				httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
+
+			var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": GlobalVariables.id_proyecto });	
+			this.edge_estado = resp.data[0][0].edge_estado;
 			this.estados = estados;
 			this.NwTorre = torres;
-			console.log(aptos);
 			let pisos = new Set(), tipos = new Set();
 			if (torres.length && aptos.length) {
 				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];
@@ -398,6 +401,7 @@
 					valor_unidad: apto.valor_unidad,
 				    lista: apto.lista,
 				    numero_apartamento: apto.nombre_unidad,
+					id_unidad: apto.id_unidad,
 				}));
 				this.mode = 3;
 				await this.loadUnidades();
