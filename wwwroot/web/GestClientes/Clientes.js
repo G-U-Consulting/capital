@@ -16,8 +16,6 @@ export default {
         };
     },
     async mounted() {
-        this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Clientes`, action: () => this.setMode(0) }];
-        this.setRuta();
         await this.loadData();
         //this.setMode('chart');
         //this.setMode('d3');
@@ -35,8 +33,9 @@ export default {
         async setMode(mode) {
             this.mode = mode;
             await Promise.resolve();
-            if (mode == 'chart') this.initChart();
-            if (mode == 'd3') this.initD3();
+            if (mode === 0) GlobalVariables.miniModuleCallback('StartModule');
+            if (mode === 'chart') this.initChart();
+            if (mode === 'd3') this.initD3();
         },
         async loadData() {
             this.clientes = (await httpFunc("/generic/genericDT/Proyectos:Get_Clientes", {})).data;
@@ -49,6 +48,8 @@ export default {
         onSelect(cliente) {
             this.cliente = { ...cliente };
             this.setMode(1);
+            this.ruta.push({ text: `${cliente.numero_documento} - Edición` });
+            this.setRuta();
             console.log(cliente);
         },
 

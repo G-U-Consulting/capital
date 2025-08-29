@@ -88,8 +88,8 @@
                         </thead>
                         <tbody>
                             <tr v-if="editNewRow" class="editable" v-bind:class="{'destacada': selRow == null}">
-                                <td><input type="date" v-model="tarea.alta"></td>
-                                <td><input type="date" v-model="tarea.deadline"></td>
+                                <td><input type="date" v-model="tarea.alta" readonly></td>
+                                <td><input type="date" v-model="tarea.deadline" :min="tarea.alta"></td>
                                 <td>
                                     <select v-model="tarea.id_proyecto">
                                         <option value="" disabled>[Seleccione]</option>
@@ -114,11 +114,11 @@
                             <tr v-for="(t, i) in getFilteredList('tareas')" @click="onSelect(t, i)"
                                 v-bind:class="{'destacada': selRow == i, 'editable': enableEdit && selRow == i, 'deshabilitada': t.id_estado == '4'}">
                                 <td>
-                                    <input type="date" v-model="tarea.alta" v-if="enableEdit && selRow == i">
+                                    <input type="date" v-model="tarea.alta" v-if="enableEdit && selRow == i" readonly>
                                     <span v-else>{{formatDatetime(t.alta + ' 00:00', 'date')}}</span>
                                 </td>
                                 <td>
-                                    <input type="date" v-model="tarea.deadline" v-if="enableEdit && selRow == i">
+                                    <input type="date" v-model="tarea.deadline" v-if="enableEdit && selRow == i" :min="tarea.alta">
                                     <span v-else>{{formatDatetime(t.deadline + ' 00:00', 'date')}}</span>
                                 </td>
                                 <td>
@@ -358,64 +358,39 @@
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-1 formInputStandard'>
                             <span>Titulo</span>
-                            <input type='text' maxlength="100" v-model="hito.titulo" />
+                            <input type='text' maxlength="100" :value="hito.titulo" readonly />
                         </div>
                         <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                             <span>Tipo de Hito</span>
-                            <div style="display: flex; justify-content: space-around;">
-                                <select v-model="eventType" @change="cleanType">
-                                    <option value="Sala">Sala</option>
-                                    <option value="Proyecto">Proyecto</option>
-                                    <option value="Torre">Torre</option>
-                                    <option value="Inmueble">Inmueble</option>
-                                </select>
-                            </div>
+                            <input type='text' maxlength="100" :value="eventType" readonly />
                         </div>
                         <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard' v-if="eventType == 'Sala'">
                             <span>Sala</span>
-                            <div style="display: flex; justify-content: space-around;">
-                                <select disabled v-model="hito.id_sala_venta">
-                                    <option :value="hito.id_sala_venta">{{hito.sala_venta}}</option>
-                                </select>
-                            </div>
+                            <input type='text' maxlength="100" :value="hito.sala_venta" readonly />
                         </div>
                         <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'
                             v-if="eventType === 'Proyecto' || eventType === 'Torre' || eventType === 'Inmueble'">
                             <span>Proyecto</span>
-                            <select v-model="hito.id_proyecto" @change="delete hito.id_torre; delete hito.id_unidad;">
-                                <option v-for="pro in proyectos" :value="pro.id_proyecto">
-                                    {{pro.nombre}}
-                                </option>
-                            </select>
+                            <input type='text' maxlength="100" :value="hito.nombre_pro" readonly />
                         </div>
                         <div class='pure-u-5-24 pure-u-md-5-24 formInputStandard' style="text-align: center;">
                             <span>Color</span>
-                            <input type='color' v-model="hito.color" style="margin-top: 2px;" />
+                            <input type='color' :value="hito.color" style="margin-top: 2px;" disabled />
                         </div>
                         <div class='pure-u-5-24 pure-u-md-5-24 formInputStandard'>
                             <span>Hora</span>
-                            <input type='time' v-model="hito.hora" />
+                            <input type='time' :value="hito.hora" readonly />
                         </div>
 
-                        <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'
-                            v-if="eventType === 'Torre' || eventType === 'Inmueble'">
+                        <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                             <span>Torre</span>
-                            <select v-model="hito.id_torre" :disabled="!hito.id_proyecto"
-                                @change="delete hito.id_unidad;">
-                                <option v-for="t in torres.filter(t => t.id_proyecto === hito.id_proyecto)"
-                                    :value="t.id_torre">
-                                    {{t.torre}}
-                                </option>
-                            </select>
+                            <input type='text' :value="hito.torre || 'N/A'" readonly 
+                                :disabled="eventType === 'Sala' || eventType === 'Proyecto'" />
                         </div>
-                        <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard' v-if="eventType === 'Inmueble'">
+                        <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                             <span>Inmueble</span>
-                            <select v-model="hito.id_unidad" :disabled="!hito.id_torre">
-                                <option v-for="un in unidades.filter(un => un.id_torre === hito.id_torre)"
-                                    :value="un.id_unidad">
-                                    {{un.unidad}}
-                                </option>
-                            </select>
+                            <input type='text' :value="hito.unidad || 'N/A'" readonly 
+                                :disabled="eventType !== 'Inmueble'"/>
                         </div>
 
                         <span style="display: block; padding: .5rem; padding-bottom: 0;">
@@ -424,7 +399,7 @@
                         <div class="modal-check-cont">
                             <div class='pure-u-1-2 pure-u-md-1-6' v-for="cargo in cargos">
                                 <label class="check">
-                                    <input type="checkbox" value='1' v-model="cargo.checked" />
+                                    <input type="checkbox" value='1' v-model="cargo.checked" disabled />
                                     <span class="checkmark"></span>
                                     {{cargo.cargo}}
                                 </label>
@@ -434,21 +409,21 @@
                         <div class='pure-u-1-1 pure-u-md-4-5 formInputStandard' style="padding: .5rem;">
                             <span>Repetir</span>
                             <div class="radio-group cal-opc" style="width: 98%;">
-                                <label v-for="fre in frecuencias" :for="`freq-${fre.name}`" @click="onChangeFreq(fre)">
-                                    <input type="radio" name="freq" :id="`freq-${fre.name}`" :checked="fre.checked" />
+                                <label v-for="fre in frecuencias" :for="`freq-${fre.name}`">
+                                    <input type="radio" name="freq" :id="`freq-${fre.name}`" :checked="fre.checked"
+                                        disabled />
                                     <span>{{fre.name}}</span>
                                 </label>
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-5 formInputStandard' style="padding: .5rem;">
                             <span>Hasta</span>
-                            <input type="date" v-model="hito.limite" style="margin-top: 2px;"
-                                :disabled="!hito.frecuencia">
+                            <input type="date" :value="hito.limite" style="margin-top: 2px;" readonly>
                         </div>
 
                         <div class='pure-u-1-1 pure-u-md-1-1 formInputStandard'>
                             <span>Descripción</span>
-                            <textarea maxlength="255" v-model="hito.descripcion"
+                            <textarea maxlength="255" :value="hito.descripcion" readonly
                                 style="width: 100%; height: 100px; resize: none; font-size: 14px;"></textarea>
                         </div>
                         <div style="display: flex; width: 100%; gap: 4rem; justify-content: center;">
@@ -473,10 +448,8 @@
                             :style="`border: 1px solid ${e.color}90; border-left: 6px solid ${e.color}; background-color: ${e.color}10;`">
                             <div class="pure-u-5-6 pure-u-md-5-6">
                                 <h4 class="event-title">
-                                    {{ e.titulo }} - {{ e.id_proyecto ? e.nombre_pro : e.sala_venta }} - {{
-                                    formatDatetime(e.fecha, 'time') }} ({{(frecuencias.find(f => f.value ==
-                                    e.frecuencia) ||
-                                    frecuencias[0]).name}})
+                                    {{ e.titulo }} - {{ getMetaHito(e) }} - {{ formatDatetime(e.fecha, 'time') }}
+                                    ({{(frecuencias.find(f => f.value == e.frecuencia) || frecuencias[0]).name}})
                                 </h4>
                                 <p class="event-description">{{ e.descripcion }}</p>
                             </div>

@@ -8,17 +8,7 @@
         zone: "ZU",
         category: "USUARIOS",
         allow: ["*"]
-    },
-    "Maestros": {
-        templateUrl: "./web/Maestros/Maestros.html",
-        jsUrl: "./web/Maestros/Maestros.js",
-        title: "Maestros",
-        desc: "Permite administrar las listas de maestros",
-        imgSrc: "./img/ico/menu/006-group.png",
-        zone: "",
-        category: "USUARIOS",
-        allow: ["*"]
-    },   
+    }, 
     "Roles": {
         templateUrl: "./web/Roles/Roles.html",
         jsUrl: "./web/Roles/Roles.js",
@@ -111,11 +101,6 @@
         jsUrl: "./web/Proyectos/ProcesoNegocio.js",
         allow: ["*"]
     },
-    "Clientes": {
-        templateUrl: "./web/Proyectos/Clientes.html",
-        jsUrl: "./web/Proyectos/Clientes.js",
-        allow: ["*"]
-    },
     "MisTareas": {
         templateUrl: "./web/Proyectos/MisTareas.html",
         jsUrl: "./web/Proyectos/MisTareas.js",
@@ -144,6 +129,51 @@
     "ProgMensual":{
         templateUrl: "./web/ConfigSalas/ProgMensual.html",
         jsUrl: "./web/ConfigSalas/ProgMensual.js",
+        allow: ["*"]
+    },
+    "Clientes": {
+        templateUrl: "./web/GestClientes/Clientes.html",
+        jsUrl: "./web/GestClientes/Clientes.js",
+        allow: ["*"]
+    },
+    "GCListaEspera": {
+        templateUrl: "./web/GestClientes/ListaEspera.html",
+        jsUrl: "./web/GestClientes/ListaEspera.js",
+        allow: ["*"]
+    },
+    "GCOpciones": {
+        templateUrl: "./web/GestClientes/Opciones.html",
+        jsUrl: "./web/GestClientes/Opciones.js",
+        allow: ["*"]
+    },
+    "GCConsignaciones": {
+        templateUrl: "./web/GestClientes/Consignaciones.html",
+        jsUrl: "./web/GestClientes/Consignaciones.js",
+        allow: ["*"]
+    },
+    "GCPreCredito": {
+        templateUrl: "./web/GestClientes/PreCredito.html",
+        jsUrl: "./web/GestClientes/PreCredito.js",
+        allow: ["*"]
+    },
+    "GCVentas": {
+        templateUrl: "./web/GestClientes/Ventas.html",
+        jsUrl: "./web/GestClientes/Ventas.js",
+        allow: ["*"]
+    },
+    "GCDesistimientos": {
+        templateUrl: "./web/GestClientes/Desistimientos.html",
+        jsUrl: "./web/GestClientes/Desistimientos.js",
+        allow: ["*"]
+    },
+    "GCPqrs": {
+        templateUrl: "./web/GestClientes/Pqrs.html",
+        jsUrl: "./web/GestClientes/Pqrs.js",
+        allow: ["*"]
+    },
+    "GCVetos": {
+        templateUrl: "./web/GestClientes/Vetos.html",
+        jsUrl: "./web/GestClientes/Vetos.js",
         allow: ["*"]
     },
     "Informes": {
@@ -206,6 +236,36 @@
         category: "ConfigGeneral",
         allow: ["*"]
     },
+    "GestClientes": {
+        templateUrl: "./web/GestClientes/GestClientes.html",
+        jsUrl: "./web/GestClientes/GestClientes.js",
+        title: "Clientes",
+        desc: "",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZG",
+        category: "CLIENTES",
+        allow: ["*"]
+    },
+    "GestProyectos": {
+        templateUrl: "./web/GestProyectos/GestProyectos.html",
+        jsUrl: "./web/GestProyectos/GestProyectos.js",
+        title: "Proyectos",
+        desc: "",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZG",
+        category: "PROYECTOS",
+        allow: ["*"]
+    },
+    "Dashboards": {
+        templateUrl: "./web/Dashboards/Dashboards.html",
+        jsUrl: "./web/Dashboards/Dashboards.js",
+        title: "Dashboards",
+        desc: "",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZG",
+        category: "DASHBOARDS",
+        allow: ["*"]
+    },
     // "TestArchivos": {
     //     templateUrl: "./web/Test/Archivos.html",
     //     jsUrl: "./web/Test/Archivos.js",
@@ -218,6 +278,12 @@
     // }
 };
 const zones = {
+    "ZM": {
+        name: "ZM",
+        title: "Zona Configuracion",
+        img: "./img/ico/menu/zc.png",
+        categories: []
+    },
     "ZU": {
         name: "ZU",
         title: "Zona Usuarios",
@@ -237,17 +303,14 @@ const zones = {
             { key: "CONFIGURACION", name: "Configuración" }
         ]
     },
-    // "ZO": {
-    //     name: "ZO",
-    //     title: "Zona Obras",
-    //     img: "./img/ico/menu/zo.png",
-    //     categories: []
-    // },
-    "ZM": {
-        name: "ZM",
-        title: "Zona Configuracion",
-        img: "./img/ico/menu/zc.png",
+    "ZG": {
+        name: "ZG",
+        title: "Zona Gestión",
+        img: "./img/ico/menu/zo.png",
         categories: [
+            { key: "CLIENTES", name: "Clientes" },
+            { key: "PROYECTOS", name: "Proyectos" },
+            { key: "DASHBOARDS", name: "Dashboards" },
         ]
     },
     "ZI": {
