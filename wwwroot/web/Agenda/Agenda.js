@@ -8,8 +8,6 @@ export default {
             showList: true,
             /// Mis Tareas
             proyectos: [],
-            torres: [],
-            unidades: [],
             tareas: [],
             prioridades: [],
             estados: [],
@@ -146,8 +144,10 @@ export default {
                     this.tarea = {};
                     this.cancel();
                 } else {
+                    let err = res.errorMessage || res.data;
                     console.error(res);
-                    showMessage('Error: ' + (res.errorMessage || res.data));
+                    showMessage('Error: ' + (err.includes('chk_fecha_alta_mayor') 
+                        ? 'La fecha deadline debe ser mayor a la fecha de alta' : err));
                 }
                 hideProgress();
             }
@@ -180,7 +180,7 @@ export default {
         async loadCalendarData() {
             showProgress();
             let data = (await httpFunc("/generic/genericDS/Agenda:Get_Agenda", { username: GlobalVariables.username })).data;
-            [this.salas, this.proyectos, this.torres, this.unidades, this.hitos, 
+            [this.salas, this.proyectos, this.hitos, 
                 this.cargos, this.asignaciones, this.tareas] = data;
             hideProgress();
             this.setToday();
@@ -451,6 +451,7 @@ export default {
                 showProgress();
                 await this.loadChecked();
                 hideProgress();
+                console.log(this.hito);
             }
             this.modalmode = mode;
             this.modal && (this.modal.style.display = 'flex');
@@ -582,6 +583,14 @@ export default {
         updateCursor(event) {
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
+        },
+        getMetaHito(e) {
+            let text = '';
+            if (!e.id_proyecto) text = e.sala_venta;
+            else if (!e.id_torre) text = e.nombre_pro;
+            else if (!e.id_unidad) text = `${e.nombre_pro} - ${e.torre}`;
+            else if (e.id_proyecto && e.id_torre && e.id_unidad) text = `${e.nombre_pro} - ${e.torre} - ${e.unidad}`;
+            return text;
         }
     },
     computed: {

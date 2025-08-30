@@ -252,6 +252,7 @@ export default {
                 delete this.hito.id_torre;
                 delete this.hito.id_proyecto;
             }
+            console.log(this.eventType);
         },
         async openModal(mode, e) {
             let fre = this.frecuencias[0];
@@ -455,6 +456,15 @@ export default {
         updateCursor(event) {
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
+        },
+        getMetaHito(e) {
+            console.log(e);
+            let text = '';
+            if (!e.id_proyecto) text = e.sala_venta;
+            else if (!e.id_torre) text = e.nombre_pro;
+            else if (!e.id_unidad) text = `${e.nombre_pro} - ${e.torre}`;
+            else if (e.id_proyecto && e.id_torre && e.id_unidad) text = `${e.nombre_pro} - ${e.torre} - ${e.unidad}`;
+            return text;
         }
     }
 }
