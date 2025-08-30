@@ -195,24 +195,18 @@
                                     </div>
                                     <div v-if="activeTab === 'imagenes'">
                                         <div class="image-gallery-container">
-                                            <!-- Imagen 1 -->
                                             <div class="image-gallery">
                                                 <img :src="tipoProyecto" @click="openModal(tipoProyecto)" />
                                             </div>
-                                    
-                                            <!-- Imagen 2 -->
                                             <div class="image-gallery">
                                                 <img :src="plantProyecto" @click="openModal(plantProyecto)" />
                                             </div>
-                                    
-                                            <!-- Iframe -->
                                             <div class="image-gallery">
                                                 <iframe id="v-player" :src="recorrido" :key="'v' + playIndex" frameborder="0" allowfullscreen
-                                                    allow="xr-spatial-tracking" style="width: 100%;"></iframe>
+                                                    allow="xr-spatial-tracking">
+                                                </iframe>
                                             </div>
                                         </div>
-                                    
-                                        <!-- Modal -->
                                         <div v-if="showModal" class="modal-overlay" @click="closeModal">
                                             <div class="modal-content" @click.stop>
                                                 <span class="close" @click="closeModal">&times;</span>
