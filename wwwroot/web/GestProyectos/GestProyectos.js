@@ -2,37 +2,50 @@ export default {
     data() {
         return {
             mainmode: 0,
-            mode: 0,
             ruta: [],
+            cliente: null,
+            submode: 0,
 
-            filtros: {
-
-            },
+            lateralMenu: true,
+            showList: true
         };
     },
     async mounted() {
-        this.ruta = [{ text: 'Vetos', action: () => this.setMode(0) }];
-        this.setRuta();
-        await this.loadData();
+        GlobalVariables.miniModuleCallback = this.miniModuleCallback;
+        await this.setMainMode(0);
     },
-    async unmounted() {
-
+    unmounted() {
+        GlobalVariables.miniModuleCallback = null;
     },
     methods: {
-        setRuta() {
-            GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+        setRuta(subpath) {
+            this.ruta = [{
+                text: 'ZG', action: () =>
+                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+            }, {
+                text: 'Proyectos', action: () => { this.cliente = null; this.setMainMode(0); }
+            }, ...subpath];
         },
-        setMainMode(mode) {
+        async setMainMode(mode) {
+            if (this.mainmode === mode && mode !== 0) return;
             this.mainmode = mode;
+            await this.$nextTick();
+            if (mode) this.miniModule = await GlobalVariables.loadMiniModule(mode, this.cliente, "#mainContent");
+            else this.setRuta([]);
         },
-        async setMode(mode) {
-            this.mode = mode;
+        async miniModuleCallback(type, data) {
+            if (type == "StartModule") {
+                this.lateralMenu = true;
+                this.cliente = null;
+                this.setMainMode(0);
+            } else if (type == "SetRuta") {
+                this.setRuta(data);
+            }
+            else if (type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
         },
-        async loadData() {
 
-        },
-    },
-    computed: {
-
+        toggleList() {
+            this.showList = !this.showList;
+        }
     }
-}
+};

@@ -176,6 +176,41 @@
         jsUrl: "./web/GestClientes/Vetos.js",
         allow: ["*"]
     },
+    "GPTrazabilidad": {
+        templateUrl: "./web/GestProyectos/Trazabilidad.html",
+        jsUrl: "./web/GestProyectos/Trazabilidad.js",
+        allow: ["*"]
+    },
+    "GPInventario": {
+        templateUrl: "./web/GestProyectos/Inventario.html",
+        jsUrl: "./web/GestProyectos/Inventario.js",
+        allow: ["*"]
+    },
+    "GPResumenGeneral": {
+        templateUrl: "./web/GestProyectos/ResumenGeneral.html",
+        jsUrl: "./web/GestProyectos/ResumenGeneral.js",
+        allow: ["*"]
+    },
+    "GPResumenTipo": {
+        templateUrl: "./web/GestProyectos/ResumenTipo.html",
+        jsUrl: "./web/GestProyectos/ResumenTipo.js",
+        allow: ["*"]
+    },
+    "DAtencion": {
+        templateUrl: "./web/Dashboards/Atencion.html",
+        jsUrl: "./web/Dashboards/Atencion.js",
+        allow: ["*"]
+    },
+    "DMedios": {
+        templateUrl: "./web/Dashboards/Medios.html",
+        jsUrl: "./web/Dashboards/Medios.js",
+        allow: ["*"]
+    },
+    "DPqrs": {
+        templateUrl: "./web/Dashboards/Pqrs.html",
+        jsUrl: "./web/Dashboards/Pqrs.js",
+        allow: ["*"]
+    },
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",
