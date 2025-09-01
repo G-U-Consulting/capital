@@ -6,21 +6,32 @@
         </div>
         <div class="searchBox">
             <div class="pure-g">
-                <div class="pure-u-1-1 pure-u-md-1-3">
+                <div class="pure-u-1-1 pure-u-md-7-24">
                     <input type="text" placeholder="Ingrese numero de documento o nombre"
                         v-model="filtros.clientes['nombre_id']" maxlength="50" />
                 </div>
-                <div class="pure-u-1-1 pure-u-md-2-24">
+                <div class="pure-u-1-1 pure-u-md-1-24">
                     <div class="imgGraybutton" @click="onClear('clientes')">
                         <img src="./img/ico/eraser.png" />
                     </div>
                 </div>
-                <div class="pure-u-1-1 pure-u-md-1-6">
+                <div class="pure-u-1-1 pure-u-md-1-6" style="padding: 0 .5rem;">
                     <input type="text" placeholder="Pais" v-model="filtros.clientes['pais']" maxlength="50" />
                 </div>
-                <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                <div class="pure-u-1-1 pure-u-md-1-6">
+                <div class="pure-u-1-1 pure-u-md-1-6" style="padding: 0 .5rem;">
+                    <input type="text" placeholder="Departamento" v-model="filtros.clientes['departamento']"
+                        maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-6" style="padding: 0 .5rem;">
                     <input type="text" placeholder="Ciudad" v-model="filtros.clientes['ciudad']" maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-6" style="display: flex; align-items: center; padding-left: .5rem;">
+                    <label class="check">
+                        <input type="checkbox" v-model="filtros.clientes['is_atencion_rapida']" @change="toggleAtencion"
+                            true-value="" false-value="0" />
+                        <span class="checkmark"></span>
+                        Ver atención rápida
+                    </label>
                 </div>
             </div>
         </div>
@@ -61,82 +72,188 @@
         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
             Edición Cliente
         </div>
-        <div class="pure-u-1-2 pure-u-md-1-2 formInputStandard">
-            <label>Nombres</label>
-            <input type="text" v-model="cliente.nombres">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Primer Apellido</label>
-            <input type="text" v-model="cliente.apellido1">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Segundo Apellido</label>
-            <input type="text" v-model="cliente.apellido2">
+        <div style="height: calc(100vh - 15.5rem); overflow-y: auto;">
+            <div class='formDivision' style="margin: .5rem; margin-bottom: 0; padding: 4px 0;">
+                Información principal
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-2 formInputStandard">
+                <label>Nombres</label>
+                <input type="text" v-model="cliente.nombres">
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                <label>Primer Apellido</label>
+                <input type="text" v-model="cliente.apellido1">
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                <label>Segundo Apellido</label>
+                <input type="text" v-model="cliente.apellido2">
+            </div>
+
+            <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                <label>Pais</label>
+                <input type="text" v-model="cliente.pais">
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                <label>Departamento</label>
+                <input type="text" v-model="cliente.departamento">
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                <label>Ciudad</label>
+                <input type="text" v-model="cliente.ciudad">
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                <label>Barrio</label>
+                <input type="text" v-model="cliente.barrio">
+            </div>
+
+            <div class='formDivision deployable' @click="showDireccion = !showDireccion">
+                <span>Dirección</span>
+                <span class="arrow" v-bind:class="{'expanded': showDireccion}">
+                    &lt;
+                </span>
+            </div>
+            <div v-show="showDireccion">
+                <div class="pure-u-1-1 pure-u-md-1-1 formInputStandard">
+                    <label>Dirección</label>
+                    <input type="text" v-model="cliente.direccion">
+                </div>
+
+                <div class="pure-u-1-2 pure-u-md-1-12 formInputStandard">
+                    <label>Tipo Id.</label>
+                    <input type="text" v-model="cliente.tipo_documento">
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-6 formInputStandard">
+                    <label>Número Id.</label>
+                    <input type="text" v-model="cliente.numero_documento">
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                    <label>Pais Expedición</label>
+                    <input type="text" v-model="cliente.pais_expedicion">
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                    <label>Departamento Expedición</label>
+                    <input type="text" v-model="cliente.departamento_expedicion">
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                    <label>Ciudad Expedición</label>
+                    <input type="text" v-model="cliente.ciudad_expedicion">
+                </div>
+
+                <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                    <label>Email 1</label>
+                    <input type="text" v-model="cliente.email1">
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                    <label>Email 2</label>
+                    <input type="text" v-model="cliente.email2">
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                    <label>Teléfono 1</label>
+                    <input type="text" v-model="cliente.telefono1">
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
+                    <label>Teléfono 2</label>
+                    <input type="text" v-model="cliente.telefono2">
+                </div>
+            </div>
+
+            <div class='formDivision deployable' @click="showProyectos = !showProyectos">
+                <span>Proyectos visitados</span>
+                <span class="arrow" v-bind:class="{'expanded': showProyectos}">
+                    &lt;
+                </span>
+            </div>
+            <div v-show="showProyectos" style="padding: .5rem;">
+                <table class="dataTable" style="table-layout: auto;">
+                    <thead>
+                        <tr>
+                            <th>Proyecto</th>
+                            <th>Torre</th>
+                            <th>Unidad</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class='formDivision deployable' @click="showCompras = !showCompras">
+                <span>Compras realizadas</span>
+                <span class="arrow" v-bind:class="{'expanded': showCompras}">
+                    &lt;
+                </span>
+            </div>
+            <div v-show="showCompras" style="padding: .5rem;">
+                <table class="dataTable" style="table-layout: auto;">
+                    <thead>
+                        <tr>
+                            <th>Proyecto</th>
+                            <th>Torre</th>
+                            <th>Unidad</th>
+                            <th>Valor</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class='formDivision deployable' @click="showListas = !showListas">
+                <span>En listas de espera</span>
+                <span class="arrow" v-bind:class="{'expanded': showListas}">
+                    &lt;
+                </span>
+            </div>
+            <div v-show="showListas" style="padding: .5rem;">
+                <table class="dataTable" style="table-layout: auto;">
+                    <thead>
+                        <tr>
+                            <th>Lista</th>
+                            <th>Proyecto</th>
+                            <th>Torre</th>
+                            <th>Unidad</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class='formDivision deployable' @click="showDesc = !showDesc">
+                <span>Descripción</span>
+                <span class="arrow" v-bind:class="{'expanded': showDesc}">
+                    &lt;
+                </span>
+            </div>
+            <div v-show="showDesc">
+                <div class="pure-u-1-1 formInputStandard">
+                    <label>Descripción</label>
+                    <textarea rows="5" v-model="cliente.descripcion" style="resize: none; height: auto;">
+                    </textarea>
+                </div>
+            </div>
         </div>
 
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Pais</label>
-            <input type="text" v-model="cliente.pais">
+        <div class="pure-u-1-2 pure-u-md-1-5">
+            <button style="background-color: red; cursor: auto;" v-if="cliente.is_vetado == '1'">
+                Vetado
+            </button>
         </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Departamento</label>
-            <input type="text" v-model="cliente.departamento">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Ciudad</label>
-            <input type="text" v-model="cliente.ciudad">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Barrio</label>
-            <input type="text" v-model="cliente.barrio">
-        </div>
-
-        <div class="pure-u-1-1 pure-u-md-1-1 formInputStandard">
-            <label>Dirección</label>
-            <input type="text" v-model="cliente.direccion">
-        </div>
-
-        <div class="pure-u-1-2 pure-u-md-1-12 formInputStandard">
-            <label>Tipo Id.</label>
-            <input type="text" v-model="cliente.tipo_documento">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-6 formInputStandard">
-            <label>Número Id.</label>
-            <input type="text" v-model="cliente.numero_documento">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Pais Expedición</label>
-            <input type="text" v-model="cliente.pais_expedicion">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Departamento Expedición</label>
-            <input type="text" v-model="cliente.departamento_expedicion">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Ciudad Expedición</label>
-            <input type="text" v-model="cliente.ciudad_expedicion">
-        </div>
-
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Email 1</label>
-            <input type="text" v-model="cliente.email1">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Email 2</label>
-            <input type="text" v-model="cliente.email2">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Teléfono 1</label>
-            <input type="text" v-model="cliente.telefono1">
-        </div>
-        <div class="pure-u-1-2 pure-u-md-1-4 formInputStandard">
-            <label>Teléfono 2</label>
-            <input type="text" v-model="cliente.telefono1">
-        </div>
-
-        <div class="pure-u-1-2 pure-u-md-2-5"></div>
-        <div class="pure-u-1-2 pure-u-md-1-5 formInputStandard">
-            <button @click="setMode(0)">Volver</button>
+        <div class="pure-u-1-2 pure-u-md-1-5"></div>
+        <div class="pure-u-1-2 pure-u-md-1-5" style="padding-top: .5rem; text-align: center;">
+            <button @click="onSave">Guardar</button>
         </div>
     </div>
 </div>

@@ -1,8 +1,10 @@
 -- =============================================
--- Proceso: Proyecto/Get_Clientes
+-- Proceso: Clientes/Del_Veto
 -- =============================================
 --START_PARAM
-
+set @id_veto;
 --END_PARAM
 
-select *, concat(nombres, ' ', apellido1, ' ', apellido2) as nombre from fact_clientes;
+delete from dim_veto_cliente where id_veto = @id_veto;
+
+select 'OK' as result;

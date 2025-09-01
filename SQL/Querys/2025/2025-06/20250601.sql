@@ -13,6 +13,7 @@ create table fact_clientes (
     email2 varchar(100),
     telefono1 varchar(20),
     telefono2 varchar(20),
+    descripcion text,
 
     tipo_documento varchar(50),
     numero_documento varchar(50),

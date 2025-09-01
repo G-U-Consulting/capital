@@ -37,10 +37,8 @@ export default {
                 this.lateralMenu = true;
                 this.cliente = null;
                 this.ruta[1].action();
-            } else if (type == "SetRuta") {
-                this.setRuta(data);
-                console.log(data, this.ruta);
-            }
+            } 
+            else if (type == "SetRuta") this.setRuta(data);
             else if (type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
         },
 

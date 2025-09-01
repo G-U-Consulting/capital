@@ -302,6 +302,26 @@ h2 {
   padding-bottom: 1px; 
   gap: .5rem;
 }
+.formDivision.deployable {
+  margin: 4px .5rem 0 .5rem;
+  padding: 4px 0;
+  display: flex; 
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.formDivision.deployable:hover {
+  background-color: #f2f2f2;
+}
+.formDivision.deployable > .arrow {
+  transform: rotate(-90deg); 
+  margin-right: .5rem; 
+  font-weight: bold;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;;
+}
+.formDivision.deployable > .arrow.expanded {
+  transform: rotate(90deg);
+}
 .check-title-cont{
   display: flex;
   align-items: center;
@@ -2022,6 +2042,12 @@ div.btn-left-rotafolio img {
 tr.destacada {
   border: 2px #007891 solid;
 }
+.dataTable.spaceRows td {
+  white-space: normal;
+  text-overflow: unset;
+  word-wrap: break-word;
+  word-break: break-word;
+}
 
 .calendar {
   display: grid;
@@ -2792,7 +2818,7 @@ tr.cal-row-info > td {
     background-color: #e0f2f7;
     color: #006b83;
     font-size: 0.85em;
-    font-weight: bold;.aptos-detail
+    font-weight: bold;
     white-space: nowrap;
 }
 

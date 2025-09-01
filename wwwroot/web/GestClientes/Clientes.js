@@ -9,8 +9,14 @@ export default {
             cliente: {},
 
             filtros: {
-                clientes: {}
+                clientes: { is_atencion_rapida: '' }
             },
+
+            showDireccion: false,
+            showProyectos: false,
+            showCompras: false,
+            showListas: false,
+            showDesc: false,
 
             chart: null
         };
@@ -38,8 +44,9 @@ export default {
             if (mode === 'd3') this.initD3();
         },
         async loadData() {
-            this.clientes = (await httpFunc("/generic/genericDT/Proyectos:Get_Clientes", {})).data;
-            console.log(this.clientes);
+            showProgress();
+            this.clientes = (await httpFunc("/generic/genericDT/Clientes:Get_Clientes", {})).data;
+            hideProgress();
         },
         onClear(table) {
             let item = this.filtros[table];
@@ -52,8 +59,24 @@ export default {
             this.setRuta();
             console.log(cliente);
         },
+        toggleAtencion() {
+            console.log(this.filtros.clientes);
+        },
+        async onSave() {
+            showProgress();
+			let res = null;
+			try {
+				res = await (httpFunc('/generic/genericST/Clientes:Upd_Cliente', this.cliente));
+				if (res.isError || res.data !== 'OK') throw res;
+				this.setMode(0);
+			} catch (e) {
+				console.error(e);
+				showMessage('Error: ' + e.errorMessage || e.data);
+			}
+			hideProgress();
+        },
 
-        initChart() {
+        /* initChart() {
             const ctx = document.getElementById('chart-js');
             const labels = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
             const data = {
@@ -155,7 +178,7 @@ export default {
 
                 container.insertAdjacentElement('afterbegin', svg.node());
             }
-        }
+        } */
     },
     computed: {
         getFilteredList() {
