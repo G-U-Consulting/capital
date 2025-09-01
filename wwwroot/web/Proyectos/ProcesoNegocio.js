@@ -35,6 +35,7 @@ export default {
                 isPoliticaAceptada: 0,
                 ventanaUnidades: null,
                 currentSubmode: null,
+                is_atencion_rapida: 0,
 
             },
             ObjVisita: {
@@ -219,23 +220,34 @@ export default {
                 this.handleNext(this.mode + 1);
             }
         },
-        async nuevoCliente() {
+        async nuevoCliente(israpida) {
             if (!this.policyAccepted) {
                 showMessage("Debe aceptar la política para continuar.");
                 return;
             }
+            this.ObjCliente.is_atencion_rapida = israpida;
             if (!this.validarCampos(this.ObjCliente, this.camposObligatorios)) return;
             let cliente = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
             cliente = cliente.data;
             if (cliente[0].result.includes("OK")) {
-                this.iscliente = false;
-                this.isboton = true;
-                this.mode = 0;
-                this.policyAccepted = false;
-                // this.limpiarObj();
-                this.iscliente = true;
-                this.acceptPolicy(true);
-                if (cliente[0].result.includes('Insert')) { showMessage("Cliente creado correctamente."); } else showMessage("Cliente actualizado correctamente.");
+                if (israpida) {
+                    this.iscliente = false;
+                    this.israpida = true;
+                    this.policyAccepted = false;
+                    this.mode = 0;
+                    this.isboton = true;
+                    this.acceptPolicy(true);
+                    if (cliente[0].result.includes('Insert')) { showMessage("Cliente creado correctamente."); } else showMessage("Cliente actualizado correctamente.");
+                } else {
+                    this.isboton = true;
+                    this.mode = 0;
+                    this.israpida = false;
+                    this.policyAccepted = false;
+                    // this.limpiarObj();
+                    this.iscliente = true;
+                    this.acceptPolicy(true);
+                    if (cliente[0].result.includes('Insert')) { showMessage("Cliente creado correctamente."); } else showMessage("Cliente actualizado correctamente.");
+                }
             } else {
                 this.limpiarObj();
                 showMessage("Error al crear el cliente.");
@@ -264,6 +276,7 @@ export default {
                     fechaExpedicion: '',
                     idPresupuestoVivienda: '',
                     isPoliticaAceptada: 0,
+                    is_atencion_rapida: 0,
                 }
             }
             if (this.mode == 1) {
@@ -320,6 +333,7 @@ export default {
                 this.ObjCliente.fechaExpedicion = cliente[0][0].fecha_expedicion;
                 this.id_cliente = cliente[0][0].id_cliente;
                 this.ObjCliente.isPoliticaAceptada = cliente[0][0].is_politica_aceptada;
+                this.isClienteVetado = cliente[0][0].is_vetado == "1";
 
                 if (this.ObjCliente.isPoliticaAceptada == 1) {
                     this.policyAccepted = true;
@@ -349,6 +363,7 @@ export default {
                 //////
                 this.iscliente = true;
                 this.isboton = false;
+                this.israpida = false;
             } else {
                 this.ObjCliente.nombres = '';
                 this.iscliente = false;
@@ -466,6 +481,8 @@ export default {
         antencionRapida(){
             this.iscliente =  false;
             this.israpida = true;
+            this.policyAccepted = true;
+            this.isClienteVetado = false;
         },
         //////// mode 2
         async showAtencionModal() {

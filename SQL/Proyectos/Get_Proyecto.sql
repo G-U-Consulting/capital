@@ -64,6 +64,7 @@ select
     a.id_lista,
     a.alerta_cambio_lista,
     id_opcion_visual,
+    a.descripcion_comercial,
     c.edge_estado,
     (
         select group_concat(id_estado_publicacion)

@@ -19,6 +19,9 @@ create table fact_clientes (
     pais_expedicion varchar(100),
     departamento_expedicion varchar(100),
     ciudad_expedicion varchar(100),
+    is_vetado bit default 0,
+    is_atencion_rapida bit default 0,
+    
     fecha_expedicion datetime,
     is_politica_aceptada bit default 0,
 	is_active bit default 1,
@@ -179,7 +182,8 @@ values ('Presencial'),
 ('Videollamada');
 
 insert into dim_modo_atencion (modo_atencion) 
-values ('Rápida'),
+values 
+-- ('Rápida'),
 ('Información'),
 ('Cierre'),
 ('Tramites'),

@@ -78,6 +78,7 @@
                 otra_info: "",
                 sala_venta: 0,
                 id_estado_publicacion: 0,
+                descripcion_comercial: "",
 
                 subsidios_vis: "",
                 dias_separacion: "",

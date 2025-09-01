@@ -9,6 +9,7 @@ set
     @id_zona_proyecto = 0,
     @id_ciudadela = 0,
     @otra_info = '',
+    @descripcion_comercial = '',
 
     @subsidios_vis = '',
     @dias_separacion = '',
@@ -71,6 +72,7 @@ insert into fact_proyectos (
     id_zona_proyecto,
     id_ciudadela,
     otra_info,
+    descripcion_comercial,
 
     subsidios_vis,
     dias_separacion,
@@ -127,6 +129,7 @@ select
     nullif(@id_zona_proyecto, 0),
     nullif(@id_ciudadela, 0),
     @otra_info,
+    @descripcion_comercial,
 
     @subsidios_vis,
     @dias_separacion,

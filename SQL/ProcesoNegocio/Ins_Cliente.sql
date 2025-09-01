@@ -20,78 +20,101 @@ set @nombres = '',
     @departamentoExpedicion = '',
     @ciudadExpedicion = '',
     @fechaExpedicion = '',
-    @isPoliticaAceptada = 0;
+    @isPoliticaAceptada = 0,
+    @is_atencion_rapida = 0;
 --END_PARAM
 
-if exists (
-    select 1
-    from fact_clientes
-    where numero_documento = @numeroDocumento
-) then
-    update fact_clientes
-    set nombres = @nombres,
-        apellido1 = @apellido1,
-        apellido2 = @apellido2,
-        direccion = @direccion,
-        ciudad = @ciudad,
-        barrio = @barrio,
-        departamento = @departamento,
-        pais = @pais,
-        email1 = @email1,
-        email2 = @email2,
-        telefono1 = @telefono1,
-        telefono2 = @telefono2,
-        tipo_documento = @tipoDocumento,
-        pais_expedicion = @paisExpedicion,
-        departamento_expedicion = @departamentoExpedicion,
-        ciudad_expedicion = @ciudadExpedicion,
-        fecha_expedicion = @fechaExpedicion,
-        is_politica_aceptada = @isPoliticaAceptada
-    where Numero_Documento = @numeroDocumento;
 
-    select concat('OK-Registro actualizado:', @numeroDocumento, ' ', 'Update' ) as result;
-else
+if (@is_atencion_rapida = 1) then
+
     insert into fact_clientes (
         nombres,
-        apellido1,
-        apellido2,
-        direccion,
-        ciudad,
-        barrio,
-        departamento,
-        pais,
         email1,
-        email2,
-        telefono1,
-        telefono2,
-        tipo_documento,
-        numero_documento,
-        pais_expedicion,
-        departamento_expedicion,
-        ciudad_expedicion,
-        fecha_expedicion,
-        is_politica_aceptada
+        is_atencion_rapida
     ) values (
         @nombres,
-        @apellido1,
-        @apellido2,
-        @direccion,
-        @ciudad,
-        @barrio,
-        @departamento,
-        @pais,
         @email1,
-        @email2,
-        @telefono1,
-        @telefono2,
-        @tipoDocumento,
-        @numeroDocumento,
-        @paisExpedicion,
-        @departamentoExpedicion,
-        @ciudadExpedicion,
-        @fechaExpedicion,
-        @isPoliticaAceptada
+        1
     );
 
-    select concat('OK-id_archivo:', last_insert_id(), ' ', 'Insert') as result;
+    select concat('OK-id_cliente:', last_insert_id(), ' ', 'Insert atención rápida') as result;
+
+else
+
+    if exists (
+        select 1
+        from fact_clientes
+        where numero_documento = @numeroDocumento
+    ) then
+        update fact_clientes
+        set nombres = @nombres,
+            apellido1 = @apellido1,
+            apellido2 = @apellido2,
+            direccion = @direccion,
+            ciudad = @ciudad,
+            barrio = @barrio,
+            departamento = @departamento,
+            pais = @pais,
+            email1 = @email1,
+            email2 = @email2,
+            telefono1 = @telefono1,
+            telefono2 = @telefono2,
+            tipo_documento = @tipoDocumento,
+            pais_expedicion = @paisExpedicion,
+            departamento_expedicion = @departamentoExpedicion,
+            ciudad_expedicion = @ciudadExpedicion,
+            fecha_expedicion = @fechaExpedicion,
+            is_politica_aceptada = @isPoliticaAceptada,
+            is_atencion_rapida = @is_atencion_rapida
+        where numero_documento = @numeroDocumento;
+
+        select concat('OK-Registro actualizado:', @numeroDocumento, ' ', 'Update') as result;
+    else
+        insert into fact_clientes (
+            nombres,
+            apellido1,
+            apellido2,
+            direccion,
+            ciudad,
+            barrio,
+            departamento,
+            pais,
+            email1,
+            email2,
+            telefono1,
+            telefono2,
+            tipo_documento,
+            numero_documento,
+            pais_expedicion,
+            departamento_expedicion,
+            ciudad_expedicion,
+            fecha_expedicion,
+            is_politica_aceptada,
+            is_atencion_rapida
+        ) values (
+            @nombres,
+            @apellido1,
+            @apellido2,
+            @direccion,
+            @ciudad,
+            @barrio,
+            @departamento,
+            @pais,
+            @email1,
+            @email2,
+            @telefono1,
+            @telefono2,
+            @tipoDocumento,
+            @numeroDocumento,
+            @paisExpedicion,
+            @departamentoExpedicion,
+            @ciudadExpedicion,
+            @fechaExpedicion,
+            @isPoliticaAceptada,
+            @is_atencion_rapida
+        );
+
+        select concat('OK-id_cliente:', last_insert_id(), ' ', 'Insert') as result;
+    end if;
+
 end if;

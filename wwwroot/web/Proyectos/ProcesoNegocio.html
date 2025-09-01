@@ -23,9 +23,10 @@
             <div class='pure-u-1-1 pure-u-md-1-1'>
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                     Bienvenida a Cliente
+                    <div v-if="isClienteVetado" class="btn-vetado">Cliente Vetado</div>
                 </div>
                 <div class="pure-g" style="align-items: center; justify-content: space-between; margin: 1em 0;">
-                    <div class="pure-u-md-12-24" style="display: flex; align-items: center;">
+                    <div class="pure-u-md-8-24" style="display: flex; align-items: center;">
                         <input type="text" v-model="cliente" maxlength="100" placeholder="Ingrese número de documento o nombre"
                             class="pure-u-md-22-24"  @keyup.enter="busquedaCliente" />
                 
@@ -34,19 +35,19 @@
                         </div>
                     </div>
 
-                    <div class="pure-u-md-3-24" style="text-align: right;">
+                    <div class="pure-u-md-4-24" style="text-align: right;">
                         <button @click="continuarCliente">Último Cliente</button>
                     </div>
 
-                    <div class="pure-u-md-3-24" style="text-align: right;">
+                    <div class="pure-u-md-4-24" style="text-align: right;">
                         <button @click="antencionRapida">Atención Rapida</button>
                     </div>
                 
-                    <div class="pure-u-md-3-24" style="text-align: right;">
+                    <div class="pure-u-md-4-24" style="text-align: right;">
                         <button @click="sincliente">Cotizar sin cliente</button>
                     </div>
                 
-                    <div class="pure-u-md-3-24" style="text-align: right;">
+                    <div class="pure-u-md-4-24" style="text-align: right;">
                         <button @click="limpiarObj">Nuevo Cliente</button>
                     </div>
                 </div>
@@ -538,6 +539,10 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="btn-modern btn-fixed">
+                    <span class="icon">✔</span>
+                    <span class="text">Terminar<br>Atención</span>
+                </div>
             </div>
             <!-- <div class="pure-u-1-1"
                         style="margin-top: 0.5em; display: flex; align-items: center; justify-content: space-between;">
@@ -710,6 +715,13 @@
             <!-- <div v-if="mode != 5 && ObjCliente.Nombres != ''" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>
             </div> -->
+        </div>
+    </div>
+    <div class="pure-u-1-1" style="padding-top: 1em;" v-if="israpida">
+        <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
+            <div v-if="mode == 0" class="pure-u-auto">
+                <button class="pure-button button-fixed" @click="nuevoCliente(1)">Guardar</button>
+            </div>
         </div>
     </div>
 </div>

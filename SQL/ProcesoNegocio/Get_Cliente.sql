@@ -25,6 +25,7 @@ select a.id_cliente,
       a.departamento_expedicion,
       a.ciudad_expedicion,
       a.is_politica_aceptada,
+      a.is_vetado,
       date_format(a.fecha_expedicion, '%Y-%m-%d') as fecha_expedicion
 from fact_clientes a
 where a.is_active = 1

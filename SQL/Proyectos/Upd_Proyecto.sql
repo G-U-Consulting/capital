@@ -11,6 +11,7 @@ set
     @id_zona_proyecto = 0,
     @id_ciudadela = 0,
     @sala_venta = 0,
+    @descripcion_comercial = '',
 
     @otra_info = '',
 
@@ -78,6 +79,7 @@ set
     id_ciudadela = nullif(@id_ciudadela, 0),
     email_coordinacion_sala = @email_coordinacion_sala,
     otra_info = @otra_info,
+    descripcion_comercial = @descripcion_comercial,
 
     subsidios_vis = @subsidios_vis,
     dias_separacion = @dias_separacion,

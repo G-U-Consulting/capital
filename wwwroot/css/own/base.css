@@ -2989,12 +2989,14 @@ tr.cal-row-info > td {
   .aptos-layout {
     width: 100%;
     max-width: 100%;
-    height: calc(100vh - 17rem);
+    height: calc(100vh - 15rem);
     border-radius: 0;
     border-left: none;
     box-shadow: none;
   }
-  
+  .filtros-center{
+    grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  }
 }
 
 .aptos-list {
@@ -3248,14 +3250,18 @@ tr.cal-row-info > td {
   gap: 0.75rem;
   flex: 1;
 }
-@media (max-width: 1024px) {
+@media (max-width: 1624px) {
   .filtros-container {
     padding: 0.75rem;
     gap: 0.75rem;
   }
   .filtros-center {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+  gap: 0.75rem;
+  flex: 1;
+}
+ 
 }
 @media (max-width: 600px) {
   .filtros-container {
@@ -3564,4 +3570,59 @@ tr.cal-row-info > td {
   font-weight: bold;
   color: white;
   cursor: pointer;
+}
+
+.btn-vetado {
+  float: right;
+  font-size: 1rem;
+  background-color: red;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.1rem 1.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+.cont-textarea{
+  height: 19vh;
+}
+
+.btn-modern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+
+  width: clamp(70px, 10vw, 130px);
+  height: clamp(70px, 10vw, 130px);
+
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00839C, #00839C);
+  color: #fff;
+  font-size: clamp(12px, 1.5vw, 15px);
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.btn-modern .icon {
+  font-size: clamp(18px, 2vw, 26px);
+  margin-bottom: 4px;
+}
+
+.btn-modern:hover {
+  transform: scale(1.07);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.btn-fixed {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
 }
