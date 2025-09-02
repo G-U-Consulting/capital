@@ -3050,8 +3050,6 @@ tr.cal-row-info > td {
   
 }
 
-
-
 .apto-card-mini.active {
   border-color: #1d4ed8;
 }
@@ -3081,10 +3079,10 @@ tr.cal-row-info > td {
 
 @media (max-width: 870px) {
   .mini-header {
-    font-size: 20px;
+    font-size: 18px;
   }
   .mini-body {
-    font-size: 11px;
+    font-size: 9px;
   }
 }
 .estatus {
@@ -3171,16 +3169,18 @@ tr.cal-row-info > td {
 }
 
 .seccion-top {
-  flex: 0 0 20%;
+  height: 10%;
   border: 2px solid #d1d5db;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  padding: 0;
 }
 
 .seccion-bottom {
-  flex: 0 0 90%;
+  height: 90%;
   overflow: auto;
 }
 
@@ -3664,8 +3664,8 @@ tr.cal-row-info > td {
 
   border: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, #00839C, #00839C);
-  color: #fff;
+  background: linear-gradient(135deg, #FFC067, #FFC067);
+  color: #332B1F;
   font-size: clamp(12px, 1.5vw, 15px);
   font-weight: 600;
   cursor: pointer;
@@ -3713,18 +3713,18 @@ tr.cal-row-info > td {
 }
 
 .progress-card {
-  border: 1px solid #ddd;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 2px solid #d1d5db;
   border-radius: 12px;
   padding: 10px 15px;
-  width: 100%;
-  font-family: sans-serif;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 1rem;
   margin-bottom: 6px;
 }
 
@@ -3732,19 +3732,19 @@ tr.cal-row-info > td {
   background: #f1f1f1;
   border-radius: 20px;
   overflow: hidden;
-  height: 18px;
+  height: 7px;
 }
 
 .progress-fill {
   height: 100%;
   border-radius: 20px;
-  background: linear-gradient(90deg, #ff4d4d, #ffcc00, #4caf50);
+  background: #00839C;
   transition: width 0.6s ease-in-out;
 }
 
 .progress-footer {
   text-align: right;
-  font-size: 12px;
+  font-size: 1rem;
   margin-top: 4px;
   color: #555;
 }
