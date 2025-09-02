@@ -2743,7 +2743,7 @@ tr.cal-row-info > td {
 .proyectos-section {
   margin: .75rem .75rem 0 .75rem;
   padding: .5rem;
-  height: 22rem;
+  height: 23rem;
   border-radius: 8px;
   border: 1px solid #ccc;
   cursor: pointer; 
@@ -3050,6 +3050,8 @@ tr.cal-row-info > td {
   
 }
 
+
+
 .apto-card-mini.active {
   border-color: #1d4ed8;
 }
@@ -3077,6 +3079,14 @@ tr.cal-row-info > td {
   text-align: center;
 }
 
+@media (max-width: 870px) {
+  .mini-header {
+    font-size: 20px;
+  }
+  .mini-body {
+    font-size: 11px;
+  }
+}
 .estatus {
   margin-left: auto;
   font-weight: bolder;
@@ -3152,6 +3162,26 @@ tr.cal-row-info > td {
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  height: 100%;
+}
+
+.contenedor-principal {
+  display: flex;
+  flex-direction: column;
+}
+
+.seccion-top {
+  flex: 0 0 20%;
+  border: 2px solid #d1d5db;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seccion-bottom {
+  flex: 0 0 90%;
+  overflow: auto;
 }
 
 .aptos-detail .action-footer {
@@ -3289,14 +3319,23 @@ tr.cal-row-info > td {
 }
  
 }
-@media (max-width: 600px) {
+@media (max-width: 1365px) {
   .filtros-container {
     flex-direction: column;
-    align-items: stretch;
+    /* align-items: stretch; */
     padding: 0.5rem;
   }
   .filtros-center {
     grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .aptos-layout {
+    flex-direction: column;
+    height: auto;
+  }
+  .filtros-wrapper{
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
   }
 }
@@ -3389,9 +3428,8 @@ tr.cal-row-info > td {
 }
 
 .logo-right-outside img {
-  max-height: 80px;
-  width: auto;
-  height: auto;
+  width: 10rem;
+  height: 3rem;
   object-fit: contain;
   display: block;
 }
@@ -3621,8 +3659,8 @@ tr.cal-row-info > td {
   justify-content: center;
 
 
-  width: clamp(70px, 10vw, 130px);
-  height: clamp(70px, 10vw, 130px);
+  width: clamp(70px, 10vw, 107px);
+  height: clamp(70px, 10vw, 107px);
 
   border: none;
   border-radius: 50%;
@@ -3651,4 +3689,62 @@ tr.cal-row-info > td {
   bottom: 20px;
   right: 20px;
   z-index: 1000;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+.progress-text {
+  text-align: right;
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+  font-weight: bold;
+}
+
+.progress-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 10px 15px;
+  width: 100%;
+  font-family: sans-serif;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  background: #f1f1f1;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 18px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #ff4d4d, #ffcc00, #4caf50);
+  transition: width 0.6s ease-in-out;
+}
+
+.progress-footer {
+  text-align: right;
+  font-size: 12px;
+  margin-top: 4px;
+  color: #555;
 }

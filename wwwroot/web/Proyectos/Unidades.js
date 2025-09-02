@@ -676,6 +676,23 @@
 				) : [];
 			};
 		},
+		totalAptos() {
+			return this.getFilteredList("aptos").length;
+		},
+		vendidosSum() {
+			return this.getFilteredList("aptos")
+				.reduce((total, apto) => total + (apto.estatus === "Vendido" ? 1 : 0), 0);
+		},
+		vendidosPorcentaje() {
+			return this.totalAptos > 0
+				? Math.round((this.vendidosSum / this.totalAptos) * 100)
+				: 0;
+		},
+		barraColor() {
+			if (this.vendidosPorcentaje < 40) return "red";
+			if (this.vendidosPorcentaje < 70) return "orange";
+			return "green";
+		},
 		tabClasses() {
 			return this.tabs.map((_, index) => {
 				if (this.tabmode === index) {
@@ -711,6 +728,7 @@
 			});
 			return agrupado;
 		},
+		
 	},
 	watch: {
 		torres: {
