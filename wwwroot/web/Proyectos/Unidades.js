@@ -688,11 +688,11 @@
 				? Math.round((this.vendidosSum / this.totalAptos) * 100)
 				: 0;
 		},
-		barraColor() {
-			if (this.vendidosPorcentaje < 40) return "red";
-			if (this.vendidosPorcentaje < 70) return "orange";
-			return "green";
-		},
+		// barraColor() {
+		// 	if (this.vendidosPorcentaje < 40) return "red";
+		// 	if (this.vendidosPorcentaje < 70) return "orange";
+		// 	return "green";
+		// },
 		tabClasses() {
 			return this.tabs.map((_, index) => {
 				if (this.tabmode === index) {

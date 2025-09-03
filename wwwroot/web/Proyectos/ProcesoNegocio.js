@@ -742,6 +742,11 @@ export default {
                 this.seleccionarCotizacion(item);
             }
 
+        },
+        terminarAtencion() {
+            this.cliente = null;
+            this.ObjCliente = {};
+            this.mode = 0;
         }
     }
 }
