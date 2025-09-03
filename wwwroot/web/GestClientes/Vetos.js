@@ -5,6 +5,7 @@ export default {
             mode: 0,
             ruta: [],
             vetos: [],
+            directores: [],
 
             filtros: {
                 vetos: { nombre_id: '', vigente: '' }
@@ -39,7 +40,7 @@ export default {
         },
         async loadData() {
             showProgress();
-            this.vetos = (await httpFunc("/generic/genericDT/Clientes:Get_Vetos", {})).data;
+            [this.vetos, this.directores] = (await httpFunc("/generic/genericDS/Clientes:Get_Vetos", {})).data;
             hideProgress();
         },
         onClear(table) {
@@ -104,11 +105,13 @@ export default {
                     showMessage(`El cliente '${this.cliente.nombres} ${this.cliente.apellido1}' ya se encuentra vetado por ${this.cliente.vetado_por}`);
                     this.cliente = {};
                     this.searchCli = null;
+                    this.searched = false;
                 }
                 if (this.cliente.vigente == '0' && this.cliente.solicitado_por) {
                     showMessage(`El cliente '${this.cliente.nombres} ${this.cliente.apellido1}' tiene una solicitud de veto por ${this.cliente.solicitado_por}`);
                     this.cliente = {};
                     this.searchCli = null;
+                    this.searched = null;
                 }
                 hideProgress();
             }

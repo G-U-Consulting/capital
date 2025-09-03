@@ -2366,6 +2366,13 @@ tr.cal-row-info > td {
   text-align: justify;
   padding-right: 1rem;
 }
+.task-edit-modal{
+  display: grid; 
+  grid: 1fr 1fr / 3fr 5fr; 
+  gap: .5rem 1rem; 
+  width: 60%; 
+  align-items: baseline;
+}
 .list-modal {
   text-align: start; 
   font-size: 1rem; 

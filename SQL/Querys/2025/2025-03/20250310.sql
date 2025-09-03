@@ -565,7 +565,7 @@ create table dim_tarea_usuario(
 	id_tarea int primary key auto_increment,
 	alta date default current_time,
 	deadline date not null,
-	id_proyecto int not null references fact_proyectos(id_proyecto),
+	id_proyecto int references fact_proyectos(id_proyecto),
 	descripcion varchar(255) not null,
 	id_prioridad int not null references dim_prioridad_tarea(id_prioridad),
 	id_estado int not null references dim_estado_tarea(id_estado),

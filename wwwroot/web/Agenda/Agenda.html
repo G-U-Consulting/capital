@@ -44,46 +44,57 @@
                     Fecha de hoy: {{ new Date().toLocaleDateString() }}
                 </div>
 
-                <div class='pure-u-1-2 pure-u-md-1-12' style="text-align: center; padding-top: 14px;">
-                    <label for="sel-pro" style="padding-top: .5rem;">Proyecto: </label>
-                </div>
-                <div class='pure-u-1-2 pure-u-md-1-6 formInputStandard'>
-                    <select v-model="selPro" class="pure-input-1" @change="onChangePro" id="sel-pro">
-                        <option :value="{}">[Todos]</option>
-                        <option v-for="pro in proyectos" :value="pro">{{pro.nombre}}</option>
-                    </select>
-                </div>
-                <div class='pure-u-1-1 pure-u-md-1-24'></div>
-                <div class='pure-u-1-1 pure-u-md-1-4' style="padding-top: 14px;">
-                    <label class="check">
-                        <input type="checkbox" :checked="filtros.tareas.activa" @change="onChangeActive" />
-                        <span class="checkmark"></span>
-                        Mostrar solo tareas activas
-                    </label>
-                </div>
-                <div class='pure-u-1-1 pure-u-md-1-12' style="text-align: center; padding-top: 14px;">
-                    <label for="sel-orden">Orden: </label>
-                </div>
-                <div class='pure-u-1-1 pure-u-md-1-6 formInputStandard' style="text-align: left;">
-                    <select id="sel-orden" v-model="orden" @change="cancel">
-                        <option value="dead-prio">Deadline - Prioridad</option>
-                        <option value="prio-dead">Prioridad - Deadline</option>
-                    </select>
-                </div>
-                <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: right; padding-top: .5rem;">
-                    <button @click="newRow()">Agregar Tarea</button>
+                <div class="searchBox">
+                    <div class="pure-g">
+                        <div class='pure-u-1-2 pure-u-md-1-6'>
+                            <select v-model="filtros.tareas.id_proyecto" class="pure-input-1" @change="cancel">
+                                <option value="">[Todos los proyectos]</option>
+                                <option v-for="pro in proyectos" :value="pro.id_proyecto">
+                                    {{pro.nombre}}
+                                </option>
+                            </select>
+                        </div>
+                        <div class='pure-u-1-24'></div>
+                        <div class='pure-u-1-2 pure-u-md-1-6'>
+                            <select v-model="filtros.tareas.id_estado" class="pure-input-1" @change="cancel">
+                                <option value="">[Todos los estados]</option>
+                                <option v-for="estado in estados" :value="estado.id_estado">{{estado.nombre}}</option>
+                            </select>
+                        </div>
+                        <div class='pure-u-1-24'></div>
+                        <div class='pure-u-1-1 pure-u-md-1-6' style="text-align: left;">
+                            <select id="sel-orden" v-model="orden" @change="cancel">
+                                <option value="dead-prio">Deadline - Prioridad</option>
+                                <option value="prio-dead">Prioridad - Deadline</option>
+                            </select>
+                        </div>
+                        <div class='pure-u-1-24'></div>
+                        <div class='pure-u-1-1 pure-u-md-5-24'
+                            style="display: flex; align-items: center; padding-left: .5rem;">
+                            <label class="check">
+                                <input type="checkbox" :checked="filtros.tareas.activa" @change="onChangeActive" />
+                                <span class="checkmark"></span>
+                                Mostrar solo tareas activas
+                            </label>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6' style="text-align: right;">
+                            <button @click="newRow()">Agregar Tarea</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div style="height: calc(100vh - 23rem); overflow-y: auto;">
+                <div style="height: calc(100vh - 20rem); overflow-y: auto;">
                     <table class="dataTable" style="table-layout: auto;">
                         <thead>
                             <tr>
-                                <th style="width: 13%;">Fecha de Alta</th>
-                                <th style="width: 13%;">Fecha Deadline</th>
+                                <th style="width: 11%;">Fecha de Alta</th>
+                                <th style="width: 11%;">Fecha Deadline</th>
                                 <th style="width: 16%;">Proyecto</th>
-                                <th style="width: 32%;">Descripción</th>
-                                <th style="width: 13%;">Prioridad</th>
-                                <th style="width: 13%;">Estado</th>
+                                <th style="width: 28%;">Descripción</th>
+                                <th style="width: 11%;">Prioridad</th>
+                                <th style="width: 11%;">Estado</th>
+                                <th style="width: 6%;">Editar</th>
+                                <th style="width: 6%;">Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,6 +121,12 @@
                                         <option v-for="e in estados" :value="e.id_estado">{{e.nombre}}</option>
                                     </select>
                                 </td>
+                                <td style="text-align: center;">
+                                    <span class="delete" @click.stop.prevent="onSave">💾</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="delete" @click.stop.prevent="editNewRow = false; tarea = {};">✖</span>
+                                </td>
                             </tr>
                             <tr v-for="(t, i) in getFilteredList('tareas')" @click="onSelect(t, i)"
                                 v-bind:class="{'destacada': selRow == i, 'editable': enableEdit && selRow == i, 'deshabilitada': t.id_estado == '4'}">
@@ -118,7 +135,8 @@
                                     <span v-else>{{formatDatetime(t.alta + ' 00:00', 'date')}}</span>
                                 </td>
                                 <td>
-                                    <input type="date" v-model="tarea.deadline" v-if="enableEdit && selRow == i" :min="tarea.alta">
+                                    <input type="date" v-model="tarea.deadline" v-if="enableEdit && selRow == i"
+                                        :min="tarea.alta">
                                     <span v-else>{{formatDatetime(t.deadline + ' 00:00', 'date')}}</span>
                                 </td>
                                 <td>
@@ -147,23 +165,32 @@
                                     </select>
                                     <span v-else>{{t.estado}}</span>
                                 </td>
+                                <td style="text-align: center;">
+                                    <span class="delete" @click.stop.prevent="onSave"
+                                        v-if="enableEdit && selRow == i">💾</span>
+                                    <span class="delete" @click.stop.prevent="onSelect(t, i); enableEdit = true;"
+                                        v-else>✏️</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="delete" @click.stop.prevent="onSelect(t, i); reqDelete()">✖</span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class='pure-u-1-1 pure-u-md-7-12'></div>
+                <!-- <div class='pure-u-1-1 pure-u-md-7-12'></div>
                 <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: center; padding-top: .5rem;">
                     <button @click="enableEdit = true">Editar Tarea</button>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: center; padding-top: .5rem;">
                     <button @click="reqDelete">Eliminar Tarea</button>
-                </div>
+                </div> -->
             </div>
-            <div class='pure-u-1-1 pure-u-md-2-5'></div>
+            <!-- <div class='pure-u-1-1 pure-u-md-2-5'></div>
             <div class='pure-u-1-1 pure-u-md-1-5' style="text-align: center; padding-top: 1rem;">
                 <button @click="onSave">Guardar</button>
-            </div>
+            </div> -->
         </div>
         <div v-if="mode == 1" style="padding: 1em;">
             <div class="pure-u-1-24 pure-u-md-1-24"></div>
@@ -205,9 +232,11 @@
                                         @click="setShowMode('event')" />
                                     <span>Ver mis hitos</span>
                                 </label>
-                                <label for="show-task" style="width: 7.5rem;">
-                                    <input type="radio" name="show" id="show-task" :checked="showMode == 'task'"
-                                        @click="setShowMode('task')" />
+                                <label for="show-task" style="width: 7.5rem;"
+                                    @mouseenter="tooltipVisible = true; tooltipMsg = 'Solo se muestran tareas activas'"
+                                    @mousemove="updateCursor" @mouseleave="tooltipVisible = false;"
+                                    @click="setShowMode('task')">
+                                    <input type="radio" name="show" id="show-task" :checked="showMode == 'task'" />
                                     <span>Ver mis tareas</span>
                                 </label>
                             </div>
@@ -328,7 +357,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="t in tableDays" @click="t.day.currentMonth && selDay(t.day)"
+                                <tr v-for="t in tableDays" @click="t.day.currentMonth && selDay(t.day)" @dblclick="onDblClickDay(t.day)"
                                     :id="`tab-m${t.day.month}-d${t.day.monthDay}`" v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday, 
                                     'cal-deshabilitada': !t.day.currentMonth, 'cal-row-info': !!t.prioridad}"
                                     :style="t.color ? 'background: ' + t.color + ';' : t.day.isSelected ? 'background: #ddd;' : null">
@@ -379,18 +408,18 @@
 
                         <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                             <span>Proyecto</span>
-                            <input type='text' maxlength="100" :value="hito.nombre_pro || 'N/A'" readonly 
-                                :disabled="eventType === 'Sala'"/>
+                            <input type='text' maxlength="100" :value="hito.nombre_pro || 'N/A'" readonly
+                                :disabled="eventType === 'Sala'" />
                         </div>
                         <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                             <span>Torre</span>
-                            <input type='text' :value="hito.torre || 'N/A'" readonly 
+                            <input type='text' :value="hito.torre || 'N/A'" readonly
                                 :disabled="eventType === 'Sala' || eventType === 'Proyecto'" />
                         </div>
                         <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                             <span>Inmueble</span>
-                            <input type='text' :value="hito.unidad || 'N/A'" readonly 
-                                :disabled="eventType !== 'Inmueble'"/>
+                            <input type='text' :value="hito.unidad || 'N/A'" readonly
+                                :disabled="eventType !== 'Inmueble'" />
                         </div>
 
                         <span style="display: block; padding: .5rem; padding-bottom: 0;">
@@ -462,7 +491,7 @@
                         class="modal-cerrar events">
                     <div class="pure-u-1-1">
                         <h2 style="text-align: center; margin-bottom: 1rem;">
-                            Hitos del {{ formatDatetime(null, 'date', selDate) }}
+                            Tareas para el {{ formatDatetime(null, 'date', selDate) }}
                         </h2>
                     </div>
                     <div class="event-list">
@@ -471,9 +500,18 @@
                             :style="`border: 1px solid ${t.color}90; border-left: 6px solid ${t.color}; background-color: ${t.color}10;`">
                             <div class="pure-u-5-6 pure-u-md-5-6">
                                 <h4 class="event-title">
-                                    {{ t.descripcion }} - {{t.proyecto}} - {{ formatDatetime(t.deadline, 'date') }}
+                                    {{ t.descripcion }} - {{t.proyecto}}
                                 </h4>
-                                <p class="event-description">Prioridad: {{t.prioridad}}<br>Estado: {{t.estado}}</p>
+                                <div class="task-edit-modal">
+                                    <label>Prioridad:</label>
+                                    <select v-model="t.id_prioridad" :style="`border: 1px solid ${t.color}b0;`" @change="updateTarea(t)">
+                                        <option v-for="p in prioridades" :value="p.id_prioridad">{{p.nombre}}</option>
+                                    </select>
+                                    <label>Estado:</label>
+                                    <select v-model="t.id_estado" :style="`border: 1px solid ${t.color}b0;`" @change="updateTarea(t)">
+                                        <option v-for="e in estados" :value="e.id_estado">{{e.nombre}}</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>

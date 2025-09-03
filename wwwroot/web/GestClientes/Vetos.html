@@ -45,7 +45,8 @@
                         <th>Teléfono</th>
                         <th style="width: 25%;">Motivo</th>
                         <th>Vetado por</th>
-                        <th style="width: 8%;">Validar</th>
+                        <th style="width: 6%;" v-if="showAprobar">Validar</th>
+                        <th style="width: 6%;">Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,12 +58,14 @@
                         <td>{{v.telefono}}</td>
                         <td>{{v.motivo}}</td>
                         <td>{{v.vetado_por}}</td>
-                        <td style="text-align: center;">
-                            <span class="delete" style="margin: 0 2px;" v-if="showAprobar && v.vigente == '0'"
+                        <td style="text-align: center;" v-if="showAprobar">
+                            <span class="delete" style="color: #00b300" v-if="v.vigente == '0'"
                                 @click.stop.prevent="reqOperation(`El cliente <b>${v.nombre}</b> quedará vetado.`, onApprove, null, v)">
-                                ✔️
+                                ✔
                             </span>
-                            <span class="delete" style="margin: 0 2px;"
+                        </td>
+                        <td style="text-align: center;">
+                            <span class="delete"
                                 @click.stop.prevent="reqOperation(`Se le quitará el veto al cliente <b>${v.nombre}</b>.`, onDelete, null, v)">
                                 ✖
                             </span>
@@ -83,19 +86,27 @@
             </h2>
         </div>
         <div class="modal-scroll" style="width: 100%; min-height: 20rem">
-            <div class="formInputStandard">
+            <div class="formInputStandard pure-u-1-1 pure-u-md-12-24">
                 <label>Número de Documento</label>
-                <div>
-                    <div class="pure-u-1-1 pure-u-md-1-2">
+                <div style="display: flex;">
+                    <div class="pure-u-1-1 pure-u-md-22-2">
                         <input type="text" v-model="searchCli" maxlength="50"
                             @input="validarNumero(null, 'searchCli'); cliente = {}; searched = false;" />
                     </div>
-                    <div class="pure-u-1-1 pure-u-md-1-24">
+                    <div class="pure-u-1-1 pure-u-md-2-24">
                         <div class="imgGraybutton" @click="getCliente">
                             <img src="./img/ico/svg/search.svg" />
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="pure-u-1-1 pure-u-md-1-4"></div>
+            <div class="pure-u-1-1 pure-u-md-1-4 formInputStandard">
+                <span>Asignar a:</span>
+                <select v-model="cliente.asignado" :disabled="!searched">
+                    <option value="">[Seleccionar]</option>
+                    <option :value="d.id_usuario" v-for="d in directores">{{d.nombres}}</option>
+                </select>
             </div>
 
             <div v-if="searched && !cliente.id_cliente">

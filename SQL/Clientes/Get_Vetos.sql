@@ -13,3 +13,9 @@ from dim_veto_cliente vc
 join fact_clientes c on vc.id_cliente = c.id_cliente
 join fact_usuarios us on vc.solicitado_por = us.usuario collate utf8mb4_general_ci
 left join fact_usuarios uv on vc.vetado_por = uv.usuario collate utf8mb4_general_ci;
+
+select u.id_usuario, u.usuario, u.nombres
+from fact_usuarios u 
+join fact_roles_usuarios ru on u.id_usuario = ru.id_usuario
+join fact_permisos_roles pr on ru.id_rol = pr.id_rol
+where pr.id_permiso = 14;

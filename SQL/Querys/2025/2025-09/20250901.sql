@@ -5,7 +5,8 @@ create table dim_veto_cliente(
     motivo text,
     solicitado_por varchar(50) not null,
     vetado_por varchar(50),
-    vigente bit default 0
+    vigente bit default 0,
+    id_tarea int references dim_tarea_usuario(id_tarea)
 );
 create trigger tr_update_veto_cliente after update on dim_veto_cliente for each row
 begin

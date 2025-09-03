@@ -248,12 +248,12 @@
         </div>
 
         <div class="pure-u-1-2 pure-u-md-1-5" style="padding-top: .5rem;">
-            <button style="background-color: red; cursor: auto;" @click="showListas = true;">
+            <button style="background-color: red;" @click="showListas = true;">
                 En Listas de Espera
             </button>
         </div>
         <div class="pure-u-1-2 pure-u-md-1-5" style="padding-top: .5rem;">
-            <button style="background-color: red; cursor: auto;" v-if="cliente.is_vetado == '1'" @click="openModal">
+            <button style="background-color: red;" v-if="cliente.is_vetado == '1'" @click="openModal">
                 Vetado
             </button>
         </div>

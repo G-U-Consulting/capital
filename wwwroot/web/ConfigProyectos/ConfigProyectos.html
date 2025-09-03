@@ -317,7 +317,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="gru in getFilteredList('gruposImg')" @click="onSelect(gru)">
+                                <tr v-for="gru in getFilteredList('gruposImg')" @dblclick="onSelect(gru)">
                                     <td
                                         v-for="key in Object.keys(gru).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{gru[key]}}
@@ -419,7 +419,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="cat in getFilteredList('categoriasMedios')"
-                                    @click.stop.prevent="onSelect(cat)">
+                                    @dblclick.stop.prevent="onSelect(cat)">
                                     <td
                                         v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{cat[key]}}
@@ -523,7 +523,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="med in getFilteredList('mediosPublicitarios')" @click="onSelect(med)">
+                                <tr v-for="med in getFilteredList('mediosPublicitarios')" @dblclick="onSelect(med)">
                                     <td
                                         v-for="key in Object.keys(med).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{med[key]}}</td>
@@ -644,7 +644,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="banco in getFilteredList('bancos')" @click="onSelectBanco(banco)">
+                                <tr v-for="banco in getFilteredList('bancos')" @dblclick="onSelectBanco(banco)">
                                     <td
                                         v-for="key in Object.keys(banco).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{banco[key]}}</td>
@@ -787,7 +787,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="fid in getFilteredList('fiduciarias')" @click="onSelect(fid)">
+                                <tr v-for="fid in getFilteredList('fiduciarias')" @dblclick="onSelect(fid)">
                                     <td
                                         v-for="key in Object.keys(fid).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{fid[key]}}</td>
@@ -889,7 +889,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="zap in getFilteredList('zonasProyectos')" @click="onSelect(zap)">
+                                <tr v-for="zap in getFilteredList('zonasProyectos')" @dblclick="onSelect(zap)">
                                     <td
                                         v-for="key in Object.keys(zap).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{zap[key]}}</td>
@@ -1008,7 +1008,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="ciu in getFilteredList('ciudadelas')" @click="onSelect(ciu)">
+                                <tr v-for="ciu in getFilteredList('ciudadelas')" @dblclick="onSelect(ciu)">
                                     <td
                                         v-for="key in Object.keys(ciu).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{ciu[key]}}</td>
@@ -1123,7 +1123,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="ins in getFilteredList('instructivos')" @click="onSelect(ins)">
+                                <tr v-for="ins in getFilteredList('instructivos')" @dblclick="onSelect(ins)">
                                     <td
                                         v-for="key in Object.keys(ins).filter(k => !k.startsWith('id_') && !k.startsWith('is_')  && k != 'procedimiento' && k != 'documentacion_cierre' && k != 'notas')">
                                         {{ins[key]}}</td>
@@ -1246,7 +1246,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="pie in getFilteredList('pies_legales')" @click="onSelect(pie)">
+                                <tr v-for="pie in getFilteredList('pies_legales')" @dblclick="onSelect(pie)">
                                     <td
                                         v-for="key in Object.keys(pie).filter(k => k != 'texto' && k != 'notas_extra' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{pie[key]}}</td>
@@ -1361,7 +1361,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="tra in getFilteredList('tramites')" @click="onSelect(tra)">
+                                <tr v-for="tra in getFilteredList('tramites')" @dblclick="onSelect(tra)">
                                     <td
                                         v-for="key in Object.keys(tra).filter(k => k != 'texto' && !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{tra[key]}}</td>
@@ -1468,7 +1468,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="doc in getFilteredList('documentos')" @click="onSelectDocument(doc)">
+                                <tr v-for="doc in getFilteredList('documentos')" @dblclick="onSelectDocument(doc)">
                                     <td
                                         v-for="key in Object.keys(doc).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{doc[key]}}</td>
@@ -1597,7 +1597,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="sub in getFilteredList('subsidios')" @click="onSelect(sub)">
+                                <tr v-for="sub in getFilteredList('subsidios')" @dblclick="onSelect(sub)">
                                     <td v-for="key in Object.keys(sub).filter(k => k != 'imagen' && !k.startsWith('id_') && !k.startsWith('is_'))"
                                         :style="key.startsWith('smmlv') ? 'text-align: right;' : ''">
                                         {{key.startsWith('smmlv') ? formatNumber(sub[key].replace(',','.')) : sub[key]}}
@@ -1733,7 +1733,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="tf in getFilteredList('tipos_financiacion')" @click="onSelect(tf)">
+                                <tr v-for="tf in getFilteredList('tipos_financiacion')" @dblclick="onSelect(tf)">
                                     <td
                                         v-for="key in Object.keys(tf).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{tf[key]}}</td>
@@ -1827,7 +1827,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="tpr in getFilteredList('tipos_proyecto')" @click="onSelect(tpr)">
+                                <tr v-for="tpr in getFilteredList('tipos_proyecto')" @dblclick="onSelect(tpr)">
                                     <td
                                         v-for="key in Object.keys(tpr).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{tpr[key]}}</td>
@@ -1921,7 +1921,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="epr in getFilteredList('estados_proyecto')" @click="onSelect(epr)">
+                                <tr v-for="epr in getFilteredList('estados_proyecto')" @dblclick="onSelect(epr)">
                                     <td
                                         v-for="key in Object.keys(epr).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{epr[key]}}</td>
@@ -2014,7 +2014,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="vis in getFilteredList('tipos_vis')" @click="onSelect(vis)">
+                                <tr v-for="vis in getFilteredList('tipos_vis')" @dblclick="onSelect(vis)">
                                     <td
                                         v-for="key in Object.keys(vis).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{vis[key]}}</td>
@@ -2142,7 +2142,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="col in getFilteredList('colores')" @click="onSelect(col)">
+                                <tr v-for="col in getFilteredList('colores')" @dblclick="onSelect(col)">
                                     <td
                                         v-for="key in Object.keys(col).filter(k => !k.startsWith('id_') && !k.startsWith('is_')  && !k.startsWith('color_'))">
                                         {{col[key]}}</td>
@@ -2255,7 +2255,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="sed in getFilteredList('sedes')" @click="onSelect(sed)">
+                                <tr v-for="sed in getFilteredList('sedes')" @dblclick="onSelect(sed)">
                                     <td
                                         v-for="key in Object.keys(sed).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                                         {{sed[key]}}</td>
@@ -2354,7 +2354,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="cat in getFilteredList('cajasCompensacion')"
-                                    @click.stop.prevent="onSelect(cat)">
+                                    @dblclick.stop.prevent="onSelect(cat)">
                                     <td
                                         v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{cat[key]}}
@@ -2446,7 +2446,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="cat in getFilteredList('tiposTramite')" @click.stop.prevent="onSelect(cat)">
+                                <tr v-for="cat in getFilteredList('tiposTramite')" @dblclick.stop.prevent="onSelect(cat)">
                                     <td
                                         v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{cat[key]}}
@@ -2539,7 +2539,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="cat in getFilteredList('tiposRegistro')" @click.stop.prevent="onSelect(cat)">
+                                <tr v-for="cat in getFilteredList('tiposRegistro')" @dblclick.stop.prevent="onSelect(cat)">
                                     <td
                                         v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{cat[key]}}

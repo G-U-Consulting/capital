@@ -3,7 +3,7 @@ export default {
         return {
             mainmode: 0,
             mode: 0,
-            selIndex: 0,
+            selIndex: null,
             ruta: [],
             clientes: [],
 
@@ -27,7 +27,7 @@ export default {
     async mounted() {
         await this.loadData();
         this.saveData = await GlobalVariables.miniModuleCallback('GetData');
-        if (this.saveData && this.saveData.selIndex) this.selIndex = this.saveData.selIndex;
+        if (this.saveData && this.saveData.selIndex >= 0) this.selIndex = this.saveData.selIndex;
         if (this.saveData && this.saveData.filtros) this.filtros = this.saveData.filtros;
         //this.setMode('chart');
         //this.setMode('d3');

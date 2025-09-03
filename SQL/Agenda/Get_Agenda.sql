@@ -56,7 +56,7 @@ select date_format(t.alta, '%Y-%m-%d') as alta, date_format(t.deadline, '%Y-%m-%
 from dim_tarea_usuario t 
 join dim_prioridad_tarea p on t.id_prioridad = p.id_prioridad 
 join dim_estado_tarea e on t.id_estado = e.id_estado 
-join fact_proyectos pro on t.id_proyecto = pro.id_proyecto
+left join fact_proyectos pro on t.id_proyecto = pro.id_proyecto
 join fact_usuarios u on t.id_usuario = u.id_usuario
 where u.usuario = @username
 order by t.deadline, p.prioridad desc;

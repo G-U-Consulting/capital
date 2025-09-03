@@ -17,7 +17,7 @@ export default {
             tarea: {},
 
             filtros: {
-                tareas: { activa: '1' }
+                tareas: { activa: '1', id_proyecto: '', id_estado: '' }
             },
 
             editNewRow: false,
@@ -66,6 +66,8 @@ export default {
             tooltipX: 0,
             tooltipY: 0,
             tooltipMsg: '',
+
+            editTask: false,
         }
     },
     async mounted() {
@@ -104,15 +106,10 @@ export default {
             [usuarios, this.proyectos, this.tareas, this.prioridades, this.estados] =
                 (await httpFunc("/generic/genericDS/Agenda:Get_Tarea", { username: GlobalVariables.username })).data;
             usuarios.length && (this.usuario = usuarios[0]);
-            this.selPro = this.proyectos.find(p => p.id_proyecto === this.proyecto.id_proyecto);
             this.onChangePro();
             hideProgress();
         },
         onChangePro() {
-            if (this.selPro) {
-                let id_pro = this.selPro.id_proyecto;
-                id_pro ? this.filtros.tareas.id_proyecto = id_pro : delete this.filtros.tareas.id_proyecto;
-            } else delete this.filtros.tareas.id_proyecto;
             this.cancel();
         },
         onChangeActive(e) {
@@ -136,6 +133,7 @@ export default {
         async onSave() {
             if (this.enableEdit || this.editNewRow) {
                 showProgress();
+                if (!this.tarea.id_proyecto) delete this.tarea.id_proyecto;
                 let res = await httpFunc(`/generic/genericST/Agenda:${this.selRow != null ? 'Upd' : 'Ins'}_Tarea`,
                     { ...this.tarea, id_usuario: this.usuario.id_usuario });
                 if (res.data === 'OK') {
@@ -146,7 +144,7 @@ export default {
                 } else {
                     let err = res.errorMessage || res.data;
                     console.error(res);
-                    showMessage('Error: ' + (err.includes('chk_fecha_alta_mayor') 
+                    showMessage('Error: ' + (err.includes('chk_fecha_alta_mayor')
                         ? 'La fecha deadline debe ser mayor a la fecha de alta' : err));
                 }
                 hideProgress();
@@ -177,13 +175,13 @@ export default {
         },
 
         //////////////// Mi Calendario ////////////////
-        async loadCalendarData() {
+        async loadCalendarData(holdDay) {
             showProgress();
             let data = (await httpFunc("/generic/genericDS/Agenda:Get_Agenda", { username: GlobalVariables.username })).data;
-            [this.salas, this.proyectos, this.hitos, 
-                this.cargos, this.asignaciones, this.tareas] = data;
+            [this.salas, this.proyectos, this.hitos,
+            this.cargos, this.asignaciones, this.tareas] = data;
             hideProgress();
-            this.setToday();
+            if (!holdDay) this.setToday();
             await this.loadViewMode();
             this.modal = document.getElementById('modalOverlay');
             window.addEventListener('keyup', (e) => e.key === 'Escape' && this.closeModal({}, true));
@@ -420,7 +418,7 @@ export default {
             return this.equalsDate(this.selDate, today);
         },
         cleanType() {
-            if (this.eventType === 'Torre') 
+            if (this.eventType === 'Torre')
                 delete this.hito.id_unidad;
             if (this.eventType === 'Proyecto') {
                 delete this.hito.id_unidad;
@@ -453,6 +451,7 @@ export default {
                 hideProgress();
                 console.log(this.hito);
             }
+            if (mode == 4) this.editTask = false;
             this.modalmode = mode;
             this.modal && (this.modal.style.display = 'flex');
         },
@@ -534,7 +533,7 @@ export default {
                 this.showMode == 'task' && this.tareas.forEach(t => {
                     if ((!this.pro_filter || t.id_proyecto == this.pro_filter) && t.activa == '1') {
                         let day = this.findDay(new Date(t.deadline + ' 00:00'));
-                        day && day.tasks.push(t);
+                        day && !day.tasks.includes(t) && day.tasks.push(t);
                     }
                 })
             }
@@ -591,6 +590,22 @@ export default {
             else if (!e.id_unidad) text = `${e.nombre_pro} - ${e.torre}`;
             else if (e.id_proyecto && e.id_torre && e.id_unidad) text = `${e.nombre_pro} - ${e.torre} - ${e.unidad}`;
             return text;
+        },
+        async updateTarea(tarea) {
+            showProgress();
+            let res = await httpFunc(`/generic/genericST/Agenda:Upd_Tarea`, tarea);
+            if (res.data === 'OK') {
+                this.tareas = (await httpFunc("/generic/genericDT/Agenda:Get_Tareas", { id_usuario: this.usuario.id_usuario })).data;
+                this.setViewMonths();
+                if (!this.currentDay.tasks.length) this.closeModal({}, true);
+            }
+            else {
+                let err = res.errorMessage || res.data;
+                console.error(res);
+                showMessage('Error: ' + (err.includes('chk_fecha_alta_mayor')
+                    ? 'La fecha deadline debe ser mayor a la fecha de alta' : err));
+            }
+            hideProgress();
         }
     },
     computed: {
