@@ -288,9 +288,9 @@ export default {
                 let cargos = this.cargos.filter(c => c.checked).map(c => c.id_cargo).join(',');
                 if (!cargos) throw 'Error: Debe seleccionar al menos una categoría';
                 if (this.eventType === 'Proyecto' && !this.hito.id_proyecto) 
-                    throw 'Error: Debe seleccionar una proyecto';
+                    throw 'Error: Debe seleccionar un proyecto';
                 if (this.eventType === 'Torre' && !this.hito.id_torre) 
-                    throw 'Error: Debe seleccionar un torre';
+                    throw 'Error: Debe seleccionar una torre';
                 if (this.eventType === 'Inmueble' && !this.hito.id_unidad) 
                     throw 'Error: Debe seleccionar un inmueble';
                 Object.keys(this.hito).forEach(key => !this.hito[key] && delete this.hito[key]);

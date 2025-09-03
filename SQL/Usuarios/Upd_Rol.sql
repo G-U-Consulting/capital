@@ -13,7 +13,7 @@ call fn_list(@permisos, ',');
 update fact_roles set
     rol = @rol,
     descripcion = @descripcion,
-    id_sede = @id_sede
+    id_sede = if(@id_sede = '', NULL, @id_sede)
 where id_rol = @id_rol;
 delete a
 from fact_permisos_roles a

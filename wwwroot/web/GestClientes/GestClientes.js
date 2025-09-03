@@ -7,7 +7,8 @@ export default {
             submode: 0,
 
             lateralMenu: true,
-            showList: true
+            showList: true,
+            tmpData: {},
         };
     },
     async mounted() {
@@ -40,6 +41,10 @@ export default {
             } 
             else if (type == "SetRuta") this.setRuta(data);
             else if (type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
+            if (type == "SaveData")
+                this.tmpData = {...data};
+            if (type == "GetData")
+                return this.tmpData;
         },
 
         toggleList() {

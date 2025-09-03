@@ -3,11 +3,15 @@ create table dim_veto_cliente(
     fecha datetime default current_timestamp,
     id_cliente int not null unique references fact_clientes(id_cliente),
     motivo text,
-    vetado_por varchar(50) not null
+    solicitado_por varchar(50) not null,
+    vetado_por varchar(50),
+    vigente bit default 0
 );
-create trigger tr_insert_veto_cliente after insert on dim_veto_cliente for each row
+create trigger tr_update_veto_cliente after update on dim_veto_cliente for each row
 begin
-	update fact_clientes set is_vetado = 1 where id_cliente = new.id_cliente;
+    if new.vigente = 1 then
+	    update fact_clientes set is_vetado = 1 where id_cliente = new.id_cliente;
+    end if;
 end;
 create trigger tr_delete_veto_cliente after delete on dim_veto_cliente for each row
 begin

@@ -22,7 +22,9 @@ create table dim_zona(
 insert into dim_zona(id_zona, zona, alias) values
 (1, 'Zona Usuarios','ZU'),
 (2, 'Zona Asesores','ZA'),
-(3, 'Zona Obras','ZO')
+(3, 'Zona Obras','ZO'),
+(4, 'Zona Maestros','ZM'),
+(5, 'Zona Gestión','ZG')
 
 create table dim_cargo (
     id_cargo int auto_increment,
@@ -99,7 +101,8 @@ insert into dim_permiso(id_permiso, permiso, grupo, id_zona) values
 
 (11, 'Visualizar proyectos', 'Proyectos', 2),
 (12, 'Crear proyectos', 'Proyectos', 2),
-(12, 'Informes generales', 'Informes', 2)
+(13, 'Informes generales', 'Informes', 2),
+(14, 'Vetar clientes', 'Clientes', 5)
 
 create table fact_roles(
 	id_rol int not null auto_increment,

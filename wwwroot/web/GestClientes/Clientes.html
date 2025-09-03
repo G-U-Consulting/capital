@@ -50,7 +50,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="cli in getFilteredList('clientes')" @click="onSelect(cli)">
+                    <tr v-for="(cli, i) in getFilteredList('clientes')" @click="setIndex(i)" @dblclick="onSelect(cli)"
+                        v-bind:class="{'destacada': selIndex === i}">
                         <td>{{cli.nombre}}</td>
                         <td>{{cli.tipo_documento}}</td>
                         <td>{{cli.numero_documento}}</td>
@@ -175,7 +176,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            
+
                         </tr>
                     </tbody>
                 </table>
@@ -200,7 +201,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            
+
                         </tr>
                     </tbody>
                 </table>
@@ -225,7 +226,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            
+
                         </tr>
                     </tbody>
                 </table>
@@ -246,14 +247,57 @@
             </div>
         </div>
 
-        <div class="pure-u-1-2 pure-u-md-1-5">
-            <button style="background-color: red; cursor: auto;" v-if="cliente.is_vetado == '1'">
+        <div class="pure-u-1-2 pure-u-md-1-5" style="padding-top: .5rem;">
+            <button style="background-color: red; cursor: auto;" @click="showListas = true;">
+                En Listas de Espera
+            </button>
+        </div>
+        <div class="pure-u-1-2 pure-u-md-1-5" style="padding-top: .5rem;">
+            <button style="background-color: red; cursor: auto;" v-if="cliente.is_vetado == '1'" @click="openModal">
                 Vetado
             </button>
         </div>
-        <div class="pure-u-1-2 pure-u-md-1-5"></div>
         <div class="pure-u-1-2 pure-u-md-1-5" style="padding-top: .5rem; text-align: center;">
             <button @click="onSave">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div class="cal-modal-overlay" id="modalOverlay" @click.stop.prevent="closeModal">
+    <div class="modal-container pure-g" style="min-width: 50vw; max-width: 50vw; position: relative;">
+        <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal" class="modal-cerrar events">
+        <div class="pure-u-1-1">
+            <h2 style="text-align: center; margin-bottom: 1rem;">
+                Detalles del Veto
+            </h2>
+        </div>
+        <div class="modal-scroll" style="width: 100%; min-height: 20rem">
+            <div class="pure-u-3-4 formInputStandard">
+                <label>Nombres</label>
+                <input type="text" readonly :value="cliente.nombre">
+            </div>
+            <div class="pure-u-1-4 formInputStandard">
+                <label>Número Documento</label>
+                <input type="text" readonly :value="cliente.numero_documento">
+            </div>
+            <div class="pure-u-1-4 formInputStandard">
+                <label>Solicitado por</label>
+                <input type="text" readonly :value="cliente.veto_solicitado_por">
+            </div>
+            <div class="pure-u-1-4 formInputStandard">
+                <label>Vetado por</label>
+                <input type="text" readonly :value="cliente.vetado_por">
+            </div>
+            <div class="pure-u-1-4 formInputStandard">
+                <label>Fecha</label>
+                <input type="datetime-local" readonly :value="cliente.fecha_veto">
+            </div>
+
+            <div class="pure-u-1-1 formInputStandard">
+                <label>Motivo</label>
+                <textarea rows="5" v-model="cliente.motivo_veto" style="resize: none; height: auto;">
+                    </textarea>
+            </div>
         </div>
     </div>
 </div>
