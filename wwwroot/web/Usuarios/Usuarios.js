@@ -17,7 +17,8 @@
                 "id_cargo": "",
                 "id_tipo_usuario": "",
                 "roles": "",
-                "created_by": ""
+                "created_by": "",
+                "contraseña": ""
             },
             editUser: {
                 "id_usuario": "",
@@ -29,7 +30,8 @@
                 "id_tipo_usuario": "",
                 "roles": "",
                 "created_by": "",
-                "is_active": 0
+                "is_active": 0,
+                "contraseña": ""
             },
             newPassword: "",
             sendSMSPassword: 0,
@@ -152,8 +154,12 @@
               
             this.newUser["roles"] = rolesSeleccionados+",";
             showProgress();
-            const resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
+            var resp = await httpFunc("/generic/genericST/Usuarios:Ins_Usuario", this.newUser);
             hideProgress();
+            if (resp.data === 'OK') {
+                resp = await httpFunc("/auth/createUser", { "username": this.newUser["usuario"], "password": this.newUser["contraseña"] });
+                console.log(resp);
+            }
             resp.data === 'OK' && showConfirm("¿Desea enviar un email con los datos?", this.notifyEmail, null, this.newUser);
 
             this.setMainMode(1);

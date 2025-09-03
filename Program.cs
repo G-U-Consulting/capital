@@ -8,6 +8,7 @@ using orca.Code.Api;
 using orca.Code.Auth;
 using orca.Code.Logger;
 using System.Data;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -22,7 +23,14 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = false;
     options.LoginPath = "/login.html";
 });
+builder.Services.AddDataProtection()
+        .PersistKeysToDbContext<AuthDBContext>()
+        .SetApplicationName("Capital");
 var app = builder.Build();
+/*
+ * Add-Migration AddDataProtectionKeysTable
+ * Update-Database
+ */
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()){
     app.MapOpenApi();
