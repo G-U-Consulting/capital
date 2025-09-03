@@ -2,7 +2,7 @@
 -- Proceso: Usuarios/Get_RolesUsuario
 -- =============================================
 --START_PARAM
-set @username = 'a.Prueba_9';
+set @username = 'prueba';
 --END_PARAM
 
 select fr.id_rol, fr.rol

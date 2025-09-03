@@ -3,10 +3,12 @@ export default {
         return {
             mainmode: 0,
             mode: 0,
+            selIndex: 0,
             ruta: [],
             clientes: [],
 
             cliente: {},
+            veto: {},
 
             filtros: {
                 clientes: { is_atencion_rapida: '' }
@@ -18,11 +20,15 @@ export default {
             showListas: false,
             showDesc: false,
 
-            chart: null
+            chart: null,
+            saveData: {},
         };
     },
     async mounted() {
         await this.loadData();
+        this.saveData = await GlobalVariables.miniModuleCallback('GetData');
+        if (this.saveData && this.saveData.selIndex) this.selIndex = this.saveData.selIndex;
+        if (this.saveData && this.saveData.filtros) this.filtros = this.saveData.filtros;
         //this.setMode('chart');
         //this.setMode('d3');
     },
@@ -52,12 +58,16 @@ export default {
             let item = this.filtros[table];
             item = Object.keys(item).forEach((key) => item[key] = '');
         },
+        async setIndex(i) {
+            this.selIndex = i;
+            this.saveData.selIndex = i;
+            GlobalVariables.miniModuleCallback('SaveData', {...this.saveData});
+        },
         onSelect(cliente) {
             this.cliente = { ...cliente };
             this.setMode(1);
             this.ruta.push({ text: `${cliente.numero_documento} - Edición` });
             this.setRuta();
-            console.log(cliente);
         },
         toggleAtencion() {
             console.log(this.filtros.clientes);
@@ -74,6 +84,19 @@ export default {
 				showMessage('Error: ' + e.errorMessage || e.data);
 			}
 			hideProgress();
+        },
+        openModal() {
+            let $modal = document.getElementById('modalOverlay');
+            if ($modal) $modal.style.display = 'flex';
+        },
+        closeModal(e) {
+            if (e && e.target.matches('#modalOverlay')) {
+                e.target.style.display = 'none';
+            }
+            if (!e || e.target.matches('.modal-cerrar.events')) {
+                let $modal = document.getElementById('modalOverlay');
+                $modal && ($modal.style.display = 'none');
+            }
         },
 
         /* initChart() {
@@ -183,6 +206,11 @@ export default {
     computed: {
         getFilteredList() {
             return (tabla) => {
+                if (this.filtros.clientes.nombre_id || this.filtros.clientes.pais || this.filtros.clientes.departamento
+                    || this.filtros.clientes.ciudad || this.filtros.clientes.is_atencion_rapida) {
+                    this.saveData.filtros = this.filtros;
+                    GlobalVariables.miniModuleCallback('SaveData', {...this.saveData});
+                }
                 return this[tabla] ? this[tabla].filter(item =>
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
                         if (tabla == 'clientes' && key == 'nombre_id')

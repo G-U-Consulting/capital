@@ -364,14 +364,9 @@
                             <span>Tipo de Hito</span>
                             <input type='text' maxlength="100" :value="eventType" readonly />
                         </div>
-                        <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard' v-if="eventType == 'Sala'">
+                        <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                             <span>Sala</span>
                             <input type='text' maxlength="100" :value="hito.sala_venta" readonly />
-                        </div>
-                        <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'
-                            v-if="eventType === 'Proyecto' || eventType === 'Torre' || eventType === 'Inmueble'">
-                            <span>Proyecto</span>
-                            <input type='text' maxlength="100" :value="hito.nombre_pro" readonly />
                         </div>
                         <div class='pure-u-5-24 pure-u-md-5-24 formInputStandard' style="text-align: center;">
                             <span>Color</span>
@@ -382,6 +377,11 @@
                             <input type='time' :value="hito.hora" readonly />
                         </div>
 
+                        <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
+                            <span>Proyecto</span>
+                            <input type='text' maxlength="100" :value="hito.nombre_pro || 'N/A'" readonly 
+                                :disabled="eventType === 'Sala'"/>
+                        </div>
                         <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
                             <span>Torre</span>
                             <input type='text' :value="hito.torre || 'N/A'" readonly 

@@ -6,6 +6,7 @@ var GlobalVariables = {
     username: null,
     roles: null,
     permisos: null,
+    loadPermisos: null,
     loadModule: null,
     loadMiniModule: null,
     miniModuleCallback: null,
@@ -68,6 +69,7 @@ mainVue = {
         GlobalVariables.roles = data.roles;
         GlobalVariables.permisos = data.permisos;
         GlobalVariables.username = data.user;
+        GlobalVariables.loadPermisos = this.loadPermisos;
         GlobalVariables.loadModule = this.loadModule;
         GlobalVariables.loadMiniModule = this.loadMiniModule;
         GlobalVariables.ruta = localStorage.getItem('ruta');
@@ -94,6 +96,11 @@ mainVue = {
         this.nombreUsuario = response.data[0][0].nombres;
     },
     methods: {
+        async loadPermisos() {
+            let [roles, permisos] = (await httpFunc("/generic/genericDS/Usuarios:Get_RolesUsuario", 
+                { username: GlobalVariables.username })).data;
+            if (permisos && permisos.length) GlobalVariables.permisos = permisos;
+        },
         async loadModule(name, inputParameter) {
             if (inputParameter == null && this.modules[name] != null && this.modules[name].inputParameter != null)
                 inputParameter = this.modules[name].inputParameter;

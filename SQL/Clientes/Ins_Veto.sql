@@ -20,7 +20,7 @@ if @id_cliente is null then
     set @cliente_id = last_insert_id();
 end if;
 
-insert into dim_veto_cliente(id_cliente, motivo, vetado_por, fecha)
+insert into dim_veto_cliente(id_cliente, motivo, solicitado_por, fecha)
 values(@cliente_id, @motivo, @usuario, current_timestamp);
 
 select concat('OK-id_veto:', last_insert_id()) as result;
