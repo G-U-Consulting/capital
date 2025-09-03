@@ -1,10 +1,11 @@
 ﻿
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace orca.Code.Auth {
-    public class AuthDBContext : IdentityDbContext<IdentityUser> {
+    public class AuthDBContext : IdentityDbContext<IdentityUser>, IDataProtectionKeyContext {
         public AuthDBContext(DbContextOptions<AuthDBContext> options) :
         base(options) {
             /*
@@ -13,6 +14,9 @@ namespace orca.Code.Auth {
                 Update-Database
              */
         }
+
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             string cnString = orca.ConfigurationManager.AppSetting["ConnectionStrings:" + orca.ConfigurationManager.AppSetting["AuthDB"]];
             var serverVersion = ServerVersion.AutoDetect(cnString);
