@@ -6,7 +6,7 @@ export default {
             proyecto: null,
             fileSelected: null,
             lateralMenu: false,
-            showList: true,
+            showList: window.innerWidth > 1424,
             ocultarLayout: true,
         };
     },
@@ -167,7 +167,6 @@ export default {
                 this.fileSelected = file;
             }
         },
-
         async removeFile() {
             this.fileSelected = null;
         },

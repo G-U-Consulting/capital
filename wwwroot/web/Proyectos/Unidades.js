@@ -99,7 +99,7 @@
 			if (torres.length && aptos.length) {
 				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];
 				aptos.forEach(a => number_fileds.forEach(key => a[key] = a[key].replace(',', '.')));
-				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], id_torre: t.id_torre }));
+				torres = torres.map(t => ({ idtorre: t.consecutivo, pisos: [], id_torre: t.id_torre, en_venta: t.en_venta }));
 				aptos.forEach(a => {
 					a.piso && pisos.add(a.piso);
 					a.codigo_planta && tipos.add(a.codigo_planta);
@@ -120,7 +120,17 @@
 				this.aptos = aptos;
 				this.pisos = [...pisos].sort((a, b) => parseInt(b) - parseInt(a));
 				this.tipos = [...tipos].sort();
+
 				this.computeViews();
+
+				if (!this._preselectDone) {
+					const tVenta = this.torres.find(t => t.en_venta === '1' || t.en_venta === 1 || t.en_venta === true);
+					// usar nextTick por si computeViews o el DOM actualizan después
+					this.$nextTick(() => {
+						this.filtros.aptos.torres = tVenta ? [tVenta.idtorre] : [];
+					});
+					this._preselectDone = true;
+				}
 			};
 			this.loading = false;
 			hideProgress();
@@ -615,13 +625,16 @@
 			}
 		},
 		openModal(img) {
-    this.modalImage = img
-    this.showModal = true
-  },
-  closeModal() {
-    this.showModal = false
-    this.modalImage = null
-  }
+			this.modalImage = img
+			this.showModal = true
+		},
+		closeModal() {
+			this.showModal = false
+			this.modalImage = null
+		},
+		setTorre(torre) {
+			this.torre = torre;
+		},
 	},
 	computed: {
 		f_area_privada_cub: {
@@ -669,7 +682,7 @@
 				return this[tabla] ? this[tabla].filter(item =>
 					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
 						if (tabla == 'aptos' && key == 'torres')
-							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
+							return this.filtros[tabla][key].length > 0 && this.filtros[tabla][key].includes(item.idtorre);
 						else
 							return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
 					}) : []

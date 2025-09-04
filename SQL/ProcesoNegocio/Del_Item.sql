@@ -2,12 +2,20 @@
 -- Proceso: ProcesoNegocio/Del_Item
 -- =============================================
 --START_PARAM
-set @id_negocios_unidades = 0;
+set @id_negocios_unidades = 0,
+    @terminarAtencion = 0,
+    @id_proyecto = 0,
+    @id_cliente = 0;
 --END_PARAM
 
-
-delete
-from fact_negocios_unidades
-where id_negocios_unidades = @id_negocios_unidades;
+if @terminarAtencion = 1 then
+    delete from fact_negocios_unidades
+    where id_proyecto = @id_proyecto
+      and id_cliente = @id_cliente
+      and date(created_on) < now();
+else
+    delete from fact_negocios_unidades
+    where id_negocios_unidades = @id_negocios_unidades;
+end if;
 
 select 'OK' as result;

@@ -8,7 +8,7 @@
                         <div class="lista-torres" style="height: calc(100vh - 6rem);">
                             <div v-for="item in torres"
                                 class="torre" @click="toggleTorre(item)"
-                                v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre)}">
+                                v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre),'en-venta': item.en_venta == '1'}">
                                 <div style="align-self: center;">
                                     <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
                                 </div>
@@ -55,7 +55,7 @@
                 </div>
                 <div v-if="viewProperties.viewType == 'classic'" style="flex-grow: 1;">
                     <div class="pure-g">
-                        <div class="pure-u-1-1">
+                        <div class="pure-u-1-1 pure-u-md-3-1">
                             <div class="filtros-wrapper">
                                 <div class="filtros-container">
                                     <div class="filtros-center">
@@ -65,53 +65,44 @@
                                                 <img src="./img/ico/eraser.png" />
                                             </div>
                                         </div>
-
-                                        <!-- <div class='formInputStandard'> -->
-                                            <!-- <span>Clase</span> -->
-                                            <select v-model="filtros.aptos['clase']" class="pure-input-1">
-                                                <option value="">[Clase]</option>
-                                                <option value="Apartamento">Apartamento</option>
-                                                <option value="Deposito">Depósito</option>
-                                                <option value="Parqueadero">Parqueadero</option>
-                                            </select>
-                                        <!-- </div> -->
-                                
+                                        <select v-model="filtros.aptos['clase']">
+                                            <option value="">[Clase]</option>
+                                            <option value="Apartamento">Apartamento</option>
+                                            <option value="Deposito">Depósito</option>
+                                            <option value="Parqueadero">Parqueadero</option>
+                                        </select>
                                         <select v-model="filtros.aptos['codigo_planta']">
                                             <option value="">[Tipos]</option>
                                             <option v-for="t in tipos" :value="t">{{ t }}</option>
                                         </select>
-                                        
                                         <select v-model="filtros.aptos['piso']">
                                             <option value="">[Pisos]</option>
                                             <option v-for="p in pisos" :value="p">{{ p }}</option>
                                         </select>
-                                
                                         <select v-model="filtros.aptos['id_estado_unidad']">
                                             <option value="">[Estados]</option>
                                             <option v-for="e in estados" :value="e.id_estado_unidad">{{ e.estado_unidad }}</option>
                                         </select>
-                                
                                         <select v-model="filtros.aptos['localizacion']">
                                             <option value="">[Localización]</option>
                                             <option value="Interior">Interior</option>
                                             <option value="Exterior">Exterior</option>
                                         </select>
-                                
                                         <div class="checkbox-group">
-                                            <label><input type="checkbox" v-model="filtros.aptos['tiene_balcon']" true-value="1" false-value="" /> Tiene
-                                                Balcón</label>
+                                            <label><input type="checkbox" v-model="filtros.aptos['tiene_balcon']" true-value="1" false-value="" /> 
+                                                Con Balcón</label>
                                             <label><input type="checkbox" v-model="filtros.aptos['tiene_parq_sencillo']" true-value="1"
-                                                    false-value="" /> Parq. Sencillo</label>
+                                                    false-value="" /> Parq Sencillo</label>
                                             <label><input type="checkbox" v-model="filtros.aptos['tiene_parq_doble']" true-value="1" false-value="" />
-                                                Parq. Doble</label>
+                                                Parq Doble</label>
                                             <label><input type="checkbox" v-model="filtros.aptos['tiene_deposito']" true-value="1" false-value="" />
-                                                Tiene Depósito</label>
+                                                Con Depósito</label>
                                             <label><input type="checkbox" v-model="filtros.aptos['tiene_acabados']" true-value="1" false-value="" />
-                                                Tiene Acabados</label>
+                                                Con Acabados</label>
                                             <label><input type="checkbox" v-model="filtros.aptos['cerca_porteria']" true-value="1" false-value="" />
                                                 Cerca Portería</label>
                                             <label><input type="checkbox" v-model="filtros.aptos['cerca_juegos_infantiles']" true-value="1"
-                                                    false-value="" /> Cerca Juegos Inf.</label>
+                                                    false-value="" /> Cerca Juegos Inf</label>
                                             <label><input type="checkbox" v-model="filtros.aptos['cerca_piscina']" true-value="1" false-value="" />
                                                 Cerca Piscina</label>
                                         </div>
@@ -164,7 +155,7 @@
                                     <div class="progress-card">
                                         <div class="progress-header">
                                             <samp>Vendidos</samp>
-                                            <strong>{{ vendidosPorcentaje }}%</strong>
+                                            <strong style="color: #008B8B; font-size: 1rem;">{{ vendidosPorcentaje }}%</strong>
                                         </div>
                                         <div class="progress-bar">
                                             <div class="progress-fill" :style="{ width: vendidosPorcentaje + '%', backgroundColor: barraColor }"></div>
@@ -371,7 +362,7 @@
                                 <label class="check" for="c_tiene_balcon">
                                     <input type="checkbox" id="c_tiene_balcon" v-model="apto.tiene_balcon" true-value="1" false-value="0" disabled/>
                                     <span class="checkmark"></span>
-                                    Tiene Balcón
+                                    Con Balcón
                                 </label>
                             </div>
                         </div>
@@ -401,7 +392,7 @@
                                     <input type="checkbox" id="c_tiene_deposito" v-model="apto.tiene_deposito" true-value="1"
                                         false-value="0" disabled/>
                                     <span class="checkmark"></span>
-                                    Tiene Depósito
+                                    Con Depósito
                                 </label>
                             </div>
                         </div>
@@ -411,7 +402,7 @@
                                     <input type="checkbox" id="c_tiene_acabados" v-model="apto.tiene_acabados" true-value="1"
                                         false-value="0" />
                                     <span class="checkmark"></span>
-                                    Tiene Acabados
+                                    Con Acabados
                                 </label>
                             </div>
                         </div>

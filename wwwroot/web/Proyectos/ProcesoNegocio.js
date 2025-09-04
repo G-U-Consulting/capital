@@ -733,7 +733,8 @@ export default {
         async dropitem(item){
 
             let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
-                id_negocios_unidades: item.id_negocios_unidades
+                id_negocios_unidades: item.id_negocios_unidades,
+                terminarAtencion: 1
             });
 
             res = res.data;
@@ -743,10 +744,28 @@ export default {
             }
 
         },
-        terminarAtencion() {
+        async terminarAtencion() {
+
+            let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
+                terminarAtencion: 1,
+                id_cliente: this.id_cliente,
+                id_proyecto: GlobalVariables.id_proyecto
+            });
+
+            let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
+                id_cliente: this.id_cliente,
+                id_proyecto: GlobalVariables.id_proyecto,
+            });
+
             this.cliente = null;
             this.ObjCliente = {};
             this.mode = 0;
+            this.policyAccepted = false;
+            this.unidades = [];
+
+            GlobalVariables.ventanaUnidades.close();
+            GlobalVariables.ventanaUnidades = null;
+
         }
     }
 }

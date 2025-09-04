@@ -4,7 +4,7 @@
             <img src="../../img/ico/deploy.png">
         </div>
     </div>
-    <div v-if="lateralMenu" class="pure-u-1-1 pure-u-md-1-5" :style="{display:showList?'block':'none'}">
+    <div v-if="lateralMenu" class="pure-u-1-1 pure-u-md-1-5" :style="{display:showList?'block':'none'}" :class="['lateralMenuContainer', { open: showList }]">
         <div class="lateralMenu">
             <div class="lateralMenuHeader">
             </div>
