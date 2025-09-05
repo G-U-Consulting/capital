@@ -147,12 +147,12 @@ export default {
                         const fdd = String(fecha.getDate()).padStart(2, '0');
                         return `${fyyyy}-${fmm}-${fdd}` === hoyStr;
                     }
-                    //formato para "YYYY-MM-DD esta sale del frontend"
+        
                     if (fecha.includes('-') && fecha.includes(':')) {
                         const fechaStr = fecha.split(' ')[0];
                         return fechaStr === hoyStr;
                     }
-                    //formato para "DD/MM/YYYY HH:mm:ss p. m. esta sal del backend"
+
                     if (fecha.includes('/')) {
                         const partesFecha = fecha.split(' ')[0].split('/');
                         if (partesFecha.length === 3) {

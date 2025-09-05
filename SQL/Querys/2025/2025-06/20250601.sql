@@ -121,7 +121,7 @@ create table fact_cotizaciones (
     cotizacion varchar(100),
     fecha datetime,
     descripcion varchar(100),
-    importe decimal(10,2),
+    importe bigint,
     id_proyecto int,
     is_active bit default 1,
 	created_on datetime default current_timestamp,

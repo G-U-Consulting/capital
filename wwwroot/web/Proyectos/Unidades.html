@@ -155,7 +155,7 @@
                                     <div class="progress-card">
                                         <div class="progress-header">
                                             <samp>Vendidos</samp>
-                                            <strong style="color: #008B8B; font-size: 1rem;">{{ vendidosPorcentaje }}%</strong>
+                                            <strong style="color: #00BFA5; font-size: 1rem;">{{ vendidosPorcentaje }}%</strong>
                                         </div>
                                         <div class="progress-bar">
                                             <div class="progress-fill" :style="{ width: vendidosPorcentaje + '%', backgroundColor: barraColor }"></div>
@@ -178,8 +178,10 @@
                             
                                         <div class="tab-card">
                                             <div v-if="activeTab === 'detalle'">
-                                                <h3>Valor Unidad: {{ formatoMoneda(selectedApto.valor_unidad) }}</h3>
+                                                <h3 v-if="selectedApto.id_agrupacion == ''">Valor Unidad: {{ formatoMoneda(selectedApto.valor_unidad) }}</h3>
+                                                <h3 v-else>Valor Agrupacion: {{ formatoMoneda(selectedApto.agrupacion_total) }}</h3>
                                                 <ul class="detail-list">
+                                                    <li v-if="selectedApto.id_agrupacion != ''"><span class="label">🏘️ Agrupación:</span> {{ selectedApto.agrupacion_nombre }}</li>
                                                     <li><span class="label">📐 Tipo:</span> {{ selectedApto.codigo_planta }}</li>
                                                     <li><span class="label">🏠 ID Unidad:</span> {{ selectedApto.apartamento }}</li>
                                                     <li><span class="label">📊 Estatus:</span> {{ selectedApto.estatus }}</li>
