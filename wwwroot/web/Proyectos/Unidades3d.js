@@ -20,6 +20,7 @@
 			estados: [],
 			fiduciarias: [],
 			instructivos: [],
+			clases: [],
 			tipos: [],
 			localizaciones: [],
 			agrupaciones: [],
@@ -75,6 +76,7 @@
 					torres: [],
 					piso: '',
 					id_tipo: '',
+					id_clase: '',
 				},
 				agrupaciones: {},
 				groupedAptos: {
@@ -85,6 +87,7 @@
 					piso: '',
 					id_torre: '',
 					id_tipo: '',
+					id_clase: '',
 				}
 			},
 			editNewRow: false,
@@ -162,11 +165,13 @@
 		},
 		async loadUnidades(compute) {
 			showProgress();
-			let [torres, aptos, estados, fiduciarias, instructivos] = (await
+			let [torres, aptos, estados, fiduciarias, instructivos, clases] = (await
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
 			this.fiduciarias = fiduciarias;
 			this.instructivos = instructivos;
+			this.clases = clases;
+			console.log(this.clases);
 			let pisos = new Set(), localizaciones = new Set();
 			if (torres.length && aptos.length) {
 				let a_num_fields = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'valor_complemento', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'],
@@ -537,7 +542,7 @@
 					id_estado_unidad: '',
 					id_tipo: '',
 					localizacion: '',
-					clase: '',
+					id_clase: '',
 					torres: [],
 					piso: '',
 					id_agrupacion: '',
@@ -548,7 +553,7 @@
 					id_estado_unidad: '',
 					id_tipo: '',
 					localizacion: '',
-					clase: '',
+					id_clase: '',
 					piso: '',
 					id_torre: ''
 				}
@@ -946,9 +951,9 @@
 					this.onUpdateOrden(this.torre, next);
 				}
 				else if (next && this.blockTower(next))
-					showMessage(`No es posible cambiar el orden de la torre ${next.consecutivo} con unidades vendidas, consignadas o opcionadas.`)
+					showMessage(`No es posible cambiar el orden de la torre ${next.consecutivo} con unidades vendidas, consignadas u opcionadas.`)
 			}
-			else showMessage(`No es posible cambiar el orden de la torre ${this.torre.consecutivo} con unidades vendidas, consignadas o opcionadas.`);
+			else showMessage(`No es posible cambiar el orden de la torre ${this.torre.consecutivo} con unidades vendidas, consignadas u opcionadas.`);
 		},
 		async onUpdateOrden(torre1, torre2) {
 			if (torre1 && torre2) {

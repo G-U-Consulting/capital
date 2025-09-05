@@ -66,6 +66,9 @@ create temporary table tmp_unidades as(
         deposito_ubicacion varchar(50) path '$."deposito_ubicacion"',
         valor_deposito varchar(50) path '$."valor_deposito"'
     ))  as a
+    where a.apartamento is not null and a.apartamento != '' 
+        and a.torre is not null and a.torre != '' 
+        and a.clase is not null and a.clase != ''
 );
 
 -- TODO hacer validación de datos antes de continuar
@@ -153,7 +156,7 @@ where ft.id_proyecto = @id_proyecto and tu.id_proyecto = @id_proyecto;
 insert into fact_unidades(
     id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
-    valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, clase, id_lista, cerca_porteria, 
+    valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, id_clase, id_lista, cerca_porteria, 
     cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, created_by 
 ) 
 select distinct
@@ -162,7 +165,10 @@ select distinct
     (select e.id_estado_unidad 
         from dim_estado_unidad e 
         where e.estado_unidad = t.estatus) as id_estado_unidad,
-    concat('Apto ', t.apartamento) as nombre_unidad,
+    concat(if(t.clase is not null and t.clase != '', 
+        (select coalesce(tp.codigo, 'APT ') 
+            from dim_tipo_proyecto tp 
+            where tp.tipo_proyecto = t.clase), 'APT '), t.apartamento) as nombre_unidad,
     convert(t.apartamento, int) as numero_apartamento,
     convert(t.piso, int) as piso,
     t.tipo as tipo,
@@ -190,7 +196,8 @@ select distinct
     t.id_cuenta_convenio as id_cuenta_convenio,
     t.asoleacion as asoleacion,
     t.altura as altura,
-    t.clase as clase,
+    if(t.clase is null or t.clase = '', null, 
+        (select tp.id_tipo_proyecto from dim_tipo_proyecto tp where tp.tipo_proyecto = clase)) as id_clase,
     if(t.lista is null or t.lista = '', null, 
         (select l.id_lista from dim_lista_precios l where l.lista = t.lista and l.id_proyecto = @id_proyecto)) as id_lista,
     convert(t.cerca_porteria, unsigned) as cerca_porteria,
@@ -231,7 +238,7 @@ on duplicate key update
     id_cuenta_convenio = values(id_cuenta_convenio),
     asoleacion = values(asoleacion),
     altura = values(altura),
-    clase = values(clase),
+    id_clase = values(id_clase),
     id_lista = values(id_lista),
     cerca_porteria = values(cerca_porteria),
     cerca_juegos_infantiles = values(cerca_juegos_infantiles),
@@ -249,16 +256,17 @@ update tmp_unidades a
 set 
     a.id_unidad = b.id_unidad;
 
-insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clase)
+select tp.id_tipo_proyecto into @id_clase_prq from dim_tipo_proyecto tp where tipo_proyecto = 'Parqueadero';
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, id_clase)
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
-    concat('Parq ', t.parqueadero) as nombre_unidad,
+    concat('PRQ ', t.parqueadero) as nombre_unidad,
     convert(t.parqueadero, int) as numero_apartamento,
     convert(t.parqueadero_ubicacion, int) as piso,
     convert(t.parqueadero_area, decimal(20, 2)) as area_total,
     convert(t.valor_parqueadero, decimal(20, 2)) as valor_complemento,
-    'Parqueadero' as clase
+    @id_clase_prq as id_clase
 from tmp_unidades t
 where t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0'
 on duplicate key update
@@ -267,22 +275,22 @@ on duplicate key update
     numero_apartamento = values(numero_apartamento),
     piso = values(piso),
     valor_complemento = values(valor_complemento),
-    clase = values(clase);
+    id_clase = values(id_clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.clase = 'Parqueadero'
+    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = @id_clase_prq
 set 
     a.id_parqueadero = b.id_unidad;
 
-insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clase)
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, id_clase)
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
-    concat('Parq ', t.parqueadero2) as nombre_unidad,
+    concat('PRQ ', t.parqueadero2) as nombre_unidad,
     convert(t.parqueadero2, int) as numero_apartamento,
     convert(t.parqueadero2_ubicacion, int) as piso,
     convert(t.parqueadero2_area, decimal(20, 2)) as area_total,
     convert(t.valor_parqueadero2, decimal(20, 2)) as valor_complemento,
-    'Parqueadero' as clase
+    @id_clase_prq as id_clase
 from tmp_unidades t
 where t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0'
 on duplicate key update
@@ -291,22 +299,23 @@ on duplicate key update
     numero_apartamento = values(numero_apartamento),
     piso = values(piso),
     valor_complemento = values(valor_complemento),
-    clase = values(clase);
+    id_clase = values(id_clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero2 = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.clase = 'Parqueadero'
+    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero2 = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = @id_clase_prq
 set 
     a.id_parqueadero2 = b.id_unidad;
 
-insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, clase)
+select tp.id_tipo_proyecto into @id_clase_dep from dim_tipo_proyecto tp where tipo_proyecto = 'Deposito';
+insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, id_clase)
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
-    concat('Dep ', t.deposito) as nombre_unidad,
+    concat('DEP ', t.deposito) as nombre_unidad,
     convert(t.deposito, int) as numero_apartamento,
     convert(t.deposito_ubicacion, int) as piso,
     convert(t.deposito_area, decimal(20, 2)) as area_total,
     convert(t.valor_deposito, decimal(20, 2)) as valor_complemento,
-    'Deposito' as clase
+    @id_clase_dep as id_clase
 from tmp_unidades t
 where t.deposito is not null and t.deposito != '' and t.deposito != '0'
 on duplicate key update
@@ -315,27 +324,31 @@ on duplicate key update
     numero_apartamento = values(numero_apartamento),
     piso = values(piso),
     valor_complemento = values(valor_complemento),
-    clase = values(clase);
+    id_clase = values(id_clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.deposito = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.clase = 'Deposito'
+    join fact_unidades b on a.id_torre = b.id_torre and a.deposito = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = @id_clase_dep
 set 
     a.id_deposito = b.id_unidad;
 
 
 insert into dim_agrupacion_unidad(id_proyecto, nombre, descripcion)
-select @id_proyecto, concat('Agrupación ', 
-    (select concat('T', ft.consecutivo, ' - ', u.numero_apartamento) from fact_unidades u 
-        join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad)) as nombre,
+select @id_proyecto, 
+    (select concat(tp.codigo, ' ', u.numero_apartamento, ' - T', ft.consecutivo) from fact_unidades u 
+        join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad) as nombre,
     concat(
-        (select concat('Apto ', u.numero_apartamento) from fact_unidades u where u.id_unidad = t.id_unidad),
-        if(t.id_parqueadero is not null, (select concat(', Parq. ', u.numero_apartamento) 
-            from fact_unidades u where u.id_unidad = t.id_parqueadero), ''),
-        if(t.id_parqueadero2 is not null, (select concat(', Parq2. ', u.numero_apartamento) 
-            from fact_unidades u where u.id_unidad = t.id_parqueadero2), ''),
-        if(t.id_deposito is not null, (select concat(', Depósito. ', u.numero_apartamento) 
-            from fact_unidades u where u.id_unidad = t.id_deposito), '')
+        (select concat(tp.codigo, ': ', u.numero_apartamento) from fact_unidades u where u.id_unidad = t.id_unidad),
+        if(t.id_parqueadero is not null, (select concat(', ', utp.codigo, ': ', u.numero_apartamento) 
+            from fact_unidades u join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
+            where u.id_unidad = t.id_parqueadero), ''),
+        if(t.id_parqueadero2 is not null, (select concat(', ', utp.codigo, ': ', u.numero_apartamento) 
+            from fact_unidades u join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
+            where u.id_unidad = t.id_parqueadero2), ''),
+        if(t.id_deposito is not null, (select concat(', ', utp.codigo, ': ', u.numero_apartamento) 
+            from fact_unidades u join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
+            where u.id_unidad = t.id_deposito), '')
     ) as descripcion
 from tmp_unidades t
+left join dim_tipo_proyecto tp on t.clase = tp.tipo_proyecto
 where (t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0')
     or (t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0')
     or (t.deposito is not null and t.deposito != '' and t.deposito != '0')
@@ -344,11 +357,11 @@ on duplicate key update
 
 drop table if exists tmp_agrupaciones;
 create temporary table tmp_agrupaciones as (
-select concat('Agrupación ', 
-    (select concat('T', ft.consecutivo, ' - ', u.numero_apartamento) from fact_unidades u 
-        join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad)) as grupo, 
+select (select concat(tp.codigo, ' ', u.numero_apartamento, ' - T', ft.consecutivo) from fact_unidades u 
+        join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad) as grupo, 
     id_unidad, id_parqueadero, id_parqueadero2, id_deposito 
 from tmp_unidades t
+left join dim_tipo_proyecto tp on t.clase = tp.tipo_proyecto
 where (t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0')
     or (t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0')
     or (t.deposito is not null and t.deposito != '' and t.deposito != '0')
@@ -371,12 +384,17 @@ select 'OK' as respuesta;
 
 /*
 select * from dim_agrupacion_unidad;
-select * from fact_unidades where id_proyecto = 9 limit 2000;
-update fact_unidades set id_agrupacion = null where id_proyecto=9;
-delete from dim_agrupacion_unidad where id_proyecto=9;
-delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 9);
-delete from fact_unidades where id_proyecto = 9;
-delete from fact_torres where id_proyecto = 9;
-update fact_proyectos set id_lista = null where id_proyecto = 9;
-delete from dim_lista_precios where id_proyecto=9;
+select * from fact_unidades where id_proyecto = 7 limit 2000;
+select * from tmp_agrupaciones;
+update fact_unidades set id_agrupacion = null where id_proyecto=7;
+delete from dim_hito_cargo where id_hito in (select h.id_hito from fact_unidades u 
+    join dim_hito_sala h on u.id_torre = h.id_torre where u.id_proyecto = 7 group by h.id_hito);
+delete from dim_hito_sala where id_torre in (select id_torre from fact_torres where id_proyecto = 7);
+delete from dim_agrupacion_unidad where id_proyecto=7;
+delete from dim_lista_tipo_torre where id_torre in (select id_torre from fact_torres where id_proyecto = 7);
+delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 7);
+delete from fact_unidades where id_proyecto = 7;
+delete from fact_torres where id_proyecto = 7;
+update fact_proyectos set id_lista = null where id_proyecto = 7;
+delete from dim_lista_precios where id_proyecto=7;
 */

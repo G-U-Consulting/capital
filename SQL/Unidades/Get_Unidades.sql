@@ -22,20 +22,18 @@ select date_format(u.fecha_fec, '%Y-%m-%d %T') as fecha_fec,
     (select l.lista from dim_lista_precios l where l.id_lista = if(u.id_lista is null, 
         (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), u.id_lista)
     ) as lista,
+    tp.tipo_proyecto as clase,
     u.*, c.*, e.estado_unidad as estatus, u.numero_apartamento as apartamento
 from fact_unidades u 
 left join dim_estado_unidad e on u.id_estado_unidad = e.id_estado_unidad
 left join dim_cuenta_convenio c on u.id_cuenta_convenio = c.id_cuenta_convenio
+left join dim_tipo_proyecto tp on u.id_clase = tp.id_tipo_proyecto
 where u.id_proyecto = @id_proyecto
 order by u.numero_apartamento;
 
 select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente
 from dim_estado_unidad
 where is_active = 1;
-
-select id_tipo, tipo, id_proyecto, id_archivo_planta, id_archivo_recorrido
-from dim_tipo_unidad
-where id_proyecto = @id_proyecto and tipo != '';
 
 select id_fiduciaria, fiduciaria 
 from dim_fiduciaria
@@ -44,3 +42,9 @@ where is_active = 1;
 select id_instructivo, instructivo
 from dim_instructivo
 where is_active = 1;
+
+select tp.id_tipo_proyecto as id_clase, tp.tipo_proyecto as clase
+from fact_unidades u 
+join dim_tipo_proyecto tp on u.id_clase = tp.id_tipo_proyecto
+where u.id_proyecto = @id_proyecto
+group by tp.id_tipo_proyecto;

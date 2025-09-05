@@ -18,6 +18,8 @@ export default {
             showGestion: false,
             showInfo: false,
             showCuentas: false,
+
+            newRow: false,
         };
     },
     async mounted() {
@@ -90,6 +92,9 @@ export default {
 			cleaned = cleaned.replace(",", ".");
 			return cleaned;
 		},
+        onAddAccount() {
+            this.newRow = !this.newRow;
+        },
     },
     computed: {
         f_campo: {

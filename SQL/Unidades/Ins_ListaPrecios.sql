@@ -40,11 +40,12 @@ update dim_lista_precios l
 set l.updated_on = current_timestamp, l.updated_by = @Usuario
 where l.lista in (select t.lista from tmp_lista_precios t group by t.lista) and l.id_proyecto = @id_proyecto;
 
+select tp.id_tipo_proyecto into @id_clase_apt from dim_tipo_proyecto tp where tipo_proyecto = 'Apartamentos';
 insert into dim_precio_unidad(id_lista, id_unidad, id_precio, precio, en_smlv, precio_m2, precio_alt, en_smlv_alt, precio_m2_alt, updated_by, updated_on) 
 select distinct
     (select l.id_lista from dim_lista_precios l where l.lista = t.lista and l.id_proyecto = @id_proyecto) as id_lista,
     (select u.id_unidad from fact_unidades u join fact_torres ft on u.id_torre = ft.id_torre 
-        where u.id_proyecto = @id_proyecto and ft.consecutivo = t.torre and u.numero_apartamento = t.apartamento and clase = 'Apartamento') as id_unidad,
+        where u.id_proyecto = @id_proyecto and ft.consecutivo = t.torre and u.numero_apartamento = t.apartamento and u.id_clase = @id_clase_apt) as id_unidad,
     id_precio as id_precio,
     convert(t.precio, decimal(20, 2)) as precio,
     convert(t.en_smlv, decimal(20, 2)) as en_smlv,
@@ -55,6 +56,15 @@ select distinct
     @Usuario as updated_by,
     current_timestamp as updated_on
 from tmp_lista_precios t
+where exists (
+  select 1
+  from fact_unidades u
+  join fact_torres ft on u.id_torre = ft.id_torre
+  where u.id_proyecto = @id_proyecto
+    and ft.consecutivo = t.torre
+    and u.numero_apartamento = t.apartamento
+    and u.id_clase = @id_clase_apt
+)
 on duplicate key update
     precio = values(precio),
     en_smlv = values(en_smlv),

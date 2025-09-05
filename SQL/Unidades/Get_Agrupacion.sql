@@ -6,9 +6,10 @@ set @id_proyecto = 5;
 
 --END_PARAM
 
+select tp.id_tipo_proyecto into @id_clase_apt from dim_tipo_proyecto tp where tipo_proyecto = 'Apartamentos';
 select a.id_agrupacion, a.nombre, a.descripcion, a.id_proyecto, 
     coalesce(sum(
-    if(u.clase = 'Apartamento', (select pu.precio from dim_precio_unidad pu
+    if(u.id_clase = @id_clase_apt, (select pu.precio from dim_precio_unidad pu
         where pu.id_lista = if(u.id_lista is null, 
         (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), u.id_lista) and pu.id_unidad = u.id_unidad
     ), u.valor_complemento)), 0) as total

@@ -297,7 +297,7 @@
         title: "Dashboards",
         desc: "",
         imgSrc: "./img/ico/menu/006-group.png",
-        zone: "ZG",
+        zone: "ZI",
         category: "DASHBOARDS",
         allow: ["*"]
     },
@@ -345,7 +345,6 @@ const zones = {
         categories: [
             { key: "CLIENTES", name: "Clientes" },
             { key: "PROYECTOS", name: "Proyectos" },
-            { key: "DASHBOARDS", name: "Dashboards" },
         ]
     },
     "ZI": {
@@ -354,6 +353,7 @@ const zones = {
         img: "./img/ico/menu/zi.png",
         categories: [
             { key: "INFORMES", name: "Informes" },
+            { key: "DASHBOARDS", name: "Dashboards" },
         ]
     },
     "OUT": {

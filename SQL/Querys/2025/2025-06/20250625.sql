@@ -105,6 +105,7 @@ create table fact_unidades(
 	id_tipo int references dim_tipo_unidad(id_tipo),
 	codigo_planta varchar(50),
 	clase varchar(50),
+	id_clase int references dim_tipo_proyecto(id_tipo_proyecto),
 	localizacion varchar(50),
 	observacion_apto varchar(500),
 	fecha_fec date,
@@ -145,6 +146,7 @@ create table fact_unidades(
 	id_agrupacion int references dim_agrupacion_unidad(id_agrupacion),
 	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto, clase)
 );
+alter table fact_unidades add column id_clase int references dim_tipo_proyecto(id_tipo_proyecto);
 create table dim_precio_unidad(
 	id_lista int not null references dim_lista_precios(id_lista),
 	id_unidad int not null references fact_unidades(id_unidad),

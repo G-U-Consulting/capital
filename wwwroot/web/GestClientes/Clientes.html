@@ -168,10 +168,11 @@
                 <table class="dataTable" style="table-layout: auto;">
                     <thead>
                         <tr>
-                            <th style="width: 20%;">Proyecto</th>
-                            <th style="width: 15%;">Fecha</th>
-                            <th style="width: 20%;">Medio</th>
-                            <th style="width: 45%;">Descripción</th>
+                            <th style="width: 17%;">Proyecto</th>
+                            <th style="width: 12%;">Fecha</th>
+                            <th style="width: 17%;">Medio</th>
+                            <th style="width: 14%;">Motivo</th>
+                            <th style="width: 40%;">Descripción</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -179,6 +180,7 @@
                             <td>{{v.proyecto}}</td>
                             <td>{{v.fecha}}</td>
                             <td>{{v.medio}}</td>
+                            <td>{{v.motivo_compra}}</td>
                             <td @mouseenter="tooltipVisible = true; tooltipMsg = v.descripcion;"
                                 @mouseleave="tooltipVisible = false;" @mousemove="updateCursorRight">
                                 {{v.descripcion}}

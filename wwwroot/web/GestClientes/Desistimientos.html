@@ -187,10 +187,14 @@
 
             <div class='formDivision deployable' @click="showCuentas = !showCuentas">
                 <span>Cuenta(s) para consignación de recursos</span>
+                <button v-if="showCuentas" style="margin-left: auto; margin-right: 1rem;"
+                    @click.stop.prevent="onAddAccount">
+                    Agregar cuenta
+                </button>
                 <span class="arrow" v-bind:class="{'expanded': showCuentas}">&lt;</span>
             </div>
             <div v-show="showCuentas" style="padding: .5rem;">
-                <table class="dataTable" style="table-layout: auto;">
+                <table class="dataTable editable" style="table-layout: auto;">
                     <thead>
                         <tr>
                             <th>Titular de la cuenta</th>
@@ -202,8 +206,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            
+                        <tr v-if="newRow">
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                        </tr>
+                        <tr v-else>
+
                         </tr>
                     </tbody>
                 </table>

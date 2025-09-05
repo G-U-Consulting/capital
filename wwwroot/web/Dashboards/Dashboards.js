@@ -20,7 +20,7 @@ export default {
     methods: {
         setRuta(subpath) {
             this.ruta = [{
-                text: 'ZG', action: () =>
+                text: 'ZI', action: () =>
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
             }, {
                 text: 'Dashboards', action: () => { this.cliente = null; this.setMainMode(0); }
