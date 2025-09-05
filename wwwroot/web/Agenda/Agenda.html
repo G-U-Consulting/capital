@@ -147,7 +147,8 @@
                                     </select>
                                     <span v-else>{{t.proyecto}}</span>
                                 </td>
-                                <td>
+                                <td @mouseenter="tooltipVisible = true; tooltipMsg = t.descripcion;"
+                                    @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
                                     <input type="text" v-model="tarea.descripcion" v-if="enableEdit && selRow == i">
                                     <span v-else>{{t.descripcion}}</span>
                                 </td>
@@ -172,11 +173,15 @@
                                         v-else>✏️</span>
                                 </td>
                                 <td style="text-align: center;">
-                                    <span class="delete" @click.stop.prevent="onSelect(t, i); reqDelete()">✖</span>
+                                    <span class="delete"
+                                        @click.stop.prevent="t.id_estado != '4' && (onSelect(t, i), reqDelete())">✖</span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                    <div v-if="tooltipVisible && tooltipMsg && !enableEdit" class="cursor-tooltip" v-html="tooltipMsg"
+                        :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                    </div>
                 </div>
 
                 <!-- <div class='pure-u-1-1 pure-u-md-7-12'></div>
@@ -357,8 +362,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="t in tableDays" @click="t.day.currentMonth && selDay(t.day)" @dblclick="onDblClickDay(t.day)"
-                                    :id="`tab-m${t.day.month}-d${t.day.monthDay}`" v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday, 
+                                <tr v-for="t in tableDays" @click="t.day.currentMonth && selDay(t.day)"
+                                    @dblclick="onDblClickDay(t.day)" :id="`tab-m${t.day.month}-d${t.day.monthDay}`"
+                                    v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday, 
                                     'cal-deshabilitada': !t.day.currentMonth, 'cal-row-info': !!t.prioridad}"
                                     :style="t.color ? 'background: ' + t.color + ';' : t.day.isSelected ? 'background: #ddd;' : null">
                                     <td @mouseenter="tooltipVisible = true; tooltipMsg = t.day.progState || 'Sin asignación'"
@@ -504,11 +510,13 @@
                                 </h4>
                                 <div class="task-edit-modal">
                                     <label>Prioridad:</label>
-                                    <select v-model="t.id_prioridad" :style="`border: 1px solid ${t.color}b0;`" @change="updateTarea(t)">
+                                    <select v-model="t.id_prioridad" :style="`border: 1px solid ${t.color}b0;`"
+                                        @change="updateTarea(t)">
                                         <option v-for="p in prioridades" :value="p.id_prioridad">{{p.nombre}}</option>
                                     </select>
                                     <label>Estado:</label>
-                                    <select v-model="t.id_estado" :style="`border: 1px solid ${t.color}b0;`" @change="updateTarea(t)">
+                                    <select v-model="t.id_estado" :style="`border: 1px solid ${t.color}b0;`"
+                                        @change="updateTarea(t)">
                                         <option v-for="e in estados" :value="e.id_estado">{{e.nombre}}</option>
                                     </select>
                                 </div>

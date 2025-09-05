@@ -1,16 +1,38 @@
 <div v-if="mode == 0" style="padding: 1em">
     <div class="pure-u-1-24 pure-u-md-1-24"></div>
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
-        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
-            Desistimientos En Proceso
+
+        <div class="pure-u-1-1 pure-u-md-1-1 formDivision right-button">
+            <span style="font-size: 1.5em;">Desistimientos En Proceso </span>
+            <div style="min-width: 150px;">
+                <button @click="setMode(1)">Nuevo Desistimiento</button>
+            </div>
         </div>
-        <div class="searchBox">
+        <div class="searchBox" style="padding: .5rem 0;">
             <div class="pure-g">
-                <div class="pure-u-1-1 pure-u-md-1-6 formInputStandard">
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
                     <input type="text" placeholder="Radicado" maxlength="50" />
                 </div>
-                <div class="pure-u-1-1 pure-u-md-1-6 formInputStandard">
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
                     <input type="text" placeholder="ID Venta" maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
+                    <input type="text" placeholder="Proyecto" maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
+                    <input type="text" placeholder="Torre" maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
+                    <input type="text" placeholder="Agrupación" maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
+                    <input type="text" placeholder="Doc. Comprador" maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
+                    <input type="text" placeholder="Estado" maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
+                    <input type="text" placeholder="Cant. Incumplida" maxlength="50" />
                 </div>
             </div>
         </div>
@@ -35,6 +57,162 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<div v-if="mode == 1" style="padding: 1em">
+    <div class="pure-u-1-24 pure-u-md-1-24"></div>
+    <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
+            Nuevo Desistimiento
+        </div>
+        <div class="pure-u-1-4 formInputStandard">
+            <label>ID Venta</label>
+            <input type="text">
+        </div>
+        <div class="pure-u-1-4 formInputStandard">
+            <label>Número Documento</label>
+            <input type="text">
+        </div>
+        <div class="pure-u-1-4">
+            <div class="formInputStandard" v-if="true">
+                <label>Unidad/Agrupación</label>
+                <select>
+                    <option value="" selected>[Seleccionar]</option>
+                </select>
+            </div>
+        </div>
+        <div class="pure-u-1-4 formInputStandard" style="text-align: right; margin-top: 1.2rem;">
+            <button>Buscar</button>
+        </div>
+
+        <div style="height: calc(100vh - 20rem); overflow-y: auto;">
+            <div class='formDivision deployable' @click="showGestion = !showGestion">
+                <span>Gestión</span>
+                <span class="arrow" v-bind:class="{'expanded': showGestion}">&lt;</span>
+            </div>
+            <div v-show="showGestion" style="padding: .5rem;">
+                <div class="pure-u-1-2 formInputStandard">
+                    <label>Categoría Desistimiento:</label>
+                    <select v-model="desistimiento.id_categoria">
+                        <option value="">[Seleccionar]</option>
+                        <option v-for="c in categorias" :value="c.id_categoria">
+                            {{c.categoria}}
+                        </option>
+                    </select>
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Fiduciaria:</label>
+                    <select v-model="desistimiento.id_fiduciaria">
+                        <option value="">[Seleccionar]</option>
+                        <option v-for="f in fiduciarias" :value="f.id_fiduciaria">
+                            {{f.fiduciaria}}
+                        </option>
+                    </select>
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Etapa Proyecto:</label>
+                    <select v-model="desistimiento.etapa">
+                        <option value="">[Seleccionar]</option>
+                        <option value="INMOBILIARIO">INMOBILIARIO</option>
+                        <option value="PREVENTA">PREVENTA</option>
+                    </select>
+                </div>
+
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Aplica Penalidad:</label>
+                    <select v-model="desistimiento.id_penalidad">
+                        <option value="">[Seleccionar]</option>
+                        <option v-for="p in penalidades" :value="p.id_penalidad">
+                            {{p.penalidad}}
+                        </option>
+                    </select>
+                </div>
+                <div class="pure-u-1-4">
+                    <div class="formInputStandard" v-if="getCampoPenalidad()">
+                        <label>{{getCampoPenalidad()}}:</label>
+                        <input type="text" v-model="f_campo" @input="validarNumero">
+                    </div>
+                </div>
+                <div class="pure-u-1-2"></div>
+
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Interés Generado:</label>
+                    <input type="text" v-model="f_interes" @input="validarNumero">
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Gastos Administrativos:</label>
+                    <input type="text" v-model="f_gasto" @input="validarNumero">
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Otro descuento devolución:</label>
+                    <input type="text" v-model="f_descuento" @input="validarNumero">
+                </div>
+
+                <div class="pure-u-1-1 formInputStandard">
+                    <label>Descripción</label>
+                    <textarea rows="5" v-model="desistimiento.observacion" style="resize: none; height: auto;">
+                    </textarea>
+                </div>
+            </div>
+
+            <div class='formDivision deployable' @click="showInfo = !showInfo">
+                <span>Venta #{{desistimiento.id_venta}} - Radicado #{{desistimiento.radicado}}</span>
+                <span class="arrow" v-bind:class="{'expanded': showInfo}">&lt;</span>
+            </div>
+            <div v-show="showInfo" style="padding: .5rem;">
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Fecha Creación:</label>
+                    <input type="date" v-model="desistimiento.fecha_creacion">
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Incumplimientos:</label>
+                    <input type="text" v-model="f_incumplimientos" @input="validarNumero($event, true)">
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Estado Actual:</label>
+                    <input type="date" v-model="desistimiento.fecha_resolucion">
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <label>Fecha Resolución Sinco:</label>
+                    <select v-model="desistimiento.etapa">
+                        <option value="">[Seleccionar]</option>
+                        <option value="ACTIVO">ACTIVO</option>
+                        <option value="PAUSADO">PAUSADO</option>
+                        <option value="TRAMITADO">TRAMITADO A FIDUCIA</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class='formDivision deployable' @click="showCuentas = !showCuentas">
+                <span>Cuenta(s) para consignación de recursos</span>
+                <span class="arrow" v-bind:class="{'expanded': showCuentas}">&lt;</span>
+            </div>
+            <div v-show="showCuentas" style="padding: .5rem;">
+                <table class="dataTable" style="table-layout: auto;">
+                    <thead>
+                        <tr>
+                            <th>Titular de la cuenta</th>
+                            <th>Entidad financiera</th>
+                            <th>Número de cuenta</th>
+                            <th>Tipo de cuenta</th>
+                            <th>%</th>
+                            <th>Tipo Giro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+        <div class="pure-u-2-5"></div>
+        <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">
+            <button>Guardar</button>
         </div>
     </div>
 </div>

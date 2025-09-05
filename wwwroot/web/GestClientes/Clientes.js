@@ -6,6 +6,7 @@ export default {
             selIndex: null,
             ruta: [],
             clientes: [],
+            visitas: [],
 
             cliente: {},
             veto: {},
@@ -15,13 +16,18 @@ export default {
             },
 
             showDireccion: false,
-            showProyectos: false,
+            showVisitas: false,
             showCompras: false,
             showListas: false,
             showDesc: false,
 
-            chart: null,
+            //chart: null,
             saveData: {},
+
+            tooltipMsg: '',
+            tooltipVisible: false,
+			tooltipX: 0,
+			tooltipY: 0,
         };
     },
     async mounted() {
@@ -54,6 +60,9 @@ export default {
             this.clientes = (await httpFunc("/generic/genericDT/Clientes:Get_Clientes", {})).data;
             hideProgress();
         },
+        async loadDetails() {
+            this.clientes = (await httpFunc("/generic/genericDT/Clientes:Get_Clientes", {})).data;
+        },
         onClear(table) {
             let item = this.filtros[table];
             item = Object.keys(item).forEach((key) => item[key] = '');
@@ -63,8 +72,10 @@ export default {
             this.saveData.selIndex = i;
             GlobalVariables.miniModuleCallback('SaveData', {...this.saveData});
         },
-        onSelect(cliente) {
+        async onSelect(cliente) {
             this.cliente = { ...cliente };
+            [this.visitas] = (await httpFunc("/generic/genericDS/Clientes:Get_DetalleCliente", 
+                { id_cliente: cliente.id_cliente })).data;
             this.setMode(1);
             this.ruta.push({ text: `${cliente.numero_documento} - Edición` });
             this.setRuta();
@@ -98,6 +109,10 @@ export default {
                 $modal && ($modal.style.display = 'none');
             }
         },
+		updateCursorRight(event) {
+			this.tooltipX = document.body.getBoundingClientRect().width - event.clientX  + 2;
+			this.tooltipY = event.clientY + 10;
+		},
 
         /* initChart() {
             const ctx = document.getElementById('chart-js');

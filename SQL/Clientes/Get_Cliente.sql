@@ -2,7 +2,7 @@
 -- Proceso: Clientes/Get_Cliente
 -- =============================================
 --START_PARAM
-set @numero_documento = '222222',
+set @numero_documento = NULL,
     @email1 = NULL;
 --END_PARAM
 

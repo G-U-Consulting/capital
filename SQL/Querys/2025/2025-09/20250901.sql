@@ -18,3 +18,32 @@ create trigger tr_delete_veto_cliente after delete on dim_veto_cliente for each 
 begin
 	update fact_clientes set is_vetado = 0 where id_cliente = old.id_cliente;
 end;
+
+create table dim_categoria_desistimiento(
+    id_categoria int primary key auto_increment,
+    categoria varchar(200) not null unique
+);
+insert into dim_categoria_desistimiento(categoria) values
+('CALAMIDAD DOMÉSTICA'), 
+('CARTERA EN MORA'), 
+('CREDITO NEGADO / NO TRAMITADO'), 
+('DISMINUCION DE INGRESOS'), 
+('FALLECIMIENTO'), 
+('INCUMPLIMIENTO EN TRAMITES'), 
+('NO CERRO NEGOCIO'), 
+('PERDIDA DE EMPLEO'), 
+('TRÁMITES'), 
+('TRASLADO DE PROYECTO'), 
+('VOLUNTAD PROPIA"');
+
+create table dim_penalidad_desistimiento(
+    id_penalidad int primary key auto_increment,
+    penalidad varchar(200) not null unique,
+    campo varchar(50)
+);
+insert into dim_penalidad_desistimiento(penalidad, campo) values
+('Sí (Cálculo automático)', NULL), 
+('Sí (Cálculo manual)', 'Monto'), 
+('Sí (Por porcentaje)', 'Porcentaje'), 
+('No, Sin Penalidad', NULL), 
+('No (Devolución total)', NULL);

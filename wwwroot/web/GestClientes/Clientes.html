@@ -158,28 +158,37 @@
                 </div>
             </div>
 
-            <div class='formDivision deployable' @click="showProyectos = !showProyectos">
+            <div class='formDivision deployable' @click="showVisitas = !showVisitas">
                 <span>Proyectos visitados</span>
-                <span class="arrow" v-bind:class="{'expanded': showProyectos}">
+                <span class="arrow" v-bind:class="{'expanded': showVisitas}">
                     &lt;
                 </span>
             </div>
-            <div v-show="showProyectos" style="padding: .5rem;">
+            <div v-show="showVisitas" style="padding: .5rem;">
                 <table class="dataTable" style="table-layout: auto;">
                     <thead>
                         <tr>
-                            <th>Proyecto</th>
-                            <th>Torre</th>
-                            <th>Unidad</th>
-                            <th>Fecha</th>
+                            <th style="width: 20%;">Proyecto</th>
+                            <th style="width: 15%;">Fecha</th>
+                            <th style="width: 20%;">Medio</th>
+                            <th style="width: 45%;">Descripción</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-
+                        <tr v-for="v in visitas">
+                            <td>{{v.proyecto}}</td>
+                            <td>{{v.fecha}}</td>
+                            <td>{{v.medio}}</td>
+                            <td @mouseenter="tooltipVisible = true; tooltipMsg = v.descripcion;"
+                                @mouseleave="tooltipVisible = false;" @mousemove="updateCursorRight">
+                                {{v.descripcion}}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
+                <div v-if="tooltipVisible && tooltipMsg" class="cursor-tooltip" v-html="tooltipMsg"
+                    :style="{ top: tooltipY + 'px', right: tooltipX + 'px' }">
+                </div>
             </div>
 
             <div class='formDivision deployable' @click="showCompras = !showCompras">
