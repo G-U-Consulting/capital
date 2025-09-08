@@ -125,7 +125,6 @@
 
 				if (!this._preselectDone) {
 					const tVenta = this.torres.find(t => t.en_venta === '1' || t.en_venta === 1 || t.en_venta === true);
-					// usar nextTick por si computeViews o el DOM actualizan después
 					this.$nextTick(() => {
 						this.filtros.aptos.torres = tVenta ? [tVenta.idtorre] : [];
 					});
@@ -416,7 +415,17 @@
 					id_unidad: apto.id_unidad,
 				}));
 				this.mode = 3;
+				this._preselectDone = false;
 				await this.loadUnidades();
+
+			// 🔹 Notificar a la ventana padre (ProcesoNegocio.js)
+			if (window.opener) {
+				window.opener.postMessage({
+					type: 'REFRESH_COTIZACION',
+					cotizacionId: GlobalVariables.id_cotizacion
+				}, '*');
+			}
+
 		},
 		async onSave() {
 			showProgress();
@@ -679,15 +688,28 @@
 		},
 		getFilteredList() {
 			return (tabla) => {
-				return this[tabla] ? this[tabla].filter(item =>
-					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
-						if (tabla == 'aptos' && key == 'torres')
+				if (!this[tabla]) return [];
+
+				if (!this.filtros[tabla]) return [];
+
+				const hayFiltrosActivos = Object.keys(this.filtros[tabla]).some(key => {
+					const valor = this.filtros[tabla][key];
+					return Array.isArray(valor) ? valor.length > 0 : valor !== '';
+				});
+
+				if (!hayFiltrosActivos) return [];
+
+				return this[tabla].filter(item =>
+					Object.keys(this.filtros[tabla]).every(key => {
+						if (tabla === 'aptos' && key === 'torres')
 							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
-						if (key.startsWith('id_') || key == 'localizacion' || key == 'piso')
+
+						if (key.startsWith('id_') || key === 'localizacion' || key === 'piso')
 							return this.filtros[tabla][key] === '' || String(item[key]) === this.filtros[tabla][key];
-						else return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
-					}) : []
-				) : [];
+
+						return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
+					})
+				);
 			};
 		},
 		totalAptos() {

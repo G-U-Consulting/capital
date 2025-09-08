@@ -178,6 +178,9 @@ export default {
     beforeDestroy() {
         window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
     },
+     beforeUnmount() {
+        window.removeEventListener('message', this.handleMessages);
+    },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
@@ -192,9 +195,16 @@ export default {
         this.tipo_tramite = resp.data[7];
         this.campoObligatorio();
         window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
+        window.addEventListener('message', this.handleMessages);
 
     },
     methods: {
+        async handleMessages(event) {
+            if (event.data?.type === 'REFRESH_COTIZACION') {
+                console.log("Actualizando cotización desde Unidades.js");
+                await this.seleccionarCotizacion(event.data.cotizacionId);
+            }
+        },
         async handleNext(nextIndex) {
             if (this.mode === 0 && nextIndex === 1 && !this.policyAccepted && this.iscliente && this.ObjCliente.nombres !== '') {
                 showMessage("Debe aceptar la política para continuar.");
@@ -492,7 +502,11 @@ export default {
             let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', { id_cliente: this.id_cliente, id_proyecto: GlobalVariables.id_proyecto });
             this.cotizaciones = resp.data[0];
         },
-        addCotizacion() {
+        async addCotizacion() {
+
+            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_Cotizacion', { id_cotizacion: 0, id_proyecto: GlobalVariables.id_proyecto, id_cliente: this.id_cliente });
+            let id_cotizacion = resp.data[0][0].id_cotizacion;
+
             const nuevaFecha = new Date();
             const pad = num => String(num).padStart(2, '0');
             const yyyy = nuevaFecha.getFullYear();
@@ -516,6 +530,8 @@ export default {
                 importe: 0,
                 id_proyecto: GlobalVariables.id_proyecto,
                 id_cliente: this.id_cliente,
+                id_cotizacion: id_cotizacion,
+                cotizacion: siguienteId
             });
 
             this.cotizacionActiva = siguienteId;
@@ -538,21 +554,33 @@ export default {
         async guardarCotizacion() {
             this.mostrarModal = false;
             try {
-                for (let i = 0; i < this.cotizaciones.length; i++) {
-                    let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cotizacion', this.cotizaciones[i]);
-                    resp = resp.data;
-                    if (resp[0].result.includes("insert")) {
-                        showMessage("Cotización creada correctamente.");
-                    } else if (resp[0].result.includes("update")) {
-                        showMessage("Cotización actualizada correctamente.");
-                    } else {
-                        showMessage("Error al guardar la cotización.");
-                    }
+                const cotizacion = this.cotizaciones.find(
+                    c => c.cotizacion === this.cotizacionActiva
+                );
+
+                if (!cotizacion) {
+                    showMessage("No se encontró la cotización seleccionada.");
+                    return;
+                }
+
+                let resp = await httpFunc(
+                    '/generic/genericDT/ProcesoNegocio:Ins_Cotizacion',
+                    cotizacion
+                );
+
+                resp = resp.data;
+
+                if (resp[0].id_cotizacion > 0) {
+                    showMessage("Cotización creada correctamente. ID: " + resp[0].id_cotizacion);
+                } else {
+                    showMessage("Error al guardar la cotización.");
                 }
             } catch (error) {
+                console.error(error);
                 showMessage("Error al crear la cotización.");
             }
         },
+
         async campoObligatorio() {
             let res = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto", {
                 id_proyecto: GlobalVariables.id_proyecto

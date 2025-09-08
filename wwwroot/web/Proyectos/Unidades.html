@@ -179,9 +179,9 @@
                                         <div class="tab-card">
                                             <div v-if="activeTab === 'detalle'">
                                                 <h3 v-if="selectedApto.id_agrupacion == ''">Valor Unidad: {{ formatoMoneda(selectedApto.valor_unidad) }}</h3>
-                                                <h3 v-else>Valor Agrupacion: {{ formatoMoneda(selectedApto.agrupacion_total) }}</h3>
+                                                <h3 v-else>Valor Agrupación: {{ formatoMoneda(selectedApto.agrupacion_total) }}</h3>
                                                 <ul class="detail-list">
-                                                    <li v-if="selectedApto.id_agrupacion != ''"><span class="label">🏘️ Agrupación:</span> {{ selectedApto.agrupacion_nombre }}</li>
+                                                    <li v-if="selectedApto.id_agrupacion != ''"><span class="label">🏘️ Agrupación:</span> {{ selectedApto.de }}</li>
                                                     <li><span class="label">📐 Tipo:</span> {{ selectedApto.codigo_planta }}</li>
                                                     <li><span class="label">🏠 ID Unidad:</span> {{ selectedApto.apartamento }}</li>
                                                     <li><span class="label">📊 Estatus:</span> {{ selectedApto.estatus }}</li>
