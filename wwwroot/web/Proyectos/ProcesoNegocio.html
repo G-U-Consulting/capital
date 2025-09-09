@@ -493,8 +493,8 @@
                                     <input type="text" v-model="item.descripcion" placeholder="Descripción"
                                         @focus="seleccionarCotizacion(item.cotizacion)" />
                                 </td>
-                                <td class="col-1-6" style="text-align: right;">{{ item.importe ? formatoMoneda(item.importe) : '' }}
-                                </td>
+                                <td v-if="item.importe != ''" class="col-1-6" style="text-align: right;">{{ item.importe ? formatoMoneda(item.importe) : '' }}</td>
+                                <td v-else class="col-1-6" style="text-align: right;">{{ this.cotizaciones.importe ? formatoMoneda(this.cotizaciones.importe) : '' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -539,7 +539,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="btn-modern btn-fixed" @click="terminarAtencion">
+                <div class="btn-modern btn-fixed" @click="showAtencionModal">
                     <span class="icon">✔</span>
                     <span class="text">Terminar<br>Atención</span>
                 </div>
@@ -561,10 +561,10 @@
                     <h3>Seleccione el Seguimiento</h3>
                     <select class="asunto-select" v-model="asuntoSeleccionado">
                         <option disabled value="">Seleccione el seguimiento...</option>
-                        <option v-for="(opcion, index) in asuntos" :key="index">{{ opcion }}</option>
+                        <option v-for="(opcion, index) in cotizacion" :key="index">{{ opcion }}</option>
                     </select>
                     <div style="text-align: center; margin-top: 1em;">
-                        <button @click="guardarCotizacion">Confirmar</button>
+                        <button @click="terminarAtencion">Confirmar</button>
                     </div>
                 </div>
             </div>
@@ -710,7 +710,7 @@
                 <button class="pure-button button-fixed" @click="nuevaVisita">Guardar</button>
             </div>
             <div v-if="mode == 2" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="showAtencionModal">Guardar</button>
+                <button class="pure-button button-fixed" @click="guardarCotizacion">Guardar</button>
             </div>
             <!-- <div v-if="mode != 5 && ObjCliente.Nombres != ''" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>
