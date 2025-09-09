@@ -566,7 +566,7 @@ create table dim_tarea_usuario(
 	alta date default current_time,
 	deadline date not null,
 	id_proyecto int references fact_proyectos(id_proyecto),
-	descripcion varchar(255) not null,
+	descripcion text not null,
 	id_prioridad int not null references dim_prioridad_tarea(id_prioridad),
 	id_estado int not null references dim_estado_tarea(id_estado),
 	id_usuario int not null references fact_usuarios(id_usuario),

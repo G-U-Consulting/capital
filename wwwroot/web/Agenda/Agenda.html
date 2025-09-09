@@ -147,7 +147,7 @@
                                     </select>
                                     <span v-else>{{t.proyecto}}</span>
                                 </td>
-                                <td @mouseenter="tooltipVisible = true; tooltipMsg = t.descripcion;"
+                                <td @mouseenter="tooltipVisible = true; tooltipMsg = t.descripcion.replaceAll('\n', '<br>');"
                                     @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
                                     <input type="text" v-model="tarea.descripcion" v-if="enableEdit && selRow == i">
                                     <span v-else>{{t.descripcion}}</span>

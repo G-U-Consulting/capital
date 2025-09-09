@@ -1854,8 +1854,11 @@
                 <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Tipo Proyecto</h2>
                     <div class="pure-g main-content">
-                        <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-12-24">
                             <input type="text" v-model="tipo_proyecto.tipo_proyecto" maxlength="50" />
+                        </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-5-24">
+                            <input type="text" v-model="tipo_proyecto.codigo" maxlength="50" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>

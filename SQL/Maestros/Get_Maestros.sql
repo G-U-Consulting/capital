@@ -62,7 +62,7 @@ select id_tipo_financiacion, tipo_financiacion, is_active
 from dim_tipo_financiacion
 order by tipo_financiacion;
 
-select id_tipo_proyecto, tipo_proyecto, is_active
+select id_tipo_proyecto, tipo_proyecto, codigo, is_active
 from dim_tipo_proyecto
 order by tipo_proyecto;
 

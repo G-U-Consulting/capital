@@ -4,6 +4,267 @@
         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
             Listas de Espera
         </div>
-        <img style="display: block; margin: auto;" src="../../img/background/MEN AT WORK.JPG" alt="">
+        <div class="searchBox">
+            <div class="pure-g">
+                <div class="pure-u-1-1 pure-u-md-1-3">
+                    <input type="text" placeholder="Número de documento" v-model="filtros.items['numero_documento']"
+                        maxlength="50" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-2-24">
+                    <div class="imgGraybutton" @click="onClear('items')">
+                        <img src="./img/ico/eraser.png" />
+                    </div>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-4-24">
+                    <select v-model="filtros.items['id_proyecto']">
+                        <option value="">[Todos los proyectos]</option>
+                        <option v-for="p in proyectos" :value="p.id_proyecto">
+                            {{p.nombre}}
+                        </option>
+                    </select>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-5-24"
+                    style="display: flex; justify-content: flex-end; align-items: center;">
+                    <label class="check" for="is_waiting">
+                        <input type="checkbox" id="is_waiting" v-model="filtros.items['is_waiting']" true-value="1"
+                            false-value="" />
+                        <span class="checkmark"></span>
+                        Ver en Espera
+                    </label>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-5-24"
+                    style="display: flex; justify-content: flex-end; align-items: center;">
+                    <label class="check" for="is_active">
+                        <input type="checkbox" id="is_active" v-model="filtros.items['is_active']" true-value="1"
+                            false-value="" />
+                        <span class="checkmark"></span>
+                        Ver Activos
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <table class="dataTable" style="table-layout: auto; font-size: 15px;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Doc. Cliente</th>
+                        <th>Proyecto</th>
+                        <th>Fecha</th>
+                        <th>En Espera</th>
+                        <th>Activa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="it in getFilteredList('items')" @dblclick="onSelect(it)">
+                        <td>{{it.id_lista}}</td>
+                        <td>{{it.numero_documento}}</td>
+                        <td>{{it.proyecto}}</td>
+                        <td>{{it.created_on}}</td>
+                        <td style="text-align: center;">{{it.is_waiting == '1' ? 'Sí' : 'No'}}</td>
+                        <td style="text-align: center;">{{it.is_active == '1' ? 'Sí' : 'No'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div v-if="mode == 1" style="padding: 1em">
+    <div class="pure-u-1-24 pure-u-md-1-24"></div>
+    <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
+            Información General
+        </div>
+        <div style="height: calc(100vh - 15rem); overflow-y: auto;" id="editUnitCont">
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Torre</label>
+                    <select v-model="item.id_torre" @change="item.id_unidad = ''" :disabled="item.is_waiting == '0'">
+                        <option value="">[Sin especificar]</option>
+                        <option v-for="t in torres" :value="t.id_torre">
+                            {{t.consecutivo}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Piso</label>
+                    <select v-model="item.piso" @change="item.id_unidad = ''" :disabled="item.is_waiting == '0'">
+                        <option value="">[Sin especificar]</option>
+                        <option v-for="p in pisos" :value="p">{{p}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Clase</label>
+                    <select v-model="item.id_clase" @change="item.id_unidad = ''" :disabled="item.is_waiting == '0'">
+                        <option value="">[Sin especificar]</option>
+                        <option v-for="c in clases" :value="c.id_clase">{{c.clase}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Tipo</label>
+                    <select v-model="item.id_tipo" @change="item.id_unidad = ''" :disabled="item.is_waiting == '0'">
+                        <option value="">[Sin especificar]</option>
+                        <option v-for="t in tipos" :value="t.id_tipo">{{t.tipo}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>ID Unidad</label>
+                    <select v-model="item.id_unidad" :disabled="item.is_waiting == '0'">
+                        <option value="">[Sin especificar]</option>
+                        <option :value="a.id_unidad" v-for="a in aptos
+                            .filter(a => !item.id_torre || a.id_torre == item.id_torre)
+                            .filter(a => !item.id_clase || a.id_clase == item.id_clase)
+                            .filter(a => !item.piso || a.piso == item.piso)
+                            .filter(a => !item.id_tipo || a.id_tipo == item.id_tipo)">
+                            {{a.numero_apartamento}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <h2 class="formDivision pure-u-1-1" style="font-size: 1.5em; margin-top: 0.5rem;">Características
+            </h2>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Localización</label>
+                    <select v-model="item.localizacion" :disabled="item.is_waiting == '0'">
+                        <option value="">[Sin especificar]</option>
+                        <option v-for="l in localizaciones" :value="l">{{l}}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Asoleación</label>
+                    <select v-model="item.asoleacion" :disabled="item.is_waiting == '0'">
+                        <option value="">[Sin especificar]</option>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Altura</label>
+                    <select v-model="item.altura" :disabled="item.is_waiting == '0'">
+                        <option value="">[Sin especificar]</option>
+                        <option value="BAJO">BAJO</option>
+                        <option value="MEDIO">MEDIO</option>
+                        <option value="ALTO">ALTO</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Numero de alcobas</label>
+                    <input type="number" v-model="item.num_alcobas" :disabled="item.is_waiting == '0'"/>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-5">
+                <div class="formInputStandard">
+                    <label>Numero de baños</label>
+                    <input type="number" v-model="item.num_banos" :disabled="item.is_waiting == '0'"/>
+                </div>
+            </div>
+
+            <div class="pure-u-1-2 pure-u-md-1-4">
+                <div class="formInputStandard">
+                    <label class="check" for="c_tiene_balcon">
+                        <input type="checkbox" id="c_tiene_balcon" v-model="item.tiene_balcon" true-value="1"
+                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                        <span class="checkmark"></span>
+                        Tiene Balcón
+                    </label>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4">
+                <div class="formInputStandard">
+                    <label class="check" for="c_tiene_parq_sencillo">
+                        <input type="checkbox" id="c_tiene_parq_sencillo" v-model="item.tiene_parq_sencillo"
+                            true-value="1" false-value="0" :disabled="item.is_waiting == '0'"/>
+                        <span class="checkmark"></span>
+                        Parqueadero Sencillo
+                    </label>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4">
+                <div class="formInputStandard">
+                    <label class="check" for="c_tiene_parq_doble">
+                        <input type="checkbox" id="c_tiene_parq_doble" v-model="item.tiene_parq_doble" true-value="1"
+                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                        <span class="checkmark"></span>
+                        Parqueadero Doble
+                    </label>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4">
+                <div class="formInputStandard">
+                    <label class="check" for="c_tiene_deposito">
+                        <input type="checkbox" id="c_tiene_deposito" v-model="item.tiene_deposito" true-value="1"
+                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                        <span class="checkmark"></span>
+                        Tiene Depósito
+                    </label>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4">
+                <div class="formInputStandard">
+                    <label class="check" for="c_tiene_acabados">
+                        <input type="checkbox" id="c_tiene_acabados" v-model="item.tiene_acabados" true-value="1"
+                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                        <span class="checkmark"></span>
+                        Tiene Acabados
+                    </label>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4">
+                <div class="formInputStandard">
+                    <label class="check" for="c_cerca_porteria">
+                        <input type="checkbox" id="c_cerca_porteria" v-model="item.cerca_porteria" true-value="1"
+                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                        <span class="checkmark"></span>
+                        Cerca Portería
+                    </label>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4">
+                <div class="formInputStandard">
+                    <label class="check" for="c_cerca_juegos_infantiles">
+                        <input type="checkbox" id="c_cerca_juegos_infantiles" v-model="item.cerca_juegos_infantiles"
+                            true-value="1" false-value="0" :disabled="item.is_waiting == '0'"/>
+                        <span class="checkmark"></span>
+                        Cerca Juegos Infantiles
+                    </label>
+                </div>
+            </div>
+            <div class="pure-u-1-2 pure-u-md-1-4">
+                <div class="formInputStandard">
+                    <label class="check" for="c_cerca_piscina">
+                        <input type="checkbox" id="c_cerca_piscina" v-model="item.cerca_piscina" true-value="1"
+                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                        <span class="checkmark"></span>
+                        Cerca Piscina
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="pure-u-2-5"></div>
+        <div class="pure-u-1-5" style="text-align: center;">
+            <button v-if="item.is_waiting == '0' && item.is_active == '1'" @click="onCloseList">
+                Terminar
+            </button>
+            <button v-if="item.is_waiting == '1' && item.is_active == '1'" @click="onSave">
+                Guardar
+            </button>
+        </div>
     </div>
 </div>
