@@ -147,9 +147,9 @@ mainVue = {
                     this.moduleSelected.moduleObj = await import(this.moduleSelected.jsUrl);
                     this.moduleSelected.moduleObj = this.moduleSelected.moduleObj.default;
                 }
-                catch(e) {
-                    window.location.href = '/login.html';
+                catch (e) {
                     console.error(e);
+                    window.location.href = '/login.html';
                 }
             }
             if (this.moduleSelected.moduleObj.template == null || this.moduleSelected.moduleObj.template == "")

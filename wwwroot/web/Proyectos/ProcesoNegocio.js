@@ -89,14 +89,11 @@ export default {
             cotizacionActiva: null,
             mostrarModal: false,
             asuntoSeleccionado: '',
-            asuntos: [
+            cotizacion: [
+                "Seguimiento a la cotización",
+            ],
+             opcion: [
                 "Seguimiento a la opción",
-                "Seguimiento a la consignación",
-                "Seguimiento al cierre",
-                "Seguimiento a la venta",
-                "Seguimiento al desistimiento",
-                "Solicitud Plazo de Pago",
-                "Solicitud Especial"
             ],
             cotizacionSeleccionada: null,
             cotizaciones: [],
@@ -107,7 +104,7 @@ export default {
         tabClasses() {
             return this.tabs.map((_, index) => {
                 if (this.isTabBlocked(index)) {
-                    return 'wizarTabDisabled'; // pestaña bloqueada (gris)
+                    return 'wizarTabDisabled';
                 } else if (this.mode === index) {
                     return 'wizarTabActive';
                 } else if (!this.tabsIncomplete.includes(index)) {
@@ -504,9 +501,6 @@ export default {
         },
         async addCotizacion() {
 
-            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_Cotizacion', { id_cotizacion: 0, id_proyecto: GlobalVariables.id_proyecto, id_cliente: this.id_cliente });
-            let id_cotizacion = resp.data[0][0].id_cotizacion;
-
             const nuevaFecha = new Date();
             const pad = num => String(num).padStart(2, '0');
             const yyyy = nuevaFecha.getFullYear();
@@ -522,6 +516,14 @@ export default {
                 const ids = this.cotizaciones.map(c => parseInt(c.cotizacion) || 0);
                 siguienteId = Math.max(...ids) + 1;
             }
+
+            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_Cotizacion', { 
+                id_cotizacion: 0, 
+                id_proyecto: GlobalVariables.id_proyecto,
+                id_cliente: this.id_cliente,
+                cotizacion: siguienteId
+            });
+            let id_cotizacion = resp.data[0][0].id_cotizacion;
 
             this.cotizaciones.push({
                 cotizacion: siguienteId,
@@ -548,14 +550,11 @@ export default {
                 }
             }
         },
-        setCotizacionActiva(cotId) {
-            this.cotizacionActiva = cotId;
-        },
         async guardarCotizacion() {
             this.mostrarModal = false;
             try {
                 const cotizacion = this.cotizaciones.find(
-                    c => c.cotizacion === this.cotizacionActiva
+                    c => c.cotizacion === this.cotizacionSeleccionada
                 );
 
                 if (!cotizacion) {
@@ -632,6 +631,31 @@ export default {
             this.cliente = resp.data[0][0].cliente;
             this.busquedaCliente();
         },
+        normalizarFecha(str) {
+            if (!str) return "";
+
+            str = str.split(" ")[0];
+
+            str = str.replace(/\//g, '-');
+            let partes = str.split('-');
+
+            if (partes.length === 3) {
+                if (partes[0].length === 4) {
+                    let [anio, mes, dia] = partes;
+                    mes = mes.padStart(2, '0');
+                    dia = dia.padStart(2, '0');
+                    return `${anio}-${mes}-${dia}`;
+                } else {
+                    let [dia, mes, anio] = partes;
+                    mes = mes.padStart(2, '0');
+                    dia = dia.padStart(2, '0');
+                    return `${anio}-${mes}-${dia}`;
+                }
+            }
+
+            return str;
+        },
+
         abrirNuevoModulo() {
             if (this.cotizacionSeleccionada == null) {
                 showMessage("Debe seleccionar una cotización para agregar unidades.");
@@ -647,22 +671,20 @@ export default {
             const mm = String(hoy.getMonth() + 1).padStart(2, '0');
             const dd = String(hoy.getDate()).padStart(2, '0');
             const hoyStr = `${yyyy}-${mm}-${dd}`;
+
             let esDeHoy = false;
             const fecha = cotizacion.fecha;
+
             if (fecha instanceof Date) {
                 const fy = fecha.getFullYear();
                 const fm = String(fecha.getMonth() + 1).padStart(2, '0');
                 const fd = String(fecha.getDate()).padStart(2, '0');
                 esDeHoy = `${fy}-${fm}-${fd}` === hoyStr;
-            } else if (fecha.includes('-')) {
-                esDeHoy = fecha.split(' ')[0] === hoyStr;
-            } else if (fecha.includes('/')) {
-                const partes = fecha.split(' ')[0].split('/');
-                if (partes.length === 3) {
-                    const [dia, mes, anio] = partes;
-                    esDeHoy = `${anio}-${mes}-${dia}` === hoyStr;
-                }
+            } else {
+                const fechaNorm = this.normalizarFecha(fecha);
+                esDeHoy = fechaNorm === hoyStr;
             }
+
 
             if (!esDeHoy) {
                 showMessage("Solo puede abrir cotizaciones del día de hoy.");
@@ -693,6 +715,7 @@ export default {
             let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                 id_cliente: this.id_cliente,
                 id_proyecto: GlobalVariables.id_proyecto,
+                cotizacion: cotizacionId
             });
 
             const parseNumber = (str) => {

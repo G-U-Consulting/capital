@@ -13,12 +13,8 @@ set @id_cliente = 0,
 
 -- intentar actualizar
 update fact_cotizaciones
-set fecha = @fecha,
-    descripcion = @descripcion,
-    importe = @importeTotal,
-    id_cliente = @id_cliente,
-    id_proyecto = @id_proyecto,
-    cotizacion = @cotizacion
+set descripcion = @descripcion,
+    importe = @importeTotal
 where id_cotizacion = @id_cotizacion;
 
 -- si no existía, insertar
