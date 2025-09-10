@@ -43,6 +43,7 @@
 			playIndex: null,
 			editUnit: false,
 			resType: 'imagen',
+			textLog: '',
 			ordenTorres: 'ordinal',
 			stats: {
 				torres: 0,
@@ -61,6 +62,7 @@
 			},
 			torre: {},
 			apto: {},
+			tmpApto: {},
 			grupo: {},
 			lista: {},
 			gruposImg: [],
@@ -871,7 +873,7 @@
 		async onSetLista() {
 			if (this.torre.id_torre && this.selRow2 !== null) {
 				showProgress();
-				let res = null, i = this.selRow2, torre = { ...this.torre }, filtroTipos = [ ...this.filtroTipos ];
+				let res = null, i = this.selRow2, torre = { ...this.torre }, filtroTipos = [...this.filtroTipos];
 				try {
 					let id_lista = this.listas[this.selRow2].id_lista;
 					let obj = { id_lista, id_torre: torre.id_torre, ids_tipos: filtroTipos.join(',') };
@@ -1071,7 +1073,7 @@
 			this.tooltipY = event.clientY + 10;
 		},
 		updateCursorRight(event) {
-			this.tooltipX = document.body.getBoundingClientRect().width - event.clientX  + 2;
+			this.tooltipX = document.body.getBoundingClientRect().width - event.clientX + 2;
 			this.tooltipY = event.clientY + 10;
 		},
 		toggleList() {
@@ -1104,8 +1106,25 @@
 		closeExpanded() {
 			this.expandedVisible = false;
 		},
+		openUnlockModal(apto) {
+			let $modal = document.getElementById('modalOverlayUnlock');
+			$modal && ($modal.style.display = 'flex');
+			this.tmpApto = apto;
+		},
+		closeUnlockModal(e) {
+			if (e && e.target.matches('#modalOverlayUnlock')) {
+				e.target.style.display = 'none';
+				this.textLog = '';
+			}
+			if (!e || e.target.matches('.closeListModal')) {
+				document.getElementById('modalOverlayUnlock').style.display = 'none';
+				this.textLog = '';
+			}
+		},
 		reqUnlockApto(apto) {
-			if (apto.id_estado_unidad != '1')
+			if (!this.textLog)
+				showMessage("Debe ingresar el motivo");
+			else if (apto.id_estado_unidad != '1')
 				this.reqOperation(`El estado de la unidad <b>${apto.clase} ${apto.numero_apartamento}</b> cambiará de <b>${apto.estatus}</b> a <b>Libre</b>`,
 					this.unlockApto, null, apto);
 		},
@@ -1114,7 +1133,22 @@
 			apto.id_estado_unidad = '1';
 			this.apto = apto;
 			await this.onSave();
-		}
+			await this.addLog(apto);
+		},
+		async addLog(apto) {
+			showProgress();
+			let res = null;
+			try {
+				res = await httpFunc(`/generic/genericST/Unidades:Ins_LogUnidad`,
+					{ id_unidad: apto.id_unidad, texto: this.textLog });
+				this.closeUnlockModal();
+				if (res.isError || res.data !== 'OK') throw res;
+			} catch (e) {
+				console.error(e);
+				showMessage('Error:   ' + e.errorMessage || e.data);
+			}
+			hideProgress();
+		},
 	},
 	computed: {
 		f_tasa_base: {

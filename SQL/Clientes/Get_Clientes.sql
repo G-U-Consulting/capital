@@ -10,4 +10,5 @@ select c.*, concat(coalesce(nombres, ''), ' ', coalesce(apellido1, ''), ' ', coa
     (select u.nombres from fact_usuarios u where u.usuario collate utf8mb4_general_ci = vc.solicitado_por) as veto_solicitado_por,
     (select u.nombres from fact_usuarios u where u.usuario collate utf8mb4_general_ci = vc.vetado_por) as vetado_por
 from fact_clientes c
-left join dim_veto_cliente vc on c.id_cliente = vc.id_cliente;
+left join dim_veto_cliente vc on c.id_cliente = vc.id_cliente
+order by c.numero_documento is null or c.numero_documento = '', c.numero_documento;

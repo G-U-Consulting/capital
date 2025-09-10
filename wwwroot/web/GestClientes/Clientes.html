@@ -228,16 +228,22 @@
                 <table class="dataTable" style="table-layout: auto;">
                     <thead>
                         <tr>
-                            <th>Lista</th>
+                            <th>ID</th>
+                            <th>Doc. Cliente</th>
                             <th>Proyecto</th>
-                            <th>Torre</th>
-                            <th>Unidad</th>
                             <th>Fecha</th>
+                            <th>En Espera</th>
+                            <th>Activa</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-
+                        <tr v-for="l in listas">
+                            <td>{{l.id_lista}}</td>
+                            <td>{{l.numero_documento}}</td>
+                            <td>{{l.proyecto}}</td>
+                            <td>{{l.created_on}}</td>
+                            <td style="text-align: center;">{{l.is_waiting == '1' ? 'Sí' : 'No'}}</td>
+                            <td style="text-align: center;">{{l.is_active == '1' ? 'Sí' : 'No'}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -259,7 +265,7 @@
         </div>
 
         <div class="pure-u-1-2 pure-u-md-1-5" style="padding-top: .5rem;">
-            <button style="background-color: red;" @click="showListas = true;">
+            <button style="background-color: red;" v-if="listas && listas.length" @click="showListas = true;">
                 En Listas de Espera
             </button>
         </div>

@@ -7,6 +7,7 @@ export default {
             ruta: [],
             clientes: [],
             visitas: [],
+            listas: [],
 
             cliente: {},
             veto: {},
@@ -26,8 +27,8 @@ export default {
 
             tooltipMsg: '',
             tooltipVisible: false,
-			tooltipX: 0,
-			tooltipY: 0,
+            tooltipX: 0,
+            tooltipY: 0,
         };
     },
     async mounted() {
@@ -52,6 +53,10 @@ export default {
             this.mode = mode;
             await Promise.resolve();
             if (mode === 0) GlobalVariables.miniModuleCallback('StartModule');
+            if (mode === 1) {
+                this.ruta = [{ text: `${this.cliente.numero_documento} - Edición` }];
+                this.setRuta();
+            }
             if (mode === 'chart') this.initChart();
             if (mode === 'd3') this.initD3();
         },
@@ -61,7 +66,10 @@ export default {
             hideProgress();
         },
         async loadDetails() {
-            this.clientes = (await httpFunc("/generic/genericDT/Clientes:Get_Clientes", {})).data;
+            showProgress();
+            [this.visitas, this.listas] = (await httpFunc("/generic/genericDS/Clientes:Get_DetalleCliente",
+                { id_cliente: this.cliente.id_cliente })).data;
+            hideProgress();
         },
         onClear(table) {
             let item = this.filtros[table];
@@ -70,31 +78,28 @@ export default {
         async setIndex(i) {
             this.selIndex = i;
             this.saveData.selIndex = i;
-            GlobalVariables.miniModuleCallback('SaveData', {...this.saveData});
+            GlobalVariables.miniModuleCallback('SaveData', { ...this.saveData });
         },
         async onSelect(cliente) {
             this.cliente = { ...cliente };
-            [this.visitas] = (await httpFunc("/generic/genericDS/Clientes:Get_DetalleCliente", 
-                { id_cliente: cliente.id_cliente })).data;
+            await this.loadDetails();
             this.setMode(1);
-            this.ruta.push({ text: `${cliente.numero_documento} - Edición` });
-            this.setRuta();
         },
         toggleAtencion() {
             console.log(this.filtros.clientes);
         },
         async onSave() {
             showProgress();
-			let res = null;
-			try {
-				res = await (httpFunc('/generic/genericST/Clientes:Upd_Cliente', this.cliente));
-				if (res.isError || res.data !== 'OK') throw res;
-				this.setMode(0);
-			} catch (e) {
-				console.error(e);
-				showMessage('Error: ' + e.errorMessage || e.data);
-			}
-			hideProgress();
+            let res = null;
+            try {
+                res = await (httpFunc('/generic/genericST/Clientes:Upd_Cliente', this.cliente));
+                if (res.isError || res.data !== 'OK') throw res;
+                this.setMode(0);
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+            }
+            hideProgress();
         },
         openModal() {
             let $modal = document.getElementById('modalOverlay');
@@ -109,10 +114,10 @@ export default {
                 $modal && ($modal.style.display = 'none');
             }
         },
-		updateCursorRight(event) {
-			this.tooltipX = document.body.getBoundingClientRect().width - event.clientX  + 2;
-			this.tooltipY = event.clientY + 10;
-		},
+        updateCursorRight(event) {
+            this.tooltipX = document.body.getBoundingClientRect().width - event.clientX + 2;
+            this.tooltipY = event.clientY + 10;
+        },
 
         /* initChart() {
             const ctx = document.getElementById('chart-js');
@@ -224,7 +229,7 @@ export default {
                 if (this.filtros.clientes.nombre_id || this.filtros.clientes.pais || this.filtros.clientes.departamento
                     || this.filtros.clientes.ciudad || this.filtros.clientes.is_atencion_rapida) {
                     this.saveData.filtros = this.filtros;
-                    GlobalVariables.miniModuleCallback('SaveData', {...this.saveData});
+                    GlobalVariables.miniModuleCallback('SaveData', { ...this.saveData });
                 }
                 return this[tabla] ? this[tabla].filter(item =>
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {

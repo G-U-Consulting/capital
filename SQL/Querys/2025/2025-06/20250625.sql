@@ -171,8 +171,8 @@ create table dim_log_unidades(
 	texto text,
 	id_tarea int references dim_tarea_usuario(id_tarea)
 );
-
-create trigger tr_insert_log_unidad after update on fact_unidades for each row
+/* 
+drop trigger tr_insert_log_unidad after update on fact_unidades for each row
 begin
 	if old.id_estado_unidad <> new.id_estado_unidad then
 		select estado_unidad into @estado1 from dim_estado_unidad where id_estado_unidad = old.id_estado_unidad;
@@ -185,3 +185,4 @@ begin
 		);
 	end if;
 end;
+ */

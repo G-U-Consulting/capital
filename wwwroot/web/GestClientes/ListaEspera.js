@@ -17,6 +17,7 @@ export default {
                 items: { id_proyecto: '', is_waiting: '1', is_active: '1' }
             },
             item: {},
+            usuario: {},
 
             currentProject: null
         };
@@ -50,12 +51,15 @@ export default {
         },
         async loadLista() {
             showProgress();
-            [this.torres, this.aptos, this.clases, this.tipos] = (await
-				httpFunc('/generic/genericDS/Clientes:Get_ListaEspera', { id_proyecto: this.currentProject })).data;
+            let usuarios = [];
+            [this.torres, this.aptos, this.clases, this.tipos, usuarios] = (await
+                httpFunc('/generic/genericDS/Clientes:Get_ListaEspera',
+                    { id_proyecto: this.currentProject, id_usuario: this.item.id_usuario })).data;
+            if (usuarios && usuarios.length) this.usuario = usuarios[0];
             let pisos = [], localizaciones = [];
             this.aptos.forEach(a => {
-                if(!pisos.includes(a.piso)) pisos.push(a.piso);
-                if(!localizaciones.includes(a.localizacion) && a.localizacion) 
+                if (!pisos.includes(a.piso)) pisos.push(a.piso);
+                if (!localizaciones.includes(a.localizacion) && a.localizacion)
                     localizaciones.push(a.localizacion);
             });
             this.pisos = pisos.sort((a, b) => Number(a) - Number(b));
@@ -66,13 +70,13 @@ export default {
             hideProgress();
         },
         async loadData() {
-			showProgress();
-			[this.items, this.proyectos] = (await
-				httpFunc('/generic/genericDS/Clientes:Get_ListasEspera', {})).data;
-			hideProgress();
-		},
+            showProgress();
+            [this.items, this.proyectos] = (await
+                httpFunc('/generic/genericDS/Clientes:Get_ListasEspera', {})).data;
+            hideProgress();
+        },
         async onSelect(item) {
-            this.item = {...item};
+            this.item = { ...item };
             this.currentProject = item.id_proyecto;
             await this.loadLista();
             this.setMode(1);
@@ -83,16 +87,16 @@ export default {
         },
         async onSave() {
             showProgress();
-			let res = null;
-			try {
-				res = await httpFunc('/generic/genericST/Clientes:Upd_ListaEspera', this.item);
-				if (res.isError || res.data !== 'OK') throw res;
-				await this.setMode(0);
-			} catch (e) {
-				console.error(e);
-				showMessage('Error: ' + e.errorMessage || e.data);
-			}
-			hideProgress();
+            let res = null;
+            try {
+                res = await httpFunc('/generic/genericST/Clientes:Upd_ListaEspera', this.item);
+                if (res.isError || res.data !== 'OK') throw res;
+                await this.setMode(0);
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+            }
+            hideProgress();
         },
         async onCloseList() {
             this.item.is_active = '0';
@@ -103,11 +107,16 @@ export default {
         getFilteredList() {
             return (tabla) => {
                 return this[tabla] ? this[tabla].filter(item =>
-                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => 
+                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
                         this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
                     ) : []
                 ) : [];
             };
         },
+        currentUser: {
+			get() { 
+                return GlobalVariables.username == this.usuario.usuario;
+            }
+		},
     }
 }

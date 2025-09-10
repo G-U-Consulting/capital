@@ -256,9 +256,12 @@
                     </label>
                 </div>
             </div>
+            <div class="pure-u-1-1 pure-u-md-1-1 formInputStandard" style="margin-top: 1rem;">
+                <span>Asesor Responsable: {{usuario.nombres}}</span>
+            </div>
         </div>
         <div class="pure-u-2-5"></div>
-        <div class="pure-u-1-5" style="text-align: center;">
+        <div class="pure-u-1-5" style="text-align: center;" v-if="currentUser">
             <button v-if="item.is_waiting == '0' && item.is_active == '1'" @click="onCloseList">
                 Terminar
             </button>

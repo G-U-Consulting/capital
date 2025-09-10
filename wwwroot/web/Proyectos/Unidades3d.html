@@ -490,7 +490,7 @@
                                         @mouseleave="tooltipVisible = false;" @mousemove="updateCursorRight">
                                         {{apto.observacion_apto}}
                                     </td>
-                                    <td style="text-align: center;" @click="reqUnlockApto(apto)">
+                                    <td style="text-align: center;" @click="openUnlockModal(apto)">
                                         {{apto.id_estado_unidad && apto.id_estado_unidad != '1' ? '🔒' : ''}}
                                     </td>
                                 </tr>
@@ -1209,6 +1209,22 @@
             </div>
         </div>
     </div>
+
+    <div class="cal-modal-overlay" id="modalOverlayUnlock" @click.stop.prevent="closeUnlockModal">
+        <div class="modal-container" style="min-width: 50vw; max-width: 50vw;">
+            <h2 style="text-align: center; margin-bottom: .5rem;">Motivo Liberación</h2>
+            <div class="pure-g">
+                <div class="pure-u-1-1 formInputStandard">
+                    <textarea rows="10" v-model="textLog" style="resize: none; height: auto;"></textarea>
+                </div>
+            </div>
+            <div class="pure-u-5-12"></div>
+            <div class="pure-u-1-6" style="text-align: center;">
+                <button @click="reqUnlockApto(tmpApto)" class="pure-button pure-button-primary">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
 
     <div class="cal-modal-overlay" id="modalOverlay">
         <div class="modal-container pure-g" style="min-width: 70vw; max-width: 85vw;">
