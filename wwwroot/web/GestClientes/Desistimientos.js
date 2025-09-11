@@ -18,8 +18,18 @@ export default {
             showGestion: false,
             showInfo: false,
             showCuentas: false,
+            showDocs: false,
 
             newRow: false,
+
+            tooltipVisible: false,
+            tooltipX: 0,
+            tooltipY: 0,
+            previews: [],
+            files: [],
+            draggedFile: null,
+            dragIndex: null,
+            tooltipMsg: "Arrastra o haz clic para cargar archivos.",
         };
     },
     async mounted() {
@@ -94,6 +104,103 @@ export default {
 		},
         onAddAccount() {
             this.newRow = !this.newRow;
+        },
+
+
+
+        updateCursor(event) {
+            this.tooltipX = event.clientX + 10;
+            this.tooltipY = event.clientY + 10;
+        },
+        async handleDragOver(event) {
+            event.preventDefault();
+        },
+        async handleSubDrop(e) {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) this.fileUpload({ target: { files } });
+        },
+        async handleDrop(event) {
+            if (this.dragIndex !== null) {
+                const dropTarget = event.target.closest('.image-card');
+                if (dropTarget) {
+                    const dropIndex = Array.from(event.currentTarget.querySelectorAll('.image-card')).indexOf(dropTarget);
+                    if (dropIndex !== -1 && dropIndex !== this.dragIndex) {
+                        const draggedItem = this.previews[this.dragIndex];
+                        const draggedFile = this.files[this.dragIndex];
+
+                        this.previews.splice(this.dragIndex, 1);
+                        this.files.splice(this.dragIndex, 1);
+
+                        this.previews.splice(dropIndex, 0, draggedItem);
+                        this.files.splice(dropIndex, 0, draggedFile);
+                        this.dragIndex = null;
+                        return;
+                    }
+                }
+                this.dragIndex = null;
+                return;
+            }
+            if (event.dataTransfer.files.length > 0) {
+                let droppedFiles = { ...event.dataTransfer.files }, files = [];
+                for (const key in droppedFiles)
+                    files.push({ newName: droppedFiles[key].name, file: droppedFiles[key] });
+                this.processFiles(files);
+            }
+        },
+        async removeImage(index) {
+            this.previews.splice(index, 1);
+            this.files.splice(index, 1);
+        },
+        async handleFileChange(event) {
+            let selectedFiles = { ...event.target.files }, files = [];
+            for (const key in selectedFiles)
+                files.push({ newName: selectedFiles[key].name, file: selectedFiles[key] });
+            this.processFiles(files);
+        },
+        async processFiles(files) {
+            let noDocs = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i].file;
+                const exists = this.files.some(existingFile => existingFile.name === file.name);
+                if (!exists) {
+                    let ext = file.name.split('.').pop();
+                    if (file.type.startsWith('image/') || this.getIcon(ext)) {
+                        const reader = new FileReader();
+                        reader.onload = async (e) => {
+                            if (file.type.startsWith('image/')) {
+                                let f = { src: e.target.result, file: file, newName: files[i].newName };
+                                Object.defineProperty(f, 'content', {
+                                    get() { return this.src; },
+                                    set(val) { this.src = val; }
+                                });
+                                await this.previews.push(f);
+                            }
+                            else await this.previews.push({ file: file, src: this.getIcon(ext), content: e.target.result, newName: files[i].newName });
+                            this.files.push(file);
+                        };
+                        reader.readAsDataURL(file);
+                    } else noDocs.push(file.name);
+                }
+            }
+            noDocs.length && showMessage(`Error: Documentos no soportados\n${noDocs.join(', ')}`);
+        },
+        getURLFile(file) {
+            return URL.createObjectURL(file);
+        },
+        getIcon(ext) {
+            ext = ext.toLowerCase();
+            let base = '/img/ico/';
+            if (["doc", "docx", "docm", "dot", "dotx", "dotm"].includes(ext)) return base + 'Word.png';
+            if (["xls", "xlsx", "xlsm", "xlsb", "xlt", "xltx", "xltm", 'csv'].includes(ext)) return base + 'Excel.png';
+            if (["ppt", "pptx", "pptm", "pot", "potx", "potm", "pps", "ppsx", "ppsm",].includes(ext)) return base + 'PowerPoint.png';
+            if (["mdb", "accdb"].includes(ext)) return base + 'Access.png';
+            if (["mdb", "accdb"].includes(ext)) return base + 'Visio.png';
+            if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext))
+                return base + ext + '.png';
+            else return false;
+        },
+        async dragStart(index) {
+            this.dragIndex = index;
         },
     },
     computed: {

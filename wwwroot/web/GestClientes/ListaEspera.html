@@ -1,8 +1,16 @@
 <div v-if="mode == 0" style="padding: 1em">
     <div class="pure-u-1-24 pure-u-md-1-24"></div>
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
-        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
+        <!-- <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
             Listas de Espera
+        </div> -->
+        <div class="formDivision right-button" style="width: 100%; margin-bottom: 4px;">
+            <span style="font-size: 1.5em;">
+                Listas de Espera
+            </span>
+            <div style="min-width: 8em;">
+                <button @click="openModal">Notificar</button>
+            </div>
         </div>
         <div class="searchBox">
             <div class="pure-g">
@@ -26,10 +34,10 @@
                 <div class="pure-u-1-1 pure-u-md-5-24"
                     style="display: flex; justify-content: flex-end; align-items: center;">
                     <label class="check" for="is_waiting">
-                        <input type="checkbox" id="is_waiting" v-model="filtros.items['is_waiting']" true-value="1"
+                        <input type="checkbox" id="is_waiting" v-model="filtros.items['is_waiting']" true-value="0"
                             false-value="" />
                         <span class="checkmark"></span>
-                        Ver en Espera
+                        Ver Alertas
                     </label>
                 </div>
                 <div class="pure-u-1-1 pure-u-md-5-24"
@@ -51,7 +59,7 @@
                         <th>Doc. Cliente</th>
                         <th>Proyecto</th>
                         <th>Fecha</th>
-                        <th>En Espera</th>
+                        <th>Alerta</th>
                         <th>Activa</th>
                     </tr>
                 </thead>
@@ -61,11 +69,58 @@
                         <td>{{it.numero_documento}}</td>
                         <td>{{it.proyecto}}</td>
                         <td>{{it.created_on}}</td>
-                        <td style="text-align: center;">{{it.is_waiting == '1' ? 'Sí' : 'No'}}</td>
+                        <td style="text-align: center;">{{it.is_waiting == '1' ? 'No' : 'Sí'}}</td>
                         <td style="text-align: center;">{{it.is_active == '1' ? 'Sí' : 'No'}}</td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div class="cal-modal-overlay" id="modalOverlay" @click.stop.prevent="closeModal">
+        <div class="modal-container" style="min-width: 60vw; max-width: 60vw;">
+            <div style=" position: relative;">
+                <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal($event, true)"
+                    class="modal-cerrar">
+                <h2 style="text-align: center; margin-bottom: .5rem;">Notificar Clientes</h2>
+                
+                <div class="unidades-tabla-modal">
+                    <table class="dataTable" style="table-layout: auto;">
+                        <thead>
+                            <tr>
+                                <th>ID Lista</th>
+                                <th>Doc. Cliente</th>
+                                <th>Proyecto</th>
+                                <th>Fecha</th>
+                                <th style="width: 90px;">Notificar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="it in items.filter(i => i.is_waiting == '0' && i.is_active == '1')"
+                                v-bind:class="{'notify-customer': it.notify}">
+                                <td>{{it.id_lista}}</td>
+                                <td>{{it.numero_documento}}</td>
+                                <td>{{it.proyecto}}</td>
+                                <td>{{it.created_on}}</td>
+                                <td style="text-align: center;" @click="it.notify = !it.notify">
+                                    <label class="check" :for="`notify-${it.id_lista}`"
+                                        style="display: inline; padding-left: 15px;">
+                                        <input type="checkbox" :id="`notify-${it.id_lista}`" style="display: none;"
+                                            :checked="it.notify"
+                                            @click="it.notify = !it.notify" />
+                                        <span class="checkmark" style="background-color: white;"></span>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pure-u-5-12"></div>
+                <div class="pure-u-1-6" style="text-align: center;">
+                    <button @click="onNotify" class="pure-button pure-button-primary">Enviar</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -166,13 +221,13 @@
             <div class="pure-u-1-2 pure-u-md-1-5">
                 <div class="formInputStandard">
                     <label>Numero de alcobas</label>
-                    <input type="number" v-model="item.num_alcobas" :disabled="item.is_waiting == '0'"/>
+                    <input type="number" v-model="item.num_alcobas" :disabled="item.is_waiting == '0'" />
                 </div>
             </div>
             <div class="pure-u-1-2 pure-u-md-1-5">
                 <div class="formInputStandard">
                     <label>Numero de baños</label>
-                    <input type="number" v-model="item.num_banos" :disabled="item.is_waiting == '0'"/>
+                    <input type="number" v-model="item.num_banos" :disabled="item.is_waiting == '0'" />
                 </div>
             </div>
 
@@ -180,7 +235,7 @@
                 <div class="formInputStandard">
                     <label class="check" for="c_tiene_balcon">
                         <input type="checkbox" id="c_tiene_balcon" v-model="item.tiene_balcon" true-value="1"
-                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                            false-value="0" :disabled="item.is_waiting == '0'" />
                         <span class="checkmark"></span>
                         Tiene Balcón
                     </label>
@@ -190,7 +245,7 @@
                 <div class="formInputStandard">
                     <label class="check" for="c_tiene_parq_sencillo">
                         <input type="checkbox" id="c_tiene_parq_sencillo" v-model="item.tiene_parq_sencillo"
-                            true-value="1" false-value="0" :disabled="item.is_waiting == '0'"/>
+                            true-value="1" false-value="0" :disabled="item.is_waiting == '0'" />
                         <span class="checkmark"></span>
                         Parqueadero Sencillo
                     </label>
@@ -200,7 +255,7 @@
                 <div class="formInputStandard">
                     <label class="check" for="c_tiene_parq_doble">
                         <input type="checkbox" id="c_tiene_parq_doble" v-model="item.tiene_parq_doble" true-value="1"
-                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                            false-value="0" :disabled="item.is_waiting == '0'" />
                         <span class="checkmark"></span>
                         Parqueadero Doble
                     </label>
@@ -210,7 +265,7 @@
                 <div class="formInputStandard">
                     <label class="check" for="c_tiene_deposito">
                         <input type="checkbox" id="c_tiene_deposito" v-model="item.tiene_deposito" true-value="1"
-                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                            false-value="0" :disabled="item.is_waiting == '0'" />
                         <span class="checkmark"></span>
                         Tiene Depósito
                     </label>
@@ -220,7 +275,7 @@
                 <div class="formInputStandard">
                     <label class="check" for="c_tiene_acabados">
                         <input type="checkbox" id="c_tiene_acabados" v-model="item.tiene_acabados" true-value="1"
-                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                            false-value="0" :disabled="item.is_waiting == '0'" />
                         <span class="checkmark"></span>
                         Tiene Acabados
                     </label>
@@ -230,7 +285,7 @@
                 <div class="formInputStandard">
                     <label class="check" for="c_cerca_porteria">
                         <input type="checkbox" id="c_cerca_porteria" v-model="item.cerca_porteria" true-value="1"
-                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                            false-value="0" :disabled="item.is_waiting == '0'" />
                         <span class="checkmark"></span>
                         Cerca Portería
                     </label>
@@ -240,7 +295,7 @@
                 <div class="formInputStandard">
                     <label class="check" for="c_cerca_juegos_infantiles">
                         <input type="checkbox" id="c_cerca_juegos_infantiles" v-model="item.cerca_juegos_infantiles"
-                            true-value="1" false-value="0" :disabled="item.is_waiting == '0'"/>
+                            true-value="1" false-value="0" :disabled="item.is_waiting == '0'" />
                         <span class="checkmark"></span>
                         Cerca Juegos Infantiles
                     </label>
@@ -250,7 +305,7 @@
                 <div class="formInputStandard">
                     <label class="check" for="c_cerca_piscina">
                         <input type="checkbox" id="c_cerca_piscina" v-model="item.cerca_piscina" true-value="1"
-                            false-value="0" :disabled="item.is_waiting == '0'"/>
+                            false-value="0" :disabled="item.is_waiting == '0'" />
                         <span class="checkmark"></span>
                         Cerca Piscina
                     </label>
@@ -261,12 +316,14 @@
             </div>
         </div>
         <div class="pure-u-2-5"></div>
-        <div class="pure-u-1-5" style="text-align: center;" v-if="currentUser">
-            <button v-if="item.is_waiting == '0' && item.is_active == '1'" @click="onCloseList">
-                Terminar
-            </button>
+        <div class="pure-u-1-5" style="text-align: center;">
             <button v-if="item.is_waiting == '1' && item.is_active == '1'" @click="onSave">
                 Guardar
+            </button>
+        </div>
+        <div class="pure-u-2-5" style="text-align: right;">
+            <button v-if="item.is_active == '1'" @click="onCloseList">
+                Retirar
             </button>
         </div>
     </div>

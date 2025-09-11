@@ -98,7 +98,7 @@ begin
             l.id_usuario as id_usuario
         from fact_lista_espera l
         join fact_clientes c on l.id_cliente = c.id_cliente 
-        where l.is_waiting = 1 and l.id_proyecto = new.id_proyecto
+        where l.is_active = 1 and l.is_waiting = 1 and l.id_proyecto = new.id_proyecto
             and (l.id_unidad is null or l.id_unidad = new.id_unidad)
             and (l.id_torre is null or l.id_torre = new.id_torre)
             and (l.piso is null or l.piso = new.piso)
@@ -123,7 +123,7 @@ begin
         join (
             select l.id_lista
             from fact_lista_espera l
-            where l.is_waiting = 1 and l.id_proyecto = new.id_proyecto
+            where l.is_active = 1 and l.is_waiting = 1 and l.id_proyecto = new.id_proyecto
                 and (l.id_unidad is null or l.id_unidad = new.id_unidad)
                 and (l.id_torre is null or l.id_torre = new.id_torre)
                 and (l.piso is null or l.piso = new.piso)
@@ -227,7 +227,7 @@ begin
         JOIN fact_clientes c
           ON c.id_cliente = l.id_cliente
         WHERE u.id_torre         = NEW.id_torre
-          AND u.id_estado_unidad = 1 and l.is_waiting = 1
+          AND u.id_estado_unidad = 1 and l.is_active = 1 and l.is_waiting = 1
         GROUP BY u.id_unidad, l.id_usuario;
         
         -- 2) Marcar esas solicitudes de lista de espera como atendidas
@@ -271,6 +271,6 @@ begin
                   AND u.tiene_acabados = 1))
         SET l.is_waiting = 0
         WHERE u.id_torre         = NEW.id_torre
-          AND u.id_estado_unidad = 1 and l.is_waiting = 1;
+          AND u.id_estado_unidad = 1 and l.is_active = 1 and l.is_waiting = 1;
     end if;
 end;

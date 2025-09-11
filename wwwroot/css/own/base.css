@@ -1194,6 +1194,14 @@ textarea.editor {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.small-files .image-name-overlay {
+  position: initial;
+  width: auto;
+  background-color: white;
+  color: black;
+  text-align: left;
+  border: 1px solid #ccc;
+}
 .video-preview {
   position: absolute;
   overflow: hidden;
@@ -2569,7 +2577,7 @@ tr.cal-row-info > td {
 .unidades-tabla-modal th {
   text-align: center;
 }
-.grouped-apto td {
+.grouped-apto td, .notify-customer td {
   background-color: #0c62a4;
   color: white;
 }

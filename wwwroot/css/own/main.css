@@ -262,7 +262,9 @@
     border-radius: 4px;
     background: #fcfcfc;
 }
-
+.small-files .preview-container {
+    align-content: flex-start;
+}
 .image-card {
     position: relative;
     width: 160px;
@@ -273,6 +275,14 @@
     transition: transform 0.1s ease-in-out;
     border: 1px solid #ccc;
 }
+.small-files .image-card {
+    width: 240px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px;
+}
 
     .image-card:hover {
         transform: scale(1.05);
@@ -282,6 +292,10 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+    }
+    .small-files .image-card img {
+        width: auto;
+        height: 85%;
     }
 
 .delete-btn {
@@ -299,6 +313,12 @@
     cursor: pointer;
     font-weight: bold;
 }
+.small-files .delete-btn {
+    position: initial;
+    font-size: 16px;
+    width: 15px;
+    height: 15px;
+}
 
 .download-btn {
     position: absolute;
@@ -310,7 +330,18 @@
     border: 1px #0a6 solid;
     cursor: pointer;
 }
-
+.small-files .download-btn {
+    position: initial;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px #0a6 solid;
+    cursor: pointer;
+}
+.small-files .download-btn > a > img {
+    height: 100%;
+}
+    
 @media (max-width: 768px) {
     .container-fondopantalla {
         flex-direction: column;

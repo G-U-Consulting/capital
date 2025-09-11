@@ -233,6 +233,46 @@
                 </table>
             </div>
 
+            <div class='formDivision deployable' @click="showDocs = !showDocs">
+                <span>Documentos Adjuntos</span>
+                <span class="arrow" v-bind:class="{'expanded': showDocs}">&lt;</span>
+            </div>
+            <div v-show="showDocs" style="padding: .5rem;">
+                
+                <div class="pure-u-1 small-files" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
+                    style="position: relative; padding-top: 1em;">
+                    <label for="file-input" class="preview-container"
+                        style="height: 8rem; cursor: pointer; margin-bottom: 1rem; max-height: 100%;"
+                        @dragover.prevent="handleDragOver" @drop.prevent="handleDrop"
+                        @mouseenter="tooltipVisible = true" @mouseleave="tooltipVisible = false">
+                        <div v-if="previews.length === 0" class="center-absolute ">
+                            Arrastra o haz clic para cargar archivos.
+                        </div>
+                        <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
+                            @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false"
+                            @mouseleave="tooltipVisible = true" style="position: relative;">
+                            <img :src="item.src" @click.stop.prevent=""
+                                @mouseenter="tooltipVisible = true; tooltipMsg = item.newName"
+                                @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
+                            <input v-model="item.newName" class="image-name-overlay editable" @click.stop />
+                            <div class="download-btn">
+                                <a :href="getURLFile(item.file)" :download="item.file.name">
+                                    <img src="../../img/ico/download.jpg">
+                                </a>
+                            </div>
+                            <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
+                        </div>
+                        <div v-if="tooltipVisible" class="cursor-tooltip"
+                            :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                            {{tooltipMsg}}
+                        </div>
+                    </label>
+                    <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple accept="*"
+                        @change="handleFileChange" ref="fileInput" />
+                </div>
+
+            </div>
+
         </div>
         <div class="pure-u-2-5"></div>
         <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">

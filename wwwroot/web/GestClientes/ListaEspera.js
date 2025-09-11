@@ -14,11 +14,12 @@ export default {
             tipos: [],
 
             filtros: {
-                items: { id_proyecto: '', is_waiting: '1', is_active: '1' }
+                items: { id_proyecto: '', is_waiting: '', is_active: '1' }
             },
             item: {},
             usuario: {},
 
+            modal: null,
             currentProject: null
         };
     },
@@ -43,6 +44,7 @@ export default {
                 this.item = {};
                 this.currentProject = {};
                 await this.loadData();
+                this.modal = document.getElementById('modalOverlay');
             }
             if (mode === 1) {
                 this.ruta = [this.ruta[0], { text: `Edición - ${this.item.id_lista}`, action: () => this.setMode(1) }];
@@ -71,8 +73,10 @@ export default {
         },
         async loadData() {
             showProgress();
-            [this.items, this.proyectos] = (await
+            let items = [];
+            [items, this.proyectos] = (await
                 httpFunc('/generic/genericDS/Clientes:Get_ListasEspera', {})).data;
+            this.items = items.map(i => i.is_waiting == '0' && i.is_active == '1' ? { ...i, notify: true } : { ...i });
             hideProgress();
         },
         async onSelect(item) {
@@ -102,6 +106,31 @@ export default {
             this.item.is_active = '0';
             await this.onSave();
         },
+        openModal() {
+            let $modal = document.getElementById('modalOverlay');
+            $modal && ($modal.style.display = 'flex');
+        },
+        closeModal(e, forzar) {
+            if (this.modal && (e.target === this.modal || forzar))
+                this.modal.style.display = 'none';
+        },
+        async onNotify() {
+            let lists = this.items.filter(it => it.notify)
+                .map(it => ({ id_lista: it.id_lista, is_active: '0' }));
+            // Pendiente notificar
+            showProgress();
+            let res = null;
+            try {
+                res = await httpFunc('/generic/genericST/Clientes:Upd_ListasAlerta', { data: JSON.stringify(lists) });
+                if (res.isError || res.data !== 'OK') throw res;
+                await this.setMode(0);
+                this.closeModal({}, true);
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+            }
+            hideProgress();
+        }
     },
     computed: {
         getFilteredList() {
@@ -114,9 +143,9 @@ export default {
             };
         },
         currentUser: {
-			get() { 
+            get() {
                 return GlobalVariables.username == this.usuario.usuario;
             }
-		},
+        },
     }
 }
