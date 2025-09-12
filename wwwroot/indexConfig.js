@@ -141,24 +141,14 @@
         jsUrl: "./web/GestClientes/ListaEspera.js",
         allow: ["*"]
     },
-    "GCOpciones": {
-        templateUrl: "./web/GestClientes/Opciones.html",
-        jsUrl: "./web/GestClientes/Opciones.js",
-        allow: ["*"]
-    },
-    "GCConsignaciones": {
-        templateUrl: "./web/GestClientes/Consignaciones.html",
-        jsUrl: "./web/GestClientes/Consignaciones.js",
+    "GCEstatus": {
+        templateUrl: "./web/GestClientes/Estatus.html",
+        jsUrl: "./web/GestClientes/Estatus.js",
         allow: ["*"]
     },
     "GCPreCredito": {
         templateUrl: "./web/GestClientes/PreCredito.html",
         jsUrl: "./web/GestClientes/PreCredito.js",
-        allow: ["*"]
-    },
-    "GCVentas": {
-        templateUrl: "./web/GestClientes/Ventas.html",
-        jsUrl: "./web/GestClientes/Ventas.js",
         allow: ["*"]
     },
     "GCDesistimientos": {

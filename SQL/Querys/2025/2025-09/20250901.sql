@@ -72,6 +72,7 @@ create table fact_lista_espera(
 	tiene_parq_doble bit default 0,
 	tiene_deposito bit default 0,
 	tiene_acabados bit default 0,
+    seguimiento text,
     is_waiting bit default 1,
     is_active bit default 1,
     created_on datetime default current_timestamp
@@ -88,11 +89,8 @@ begin
             new.id_proyecto as id_proyecto,
             concat('Liberación unidad T', 
                 (select t.consecutivo from fact_torres t where t.id_torre = new.id_torre), 
-                ' - ', 
-                (select tp.codigo from dim_tipo_proyecto tp where tp.id_tipo_proyecto = new.id_clase), 
-                ' ', new.numero_apartamento, '. Notificar a los siguientes clientes: \n',
-                group_concat(concat('· Doc. cliente: ', c.numero_documento, ' - Lista ', l.id_lista) 
-                    order by l.created_on separator '.\n')) as descripcion,
+                ' - ', (select tp.codigo from dim_tipo_proyecto tp where tp.id_tipo_proyecto = new.id_clase), 
+                ' ', new.numero_apartamento, '. Revisar coincidencias en listas de espera.') as descripcion,
             2 as id_prioridad, 
             1 as id_estado, 
             l.id_usuario as id_usuario
@@ -151,7 +149,6 @@ end;
 create trigger tr_unidades_en_venta_torre after update on fact_torres for each row
 begin
     if new.en_venta = 1 and old.en_venta = 0 then
-        -- 1) Insertar en dim_tarea_usuario una tarea por cada usuario
         INSERT INTO dim_tarea_usuario
             (alta,
              deadline,
@@ -164,27 +161,11 @@ begin
             CURRENT_DATE                                     AS alta,
             DATE_ADD(CURRENT_DATE, INTERVAL 1 WEEK)          AS deadline,
             u.id_proyecto                                    AS id_proyecto,
-            CONCAT(
-                'Liberación unidad T',
-                t.consecutivo, ' - ',
-                tp.codigo, ' ',
-                u.numero_apartamento,
-                '. Notificar a los siguientes clientes: \n',
-                GROUP_CONCAT(
-                    CONCAT(
-                        '· Doc. cliente: ', c.numero_documento,
-                        ' - Lista ', l.id_lista
-                    )
-                    ORDER BY l.created_on
-                    SEPARATOR '.\n'
-                )
-            )                                                AS descripcion,
+            CONCAT('Torre ', new.consecutivo, ' en venta, revisar nuevas unidades libres en lista de espera.') AS descripcion,
             2                                                AS id_prioridad,
             1                                                AS id_estado,
             l.id_usuario                                     AS id_usuario
         FROM fact_unidades u
-        JOIN fact_torres t
-          ON t.id_torre = u.id_torre
         JOIN dim_tipo_proyecto tp
           ON tp.id_tipo_proyecto = u.id_clase
         JOIN fact_lista_espera l
@@ -228,9 +209,8 @@ begin
           ON c.id_cliente = l.id_cliente
         WHERE u.id_torre         = NEW.id_torre
           AND u.id_estado_unidad = 1 and l.is_active = 1 and l.is_waiting = 1
-        GROUP BY u.id_unidad, l.id_usuario;
+        GROUP BY u.id_torre, l.id_usuario;
         
-        -- 2) Marcar esas solicitudes de lista de espera como atendidas
         UPDATE fact_lista_espera l
         JOIN fact_unidades u
           ON l.id_proyecto = u.id_proyecto

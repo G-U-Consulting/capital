@@ -2,8 +2,7 @@
 -- Proceso: Clientes/Get_ListaEspera
 -- =============================================
 --START_PARAM
-set @id_proyecto = 1,
-    @id_usuario = NULL;
+set @id_proyecto = 1;
 --END_PARAM
 
 select id_torre, id_proyecto, consecutivo, orden_salida, en_venta, aptos_piso, aptos_fila, id_sinco, 
@@ -41,7 +40,3 @@ group by tp.id_tipo_proyecto;
 select id_tipo, tipo, id_proyecto, id_archivo_planta, id_archivo_recorrido
 from dim_tipo_unidad
 where id_proyecto = @id_proyecto and tipo != '';
-
-select id_usuario, usuario, nombres
-from fact_usuarios
-where id_usuario = @id_usuario;

@@ -19,25 +19,15 @@
                     <img src="./img/ico/svg/sidebar/Clientes.svg" />
                     Lista de espera
                 </div>
-                <div v-on:click="setMainMode('GCOpciones')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'GCOpciones'}">
+                <div v-on:click="setMainMode('GCEstatus')" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'GCEstatus'}">
                     <img src="./img/ico/svg/sidebar/Clientes.svg" />
-                    Opciones​
-                </div>
-                <div v-on:click="setMainMode('GCConsignaciones')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'GCConsignaciones'}">
-                    <img src="./img/ico/svg/sidebar/Clientes.svg" />
-                    Consignaciones
+                    Estatus
                 </div>
                 <div v-on:click="setMainMode('GCPreCredito')" class="lateralMenuItem noSelect"
                     v-bind:class="{'lateralMenuItemSelected': mainmode == 'GCPreCredito'}">
                     <img src="./img/ico/svg/sidebar/Clientes.svg" />
-                    Preaprobación Crédito​
-                </div>
-                <div v-on:click="setMainMode('GCVentas')" class="lateralMenuItem noSelect"
-                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'GCVentas'}">
-                    <img src="./img/ico/svg/sidebar/Clientes.svg" />
-                    Ventas
+                    Preaprobación Crédito
                 </div>
             </div>
             <div class="lateralMenuGroup">

@@ -12,9 +12,10 @@ export default {
             localizaciones: [],
             clases: [],
             tipos: [],
+            usuarios: [],
 
             filtros: {
-                items: { id_proyecto: '', is_waiting: '', is_active: '1' }
+                items: { id_proyecto: '', is_waiting: '', is_active: '1', id_usuario: '' }
             },
             item: {},
             usuario: {},
@@ -53,11 +54,11 @@ export default {
         },
         async loadLista() {
             showProgress();
-            let usuarios = [];
-            [this.torres, this.aptos, this.clases, this.tipos, usuarios] = (await
+            [this.torres, this.aptos, this.clases, this.tipos] = (await
                 httpFunc('/generic/genericDS/Clientes:Get_ListaEspera',
                     { id_proyecto: this.currentProject, id_usuario: this.item.id_usuario })).data;
-            if (usuarios && usuarios.length) this.usuario = usuarios[0];
+            this.usuario = this.usuarios.find(u => u.id_usuario === this.item.id_usuario) || {};
+            console.log(this.usuarios, this.item.id_usuario, this.usuario);
             let pisos = [], localizaciones = [];
             this.aptos.forEach(a => {
                 if (!pisos.includes(a.piso)) pisos.push(a.piso);
@@ -74,7 +75,7 @@ export default {
         async loadData() {
             showProgress();
             let items = [];
-            [items, this.proyectos] = (await
+            [items, this.proyectos, this.usuarios] = (await
                 httpFunc('/generic/genericDS/Clientes:Get_ListasEspera', {})).data;
             this.items = items.map(i => i.is_waiting == '0' && i.is_active == '1' ? { ...i, notify: true } : { ...i });
             hideProgress();
@@ -121,8 +122,8 @@ export default {
             showProgress();
             let res = null;
             try {
-                res = await httpFunc('/generic/genericST/Clientes:Upd_ListasAlerta', { data: JSON.stringify(lists) });
-                if (res.isError || res.data !== 'OK') throw res;
+                /* res = await httpFunc('/generic/genericST/Clientes:Upd_ListasAlerta', { data: JSON.stringify(lists) });
+                if (res.isError || res.data !== 'OK') throw res; */
                 await this.setMode(0);
                 this.closeModal({}, true);
             } catch (e) {

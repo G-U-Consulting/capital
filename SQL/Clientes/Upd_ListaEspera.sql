@@ -23,6 +23,7 @@ set @id_lista = NULL,
 	@tiene_parq_doble = NULL,
 	@tiene_deposito = NULL,
 	@tiene_acabados = NULL,
+	@seguimiento = NULL,
 	@is_waiting = NULL,
 	@is_active = NULL;
 --END_PARAM
@@ -48,6 +49,7 @@ set id_cliente = @id_cliente,
 	tiene_parq_doble = if(@tiene_parq_doble = '1', 1, 0),
 	tiene_deposito = if(@tiene_deposito = '1', 1, 0),
 	tiene_acabados = if(@tiene_acabados = '1', 1, 0),
+	seguimiento = @seguimiento,
 	is_waiting = if(@is_waiting = '1', 1, 0),
 	is_active = if(@is_active = '1', 1, 0)
 where id_lista = @id_lista;

@@ -50,15 +50,17 @@ export default {
             this.mainmode = mode;
         },
         async setMode(mode) {
-            this.mode = mode;
-            await Promise.resolve();
-            if (mode === 0) GlobalVariables.miniModuleCallback('StartModule');
-            if (mode === 1) {
-                this.ruta = [{ text: `${this.cliente.numero_documento} - Edición` }];
-                this.setRuta();
+            if (this.mode != mode) {
+                this.mode = mode;
+                await Promise.resolve();
+                if (mode === 0) GlobalVariables.miniModuleCallback('StartModule');
+                if (mode === 1) {
+                    this.ruta = [{ text: `${this.cliente.numero_documento} - Edición` }];
+                    this.setRuta();
+                }
+                if (mode === 'chart') this.initChart();
+                if (mode === 'd3') this.initD3();
             }
-            if (mode === 'chart') this.initChart();
-            if (mode === 'd3') this.initD3();
         },
         async loadData() {
             showProgress();

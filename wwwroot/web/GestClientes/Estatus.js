@@ -11,7 +11,7 @@ export default {
         };
     },
     async mounted() {
-        this.ruta = [{ text: 'Opciones', action: () => this.setMode(0) }];
+        this.ruta = [{ text: 'Estatus', action: () => this.setMode(0) }];
         this.setRuta();
         await this.loadData();
     },

@@ -296,6 +296,7 @@
     .small-files .image-card img {
         width: auto;
         height: 85%;
+        max-width: 50px;
     }
 
 .delete-btn {
