@@ -131,7 +131,10 @@ export default {
                 showMessage('Error: ' + e.errorMessage || e.data);
             }
             hideProgress();
-        }
+        },
+        reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
+			showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
+		},
     },
     computed: {
         getFilteredList() {

@@ -254,3 +254,42 @@ begin
           AND u.id_estado_unidad = 1 and l.is_active = 1 and l.is_waiting = 1;
     end if;
 end;
+
+
+create table fact_ventas(
+    id_venta int primary key auto_increment,
+    radicado int unique key,
+    id_unidad int not null references fact_unidades(id_unidad),
+    id_cliente int not null references fact_clientes(id_cliente),
+    created_on datetime default current_timestamp,
+    created_by varchar(50) not null
+);
+
+create table dim_estado_desistimiento(
+    id_estado int primary key auto_increment,
+    nombre varchar(50) not null unique
+);
+
+insert into dim_estado_desistimiento(nombre) values
+('ACTIVO'),
+('PAUSADO'),
+('TRAMITADO_A_FIDUCIA'),
+('SIN_LIQUIDAR');
+
+create table dim_desistimiento(
+    id_desistimiento int primary key auto_increment,
+    id_venta int not null references fact_ventas(id_venta),
+    id_estado int not null references dim_estado_desistimiento(id_estado),
+    ultima_fecha datetime not null,
+    cant_incumplida int default 0,
+    interes decimal(20, 2),
+    gasto decimal(20, 2),
+    descuento decimal(20, 2),
+    id_categoria int references dim_categoria_desistimiento(id_categoria),
+    id_fiduciaria int references dim_fiduciaria(id_fiduciaria),
+    etapa varchar(20),
+    id_penalidad int references dim_penalidad_desistimiento(id_penalidad),
+    observacion text,
+    fecha_resolucion datetime,
+    created_on datetime default current_timestamp
+);

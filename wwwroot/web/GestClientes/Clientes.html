@@ -228,22 +228,24 @@
                 <table class="dataTable" style="table-layout: auto;">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Doc. Cliente</th>
-                            <th>Proyecto</th>
-                            <th>Fecha</th>
-                            <th>En Espera</th>
-                            <th>Activa</th>
+                            <th style="width: 6%;">ID</th>
+                            <th style="width: 14%;">Fecha</th>
+                            <th style="width: 10%;">Doc. Cliente</th>
+                            <th style="width: 25%;">Nombre Cliente</th>
+                            <th style="width: 14%;">Proyecto</th>
+                            <th style="width: 25%;">Asesor</th>
+                            <th style="width: 6%;">Alerta</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="l in listas">
-                            <td>{{l.id_lista}}</td>
-                            <td>{{l.numero_documento}}</td>
-                            <td>{{l.proyecto}}</td>
+                            <td style="text-align: center;">{{l.id_lista}}</td>
                             <td>{{l.created_on}}</td>
-                            <td style="text-align: center;">{{l.is_waiting == '1' ? 'Sí' : 'No'}}</td>
-                            <td style="text-align: center;">{{l.is_active == '1' ? 'Sí' : 'No'}}</td>
+                            <td>{{l.numero_documento}}</td>
+                            <td>{{l.nombre_cliente}}</td>
+                            <td>{{l.proyecto}}</td>
+                            <td>{{l.nombre_asesor}}</td>
+                            <td style="text-align: center;">{{l.is_waiting == '1' ? 'No' : 'Sí'}}</td>
                         </tr>
                     </tbody>
                 </table>

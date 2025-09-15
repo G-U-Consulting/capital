@@ -162,7 +162,7 @@
             </div>
             <div class="pure-u-1-2 pure-u-md-1-5">
                 <div class="formInputStandard">
-                    <label>Apellido 1</label>
+                    <label>Apellido 2</label>
                     <input type="text" :value="item.apellido2" readonly>
                 </div>
             </div>
@@ -377,12 +377,12 @@
         </div>
         <div class="pure-u-2-5"></div>
         <div class="pure-u-1-5" style="text-align: center; margin-top: 1rem;">
-            <button v-if="item.is_waiting == '1' && item.is_active == '1'" @click="onSave">
+            <button v-if="item.is_active == '1'" @click="reqOperation('Se actualizará la especificación.', onSave)">
                 Guardar
             </button>
         </div>
         <div class="pure-u-2-5" style="text-align: right; margin-top: 1rem;">
-            <button v-if="item.is_active == '1'" @click="onCloseList">
+            <button v-if="item.is_active == '1'" @click="reqOperation('Se desactivará esta especificación de la lista de espera.', onCloseList)">
                 Retirar
             </button>
         </div>
