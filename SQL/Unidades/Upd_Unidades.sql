@@ -256,12 +256,13 @@ update tmp_unidades a
 set 
     a.id_unidad = b.id_unidad;
 
-select tp.id_tipo_proyecto into @id_clase_prq from dim_tipo_proyecto tp where tipo_proyecto = 'Parqueadero';
+select tp.id_tipo_proyecto into @id_clase_prq, tp.codigo into @cod_clase_prq
+from dim_tipo_proyecto tp where tipo_proyecto = 'Parqueadero';
 insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, id_clase)
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
-    concat('PRQ ', t.parqueadero) as nombre_unidad,
+    concat(coalesce(@cod_clase_prq, ''), ' ', t.parqueadero) as nombre_unidad,
     convert(t.parqueadero, int) as numero_apartamento,
     convert(t.parqueadero_ubicacion, int) as piso,
     convert(t.parqueadero_area, decimal(20, 2)) as area_total,
@@ -285,7 +286,7 @@ insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamen
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
-    concat('PRQ ', t.parqueadero2) as nombre_unidad,
+    concat(coalesce(@cod_clase_prq, ''), ' ', t.parqueadero2) as nombre_unidad,
     convert(t.parqueadero2, int) as numero_apartamento,
     convert(t.parqueadero2_ubicacion, int) as piso,
     convert(t.parqueadero2_area, decimal(20, 2)) as area_total,
@@ -305,12 +306,13 @@ update tmp_unidades a
 set 
     a.id_parqueadero2 = b.id_unidad;
 
-select tp.id_tipo_proyecto into @id_clase_dep from dim_tipo_proyecto tp where tipo_proyecto = 'Deposito';
+select tp.id_tipo_proyecto into @id_clase_dep, tp.codigo into @cod_clase_dep
+from dim_tipo_proyecto tp where tipo_proyecto = 'Deposito';
 insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, id_clase)
 select 
     @id_proyecto as id_proyecto,
     t.id_torre as id_torre,
-    concat('DEP ', t.deposito) as nombre_unidad,
+    concat(coalesce(@cod_clase_dep, ''), ' ', t.deposito) as nombre_unidad,
     convert(t.deposito, int) as numero_apartamento,
     convert(t.deposito_ubicacion, int) as piso,
     convert(t.deposito_area, decimal(20, 2)) as area_total,
@@ -337,14 +339,14 @@ select @id_proyecto,
         join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad) as nombre,
     concat(
         (select concat(tp.codigo, ': ', u.numero_apartamento) from fact_unidades u where u.id_unidad = t.id_unidad),
-        if(t.id_parqueadero is not null, (select concat(', ', utp.codigo, ': ', u.numero_apartamento) 
-            from fact_unidades u join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
+        if(t.id_parqueadero is not null, (select concat(', ', coalesce(utp.codigo, ''), ': ', u.numero_apartamento) 
+            from fact_unidades u left join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
             where u.id_unidad = t.id_parqueadero), ''),
-        if(t.id_parqueadero2 is not null, (select concat(', ', utp.codigo, ': ', u.numero_apartamento) 
-            from fact_unidades u join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
+        if(t.id_parqueadero2 is not null, (select concat(', ', coalesce(utp.codigo, ''), ': ', u.numero_apartamento) 
+            from fact_unidades u left join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
             where u.id_unidad = t.id_parqueadero2), ''),
-        if(t.id_deposito is not null, (select concat(', ', utp.codigo, ': ', u.numero_apartamento) 
-            from fact_unidades u join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
+        if(t.id_deposito is not null, (select concat(', ', coalesce(utp.codigo, ''), ': ', u.numero_apartamento) 
+            from fact_unidades u left join dim_tipo_proyecto utp on u.id_clase = utp.id_tipo_proyecto
             where u.id_unidad = t.id_deposito), '')
     ) as descripcion
 from tmp_unidades t

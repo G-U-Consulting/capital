@@ -271,15 +271,17 @@ create table dim_estado_desistimiento(
 );
 
 insert into dim_estado_desistimiento(nombre) values
-('ACTIVO'),
-('PAUSADO'),
-('TRAMITADO_A_FIDUCIA'),
-('SIN_LIQUIDAR');
+('Iniciado'),
+('Solicitado'),
+('Dirección'),
+('Coordinación'),
+('Aprobado'),
+('Terminado');
 
 create table dim_desistimiento(
     id_desistimiento int primary key auto_increment,
     id_venta int not null references fact_ventas(id_venta),
-    id_estado int not null references dim_estado_desistimiento(id_estado),
+    id_estado int not null default 1 references dim_estado_desistimiento(id_estado),
     ultima_fecha datetime not null,
     cant_incumplida int default 0,
     interes decimal(20, 2),
@@ -291,5 +293,6 @@ create table dim_desistimiento(
     id_penalidad int references dim_penalidad_desistimiento(id_penalidad),
     observacion text,
     fecha_resolucion datetime,
-    created_on datetime default current_timestamp
+    created_on datetime default current_timestamp,
+    created_by varchar(50) not null
 );

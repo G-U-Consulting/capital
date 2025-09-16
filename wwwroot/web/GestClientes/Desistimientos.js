@@ -9,12 +9,14 @@ export default {
             penalidades: [],
             fiduciarias: [],
             ventas: [],
+            estados: [],
+            cliVentas: [],
             desistimiento: {},
             cliente: {},
             venta: {},
             searchID: null,
             searchDoc: null,
-            cliVentas: [],
+            isNew: true,
 
             desistimiento: { id_categoria: '', id_fiduciaria: '', etapa: '', id_penalidad: '' },
 
@@ -26,6 +28,8 @@ export default {
             showInfo: false,
             showCuentas: false,
             showDocs: false,
+            showDatamart: false,
+            showLiq: false,
 
             newRow: false,
 
@@ -69,17 +73,19 @@ export default {
                 this.setRuta();
             }
             if (mode === 2) {
-                this.ruta = [this.ruta[0], 
-                    { 
-                        text: this.desistimiento.id_venta ? `Edición - Venta ${this.desistimiento.id_venta}` : 'Creación',
-                        action: () => this.setMode(2) 
-                    }];
+                this.ruta = [this.ruta[0],
+                {
+                    text: !this.isNew ? `Edición - Venta ${this.desistimiento.id_venta}` : 'Creación',
+                    action: () => this.setMode(2)
+                }];
                 this.setRuta();
             }
         },
         async loadData() {
-            [this.desistimientos, this.categorias, this.penalidades, this.fiduciarias, this.ventas] =
+            showProgress();
+            [this.desistimientos, this.categorias, this.penalidades, this.fiduciarias, this.ventas, this.estados] =
                 (await httpFunc("/generic/genericDS/Clientes:Get_Desistimientos", {})).data;
+            hideProgress();
         },
         validarNumero(e, int) {
             let val = e.target.value;
@@ -89,6 +95,10 @@ export default {
                 val = val.slice(0, val.lastIndexOf(',')) + val.slice(val.lastIndexOf(',') + 1);
             val = val.replace(/^0+(\d)/, '$1');
             e.target.value = val;
+        },
+        valMax(e, max) {
+            let val = this.cleanNumber(e.target.value);
+            if (Number(val) > max) e.target.value = max.toString();
         },
         formatNumber(value, dec = true, ndec) {
             if (!value) return "0";
@@ -125,7 +135,6 @@ export default {
             this.newRow = !this.newRow;
         },
         onFind() {
-            let ventas = [];
             if (this.searchID)
                 this.cliVentas = this.ventas.filter(v => v.id_venta === this.searchID);
             if (this.searchDoc)
@@ -137,7 +146,8 @@ export default {
                     nombres: v.nombres,
                     apellido1: v.apellido1,
                     apellido2: v.apellido2,
-                    numero_documento: v.numero_documento
+                    numero_documento: v.numero_documento,
+                    nombre_cliente: v.nombre_cliente
                 };
             } else {
                 this.cliente = {};
@@ -145,8 +155,18 @@ export default {
             }
 
         },
-        onSelectDes(desistimiento) {
-            this.desistimiento = desistimiento;
+        onSelectDes(des) {
+            this.desistimiento = { ...des };
+            this.cliente = {
+                id_cliente: des.id_cliente,
+                nombres: des.nombres,
+                apellido1: des.apellido1,
+                apellido2: des.apellido2,
+                numero_documento: des.numero_documento,
+                nombre_cliente: des.nombre_cliente
+            };
+            this.venta = this.ventas.find(v => v.id_venta === des.id_venta) || {};
+            this.isNew = false;
             this.setMode(2);
         },
         onSelectVenta(venta) {
@@ -155,9 +175,32 @@ export default {
                 id_categoria: '',
                 id_fiduciaria: '',
                 etapa: '',
-                id_penalidad: ''
+                id_penalidad: '',
+                id_estado: '1',
+                id_fiduciaria: venta.id_fiduciaria,
+                id_venta: venta.id_venta,
+                unidad: venta.unidad,
+                created_on: this.formatDatetime(null, 'bdatetime'),
+                created_by: GlobalVariables.username,
             };
+            this.venta = venta;
+            this.isNew = !this.desistimiento.id_desistimiento;
             this.setMode(2);
+        },
+        async onSave() {
+            showProgress();
+            let res = null;
+            try {
+                Object.keys(this.desistimiento).forEach(k => !this.desistimiento[k] && delete this.desistimiento[k]);
+                res = await httpFunc(`/generic/genericST/Clientes:${this.isNew ? 'Ins' : 'Upd'}_Desistimiento`, this.desistimiento);
+                if (res.isError || res.data !== 'OK') throw res;
+                await this.loadData();
+                await this.setMode(0);
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+            }
+            hideProgress();
         },
 
 
@@ -255,6 +298,26 @@ export default {
         async dragStart(index) {
             this.dragIndex = index;
         },
+        formatDatetime(text, type = 'datetime', _date) {
+            const date = _date || (text ? new Date(text) : new Date());
+            let day = date.getDate().toString().padStart(2, '0'),
+                month = (date.getMonth() + 1).toString().padStart(2, '0'),
+                year = date.getFullYear(),
+                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
+                minutes = date.getMinutes().toString().padStart(2, '0'),
+                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
+            if (type === 'date')
+                return `${day}/${month}/${year}`;
+            if (type === 'bdate')
+                return `${year}-${month}-${day}`;
+            if (type === 'bdatetime')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
+            if (type === 'time')
+                return `${hour}:${minutes} ${meridian}`;
+            if (type === 'vtime')
+                return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
+            return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
+        },
     },
     computed: {
         f_campo: {
@@ -276,6 +339,87 @@ export default {
         f_cant_incumplida: {
             get() { return this.formatNumber(this.desistimiento['cant_incumplida'], false); },
             set(val) { this.desistimiento['cant_incumplida'] = this.cleanNumber(val); }
+        },
+        f_radicado: {
+            get() { return this.desistimiento['radicado']; },
+            set(val) { this.desistimiento['radicado'] = this.cleanNumber(val); }
+        },
+
+        f_v_venta_neto: {
+            get() { return this.formatNumber(this.desistimiento['v_venta_neto'], false); },
+            set(val) { this.desistimiento['v_venta_neto'] = this.cleanNumber(val); }
+        },
+        f_v_abonado: {
+            get() {
+                let val = Number(this.cleanNumber(this.f_a_capital)) + Number(this.cleanNumber(this.f_a_intereses));
+                return this.formatNumber(val.toString(), false);
+            },
+        },
+        f_a_capital: {
+            get() { return this.formatNumber(this.desistimiento['a_capital'], false); },
+            set(val) { this.desistimiento['a_capital'] = this.cleanNumber(val); }
+        },
+        f_a_intereses: {
+            get() { return this.formatNumber(this.desistimiento['a_intereses'], false); },
+            set(val) { this.desistimiento['a_intereses'] = this.cleanNumber(val); }
+        },
+        f_condonacion: {
+            get() { return this.formatNumber(this.desistimiento['condonacion'], false); },
+            set(val) { this.desistimiento['condonacion'] = this.cleanNumber(val); }
+        },
+        f_imp_reformas: {
+            get() { return this.formatNumber(this.desistimiento['imp_reformas'], false); },
+            set(val) { this.desistimiento['imp_reformas'] = this.cleanNumber(val); }
+        },
+
+        f_pnl_pcv: {
+            get() { return this.formatNumber(this.desistimiento['pnl_pcv'], true); },
+            set(val) {
+                if (Number(this.cleanNumber(val)) > 100) this.desistimiento['pnl_pcv'] = '100';
+                else this.desistimiento['pnl_pcv'] = this.cleanNumber(val);
+            }
+        },
+        f_pnl_aplicada: {
+            get() {
+                let val = 100 - Number(this.f_pnl_pcv.replaceAll('.', '').replace(',', '.'));
+                return this.formatNumber(val.toString());
+            },
+        },
+        f_pnl_aplicada_val: {
+            get() {
+                let val = Number(this.f_v_abonado.replaceAll('.', '')) *
+                    Number(this.f_pnl_aplicada.replaceAll('.', '').replace(',', '.')) / 100;
+                return this.formatNumber(val.toString(), false);
+            },
+        },
+        f_pnl_bruta: {
+            get() {
+                let val = Number(this.f_v_abonado.replaceAll('.', '')) *
+                    Number(this.f_pnl_aplicada.replaceAll('.', '').replace(',', '.')) / 100;
+                return this.formatNumber(val.toString(), false);
+            },
+        },
+        f_pnl_neta: {
+            get() { return this.formatNumber(this.desistimiento['pnl_neta'], false); },
+            set(val) { this.desistimiento['pnl_neta'] = this.cleanNumber(val); }
+        },
+        f_devolucion: {
+            get() {
+                let val = Number(this.cleanNumber(this.f_v_abonado)) - Number(this.cleanNumber(this.f_pnl_aplicada_val));
+                return this.formatNumber(val.toString(), false);
+            },
+        },
+        f_v4xmil: {
+            get() {
+                let val = Number(this.cleanNumber(this.f_devolucion)) * 4 / 1000;
+                return this.formatNumber(val.toString(), false);
+            },
+        },
+        f_liquido: {
+            get() {
+                let val = Number(this.cleanNumber(this.f_devolucion)) - Number(this.cleanNumber(this.f_v4xmil));
+                return this.formatNumber(val.toString(), false);
+            },
         },
 
         getFilteredList() {
