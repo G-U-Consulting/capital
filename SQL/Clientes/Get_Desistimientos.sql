@@ -8,7 +8,10 @@
 select date_format(d.ultima_fecha, '%Y-%m-%d %T') as ultima_fecha, 
     date_format(d.created_on, '%Y-%m-%d %T') as created_on, 
     date_format(d.fecha_resolucion, '%Y-%m-%d %T') as fecha_resolucion, 
+    date_format(d.fecha_fpc, '%Y-%m-%d') as fecha_fpc,
+    date_format(d.fecha_program, '%Y-%m-%d') as fecha_program,
     d.*, v.radicado, p.id_proyecto, p.nombre as proyecto, t.id_torre, t.consecutivo as torre,
+    d.pnl_monto as `Monto`, d.pnl_porcentaje as `Porcentaje`,
     coalesce(a.nombre, u.numero_apartamento) as unidad, e.id_estado, e.nombre as estado,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
     c.numero_documento, c.nombres, c.apellido1, c.apellido2, us.nombres as asesor

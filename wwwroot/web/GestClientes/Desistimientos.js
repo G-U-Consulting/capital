@@ -30,6 +30,7 @@ export default {
             showDocs: false,
             showDatamart: false,
             showLiq: false,
+            showCarta: false,
 
             newRow: false,
 
@@ -41,6 +42,9 @@ export default {
             draggedFile: null,
             dragIndex: null,
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
+
+            editRow: true,
+            selRow: null
         };
     },
     async mounted() {
@@ -157,6 +161,8 @@ export default {
         },
         onSelectDes(des) {
             this.desistimiento = { ...des };
+
+            Object.keys(this.desistimiento).forEach(k => this.desistimiento[k] = this.desistimiento[k].replace(',', '.'));
             this.cliente = {
                 id_cliente: des.id_cliente,
                 nombres: des.nombres,
@@ -180,14 +186,15 @@ export default {
                 id_fiduciaria: venta.id_fiduciaria,
                 id_venta: venta.id_venta,
                 unidad: venta.unidad,
-                created_on: this.formatDatetime(null, 'bdatetime'),
+                radicado: venta.radicado,
                 created_by: GlobalVariables.username,
             };
+            Object.keys(this.desistimiento).forEach(k => this.desistimiento[k] = this.desistimiento[k].replace(',', '.'));
             this.venta = venta;
             this.isNew = !this.desistimiento.id_desistimiento;
             this.setMode(2);
         },
-        async onSave() {
+        async onSave(hold) {
             showProgress();
             let res = null;
             try {
@@ -195,7 +202,7 @@ export default {
                 res = await httpFunc(`/generic/genericST/Clientes:${this.isNew ? 'Ins' : 'Upd'}_Desistimiento`, this.desistimiento);
                 if (res.isError || res.data !== 'OK') throw res;
                 await this.loadData();
-                await this.setMode(0);
+                !hold && await this.setMode(0);
             } catch (e) {
                 console.error(e);
                 showMessage('Error: ' + e.errorMessage || e.data);
@@ -318,6 +325,11 @@ export default {
                 return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
             return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
         },
+
+        async setEstado(id) {
+            this.desistimiento.id_estado = id;
+            this.onSave(true);
+        }
     },
     computed: {
         f_campo: {
@@ -379,39 +391,40 @@ export default {
                 else this.desistimiento['pnl_pcv'] = this.cleanNumber(val);
             }
         },
-        f_pnl_aplicada: {
-            get() {
-                let val = 100 - Number(this.f_pnl_pcv.replaceAll('.', '').replace(',', '.'));
-                return this.formatNumber(val.toString());
-            },
+        f_pnl_aplicada_ptg: {
+            get() { return this.formatNumber(this.desistimiento['pnl_aplicada_ptg'], true); },
+            set(val) {
+                if (Number(this.cleanNumber(val)) > 100) this.desistimiento['pnl_aplicada_ptg'] = '100';
+                else this.desistimiento['pnl_aplicada_ptg'] = this.cleanNumber(val);
+            }
         },
         f_pnl_aplicada_val: {
             get() {
-                let val = Number(this.f_v_abonado.replaceAll('.', '')) *
-                    Number(this.f_pnl_aplicada.replaceAll('.', '').replace(',', '.')) / 100;
+                let val = Number(this.cleanNumber(this.f_a_capital)) * Number(this.cleanNumber(this.f_pnl_aplicada_ptg)) / 100;
                 return this.formatNumber(val.toString(), false);
             },
         },
         f_pnl_bruta: {
             get() {
-                let val = Number(this.f_v_abonado.replaceAll('.', '')) *
-                    Number(this.f_pnl_aplicada.replaceAll('.', '').replace(',', '.')) / 100;
+                let val = Number(this.cleanNumber(this.f_a_capital)) * Number(this.cleanNumber(this.f_pnl_aplicada_ptg)) / 100;
                 return this.formatNumber(val.toString(), false);
             },
         },
         f_pnl_neta: {
-            get() { return this.formatNumber(this.desistimiento['pnl_neta'], false); },
-            set(val) { this.desistimiento['pnl_neta'] = this.cleanNumber(val); }
+            get() {
+                let val = Number(this.cleanNumber(this.f_pnl_aplicada_val)) - Number(this.cleanNumber(this.f_interes));
+                return this.formatNumber(val.toString(), false);
+            },
         },
         f_devolucion: {
             get() {
-                let val = Number(this.cleanNumber(this.f_v_abonado)) - Number(this.cleanNumber(this.f_pnl_aplicada_val));
+                let val = Number(this.cleanNumber(this.f_a_capital)) - Number(this.cleanNumber(this.f_pnl_aplicada_val));
                 return this.formatNumber(val.toString(), false);
             },
         },
         f_v4xmil: {
             get() {
-                let val = Number(this.cleanNumber(this.f_devolucion)) * 4 / 1000;
+                let val = Number(this.cleanNumber(this.f_devolucion)) * 0.004;
                 return this.formatNumber(val.toString(), false);
             },
         },

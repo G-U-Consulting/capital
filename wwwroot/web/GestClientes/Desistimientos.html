@@ -198,7 +198,7 @@
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Estado Actual:</label>
-                    <select v-model="desistimiento.id_estado" :disabled="isNew">
+                    <select :value="desistimiento.id_estado" disabled>
                         <option value="">[Seleccionar]</option>
                         <option v-for="e in estados" :value="e.id_estado">{{e.nombre}}</option>
                     </select>
@@ -226,10 +226,10 @@
                     <tbody class="editTable">
                         <tr>
                             <td>
-                                <input type="date" v-model="desistimiento.fechaFPC">
+                                <input type="date" v-model="desistimiento.fecha_fpc">
                             </td>
                             <td>
-                                <input type="date" v-model="desistimiento.fechaProg">
+                                <input type="date" v-model="desistimiento.fecha_program">
                             </td>
                             <td>
                                 <input type="text" v-model="f_v_venta_neto" @input="validarNumero($event, true)">
@@ -339,10 +339,12 @@
                     <tbody class="editTable">
                         <tr>
                             <td>
-                                <input type="text" v-model="f_pnl_pcv" @input="validarNumero($event, false), valMax($event, 100)">
+                                <input type="text" v-model="f_pnl_pcv"
+                                    @input="validarNumero($event, false), valMax($event, 100)">
                             </td>
                             <td>
-                                <input type="text" :value="f_pnl_aplicada" readonly>
+                                <input type="text" v-model="f_pnl_aplicada_ptg"
+                                    @input="validarNumero($event, false), valMax($event, 100)">
                             </td>
                             <td>
                                 <input type="text" :value="f_pnl_aplicada_val" readonly>
@@ -351,7 +353,7 @@
                                 <input type="text" :value="f_pnl_bruta" readonly>
                             </td>
                             <td>
-                                <input type="text" v-model="f_pnl_neta" @input="validarNumero($event, true)">
+                                <input type="text" :value="f_pnl_neta" readonly>
                             </td>
                             <td>
                                 <input type="text" :value="f_devolucion" readonly>
@@ -367,53 +369,7 @@
                 </table>
             </div>
 
-            <div class='formDivision deployable' @click="showCuentas = !showCuentas">
-                <span>Cuenta(s) para consignación de recursos</span>
-                <button v-if="showCuentas" style="margin-left: auto; margin-right: 1rem;"
-                    @click.stop.prevent="onAddAccount">
-                    Agregar cuenta
-                </button>
-                <span class="arrow" v-bind:class="{'expanded': showCuentas}">&lt;</span>
-            </div>
-            <div v-show="showCuentas" style="padding: .5rem;">
-                <table class="dataTable editable" style="table-layout: auto;">
-                    <thead>
-                        <tr>
-                            <th>Titular de la cuenta</th>
-                            <th>Entidad financiera</th>
-                            <th>Número de cuenta</th>
-                            <th>Tipo de cuenta</th>
-                            <th>%</th>
-                            <th>Tipo Giro</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-if="newRow">
-                            <td>
-                                <input type="text">
-                            </td>
-                            <td>
-                                <input type="text">
-                            </td>
-                            <td>
-                                <input type="text">
-                            </td>
-                            <td>
-                                <input type="text">
-                            </td>
-                            <td>
-                                <input type="text">
-                            </td>
-                            <td>
-                                <input type="text">
-                            </td>
-                        </tr>
-                        <tr v-else>
 
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
 
             <div class='formDivision deployable' @click="showDocs = !showDocs">
                 <span>Documentos Adjuntos</span>
@@ -423,9 +379,9 @@
                 <div class="pure-u-1 small-files" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
                     style="position: relative; padding: .5rem;">
                     <label for="file-input" class="preview-container"
-                        style="height: 8rem; cursor: pointer; max-height: 100%;"
-                        @dragover.prevent="handleDragOver" @drop.prevent="handleDrop"
-                        @mouseenter="tooltipVisible = true" @mouseleave="tooltipVisible = false">
+                        style="height: 8rem; cursor: pointer; max-height: 100%;" @dragover.prevent="handleDragOver"
+                        @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
+                        @mouseleave="tooltipVisible = false">
                         <div v-if="previews.length === 0" class="center-absolute ">
                             Arrastra o haz clic para cargar archivos.
                         </div>
@@ -462,8 +418,200 @@
         </div>
         <div class="pure-u-2-5"></div>
         <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">
-            <button @click="onSave">Guardar</button>
+            <button @click="onSave(false)">Guardar</button>
+        </div>
+        <div class="pure-u-2-5" style="text-align: right; padding-top: 1rem;">
+            <button v-if="desistimiento.id_estado === '1'" @click="setEstado('3')"
+                style="background-color: #c80000;">Solicitar</button>
+            <button v-if="Number(desistimiento.id_estado) >= '2'" @click="setMode(3)"
+                style="background-color: #c80000;">Ver Solicitud</button>
         </div>
 
+    </div>
+</div>
+
+<div v-if="mode == 3" style="padding: 1em">
+    <div class="pure-u-1-24 pure-u-md-1-24"></div>
+    <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
+        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
+            Cliente {{cliente.nombre_cliente}}; #{{desistimiento.radicado}}; {{desistimiento.unidad}}
+        </div>
+
+        <div style="height: calc(100vh - 16rem); overflow-y: auto;">
+            <div class="pure-u-1-4 formInputStandard">
+                <label>ID Venta</label>
+                <input type="text" :value="desistimiento.id_venta" readonly>
+            </div>
+            <div class="pure-u-1-4 formInputStandard">
+                <label>Número Documento</label>
+                <input type="text" :value="cliente.numero_documento" readonly>
+            </div>
+
+            <div class='formDivision'>
+                <span>Aprobaciones Coordinación y Dirección</span>
+            </div>
+            <div class="pure-u-1-2">
+                <div class="formInputStandard">
+                    <label>Coordinación de Sala</label>
+                    <textarea rows="5" v-model="desistimiento.com_coordinacion" style="resize: none; height: auto;"
+                        placeholder="Comentarios" :disabled="desistimiento.id_estado !== '3'"></textarea>
+                </div>
+                <div class="pure-u-1-2" style="padding: 0 .5rem;">
+                    <input type="date" readonly
+                        :value="desistimiento.fec_com_coordinacion || formatDatetime('', 'bdate')">
+                </div>
+                <div class="pure-u-1-2"></div>
+                <div>
+                    <div class="pure-u-1-2 formInputStandard">
+                        <button style="background-color: #c80000;" @click="desistimiento.id_estado === '3' && setEstado('4')"
+                            :style="`cursor: ${desistimiento.id_estado !== '3' ? 'not-allowed' : 'pointer'};`">
+                            Aprobar
+                        </button>
+                    </div>
+                    <div class="pure-u-1-2 formInputStandard">
+                        <button @click="desistimiento.id_estado === '3' && setEstado('1')"
+                            :style="`cursor: ${desistimiento.id_estado !== '3' ? 'not-allowed' : 'pointer'};`">
+                            No Aceptar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="pure-u-1-2">
+                <div class="formInputStandard">
+                    <label>Dirección de Sala</label>
+                    <textarea rows="5" v-model="desistimiento.com_direccion" style="resize: none; height: auto;"
+                        placeholder="Comentarios" :disabled="desistimiento.id_estado !== '4'"></textarea>
+                </div>
+                <div class="pure-u-1-2" style="padding: 0 .5rem;">
+                    <input type="date" readonly :value="desistimiento.fec_com_direccion || formatDatetime('', 'bdate')">
+                </div>
+                <div class="pure-u-1-2"></div>
+                <div>
+                    <div class="pure-u-1-2 formInputStandard">
+                        <button style="background-color: #c80000;" @click="desistimiento.id_estado === '4' && setEstado('5')"
+                            :style="`cursor: ${desistimiento.id_estado !== '4' ? 'not-allowed' : 'pointer'};`">
+                            Aprobar
+                        </button>
+                    </div>
+                    <div class="pure-u-1-2 formInputStandard">
+                        <button @click="desistimiento.id_estado === '4' && setEstado('3')"
+                            :style="`cursor: ${desistimiento.id_estado !== '4' ? 'not-allowed' : 'pointer'};`">
+                            No Aceptar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class='formDivision deployable' @click="showCarta = !showCarta" v-if="Number(desistimiento.id_estado) >= 5">
+                <span>Carta de segunda oportunidad</span>
+                <span class="arrow" v-bind:class="{'expanded': showCarta}">&lt;</span>
+            </div>
+            <div v-show="showCarta" style="padding: .5rem;">
+                <div class="pure-u-1-5 formInputStandard">
+                    <label>Titular</label>
+                    <input type="text" :value="desistimiento.nombre_cliente" readonly>
+                </div>
+                <div class="pure-u-1-5 formInputStandard">
+                    <label>Documento titular</label>
+                    <input type="text" :value="desistimiento.numero_documento" readonly>
+                </div>
+                <div class="pure-u-1-5 formInputStandard">
+                    <label>Fecha prorroga</label>
+                    <input type="date" v-model="desistimiento.fecha_prorroga_carta">
+                </div>
+                <div class="pure-u-1-5 formInputStandard">
+                    <label>Extra por prorroga</label>
+                    <input type="text" :value="desistimiento.extra_prorroga_carta">
+                </div>
+                <div class="pure-u-1-5 formInputStandard"></div>
+                <div class="pure-u-1-5 formInputStandard">
+                    <button>
+                        Ver Carta
+                    </button>
+                </div>
+                <div class="pure-u-1-5 formInputStandard">
+                    <button style="background-color: #c80000;">
+                        Enviar carta
+                    </button>
+                </div>
+            </div>
+
+            <div class='formDivision deployable' @click="showCuentas = !showCuentas" v-if="Number(desistimiento.id_estado) >= 5">
+                <span>Cuenta(s) para consignación de recursos</span>
+                <button v-if="showCuentas" style="margin-left: auto; margin-right: 1rem;"
+                    @click.stop.prevent="onAddAccount">
+                    Agregar cuenta
+                </button>
+                <span class="arrow" v-bind:class="{'expanded': showCuentas}">&lt;</span>
+            </div>
+            <div v-show="showCuentas" style="padding: .5rem;">
+                <table class="dataTable editable" style="table-layout: auto;">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">Titular</th>
+                            <th style="width: 12%;">Doc. titular</th>
+                            <th style="width: 12%;">Entidad financiera</th>
+                            <th style="width: 12%;">Num. de cuenta</th>
+                            <th style="width: 12%;">Tipo de cuenta</th>
+                            <th style="width: 6%;">%</th>
+                            <th style="width: 12%;">Tipo Giro</th>
+                            <th style="width: 8%;">Editar</th>
+                            <th style="width: 8%;">Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="newRow">
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <input type="text">
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="" selected>[Seleccione]</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Transferencia">Transferencia</option>
+                                </select>
+                            </td>
+                            <td style="text-align: center;">
+                                <span v-if="!editRow || selRow !== i" @click.stop.prevent="" class="delete">✏️</span>
+                                <span v-else @click.stop.prevent="" class="delete">💾</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span @click.stop.prevent="" class="delete">✖</span>
+                            </td>
+                        </tr>
+                        <tr v-else>
+
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+
+        <div class="pure-u-2-5"></div>
+        <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">
+            <button @click="onSave(false)">Guardar</button>
+        </div>
+        <div class="pure-u-2-5" style="text-align: right; padding-top: 1rem;">
+            <button v-if="desistimiento.id_estado === '5'" @click="onTerminar"
+                style="background-color: #c80000;">Terminar</button>
+            <button v-else @click="setMode(2)" style="background-color: #c80000;">Volver</button>
+        </div>
     </div>
 </div>

@@ -34,7 +34,7 @@ insert into dim_categoria_desistimiento(categoria) values
 ('PERDIDA DE EMPLEO'), 
 ('TRÁMITES'), 
 ('TRASLADO DE PROYECTO'), 
-('VOLUNTAD PROPIA"');
+('VOLUNTAD PROPIA');
 
 create table dim_penalidad_desistimiento(
     id_penalidad int primary key auto_increment,
@@ -282,17 +282,28 @@ create table dim_desistimiento(
     id_desistimiento int primary key auto_increment,
     id_venta int not null references fact_ventas(id_venta),
     id_estado int not null default 1 references dim_estado_desistimiento(id_estado),
-    ultima_fecha datetime not null,
+    ultima_fecha datetime,
     cant_incumplida int default 0,
     interes decimal(20, 2),
     gasto decimal(20, 2),
     descuento decimal(20, 2),
+    pnl_monto decimal(20, 2),
+    pnl_porcentaje decimal(20, 2),
+    v_venta_neto decimal(20, 2),
+    a_capital decimal(20, 2),
+    a_intereses decimal(20, 2),
+    condonacion decimal(20, 2),
+    imp_reformas decimal(20, 2),
+    pnl_pcv decimal(20, 2),
+    pnl_aplicada_ptg decimal(20, 2),
     id_categoria int references dim_categoria_desistimiento(id_categoria),
     id_fiduciaria int references dim_fiduciaria(id_fiduciaria),
     etapa varchar(20),
     id_penalidad int references dim_penalidad_desistimiento(id_penalidad),
     observacion text,
     fecha_resolucion datetime,
+    fecha_fpc date,
+    fecha_program date,
     created_on datetime default current_timestamp,
     created_by varchar(50) not null
 );
