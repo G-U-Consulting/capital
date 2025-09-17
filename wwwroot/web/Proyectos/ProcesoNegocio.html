@@ -23,7 +23,7 @@
             <div class='pure-u-1-1 pure-u-md-1-1'>
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
                     Bienvenida a Cliente
-                    <div v-if="isClienteVetado" class="btn-vetado">Cliente Vetado</div>
+                    <div v-if="isClienteVetado" class="btn-vetado" @click="modalveto">Situación administrativa</div>
                 </div>
                 <div class="pure-g" style="align-items: center; justify-content: space-between; margin: 1em 0;">
                     <div class="pure-u-md-8-24" style="display: flex; align-items: center;">
@@ -62,18 +62,24 @@
                                 <input type='text' v-model='ObjCliente.nombres' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                        <div class='pure-u-1-1 pure-u-md-1-5'>
                             <div class='formInputStandard'>
                                 <span>Apellido 1</span>
                                 <input type='text' v-model='ObjCliente.apellido1' maxlen='100'
                                     placeholder="Seleccione" />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-3'>
+                        <div class='pure-u-1-1 pure-u-md-1-5'>
                             <div class='formInputStandard'>
                                 <span>Apellido 2</span>
                                 <input type='text' v-model='ObjCliente.apellido2' maxlen='100'
                                     placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6' style="justify-content: flex-end;">
+                            <div class='formInputStandard'>
+                                <span>Fecha Nacimiento</span>
+                                <input type='text' v-model='ObjCliente.apellido2' maxlength='100' placeholder="Seleccione" />
                             </div>
                         </div>
                     </div>
@@ -188,6 +194,27 @@
                                     <input type='date' v-model='ObjCliente.fechaExpedicion' maxlen='100'
                                         placeholder="Seleccione" />
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+                    <div class="modal-card">
+                        <div class="modal-header">
+                            <h3>Situación Administrativa del Cliente</h3>
+                            <div class="close-btn" @click="closeModal">✕</div>
+                        </div>
+                        <div class="modal-body">
+                            <div v-if="vetoData && vetoData.length">
+                                <div v-for="(item, i) in vetoData" :key="i" class="veto-item">
+                                    <p><strong>📅 Fecha:</strong> {{ item.fecha }}</p>
+                                    <p><strong>⚠️ Motivo:</strong> {{ item.motivo }}</p>
+                                    <p><strong>👤 Vetado por:</strong> {{ item.vetado_por }}</p>
+                                    <hr v-if="i < vetoData.length - 1" />
+                                </div>
+                            </div>
+                            <div v-else>
+                                <p>No hay registros de veto para este cliente.</p>
                             </div>
                         </div>
                     </div>
