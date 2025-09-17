@@ -98,6 +98,8 @@ export default {
             cotizacionSeleccionada: null,
             cotizaciones: [],
             ishistory: false,
+            showModal: false,
+            vetoData: '',
         };
     },
     computed: {
@@ -817,6 +819,21 @@ export default {
             GlobalVariables.ventanaUnidades.close();
             GlobalVariables.ventanaUnidades = null;
 
+        },
+        async modalveto() {
+            this.vetoData = null;
+            try {
+                let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Veto', {
+                    id_cliente: this.id_cliente,
+                });
+                this.vetoData = resp.data[0] || [];
+                this.showModal = true;
+            } catch (e) {
+                this.vetoData = [{ motivo: "Error al consultar", vetado_por: "", fecha: "" }];
+            }
+        },
+        closeModal() {
+            this.showModal = false;
         }
-    }
+    },
 }

@@ -3658,7 +3658,7 @@ tr.cal-row-info > td {
 .btn-vetado {
   float: right;
   font-size: 1rem;
-  background-color: red;
+  background-color: #ff6f61 ;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -3767,3 +3767,83 @@ tr.cal-row-info > td {
   margin-top: 4px;
   color: #555;
 }
+
+
+/**/
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.2em;
+  width: 400px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  animation: fadeIn 0.3s ease;
+  font-size: 0.95em;
+  color: #333;
+  line-height: 1.5;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.veto-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0.8em 0;
+  border-bottom: 1px solid #eee;
+}
+
+.veto-item:last-child {
+  border-bottom: none;
+}
+
+.veto-item p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: #666;
+}
+
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+
+
