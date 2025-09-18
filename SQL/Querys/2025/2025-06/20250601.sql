@@ -22,6 +22,11 @@ create table fact_clientes (
     ciudad_expedicion varchar(100),
     is_vetado bit default 0,
     is_atencion_rapida bit default 0,
+
+    is_titular bit default 0,
+    nombre_empresa varchar(100),
+    nit varchar(100),
+    fecha_nacimiento datetime,
     
     fecha_expedicion datetime,
     is_politica_aceptada bit default 0,
@@ -29,6 +34,9 @@ create table fact_clientes (
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
+
+alter table fact_clientes add unique key uk_doc (numero_documento);
+alter table fact_clientes add unique key uk_mail (email1);
 
 create table dim_tipo_registro (
     id_tipo_registro int auto_increment primary key,

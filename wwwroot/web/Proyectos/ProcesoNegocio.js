@@ -36,7 +36,10 @@ export default {
                 ventanaUnidades: null,
                 currentSubmode: null,
                 is_atencion_rapida: 0,
-
+                is_titular: 0,
+                nombreEmpresa: '',
+                nit: '',
+                fechaNacimiento: '',
             },
             ObjVisita: {
                 id_proyecto: '',
@@ -98,6 +101,7 @@ export default {
             cotizacionSeleccionada: null,
             cotizaciones: [],
             ishistory: false,
+            isTitular: false,
             showModal: false,
             vetoData: '',
         };
@@ -241,7 +245,7 @@ export default {
             if (cliente[0].result.includes("OK")) {
                 if (israpida) {
                     this.iscliente = false;
-                    this.israpida = true;
+                    this.israpida = false;
                     this.policyAccepted = false;
                     this.mode = 0;
                     this.isboton = true;
@@ -286,6 +290,10 @@ export default {
                     idPresupuestoVivienda: '',
                     isPoliticaAceptada: 0,
                     is_atencion_rapida: 0,
+                    is_titular: 0,
+                    nombreEmpresa: '',
+                    nit: '',
+                    fechaNacimiento: '',
                 }
             }
             if (this.mode == 1) {
@@ -343,6 +351,10 @@ export default {
                 this.id_cliente = cliente[0][0].id_cliente;
                 this.ObjCliente.isPoliticaAceptada = cliente[0][0].is_politica_aceptada;
                 this.isClienteVetado = cliente[0][0].is_vetado == "1";
+                this.ObjCliente.isTitular = cliente[0][0].is_titular;
+                this.ObjCliente.fechaNacimiento = cliente[0][0].fecha_nacimiento;
+                this.ObjCliente.nit = cliente[0][0].nit;
+                this.ObjCliente.nombreEmpresa = cliente[0][0].nombre_empresa;
 
                 if (this.ObjCliente.isPoliticaAceptada == 1) {
                     this.policyAccepted = true;
@@ -492,14 +504,25 @@ export default {
             this.israpida = true;
             this.policyAccepted = true;
             this.isClienteVetado = false;
+            this.ObjCliente.numeroDocumento = '';
+            this.ObjCliente.nombres = '';
+            this.ObjCliente.email1 = '';
         },
         //////// mode 2
         async showAtencionModal() {
             this.mostrarModal = true
         },
         async getCotizaciones() {
-            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', { id_cliente: this.id_cliente, id_proyecto: GlobalVariables.id_proyecto });
-            this.cotizaciones = resp.data[0];
+            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', {
+                id_cliente: this.id_cliente,
+                id_proyecto: GlobalVariables.id_proyecto
+            });
+
+            this.cotizaciones = resp.data[0].map(c => ({
+                ...c,
+                cotizacion: Number(c.cotizacion),
+                importe: 0
+            }));
         },
         async addCotizacion() {
 
@@ -526,6 +549,11 @@ export default {
                 cotizacion: siguienteId
             });
             let id_cotizacion = resp.data[0][0].id_cotizacion;
+
+            if (id_cotizacion == '-1') {
+                showMessage("Ya existe una cotización activa para este cliente en el día de hoy.");
+                return;
+            }
 
             this.cotizaciones.push({
                 cotizacion: siguienteId,
@@ -739,10 +767,12 @@ export default {
             const sumaDescuentos = unidades.reduce((total, unidad) => total + unidad.valor_descuento, 0);
             const totalFinal = sumaValores - sumaDescuentos;
 
-            const cotizacion = this.cotizaciones.find(c => c.cotizacion === cotizacionId);
+            const cotizacion = this.cotizaciones.find(
+                c => Number(c.cotizacion) === Number(cotizacionId)
+            );
             if (cotizacion) {
                 cotizacion.unidades = unidades;
-                cotizacion.importeTotal = totalFinal;
+                cotizacion.importe = totalFinal;
             }
         },
         formatoMoneda(valor) {
@@ -780,20 +810,19 @@ export default {
                 const sumaDescuentos = unidades.reduce((total, unidad) => total + unidad.valor_descuento, 0);
                 const totalFinal = sumaValores - sumaDescuentos;
 
-                cotizacion.importeTotal = totalFinal;
+                cotizacion.importe = totalFinal;
             }
         },
         async dropitem(item){
-
             let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
                 id_negocios_unidades: item.id_negocios_unidades,
-                terminarAtencion: 1
+                terminarAtencion: 0
             });
 
             res = res.data;
 
             if(res == 'OK'){
-                this.seleccionarCotizacion(item);
+                this.seleccionarCotizacion(item.cotizacion);
             }
 
         },
@@ -834,6 +863,23 @@ export default {
         },
         closeModal() {
             this.showModal = false;
-        }
+        },
+        async deleteCotiz(cotiz){
+            showProgress();
+			let res = null;
+			try {
+                res = await httpFunc('/generic/genericST/ProcesoNegocio:Del_Cotizacion', { id_cotizacion: cotiz.id_cotizacion });
+                if (res.isError || res.data !== 'OK') throw res;
+                await this.getCotizaciones();
+                await this.refrescarImportes();
+			} catch (e) {
+				console.error(e);
+				showMessage('Error: ' + e.errorMessage || e.data);
+			}
+			hideProgress();
+        },
+        reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
+			showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
+		},
     },
 }

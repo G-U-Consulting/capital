@@ -62,24 +62,46 @@
                                 <input type='text' v-model='ObjCliente.nombres' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-5'>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
                                 <span>Apellido 1</span>
-                                <input type='text' v-model='ObjCliente.apellido1' maxlen='100'
-                                    placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.apellido1' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-5'>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
                                 <span>Apellido 2</span>
-                                <input type='text' v-model='ObjCliente.apellido2' maxlen='100'
-                                    placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.apellido2' maxlen='100' placeholder="Seleccione" />
                             </div>
                         </div>
-                        <div class='pure-u-1-1 pure-u-md-1-6' style="justify-content: flex-end;">
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                    
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
                                 <span>Fecha Nacimiento</span>
-                                <input type='text' v-model='ObjCliente.apellido2' maxlength='100' placeholder="Seleccione" />
+                                <input type='date' v-model='ObjCliente.fechaNacimiento' maxlength='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='formInputStandard'>
+                            <label class="check" style="display: flex; align-items: center; gap: 0.4em;">
+                                <input type="checkbox" value="1" v-model="isTitular" />
+                                <span class="checkmark"></span>
+                                <span style="font-size: 1.1em;">En representación de:</span>
+                            </label>
+                        </div>
+                        <div v-if="isTitular">
+                            <div class='pure-u-1-1 pure-u-md-1-3'>
+                                <div class='formInputStandard'>
+                                    <span>Nombre empresa / Representado</span>
+                                    <input type='text' v-model='ObjCliente.nombreEmpresa' maxlen='100' placeholder="Seleccione" />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Cédula / NIT</span>
+                                    <input type='text' v-model='ObjCliente.nit' maxlen='100' placeholder="Seleccione" />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -130,14 +152,14 @@
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
-                                <span>Telefono 1</span>
+                                <span>Telefono 1 / Indicativo</span>
                                 <input type='text' v-model='ObjCliente.telefono1' maxlen='100'
                                     placeholder="Seleccione" />
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
-                                <span>Telefono 2</span>
+                                <span>Telefono 2 / Indicativo</span>
                                 <input type='text' v-model='ObjCliente.telefono2' maxlen='100'
                                     placeholder="Seleccione" />
                             </div>
@@ -257,6 +279,12 @@
                         <div class="formInputStandard">
                             <span>Email</span>
                             <input type="text" v-model="ObjCliente.email1" maxlength="100" placeholder="Seleccione" />
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-3'>
+                        <div class='formInputStandard'>
+                            <span>Número Documento</span>
+                            <input type='text' v-model='ObjCliente.numeroDocumento' maxlen='100' placeholder="Seleccione" />
                         </div>
                     </div>
                 </div>
@@ -509,6 +537,7 @@
                                 <th class="col-1-6">Fecha</th>
                                 <th class="col-3-6">Descripción</th>
                                 <th class="col-1-6">Importe</th>
+                                <th class="col-1-6">Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -520,8 +549,14 @@
                                     <input type="text" v-model="item.descripcion" placeholder="Descripción"
                                         @focus="seleccionarCotizacion(item.cotizacion)" />
                                 </td>
-                                <td v-if="item.importe != ''" class="col-1-6" style="text-align: right;">{{ item.importe ? formatoMoneda(item.importe) : '' }}</td>
-                                <td v-else class="col-1-6" style="text-align: right;">{{ this.cotizaciones.importe ? formatoMoneda(this.cotizaciones.importe) : '' }}</td>
+                                <td class="col-1-6" style="text-align: right;">
+                                      {{ item.importe ? formatoMoneda(item.importe) : '' }}
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="delete"
+                                        @click.stop.prevent="reqOperation(`Desea eliminar la cotizacion? <b></b>.`, deleteCotiz, null, item)"> ✖
+                                    </span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

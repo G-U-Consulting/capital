@@ -11,16 +11,23 @@ set @id_cliente = 0,
     @id_proyecto = 0; 
 --END_PARAM
 
--- intentar actualizar
-update fact_cotizaciones
-set descripcion = @descripcion,
-    importe = @importeTotal
-where id_cotizacion = @id_cotizacion;
+if exists (
+    select 1
+    from fact_cotizaciones fc
+    where fc.id_cliente = @id_cliente
+      and fc.id_proyecto = @id_proyecto
+      and date(fc.fecha) = curdate()
+) then
+    select -1 as id_cotizacion;
+else
+    update fact_cotizaciones
+    set descripcion = @descripcion,
+        importe = @importeTotal
+    where id_cotizacion = @id_cotizacion;
 
--- si no existía, insertar
-insert into fact_cotizaciones (id_cliente, fecha, descripcion, cotizacion, importe, id_proyecto)
-select @id_cliente, now(), @descripcion, @cotizacion, @importeTotal, @id_proyecto
-where row_count() = 0;
+    insert into fact_cotizaciones (id_cliente, fecha, descripcion, cotizacion, importe, id_proyecto)
+    select @id_cliente, now(), @descripcion, @cotizacion, @importeTotal, @id_proyecto
+    where row_count() = 0;
 
--- devolver siempre el id correcto como número
-select if(row_count() > 0, last_insert_id(), @id_cotizacion) + 0 as id_cotizacion;
+    select if(row_count() > 0, last_insert_id(), @id_cotizacion) + 0 as id_cotizacion;
+end if;
