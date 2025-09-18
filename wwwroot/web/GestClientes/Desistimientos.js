@@ -11,9 +11,12 @@ export default {
             ventas: [],
             estados: [],
             cliVentas: [],
+            cuentas: [],
             desistimiento: {},
             cliente: {},
             venta: {},
+            cuenta: {},
+            selCliente: {},
             searchID: null,
             searchDoc: null,
             isNew: true,
@@ -34,7 +37,8 @@ export default {
 
             newRow: false,
 
-            tooltipVisible: false,
+            tooltipVisibleL: false,
+            tooltipVisibleR: false,
             tooltipX: 0,
             tooltipY: 0,
             previews: [],
@@ -84,11 +88,22 @@ export default {
                 }];
                 this.setRuta();
             }
+            if (mode === 3) {
+                this.ruta = [this.ruta[0], this.ruta[1], { text: 'Aprobación', action: () => this.setMode(3) }];
+                this.setRuta();
+                await this.loadAccounts();
+            }
         },
         async loadData() {
             showProgress();
             [this.desistimientos, this.categorias, this.penalidades, this.fiduciarias, this.ventas, this.estados] =
                 (await httpFunc("/generic/genericDS/Clientes:Get_Desistimientos", {})).data;
+            hideProgress();
+        },
+        async loadAccounts() {
+            showProgress();
+            this.cuentas = (await httpFunc("/generic/genericDT/Clientes:Get_Cuentas",
+                { id_desistimiento: this.desistimiento.id_desistimiento })).data;
             hideProgress();
         },
         validarNumero(e, int) {
@@ -137,6 +152,7 @@ export default {
         },
         onAddAccount() {
             this.newRow = !this.newRow;
+            this.cuenta = {};
         },
         onFind() {
             if (this.searchID)
@@ -160,6 +176,8 @@ export default {
 
         },
         onSelectDes(des) {
+            this.tooltipVisibleL = false;
+            this.tooltipVisibleR = false;
             this.desistimiento = { ...des };
 
             Object.keys(this.desistimiento).forEach(k => this.desistimiento[k] = this.desistimiento[k].replace(',', '.'));
@@ -186,8 +204,8 @@ export default {
                 id_fiduciaria: venta.id_fiduciaria,
                 id_venta: venta.id_venta,
                 unidad: venta.unidad,
-                radicado: venta.radicado,
                 created_by: GlobalVariables.username,
+                created_on: this.formatDatetime('', 'bdatetime'),
             };
             Object.keys(this.desistimiento).forEach(k => this.desistimiento[k] = this.desistimiento[k].replace(',', '.'));
             this.venta = venta;
@@ -213,6 +231,10 @@ export default {
 
         updateCursor(event) {
             this.tooltipX = event.clientX + 10;
+            this.tooltipY = event.clientY + 10;
+        },
+        updateCursorRight(event) {
+            this.tooltipX = document.body.getBoundingClientRect().width - event.clientX + 2;
             this.tooltipY = event.clientY + 10;
         },
         async handleDragOver(event) {
@@ -328,7 +350,42 @@ export default {
 
         async setEstado(id) {
             this.desistimiento.id_estado = id;
+            if (id === '3') this.desistimiento.fec_com_coordinacion = this.formatDatetime('', 'bdate');
+            if (id === '4') this.desistimiento.fec_com_direccion = this.formatDatetime('', 'bdate');
             this.onSave(true);
+        },
+
+        async onSaveAccount() {
+            showProgress();
+            let res = null;
+            try {
+                Object.keys(this.cuenta).forEach(k => !this.cuenta[k] && delete this.cuenta[k]);
+                this.cuenta.id_desistimiento = this.desistimiento.id_desistimiento;
+                this.id_cliente = this.selCliente.id_cliente;
+                res = await httpFunc(`/generic/genericST/Clientes:${this.newRow ? 'Ins' : 'Upd'}_Cuenta`, this.cuenta);
+                if (res.isError || res.data !== 'OK') throw res;
+                this.newRow = false;
+                await this.loadAccounts();
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+            }
+            hideProgress();
+        },
+        async onDeleteAccount(cuenta) {
+            showProgress();
+            let res = null;
+            try {
+                res = await httpFunc(`/generic/genericST/Clientes:Del_Cuenta`, { id_cuenta: cuenta.id_cuenta });
+                if (res.isError || res.data !== 'OK') throw res;
+                this.newRow = false;
+                this.editRow = false;
+                await this.loadAccounts();
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+            }
+            hideProgress();
         }
     },
     computed: {
@@ -412,7 +469,8 @@ export default {
         },
         f_pnl_neta: {
             get() {
-                let val = Number(this.cleanNumber(this.f_pnl_aplicada_val)) - Number(this.cleanNumber(this.f_interes));
+                let val = Number(this.cleanNumber(this.f_pnl_aplicada_val)) - Number(this.cleanNumber(this.f_interes))
+                    - Number(this.cleanNumber(this.f_imp_reformas));
                 return this.formatNumber(val.toString(), false);
             },
         },
@@ -431,6 +489,16 @@ export default {
         f_liquido: {
             get() {
                 let val = Number(this.cleanNumber(this.f_devolucion)) - Number(this.cleanNumber(this.f_v4xmil));
+                return this.formatNumber(val.toString(), false);
+            },
+        },
+        f_extra_prorroga_carta: {
+            get() { return this.formatNumber(this.desistimiento['extra_prorroga_carta'], false); },
+            set(val) { this.desistimiento['extra_prorroga_carta'] = this.cleanNumber(val); }
+        },
+        f_val_carta: {
+            get() {
+                let val = Number(this.cleanNumber(this.f_pnl_neta)) - Number(this.cleanNumber(this.f_gasto)) - Number(this.cleanNumber(this.f_extra_prorroga_carta));
                 return this.formatNumber(val.toString(), false);
             },
         },

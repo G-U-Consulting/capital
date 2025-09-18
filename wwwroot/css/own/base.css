@@ -2058,6 +2058,21 @@ tr.destacada {
   word-wrap: break-word;
   word-break: break-word;
 }
+button.red-btn {
+  background-color: #c80000;
+}
+button.red-btn:hover {
+  background-color: #8f0000;
+}
+.grp-btn-disabled button {
+  cursor: not-allowed;
+  border: 1px solid #999;
+  background-color: #ddd;
+  color: #444;
+}
+.grp-btn-disabled button:hover {
+  background-color: #ddd;
+}
 
 .calendar {
   display: grid;

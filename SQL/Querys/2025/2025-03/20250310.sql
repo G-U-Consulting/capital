@@ -58,7 +58,7 @@ insert into dim_tipo_usuario (id_tipo_usuario, tipo_usuario) values
 
 create table fact_usuarios(
 	id_usuario int not null auto_increment,
-	usuario varchar(200),
+	usuario varchar(200) unique,
 	identificacion varchar(20) not null unique,
 	nombres varchar(200) not null,
 	email varchar(200),

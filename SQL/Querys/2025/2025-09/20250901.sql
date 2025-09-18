@@ -258,7 +258,6 @@ end;
 
 create table fact_ventas(
     id_venta int primary key auto_increment,
-    radicado int unique key,
     id_unidad int not null references fact_unidades(id_unidad),
     id_cliente int not null references fact_clientes(id_cliente),
     created_on datetime default current_timestamp,
@@ -272,16 +271,17 @@ create table dim_estado_desistimiento(
 
 insert into dim_estado_desistimiento(nombre) values
 ('Iniciado'),
-('Solicitado'),
-('Dirección'),
-('Coordinación'),
+('En Espera Coordinación'),
+('En Espera Dirección'),
 ('Aprobado'),
-('Terminado');
+('Terminado'),
+('Cancelado');
 
 create table dim_desistimiento(
     id_desistimiento int primary key auto_increment,
     id_venta int not null references fact_ventas(id_venta),
     id_estado int not null default 1 references dim_estado_desistimiento(id_estado),
+    radicado int unique key,
     ultima_fecha datetime,
     cant_incumplida int default 0,
     interes decimal(20, 2),
@@ -301,9 +301,29 @@ create table dim_desistimiento(
     etapa varchar(20),
     id_penalidad int references dim_penalidad_desistimiento(id_penalidad),
     observacion text,
-    fecha_resolucion datetime,
+    fecha_resolucion date,
     fecha_fpc date,
     fecha_program date,
+    com_coordinacion text,
+    fec_com_coordinacion date,
+    com_direccion text,
+    fec_com_direccion date,
+    fec_prorroga_carta date,
+    extra_prorroga_carta decimal(20, 2),
     created_on datetime default current_timestamp,
     created_by varchar(50) not null
+);
+
+create table dim_cuenta_desistimiento(
+    id_cuenta int primary key auto_increment,
+    id_desistimiento int not null references dim_desistimiento(id_desistimiento),
+    id_cliente int references fact_clientes(id_cliente),
+    nombre_cliente varchar(200),
+    numero_documento varchar(50),
+    entidad varchar(100) not null,
+    tipo_cuenta varchar(100) not null,
+    numero_cuenta varchar(100) not null,
+    porcentaje int not null,
+    constraint chk_valor_entre_1_y_100 check (porcentaje between 1 and 100),
+    tipo_giro varchar(50) not null
 );

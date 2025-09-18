@@ -5,6 +5,7 @@
 set @id_desistimiento = NULL,
     @id_venta = NULL,
     @id_estado = NULL,
+    @radicado = NULL,
     @ultima_fecha = NULL,
     @cant_incumplida = 0,
     @interes = NULL,
@@ -26,12 +27,15 @@ set @id_desistimiento = NULL,
     @pnl_pcv = NULL,
     @pnl_aplicada_ptg = NULL,
     @fecha_fpc = NULL,
-    @fecha_program = NULL;
+    @fecha_program = NULL
+    @fec_prorroga_carta = NULL,
+    @extra_prorroga_carta = NULL;
 --END_PARAM
 
 update dim_desistimiento
 set id_venta = @id_venta,
     id_estado = @id_estado,
+    radicado = @radicado,
     ultima_fecha = str_to_date(@ultima_fecha, '%d/%m/%Y %T'),
     cant_incumplida = @cant_incumplida,
     interes = @interes,
@@ -53,7 +57,13 @@ set id_venta = @id_venta,
     pnl_pcv = @pnl_pcv,
     fecha_fpc = if(@fecha_fpc = '', null, @fecha_fpc),
     fecha_program = if(@fecha_program = '', null, @fecha_program),
-    fecha_resolucion = if(@fecha_resolucion = '', null, str_to_date(@fecha_resolucion, '%d/%m/%Y %T'))
+    fecha_resolucion = if(@fecha_resolucion = '', null, @fecha_resolucion),
+    com_coordinacion = @com_coordinacion,
+    fec_com_coordinacion = if(@fec_com_coordinacion = '', null, @fec_com_coordinacion),
+    com_direccion = @com_direccion,
+    fec_com_direccion = if(@fec_com_direccion = '', null, @fec_com_direccion),
+    fec_prorroga_carta = if(@fec_prorroga_carta = '', null, @fec_prorroga_carta),
+    extra_prorroga_carta = @extra_prorroga_carta
 where id_desistimiento = @id_desistimiento;
 
 

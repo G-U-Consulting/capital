@@ -19,7 +19,12 @@
                         v-model="filtros.desistimientos['id_venta']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
-                    <input type="text" placeholder="Asesor" maxlength="50" v-model="filtros.desistimientos['asesor']" />
+                    <input type="text" placeholder="Doc. Comprador" maxlength="50"
+                        v-model="filtros.desistimientos['numero_documento']" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
+                    <input type="text" placeholder="Nombre" maxlength="50"
+                        v-model="filtros.desistimientos['nombre_cliente']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
                     <input type="text" placeholder="Proyecto" maxlength="50"
@@ -30,12 +35,7 @@
                         v-model="filtros.desistimientos['unidad']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
-                    <input type="text" placeholder="Doc. Comprador" maxlength="50"
-                        v-model="filtros.desistimientos['numero_documento']" />
-                </div>
-                <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
-                    <input type="text" placeholder="Nombre" maxlength="50"
-                        v-model="filtros.desistimientos['nombre_cliente']" />
+                    <input type="text" placeholder="Asesor" maxlength="50" v-model="filtros.desistimientos['asesor']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
                     <input type="text" placeholder="Estado" maxlength="50" v-model="filtros.desistimientos['estado']" />
@@ -43,17 +43,17 @@
             </div>
         </div>
         <div class="main-content">
-            <table class="dataTable spaceRows" style="table-layout: auto; font-size: 15px;">
+            <table class="dataTable" style="font-size: 15px;">
                 <thead>
                     <tr>
                         <th style="width: 8%;">Radicado</th>
                         <th style="width: 8%;">ID Venta</th>
-                        <th style="width: 16%;">Asesor</th>
+                        <th style="width: 10%;">Doc Comprador</th>
+                        <th style="width: 16%;">Nombre</th>
                         <th style="width: 14%;">Proyecto</th>
                         <th style="width: 6%;">Torre</th>
                         <th style="width: 12%;">Agrupación/Und</th>
-                        <th style="width: 10%;">Doc Comprador</th>
-                        <th style="width: 16%;">Nombre</th>
+                        <th style="width: 16%;">Asesor</th>
                         <th style="width: 10%;">Estado</th>
                     </tr>
                 </thead>
@@ -61,16 +61,31 @@
                     <tr v-for="d in getFilteredList('desistimientos')" @dblclick="onSelectDes(d)">
                         <td>{{d.radicado}}</td>
                         <td>{{d.id_venta}}</td>
-                        <td>{{d.asesor}}</td>
+                        <td>{{d.numero_documento}}</td>
+                        <td @mouseenter="tooltipVisibleL = true; tooltipMsg = d.nombre_cliente;"
+                            @mouseleave="tooltipVisibleL = false;" @mousemove="updateCursor">
+                            {{d.nombre_cliente}}
+                        </td>
                         <td>{{d.proyecto}}</td>
                         <td>{{d.torre}}</td>
                         <td>{{d.unidad}}</td>
-                        <td>{{d.numero_documento}}</td>
-                        <td>{{d.nombre_cliente}}</td>
-                        <td>{{d.estado}}</td>
+                        <td @mouseenter="tooltipVisibleR = true; tooltipMsg = d.asesor;"
+                            @mouseleave="tooltipVisibleR = false;" @mousemove="updateCursorRight">
+                            {{d.asesor}}
+                        </td>
+                        <td @mouseenter="tooltipVisibleR = true; tooltipMsg = d.estado;"
+                            @mouseleave="tooltipVisibleR = false;" @mousemove="updateCursorRight">
+                            {{d.estado}}
+                        </td>
                     </tr>
                 </tbody>
             </table>
+            <div v-if="tooltipVisibleR && tooltipMsg" class="cursor-tooltip" v-html="tooltipMsg"
+                :style="{ top: tooltipY + 'px', right: tooltipX + 'px' }">
+            </div>
+            <div v-if="tooltipVisibleL && tooltipMsg" class="cursor-tooltip" v-html="tooltipMsg"
+                :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+            </div>
         </div>
     </div>
 </div>
@@ -161,7 +176,8 @@
 <div v-if="mode == 2" style="padding: 1em">
     <div class="pure-u-1-24 pure-u-md-1-24"></div>
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
-        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
+        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'
+            style="font-size: 1.5em; margin-bottom: 4px; max-height: 2rem; overflow: hidden;">
             Cliente {{cliente.nombre_cliente}}; #{{desistimiento.radicado}}; {{desistimiento.unidad}}
         </div>
 
@@ -186,7 +202,7 @@
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Fecha Creación:</label>
-                    <input type="datetime-local" v-model="desistimiento.created_on">
+                    <input type="datetime-local" :value="desistimiento.created_on" readonly>
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Incumplimientos:</label>
@@ -194,7 +210,7 @@
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <label>F. Resolución Sinco:</label>
-                    <input type="datetime-local" v-model="desistimiento.fecha_resolucion">
+                    <input type="date" v-model="desistimiento.fecha_resolucion">
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Estado Actual:</label>
@@ -376,21 +392,21 @@
                 <span class="arrow" v-bind:class="{'expanded': showDocs}">&lt;</span>
             </div>
             <div v-show="showDocs" style="padding: .5rem;">
-                <div class="pure-u-1 small-files" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
+                <div class="pure-u-1 small-files" @mousemove="updateCursor" @mouseleave="tooltipVisibleL = false"
                     style="position: relative; padding: .5rem;">
                     <label for="file-input" class="preview-container"
                         style="height: 8rem; cursor: pointer; max-height: 100%;" @dragover.prevent="handleDragOver"
-                        @drop.prevent="handleDrop" @mouseenter="tooltipVisible = true"
-                        @mouseleave="tooltipVisible = false">
+                        @drop.prevent="handleDrop" @mouseenter="tooltipVisibleL = true"
+                        @mouseleave="tooltipVisibleL = false">
                         <div v-if="previews.length === 0" class="center-absolute ">
                             Arrastra o haz clic para cargar archivos.
                         </div>
                         <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
-                            @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false"
-                            @mouseleave="tooltipVisible = true" style="position: relative;">
+                            @dragstart="dragStart(index)" @mouseenter="tooltipVisibleL = false"
+                            @mouseleave="tooltipVisibleL = true" style="position: relative;">
                             <img :src="item.src" @click.stop.prevent=""
-                                @mouseenter="tooltipVisible = true; tooltipMsg = item.newName"
-                                @mouseleave="tooltipVisible = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
+                                @mouseenter="tooltipVisibleL = true; tooltipMsg = item.newName"
+                                @mouseleave="tooltipVisibleL = false; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'" />
                             <input v-model="item.newName" class="image-name-overlay editable" @click.stop />
                             <div class="download-btn">
                                 <a :href="getURLFile(item.file)" :download="item.file.name">
@@ -399,7 +415,7 @@
                             </div>
                             <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
                         </div>
-                        <div v-if="tooltipVisible" class="cursor-tooltip"
+                        <div v-if="tooltipVisibleL" class="cursor-tooltip"
                             :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
                             {{tooltipMsg}}
                         </div>
@@ -418,12 +434,15 @@
         </div>
         <div class="pure-u-2-5"></div>
         <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">
-            <button @click="onSave(false)">Guardar</button>
+            <button @click="onSave(false)"
+                v-if="desistimiento.id_estado != '4' && desistimiento.id_estado != '5' && desistimiento.id_estado != '6'">
+                Guardar
+            </button>
         </div>
         <div class="pure-u-2-5" style="text-align: right; padding-top: 1rem;">
-            <button v-if="desistimiento.id_estado === '1'" @click="setEstado('3')"
+            <button v-if="desistimiento.id_estado === '1'" @click="setEstado('2')"
                 style="background-color: #c80000;">Solicitar</button>
-            <button v-if="Number(desistimiento.id_estado) >= '2'" @click="setMode(3)"
+            <button v-if="Number(desistimiento.id_estado) >= 2" @click="setMode(3)"
                 style="background-color: #c80000;">Ver Solicitud</button>
         </div>
 
@@ -433,7 +452,8 @@
 <div v-if="mode == 3" style="padding: 1em">
     <div class="pure-u-1-24 pure-u-md-1-24"></div>
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
-        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
+        <div class='pure-u-1-1 pure-u-md-1-1 formDivision'
+            style="font-size: 1.5em; margin-bottom: 4px; max-height: 2rem; overflow: hidden;">
             Cliente {{cliente.nombre_cliente}}; #{{desistimiento.radicado}}; {{desistimiento.unidad}}
         </div>
 
@@ -454,23 +474,21 @@
                 <div class="formInputStandard">
                     <label>Coordinación de Sala</label>
                     <textarea rows="5" v-model="desistimiento.com_coordinacion" style="resize: none; height: auto;"
-                        placeholder="Comentarios" :disabled="desistimiento.id_estado !== '3'"></textarea>
+                        placeholder="Comentarios" :disabled="desistimiento.id_estado !== '2'"></textarea>
                 </div>
                 <div class="pure-u-1-2" style="padding: 0 .5rem;">
-                    <input type="date" readonly
+                    <input type="date" readonly :disabled="desistimiento.id_estado !== '2'"
                         :value="desistimiento.fec_com_coordinacion || formatDatetime('', 'bdate')">
                 </div>
                 <div class="pure-u-1-2"></div>
-                <div>
+                <div v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '2'}">
                     <div class="pure-u-1-2 formInputStandard">
-                        <button style="background-color: #c80000;" @click="desistimiento.id_estado === '3' && setEstado('4')"
-                            :style="`cursor: ${desistimiento.id_estado !== '3' ? 'not-allowed' : 'pointer'};`">
+                        <button class="red-btn" @click="desistimiento.id_estado === '2' && setEstado('3')">
                             Aprobar
                         </button>
                     </div>
                     <div class="pure-u-1-2 formInputStandard">
-                        <button @click="desistimiento.id_estado === '3' && setEstado('1')"
-                            :style="`cursor: ${desistimiento.id_estado !== '3' ? 'not-allowed' : 'pointer'};`">
+                        <button @click="desistimiento.id_estado === '2' && setEstado('6')">
                             No Aceptar
                         </button>
                     </div>
@@ -480,29 +498,29 @@
                 <div class="formInputStandard">
                     <label>Dirección de Sala</label>
                     <textarea rows="5" v-model="desistimiento.com_direccion" style="resize: none; height: auto;"
-                        placeholder="Comentarios" :disabled="desistimiento.id_estado !== '4'"></textarea>
+                        placeholder="Comentarios" :disabled="desistimiento.id_estado !== '3'"></textarea>
                 </div>
                 <div class="pure-u-1-2" style="padding: 0 .5rem;">
-                    <input type="date" readonly :value="desistimiento.fec_com_direccion || formatDatetime('', 'bdate')">
+                    <input type="date" readonly :disabled="desistimiento.id_estado !== '3'"
+                        :value="desistimiento.fec_com_direccion || formatDatetime('', 'bdate')">
                 </div>
                 <div class="pure-u-1-2"></div>
-                <div>
+                <div v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '3'}">
                     <div class="pure-u-1-2 formInputStandard">
-                        <button style="background-color: #c80000;" @click="desistimiento.id_estado === '4' && setEstado('5')"
-                            :style="`cursor: ${desistimiento.id_estado !== '4' ? 'not-allowed' : 'pointer'};`">
+                        <button class="red-btn" @click="desistimiento.id_estado === '3' && setEstado('4')">
                             Aprobar
                         </button>
                     </div>
                     <div class="pure-u-1-2 formInputStandard">
-                        <button @click="desistimiento.id_estado === '4' && setEstado('3')"
-                            :style="`cursor: ${desistimiento.id_estado !== '4' ? 'not-allowed' : 'pointer'};`">
+                        <button @click="desistimiento.id_estado === '3' && setEstado('6')">
                             No Aceptar
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class='formDivision deployable' @click="showCarta = !showCarta" v-if="Number(desistimiento.id_estado) >= 5">
+            <div class='formDivision deployable' @click="showCarta = !showCarta"
+                v-if="desistimiento.id_estado == '4' || desistimiento.id_estado == '5'">
                 <span>Carta de segunda oportunidad</span>
                 <span class="arrow" v-bind:class="{'expanded': showCarta}">&lt;</span>
             </div>
@@ -521,9 +539,12 @@
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Extra por prorroga</label>
-                    <input type="text" :value="desistimiento.extra_prorroga_carta">
+                    <input type="text" v-model="f_extra_prorroga_carta" @input="validarNumero($event, true)">
                 </div>
-                <div class="pure-u-1-5 formInputStandard"></div>
+                <div class="pure-u-1-5 formInputStandard">
+                    <label>Valor Carta</label>
+                    <input type="text" :value="f_val_carta" readonly>
+                </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <button>
                         Ver Carta
@@ -536,7 +557,8 @@
                 </div>
             </div>
 
-            <div class='formDivision deployable' @click="showCuentas = !showCuentas" v-if="Number(desistimiento.id_estado) >= 5">
+            <div class='formDivision deployable' @click="showCuentas = !showCuentas"
+                v-if="desistimiento.id_estado == '4' || desistimiento.id_estado == '5'">
                 <span>Cuenta(s) para consignación de recursos</span>
                 <button v-if="showCuentas" style="margin-left: auto; margin-right: 1rem;"
                     @click.stop.prevent="onAddAccount">
@@ -562,56 +584,103 @@
                     <tbody>
                         <tr v-if="newRow">
                             <td>
-                                <input type="text">
+                                <select v-model="selCliente">
+                                    <option v-for="c in [cliente]" :value="c">
+                                        {{c.nombre_cliente}}
+                                    </option>
+                                </select>
                             </td>
                             <td>
-                                <input type="text">
+                                <input type="text" readonly :value="selCliente.numero_documento">
                             </td>
                             <td>
-                                <input type="text">
+                                <input type="text" v-model="cuenta.entidad">
                             </td>
                             <td>
-                                <input type="text">
+                                <input type="text" v-model="cuenta.numero_cuenta">
                             </td>
                             <td>
-                                <input type="text">
+                                <input type="text" v-model="cuenta.tipo_cuenta">
                             </td>
                             <td>
-                                <input type="text">
+                                <input type="number" min="1" max="100" v-model="cuenta.porcentaje">
                             </td>
                             <td>
-                                <select>
+                                <select v-model="cuenta.tipo_giro">
                                     <option value="" selected>[Seleccione]</option>
                                     <option value="Cheque">Cheque</option>
                                     <option value="Transferencia">Transferencia</option>
                                 </select>
                             </td>
                             <td style="text-align: center;">
-                                <span v-if="!editRow || selRow !== i" @click.stop.prevent="" class="delete">✏️</span>
-                                <span v-else @click.stop.prevent="" class="delete">💾</span>
+                                <span @click.stop.prevent="onSaveAccount" class="delete">💾</span>
                             </td>
                             <td style="text-align: center;">
-                                <span @click.stop.prevent="" class="delete">✖</span>
+                                <span @click.stop.prevent="onDeleteAccount" class="delete">✖</span>
                             </td>
                         </tr>
-                        <tr v-else>
+                        <tr v-for="(c, i) in cuentas" @click="selRow = i" v-bind:class="{'destacada': selRow === i}">
+                            <td>
+                                <input v-if="editRow && selRow === i" type="text" :value="c.titular">
+                                <span v-else>{{ c.titular }}</span>
+                            </td>
+                            <td>
+                                <input v-if="editRow && selRow === i" type="text" :value="c.numero_documento">
+                                <span v-else>{{ c.numero_documento }}</span>
+                            </td>
+                            <td>
+                                <input v-if="editRow && selRow === i" type="text" :value="c.entidad">
+                                <span v-else>{{ c.entidad }}</span>
+                            </td>
+                            <td>
+                                <input v-if="editRow && selRow === i" type="text" :value="c.numero_cuenta">
+                                <span v-else>{{ c.numero_cuenta }}</span>
+                            </td>
+                            <td>
+                                <input v-if="editRow && selRow === i" type="text" :value="c.tipo_cuenta">
+                                <span v-else>{{ c.tipo_cuenta }}</span>
+                            </td>
+                            <td>
+                                <input v-if="editRow && selRow === i" type="number" :value="c.porcentaje" min="1"
+                                    max="100">
+                                <span v-else>{{ c.porcentaje }}</span>
+                            </td>
+                            <td>
+                                <select v-if="editRow && selRow === i" v-model="c.tipo_giro">
+                                    <option value="" selected>[Seleccione]</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="Transferencia">Transferencia</option>
+                                </select>
+                                <span v-else>{{ c.tipo_giro }}</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span v-if="editRow && selRow === i" @click.stop.prevent="onSaveAccount"
+                                    class="delete">💾</span>
+                                <span v-else @click.stop.prevent="editRow = true; cuenta = {...c}" class="edit">✏️</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span @click.stop.prevent="onDeleteAccount(c)" class="delete">✖</span>
+                            </td>
 
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-
         </div>
 
-        <div class="pure-u-2-5"></div>
+        <div class="pure-u-2-5" style="text-align: left; padding-top: 1rem;">
+            <button @click="setMode(2)">Volver</button>
+        </div>
         <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">
-            <button @click="onSave(false)">Guardar</button>
+            <button @click="onSave(false)"
+                v-if="desistimiento.id_estado !== '4' && desistimiento.id_estado !== '5' && desistimiento.id_estado !== '6'">
+                Guardar
+            </button>
         </div>
         <div class="pure-u-2-5" style="text-align: right; padding-top: 1rem;">
-            <button v-if="desistimiento.id_estado === '5'" @click="onTerminar"
+            <button v-if="desistimiento.id_estado === '4'" @click="onTerminar"
                 style="background-color: #c80000;">Terminar</button>
-            <button v-else @click="setMode(2)" style="background-color: #c80000;">Volver</button>
         </div>
     </div>
 </div>
