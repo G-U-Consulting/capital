@@ -231,7 +231,7 @@
                                 <div v-for="(item, i) in vetoData" :key="i" class="veto-item">
                                     <p><strong>📅 Fecha:</strong> {{ item.fecha }}</p>
                                     <p><strong>⚠️ Motivo:</strong> {{ item.motivo }}</p>
-                                    <p><strong>👤 Vetado por:</strong> {{ item.vetado_por }}</p>
+                                    <p><strong>👤 Responsable:</strong> {{ item.vetado_por }}</p>
                                     <hr v-if="i < vetoData.length - 1" />
                                 </div>
                             </div>
@@ -269,19 +269,31 @@
                     Atención Rápida
                 </div>
                 <div class="pure-g">
-                    <div class="pure-u-1 pure-u-md-1-3">
+                    <div class="pure-u-1 pure-u-md-1-2">
                         <div class="formInputStandard">
                             <span>Nombres</span>
                             <input type="text" v-model="ObjCliente.nombres" maxlength="100" placeholder="Seleccione" />
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-3">
+                    <div class='pure-u-1-1 pure-u-md-1-2'>
+                        <div class='formInputStandard'>
+                            <span>Apellido 1</span>
+                            <input type='text' v-model='ObjCliente.apellido1' maxlen='100' placeholder="Seleccione" />
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-2'>
+                        <div class='formInputStandard'>
+                            <span>Apellido 2</span>
+                            <input type='text' v-model='ObjCliente.apellido2' maxlen='100' placeholder="Seleccione" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1 pure-u-md-1-2">
                         <div class="formInputStandard">
                             <span>Email</span>
                             <input type="text" v-model="ObjCliente.email1" maxlength="100" placeholder="Seleccione" />
                         </div>
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-1-3'>
+                    <div class='pure-u-1-1 pure-u-md-1-2'>
                         <div class='formInputStandard'>
                             <span>Número Documento</span>
                             <input type='text' v-model='ObjCliente.numeroDocumento' maxlen='100' placeholder="Seleccione" />
@@ -537,7 +549,7 @@
                                 <th class="col-1-6">Fecha</th>
                                 <th class="col-3-6">Descripción</th>
                                 <th class="col-1-6">Importe</th>
-                                <th class="col-1-6">Eliminar</th>
+                                <th class="col-1-6" v-if="unidades.length === 0">Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -552,7 +564,7 @@
                                 <td class="col-1-6" style="text-align: right;">
                                       {{ item.importe ? formatoMoneda(item.importe) : '' }}
                                 </td>
-                                <td style="text-align: center;">
+                                <td v-if="unidades.length === 0" style="text-align: center;">
                                     <span class="delete"
                                         @click.stop.prevent="reqOperation(`Desea eliminar la cotizacion? <b></b>.`, deleteCotiz, null, item)"> ✖
                                     </span>
@@ -594,8 +606,10 @@
                                 <td style="text-align: right;">{{ formatoMoneda(item.valor_descuento) }}</td>
                                 <td>{{ item.lista }}</td>
                                 <td style="text-align: center;">{{ item.inv_terminado }}</td>
-                                <td style="text-align: center; color: red; font-size: 16px;" @click="dropitem(item)">
-                                    ✖
+                                 <td style="text-align: center;">
+                                    <span class="delete"
+                                        @click.stop.prevent="reqOperation(`Desea eliminar el item? <b></b>.`, dropitem, null, item)"> ✖
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>

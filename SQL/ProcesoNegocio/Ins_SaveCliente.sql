@@ -2,8 +2,7 @@
 -- Proceso: Medios/Ins_SaveCliente
 -- =============================================
 --START_PARAM
-set @id_proyecto = 1,
-    @username = '',
+set @username = '',
     @cliente = '';
 --END_PARAM
 
@@ -16,12 +15,10 @@ where
     and is_active = 1;
 insert into
     fact_cliente_actual (
-        id_proyecto,
         username,
         cliente
     )
 values (
-        @id_proyecto,
         @username,
         @cliente
     );

@@ -209,13 +209,63 @@ export default {
             }
         },
         async handleNext(nextIndex) {
-            if (this.mode === 0 && nextIndex === 1 && !this.policyAccepted && this.iscliente && this.ObjCliente.nombres !== '') {
-                showMessage("Debe aceptar la política para continuar.");
-            } else if (this.policyAccepted || nextIndex === 0) {
-                if (this.mode === 0 && nextIndex === 2) { return; } if (this.mode === 0 && nextIndex === 3) { return; } if (this.mode === 1 && nextIndex === 3) { return; }
+            if (this.mode === 0 && nextIndex === 1) {
+                const camposObligatorios = [
+                    { campo: "nombres", label: "Nombres" },
+                    { campo: "apellido1", label: "Primer Apellido" },
+                    { campo: "apellido2", label: "Segundo Apellido" },
+                    { campo: "fechaNacimiento", label: "Fecha de Nacimiento" },
+                    { campo: "direccion", label: "Dirección" },
+                    { campo: "ciudad", label: "Ciudad" },
+                    { campo: "barrio", label: "Barrio" },
+                    { campo: "departamento", label: "Departamento" },
+                ];
+
+                const faltante = camposObligatorios.find(c => !this.ObjCliente[c.campo] || this.ObjCliente[c.campo].trim() === "");
+
+                if (faltante) {
+                    showMessage(`Debe diligenciar el campo obligatorio: ${faltante.label}`);
+                    return;
+                }
+
+                if (!this.policyAccepted) {
+                    showMessage("Debe aceptar la política para continuar.");
+                    return;
+                }
+                 await this.nuevoCliente();
+            }
+
+            if (this.mode === 1 && nextIndex === 2) {
+                const tipo = this.tipo_registro
+                    .filter(item => item.checked)
+                    .map(item => item.id_tipo_registro);
+                this.ObjVisita.tipo_registro = tipo.join(',');
+
+                const estadopublicacion = this.modo_atencion
+                    .filter(item => item.checked)
+                    .map(item => item.id_modo_atencion);
+                this.ObjVisita.modo_atencion = estadopublicacion.join(',');
+                if (this.ObjVisita.id_visita != null) {
+                    showMessage("Esta visita no se puede actualizar.");
+                    return;
+                }
+                if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
+                if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
+                    showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
+                    return;
+                }
+
+                await this.nuevaVisita();
+            }
+
+            if (this.policyAccepted || nextIndex === 0) {
+                if (this.mode === 0 && nextIndex === 2) { return; }
+                if (this.mode === 0 && nextIndex === 3) { return; }
+                if (this.mode === 1 && nextIndex === 3) { return; }
                 this.mode = nextIndex;
             }
         },
+
         async acceptPolicy(isChecked) {
             if (isChecked) {
                 this.policyAccepted = true;
@@ -322,7 +372,6 @@ export default {
         async busquedaCliente() {
             let cliente = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cliente', { cliente: this.cliente });
             let obj = {
-                id_proyecto: GlobalVariables.id_proyecto,
                 username: GlobalVariables.username,
                 cliente: this.cliente,
             };
@@ -407,7 +456,6 @@ export default {
 
             if (index == 2) {
                 await this.getCotizaciones();
-                await this.refrescarImportes();
             }
 
             this.currentSubmode = index;
@@ -609,7 +657,6 @@ export default {
                 showMessage("Error al crear la cotización.");
             }
         },
-
         async campoObligatorio() {
             let res = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto", {
                 id_proyecto: GlobalVariables.id_proyecto
@@ -652,7 +699,7 @@ export default {
             this.mode = 2;
         },
         async continuarCliente() {
-            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_SaveCliente', { username: GlobalVariables.username, id_proyecto: Number(GlobalVariables.id_proyecto) });
+            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_SaveCliente', { username: GlobalVariables.username });
             const cliente = resp?.data?.[0]?.[0]?.cliente;
             if (cliente === null || cliente === undefined || cliente === '') {
                 showMessage("Debe seleccionar un cliente para continuar.");
@@ -685,7 +732,6 @@ export default {
 
             return str;
         },
-
         abrirNuevoModulo() {
             if (this.cotizacionSeleccionada == null) {
                 showMessage("Debe seleccionar una cotización para agregar unidades.");
@@ -794,7 +840,7 @@ export default {
             for (const cotizacion of this.cotizaciones) {
                 let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                     id_cliente: this.id_cliente,
-                    id_cotizacion: cotizacion.cotizacion,
+                    cotizacion: cotizacion.cotizacion,
                     id_proyecto: GlobalVariables.id_proyecto,
                 });
 
