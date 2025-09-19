@@ -4,6 +4,7 @@
 --START_PARAM
 set @id_documento = 1,
     @id_proyecto = 2,
+    @id_desistimiento = NULL,
     @id_maestro_documento = 3,
     @orden = 1,
     @nombre = '',
@@ -17,6 +18,7 @@ set @id_documento = 1,
 insert into fact_documento_proyecto (
     id_documento,
     id_proyecto,
+    id_desistimiento,
     id_maestro_documento,
     orden,
     nombre,
@@ -29,6 +31,7 @@ insert into fact_documento_proyecto (
 ) values (
     @id_documento,
     @id_proyecto,
+    @id_desistimiento,
     @id_maestro_documento,
     @orden,
     @nombre,

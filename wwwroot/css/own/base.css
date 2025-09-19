@@ -2073,6 +2073,10 @@ button.red-btn:hover {
 .grp-btn-disabled button:hover {
   background-color: #ddd;
 }
+.alert-customer {
+  color: #c80000;
+  font-weight: bold;
+}
 
 .calendar {
   display: grid;

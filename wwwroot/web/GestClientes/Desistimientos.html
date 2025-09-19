@@ -49,11 +49,12 @@
                         <th style="width: 8%;">Radicado</th>
                         <th style="width: 8%;">ID Venta</th>
                         <th style="width: 10%;">Doc Comprador</th>
-                        <th style="width: 16%;">Nombre</th>
-                        <th style="width: 14%;">Proyecto</th>
+                        <th style="width: 12%;">Nombre</th>
+                        <th style="width: 12%;">Proyecto</th>
                         <th style="width: 6%;">Torre</th>
                         <th style="width: 12%;">Agrupación/Und</th>
-                        <th style="width: 16%;">Asesor</th>
+                        <th style="width: 12%;">Asesor</th>
+                        <th style="width: 10%;">Fecha</th>
                         <th style="width: 10%;">Estado</th>
                     </tr>
                 </thead>
@@ -73,6 +74,7 @@
                             @mouseleave="tooltipVisibleR = false;" @mousemove="updateCursorRight">
                             {{d.asesor}}
                         </td>
+                        <td>{{formatDatetime(d.created_on, 'bdate')}}</td>
                         <td @mouseenter="tooltipVisibleR = true; tooltipMsg = d.estado;"
                             @mouseleave="tooltipVisibleR = false;" @mousemove="updateCursorRight">
                             {{d.estado}}
@@ -375,7 +377,7 @@
                                 <input type="text" :value="f_devolucion" readonly>
                             </td>
                             <td>
-                                <input type="text" :value="f_v4xmil" readonly>
+                                <input type="text" :value="f_4xmil" readonly>
                             </td>
                             <td>
                                 <input type="text" :value="f_liquido" readonly>
@@ -432,7 +434,9 @@
             </div>
 
         </div>
-        <div class="pure-u-2-5"></div>
+        <div class="pure-u-2-5" style="text-align: left; padding-top: 1rem;">
+            <button v-if="previews.length" @click="onSaveFiles">Guardar Adjuntos</button>
+        </div>
         <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">
             <button @click="onSave(false)"
                 v-if="desistimiento.id_estado != '4' && desistimiento.id_estado != '5' && desistimiento.id_estado != '6'">
@@ -440,10 +444,8 @@
             </button>
         </div>
         <div class="pure-u-2-5" style="text-align: right; padding-top: 1rem;">
-            <button v-if="desistimiento.id_estado === '1'" @click="setEstado('2')"
-                style="background-color: #c80000;">Solicitar</button>
-            <button v-if="Number(desistimiento.id_estado) >= 2" @click="setMode(3)"
-                style="background-color: #c80000;">Ver Solicitud</button>
+            <button v-if="desistimiento.id_estado === '1'" @click="setEstado('2')" class="red-btn">Solicitar</button>
+            <button v-if="Number(desistimiento.id_estado) >= 2" @click="setMode(3)">Ver Solicitud</button>
         </div>
 
     </div>
@@ -551,9 +553,7 @@
                     </button>
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
-                    <button style="background-color: #c80000;">
-                        Enviar carta
-                    </button>
+                    <button class="red-btn">Enviar carta</button>
                 </div>
             </div>
 
@@ -567,25 +567,25 @@
                 <span class="arrow" v-bind:class="{'expanded': showCuentas}">&lt;</span>
             </div>
             <div v-show="showCuentas" style="padding: .5rem;">
-                <table class="dataTable editable" style="table-layout: auto;">
+                <table class="dataTable" style="font-size: 15px;">
                     <thead>
                         <tr>
                             <th style="width: 18%;">Titular</th>
-                            <th style="width: 12%;">Doc. titular</th>
-                            <th style="width: 12%;">Entidad financiera</th>
-                            <th style="width: 12%;">Num. de cuenta</th>
-                            <th style="width: 12%;">Tipo de cuenta</th>
+                            <th style="width: 11%;">Doc. titular</th>
+                            <th style="width: 13%;">Entidad financiera</th>
+                            <th style="width: 14%;">Num. de cuenta</th>
+                            <th style="width: 11%;">Tipo de cuenta</th>
                             <th style="width: 6%;">%</th>
                             <th style="width: 12%;">Tipo Giro</th>
-                            <th style="width: 8%;">Editar</th>
+                            <th style="width: 7%;">Editar</th>
                             <th style="width: 8%;">Eliminar</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-if="newRow">
+                        <tr v-if="newRow" class="editTable">
                             <td>
                                 <select v-model="selCliente">
-                                    <option v-for="c in [cliente]" :value="c">
+                                    <option v-for="c in getCustomers()" :value="c">
                                         {{c.nombre_cliente}}
                                     </option>
                                 </select>
@@ -619,34 +619,43 @@
                                 <span @click.stop.prevent="onDeleteAccount" class="delete">✖</span>
                             </td>
                         </tr>
-                        <tr v-for="(c, i) in cuentas" @click="selRow = i" v-bind:class="{'destacada': selRow === i}">
+                        <tr v-for="(c, i) in cuentas" @click="selRow = i; editRow = false; newRow = false;"
+                            v-bind:class="{'destacada': selRow === i, 'editTable': editRow && selRow === i}">
                             <td>
-                                <input v-if="editRow && selRow === i" type="text" :value="c.titular">
-                                <span v-else>{{ c.titular }}</span>
+                                <select v-if="editRow && selRow === i" v-model="selCliente">
+                                    <option v-for="cl in getCustomers()" :value="cl">
+                                        {{cl.nombre_cliente}}
+                                    </option>
+                                </select>
+                                <span v-else>{{ c.nombre_cliente }}</span>
                             </td>
                             <td>
-                                <input v-if="editRow && selRow === i" type="text" :value="c.numero_documento">
+                                <input v-if="editRow && selRow === i" type="text" readonly
+                                    :value="selCliente.numero_documento">
                                 <span v-else>{{ c.numero_documento }}</span>
                             </td>
                             <td>
-                                <input v-if="editRow && selRow === i" type="text" :value="c.entidad">
+                                <input v-if="editRow && selRow === i" type="text" v-model="cuenta.entidad">
                                 <span v-else>{{ c.entidad }}</span>
                             </td>
                             <td>
-                                <input v-if="editRow && selRow === i" type="text" :value="c.numero_cuenta">
-                                <span v-else>{{ c.numero_cuenta }}</span>
+                                <input v-if="editRow && selRow === i" type="text" v-model="cuenta.numero_cuenta">
+                                <span @mouseenter="tooltipVisibleL = true; tooltipMsg = c.numero_cuenta;"
+                                    @mouseleave="tooltipVisibleL = false;" @mousemove="updateCursor" v-else>
+                                    {{ c.numero_cuenta }}
+                                </span>
                             </td>
                             <td>
-                                <input v-if="editRow && selRow === i" type="text" :value="c.tipo_cuenta">
+                                <input v-if="editRow && selRow === i" type="text" v-model="cuenta.tipo_cuenta">
                                 <span v-else>{{ c.tipo_cuenta }}</span>
                             </td>
                             <td>
-                                <input v-if="editRow && selRow === i" type="number" :value="c.porcentaje" min="1"
+                                <input v-if="editRow && selRow === i" type="number" v-model="cuenta.porcentaje" min="1"
                                     max="100">
                                 <span v-else>{{ c.porcentaje }}</span>
                             </td>
                             <td>
-                                <select v-if="editRow && selRow === i" v-model="c.tipo_giro">
+                                <select v-if="editRow && selRow === i" v-model="cuenta.tipo_giro">
                                     <option value="" selected>[Seleccione]</option>
                                     <option value="Cheque">Cheque</option>
                                     <option value="Transferencia">Transferencia</option>
@@ -656,7 +665,7 @@
                             <td style="text-align: center;">
                                 <span v-if="editRow && selRow === i" @click.stop.prevent="onSaveAccount"
                                     class="delete">💾</span>
-                                <span v-else @click.stop.prevent="editRow = true; cuenta = {...c}" class="edit">✏️</span>
+                                <span v-else @click.stop.prevent="enableEdit(c, i)" class="delete">✏️</span>
                             </td>
                             <td style="text-align: center;">
                                 <span @click.stop.prevent="onDeleteAccount(c)" class="delete">✖</span>
@@ -665,6 +674,10 @@
                         </tr>
                     </tbody>
                 </table>
+                <div v-if="tooltipVisibleL" class="cursor-tooltip"
+                    :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                    {{tooltipMsg}}
+                </div>
             </div>
 
         </div>
@@ -679,8 +692,9 @@
             </button>
         </div>
         <div class="pure-u-2-5" style="text-align: right; padding-top: 1rem;">
-            <button v-if="desistimiento.id_estado === '4'" @click="onTerminar"
-                style="background-color: #c80000;">Terminar</button>
+            <button v-if="desistimiento.id_estado === '4'" @click="setEstado('5')" class="red-btn">
+                Terminar
+            </button>
         </div>
     </div>
 </div>

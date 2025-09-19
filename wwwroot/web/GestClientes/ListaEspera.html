@@ -61,17 +61,17 @@
             </div>
         </div>
         <div class="main-content">
-            <table class="dataTable" style="table-layout: auto; font-size: 15px;">
+            <table class="dataTable" style="font-size: 15px;">
                 <thead>
                     <tr>
                         <th style="width: 6%;">ID</th>
-                        <th style="width: 12%;">Fecha</th>
+                        <th style="width: 90px;">Fecha</th>
                         <th style="width: 10%;">Doc. Cliente</th>
-                        <th style="width: 23%;">Nombre Cliente</th>
+                        <th style="width: 25%;">Nombre Cliente</th>
                         <th style="width: 14%;">Proyecto</th>
-                        <th style="width: 23%;">Asesor</th>
-                        <th style="width: 6%;">Alerta</th>
-                        <th style="width: 6%;">Activa</th>
+                        <th style="width: 25%;">Asesor</th>
+                        <th style="width: 63px;">Alerta</th>
+                        <th style="width: 63px;">Activa</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,7 +82,9 @@
                         <td>{{it.nombre_cliente}}</td>
                         <td>{{it.proyecto}}</td>
                         <td>{{it.nombre_asesor}}</td>
-                        <td style="text-align: center;">{{it.is_waiting == '1' ? 'No' : 'Sí'}}</td>
+                        <td style="text-align: center;" v-bind:class="{'alert-customer': it.is_waiting == '0'}">
+                            {{it.is_waiting == '1' ? 'No' : 'Sí'}}
+                        </td>
                         <td style="text-align: center;">{{it.is_active == '1' ? 'Sí' : 'No'}}</td>
                     </tr>
                 </tbody>

@@ -126,7 +126,7 @@ export default {
             if (["xls", "xlsx", "xlsm", "xlsb", "xlt", "xltx", "xltm", 'csv'].includes(ext)) return base + 'Excel.png';
             if (["ppt", "pptx", "pptm", "pot", "potx", "potm", "pps", "ppsx", "ppsm",].includes(ext)) return base + 'PowerPoint.png';
             if (["mdb", "accdb"].includes(ext)) return base + 'Access.png';
-            if (["mdb", "accdb"].includes(ext)) return base + 'Visio.png';
+            if (["vsd", "vsdm", "vsdx", "vssx", "vssm"].includes(ext)) return base + 'Visio.png';
             if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext))
                 return base + ext + '.png';
             else return false;

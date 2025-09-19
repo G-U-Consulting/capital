@@ -12,6 +12,7 @@ export default {
             estados: [],
             cliVentas: [],
             cuentas: [],
+            compradores: [],
             desistimiento: {},
             cliente: {},
             venta: {},
@@ -47,7 +48,7 @@ export default {
             dragIndex: null,
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
 
-            editRow: true,
+            editRow: false,
             selRow: null
         };
     },
@@ -87,8 +88,10 @@ export default {
                     action: () => this.setMode(2)
                 }];
                 this.setRuta();
+                this.isNew ? this.clearAllImages() : this.loadFiles();
             }
             if (mode === 3) {
+                this.cleanEdit();
                 this.ruta = [this.ruta[0], this.ruta[1], { text: 'Aprobación', action: () => this.setMode(3) }];
                 this.setRuta();
                 await this.loadAccounts();
@@ -102,7 +105,7 @@ export default {
         },
         async loadAccounts() {
             showProgress();
-            this.cuentas = (await httpFunc("/generic/genericDT/Clientes:Get_Cuentas",
+            [this.cuentas, this.compradores] = (await httpFunc("/generic/genericDS/Clientes:Get_Cuentas",
                 { id_desistimiento: this.desistimiento.id_desistimiento })).data;
             hideProgress();
         },
@@ -151,8 +154,8 @@ export default {
             return cleaned;
         },
         onAddAccount() {
-            this.newRow = !this.newRow;
-            this.cuenta = {};
+            this.cleanEdit();
+            this.newRow = true;
         },
         onFind() {
             if (this.searchID)
@@ -178,7 +181,7 @@ export default {
         onSelectDes(des) {
             this.tooltipVisibleL = false;
             this.tooltipVisibleR = false;
-            this.desistimiento = { ...des };
+            this.desistimiento = { ...des, updated_by: GlobalVariables.username };
 
             Object.keys(this.desistimiento).forEach(k => this.desistimiento[k] = this.desistimiento[k].replace(',', '.'));
             this.cliente = {
@@ -312,6 +315,105 @@ export default {
         getURLFile(file) {
             return URL.createObjectURL(file);
         },
+        async clearAllImages() {
+            this.previews = [];
+            this.files = [];
+        },
+
+        async onSaveFiles() {
+            showProgress();
+            let form = new FormData();
+            this.previews.forEach(pre => form.append(pre.file.name, pre.file));
+            let res = await httpFunc("/file/upload", form);
+            if (res.isError) showMessage(res.errorMessage);
+            else this.uploadS3(res.data);
+
+            hideProgress();
+        },
+        async loadFiles() {
+            this.clearAllImages();
+            let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
+                { tipo: 'desistimiento', id_desistimiento: this.desistimiento.id_desistimiento }),
+                base = '/file/S3get/';
+            if (res.data) {
+                let paths = res.data.map(f => { return { path: base + f.llave, name: f.documento, newName: f.nombre_documento } });
+                let files = await this.openFiles(paths);
+                await this.processFiles(files);
+
+                let previews = [];
+                let interval = setInterval(() => {
+                    if (this.previews.length == files.length) {
+                        Promise.all(files.map(async ({ newName, file }) => {
+                            await this.previews.forEach(pre => {
+                                if (pre.file.name == file.name) previews.push(pre);
+                            });
+                        })).then(a => this.previews = [...previews]).then(a => {
+                            this.files = [];
+                            this.previews.forEach(pre => this.files.push(pre.file));
+                        }).then(a => clearInterval(interval));
+                    } else console.log("Cargando... " + this.previews.length);
+                }, 10);
+            }
+        },
+        async uploadS3(data) {
+            showProgress();
+
+            const response = await httpFunc("/file/S3upload", data),
+                id_des = this.desistimiento.id_desistimiento;
+
+            if (response.isError) {
+                showMessage(response.errorMessage);
+                hideProgress();
+                return;
+            }
+            let S3Files = response.data.map((item, i) => ({
+                id_documento: item.Id,
+                id_desistimiento: id_des,
+                tipo: 'desistimiento',
+                nombre: this.previews[i]?.newName || item.Name,
+                orden: i
+            }));
+
+            let res = await httpFunc("/generic/genericST/Medios:Del_Archivos",
+                { id_desistimiento: id_des, tipo: 'desistimiento' });
+
+            if (res.isError) {
+                showMessage(`Error al eliminar archivo: ${archivo.id_documento}`);
+                hideProgress();
+                return;
+            }
+            S3Files.forEach(async archivo => {
+                res = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
+                    nombre: archivo.nombre || '',
+                    codigo: archivo.codigo || '',
+                    orden: archivo.orden,
+                    id_documento: archivo.id_documento,
+                    id_desistimiento: archivo.id_desistimiento,
+                    tipo: archivo.tipo
+                });
+
+                if (res.isError) {
+                    showMessage(`Error al insertar archivo: ${archivo.id_documento}`);
+                    hideProgress();
+                    return;
+                }
+            });
+            hideProgress();
+        },
+        async openFiles(paths) {
+            let files = [];
+            try {
+                files = await Promise.all(paths.map(async ({ path, name, newName }) => {
+                    const res = await fetch(path);
+                    if (!res.ok) throw new Error(`Error al cargar ${path}: ${res.statusText}`);
+                    const blob = await res.blob();
+                    return { newName, file: new File([blob], name, { type: blob.type }) };
+                }));
+            } catch (error) {
+                console.error("Error al cargar archivos:", error);
+            }
+            return files;
+        },
         getIcon(ext) {
             ext = ext.toLowerCase();
             let base = '/img/ico/';
@@ -319,7 +421,7 @@ export default {
             if (["xls", "xlsx", "xlsm", "xlsb", "xlt", "xltx", "xltm", 'csv'].includes(ext)) return base + 'Excel.png';
             if (["ppt", "pptx", "pptm", "pot", "potx", "potm", "pps", "ppsx", "ppsm",].includes(ext)) return base + 'PowerPoint.png';
             if (["mdb", "accdb"].includes(ext)) return base + 'Access.png';
-            if (["mdb", "accdb"].includes(ext)) return base + 'Visio.png';
+            if (["vsd", "vsdm", "vsdx", "vssx", "vssm"].includes(ext)) return base + 'Visio.png';
             if (["pdf", "txt", "odt", "odg", "ods", "odp", "odf", "pub", "md", "xml", "json", "rtf", "tex"].includes(ext))
                 return base + ext + '.png';
             else return false;
@@ -355,16 +457,34 @@ export default {
             this.onSave(true);
         },
 
+        enableEdit(cuenta, i) {
+            this.editRow = true;
+            this.cuenta = { ...cuenta };
+            this.selRow = i;
+            this.selCliente = this.compradores.find(c => c.id_cliente == cuenta.id_cliente) || {};
+        },
+        cleanEdit() {
+            this.editRow = false;
+            this.selRow = null;
+            this.selCliente = {};
+            this.newRow = false;
+            this.cuenta = {};
+        },
         async onSaveAccount() {
             showProgress();
             let res = null;
             try {
                 Object.keys(this.cuenta).forEach(k => !this.cuenta[k] && delete this.cuenta[k]);
-                this.cuenta.id_desistimiento = this.desistimiento.id_desistimiento;
-                this.id_cliente = this.selCliente.id_cliente;
+                this.cuenta = {
+                    ...this.cuenta,
+                    id_desistimiento: this.desistimiento.id_desistimiento,
+                    id_cliente: this.selCliente.id_cliente,
+                    nombre_cliente: this.selCliente.nombre_cliente,
+                    numero_documento: this.selCliente.numero_documento
+                };
                 res = await httpFunc(`/generic/genericST/Clientes:${this.newRow ? 'Ins' : 'Upd'}_Cuenta`, this.cuenta);
                 if (res.isError || res.data !== 'OK') throw res;
-                this.newRow = false;
+                this.cleanEdit();
                 await this.loadAccounts();
             } catch (e) {
                 console.error(e);
@@ -378,8 +498,7 @@ export default {
             try {
                 res = await httpFunc(`/generic/genericST/Clientes:Del_Cuenta`, { id_cuenta: cuenta.id_cuenta });
                 if (res.isError || res.data !== 'OK') throw res;
-                this.newRow = false;
-                this.editRow = false;
+                this.cleanEdit();
                 await this.loadAccounts();
             } catch (e) {
                 console.error(e);
@@ -480,7 +599,7 @@ export default {
                 return this.formatNumber(val.toString(), false);
             },
         },
-        f_v4xmil: {
+        f_4xmil: {
             get() {
                 let val = Number(this.cleanNumber(this.f_devolucion)) * 0.004;
                 return this.formatNumber(val.toString(), false);
@@ -488,7 +607,7 @@ export default {
         },
         f_liquido: {
             get() {
-                let val = Number(this.cleanNumber(this.f_devolucion)) - Number(this.cleanNumber(this.f_v4xmil));
+                let val = Number(this.cleanNumber(this.f_devolucion)) - Number(this.cleanNumber(this.f_4xmil));
                 return this.formatNumber(val.toString(), false);
             },
         },
@@ -498,7 +617,7 @@ export default {
         },
         f_val_carta: {
             get() {
-                let val = Number(this.cleanNumber(this.f_pnl_neta)) - Number(this.cleanNumber(this.f_gasto)) - Number(this.cleanNumber(this.f_extra_prorroga_carta));
+                let val = Number(this.cleanNumber(this.f_pnl_neta)) - Number(this.cleanNumber(this.f_gasto)) + Number(this.cleanNumber(this.f_extra_prorroga_carta));
                 return this.formatNumber(val.toString(), false);
             },
         },
@@ -520,6 +639,10 @@ export default {
                 }
                 return null;
             }
+        },
+        getCustomers() {
+            return () => this.compradores.filter(cli => !this.cuentas.some(cu => cu.id_cliente === cli.id_cliente)
+                || this.cuenta.id_cliente === cli.id_cliente);
         }
     }
 }

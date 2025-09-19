@@ -259,9 +259,17 @@ end;
 create table fact_ventas(
     id_venta int primary key auto_increment,
     id_unidad int not null references fact_unidades(id_unidad),
-    id_cliente int not null references fact_clientes(id_cliente),
+    id_cliente int not null references fact_clientes(id_cliente), -- Cliente principal
     created_on datetime default current_timestamp,
     created_by varchar(50) not null
+);
+
+-- Multiples clientes por venta
+create table dim_venta_cliente(
+    id_cliente_venta int primary key auto_increment,
+    id_cliente int not null references fact_clientes(id_cliente),
+    id_venta int not null references fact_ventas(id_venta),
+    constraint uk_cliente_venta unique (id_cliente, id_venta)
 );
 
 create table dim_estado_desistimiento(
@@ -311,9 +319,9 @@ create table dim_desistimiento(
     fec_prorroga_carta date,
     extra_prorroga_carta decimal(20, 2),
     created_on datetime default current_timestamp,
-    created_by varchar(50) not null
+    created_by varchar(50) not null,
+    updated_by varchar(50) not null
 );
-
 create table dim_cuenta_desistimiento(
     id_cuenta int primary key auto_increment,
     id_desistimiento int not null references dim_desistimiento(id_desistimiento),
@@ -327,3 +335,48 @@ create table dim_cuenta_desistimiento(
     constraint chk_valor_entre_1_y_100 check (porcentaje between 1 and 100),
     tipo_giro varchar(50) not null
 );
+
+create trigger tr_insert_estado_desistimiento after insert on dim_desistimiento for each row
+begin
+    insert into dim_log_unidades (id_unidad, id_usuario, titulo, texto)
+    select u2.id_unidad, u.id_usuario, 'Nuevo desistimiento', 
+        concat('Se ha creado un nuevo desistimiento con radicado ', new.radicado, '.')
+    from fact_ventas v 
+    join fact_unidades u1 on v.id_unidad = u1.id_unidad
+    join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
+    join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
+    where v.id_venta = new.id_venta;
+end;
+
+create trigger tr_update_estado_desistimiento after update on dim_desistimiento for each row
+begin
+    if new.id_estado != old.id_estado then
+        
+        set @title = CASE 
+            WHEN new.id_estado = 2 THEN 'Desistimiento solicitado'
+            WHEN new.id_estado = 3 THEN 'Desistimiento aprobado por coordinación'
+            WHEN new.id_estado = 4 THEN 'Desistimiento aprobado por dirección'
+            WHEN new.id_estado = 5 THEN 'Desistimiento terminado'
+            WHEN new.id_estado = 6 THEN 'Desistimiento cancelado'
+            ELSE ''
+        END, @desc = CASE 
+            WHEN new.id_estado = 2 THEN concat('El desistimiento con radicado ', new.radicado, ' ha sido solicitado.')
+            WHEN new.id_estado = 3 THEN concat('El desistimiento con radicado ', new.radicado, 
+                ' ha sido aprobado por coordinación.</br>Comentario: ', ifnull(new.com_coordinacion, 'Sin comentario.'))
+            WHEN new.id_estado = 4 THEN concat('El desistimiento con radicado ', new.radicado, 
+                ' ha sido aprobado por dirección.</br>Comentario: ', ifnull(new.com_direccion, 'Sin comentario.'))
+            WHEN new.id_estado = 5 THEN concat('El desistimiento con radicado ', new.radicado, ' ha sido terminado.')
+            WHEN new.id_estado = 6 THEN concat('El desistimiento con radicado ', new.radicado, ' ha sido cancelado.</br>Comentario: ', 
+                if(old.id_estado = 2, ifnull(new.com_coordinacion, 'Sin comentario.'), ifnull(new.com_direccion, 'Sin comentario.')))
+            ELSE ''
+        END; 
+       
+        insert into dim_log_unidades (id_unidad, id_usuario, titulo, texto)
+        select u2.id_unidad, u.id_usuario, @title, @desc
+        from fact_ventas v 
+        join fact_unidades u1 on v.id_unidad = u1.id_unidad
+        join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
+        join fact_usuarios u on new.updated_by = u.usuario collate utf8mb4_general_ci 
+        where v.id_venta = new.id_venta;
+    end if;
+end;

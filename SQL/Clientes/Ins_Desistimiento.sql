@@ -32,14 +32,14 @@ set @id_venta = NULL,
 insert into dim_desistimiento(
     id_venta, ultima_fecha, cant_incumplida, interes, gasto, descuento, radicado,
     id_categoria, id_fiduciaria, etapa, id_penalidad, observacion, fecha_resolucion, fecha_fpc, fecha_program,
-    pnl_monto, pnl_porcentaje, v_venta_neto, a_capital, a_intereses, condonacion, imp_reformas, pnl_pcv, pnl_aplicada_ptg, created_by
+    pnl_monto, pnl_porcentaje, v_venta_neto, a_capital, a_intereses, condonacion, imp_reformas, pnl_pcv, pnl_aplicada_ptg, created_by, updated_by
 ) values (
     @id_venta, if(@ultima_fecha = '' or @ultima_fecha is null, null, str_to_date(@ultima_fecha, '%d/%m/%Y %T')), 
     @cant_incumplida, @interes, @gasto, @descuento, @radicado, @id_categoria, @id_fiduciaria, @etapa, @id_penalidad, @observacion,
     if(@fecha_resolucion = '', null, @fecha_resolucion),
     if(@fecha_fpc = '', null, @fecha_fpc),
     if(@fecha_program = '', null, @fecha_program),
-    @Monto, @Porcentaje, @v_venta_neto, @a_capital, @a_intereses, @condonacion, @imp_reformas, @pnl_pcv, @pnl_aplicada_ptg, @created_by
+    @Monto, @Porcentaje, @v_venta_neto, @a_capital, @a_intereses, @condonacion, @imp_reformas, @pnl_pcv, @pnl_aplicada_ptg, @created_by, @created_by
 );
 
 select concat('OK-id_desistimiento:', last_insert_id()) as result;

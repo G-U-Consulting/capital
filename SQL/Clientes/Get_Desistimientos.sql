@@ -17,7 +17,7 @@ select date_format(d.ultima_fecha, '%Y-%m-%d %T') as ultima_fecha,
     d.pnl_monto as `Monto`, d.pnl_porcentaje as `Porcentaje`,
     coalesce(a.nombre, u.numero_apartamento) as unidad, e.id_estado, e.nombre as estado,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
-    c.numero_documento, c.nombres, c.apellido1, c.apellido2, us.nombres as asesor
+    c.numero_documento, c.nombres, c.apellido1, c.apellido2, c.id_cliente, us.nombres as asesor
 from dim_desistimiento d
 join dim_estado_desistimiento e on d.id_estado = e.id_estado
 join fact_ventas v on d.id_venta = v.id_venta

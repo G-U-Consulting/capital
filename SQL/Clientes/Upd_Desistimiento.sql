@@ -29,7 +29,12 @@ set @id_desistimiento = NULL,
     @fecha_fpc = NULL,
     @fecha_program = NULL
     @fec_prorroga_carta = NULL,
-    @extra_prorroga_carta = NULL;
+    @extra_prorroga_carta = NULL,
+    @com_coordinacion = NULL,
+    @fec_com_coordinacion = NULL,
+    @com_direccion = NULL,
+    @fec_com_direccion = NULL,
+    @updated_by = NULL;
 --END_PARAM
 
 update dim_desistimiento
@@ -63,7 +68,8 @@ set id_venta = @id_venta,
     com_direccion = @com_direccion,
     fec_com_direccion = if(@fec_com_direccion = '', null, @fec_com_direccion),
     fec_prorroga_carta = if(@fec_prorroga_carta = '', null, @fec_prorroga_carta),
-    extra_prorroga_carta = @extra_prorroga_carta
+    extra_prorroga_carta = @extra_prorroga_carta,
+    updated_by = @updated_by
 where id_desistimiento = @id_desistimiento;
 
 
