@@ -61,7 +61,10 @@
 			torresFull: [],
 			activeTab: 'detalle',
 			showModal: false,
-			modalImage: null
+			modalImage: null,
+			zoom: "torres",
+			activeTab: 'detalle',
+    		showFloating: false,	
 		};
 	},
 	three: null,
@@ -72,6 +75,14 @@
 		// this.filtros.aptos.torres = this.torres.map(t => t.idtorre);
 	},
 	methods: {
+		selectApto(apto) {
+			this.selectedApto = apto;
+			this.showFloating = true;
+		},
+		closeFloating() {
+			this.showFloating = false;
+			this.selectedApto = null;
+		},
 		setRuta() {
 			GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
 		},
@@ -584,11 +595,8 @@
 
 			const base = {
 				display: 'flex',
-				gap: '0.5rem',
+				gap: '0.2rem',
 				width: `${ancho}%`,
-				alignItems: 'center',
-				justifyContent: 'center',
-				marginBottom: '10px'
 			};
 			return base;
 		},
@@ -697,7 +705,7 @@
 					return Array.isArray(valor) ? valor.length > 0 : valor !== '';
 				});
 
-				if (!hayFiltrosActivos) return [];
+				if (!hayFiltrosActivos) return this[tabla];
 
 				return this[tabla].filter(item =>
 					Object.keys(this.filtros[tabla]).every(key => {
@@ -764,6 +772,22 @@
 			});
 			return agrupado;
 		},
+		aptosAgrupadosPorTorreYUnidad() {
+			let result = {};
+			for (let apto of this.aptos) {
+				if (!result[apto.torre]) result[apto.torre] = {};
+				if (!result[apto.torre][apto.apartamento]) result[apto.torre][apto.apartamento] = [];
+				result[apto.torre][apto.apartamento].push(apto);
+			}
+
+			// ordenar cada columna de arriba (piso mayor) a abajo (piso menor)
+			for (let torre in result) {
+				for (let apto in result[torre]) {
+					result[torre][apto].sort((a, b) => b.piso - a.piso);
+				}
+			}
+			return result;
+		}
 		
 	},
 	watch: {

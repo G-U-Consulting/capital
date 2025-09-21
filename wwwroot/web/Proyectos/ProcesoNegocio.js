@@ -236,26 +236,31 @@ export default {
             }
 
             if (this.mode === 1 && nextIndex === 2) {
-                const tipo = this.tipo_registro
-                    .filter(item => item.checked)
-                    .map(item => item.id_tipo_registro);
-                this.ObjVisita.tipo_registro = tipo.join(',');
+                //const tipo = this.tipo_registro
+                //    .filter(item => item.checked)
+                //    .map(item => item.id_tipo_registro);
+                //this.ObjVisita.tipo_registro = tipo.join(',');
 
-                const estadopublicacion = this.modo_atencion
-                    .filter(item => item.checked)
-                    .map(item => item.id_modo_atencion);
-                this.ObjVisita.modo_atencion = estadopublicacion.join(',');
-                if (this.ObjVisita.id_visita != null) {
-                    showMessage("Esta visita no se puede actualizar.");
+                //const estadopublicacion = this.modo_atencion
+                //    .filter(item => item.checked)
+                //    .map(item => item.id_modo_atencion);
+                //this.ObjVisita.modo_atencion = estadopublicacion.join(',');
+                //if (this.ObjVisita.id_visita != null) {
+                //    showMessage("Esta visita no se puede actualizar.");
+                //    return;
+                //}
+                //if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
+                //if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
+                //    showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
+                //    return;
+                //}
+
+                let resp = await this.nuevaVisita();
+
+                if (resp?.includes("Error")) {
                     return;
                 }
-                if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
-                if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
-                    showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
-                    return;
-                }
 
-                await this.nuevaVisita();
             }
 
             if (this.policyAccepted || nextIndex === 0) {
@@ -265,7 +270,6 @@ export default {
                 this.mode = nextIndex;
             }
         },
-
         async acceptPolicy(isChecked) {
             if (isChecked) {
                 this.policyAccepted = true;
@@ -492,7 +496,7 @@ export default {
             if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
             if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
                 showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
-                return;
+                return "Error";
             }
             showProgress();
             try {
@@ -502,6 +506,7 @@ export default {
                 if (resp.includes("OK")) {
                     await this.setSubmode(1);
                     showMessage("Visita creada correctamente.");
+                    return "OK";
                 }
             } catch (error) {
                 hideProgress();
@@ -566,12 +571,54 @@ export default {
                 id_proyecto: GlobalVariables.id_proyecto
             });
 
-            this.cotizaciones = resp.data[0].map(c => ({
-                ...c,
-                cotizacion: Number(c.cotizacion),
-                importe: 0
-            }));
+            this.cotizaciones = resp.data[0] || [];
+
+            for (const item of this.cotizaciones) {
+                await this.cargarCotizacion(item.cotizacion);
+            }
         },
+        async cargarCotizacion(cotizacionId) {
+            let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
+                id_cliente: this.id_cliente,
+                id_proyecto: GlobalVariables.id_proyecto,
+                cotizacion: cotizacionId
+            });
+
+            const parseNumber = (str) => {
+                if (typeof str === 'string') {
+                    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+                }
+                return Number(str) || 0;
+            };
+
+            const unidades = respa.data[0].map(unidad => ({
+                ...unidad,
+                valor_unidad: parseNumber(unidad.valor_unidad),
+                valor_descuento: parseNumber(unidad.valor_descuento)
+            }));
+
+            const sumaValores = unidades.reduce((total, unidad) => total + unidad.valor_unidad, 0);
+            const sumaDescuentos = unidades.reduce((total, unidad) => total + unidad.valor_descuento, 0);
+            const totalFinal = sumaValores - sumaDescuentos;
+
+            const cotizacion = this.cotizaciones.find(
+                c => Number(c.cotizacion) === Number(cotizacionId)
+            );
+
+            if (cotizacion) {
+                cotizacion.unidades = unidades;
+                cotizacion.importe = totalFinal;
+            }
+        },
+        async seleccionarCotizacion(cotizacionId) {
+            this.cotizacionSeleccionada = cotizacionId;
+
+            await this.cargarCotizacion(cotizacionId);
+
+            this.unidades = this.cotizaciones.find(
+                c => Number(c.cotizacion) === Number(cotizacionId)
+            )?.unidades || [];
+        }, 
         async addCotizacion() {
 
             const nuevaFecha = new Date();
@@ -695,7 +742,8 @@ export default {
                 this.registroCompras = [];
             }
         },
-        sincliente() {
+        async sincliente() {
+            await this.getCotizaciones();
             this.mode = 2;
         },
         async continuarCliente() {
@@ -784,42 +832,6 @@ export default {
           ].join(',');
 
             GlobalVariables.ventanaUnidades = window.open(url, 'VentanaModuloUnidades', features);
-        },
-        async seleccionarCotizacion(cotizacionId) {
-            this.cotizacionSeleccionada = cotizacionId;
-
-            let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
-                id_cliente: this.id_cliente,
-                id_proyecto: GlobalVariables.id_proyecto,
-                cotizacion: cotizacionId
-            });
-
-            const parseNumber = (str) => {
-                if (typeof str === 'string') {
-                    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
-                }
-                return Number(str) || 0;
-            };
-
-            const unidades = respa.data[0].map(unidad => ({
-                ...unidad,
-                valor_unidad: parseNumber(unidad.valor_unidad),
-                valor_descuento: parseNumber(unidad.valor_descuento)
-            }));
-
-            this.unidades = unidades;
-
-            const sumaValores = unidades.reduce((total, unidad) => total + unidad.valor_unidad, 0);
-            const sumaDescuentos = unidades.reduce((total, unidad) => total + unidad.valor_descuento, 0);
-            const totalFinal = sumaValores - sumaDescuentos;
-
-            const cotizacion = this.cotizaciones.find(
-                c => Number(c.cotizacion) === Number(cotizacionId)
-            );
-            if (cotizacion) {
-                cotizacion.unidades = unidades;
-                cotizacion.importe = totalFinal;
-            }
         },
         formatoMoneda(valor) {
             if (isNaN(valor)) return '';

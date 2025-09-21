@@ -10,7 +10,7 @@ select
     id_cotizacion,
     id_cliente,
     cotizacion,
-    fecha,
+    DATE_FORMAT(fecha, '%Y-%m-%d %H:%i:%s') as fecha,
     descripcion,
     importe
 from fact_cotizaciones

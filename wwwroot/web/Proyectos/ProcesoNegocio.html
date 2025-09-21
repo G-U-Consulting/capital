@@ -330,7 +330,7 @@
                     </select>
                 </div>
                 <div
-                    style="height: 11rem; overflow-y: auto; margin-top: 0.5em;">
+                    style="height: 11rem; overflow-y: auto; margin-top: 0.1em;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -549,7 +549,7 @@
                                 <th class="col-1-6">Fecha</th>
                                 <th class="col-3-6">Descripción</th>
                                 <th class="col-1-6">Importe</th>
-                                <th class="col-1-6" v-if="unidades.length === 0">Eliminar</th>
+                                <th class="col-1-6">Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -564,11 +564,12 @@
                                 <td class="col-1-6" style="text-align: right;">
                                       {{ item.importe ? formatoMoneda(item.importe) : '' }}
                                 </td>
-                                <td v-if="unidades.length === 0" style="text-align: center;">
-                                    <span class="delete"
-                                        @click.stop.prevent="reqOperation(`Desea eliminar la cotizacion? <b></b>.`, deleteCotiz, null, item)"> ✖
-                                    </span>
-                                </td>
+                            <td v-if="!item.importe" style="text-align: center;">
+                                <span class="delete"
+                                    @click.stop.prevent="reqOperation(`Desea eliminar la cotizacion? <b></b>.`, deleteCotiz, null, item)"> ✖
+                                </span>
+                            </td>
+                            <td v-else></td>
                             </tr>
                         </tbody>
                     </table>
@@ -600,7 +601,7 @@
                                 <td>{{ item.consecutivo }}</td>
                                 <td>{{ item.tipo }}</td>
                                 <td>{{ item.numero_apartamento }}</td>
-                                <td>{{ item.created_on }}</td>
+                                <td>{{ item.fecha_formateada }}</td>
                                 <td>{{ item.observacion_apto }}</td>
                                 <td style="text-align: right;">{{ formatoMoneda(item.valor_unidad) }}</td>
                                 <td style="text-align: right;">{{ formatoMoneda(item.valor_descuento) }}</td>
