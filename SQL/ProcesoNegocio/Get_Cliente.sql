@@ -35,7 +35,6 @@ from fact_clientes a
 where a.is_active = 1
   and @cliente != ''
   and (
-    a.nombres COLLATE utf8mb4_unicode_ci like CONCAT('%', @cliente, '%') COLLATE utf8mb4_unicode_ci
-    or a.numero_documento COLLATE utf8mb4_unicode_ci = @cliente COLLATE utf8mb4_unicode_ci
+    a.numero_documento COLLATE utf8mb4_unicode_ci = @cliente COLLATE utf8mb4_unicode_ci
   )
 order by a.id_cliente;

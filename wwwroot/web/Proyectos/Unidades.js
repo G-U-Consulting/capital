@@ -14,6 +14,7 @@
 			groupedAptos: [],
 			ids_unidades: [],
 			preview: [],
+			clases: [],
 			loading: true,
 			stats: {
 				torres: 0,
@@ -42,7 +43,7 @@
 					localizacion: '',
 					torres: [],
 					piso: '',
-					clase: '',
+					id_clase: '',
 				},
 				agrupaciones: {},
 				groupedAptos: {
@@ -51,6 +52,7 @@
 					codigo_planta: '',
 					localizacion: '',
 					piso: '',
+					id_clase: '',
 				}
 			},
 			editNewRow: false,
@@ -99,13 +101,21 @@
 		async loadUnidades() {
 			showProgress();
 			this.asesor = GlobalVariables.username;
-			let [torres, aptos, estados] = (await
+			let [torres, aptos, estados, fiduciarias, instructivos,clases] = (await
 				httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 
 			var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": GlobalVariables.id_proyecto });	
 			this.edge_estado = resp.data[0][0].edge_estado;
 			this.estados = estados;
 			this.NwTorre = torres;
+			this.clases = clases;
+			const claseApartamento = clases.find(c => c.clase === 'Apartamentos');
+
+			if (claseApartamento) {
+				this.filtros.aptos.id_clase = claseApartamento.id_clase;
+				this.filtros.groupedAptos.id_clase = claseApartamento.id_clase;
+			}
+
 			let pisos = new Set(), tipos = new Set();
 			if (torres.length && aptos.length) {
 				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];

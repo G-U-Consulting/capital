@@ -58,10 +58,6 @@ select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color
 from dim_estado_unidad
 where is_active = 1;
 
-select id_tipo, tipo, id_proyecto, id_archivo_planta, id_archivo_recorrido
-from dim_tipo_unidad
-where id_proyecto = @id_proyecto and tipo != '';
-
 select id_fiduciaria, fiduciaria 
 from dim_fiduciaria
 where is_active = 1;
@@ -70,3 +66,8 @@ select id_instructivo, instructivo
 from dim_instructivo
 where is_active = 1;
 
+select tp.id_tipo_proyecto as id_clase, tp.tipo_proyecto as clase
+from fact_unidades u 
+join dim_tipo_proyecto tp on u.id_clase = tp.id_tipo_proyecto
+where u.id_proyecto = @id_proyecto
+group by tp.id_tipo_proyecto;
