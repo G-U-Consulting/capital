@@ -671,7 +671,7 @@
                             Contado
                         </label>
                         <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">Modalidad:</span>
-                        <div class="pure-u-1-1 pure-u-md-1-4">
+                        <div class="pure-u-1-1 pure-u-md-1-3">
                             <select>
                                 <option>Seleccione</option>
                             </select>
@@ -680,24 +680,23 @@
                 </div>
                 <div class="pure-u-1 pure-u-md-1-1" >
                     <fieldset style="border: 1px solid lightgray; padding: 1em;">
-                        <div>
-                            <label class="check" class="pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
+                        <div style="margin-bottom: 1rem;" >
+                            <lasbel class="check" class="pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
                                 <input type="checkbox" value='1' v-model="" />
                                 <span class="checkmark"></span>
                                 Financiado
-                            </label>
+                            </lasbel>
                             <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">Modalidad:</span>
-                            <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='pure-u-1-1 pure-u-md-1-5'>
                                 <select v-model=''>
                                     <option value='' selected>Seleccione</option>
                                     <option>
                                     </option>
                                 </select>
                             </div>
-                            <div>
-                                <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">Tipo:</span>
-                            </div>
-                            <div class='pure-u-1-1 pure-u-md-1-5'>
+                            <div class="pure-u-1-1 pure-u-md-1-8"></div>
+                            <span class="pure-u-1-1 pure-u-md-1-8" style="margin-top: .4em;">Tipo:</span>
+                            <div class='pure-u-1-1 pure-u-md-1-4'>
                                 <select>
                                     <option>Seleccione</option>
                                 </select>
@@ -706,12 +705,13 @@
                         <div>
                             <div class="pure-u-1-1 pure-u-md-1-6"></div>
                             <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">Entidad:</span>
-                            <div class='pure-u-1-1 pure-u-md-1-4'>
+                            <div class='pure-u-1-1 pure-u-md-1-5'>
                                 <select>
                                     <option>Seleccione</option>
                                 </select>
                             </div>
-                            <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">años:</span>
+                            <div class="pure-u-1-1 pure-u-md-1-8"></div>
+                            <span class="pure-u-1-1 pure-u-md-1-8" style="margin-top: .4em;">Años:</span>
                             <div class='pure-u-1-1 pure-u-md-1-4'>
                                 <select>
                                     <option>Seleccione</option>
@@ -721,54 +721,64 @@
                     </fieldset>
                 </div>
             </div>
-
             <div class='pure-u-1-1 formDivision' style="font-size: 1.2em; margin-top: 1em;">
                 Aportes y subsidios
             </div>
             <div class="pure-g">
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>Cesantías</span>
-                        <input type="text" value="0,00" />
+                <div class="pure-u-1 pure-u-md-1-1">
+                    <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Cesantías</span>
+                            <input type="text" value="0,00" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Ahorros</span>
+                            <input type="text" value="0,00" />
+                        </div>
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>Ahorros</span>
-                        <input type="text" value="0,00" />
+                <div class="pure-u-1 pure-u-md-1-1">
+                    <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.5em">
+                        <div class="formInputStandard">
+                            <label class="check" class="pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
+                                <input type="checkbox" value='1' v-model="" />
+                                <span class="checkmark"></span>
+                                Subsidio
+                            </label>
+                        </div>
                     </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>Ingresos</span>
-                        <input type="text" value="0,00" />
+                     <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Ingresos</span>
+                            <input type="text" value="0,00" />
+                        </div>
                     </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <label><input type="radio" name="subsidio" /> Subsidio</label>
+                    <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Valor Subsidio</span>
+                            <input type="text" value="0,00" style="color: red;" />
+                        </div>
                     </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>Valor Subsidio</span>
-                        <input type="text" value="0,00" style="color: red;" />
+                    <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                    <div class="pure-u-1-1 pure-u-md-1-5" style="margin-top: 1.5em">
+                        <div class="formInputStandard">
+                            <span style="margin-top: .4em;">Caja de compensación:</span>
+                        </div>
                     </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>Caja de compensación:</span>
-                        <select style="width: 100%;">
-                            <option>Seleccione</option>
-                        </select>
+                    <div class="pure-u-1 pure-u-md-1-5" style="margin-top: 1.5em">
+                        <div class="formInputStandard">
+                            <select style="width: 100%;">
+                                <option>Seleccione</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-        
-            <div class='pure-u-1-1 formDivision' style="margin-top: 1em;">
-                <span>Importe Financiable:</span> <strong></strong>
-                Cuota Inicial: <strong></strong>
-                Cuota: <strong></strong>
+            <div class="pure-u-1-1 formDivision" style="display: flex; justify-content: space-between; margin-top: 1em;">
+                <span>Importe Financiable:</span>
+                <span>Cuota Inicial:</span>
             </div>
         </div>
     </div>

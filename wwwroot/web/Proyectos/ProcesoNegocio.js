@@ -263,6 +263,13 @@ export default {
 
             }
 
+            if (this.mode === 2 && nextIndex === 3) {
+                if(!this.cotizacionActiva && !this.importeActiva){
+                    showMessage("Debe ingresar un importe y una descripción.");
+                    return;
+                }
+            }
+
             if (this.policyAccepted || nextIndex === 0) {
                 if (this.mode === 0 && nextIndex === 2) { return; }
                 if (this.mode === 0 && nextIndex === 3) { return; }
@@ -584,6 +591,8 @@ export default {
                 cotizacion: cotizacionId
             });
 
+        
+
             const parseNumber = (str) => {
                 if (typeof str === 'string') {
                     return parseFloat(str.replace(/\./g, '').replace(',', '.'));
@@ -608,6 +617,9 @@ export default {
             if (cotizacion) {
                 cotizacion.unidades = unidades;
                 cotizacion.importe = totalFinal;
+
+                this.cotizacionActiva = cotizacionId;
+                this.importeActiva = totalFinal;
             }
         },
         async seleccionarCotizacion(cotizacionId) {
