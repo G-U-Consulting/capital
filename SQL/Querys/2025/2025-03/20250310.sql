@@ -102,7 +102,9 @@ insert into dim_permiso(id_permiso, permiso, grupo, id_zona) values
 (11, 'Visualizar proyectos', 'Proyectos', 2),
 (12, 'Crear proyectos', 'Proyectos', 2),
 (13, 'Informes generales', 'Informes', 2),
-(14, 'Vetar clientes', 'Clientes', 5)
+(14, 'Vetar clientes', 'Clientes', 5),
+(15, 'Aprobar Desistimientos (Coordinación)', 'Clientes', 5),
+(16, 'Aprobar Desistimientos (Dirección)', 'Clientes', 5);
 
 create table fact_roles(
 	id_rol int not null auto_increment,

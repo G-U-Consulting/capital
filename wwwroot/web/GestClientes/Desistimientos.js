@@ -13,6 +13,7 @@ export default {
             cliVentas: [],
             cuentas: [],
             compradores: [],
+            proyectos: [],
             desistimiento: {},
             cliente: {},
             venta: {},
@@ -24,8 +25,9 @@ export default {
 
             desistimiento: { id_categoria: '', id_fiduciaria: '', etapa: '', id_penalidad: '' },
 
+            optVisible: false,
             filtros: {
-                desistimientos: {}
+                desistimientos: { id_estado: '' }
             },
 
             showGestion: false,
@@ -35,6 +37,7 @@ export default {
             showDatamart: false,
             showLiq: false,
             showCarta: false,
+            showClient: false,
 
             newRow: false,
 
@@ -49,13 +52,24 @@ export default {
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
 
             editRow: false,
-            selRow: null
+            selRow: null,
+
+            enableCoordinacion: false,
+            enableDireccion: false
         };
     },
     async mounted() {
         this.ruta = [{ text: 'Desistimientos', action: () => this.setMode(0) }];
         this.setRuta();
         await this.loadData();
+        this.enableCoordinacion = await this.hasPermission(15);
+        this.enableDireccion = await this.hasPermission(16);
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.matches('.combo-input') && !e.target.matches('.combo-options'))
+                this.optVisible = false;
+        });
+        console.log(this.validarCuentas);
     },
     async unmounted() {
 
@@ -99,7 +113,7 @@ export default {
         },
         async loadData() {
             showProgress();
-            [this.desistimientos, this.categorias, this.penalidades, this.fiduciarias, this.ventas, this.estados] =
+            [this.desistimientos, this.categorias, this.penalidades, this.fiduciarias, this.ventas, this.estados, this.proyectos] =
                 (await httpFunc("/generic/genericDS/Clientes:Get_Desistimientos", {})).data;
             hideProgress();
         },
@@ -107,6 +121,7 @@ export default {
             showProgress();
             [this.cuentas, this.compradores] = (await httpFunc("/generic/genericDS/Clientes:Get_Cuentas",
                 { id_desistimiento: this.desistimiento.id_desistimiento })).data;
+            this.cuentas.forEach(c => c.porcentaje = c.porcentaje.replace(',', '.'));
             hideProgress();
         },
         validarNumero(e, int) {
@@ -178,6 +193,10 @@ export default {
             }
 
         },
+        redirect2Customer(id) {
+            const url = './?loc=GestClientes&id_cliente=' + id;
+            window.open(url, '_blank');
+        },
         onSelectDes(des) {
             this.tooltipVisibleL = false;
             this.tooltipVisibleR = false;
@@ -197,7 +216,7 @@ export default {
             this.setMode(2);
         },
         onSelectVenta(venta) {
-            this.desistimiento = this.desistimientos.find(d => d.id_desistimiento === venta.id_desistimiento) ||
+            this.desistimiento = this.desistimientos.find(d => d.id_desistimiento === venta.id_desistimiento && d.id_estado !== '6') ||
             {
                 id_categoria: '',
                 id_fiduciaria: '',
@@ -230,7 +249,13 @@ export default {
             }
             hideProgress();
         },
-
+        onSelectRow(i) {
+            if (i !== this.selRow) {
+                this.selRow = i;
+                this.editRow = false;
+                this.newRow = false;
+            }
+        },
 
         updateCursor(event) {
             this.tooltipX = event.clientX + 10;
@@ -451,9 +476,11 @@ export default {
         },
 
         async setEstado(id) {
-            this.desistimiento.id_estado = id;
             if (id === '3') this.desistimiento.fec_com_coordinacion = this.formatDatetime('', 'bdate');
             if (id === '4') this.desistimiento.fec_com_direccion = this.formatDatetime('', 'bdate');
+            if (id === '5') 
+                if (!this.validarCuentas() || !(await this.onTerminar())) return;
+            this.desistimiento.id_estado = id;
             this.onSave(true);
         },
 
@@ -505,7 +532,35 @@ export default {
                 showMessage('Error: ' + e.errorMessage || e.data);
             }
             hideProgress();
-        }
+        },
+        validarCuentas() {
+            if (this.cuentas.reduce((a, b) => (Number(a) + Number(b.porcentaje)).toFixed(2), '0') !== '100.00') {
+                showMessage('Error: El valor de los porcentajes de las cuentas no suma el 100%.');
+                return false;
+            }
+            else return true;
+        },
+        async onTerminar() {
+            showProgress();
+            let res = null;
+            try {
+                res = await httpFunc(`/generic/genericST/Clientes:Upd_LiberarUnidad`,
+                    { id_venta: this.desistimiento.id_venta, usuario: GlobalVariables.username });
+                if (res.isError || res.data !== 'OK') throw res;
+                return true;
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+                return false;
+            } finally {
+                hideProgress();
+            }
+        },
+
+        async hasPermission(id) {
+            await GlobalVariables.loadPermisos();
+            return !!GlobalVariables.permisos.filter((p) => p.id_permiso == id).length;
+        },
     },
     computed: {
         f_campo: {
@@ -621,6 +676,13 @@ export default {
                 return this.formatNumber(val.toString(), false);
             },
         },
+        f_cuenta_porcentaje: {
+            get() { return this.formatNumber(this.cuenta['porcentaje'], true); },
+            set(val) {
+                if (Number(this.cleanNumber(val)) > 100) this.cuenta['porcentaje'] = '100';
+                else this.cuenta['porcentaje'] = this.cleanNumber(val);
+            }
+        },
 
         getFilteredList() {
             return (tabla) => {
@@ -643,6 +705,15 @@ export default {
         getCustomers() {
             return () => this.compradores.filter(cli => !this.cuentas.some(cu => cu.id_cliente === cli.id_cliente)
                 || this.cuenta.id_cliente === cli.id_cliente);
+        },
+
+        completeProjects() {
+            return () => {
+                let filProject = this.filtros.desistimientos['proyecto'];
+                let res = this.proyectos.filter(pro => !filProject
+                    || pro.nombre.toLowerCase().includes(filProject.toLowerCase()));
+                return res;
+            }
         }
     }
 }

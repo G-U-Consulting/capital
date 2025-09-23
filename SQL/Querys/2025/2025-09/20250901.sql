@@ -331,7 +331,7 @@ create table dim_cuenta_desistimiento(
     entidad varchar(100) not null,
     tipo_cuenta varchar(100) not null,
     numero_cuenta varchar(100) not null,
-    porcentaje int not null,
+    porcentaje decimal(5, 2) not null,
     constraint chk_valor_entre_1_y_100 check (porcentaje between 1 and 100),
     tipo_giro varchar(50) not null
 );
@@ -339,11 +339,11 @@ create table dim_cuenta_desistimiento(
 create trigger tr_insert_estado_desistimiento after insert on dim_desistimiento for each row
 begin
     insert into dim_log_unidades (id_unidad, id_usuario, titulo, texto)
-    select u2.id_unidad, u.id_usuario, 'Nuevo desistimiento', 
+    select coalesce(u2.id_unidad, u1.id_unidad) as id_unidad, u.id_usuario, 'Nuevo desistimiento', 
         concat('Se ha creado un nuevo desistimiento con radicado ', new.radicado, '.')
     from fact_ventas v 
     join fact_unidades u1 on v.id_unidad = u1.id_unidad
-    join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
+    left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
     join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
     where v.id_venta = new.id_venta;
 end;
@@ -372,11 +372,11 @@ begin
         END; 
        
         insert into dim_log_unidades (id_unidad, id_usuario, titulo, texto)
-        select u2.id_unidad, u.id_usuario, @title, @desc
+        select coalesce(u2.id_unidad, u1.id_unidad) as id_unidad, u.id_usuario, @title, @desc
         from fact_ventas v 
         join fact_unidades u1 on v.id_unidad = u1.id_unidad
-        join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
-        join fact_usuarios u on new.updated_by = u.usuario collate utf8mb4_general_ci 
+        left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
+        join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
         where v.id_venta = new.id_venta;
     end if;
 end;

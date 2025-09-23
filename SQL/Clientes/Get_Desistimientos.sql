@@ -40,7 +40,7 @@ from dim_fiduciaria
 where is_active = 1;
 
 select v.id_venta, d.radicado, p.id_proyecto, p.nombre as proyecto, t.id_torre, t.consecutivo as torre, 
-    d.id_desistimiento, e.nombre as estado, coalesce(a.nombre, u.numero_apartamento) as unidad, us.nombres as asesor,
+    d.id_desistimiento, e.nombre as estado, coalesce(a.nombre, u.nombre_unidad) as unidad, us.nombres as asesor,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
     c.id_cliente, c.numero_documento, c.nombres, c.apellido1, c.apellido2, date_format(v.created_on, '%Y-%m-%d %T') as created_on,
     coalesce(f1.id_fiduciaria, f2.id_fiduciaria) as id_fiduciaria
@@ -49,7 +49,7 @@ join fact_clientes c on v.id_cliente = c.id_cliente
 join fact_unidades u on v.id_unidad = u.id_unidad
 join fact_torres t on u.id_torre = t.id_torre
 join fact_proyectos p on u.id_proyecto = p.id_proyecto
-join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
+left join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
 join fact_usuarios us on v.created_by = us.usuario collate utf8mb4_general_ci
 left join dim_desistimiento d on v.id_venta = d.id_venta
 left join dim_estado_desistimiento e on d.id_estado = e.id_estado
@@ -57,4 +57,8 @@ left join dim_fiduciaria f1 on t.id_fiduciaria = f1.id_fiduciaria
 left join dim_fiduciaria f2 on p.id_fiduciaria = f2.id_fiduciaria;
 
 select id_estado, nombre
-from dim_estado_desistimiento;
+from dim_estado_desistimiento
+order by id_estado;
+
+select id_proyecto, nombre
+from fact_proyectos;

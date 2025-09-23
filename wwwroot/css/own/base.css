@@ -1098,6 +1098,46 @@ table thead th {
   height: calc(100vh - 18rem);
   overflow-y: auto;
 }
+
+
+.combo-container {
+  position: relative;
+  width: 100%;
+}
+
+.combo-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.combo-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-top: none;
+  background: white;
+  z-index: 1000;
+  display: none;
+  height: auto;
+  padding: 1px;
+}
+
+.combo-options option {
+  padding: 4px;
+  cursor: pointer;
+}
+
+.combo-options option:hover {
+  background-color: #f0f0f0;
+}
+
+
 textarea.editor {
   height: 100px;
 }

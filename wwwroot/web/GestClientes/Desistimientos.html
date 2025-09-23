@@ -27,8 +27,21 @@
                         v-model="filtros.desistimientos['nombre_cliente']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
-                    <input type="text" placeholder="Proyecto" maxlength="50"
-                        v-model="filtros.desistimientos['proyecto']" />
+
+                    <div class="combo-container" @blur="optVisible = false">
+                        <input type="text" class="combo-input" placeholder="Proyectos"
+                        v-model="filtros.desistimientos['proyecto']" @click="optVisible = true;">
+                        <select class="combo-options" :size="completeProjects().length + 1"
+                            :style="`display: ${optVisible && completeProjects().length ? 'block' : 'none'}`"
+                            v-model="filtros.desistimientos['proyecto']" 
+                            @change="optVisible = false;">
+                            <option value="">[Todos]</option>
+                            <option v-for="p in completeProjects()" 
+                                :value="p.nombre">
+                                {{p.nombre}}
+                            </option>
+                        </select>
+                    </div>
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
                     <input type="text" placeholder="Agrupación" maxlength="50"
@@ -38,7 +51,12 @@
                     <input type="text" placeholder="Asesor" maxlength="50" v-model="filtros.desistimientos['asesor']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
-                    <input type="text" placeholder="Estado" maxlength="50" v-model="filtros.desistimientos['estado']" />
+                    <select v-model="filtros.desistimientos['id_estado']">
+                        <option value="">[Estados]</option>
+                        <option v-for="e in estados" :value="e.id_estado">
+                            {{e.nombre}}
+                        </option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -137,6 +155,11 @@
                 <input type="text" :value="cliente.numero_documento" readonly>
             </div>
         </div>
+        <div class="pure-u-1-2 pure-u-md-1-5" v-if="cliente && cliente.id_cliente" style="text-align: right;">
+            <button @click="redirect2Customer(cliente.id_cliente)" style="margin-top: 1.7rem;">
+                Ver Cliente
+            </button>
+        </div>
 
         <div v-if="cliente && cliente.id_cliente">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
@@ -191,6 +214,42 @@
             <div class="pure-u-1-4 formInputStandard">
                 <label>Número Documento</label>
                 <input type="text" :value="cliente.numero_documento" readonly>
+            </div>
+
+            <div class='formDivision deployable' @click="showClient = !showClient">
+                <span>Información del Cliente</span>
+                <span class="arrow" v-bind:class="{'expanded': showClient}">&lt;</span>
+            </div>
+            <div v-show="showClient" style="padding: .5rem;">
+                <div class="pure-u-1-2 pure-u-md-1-5">
+                    <div class="formInputStandard">
+                        <label>Nombre</label>
+                        <input type="text" :value="cliente.nombres" readonly>
+                    </div>
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-5">
+                    <div class="formInputStandard">
+                        <label>Apellido 1</label>
+                        <input type="text" :value="cliente.apellido1" readonly>
+                    </div>
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-5">
+                    <div class="formInputStandard">
+                        <label>Apellido 2</label>
+                        <input type="text" :value="cliente.apellido2" readonly>
+                    </div>
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-5">
+                    <div class="formInputStandard">
+                        <label>Número Documento</label>
+                        <input type="text" :value="cliente.numero_documento" readonly>
+                    </div>
+                </div>
+                <div class="pure-u-1-2 pure-u-md-1-5" v-if="cliente && cliente.id_cliente" style="text-align: right;">
+                    <button @click="redirect2Customer(cliente.id_cliente)" style="margin-top: 1.7rem;">
+                        Ver Cliente
+                    </button>
+                </div>
             </div>
 
             <div class='formDivision deployable' @click="showInfo = !showInfo">
@@ -398,7 +457,8 @@
                     style="position: relative; padding: .5rem;">
                     <label for="file-input" class="preview-container"
                         style="height: 8rem; cursor: pointer; max-height: 100%;" @dragover.prevent="handleDragOver"
-                        @drop.prevent="handleDrop" @mouseenter="tooltipVisibleL = true"
+                        @drop.prevent="handleDrop"
+                        @mouseenter="tooltipVisibleL = true; tooltipMsg = 'Arrastra o haz clic para cargar archivos.'"
                         @mouseleave="tooltipVisibleL = false">
                         <div v-if="previews.length === 0" class="center-absolute ">
                             Arrastra o haz clic para cargar archivos.
@@ -435,7 +495,8 @@
 
         </div>
         <div class="pure-u-2-5" style="text-align: left; padding-top: 1rem;">
-            <button v-if="previews.length" @click="onSaveFiles">Guardar Adjuntos</button>
+            <button v-if="previews.length && desistimiento.id_estado != '5' && desistimiento.id_estado != '6'" 
+                @click="onSaveFiles">Guardar Adjuntos</button>
         </div>
         <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">
             <button @click="onSave(false)"
@@ -483,7 +544,7 @@
                         :value="desistimiento.fec_com_coordinacion || formatDatetime('', 'bdate')">
                 </div>
                 <div class="pure-u-1-2"></div>
-                <div v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '2'}">
+                <div v-if="enableCoordinacion" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '2'}">
                     <div class="pure-u-1-2 formInputStandard">
                         <button class="red-btn" @click="desistimiento.id_estado === '2' && setEstado('3')">
                             Aprobar
@@ -507,7 +568,7 @@
                         :value="desistimiento.fec_com_direccion || formatDatetime('', 'bdate')">
                 </div>
                 <div class="pure-u-1-2"></div>
-                <div v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '3'}">
+                <div v-if="enableDireccion" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '3'}">
                     <div class="pure-u-1-2 formInputStandard">
                         <button class="red-btn" @click="desistimiento.id_estado === '3' && setEstado('4')">
                             Aprobar
@@ -603,7 +664,7 @@
                                 <input type="text" v-model="cuenta.tipo_cuenta">
                             </td>
                             <td>
-                                <input type="number" min="1" max="100" v-model="cuenta.porcentaje">
+                                <input type="text" v-model="f_cuenta_porcentaje">
                             </td>
                             <td>
                                 <select v-model="cuenta.tipo_giro">
@@ -619,7 +680,7 @@
                                 <span @click.stop.prevent="onDeleteAccount" class="delete">✖</span>
                             </td>
                         </tr>
-                        <tr v-for="(c, i) in cuentas" @click="selRow = i; editRow = false; newRow = false;"
+                        <tr v-for="(c, i) in cuentas" @click="onSelectRow(i)"
                             v-bind:class="{'destacada': selRow === i, 'editTable': editRow && selRow === i}">
                             <td>
                                 <select v-if="editRow && selRow === i" v-model="selCliente">
@@ -650,9 +711,8 @@
                                 <span v-else>{{ c.tipo_cuenta }}</span>
                             </td>
                             <td>
-                                <input v-if="editRow && selRow === i" type="number" v-model="cuenta.porcentaje" min="1"
-                                    max="100">
-                                <span v-else>{{ c.porcentaje }}</span>
+                                <input v-if="editRow && selRow === i" type="text" v-model="f_cuenta_porcentaje">
+                                <span v-else>{{ formatNumber(c.porcentaje, true) }}</span>
                             </td>
                             <td>
                                 <select v-if="editRow && selRow === i" v-model="cuenta.tipo_giro">

@@ -36,6 +36,11 @@ export default {
         this.saveData = await GlobalVariables.miniModuleCallback('GetData');
         if (this.saveData && this.saveData.selIndex >= 0) this.selIndex = this.saveData.selIndex;
         if (this.saveData && this.saveData.filtros) this.filtros = this.saveData.filtros;
+        const params = new URLSearchParams(GlobalVariables.urlParams);
+        if (params.get('id_cliente')) {
+            let cliente = this.clientes.find(c => c.id_cliente == params.get('id_cliente'));
+            if (cliente) this.onSelect(cliente);
+        }
         //this.setMode('chart');
         //this.setMode('d3');
     },
