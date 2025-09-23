@@ -4033,3 +4033,51 @@ tr.cal-row-info > td {
 .filtros-bloque.unidades-ancho {
     flex: 0 0 90%;
 }
+
+
+.log-container {
+  max-width: 800px;
+  margin: auto;
+  padding: .5rem 0;
+}
+.log-entry {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.log-title {
+  font-weight: 600;
+  font-size: 18px;
+  color: #333;
+}
+.log-date {
+  font-size: 14px;
+  color: #888;
+}
+.log-content {
+  font-size: 15px;
+  color: #444;
+}
+.log-footer {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #666;
+  text-align: right;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+.log-color-state {
+  padding: 0 8px;
+  border-radius: 8px;
+  margin-left: 4px;
+  border: 1px #555 solid;
+}

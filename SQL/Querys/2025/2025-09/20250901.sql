@@ -340,7 +340,7 @@ create trigger tr_insert_estado_desistimiento after insert on dim_desistimiento 
 begin
     insert into dim_log_unidades (id_unidad, id_usuario, titulo, texto)
     select coalesce(u2.id_unidad, u1.id_unidad) as id_unidad, u.id_usuario, 'Nuevo desistimiento', 
-        concat('Se ha creado un nuevo desistimiento con radicado ', new.radicado, '.')
+        concat('Se ha creado un nuevo desistimiento con <b># radicado ', new.radicado, '</b>.')
     from fact_ventas v 
     join fact_unidades u1 on v.id_unidad = u1.id_unidad
     left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
@@ -360,14 +360,14 @@ begin
             WHEN new.id_estado = 6 THEN 'Desistimiento cancelado'
             ELSE ''
         END, @desc = CASE 
-            WHEN new.id_estado = 2 THEN concat('El desistimiento con radicado ', new.radicado, ' ha sido solicitado.')
-            WHEN new.id_estado = 3 THEN concat('El desistimiento con radicado ', new.radicado, 
-                ' ha sido aprobado por coordinación.</br>Comentario: ', ifnull(new.com_coordinacion, 'Sin comentario.'))
-            WHEN new.id_estado = 4 THEN concat('El desistimiento con radicado ', new.radicado, 
-                ' ha sido aprobado por dirección.</br>Comentario: ', ifnull(new.com_direccion, 'Sin comentario.'))
-            WHEN new.id_estado = 5 THEN concat('El desistimiento con radicado ', new.radicado, ' ha sido terminado.')
-            WHEN new.id_estado = 6 THEN concat('El desistimiento con radicado ', new.radicado, ' ha sido cancelado.</br>Comentario: ', 
-                if(old.id_estado = 2, ifnull(new.com_coordinacion, 'Sin comentario.'), ifnull(new.com_direccion, 'Sin comentario.')))
+            WHEN new.id_estado = 2 THEN concat('El desistimiento con <b># radicado ', new.radicado, '</b> ha sido solicitado.')
+            WHEN new.id_estado = 3 THEN concat('El desistimiento con <b># radicado ', new.radicado, 
+                '</b> ha sido aprobado por coordinación.</br><ul><li>Comentario: ', ifnull(new.com_coordinacion, 'Sin comentario.'), '</li></ul>')
+            WHEN new.id_estado = 4 THEN concat('El desistimiento con <b># radicado ', new.radicado, 
+                '</b> ha sido aprobado por dirección.</br><ul><li>Comentario: ', ifnull(new.com_direccion, 'Sin comentario.'), '</li></ul>')
+            WHEN new.id_estado = 5 THEN concat('El desistimiento con <b># radicado ', new.radicado, '</b> ha sido terminado.')
+            WHEN new.id_estado = 6 THEN concat('El desistimiento con <b># radicado ', new.radicado, '</b> ha sido cancelado.</br><ul><li>Comentario: ', 
+                if(old.id_estado = 2, ifnull(new.com_coordinacion, 'Sin comentario.'), ifnull(new.com_direccion, 'Sin comentario.')), '</li></ul>')
             ELSE ''
         END; 
        

@@ -464,7 +464,7 @@ end;
 create trigger tr_update_proyecto_futuro after update on fact_proyectos for each row
 begin
 	if old.is_active = 0 and new.is_active = 1 then
-		insert into dim_sala_proyecto(id_sala_venta, id_proyecto)
+		insert ignore into dim_sala_proyecto(id_sala_venta, id_proyecto)
 		select sv.id_sala_venta, new.id_proyecto from dim_sala_venta sv 
 			where sv.pro_futuros = 1 and (sv.id_sede is null or sv.id_sede = new.id_sede);
 	elseif old.is_active = 1 and new.is_active = 0 then

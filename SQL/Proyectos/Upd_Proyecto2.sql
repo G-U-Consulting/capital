@@ -2,8 +2,8 @@
 -- Proceso: Proyectos/Upd_Proyecto2
 -- =============================================
 --START_PARAM
-set @id_proyecto = NULL,
-    @is_active = NULL;
+set @id_proyecto = '3',
+    @is_active = '1';
 
 --END_PARAM
 

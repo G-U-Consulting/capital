@@ -478,7 +478,7 @@ export default {
         async setEstado(id) {
             if (id === '3') this.desistimiento.fec_com_coordinacion = this.formatDatetime('', 'bdate');
             if (id === '4') this.desistimiento.fec_com_direccion = this.formatDatetime('', 'bdate');
-            if (id === '5') 
+            if (id === '5')
                 if (!this.validarCuentas() || !(await this.onTerminar())) return;
             this.desistimiento.id_estado = id;
             this.onSave(true);
@@ -672,7 +672,8 @@ export default {
         },
         f_val_carta: {
             get() {
-                let val = Number(this.cleanNumber(this.f_pnl_neta)) - Number(this.cleanNumber(this.f_gasto)) + Number(this.cleanNumber(this.f_extra_prorroga_carta));
+                let val = Number(this.cleanNumber(this.f_pnl_neta)) - Number(this.cleanNumber(this.f_gasto))
+                    + Number(this.cleanNumber(this.f_extra_prorroga_carta));
                 return this.formatNumber(val.toString(), false);
             },
         },
