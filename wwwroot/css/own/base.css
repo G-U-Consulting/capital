@@ -3082,7 +3082,7 @@ tr.cal-row-info > td {
   /* justify-content: space-between; */
   font-size: 12px;
   /* height: 80px; */
-  width: 12%;
+  min-width: 10.9%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -3908,8 +3908,8 @@ tr.cal-row-info > td {
   font-size: 0.65rem;
   text-align: center;
   cursor: pointer;
-  height: 28px;
-  line-height: 26px;
+  height: 20px;
+  /* line-height: 26px; */
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

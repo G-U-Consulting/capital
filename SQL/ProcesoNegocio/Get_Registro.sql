@@ -2,7 +2,7 @@
 -- Proceso: ProcesoNegocio/Get_Registro
 -- =============================================
 --START_PARAM
-set @cliente = '222222',
+set @cliente = 'prueba',
     @id_visita = '';
 --END_PARAM
 

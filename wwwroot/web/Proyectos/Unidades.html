@@ -22,11 +22,9 @@
                                     <img src="./img/ico/eraser.png" />
                                 </div>
                             </div>
-                            <select v-model="filtros.aptos['clase']">
+                            <select v-model="filtros.aptos['id_clase']" class="pure-input-1">
                                 <option value="">[Clase]</option>
-                                <option value="Apartamento">Apartamento</option>
-                                <option value="Deposito">Depósito</option>
-                                <option value="Parqueadero">Parqueadero</option>
+                                <option v-for="c in clases" :value="c.id_clase">{{c.clase}}</option>
                             </select>
                             <select v-model="filtros.aptos['codigo_planta']">
                                 <option value="">[Tipos]</option>
@@ -110,8 +108,8 @@
                     </div>
                 </div>
             </div>
-            <div class="filtros-bloque" class="filtros-bloque" :class="{ 'unidades-ancho': zoom === 'unidades' }">
-                <div class="aptos-list-agrupada" v-if="zoom === 'torres'">
+            <div class="filtros-bloque" class="filtros-bloque">
+                <div class="aptos-list-agrupada" v-if="zoom === 'unidades'">
                     <div v-for="(pisos, idtorre) in aptosAgrupadosPorTorreYPiso" :key="idtorre">
                         <div class="titulo-torre">Torre {{ idtorre }}</div>
                         <div v-for="[piso, aptos] in Object.entries(pisos).sort((a,b)=>parseInt(b[0]) - parseInt(a[0]))"
@@ -141,7 +139,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="aptos-list-unidades" v-if="zoom === 'unidades'">
+                <div class="aptos-list-unidades" v-if="zoom === 'torres'">
                     <div v-for="(pisos, idtorre) in aptosAgrupadosPorTorreYPiso" :key="idtorre" class="torre-block">
                         <div class="titulo-torre">Torre {{ idtorre }}</div>
                         <div v-for="[piso, aptos] in Object.entries(pisos).sort((a,b)=>parseInt(b[0]) - parseInt(a[0]))" :key="piso">
@@ -164,9 +162,8 @@
                     </div>
                 </div>
                 </div>
-            <div class="logos-bloque" :class="{ floating: zoom === 'unidades' && selectedApto }" v-if="zoom === 'torres' || (zoom === 'unidades' && selectedApto)">
+            <div class="logos-bloque">
                 <div class="contenedor-principal">
-                    <div v-if="selectedApto" class="close-floating" @click="closeFloating">✖</div>
                     <div >
                         <div class="progress-card">
                             <div class="progress-header">
@@ -192,7 +189,6 @@
                                     🖼️ Imágenes
                                 </div>
                             </div>
-
                             <div class="tab-card">
                                 <div v-if="activeTab === 'detalle'">
                                     <h3 v-if="selectedApto.id_agrupacion == ''">Valor Unidad: {{
@@ -227,7 +223,6 @@
                                         </li>
                                     </ul>
                                 </div>
-
                                 <div v-if="activeTab === 'imagenes'">
                                     <div class="image-gallery-container">
                                         <div class="image-gallery">
@@ -251,7 +246,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="action-footer">
                                 <button v-if="selectedApto.estatus === 'Libre'" @click="addUnidad(selectedApto)"
                                     class="pure-button pure-button-primary">
@@ -259,7 +253,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div v-else-if="zoom === 'torres'" class="aptos-detail"></div>
+                        <div v-else class="aptos-detail"></div>
                     </div>
                 </div>
             </div>

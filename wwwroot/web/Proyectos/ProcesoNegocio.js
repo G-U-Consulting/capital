@@ -449,6 +449,7 @@ export default {
                 this.ObjCliente.nombres = '';
                 this.iscliente = false;
                 showMessage("No se encontró el cliente.");
+                this.limpiarObj();
             }
 
         },
