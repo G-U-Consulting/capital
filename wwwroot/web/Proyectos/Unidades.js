@@ -65,7 +65,6 @@
 			showModal: false,
 			modalImage: null,
 			zoom: "torres",
-			activeTab: 'detalle',
     		showFloating: false,	
 		};
 	},
@@ -77,6 +76,11 @@
 		// this.filtros.aptos.torres = this.torres.map(t => t.idtorre);
 	},
 	methods: {
+		async handleMessages(event) {
+            if (event.data?.type === 'REFRESH_UNIDADES') {
+                await this.loadUnidades();
+            }
+        },
 		selectApto(apto) {
 			this.selectedApto = apto;
 			this.showFloating = true;
@@ -419,34 +423,40 @@
 			this.setRuta();
 		},
 		async addUnidad(apto) {
-			let res = await (httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', {
-				    id_cliente: GlobalVariables.id_cliente,
-					id_proyecto: GlobalVariables.id_proyecto,
-					usuario: GlobalVariables.username,
-				    unidad: apto.numero_apartamento,
-					cotizacion: GlobalVariables.id_cotizacion,
-				    inv_terminado: apto.inv_terminado,
-					tipo: apto.tipo,
-				    torre: apto.idtorre,
-					observacion_apto: apto.observacion_apto,
-					valor_descuento: apto.valor_descuento,
-					valor_unidad: apto.valor_unidad,
-				    lista: apto.lista,
-				    numero_apartamento: apto.nombre_unidad,
-					id_unidad: apto.id_unidad,
-				}));
+			let payload = {
+				id_cliente: GlobalVariables.id_cliente,
+				id_proyecto: GlobalVariables.id_proyecto,
+				usuario: GlobalVariables.username,
+				unidad: apto.numero_apartamento,
+				cotizacion: GlobalVariables.id_cotizacion,
+				inv_terminado: apto.inv_terminado,
+				tipo: apto.tipo,
+				torre: apto.idtorre,
+				observacion_apto: apto.observacion_apto,
+				valor_descuento: apto.valor_descuento,
+				valor_unidad: apto.valor_unidad,
+				lista: apto.lista,
+				numero_apartamento: apto.nombre_unidad,
+				id_unidad: apto.id_unidad,
+			};
+
+			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', payload);
+
+			if (res.data.includes("OK")) {
 				this.mode = 3;
 				this._preselectDone = false;
 				await this.loadUnidades();
+				this.selectedApto = null;
 
-			// 🔹 Notificar a la ventana padre (ProcesoNegocio.js)
-			if (window.opener) {
-				window.opener.postMessage({
-					type: 'REFRESH_COTIZACION',
-					cotizacionId: GlobalVariables.id_cotizacion
-				}, '*');
+				if (window.opener) {
+					window.opener.postMessage({
+						type: 'REFRESH_COTIZACION',
+						cotizacionId: GlobalVariables.id_cotizacion
+					}, '*');
+				}
+			} else {
+				showMessage("Ocurrió un error al registrar la unidad");
 			}
-
 		},
 		async onSave() {
 			showProgress();
@@ -591,13 +601,11 @@
 			}
 			return res;
 		},
-
 		rowsForTorre(id_torre, aptos = []) {
 			const torre = this.NwTorre.find(t => t.idtorre == id_torre) || {};
 			const columnas = Math.max(1, parseInt(torre?.aptos_fila) || 3);
 			return this.chunkArray(aptos, columnas);
 		},
-
 		aptosRowStyle(id_torre, row = [], rowIndex = 0, totalRows = 0) {
 			const torre = this.NwTorre.find(t => t.idtorre == id_torre) || {};
 			const columnas = Math.max(1, parseInt(torre?.aptos_fila) || 3);
@@ -661,6 +669,60 @@
 		},
 		setTorre(torre) {
 			this.torre = torre;
+		},
+		async addListaEspera(apto){
+
+			let payload = {
+				id_lista: apto.id_lista,
+				id_cliente: GlobalVariables.id_cliente,
+				usuario: GlobalVariables.username,
+				id_proyecto: GlobalVariables.id_proyecto,
+				id_unidad: apto.id_unidad,
+				id_torre: apto.id_torre,
+				piso: apto.piso,
+				id_tipo: apto.id_tipo,
+				id_clase: apto.id_tipo_proyecto,
+				localizacion: apto.localizacion,
+				num_alcobas: apto.num_alcobas,
+				num_banos: apto.num_banos,
+				asoleacion: apto.asoleacion,
+				altura: apto.altura,
+				cerca_porteria: apto.cerca_porteria,
+				cerca_juegos_infantiles: apto.cerca_juegos_infantiles,
+				cerca_piscina: apto.cerca_piscina,
+				tiene_balcon: apto.tiene_balcon,
+				tiene_parq_sencillo: apto.tiene_parq_sencillo,
+				tiene_parq_doble: apto.tiene_parq_doble,
+				tiene_deposito: apto.tiene_deposito,
+				tiene_acabados: apto.tiene_acabados,
+			};
+
+			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_ListaEspera', payload);
+
+
+			if ((res.errorMessage && res.errorMessage.includes("Duplicate")) ||
+				(res.error && res.error.message && res.error.message.includes("Duplicate")) ||
+				(res.message && res.message.includes("Duplicate"))) {
+
+				showMessage("El cliente ya existe en la lista de espera.");
+				return;
+			}
+
+			if (res.data.includes("OK")) {
+				showMessage("El registro en la lista de espera fue completado con éxito.");
+				this.mode = 3;
+				this._preselectDone = false;
+				await this.loadUnidades();
+
+				if (window.opener) {
+					window.opener.postMessage({
+						type: 'REFRESH_COTIZACION',
+						cotizacionId: GlobalVariables.id_cotizacion
+					}, '*');
+				}
+			} else {
+				showMessage("Ocurrió un error al registrar la unidad");
+			}
 		},
 	},
 	computed: {

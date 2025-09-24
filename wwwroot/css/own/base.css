@@ -1971,6 +1971,7 @@ div.btn-left-rotafolio img {
   border: 1px solid #ffff;
 }
 .tab-registro {
+  position: relative;
   padding: 10px 16px;
   cursor: pointer;
   border: 1px solid #333;
@@ -1981,7 +1982,6 @@ div.btn-left-rotafolio img {
   transition: all 0.3s ease;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  /* margin-right: 4px; */
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
 }
 
@@ -1989,6 +1989,7 @@ div.btn-left-rotafolio img {
   background-color: #e1e7ec;
   color: #000;
 }
+
 
 .tab-registro.active {
   background-color: #00839C;
@@ -3908,7 +3909,7 @@ tr.cal-row-info > td {
   font-size: 0.65rem;
   text-align: center;
   cursor: pointer;
-  height: 20px;
+  /* height: 20px; */
   /* line-height: 26px; */
   overflow: hidden;
   white-space: nowrap;
@@ -3916,7 +3917,7 @@ tr.cal-row-info > td {
 }
 
 .apto-cuadro.active {
-  border: 2px #c80000 solid;
+  border: 1px #c80000 solid;
   color: #000;
 }
 
@@ -4033,7 +4034,9 @@ tr.cal-row-info > td {
 .filtros-bloque.unidades-ancho {
     flex: 0 0 90%;
 }
-
+.apto-asignado {
+  background-color: gold;
+}
 
 .log-container {
   max-width: 800px;

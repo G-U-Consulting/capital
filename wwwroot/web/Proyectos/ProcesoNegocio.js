@@ -104,6 +104,7 @@ export default {
             isTitular: false,
             showModal: false,
             vetoData: '',
+            camposBloqueados: false, 
         };
     },
     computed: {
@@ -199,7 +200,7 @@ export default {
         this.campoObligatorio();
         window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
         window.addEventListener('message', this.handleMessages);
-
+ 
     },
     methods: {
         async handleMessages(event) {
@@ -236,25 +237,6 @@ export default {
             }
 
             if (this.mode === 1 && nextIndex === 2) {
-                //const tipo = this.tipo_registro
-                //    .filter(item => item.checked)
-                //    .map(item => item.id_tipo_registro);
-                //this.ObjVisita.tipo_registro = tipo.join(',');
-
-                //const estadopublicacion = this.modo_atencion
-                //    .filter(item => item.checked)
-                //    .map(item => item.id_modo_atencion);
-                //this.ObjVisita.modo_atencion = estadopublicacion.join(',');
-                //if (this.ObjVisita.id_visita != null) {
-                //    showMessage("Esta visita no se puede actualizar.");
-                //    return;
-                //}
-                //if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
-                //if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
-                //    showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
-                //    return;
-                //}
-
                 let resp = await this.nuevaVisita();
 
                 if (resp?.includes("Error")) {
@@ -299,33 +281,36 @@ export default {
                 showMessage("Debe aceptar la política para continuar.");
                 return;
             }
+
             this.ObjCliente.is_atencion_rapida = israpida;
+
             if (!this.validarCampos(this.ObjCliente, this.camposObligatorios)) return;
+
+            const { is_atencion_rapida, ...edit } = this.ObjCliente;
+            const { is_atencion_rapida: _, ...orig } = this.ObjClienteOriginal;
+            const huboCambio = JSON.stringify(edit) !== JSON.stringify(orig);
+
             let cliente = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
             cliente = cliente.data;
+
             if (cliente[0].result.includes("OK")) {
-                if (israpida) {
-                    this.iscliente = false;
-                    this.israpida = false;
-                    this.policyAccepted = false;
-                    this.mode = 0;
-                    this.isboton = true;
-                    this.acceptPolicy(true);
-                    if (cliente[0].result.includes('Insert')) { showMessage("Cliente creado correctamente."); } else showMessage("Cliente actualizado correctamente.");
-                } else {
-                    this.isboton = true;
-                    this.mode = 0;
-                    this.israpida = false;
-                    this.policyAccepted = false;
-                    // this.limpiarObj();
-                    this.iscliente = true;
-                    this.acceptPolicy(true);
-                    if (cliente[0].result.includes('Insert')) { showMessage("Cliente creado correctamente."); } else showMessage("Cliente actualizado correctamente.");
+                if (cliente[0].result.includes('Insert')) {
+                    showMessage("Cliente creado correctamente.");
+                } else if (huboCambio) {
+                    showMessage("Cliente actualizado correctamente.");
+                    this.ObjClienteOriginal = JSON.parse(JSON.stringify(this.ObjCliente));
                 }
             } else {
                 this.limpiarObj();
                 showMessage("Error al crear el cliente.");
             }
+         
+            this.isboton = true;
+            this.mode = 0;
+            this.israpida = false;
+            this.policyAccepted = false;
+            this.iscliente = !israpida;
+            this.acceptPolicy(true);
         },
         async limpiarObj() {
             if (this.mode == 0) {
@@ -358,6 +343,7 @@ export default {
                 }
             }
             if (this.mode == 1) {
+                this.camposBloqueados = false;
                 this.ObjVisita = {
                     tipo_registro: '',
                     modo_atencion: '',
@@ -421,6 +407,9 @@ export default {
                 } else {
                     this.policyAccepted = false;
                 }
+
+                this.ObjClienteOriginal = { ...this.ObjCliente };
+
                 /// Dev
                 this.registroCompras = [
                     {
@@ -486,6 +475,7 @@ export default {
         },
         ///////// mode 1
         async nuevaVisita() {
+   
             this.ObjVisita.id_proyecto = GlobalVariables.id_proyecto;
             this.ObjVisita.id_cliente = this.id_cliente;
             const tipo = this.tipo_registro
@@ -499,7 +489,7 @@ export default {
             this.ObjVisita.modo_atencion = estadopublicacion.join(',');
             if (this.ObjVisita.id_visita != null) {
                 showMessage("Esta visita no se puede actualizar.");
-                return;
+                return "Error";
             }
             if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
             if (this.ObjVisita.tipo_registro === '' || this.ObjVisita.modo_atencion === '') {
@@ -549,6 +539,7 @@ export default {
                     item.checked = false;
                 }
             });
+            this.camposBloqueados = true;
         },
         contarProyectos(lista) {
             const contador = {};
@@ -760,14 +751,21 @@ export default {
             this.mode = 2;
         },
         async continuarCliente() {
-            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_SaveCliente', { username: GlobalVariables.username });
-            const cliente = resp?.data?.[0]?.[0]?.cliente;
-            if (cliente === null || cliente === undefined || cliente === '') {
+            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_SaveCliente', {
+                username: GlobalVariables.username
+            });
+
+            const clienteObj = resp?.data?.[0]?.[0];
+
+            if (!clienteObj) {
                 showMessage("Debe seleccionar un cliente para continuar.");
                 return;
             }
-            this.cliente = resp.data[0][0].cliente;
+
+            this.cliente = clienteObj.cliente;
+
             this.busquedaCliente();
+
         },
         normalizarFecha(str) {
             if (!str) return "";
@@ -894,6 +892,7 @@ export default {
 
             if(res == 'OK'){
                 this.seleccionarCotizacion(item.cotizacion);
+                this.abrirNuevoModulo();
             }
 
         },

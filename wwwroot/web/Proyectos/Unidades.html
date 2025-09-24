@@ -144,15 +144,13 @@
                         <div class="titulo-torre">Torre {{ idtorre }}</div>
                         <div v-for="[piso, aptos] in Object.entries(pisos).sort((a,b)=>parseInt(b[0]) - parseInt(a[0]))" :key="piso">
                             <div class="piso-row-flex">
-                                <!-- Piso a la izquierda -->
                                 <div class="piso-numero">P {{ piso }}</div>
-                
-                                <!-- Unidades al lado -->
                                 <div class="aptos-grid-rows">
                                     <div v-for="(row, rIndex) in rowsForTorre(idtorre, aptos)" :key="rIndex"
                                         :style="aptosRowStyle(idtorre, row)">
                                         <div v-for="apto in row" :key="apto.apartamento" class="apto-cuadro" @click="selectApto(apto)"
-                                            :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento }, 'estado-' + (apto.estatus || '').trim().toLowerCase()]">
+                                            :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento, 
+                                            'apto-asignado': apto.asignado == 1 }, 'estado-' + (apto.estatus || '').trim().toLowerCase()]">
                                             {{ apto.apartamento }}
                                         </div>
                                     </div>
@@ -197,7 +195,7 @@
                                     </h3>
                                     <ul class="detail-list">
                                         <li v-if="selectedApto.id_agrupacion != ''"><span class="label">🏘️
-                                                Agrupación:</span> {{ selectedApto.observacion_apto }}</li>
+                                                Agrupación:</span> {{ selectedApto.agrupacion_descripcion}}</li>
                                         <li><span class="label">📐 Tipo:</span> {{ selectedApto.codigo_planta }}
                                         </li>
                                         <li><span class="label">🏠 ID Unidad:</span> {{ selectedApto.apartamento }}
@@ -247,9 +245,13 @@
                                 </div>
                             </div>
                             <div class="action-footer">
-                                <button v-if="selectedApto.estatus === 'Libre'" @click="addUnidad(selectedApto)"
+                                <button v-if="selectedApto.estatus === 'Libre' && selectedApto.asignado != 1" @click="addUnidad(selectedApto)"
                                     class="pure-button pure-button-primary">
                                     Agregar
+                                </button>
+                                <button v-else @click="addListaEspera(selectedApto)"
+                                    class="pure-button pure-button-primary">
+                                    Ag. Lista de Espera
                                 </button>
                             </div>
                         </div>
