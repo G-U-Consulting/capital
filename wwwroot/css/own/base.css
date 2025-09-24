@@ -3909,7 +3909,7 @@ tr.cal-row-info > td {
   font-size: 0.65rem;
   text-align: center;
   cursor: pointer;
-  /* height: 20px; */
+  height: 15px;
   /* line-height: 26px; */
   overflow: hidden;
   white-space: nowrap;
@@ -4083,4 +4083,12 @@ tr.cal-row-info > td {
   border-radius: 8px;
   margin-left: 4px;
   border: 1px #555 solid;
+}
+
+
+.apto-fake {
+  background-color: #e0e0e0; 
+  color: transparent;   
+  border: 1px solid #ccc;
+  pointer-events: none;
 }
