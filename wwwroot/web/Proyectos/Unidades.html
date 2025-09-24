@@ -150,7 +150,7 @@
                                     :style="aptosRowStyle(idtorre, row)">
                                     <div v-for="apto in row" :key="apto.apartamento" class="apto-cuadro" @click="selectApto(apto)"
                                         :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento,'apto-asignado': apto.asignado == 1,
-                                                   'apto-fake': apto.fake}'estado-' + (apto.estatus || '').trim().toLowerCase()]">
+                                                   'apto-fake': apto.fake},'estado-' + (apto.estatus || '').trim().toLowerCase()]">
                                         {{ apto.apartamento }}
                                     </div>
                                 </div>
