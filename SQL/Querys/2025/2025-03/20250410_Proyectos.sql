@@ -394,14 +394,15 @@ insert into dim_ciudadela (ciudadela, id_sede) values
 ('novaterra', 1),
 ('urbania', 1);
 
-insert into dim_tipo_proyecto (tipo_proyecto, codigo) values
-('Apartamentos', 'APT'),
-('Casas', 'CAS'),
-('Oficina', 'OFC'),
-('Local', 'LOC'),
-('Consultorio', 'CON'),
-('Parqueadero', 'PRQ'),
-('Deposito', 'DEP');
+insert into dim_tipo_proyecto (id_tipo_proyecto, tipo_proyecto, codigo) values
+(8, 'Apartamentos', 'APT'),
+(9, 'Casas', 'CAS'),
+(10, 'Oficina', 'OFC'),
+(11, 'Local', 'LOC'),
+(12, 'Consultorio', 'CON'),
+(13, 'Parqueadero', 'PRQ'),
+(15, 'Deposito', 'DEP');
+alter table dim_tipo_proyecto auto_increment = 16;
 
 insert into dim_banco_constructor (banco) values
 ('Davivienda'),

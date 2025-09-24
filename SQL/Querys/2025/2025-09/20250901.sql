@@ -44,7 +44,6 @@ create table dim_penalidad_desistimiento(
 insert into dim_penalidad_desistimiento(penalidad, campo) values
 ('Sí (Cálculo automático)', NULL), 
 ('Sí (Cálculo manual)', 'Monto'), 
-('Sí (Por porcentaje)', 'Porcentaje'), 
 ('No, Sin Penalidad', NULL), 
 ('No (Devolución total)', NULL);
 
@@ -296,7 +295,6 @@ create table dim_desistimiento(
     gasto decimal(20, 2),
     descuento decimal(20, 2),
     pnl_monto decimal(20, 2),
-    pnl_porcentaje decimal(20, 2),
     v_venta_neto decimal(20, 2),
     a_capital decimal(20, 2),
     a_intereses decimal(20, 2),

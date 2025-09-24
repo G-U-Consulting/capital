@@ -256,8 +256,8 @@ update tmp_unidades a
 set 
     a.id_unidad = b.id_unidad;
 
-select tp.id_tipo_proyecto into @id_clase_prq, tp.codigo into @cod_clase_prq
-from dim_tipo_proyecto tp where tipo_proyecto = 'Parqueadero';
+select tp.codigo into @cod_clase_prq
+from dim_tipo_proyecto tp where tp.id_tipo_proyecto = 13;
 insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, id_clase)
 select 
     @id_proyecto as id_proyecto,
@@ -267,7 +267,7 @@ select
     convert(t.parqueadero_ubicacion, int) as piso,
     convert(t.parqueadero_area, decimal(20, 2)) as area_total,
     convert(t.valor_parqueadero, decimal(20, 2)) as valor_complemento,
-    @id_clase_prq as id_clase
+    13 as id_clase
 from tmp_unidades t
 where t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0'
 on duplicate key update
@@ -278,7 +278,7 @@ on duplicate key update
     valor_complemento = values(valor_complemento),
     id_clase = values(id_clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = @id_clase_prq
+    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = 13
 set 
     a.id_parqueadero = b.id_unidad;
 
@@ -291,7 +291,7 @@ select
     convert(t.parqueadero2_ubicacion, int) as piso,
     convert(t.parqueadero2_area, decimal(20, 2)) as area_total,
     convert(t.valor_parqueadero2, decimal(20, 2)) as valor_complemento,
-    @id_clase_prq as id_clase
+    13 as id_clase
 from tmp_unidades t
 where t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0'
 on duplicate key update
@@ -302,12 +302,12 @@ on duplicate key update
     valor_complemento = values(valor_complemento),
     id_clase = values(id_clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero2 = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = @id_clase_prq
+    join fact_unidades b on a.id_torre = b.id_torre and a.parqueadero2 = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = 13
 set 
     a.id_parqueadero2 = b.id_unidad;
 
-select tp.id_tipo_proyecto into @id_clase_dep, tp.codigo into @cod_clase_dep
-from dim_tipo_proyecto tp where tipo_proyecto = 'Deposito';
+select tp.codigo into @cod_clase_dep
+from dim_tipo_proyecto tp where tp.id_tipo_proyecto = 15;
 insert into fact_unidades(id_proyecto, id_torre, nombre_unidad, numero_apartamento, piso, area_total, valor_complemento, id_clase)
 select 
     @id_proyecto as id_proyecto,
@@ -317,7 +317,7 @@ select
     convert(t.deposito_ubicacion, int) as piso,
     convert(t.deposito_area, decimal(20, 2)) as area_total,
     convert(t.valor_deposito, decimal(20, 2)) as valor_complemento,
-    @id_clase_dep as id_clase
+    15 as id_clase
 from tmp_unidades t
 where t.deposito is not null and t.deposito != '' and t.deposito != '0'
 on duplicate key update
@@ -328,7 +328,7 @@ on duplicate key update
     valor_complemento = values(valor_complemento),
     id_clase = values(id_clase);
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.deposito = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = @id_clase_dep
+    join fact_unidades b on a.id_torre = b.id_torre and a.deposito = b.numero_apartamento and b.id_proyecto = @id_proyecto and b.id_clase = 15
 set 
     a.id_deposito = b.id_unidad;
 

@@ -69,7 +69,6 @@ export default {
             if (!e.target.matches('.combo-input') && !e.target.matches('.combo-options'))
                 this.optVisible = false;
         });
-        console.log(this.validarCuentas);
     },
     async unmounted() {
 
@@ -226,6 +225,7 @@ export default {
                 id_fiduciaria: venta.id_fiduciaria,
                 id_venta: venta.id_venta,
                 unidad: venta.unidad,
+                devolver_reforma: '1',
                 created_by: GlobalVariables.username,
                 created_on: this.formatDatetime('', 'bdatetime'),
             };
@@ -564,7 +564,7 @@ export default {
     },
     computed: {
         f_campo: {
-            get() { return this.formatNumber(this.desistimiento[this.getCampoPenalidad()], true); },
+            get() { return this.formatNumber(this.desistimiento[this.getCampoPenalidad()], false); },
             set(val) { this.desistimiento[this.getCampoPenalidad()] = this.cleanNumber(val); }
         },
         f_interes: {
@@ -616,47 +616,73 @@ export default {
         },
 
         f_pnl_pcv: {
-            get() { return this.formatNumber(this.desistimiento['pnl_pcv'], true); },
-            set(val) {
-                if (Number(this.cleanNumber(val)) > 100) this.desistimiento['pnl_pcv'] = '100';
-                else this.desistimiento['pnl_pcv'] = this.cleanNumber(val);
-            }
+            get() {
+                let fec = this.desistimiento['fecha_program'];
+                let created = this.desistimiento['created_on'].split(' ')[0] + ' 00:00';
+                if (!fec) return this.formatNumber('0', false);
+                let date_fec = new Date(fec + ' 00:00'), date_created = new Date(created),
+                    days = Math.floor((date_fec.getTime() - date_created.getTime()) / (1000 * 60 * 60 * 24));
+                let val = days <= 90 ? '20' : days <= 180 ? '15' : '10';
+                this.desistimiento['pnl_pcv'] = val;
+                return this.formatNumber(val, false);
+            },
         },
         f_pnl_aplicada_ptg: {
-            get() { return this.formatNumber(this.desistimiento['pnl_aplicada_ptg'], true); },
-            set(val) {
-                if (Number(this.cleanNumber(val)) > 100) this.desistimiento['pnl_aplicada_ptg'] = '100';
-                else this.desistimiento['pnl_aplicada_ptg'] = this.cleanNumber(val);
-            }
+            get() {
+                let val = '0', pnl_aplicada_val = '0', etapa = this.desistimiento['etapa'];
+                if (!etapa) this.formatNumber(val, false);
+                let pnl_pcv = Number(this.cleanNumber(this.f_pnl_pcv)), 
+                    v_venta_neto = Number(this.cleanNumber(this.f_v_venta_neto)),
+                    valor_pnl = v_venta_neto * pnl_pcv / 100,
+                    abonado = Number(this.cleanNumber(etapa === 'INMOBILIARIO' ? this.f_a_capital : this.f_v_abonado)),
+                    tope = abonado * 0.9;
+                
+                if (valor_pnl > tope) {
+                    val = '90';
+                    pnl_aplicada_val = tope.toString();
+                } else {
+                    val = pnl_pcv.toString();
+                    pnl_aplicada_val = valor_pnl.toString();
+                }
+
+                this.desistimiento['pnl_aplicada_ptg'] = val;
+                this.desistimiento['pnl_aplicada_val'] = pnl_aplicada_val;
+                return this.formatNumber(val, false);
+            },
         },
         f_pnl_aplicada_val: {
-            get() {
-                let val = Number(this.cleanNumber(this.f_a_capital)) * Number(this.cleanNumber(this.f_pnl_aplicada_ptg)) / 100;
-                return this.formatNumber(val.toString(), false);
-            },
+            get() { return this.formatNumber(this.desistimiento['pnl_aplicada_val'], false); }
         },
         f_pnl_bruta: {
-            get() {
-                let val = Number(this.cleanNumber(this.f_a_capital)) * Number(this.cleanNumber(this.f_pnl_aplicada_ptg)) / 100;
-                return this.formatNumber(val.toString(), false);
-            },
+            get() { 
+                if (this.desistimiento.id_penalidad === '2')
+                    return this.formatNumber(this.desistimiento[this.getCampoPenalidad()], false); 
+                if (this.desistimiento.id_penalidad === '3' || this.desistimiento.id_penalidad === '4')
+                    return this.formatNumber('0', false); 
+                return this.formatNumber(this.desistimiento['pnl_aplicada_val'], false); 
+            }
         },
         f_pnl_neta: {
             get() {
-                let val = Number(this.cleanNumber(this.f_pnl_aplicada_val)) - Number(this.cleanNumber(this.f_interes))
-                    - Number(this.cleanNumber(this.f_imp_reformas));
+                if (this.desistimiento.id_penalidad === '4')
+                    return this.formatNumber('0', false); 
+                let val = Number(this.cleanNumber(this.f_pnl_bruta)) 
+                    - (this.desistimiento['etapa'] === 'PREVENTA' ? Number(this.cleanNumber(this.f_a_intereses)) : 0)
+                    - Number(this.cleanNumber(this.f_interes)) - Number(this.cleanNumber(this.f_descuento))
+                    - (this.desistimiento['devolver_reforma'] == '1' ? Number(this.cleanNumber(this.f_imp_reformas)) : 0);
                 return this.formatNumber(val.toString(), false);
             },
         },
         f_devolucion: {
             get() {
-                let val = Number(this.cleanNumber(this.f_a_capital)) - Number(this.cleanNumber(this.f_pnl_aplicada_val));
+                let val = Number(this.cleanNumber(this.f_a_capital)) - Number(this.cleanNumber(this.f_pnl_bruta))
+                    + (this.desistimiento['etapa'] === 'PREVENTA' ? Number(this.cleanNumber(this.f_a_intereses)) : 0);
                 return this.formatNumber(val.toString(), false);
             },
         },
         f_4xmil: {
             get() {
-                let val = Number(this.cleanNumber(this.f_devolucion)) * 0.004;
+                let val = Math.round(Number(this.cleanNumber(this.f_devolucion)) * 0.004);
                 return this.formatNumber(val.toString(), false);
             },
         },
@@ -673,7 +699,7 @@ export default {
         f_val_carta: {
             get() {
                 let val = Number(this.cleanNumber(this.f_pnl_neta)) - Number(this.cleanNumber(this.f_gasto))
-                    + Number(this.cleanNumber(this.f_extra_prorroga_carta));
+                    - Number(this.cleanNumber(this.f_extra_prorroga_carta));
                 return this.formatNumber(val.toString(), false);
             },
         },

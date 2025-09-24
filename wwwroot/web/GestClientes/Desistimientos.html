@@ -253,7 +253,7 @@
             </div>
 
             <div class='formDivision deployable' @click="showInfo = !showInfo">
-                <span>Radicación SINCO #{{desistimiento.radicado}}</span>
+                <span>Información Radicación #{{desistimiento.radicado}}</span>
                 <span class="arrow" v-bind:class="{'expanded': showInfo}">&lt;</span>
             </div>
             <div v-show="showInfo" style="padding: .5rem;">
@@ -391,6 +391,14 @@
                 <div class="pure-u-1-4 formInputStandard">
                     <label>Otro descuento devolución:</label>
                     <input type="text" v-model="f_descuento" @input="validarNumero">
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <label class="check" for="devolver_reforma" style="margin-top: 1.7rem;">
+                        <input type="checkbox" id="devolver_reforma" v-model="desistimiento.devolver_reforma" true-value="1"
+                            false-value="0" />
+                        <span class="checkmark"></span>
+                        Devolver Valor Reformas
+                    </label>
                 </div>
 
             </div>
