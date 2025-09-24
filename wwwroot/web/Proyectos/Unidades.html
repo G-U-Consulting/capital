@@ -140,26 +140,26 @@
                     </div>
                 </div>
                 <div class="aptos-list-unidades" v-if="zoom === 'torres'">
-                    <div v-for="(pisos, idtorre) in aptosAgrupadosPorTorreYPiso" :key="idtorre" class="torre-block">
+                    <div v-for="(pisos, idtorre) in torresConHuecos" :key="idtorre" class="torre-block">
                         <div class="titulo-torre">Torre {{ idtorre }}</div>
-                        <div v-for="[piso, aptos] in Object.entries(pisos).sort((a,b)=>parseInt(b[0]) - parseInt(a[0]))" :key="piso">
-                            <div class="piso-row-flex">
-                                <div class="piso-numero">P {{ piso }}</div>
-                                <div class="aptos-grid-rows">
-                                    <div v-for="(row, rIndex) in rowsForTorre(idtorre, aptos)" :key="rIndex"
-                                        :style="aptosRowStyle(idtorre, row)">
-                                        <div v-for="apto in row" :key="apto.apartamento" class="apto-cuadro" @click="selectApto(apto)"
-                                            :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento, 
-                                            'apto-asignado': apto.asignado == 1 }, 'estado-' + (apto.estatus || '').trim().toLowerCase()]">
-                                            {{ apto.apartamento }}
-                                        </div>
+                        <div v-for="[piso, aptos] in Object.entries(pisos)
+                                      .sort((a, b) => parseInt(b[0]) - parseInt(a[0]))" :key="piso" class="piso-row-flex">
+                            <div class="piso-numero">P {{ piso }}</div>
+                            <div class="aptos-grid-rows">
+                                <div v-if="aptos.length" v-for="(row, rIndex) in rowsForTorre(idtorre, aptos)" :key="rIndex"
+                                    :style="aptosRowStyle(idtorre, row)">
+                                    <div v-for="apto in row" :key="apto.apartamento" class="apto-cuadro" @click="selectApto(apto)"
+                                        :class="[{ active: selectedApto && selectedApto.apartamento === apto.apartamento,'apto-asignado': apto.asignado == 1,
+                                                   'apto-fake': apto.fake}'estado-' + (apto.estatus || '').trim().toLowerCase()]">
+                                        {{ apto.apartamento }}
                                     </div>
                                 </div>
+                                <div v-else class="apto-empty-row"></div>
                             </div>
                         </div>
                     </div>
                 </div>
-                </div>
+            </div>
             <div class="logos-bloque">
                 <div class="contenedor-principal">
                     <div >

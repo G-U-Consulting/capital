@@ -804,11 +804,6 @@
 				? Math.round((this.vendidosSum / this.totalAptos) * 100)
 				: 0;
 		},
-		// barraColor() {
-		// 	if (this.vendidosPorcentaje < 40) return "red";
-		// 	if (this.vendidosPorcentaje < 70) return "orange";
-		// 	return "green";
-		// },
 		tabClasses() {
 			return this.tabs.map((_, index) => {
 				if (this.tabmode === index) {
@@ -836,31 +831,54 @@
 			const lista = this.getFilteredList('aptos');
 			lista.forEach(apto => {
 				const torre = apto.idtorre;
-				const piso = apto.piso;
+				const piso = parseInt(apto.piso);
 				if (!agrupado[torre]) agrupado[torre] = {};
 				if (!agrupado[torre][piso]) agrupado[torre][piso] = [];
-
 				agrupado[torre][piso].push(apto);
 			});
 			return agrupado;
 		},
-		aptosAgrupadosPorTorreYUnidad() {
-			let result = {};
-			for (let apto of this.aptos) {
-				if (!result[apto.torre]) result[apto.torre] = {};
-				if (!result[apto.torre][apto.apartamento]) result[apto.torre][apto.apartamento] = [];
-				result[apto.torre][apto.apartamento].push(apto);
-			}
+		maxPiso() {
+			return Math.max(
+				...Object.values(this.aptosAgrupadosPorTorreYPiso).map(t =>
+					Math.max(...Object.keys(t).map(p => parseInt(p)))
+				)
+			);
+		},
+		torresConHuecos() {
+			const result = {};
+			const maxColsPorPiso = {};
 
-			// ordenar cada columna de arriba (piso mayor) a abajo (piso menor)
-			for (let torre in result) {
-				for (let apto in result[torre]) {
-					result[torre][apto].sort((a, b) => b.piso - a.piso);
+			for (const pisos of Object.values(this.aptosAgrupadosPorTorreYPiso)) {
+				for (const [piso, aptos] of Object.entries(pisos)) {
+					const count = aptos.length;
+					if (!maxColsPorPiso[piso] || count > maxColsPorPiso[piso]) {
+						maxColsPorPiso[piso] = count;
+					}
 				}
 			}
+			
+			for (const [idtorre, pisos] of Object.entries(this.aptosAgrupadosPorTorreYPiso)) {
+				const nuevaTorre = {};
+				for (let piso = this.maxPiso; piso >= 1; piso--) {
+					const aptos = pisos[piso] || [];
+					const faltan = (maxColsPorPiso[piso] || 0) - aptos.length;
+
+					const simulados = Array.from({ length: faltan }, () => ({
+						apartamento: "",
+						asignado: 0,
+						estatus: "fake",
+						idtorre,
+						piso,
+						fake: true
+					}));
+
+					nuevaTorre[piso] = [...aptos, ...simulados];
+				}
+				result[idtorre] = nuevaTorre;
+			}
 			return result;
-		}
-		
+		},
 	},
 	watch: {
 		torres: {
