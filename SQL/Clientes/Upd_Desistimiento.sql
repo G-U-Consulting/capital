@@ -32,8 +32,9 @@ set @id_desistimiento = NULL,
     @extra_prorroga_carta = NULL,
     @com_coordinacion = NULL,
     @fec_com_coordinacion = NULL,
-    @com_direccion = NULL,
-    @fec_com_direccion = NULL,
+    @com_gerencia = NULL,
+    @fec_com_gerencia = NULL,
+    @devolver_reforma = NULL,
     @updated_by = NULL;
 --END_PARAM
 
@@ -64,10 +65,11 @@ set id_venta = @id_venta,
     fecha_resolucion = if(@fecha_resolucion = '', null, @fecha_resolucion),
     com_coordinacion = @com_coordinacion,
     fec_com_coordinacion = if(@fec_com_coordinacion = '', null, @fec_com_coordinacion),
-    com_direccion = @com_direccion,
-    fec_com_direccion = if(@fec_com_direccion = '', null, @fec_com_direccion),
+    com_gerencia = @com_gerencia,
+    fec_com_gerencia = if(@fec_com_gerencia = '', null, @fec_com_gerencia),
     fec_prorroga_carta = if(@fec_prorroga_carta = '', null, @fec_prorroga_carta),
     extra_prorroga_carta = @extra_prorroga_carta,
+    devolver_reforma = if(@devolver_reforma = '1', 1, 0),
     updated_by = @updated_by
 where id_desistimiento = @id_desistimiento;
 

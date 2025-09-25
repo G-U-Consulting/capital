@@ -366,7 +366,6 @@
                 <div class="pure-u-1-4 formInputStandard">
                     <label>Aplica Penalidad:</label>
                     <select v-model="desistimiento.id_penalidad">
-                        <option value="">[Seleccionar]</option>
                         <option v-for="p in penalidades" :value="p.id_penalidad">
                             {{p.penalidad}}
                         </option>
@@ -424,11 +423,11 @@
                     <tbody class="editTable">
                         <tr>
                             <td>
-                                <input type="text" v-model="f_pnl_pcv"
+                                <input type="text" v-model="f_pnl_pcv" readonly
                                     @input="validarNumero($event, false), valMax($event, 100)">
                             </td>
                             <td>
-                                <input type="text" v-model="f_pnl_aplicada_ptg"
+                                <input type="text" v-model="f_pnl_aplicada_ptg" readonly
                                     @input="validarNumero($event, false), valMax($event, 100)">
                             </td>
                             <td>
@@ -539,20 +538,20 @@
             </div>
 
             <div class='formDivision'>
-                <span>Aprobaciones Coordinación y Dirección</span>
+                <span>Aprobaciones Coordinación/Dirección y Gerencia</span>
             </div>
             <div class="pure-u-1-2">
                 <div class="formInputStandard">
-                    <label>Coordinación de Sala</label>
-                    <textarea rows="5" v-model="desistimiento.com_coordinacion" style="resize: none; height: auto;"
-                        placeholder="Comentarios" :disabled="desistimiento.id_estado !== '2'"></textarea>
+                    <input type="text" :value="desistimiento.coordinador" readonly>
+                    <textarea rows="5" v-model="desistimiento.com_coordinacion" style="resize: none; height: auto; margin-top: .5rem;"
+                        placeholder="Comentarios Coordinación/Dirección" :disabled="desistimiento.id_estado !== '2'"></textarea>
                 </div>
                 <div class="pure-u-1-2" style="padding: 0 .5rem;">
                     <input type="date" readonly :disabled="desistimiento.id_estado !== '2'"
                         :value="desistimiento.fec_com_coordinacion || formatDatetime('', 'bdate')">
                 </div>
                 <div class="pure-u-1-2"></div>
-                <div v-if="enableCoordinacion" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '2'}">
+                <div v-if="enableCoordinacion || enableDireccion" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '2'}">
                     <div class="pure-u-1-2 formInputStandard">
                         <button class="red-btn" @click="desistimiento.id_estado === '2' && setEstado('3')">
                             Aprobar
@@ -567,16 +566,16 @@
             </div>
             <div class="pure-u-1-2">
                 <div class="formInputStandard">
-                    <label>Dirección de Sala</label>
-                    <textarea rows="5" v-model="desistimiento.com_direccion" style="resize: none; height: auto;"
-                        placeholder="Comentarios" :disabled="desistimiento.id_estado !== '3'"></textarea>
+                    <input type="text" :value="desistimiento.gerente" readonly>
+                    <textarea rows="5" v-model="desistimiento.com_gerencia" style="resize: none; height: auto; margin-top: .5rem;"
+                        placeholder="Comentarios Gerencia" :disabled="desistimiento.id_estado !== '3'"></textarea>
                 </div>
                 <div class="pure-u-1-2" style="padding: 0 .5rem;">
                     <input type="date" readonly :disabled="desistimiento.id_estado !== '3'"
-                        :value="desistimiento.fec_com_direccion || formatDatetime('', 'bdate')">
+                        :value="desistimiento.fec_com_gerencia || formatDatetime('', 'bdate')">
                 </div>
                 <div class="pure-u-1-2"></div>
-                <div v-if="enableDireccion" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '3'}">
+                <div v-if="enableGerencia" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '3'}">
                     <div class="pure-u-1-2 formInputStandard">
                         <button class="red-btn" @click="desistimiento.id_estado === '3' && setEstado('4')">
                             Aprobar

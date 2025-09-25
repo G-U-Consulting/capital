@@ -259,6 +259,7 @@ create table fact_ventas(
     id_venta int primary key auto_increment,
     id_unidad int not null references fact_unidades(id_unidad),
     id_cliente int not null references fact_clientes(id_cliente), -- Cliente principal
+    id_sala_venta int not null references dim_sala_venta(id_sala_venta),
     created_on datetime default current_timestamp,
     created_by varchar(50) not null
 );
@@ -278,8 +279,8 @@ create table dim_estado_desistimiento(
 
 insert into dim_estado_desistimiento(nombre) values
 ('Iniciado'),
-('En Espera Coordinación'),
-('En Espera Dirección'),
+('En Espera Coordinación/Dirección'),
+('En Espera Gerencia'),
 ('Aprobado'),
 ('Terminado'),
 ('Cancelado');
@@ -288,7 +289,7 @@ create table dim_desistimiento(
     id_desistimiento int primary key auto_increment,
     id_venta int not null references fact_ventas(id_venta),
     id_estado int not null default 1 references dim_estado_desistimiento(id_estado),
-    radicado int unique key,
+    radicado int not null unique key,
     ultima_fecha datetime,
     cant_incumplida int default 0,
     interes decimal(20, 2),
@@ -302,20 +303,21 @@ create table dim_desistimiento(
     imp_reformas decimal(20, 2),
     pnl_pcv decimal(20, 2),
     pnl_aplicada_ptg decimal(20, 2),
-    id_categoria int references dim_categoria_desistimiento(id_categoria),
-    id_fiduciaria int references dim_fiduciaria(id_fiduciaria),
-    etapa varchar(20),
-    id_penalidad int references dim_penalidad_desistimiento(id_penalidad),
+    id_categoria int not null references dim_categoria_desistimiento(id_categoria),
+    id_fiduciaria int not null references dim_fiduciaria(id_fiduciaria),
+    etapa not null varchar(20),
+    id_penalidad int not null references dim_penalidad_desistimiento(id_penalidad),
     observacion text,
     fecha_resolucion date,
     fecha_fpc date,
     fecha_program date,
     com_coordinacion text,
     fec_com_coordinacion date,
-    com_direccion text,
-    fec_com_direccion date,
+    com_gerencia text,
+    fec_com_gerencia date,
     fec_prorroga_carta date,
     extra_prorroga_carta decimal(20, 2),
+    devolver_reforma bit,
     created_on datetime default current_timestamp,
     created_by varchar(50) not null,
     updated_by varchar(50) not null
@@ -344,6 +346,26 @@ begin
     left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
     join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
     where v.id_venta = new.id_venta;
+
+    if new.id_estado = 2 then
+        insert into dim_log_unidades (id_unidad, id_usuario, titulo, texto)
+        select coalesce(u2.id_unidad, u1.id_unidad) as id_unidad, u.id_usuario, 'Desistimiento solicitado', 
+            concat('El desistimiento con <b># radicado ', new.radicado, '</b> ha sido solicitado.')
+        from fact_ventas v 
+        join fact_unidades u1 on v.id_unidad = u1.id_unidad
+        left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
+        join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
+        where v.id_venta = new.id_venta;
+
+        insert into dim_tarea_usuario
+            (alta, deadline, id_proyecto, descripcion, id_prioridad, id_estado, id_usuario)
+        select current_date, date_add(current_date, interval 1 week), un.id_proyecto, 
+            concat('Pendiente Aprobación (Coordinación) de desisitimiento # radicado ', new.radicado), 2, 1, sv.id_cordinador
+        from fact_ventas v
+        join fact_unidades un on v.id_unidad = un.id_unidad
+        join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
+        where v.id_venta = new.id_venta;
+    end if;
 end;
 
 create trigger tr_update_estado_desistimiento after update on dim_desistimiento for each row
@@ -352,20 +374,20 @@ begin
         
         set @title = CASE 
             WHEN new.id_estado = 2 THEN 'Desistimiento solicitado'
-            WHEN new.id_estado = 3 THEN 'Desistimiento aprobado por coordinación'
-            WHEN new.id_estado = 4 THEN 'Desistimiento aprobado por dirección'
+            WHEN new.id_estado = 3 THEN 'Desistimiento aprobado por coordinación/dirección'
+            WHEN new.id_estado = 4 THEN 'Desistimiento aprobado por gerencia'
             WHEN new.id_estado = 5 THEN 'Desistimiento terminado'
             WHEN new.id_estado = 6 THEN 'Desistimiento cancelado'
             ELSE ''
         END, @desc = CASE 
             WHEN new.id_estado = 2 THEN concat('El desistimiento con <b># radicado ', new.radicado, '</b> ha sido solicitado.')
             WHEN new.id_estado = 3 THEN concat('El desistimiento con <b># radicado ', new.radicado, 
-                '</b> ha sido aprobado por coordinación.</br><ul><li>Comentario: ', ifnull(new.com_coordinacion, 'Sin comentario.'), '</li></ul>')
+                '</b> ha sido aprobado por coordinación/direccion.</br><ul><li>Comentario: ', ifnull(new.com_coordinacion, 'Sin comentario.'), '</li></ul>')
             WHEN new.id_estado = 4 THEN concat('El desistimiento con <b># radicado ', new.radicado, 
-                '</b> ha sido aprobado por dirección.</br><ul><li>Comentario: ', ifnull(new.com_direccion, 'Sin comentario.'), '</li></ul>')
+                '</b> ha sido aprobado por gerencia.</br><ul><li>Comentario: ', ifnull(new.com_gerencia, 'Sin comentario.'), '</li></ul>')
             WHEN new.id_estado = 5 THEN concat('El desistimiento con <b># radicado ', new.radicado, '</b> ha sido terminado.')
             WHEN new.id_estado = 6 THEN concat('El desistimiento con <b># radicado ', new.radicado, '</b> ha sido cancelado.</br><ul><li>Comentario: ', 
-                if(old.id_estado = 2, ifnull(new.com_coordinacion, 'Sin comentario.'), ifnull(new.com_direccion, 'Sin comentario.')), '</li></ul>')
+                if(old.id_estado = 2, ifnull(new.com_coordinacion, 'Sin comentario.'), ifnull(new.com_gerencia, 'Sin comentario.')), '</li></ul>')
             ELSE ''
         END; 
        
@@ -376,5 +398,29 @@ begin
         left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
         join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
         where v.id_venta = new.id_venta;
+
+        if new.id_estado = 2 then
+            insert into dim_tarea_usuario
+                (alta, deadline, id_proyecto, descripcion, id_prioridad, id_estado, id_usuario)
+            select current_date, date_add(current_date, interval 1 week), un.id_proyecto, 
+                concat('Pendiente Aprobación (Coordinación) de desisitimiento # radicado ', new.radicado), 2, 1, sv.id_cordinador
+            from fact_ventas v
+            join fact_unidades un on v.id_unidad = un.id_unidad
+            join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
+            where v.id_venta = new.id_venta;
+        end if;
+
+        if new.id_estado = 3 then
+            insert into dim_tarea_usuario
+                (alta, deadline, id_proyecto, descripcion, id_prioridad, id_estado, id_usuario)
+            select current_date, date_add(current_date, interval 1 week), un.id_proyecto, 
+                concat('Pendiente Aprobación (Gerencia) de desisitimiento # radicado ', new.radicado), 2, 1, s.id_gerente
+            from fact_ventas v
+            join fact_unidades un on v.id_unidad = un.id_unidad
+            join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
+            join dim_sede s on sv.id_sede = s.id_sede
+            where v.id_venta = new.id_venta;
+        end if;
+
     end if;
 end;

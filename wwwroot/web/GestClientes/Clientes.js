@@ -8,6 +8,7 @@ export default {
             clientes: [],
             visitas: [],
             listas: [],
+            ventas: [],
 
             cliente: {},
             veto: {},
@@ -74,7 +75,7 @@ export default {
         },
         async loadDetails() {
             showProgress();
-            [this.visitas, this.listas] = (await httpFunc("/generic/genericDS/Clientes:Get_DetalleCliente",
+            [this.visitas, this.listas, this.ventas] = (await httpFunc("/generic/genericDS/Clientes:Get_DetalleCliente",
                 { id_cliente: this.cliente.id_cliente })).data;
             hideProgress();
         },

@@ -2,6 +2,7 @@
 	id_sede int not null,
 	sede varchar(100) not null unique key,
 	alias varchar(3),
+	id_gerente int references fact_usuarios(id_usuario),
     is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
@@ -104,7 +105,8 @@ insert into dim_permiso(id_permiso, permiso, grupo, id_zona) values
 (13, 'Informes generales', 'Informes', 2),
 (14, 'Vetar clientes', 'Clientes', 5),
 (15, 'Aprobar Desistimientos (Coordinación)', 'Clientes', 5),
-(16, 'Aprobar Desistimientos (Dirección)', 'Clientes', 5);
+(16, 'Aprobar Desistimientos (Dirección)', 'Clientes', 5),
+(17, 'Aprobar Desistimientos (Gerencia)', 'Clientes', 5);
 
 create table fact_roles(
 	id_rol int not null auto_increment,
@@ -415,6 +417,7 @@ create table dim_sala_venta(
 	id_zona_proyecto int references dim_zona_proyecto(id_zona_proyecto),
 	id_ciudadela int references dim_ciudadela(id_ciudadela),
 	id_cordinador int references fact_usuarios(id_usuario),
+	id_director int references fact_usuarios(id_usuario),
 	email_cordinacion varchar(200),
 	codigo varchar(10),
 	is_feria bit default 0,

@@ -203,16 +203,26 @@
                 <table class="dataTable" style="table-layout: auto;">
                     <thead>
                         <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Sala</th>
                             <th>Proyecto</th>
                             <th>Torre</th>
                             <th>Unidad</th>
-                            <th>Valor</th>
-                            <th>Fecha</th>
+                            <th>Importe</th>
+                            <th>Asesor</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-
+                        <tr v-for="v in ventas">
+                            <td>{{v.id_venta}}</td>
+                            <td>{{v.fecha}}</td>
+                            <td>{{v.sala_venta}}</td>
+                            <td>{{v.proyecto}}</td>
+                            <td>{{v.torre}}</td>
+                            <td>{{v.unidad}}</td>
+                            <td>{{v.importe}}</td>
+                            <td>{{v.asesor}}</td>
                         </tr>
                     </tbody>
                 </table>

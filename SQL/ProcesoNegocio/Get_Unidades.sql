@@ -12,7 +12,6 @@ select id_torre, id_proyecto, consecutivo, orden_salida, en_venta, aptos_piso, a
 from fact_torres
 where id_proyecto = @id_proyecto;
 
-select tp.id_tipo_proyecto into @id_clase_apt from dim_tipo_proyecto tp where tipo_proyecto = 'Apartamentos';
 select
   date_format(u.fecha_fec, '%Y-%m-%d %T') as fecha_fec,
   date_format(u.fecha_edi, '%Y-%m-%d %T') as fecha_edi,
@@ -43,7 +42,7 @@ left join (
         a.descripcion,
         a.id_proyecto,
         COALESCE(SUM(
-            case when u2.id_clase = @id_clase_apt then pu2.precio else u2.valor_complemento end
+            case when u2.id_clase = 8 then pu2.precio else u2.valor_complemento end
         ), 0) as total
     from dim_agrupacion_unidad a
     left join fact_unidades u2 on a.id_agrupacion = u2.id_agrupacion

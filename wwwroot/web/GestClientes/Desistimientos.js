@@ -22,6 +22,7 @@ export default {
             searchID: null,
             searchDoc: null,
             isNew: true,
+            smmlv2: '0',
 
             desistimiento: { id_categoria: '', id_fiduciaria: '', etapa: '', id_penalidad: '' },
 
@@ -55,7 +56,8 @@ export default {
             selRow: null,
 
             enableCoordinacion: false,
-            enableDireccion: false
+            enableDireccion: false,
+            enableGerencia: false
         };
     },
     async mounted() {
@@ -64,6 +66,7 @@ export default {
         await this.loadData();
         this.enableCoordinacion = await this.hasPermission(15);
         this.enableDireccion = await this.hasPermission(16);
+        this.enableGerencia = await this.hasPermission(17);
 
         document.addEventListener('click', (e) => {
             if (!e.target.matches('.combo-input') && !e.target.matches('.combo-options'))
@@ -112,8 +115,19 @@ export default {
         },
         async loadData() {
             showProgress();
-            [this.desistimientos, this.categorias, this.penalidades, this.fiduciarias, this.ventas, this.estados, this.proyectos] =
-                (await httpFunc("/generic/genericDS/Clientes:Get_Desistimientos", {})).data;
+            let smmlv = [];
+            [
+                this.desistimientos, 
+                this.categorias, 
+                this.penalidades, 
+                this.fiduciarias, 
+                this.ventas, 
+                this.estados, 
+                this.proyectos,
+                smmlv
+            ] = (await httpFunc("/generic/genericDS/Clientes:Get_Desistimientos", {})).data;
+            if (smmlv.length) this.smmlv2 = smmlv[0].smmlv2;
+            console.log(this.smmlv2);
             hideProgress();
         },
         async loadAccounts() {
@@ -220,11 +234,12 @@ export default {
                 id_categoria: '',
                 id_fiduciaria: '',
                 etapa: '',
-                id_penalidad: '',
+                id_penalidad: '1',
                 id_estado: '1',
                 id_fiduciaria: venta.id_fiduciaria,
                 id_venta: venta.id_venta,
                 unidad: venta.unidad,
+                gasto: this.smmlv2,
                 devolver_reforma: '1',
                 created_by: GlobalVariables.username,
                 created_on: this.formatDatetime('', 'bdatetime'),
@@ -477,7 +492,7 @@ export default {
 
         async setEstado(id) {
             if (id === '3') this.desistimiento.fec_com_coordinacion = this.formatDatetime('', 'bdate');
-            if (id === '4') this.desistimiento.fec_com_direccion = this.formatDatetime('', 'bdate');
+            if (id === '4') this.desistimiento.fec_com_gerencia = this.formatDatetime('', 'bdate');
             if (id === '5')
                 if (!this.validarCuentas() || !(await this.onTerminar())) return;
             this.desistimiento.id_estado = id;
