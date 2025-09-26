@@ -18,7 +18,7 @@ select date_format(d.ultima_fecha, '%Y-%m-%d %T') as ultima_fecha,
     coalesce(a.nombre, u.numero_apartamento) as unidad, e.id_estado, e.nombre as estado,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
     c.numero_documento, c.nombres, c.apellido1, c.apellido2, c.id_cliente, us.nombres as asesor,
-    coor.nombres as coordinador, ger.nombres as gerente, s.sede, sv.sala_venta
+    cor.nombres as cordinador, dir.nombres as director, ger.nombres as gerente, s.sede, sv.sala_venta
 from dim_desistimiento d
 join dim_estado_desistimiento e on d.id_estado = e.id_estado
 join fact_ventas v on d.id_venta = v.id_venta
@@ -29,7 +29,8 @@ join fact_proyectos p on u.id_proyecto = p.id_proyecto
 join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
 join fact_usuarios us on d.created_by = us.usuario collate utf8mb4_general_ci
 join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
-join fact_usuarios coor on sv.id_cordinador = coor.id_usuario
+join fact_usuarios cor on sv.id_cordinador = cor.id_usuario
+join fact_usuarios dir on sv.id_director = dir.id_usuario
 left join dim_sede s on sv.id_sede = s.id_sede
 left join fact_usuarios ger on s.id_gerente = ger.id_usuario
 order by ultima_fecha;

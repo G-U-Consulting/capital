@@ -134,7 +134,7 @@
             </div>
 
             <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
-                <span>Coordinación</span>
+                <span>Coordinación de Sala</span>
                 <select v-model='sala_venta.id_cordinador'>
                     <option v-for="user in cordinadores"
                         :value="user.id_usuario">
@@ -143,9 +143,18 @@
                 </select>
             </div>
             <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
+                <span>Dirección Comercial</span>
+                <select v-model='sala_venta.id_director'>
+                    <option v-for="user in directores"
+                        :value="user.id_usuario">
+                        {{ user.nombres }}
+                    </option>
+                </select>
+            </div>
+            <!-- <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">directores
                 <span>Email coordinación de sala</span>
                 <input type="text" v-model="sala_venta.email_cordinacion" maxlength="200" />
-            </div>
+            </div> -->
             <div class="formInputStandard pure-u-1-2 pure-u-md-1-3"></div>
 
             <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">

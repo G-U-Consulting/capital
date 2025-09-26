@@ -5,17 +5,24 @@
 
 --END_PARAM
 
-select sv.id_sala_venta, sv.sala_venta, sv.encuesta_vpn, s.sede, sv.is_active, sv.id_sede, sv.id_playlist, sv.is_feria, 
-    sv.id_zona_proyecto, z.zona_proyecto, sv.id_ciudadela, c.ciudadela, sv.pro_futuros, sv.id_cordinador, sv.email_cordinacion
+select sv.id_sala_venta, sv.sala_venta, sv.encuesta_vpn, s.sede, sv.is_active, sv.id_sede, sv.id_playlist, sv.is_feria,
+    sv.id_zona_proyecto, z.zona_proyecto, sv.id_ciudadela, c.ciudadela, sv.pro_futuros, sv.id_cordinador, sv.id_director
 from dim_sala_venta sv left join dim_sede s
 on sv.id_sede = s.id_sede left join dim_zona_proyecto z
 on sv.id_zona_proyecto = z.id_zona_proyecto left join dim_ciudadela c
 on sv.id_ciudadela = c.id_ciudadela
 order by sv.sala_venta;
 
-select id_usuario, nombres 
-from fact_usuarios
-where is_active = 1
+select u.id_usuario, u.nombres
+from fact_usuarios u
+join fact_roles_usuarios ru on u.id_usuario = ru.id_usuario
+where u.is_active = 1 and (ru.id_rol = 6 or ru.id_rol = 30)
+order by nombres;
+
+select u.id_usuario, u.nombres
+from fact_usuarios u
+join fact_roles_usuarios ru on u.id_usuario = ru.id_usuario
+where u.is_active = 1 and (ru.id_rol = 6 or ru.id_rol = 29)
 order by nombres;
 
 select id_sede, sede, alias, is_active

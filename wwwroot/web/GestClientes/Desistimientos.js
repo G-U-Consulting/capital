@@ -26,10 +26,12 @@ export default {
 
             desistimiento: { id_categoria: '', id_fiduciaria: '', etapa: '', id_penalidad: '' },
 
+            optApprove: [{ type: 'Cordinación', name: null }, { type: 'Dirección', name: null }],
             optVisible: false,
             filtros: {
                 desistimientos: { id_estado: '' }
             },
+            selApprover: {},
 
             showGestion: false,
             showInfo: false,
@@ -108,6 +110,9 @@ export default {
             }
             if (mode === 3) {
                 this.cleanEdit();
+                this.optApprove[0].name = this.desistimiento.cordinador;
+                this.optApprove[1].name = this.desistimiento.director;
+                this.selApprover = this.optApprove[0];
                 this.ruta = [this.ruta[0], this.ruta[1], { text: 'Aprobación', action: () => this.setMode(3) }];
                 this.setRuta();
                 await this.loadAccounts();
@@ -117,17 +122,16 @@ export default {
             showProgress();
             let smmlv = [];
             [
-                this.desistimientos, 
-                this.categorias, 
-                this.penalidades, 
-                this.fiduciarias, 
-                this.ventas, 
-                this.estados, 
+                this.desistimientos,
+                this.categorias,
+                this.penalidades,
+                this.fiduciarias,
+                this.ventas,
+                this.estados,
                 this.proyectos,
                 smmlv
             ] = (await httpFunc("/generic/genericDS/Clientes:Get_Desistimientos", {})).data;
             if (smmlv.length) this.smmlv2 = smmlv[0].smmlv2;
-            console.log(this.smmlv2);
             hideProgress();
         },
         async loadAccounts() {
@@ -490,11 +494,17 @@ export default {
             return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
         },
 
+        includesMsg(text) {
+            if (!text || !text.trim()) {
+                showMessage("Debe ingresar un comentario.");
+                return false;
+            }
+            return true;
+        },
         async setEstado(id) {
             if (id === '3') this.desistimiento.fec_com_coordinacion = this.formatDatetime('', 'bdate');
             if (id === '4') this.desistimiento.fec_com_gerencia = this.formatDatetime('', 'bdate');
-            if (id === '5')
-                if (!this.validarCuentas() || !(await this.onTerminar())) return;
+            if (id === '5' && (!this.validarCuentas() || !(await this.onTerminar()))) return;
             this.desistimiento.id_estado = id;
             this.onSave(true);
         },
@@ -646,12 +656,12 @@ export default {
             get() {
                 let val = '0', pnl_aplicada_val = '0', etapa = this.desistimiento['etapa'];
                 if (!etapa) this.formatNumber(val, false);
-                let pnl_pcv = Number(this.cleanNumber(this.f_pnl_pcv)), 
+                let pnl_pcv = Number(this.cleanNumber(this.f_pnl_pcv)),
                     v_venta_neto = Number(this.cleanNumber(this.f_v_venta_neto)),
                     valor_pnl = v_venta_neto * pnl_pcv / 100,
                     abonado = Number(this.cleanNumber(etapa === 'INMOBILIARIO' ? this.f_a_capital : this.f_v_abonado)),
                     tope = abonado * 0.9;
-                
+
                 if (valor_pnl > tope) {
                     val = '90';
                     pnl_aplicada_val = tope.toString();
@@ -669,19 +679,19 @@ export default {
             get() { return this.formatNumber(this.desistimiento['pnl_aplicada_val'], false); }
         },
         f_pnl_bruta: {
-            get() { 
+            get() {
                 if (this.desistimiento.id_penalidad === '2')
-                    return this.formatNumber(this.desistimiento[this.getCampoPenalidad()], false); 
+                    return this.formatNumber(this.desistimiento[this.getCampoPenalidad()], false);
                 if (this.desistimiento.id_penalidad === '3' || this.desistimiento.id_penalidad === '4')
-                    return this.formatNumber('0', false); 
-                return this.formatNumber(this.desistimiento['pnl_aplicada_val'], false); 
+                    return this.formatNumber('0', false);
+                return this.formatNumber(this.desistimiento['pnl_aplicada_val'], false);
             }
         },
         f_pnl_neta: {
             get() {
                 if (this.desistimiento.id_penalidad === '4')
-                    return this.formatNumber('0', false); 
-                let val = Number(this.cleanNumber(this.f_pnl_bruta)) 
+                    return this.formatNumber('0', false);
+                let val = Number(this.cleanNumber(this.f_pnl_bruta))
                     - (this.desistimiento['etapa'] === 'PREVENTA' ? Number(this.cleanNumber(this.f_a_intereses)) : 0)
                     - Number(this.cleanNumber(this.f_interes)) - Number(this.cleanNumber(this.f_descuento))
                     - (this.desistimiento['devolver_reforma'] == '1' ? Number(this.cleanNumber(this.f_imp_reformas)) : 0);
@@ -748,13 +758,15 @@ export default {
             return () => this.compradores.filter(cli => !this.cuentas.some(cu => cu.id_cliente === cli.id_cliente)
                 || this.cuenta.id_cliente === cli.id_cliente);
         },
-
         completeProjects() {
             return () => {
                 let filProject = this.filtros.desistimientos['proyecto'];
-                let res = this.proyectos.filter(pro => !filProject
-                    || pro.nombre.toLowerCase().includes(filProject.toLowerCase()));
-                return res;
+                return this.proyectos.filter(pro => !filProject || pro.nombre.toLowerCase().includes(filProject.toLowerCase()));
+            }
+        },
+        getOptApprove() {
+            return () => {
+
             }
         }
     }

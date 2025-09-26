@@ -27,7 +27,6 @@
                         v-model="filtros.desistimientos['nombre_cliente']" />
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
-
                     <div class="combo-container" @blur="optVisible = false">
                         <input type="text" class="combo-input" placeholder="Proyectos"
                         v-model="filtros.desistimientos['proyecto']" @click="optVisible = true;">
@@ -542,9 +541,12 @@
             </div>
             <div class="pure-u-1-2">
                 <div class="formInputStandard">
-                    <input type="text" :value="desistimiento.coordinador" readonly>
+                    <span>{{selApprover.type}}</span>
+                    <select v-model="selApprover">
+                        <option v-for="a in optApprove" :value="a">{{a.name}}</option>
+                    </select>
                     <textarea rows="5" v-model="desistimiento.com_coordinacion" style="resize: none; height: auto; margin-top: .5rem;"
-                        placeholder="Comentarios Coordinación/Dirección" :disabled="desistimiento.id_estado !== '2'"></textarea>
+                        :placeholder="`Comentarios ${selApprover.type}`" :disabled="desistimiento.id_estado !== '2'"></textarea>
                 </div>
                 <div class="pure-u-1-2" style="padding: 0 .5rem;">
                     <input type="date" readonly :disabled="desistimiento.id_estado !== '2'"
@@ -553,12 +555,12 @@
                 <div class="pure-u-1-2"></div>
                 <div v-if="enableCoordinacion || enableDireccion" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '2'}">
                     <div class="pure-u-1-2 formInputStandard">
-                        <button class="red-btn" @click="desistimiento.id_estado === '2' && setEstado('3')">
+                        <button class="red-btn" @click="desistimiento.id_estado === '2' && includesMsg(desistimiento.com_coordinacion) && setEstado('3')">
                             Aprobar
                         </button>
                     </div>
                     <div class="pure-u-1-2 formInputStandard">
-                        <button @click="desistimiento.id_estado === '2' && setEstado('6')">
+                        <button @click="desistimiento.id_estado === '2' && includesMsg(desistimiento.com_coordinacion) && setEstado('6')">
                             No Aceptar
                         </button>
                     </div>
@@ -566,6 +568,7 @@
             </div>
             <div class="pure-u-1-2">
                 <div class="formInputStandard">
+                    <span>Gerencia</span>
                     <input type="text" :value="desistimiento.gerente" readonly>
                     <textarea rows="5" v-model="desistimiento.com_gerencia" style="resize: none; height: auto; margin-top: .5rem;"
                         placeholder="Comentarios Gerencia" :disabled="desistimiento.id_estado !== '3'"></textarea>
@@ -577,12 +580,12 @@
                 <div class="pure-u-1-2"></div>
                 <div v-if="enableGerencia" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '3'}">
                     <div class="pure-u-1-2 formInputStandard">
-                        <button class="red-btn" @click="desistimiento.id_estado === '3' && setEstado('4')">
+                        <button class="red-btn" @click="desistimiento.id_estado === '3' && includesMsg(desistimiento.com_gerencia) && setEstado('4')">
                             Aprobar
                         </button>
                     </div>
                     <div class="pure-u-1-2 formInputStandard">
-                        <button @click="desistimiento.id_estado === '3' && setEstado('6')">
+                        <button @click="desistimiento.id_estado === '3' && includesMsg(desistimiento.com_gerencia) && setEstado('6')">
                             No Aceptar
                         </button>
                     </div>

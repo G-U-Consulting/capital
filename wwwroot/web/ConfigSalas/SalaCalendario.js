@@ -252,7 +252,6 @@ export default {
                 delete this.hito.id_torre;
                 delete this.hito.id_proyecto;
             }
-            console.log(this.eventType);
         },
         async openModal(mode, e) {
             let fre = this.frecuencias[0];
@@ -458,7 +457,6 @@ export default {
             this.tooltipY = event.clientY + 10;
         },
         getMetaHito(e) {
-            console.log(e);
             let text = '';
             if (!e.id_proyecto) text = e.sala_venta;
             else if (!e.id_torre) text = e.nombre_pro;

@@ -83,7 +83,7 @@ select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color
 from dim_estado_unidad
 order by estado_unidad;
 
-select id_sede, sede, alias, is_active
+select id_sede, sede, id_gerente, alias, is_active
 from dim_sede
 order by sede;
 
@@ -101,3 +101,9 @@ from dim_tipo_tramite;
 
 select id_tipo_registro, tipo_registro, is_active
 from dim_tipo_registro;
+
+select u.id_usuario, u.nombres
+from fact_usuarios u
+join fact_roles_usuarios ru on u.id_usuario = ru.id_usuario
+where u.is_active = 1 and (ru.id_rol = 6 or ru.id_rol = 28)
+order by nombres;

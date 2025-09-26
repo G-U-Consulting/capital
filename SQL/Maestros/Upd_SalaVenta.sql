@@ -16,6 +16,7 @@ set
     @id_zona_proyecto = NULL,
     @id_ciudadela = NULL,
     @id_cordinador = NULL,
+    @id_director = NULL,
     @email_cordinacion = NULL;
 --END_PARAM
 
@@ -26,10 +27,11 @@ UPDATE dim_sala_venta
         id_playlist = @id_playlist,
         id_zona_proyecto = if(@id_zona_proyecto = '', NULL, @id_zona_proyecto),
         id_ciudadela = if(@id_ciudadela = '', NULL, @id_ciudadela),
-        is_feria = if(@is_feria = '0', 0, 1),
-        pro_futuros = if(@pro_futuros = '0', 0, 1),
-        is_active = if(@is_active = '0', 0, 1),
+        is_feria = if(@is_feria = '1', 1, 0),
+        pro_futuros = if(@pro_futuros = '1', 1, 0),
+        is_active = if(@is_active = '1', 1, 0),
         id_cordinador = if(@id_cordinador = '', NULL, @id_cordinador),
+        id_director = if(@id_director = '', NULL, @id_director),
         email_cordinacion = @email_cordinacion
     WHERE id_sala_venta = @id_sala_venta;
 

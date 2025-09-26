@@ -5,10 +5,15 @@ export default {
             mode: 0,
             ruta: [],
             proyectos: [],
+            unidades: [],
             unidad: {},
+            selPro: {},
+            selTorre: {},
+            selUnd: {},
 
+            optVisible: false,
             filtros: {
-
+                unidades: {}
             },
         };
     },
@@ -30,44 +35,28 @@ export default {
         async setMode(mode) {
             this.mode = mode;
         },
+
         async loadProyectos() {
             showProgress();
-            let pro = (await httpFunc("/generic/genericDT/Gestion:Get_Proyectos", {})).data;
-            this.proyectos = pro.map(p => ({ ...p, showDetails: false }));
+            this.proyectos = (await httpFunc("/generic/genericDT/Gestion:Get_Proyectos", {})).data;
             hideProgress();
         },
         async loadTorres(pro) {
-            showProgress();
-            let torres = (await httpFunc("/generic/genericDT/Gestion:Get_Torres", { id_proyecto: pro.id_proyecto })).data;
-            pro.torres = torres.map(t => ({ ...t, showDetails: false }));
-            hideProgress();
+            if (pro) {
+                showProgress();
+                pro.torres = (await httpFunc("/generic/genericDT/Gestion:Get_Torres", { id_proyecto: pro.id_proyecto })).data;
+                this.selTorre = {};
+                this.unidades = [];
+                hideProgress();
+            }
         },
         async loadUnidades(torre) {
-            showProgress();
-            torre.unidades = (await httpFunc("/generic/genericDT/Gestion:Get_Unidades", { id_torre: torre.id_torre })).data;
-            hideProgress();
-        },
-        async loadLogs(und) {
-            showProgress();
-            und.logs = (await httpFunc("/generic/genericDT/Gestion:Get_Logs", { id_unidad: und.id_unidad })).data;
-            hideProgress();
-        },
-
-        async toggleProject(pro) {
-            if (!pro.showDetails && !pro.torres)
-                await this.loadTorres(pro);
-            if (!pro.torres || !pro.torres.length)
-                showMessage(`No hay torres cargadas en ${pro.nombre}.`);
-            else
-                pro.showDetails = !pro.showDetails;
-        },
-        async toggleTower(torre) {
-            if (!torre.showDetails && !torre.unidades)
-                await this.loadUnidades(torre);
-            if (!torre.unidades || !torre.unidades.length)
-                showMessage(`No hay unidades cargadas en la torre ${torre.consecutivo}.`);
-            else
-                torre.showDetails = !torre.showDetails;
+            if (torre) {
+                showProgress();
+                torre.unidades = (await httpFunc("/generic/genericDT/Gestion:Get_Unidades", { id_torre: torre.id_torre })).data;
+                this.unidades = torre.unidades;
+                hideProgress();
+            }
         },
         async onSelect(und) {
             this.unidad = {};
@@ -79,10 +68,20 @@ export default {
                 this.unidad = und;
                 this.setMode(1);
             }
-                
-        }
+        },
+        async loadLogs(und) {
+            showProgress();
+            und.logs = (await httpFunc("/generic/genericDT/Gestion:Get_Logs", { id_unidad: und.id_unidad })).data;
+            hideProgress();
+        },
+
     },
     computed: {
-
+        completeProjects() {
+            return () => {
+                let filProject = this.filtros.unidades['proyecto'];
+                return this.proyectos.filter(pro => !filProject || pro.nombre.toLowerCase().includes(filProject.toLowerCase()));
+            }
+        },
     }
 }

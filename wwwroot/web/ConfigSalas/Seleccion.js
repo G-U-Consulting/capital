@@ -7,6 +7,7 @@ export default {
             zonasProyectos: [],
             salas_ventas: [],
             cordinadores: [],
+            directores: [],
             sedes: [],
             pro_sala: [],
             proyectos: [],
@@ -136,6 +137,7 @@ export default {
             [
                 this.salas_ventas,
                 this.cordinadores,
+                this.directores,
                 this.sedes,
                 this.zonasProyectos,
                 this.ciudadelas,

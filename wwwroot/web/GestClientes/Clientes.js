@@ -126,6 +126,27 @@ export default {
             this.tooltipX = document.body.getBoundingClientRect().width - event.clientX + 2;
             this.tooltipY = event.clientY + 10;
         },
+        formatNumber(value, dec = true) {
+            if (!value) return "";
+            let [parteEntera, parteDecimal] = value.split(",");
+            parteEntera = parteEntera.replace(/\D/g, "");
+            parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
+
+            let groups = [];
+            let len = parteEntera.length;
+            for (let i = len; i > 0; i -= 3)
+                groups.unshift(parteEntera.substring(Math.max(0, i - 3), i));
+
+            let formattedEntera = groups[0] || "";
+            for (let i = 1; i < groups.length; i++)
+                formattedEntera += '.' + groups[i];
+
+            let result = formattedEntera;
+            if (parteDecimal)
+                result += "," + parteDecimal;
+
+            return result;
+        },
 
         /* initChart() {
             const ctx = document.getElementById('chart-js');

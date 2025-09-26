@@ -2,7 +2,7 @@
 -- Proceso: Salas/Get_InitHito
 -- =============================================
 --START_PARAM
-set @id_sala_venta = NULL;
+set @id_sala_venta = 8;
 --END_PARAM
 
 select p.id_proyecto, p.nombre
@@ -18,14 +18,15 @@ join dim_sala_proyecto sp on p.id_proyecto = sp.id_proyecto
 where sp.id_sala_venta = @id_sala_venta and p.is_active = 1
 order by p.id_proyecto, t.consecutivo;
 
-select un.id_unidad, concat(un.clase, ' ', un.numero_apartamento) as unidad, 
+select un.id_unidad, concat(coalesce(tp.codigo, ''), ' ', un.numero_apartamento) as unidad, 
     un.id_torre, un.id_proyecto
 from fact_unidades un
 join fact_torres t on un.id_torre = t.id_torre
 join fact_proyectos p on t.id_proyecto = p.id_proyecto
 join dim_sala_proyecto sp on p.id_proyecto = sp.id_proyecto
+left join dim_tipo_proyecto tp on un.id_clase = tp.id_tipo_proyecto
 where sp.id_sala_venta = @id_sala_venta and p.is_active = 1
-order by p.id_proyecto, t.consecutivo, un.clase, un.numero_apartamento;
+order by p.id_proyecto, t.consecutivo, coalesce(tp.codigo, ''), un.numero_apartamento;
 
 select id_cargo, cargo, `Descripcion` as descripcion 
 from dim_cargo

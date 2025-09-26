@@ -29,6 +29,7 @@ export default {
             cajasCompensacion: [],
             tiposTramite: [],
             tiposRegistro: [],
+            gerentes: [],
 
             grupoImg: {},
             categoriaMedio: {},
@@ -476,6 +477,7 @@ export default {
                 this.cajasCompensacion,
                 this.tiposTramite,
                 this.tiposRegistro,
+                this.gerentes,
             ] = (await httpFunc("/generic/genericDS/Maestros:Get_Maestros", {})).data;
         },
         fileUpload(e) {
