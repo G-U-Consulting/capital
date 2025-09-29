@@ -3080,16 +3080,14 @@ tr.cal-row-info > td {
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  /* justify-content: space-between; */
   font-size: 12px;
-  /* height: 80px; */
   min-width: 10.9%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 
 .apto-card-mini.active {
-  border: 2px #c80000 solid;
+  border: 2.8px #c80000 solid;
   color: #000;
 }
 
@@ -3108,7 +3106,7 @@ tr.cal-row-info > td {
 
 .mini-body {
   font-weight: bolder;
-  font-size: 16px;
+  font-size: 1rem;
   text-align: center;
 }
 
@@ -3177,11 +3175,6 @@ tr.cal-row-info > td {
   box-sizing: border-box;
   
 }
-
-/* .titulo-piso {
-  margin: 16px 0 8px;
-  font-weight: bold;
-} */
 
 /*******Card Unidades Cotizacion ****/
 
@@ -3512,7 +3505,7 @@ tr.cal-row-info > td {
 .grupo-piso {
   display: flex;
   /* align-items: stretch; */
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   gap: .5rem;
 }
 
@@ -3526,16 +3519,6 @@ tr.cal-row-info > td {
   padding: 10px;
   font-weight: bold;
   border: 1px solid #333;
-}
-
-.titulo-piso {
-  width: 70px;
-  min-width: 70px;
-  font-weight: bold;
-  padding-top: 0.5rem;
-  /* margin-right: 10px; */
-  text-align: right;
-  margin-bottom: 10px;
 }
 
 .image-gallery-container {
@@ -3560,6 +3543,7 @@ tr.cal-row-info > td {
     width: 100%;
   height: 100%;
   object-fit: contain; 
+  cursor: zoom-in; 
 }
 
 .image-gallery iframe {
@@ -3611,6 +3595,7 @@ tr.cal-row-info > td {
 .mini-header {
   position: relative;
   text-align: center;
+  font-size: 1.3rem;
   font-weight: bold;
 }
 
@@ -3888,13 +3873,7 @@ tr.cal-row-info > td {
   gap: .3rem;
 }
 
-.titulo-piso {
-  width: 45px;
-  text-align: right;
-  margin-right: 0.5rem;
-  font-size: 0.7rem;
-  font-weight: bold;
-}
+
 
 .piso-grid {
   display: grid;
@@ -3917,7 +3896,7 @@ tr.cal-row-info > td {
 }
 
 .apto-cuadro.active {
-  border: 1px #c80000 solid;
+  border: 2px #c80000 solid;
   color: #000;
 }
 
@@ -4085,10 +4064,20 @@ tr.cal-row-info > td {
   border: 1px #555 solid;
 }
 
-
 .apto-fake {
-  background-color: #e0e0e0; 
   color: transparent;   
-  border: 1px solid #ccc;
+  border: none;
   pointer-events: none;
+}
+
+.apto-gris {
+  background-color: #ccc;
+  color: transparent;
+  pointer-events: none;
+}
+
+.resaltado {
+    color: #FF6F00;
+    font-size: 1.5rem;
+    font-weight: bold;
 }

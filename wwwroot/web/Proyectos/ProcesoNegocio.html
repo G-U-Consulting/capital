@@ -649,70 +649,82 @@
         <!-- ----------------------------- Opción ---------------------------- -->
         <!-- ----------------------------------------------------------------- -->
         <div v-if="mode == 3">
-            <div class='pure-u-1-1' style="font-size: 2em;">
-                {{ ObjCliente.nombres }}
+            <div class='pure-u-1-1'>
+                <samp class="resaltado">{{ ObjCliente.nombres }}</samp>
             </div>
             <div class='pure-u-1-1 formDivision' style="display: flex; justify-content: space-between;">
-                <div class="pure-u-1 pure-u-md-1-2">
-                    <span style="font-size: 1.2em;">Opcionar</span>
+                <div class="pure-u-1 pure-u-md-1-2" style="display: flex;gap: .5rem;">
+                    <span style="font-size: 1.2em;">Opcionar:</span>
+                    <samp class="resaltado">{{ cotizacionSeleccionada }}</samp>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-2">
+                <div class="pure-u-1 pure-u-md-1-2" style="display: flex;gap: .5rem;">
                     <span style="font-size: 1.2em;">Importe:</span>
+                    <samp class="resaltado">{{ formatoMoneda(importeActiva) }}</samp>
                 </div>
             </div>
+            <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: 1em;">
+                Modo de Pago
+            </div>
             <div class="pure-g" style="margin-top: 1em;">
-                <div class="pure-u-1 pure-u-md-1-1" style="margin-bottom: .5em;">
-                    <legend>Modo de Pago:</legend>
+                <div class="pure-u-1 pure-u-md-1-2" style="margin-bottom: .5em;">
                     <fieldset style="border: 1px solid lightgray; padding: 1em;">
-                        <label class="check" class="pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
-                            <input type="checkbox" value='1' v-model="" />
-                            <span class="checkmark"></span>
-                            Contado
-                        </label>
-                        <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">Modalidad:</span>
-                        <div class="pure-u-1-1 pure-u-md-1-3">
-                            <select>
-                                <option>Seleccione</option>
-                            </select>
-                        </div>
-                    </fieldset>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-1" >
-                    <fieldset style="border: 1px solid lightgray; padding: 1em;">
-                        <div style="margin-bottom: 1rem;" >
-                            <lasbel class="check" class="pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
+                        <div class="pure-u-1 pure-u-md-1-1">
+                            <label class="check pure-u-1-1">
                                 <input type="checkbox" value='1' v-model="" />
                                 <span class="checkmark"></span>
-                                Financiado
-                            </lasbel>
-                            <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">Modalidad:</span>
-                            <div class='pure-u-1-1 pure-u-md-1-5'>
-                                <select v-model=''>
-                                    <option value='' selected>Seleccione</option>
-                                    <option>
+                                Contado
+                            </label>
+                        </div>
+                        <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1.7rem;">
+                            <span class="pure-u-1 pure-u-md-1-4">Modalidad:</span>
+                            <div class="pure-u-1 pure-u-md-3-4">
+                                <select class="pure-input-1" v-model="planSeleccionado">
+                                    <option value="">Seleccione</option>
+                                    <option v-for="plan in planes_pago" :key="plan.id_planes_pago" :value="plan.id_planes_pago">
+                                        {{ plan.descripcion }}
                                     </option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-8"></div>
-                            <span class="pure-u-1-1 pure-u-md-1-8" style="margin-top: .4em;">Tipo:</span>
-                            <div class='pure-u-1-1 pure-u-md-1-4'>
-                                <select>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <fieldset style="border: 1px solid lightgray; padding: 1em;">
+                        <div class="pure-u-1 pure-u-md-1-1">
+                            <label class="check pure-u-1 pure-u-md-1-6">
+                                <input type="checkbox" value="1" v-model="" />
+                                <span class="checkmark"></span>
+                                Financiado
+                            </label>
+                            <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
+                            <div class="pure-u-1 pure-u-md-1-4">
+                                <select v-model="" class="pure-input-1">
+                                    <option value="" selected>Seleccione</option>
+                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion" :value="tipo.id_tipo_financiacion">
+                                         {{ tipo.tipo_financiacion }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-24"></div>
+                            <span class="pure-u-1 pure-u-md-1-12">Tipo:</span>
+                            <div class="pure-u-1 pure-u-md-1-4">
+                                <select class="pure-input-1">
                                     <option>Seleccione</option>
                                 </select>
                             </div>
                         </div>
-                        <div>
-                            <div class="pure-u-1-1 pure-u-md-1-6"></div>
-                            <span class="pure-u-1-1 pure-u-md-1-12" style="margin-top: .4em;">Entidad:</span>
-                            <div class='pure-u-1-1 pure-u-md-1-5'>
-                                <select>
+                        <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1rem;">
+                            <div class="pure-u-1 pure-u-md-1-6"></div>
+                            <span class="pure-u-1 pure-u-md-1-6">Entidad:</span>
+                            <div class="pure-u-1 pure-u-md-1-4">
+                                <select class="pure-input-1">
                                     <option>Seleccione</option>
                                 </select>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-8"></div>
-                            <span class="pure-u-1-1 pure-u-md-1-8" style="margin-top: .4em;">Años:</span>
-                            <div class='pure-u-1-1 pure-u-md-1-4'>
-                                <select>
+                            <div class="pure-u-1 pure-u-md-1-24"></div>
+                            <span class="pure-u-1 pure-u-md-1-12">Años:</span>
+                            <div class="pure-u-1 pure-u-md-1-4">
+                                <select class="pure-input-1">
                                     <option>Seleccione</option>
                                 </select>
                             </div>

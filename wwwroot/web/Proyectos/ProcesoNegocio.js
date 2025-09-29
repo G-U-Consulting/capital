@@ -58,7 +58,9 @@ export default {
             modo_atencion: [],
             tipo_registro: [],
             tipo_tramite: [],
+            planes_pago: [],
             visitas: [],
+            planSeleccionado: '',
             iscliente: false,
             israpida: false,
             cliente: '',
@@ -105,6 +107,7 @@ export default {
             showModal: false,
             vetoData: '',
             camposBloqueados: false, 
+            registro: false,
         };
     },
     computed: {
@@ -197,6 +200,8 @@ export default {
         this.modo_atencion = resp.data[5];
         this.presupuesto_vivienda = resp.data[6];
         this.tipo_tramite = resp.data[7];
+        this.planes_pago = resp.data[8];
+        this.tipo_financiacion = resp.data[9];
         this.campoObligatorio();
         window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
         window.addEventListener('message', this.handleMessages);
@@ -237,7 +242,10 @@ export default {
             }
 
             if (this.mode === 1 && nextIndex === 2) {
-                let resp = await this.nuevaVisita();
+
+                if (this.registro == false && this.noregistro != true) {
+                    var resp = await this.nuevaVisita();
+                }
 
                 if (resp?.includes("Error")) {
                     return;
@@ -246,9 +254,26 @@ export default {
             }
 
             if (this.mode === 2 && nextIndex === 3) {
-                if(!this.cotizacionActiva && !this.importeActiva){
-                    showMessage("Debe ingresar un importe y una descripción.");
-                    return;
+                if (!this.cotizacionSeleccionada) {
+                    return showMessage("Debe seleccionar una cotización para opcionarla.");
+                }
+
+                const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
+                if (!cotizacion) {
+                    return showMessage("La cotización seleccionada no existe.");
+                }
+
+                const hoyStr = new Date().toISOString().slice(0, 10);
+                const fechaStr = (cotizacion.fecha instanceof Date)
+                    ? cotizacion.fecha.toISOString().slice(0, 10)
+                    : this.normalizarFecha(cotizacion.fecha);
+
+                if (fechaStr !== hoyStr) {
+                    return showMessage("Solo puede opcionar cotizaciones del día de hoy.");
+                }
+
+                if (cotizacion.importe <= 0) {
+                    return showMessage("La cotización seleccionada no tiene un importe válido.");
                 }
             }
 
@@ -453,6 +478,23 @@ export default {
             if (index == 1) {
                 let resp2 = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { cliente: this.cliente });
                 this.visitas = resp2.data[0];
+
+                const hoy = new Date().toISOString().split("T")[0];
+
+                const ultimoActivo = [...this.visitas].find(r =>
+                    r.is_active == 1 &&
+                    r.fecha?.split(" ")[0] === hoy
+                );
+
+                if (ultimoActivo) {
+                    this.id_visita = ultimoActivo.id_visita;
+                    await this.editarVisita(ultimoActivo.id_visita);
+                    this.noregistro = true;
+                } else {
+                    this.noregistro = false;
+                    this.limpiarObj();
+                }
+                    
             }
 
             if (index == 2) {
@@ -473,7 +515,7 @@ export default {
             }
             return false;
         },
-        ///////// mode 1
+        ///////// mode 1 ////////////
         async nuevaVisita() {
    
             this.ObjVisita.id_proyecto = GlobalVariables.id_proyecto;
@@ -502,6 +544,7 @@ export default {
                 hideProgress();
                 resp = resp.data;
                 if (resp.includes("OK")) {
+                    this.registro = true;
                     await this.setSubmode(1);
                     showMessage("Visita creada correctamente.");
                     return "OK";
@@ -560,7 +603,7 @@ export default {
             this.ObjCliente.nombres = '';
             this.ObjCliente.email1 = '';
         },
-        //////// mode 2
+        //////// mode 2 ////////////
         async showAtencionModal() {
             this.mostrarModal = true
         },
@@ -582,8 +625,6 @@ export default {
                 id_proyecto: GlobalVariables.id_proyecto,
                 cotizacion: cotizacionId
             });
-
-        
 
             const parseNumber = (str) => {
                 if (typeof str === 'string') {
@@ -792,55 +833,40 @@ export default {
             return str;
         },
         abrirNuevoModulo() {
-            if (this.cotizacionSeleccionada == null) {
-                showMessage("Debe seleccionar una cotización para agregar unidades.");
-                return;
+            if (!this.cotizacionSeleccionada) {
+                return showMessage("Debe seleccionar una cotización para agregar unidades.");
             }
+
             const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
             if (!cotizacion) {
-                showMessage("La cotización seleccionada no existe.");
-                return;
-            }
-            const hoy = new Date();
-            const yyyy = hoy.getFullYear();
-            const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-            const dd = String(hoy.getDate()).padStart(2, '0');
-            const hoyStr = `${yyyy}-${mm}-${dd}`;
-
-            let esDeHoy = false;
-            const fecha = cotizacion.fecha;
-
-            if (fecha instanceof Date) {
-                const fy = fecha.getFullYear();
-                const fm = String(fecha.getMonth() + 1).padStart(2, '0');
-                const fd = String(fecha.getDate()).padStart(2, '0');
-                esDeHoy = `${fy}-${fm}-${fd}` === hoyStr;
-            } else {
-                const fechaNorm = this.normalizarFecha(fecha);
-                esDeHoy = fechaNorm === hoyStr;
+                return showMessage("La cotización seleccionada no existe.");
             }
 
+            const hoyStr = new Date().toISOString().slice(0, 10);
+            const fechaStr = (cotizacion.fecha instanceof Date)
+                ? cotizacion.fecha.toISOString().slice(0, 10)
+                : this.normalizarFecha(cotizacion.fecha);
 
-            if (!esDeHoy) {
-                showMessage("Solo puede abrir cotizaciones del día de hoy.");
-                return;
+            if (fechaStr !== hoyStr) {
+                return showMessage("Solo puede abrir cotizaciones del día de hoy.");
             }
-          const idProyecto = GlobalVariables.id_proyecto;
-          const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + idProyecto + '&id_cliente=' + this.id_cliente + '&id_cotizacion=' + this.cotizacionSeleccionada;
-          const screenWidth = window.screen.availWidth;
-          const screenHeight = window.screen.availHeight;
-          const features = [
-            'toolbar=no',
-            'location=no',
-            'status=no',
-            'menubar=no',
-            'scrollbars=yes',
-            'resizable=yes',
-            `width=${screenWidth}`,
-            `height=${screenHeight}`,
-            'top=100',
-            'left=100'
-          ].join(',');
+
+            const idProyecto = GlobalVariables.id_proyecto;
+            const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + idProyecto + '&id_cliente=' + this.id_cliente + '&id_cotizacion=' + this.cotizacionSeleccionada;
+            const screenWidth = window.screen.availWidth;
+            const screenHeight = window.screen.availHeight;
+            const features = [
+                'toolbar=no',
+                'location=no',
+                'status=no',
+                'menubar=no',
+                'scrollbars=yes',
+                'resizable=yes',
+                `width=${screenWidth}`,
+                `height=${screenHeight}`,
+                'top=100',
+                'left=100'
+            ].join(',');
 
             GlobalVariables.ventanaUnidades = window.open(url, 'VentanaModuloUnidades', features);
         },
@@ -885,10 +911,12 @@ export default {
         async dropitem(item){
             let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
                 id_negocios_unidades: item.id_negocios_unidades,
-                terminarAtencion: 0
+                terminarAtencion: 0,
+                id_visita: this.id_visita
             });
 
             res = res.data;
+            this.mostrarModal = false;
 
             if(res == 'OK'){
                 this.seleccionarCotizacion(item.cotizacion);
@@ -901,7 +929,8 @@ export default {
             let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
                 terminarAtencion: 1,
                 id_cliente: this.id_cliente,
-                id_proyecto: GlobalVariables.id_proyecto
+                id_proyecto: GlobalVariables.id_proyecto,
+                id_visita: this.id_visita
             });
 
             let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
@@ -914,8 +943,9 @@ export default {
             this.mode = 0;
             this.policyAccepted = false;
             this.unidades = [];
+            this.mostrarModal = false;
 
-            GlobalVariables.ventanaUnidades.close();
+            GlobalVariables.ventanaUnidades?.close();
             GlobalVariables.ventanaUnidades = null;
 
         },
@@ -951,5 +981,7 @@ export default {
         reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
 			showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
 		},
+        //////// mode 3 ////////////
+        
     },
 }

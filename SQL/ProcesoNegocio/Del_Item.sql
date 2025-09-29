@@ -5,8 +5,17 @@
 set @id_negocios_unidades = 0,
     @terminarAtencion = 0,
     @id_proyecto = 0,
+    @id_visita = 0,
     @id_cliente = 0;
 --END_PARAM
+
+
+update
+    fact_visitas
+set
+    is_active = 0
+where
+    id_visita = @id_visita;
 
 if @terminarAtencion = 1 then
     delete from fact_negocios_unidades

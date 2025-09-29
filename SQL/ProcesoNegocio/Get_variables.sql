@@ -33,4 +33,12 @@ from presupuesto_vivienda;
 
 select id_tipo_tramite, tipo_tramite
 from dim_tipo_tramite
-where is_active = 1
+where is_active = 1;
+
+select id_planes_pago, descripcion
+from dim_planes_pago
+where is_active = 1;
+
+select id_tipo_financiacion, tipo_financiacion
+from dim_tipo_financiacion
+where is_active = 1;

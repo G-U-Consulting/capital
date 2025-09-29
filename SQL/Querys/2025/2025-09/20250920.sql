@@ -58,4 +58,4 @@ begin
       and (isOpcion is null or isOpcion = 0);
 end$$
 
-delimiter ;
+delimiter;
