@@ -10,3 +10,7 @@ from fact_torres t
 left join dim_fiduciaria f on t.id_fiduciaria = f.id_fiduciaria
 where t.is_active = 1 and t.id_proyecto = @id_proyecto
 order by t.consecutivo;
+
+select id_tipo, tipo
+from dim_tipo_unidad 
+where id_proyecto = @id_proyecto and tipo != '';

@@ -4,9 +4,15 @@ export default {
             mainmode: 0,
             mode: 0,
             ruta: [],
+            sedes: [],
+            ciudadelas: [],
             proyectos: [],
+            clases: [],
             unidades: [],
+            tipos: [],
             unidad: {},
+            selSede: {},
+            selCiu: {},
             selPro: {},
             selTorre: {},
             selUnd: {},
@@ -20,7 +26,7 @@ export default {
     async mounted() {
         this.ruta = [{ text: 'Trazabilidad', action: () => this.setMode(0) }];
         this.setRuta();
-        await this.loadProyectos();
+        await this.loadData();
     },
     async unmounted() {
 
@@ -36,22 +42,23 @@ export default {
             this.mode = mode;
         },
 
-        async loadProyectos() {
+        async loadData() {
             showProgress();
-            this.proyectos = (await httpFunc("/generic/genericDT/Gestion:Get_Proyectos", {})).data;
+            [this.sedes, this.ciudadelas, this.proyectos, this.clases] = 
+                (await httpFunc("/generic/genericDS/Gestion:Get_InitData", {})).data;
             hideProgress();
         },
         async loadTorres(pro) {
-            if (pro) {
+            if (pro && pro.id_proyecto) {
                 showProgress();
-                pro.torres = (await httpFunc("/generic/genericDT/Gestion:Get_Torres", { id_proyecto: pro.id_proyecto })).data;
+                [pro.torres, this.tipos] = (await httpFunc("/generic/genericDS/Gestion:Get_Torres", { id_proyecto: pro.id_proyecto })).data;
                 this.selTorre = {};
                 this.unidades = [];
                 hideProgress();
             }
         },
         async loadUnidades(torre) {
-            if (torre) {
+            if (torre && torre.id_torre) {
                 showProgress();
                 torre.unidades = (await httpFunc("/generic/genericDT/Gestion:Get_Unidades", { id_torre: torre.id_torre })).data;
                 this.unidades = torre.unidades;
@@ -83,5 +90,18 @@ export default {
                 return this.proyectos.filter(pro => !filProject || pro.nombre.toLowerCase().includes(filProject.toLowerCase()));
             }
         },
+        getFilteredList() {
+			return (tabla) => {
+				return this[tabla] ? this[tabla].filter(item =>
+					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
+						if (tabla == 'unidades' && key == 'torres')
+							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
+						if (key.startsWith('id_') || key == 'localizacion' || key == 'piso')
+							return !this.filtros[tabla][key] || String(item[key]) === this.filtros[tabla][key];
+						else return !this.filtros[tabla][key] || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
+					}) : []
+				) : [];
+			};
+		},
     }
 }

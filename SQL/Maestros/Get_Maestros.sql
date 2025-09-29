@@ -83,8 +83,9 @@ select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color
 from dim_estado_unidad
 order by estado_unidad;
 
-select id_sede, sede, id_gerente, alias, is_active
-from dim_sede
+select s.id_sede, s.sede, s.id_gerente, s.alias, s.is_active, u.nombres as gerencia
+from dim_sede s
+join fact_usuarios u on s.id_gerente = u.id_usuario
 order by sede;
 
 select id_factor, factor, unidad from dim_factor order by id_factor;

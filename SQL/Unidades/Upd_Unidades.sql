@@ -153,6 +153,7 @@ select ft.id_torre, tu.id_tipo
 from fact_torres ft, dim_tipo_unidad tu 
 where ft.id_proyecto = @id_proyecto and tu.id_proyecto = @id_proyecto;
 
+select coalesce(concat(codigo, ' '), 'APT ') into @cod_apt from dim_tipo_proyecto where id_tipo_proyecto = 8;
 insert into fact_unidades(
     id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
@@ -166,9 +167,9 @@ select distinct
         from dim_estado_unidad e 
         where e.estado_unidad = t.estatus) as id_estado_unidad,
     concat(if(t.clase is not null and t.clase != '', 
-        (select coalesce(tp.codigo, 'APT ') 
+        (select coalesce(tp.codigo, @cod_apt) 
             from dim_tipo_proyecto tp 
-            where tp.tipo_proyecto = t.clase), 'APT '), t.apartamento) as nombre_unidad,
+            where tp.tipo_proyecto = t.clase), @cod_apt), t.apartamento) as nombre_unidad,
     convert(t.apartamento, int) as numero_apartamento,
     convert(t.piso, int) as piso,
     t.tipo as tipo,
@@ -388,15 +389,15 @@ select 'OK' as respuesta;
 select * from dim_agrupacion_unidad;
 select * from fact_unidades where id_proyecto = 5 limit 2000;
 select * from tmp_agrupaciones;
-update fact_unidades set id_agrupacion = null where id_proyecto=9;
+update fact_unidades set id_agrupacion = null where id_proyecto=1;
 delete from dim_hito_cargo where id_hito in (select h.id_hito from fact_unidades u 
-    join dim_hito_sala h on u.id_torre = h.id_torre where u.id_proyecto = 9 group by h.id_hito);
-delete from dim_hito_sala where id_torre in (select id_torre from fact_torres where id_proyecto = 9);
-delete from dim_agrupacion_unidad where id_proyecto=9;
-delete from dim_lista_tipo_torre where id_torre in (select id_torre from fact_torres where id_proyecto = 9);
-delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 9);
-delete from fact_unidades where id_proyecto = 9;
-delete from fact_torres where id_proyecto = 9;
-update fact_proyectos set id_lista = null where id_proyecto = 9;
-delete from dim_lista_precios where id_proyecto=9;
+    join dim_hito_sala h on u.id_torre = h.id_torre where u.id_proyecto = 1 group by h.id_hito);
+delete from dim_hito_sala where id_torre in (select id_torre from fact_torres where id_proyecto = 1);
+delete from dim_agrupacion_unidad where id_proyecto=1;
+delete from dim_lista_tipo_torre where id_torre in (select id_torre from fact_torres where id_proyecto = 1);
+delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 1);
+delete from fact_unidades where id_proyecto = 1;
+delete from fact_torres where id_proyecto = 1;
+update fact_proyectos set id_lista = null where id_proyecto = 1;
+delete from dim_lista_precios where id_proyecto=1;
 */
