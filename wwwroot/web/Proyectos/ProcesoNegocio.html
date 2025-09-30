@@ -529,7 +529,7 @@
         <div style="display: flex; flex-direction: column; gap: .5rem; height: 100%;" v-if="mode == 2">
             <div style="height: 50%;">
                 <div class='pure-u-1-1' style="font-size: 2em;">
-                    {{ ObjCliente.nombres }}
+                    {{ ObjCliente.nombres + " " + ObjCliente.apellido1 + " " +  ObjCliente.apellido2 }}
                 </div>
                 <div class="formDivision" style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.5em;">
                     <span style="font-size: 1.8em;">Cotizaciones</span>
@@ -650,14 +650,14 @@
         <!-- ----------------------------------------------------------------- -->
         <div v-if="mode == 3">
             <div class='pure-u-1-1'>
-                <samp class="resaltado">{{ ObjCliente.nombres }}</samp>
+                <samp class="resaltado">{{ ObjCliente.nombres + " " + ObjCliente.apellido1 + " " +  ObjCliente.apellido2 }}</samp>
             </div>
             <div class='pure-u-1-1 formDivision' style="display: flex; justify-content: space-between;">
-                <div class="pure-u-1 pure-u-md-1-2" style="display: flex;gap: .5rem;">
+                <div class="pure-u-1 pure-u-md-6-8" style="display: flex;gap: .5rem;">
                     <span style="font-size: 1.2em;">Opcionar:</span>
-                    <samp class="resaltado">{{ cotizacionSeleccionada }}</samp>
+                    <samp class="resaltado">{{ textoCotizacion }}</samp>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-2" style="display: flex;gap: .5rem;">
+                <div class="pure-u-1 pure-u-md-3-8" style="display: flex;gap: .5rem;">
                     <span style="font-size: 1.2em;">Importe:</span>
                     <samp class="resaltado">{{ formatoMoneda(importeActiva) }}</samp>
                 </div>
@@ -666,7 +666,7 @@
                 Modo de Pago
             </div>
             <div class="pure-g" style="margin-top: 1em;">
-                <div class="pure-u-1 pure-u-md-1-2" style="margin-bottom: .5em;">
+                <div class="pure-u-1 pure-u-md-3-8" style="margin-bottom: .5em;">
                     <fieldset style="border: 1px solid lightgray; padding: 1em;">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1-1">
@@ -688,7 +688,7 @@
                         </div>
                     </fieldset>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-2">
+                <div class="pure-u-1 pure-u-md-5-8">
                     <fieldset style="border: 1px solid lightgray; padding: 1em;">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1 pure-u-md-1-6">
@@ -696,36 +696,45 @@
                                 <span class="checkmark"></span>
                                 Financiado
                             </label>
-                            <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
+                             <span class="pure-u-1 pure-u-md-1-6">Entidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select v-model="" class="pure-input-1">
-                                    <option value="" selected>Seleccione</option>
-                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion" :value="tipo.id_tipo_financiacion">
-                                         {{ tipo.tipo_financiacion }}
+                                <select class="pure-input-1" v-model="bancoSeleccionado" @change="cargarFactor">
+                                    <option :value="0">Seleccione banco</option>
+                                    <option v-for="b in banco_financiador" :key="b.id_bancos_financiador" :value="b.id_bancos_financiador">
+                                        {{ b.banco }}
                                     </option>
                                 </select>
                             </div>
                             <div class="pure-u-1 pure-u-md-1-24"></div>
                             <span class="pure-u-1 pure-u-md-1-12">Tipo:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1">
-                                    <option>Seleccione</option>
+                                <select class="pure-input-1" v-model="unidadSeleccionada" @change="cargarAnios">
+                                    <option value="">Seleccione unidad</option>
+                                    <option v-for="unidad in unidadesDisponibles" :key="unidad" :value="unidad">
+                                        {{ unidad }}
+                                    </option>
                                 </select>
                             </div>
                         </div>
                         <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1rem;">
                             <div class="pure-u-1 pure-u-md-1-6"></div>
-                            <span class="pure-u-1 pure-u-md-1-6">Entidad:</span>
+                               <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1">
-                                    <option>Seleccione</option>
+                                <select v-model="" class="pure-input-1">
+                                    <option :value="" selected>Seleccione</option>
+                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion" :value="tipo.id_tipo_financiacion">
+                                         {{ tipo.tipo_financiacion }}
+                                    </option>
                                 </select>
                             </div>
                             <div class="pure-u-1 pure-u-md-1-24"></div>
                             <span class="pure-u-1 pure-u-md-1-12">Años:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1">
-                                    <option>Seleccione</option>
+                                <select class="pure-input-1" v-model="anioSeleccionado">
+                                    <option value="">Seleccione años</option>
+                                    <option v-for="anio in listaAnios" :key="anio" :value="anio">
+                                        {{ anio }}
+                                    </option>
                                 </select>
                             </div>
                         </div>

@@ -434,23 +434,23 @@
                 item.checked = estadopublicacion.includes(id);
             });
 
-            const listaContructor = (resp[0][0].banco_constructor || '')
-                .split(',')
-                .map(id => parseInt(id));
+            // const listaContructor = (resp[0][0].banco_constructor || '')
+            //     .split(',')
+            //     .map(id => parseInt(id));
 
-            this.banco_constructor.forEach(item => {
-                const id = parseInt(item.id_banco_constructor);
-                item.checked = listaContructor.includes(id);
-            });
+            // this.banco_constructor.forEach(item => {
+            //     const id = parseInt(item.id_banco_constructor);
+            //     item.checked = listaContructor.includes(id);
+            // });
 
-            const listaFinanciadores = (resp[0][0].bancos_financiadores || '')
-                .split(',')
-                .map(id => parseInt(id));
+            // const listaFinanciadores = (resp[0][0].bancos_financiadores || '')
+            //     .split(',')
+            //     .map(id => parseInt(id));
 
-            this.bancos_financiador.forEach(item => {
-                const id = parseInt(item.id_bancos_financiador);
-                item.checked = listaFinanciadores.includes(id);
-            });
+            // this.bancos_financiador.forEach(item => {
+            //     const id = parseInt(item.id_bancos_financiador);
+            //     item.checked = listaFinanciadores.includes(id);
+            // });
 
             const salaVenta = (resp[0][0].salas_venta || '')
                 .split(',')
@@ -555,6 +555,7 @@
             var tVis = this.tiposVIS.find(item => { return item.checked });
             if (tVis != null)
                 this.objProyecto.id_tipo_vis = tVis.id_tipo_vis;
+
             var oVs = this.opcionesVisuales.find(item => { return item.checked });
             if (oVs != null)
                 this.objProyecto.id_opcion_visual = oVs.id_opcion_visual;
@@ -562,6 +563,17 @@
             var tFn = this.tiposFinanciacion.find(item => { return item.checked });
             if (tFn != null)
                 this.objProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
+
+            const bancoConstructor = this.banco_constructor.find(item => item.checked);
+            if (bancoConstructor) {
+                this.objProyecto.id_banco_constructor = bancoConstructor.id_banco_constructor;
+            }
+
+            const bancoFinanciador = this.bancos_financiador.find(item => item.checked);
+            if (bancoFinanciador) {
+                this.objProyecto.id_bancos_financiadores = bancoFinanciador.id_bancos_financiador;
+            }
+
 
             const tipo = this.tipo
                 .filter(item => item.checked)
@@ -573,17 +585,17 @@
                 .map(item => item.id_estado_publicacion);
             this.objProyecto.estado_publicacion = estadopublicacion.join(',');
 
-            const bancosconstructor = this.banco_constructor
-                .filter(item => item.checked)
-                .map(item => item.id_banco_constructor);
+            // const bancosconstructor = this.banco_constructor
+            //     .filter(item => item.checked)
+            //     .map(item => item.id_banco_constructor);
 
-            this.objProyecto.banco_constructor = bancosconstructor.join(',');
+            // this.objProyecto.banco_constructor = bancosconstructor.join(',');
 
-            const bancosSeleccionados = this.bancos_financiador
-                .filter(item => item.checked)
-                .map(item => item.id_bancos_financiador);
+            // const bancosSeleccionados = this.bancos_financiador
+            //     .filter(item => item.checked)
+            //     .map(item => item.id_bancos_financiador);
 
-            this.objProyecto.bancos_financiadores = bancosSeleccionados.join(',');
+            // this.objProyecto.bancos_financiadores = bancosSeleccionados.join(',');
 
             const sala_venta = this.salas_venta
                 .filter(item => item.checked)
@@ -691,16 +703,27 @@
                 .filter(item => item.checked)
                 .map(item => item.id_estado_publicacion);
             this.editObjProyecto.estado_publicacion = estadopublicacion.join(',');
+            
+            const bancoConstructor = this.banco_constructor.find(item => item.checked);
+            if (bancoConstructor) {
+                this.objProyecto.id_banco_constructor = bancoConstructor.id_banco_constructor;
+            }
 
-            const bancosconstructor = this.banco_constructor
-                .filter(item => item.checked)
-                .map(item => item.id_banco_constructor);
-            this.editObjProyecto.banco_constructor = bancosconstructor.join(',');
+            const bancoFinanciador = this.bancos_financiador.find(item => item.checked);
+            if (bancoFinanciador) {
+                this.objProyecto.id_bancos_financiadores = bancoFinanciador.id_bancos_financiador;
+            }
 
-            const bancosfinanciador = this.bancos_financiador
-                .filter(item => item.checked)
-                .map(item => item.id_bancos_financiador);
-            this.editObjProyecto.bancos_financiadores = bancosfinanciador.join(',');
+
+            // const bancosconstructor = this.banco_constructor
+            //     .filter(item => item.checked)
+            //     .map(item => item.id_banco_constructor);
+            // this.editObjProyecto.banco_constructor = bancosconstructor.join(',');
+
+            // const bancosfinanciador = this.bancos_financiador
+            //     .filter(item => item.checked)
+            //     .map(item => item.id_bancos_financiador);
+            // this.editObjProyecto.bancos_financiadores = bancosfinanciador.join(',');
 
             const sala_venta = this.salas_venta
                 .filter(item => item.checked)

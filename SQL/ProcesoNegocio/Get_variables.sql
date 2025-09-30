@@ -42,3 +42,10 @@ where is_active = 1;
 select id_tipo_financiacion, tipo_financiacion
 from dim_tipo_financiacion
 where is_active = 1;
+
+select id_banco as id_bancos_financiador, banco
+from dim_banco_constructor
+where is_active = 1;
+
+select id_factor, factor, unidad 
+from dim_factor order by id_factor;

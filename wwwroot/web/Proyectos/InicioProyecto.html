@@ -489,7 +489,7 @@
                     <div class='pure-g'>
                         <div v-for='item in banco_constructor' class='pure-u-1-4'>
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" />
+                                 <input type="radio" :value='item.id_banco_constructor' v-model="objProyecto.id_banco_constructor" />
                                 <span class="checkmark"></span>
                                 {{ item.banco }}
                             </label>
@@ -505,7 +505,7 @@
                     <div class='pure-g'>
                         <div v-for='item in bancos_financiador' class='pure-u-1-4'>
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <input type="radio" :value='item.id_bancos_financiador' v-model="objProyecto.id_bancos_financiador" />
                                 <span class="checkmark"></span>
                                 {{ item.banco }}
                             </label>

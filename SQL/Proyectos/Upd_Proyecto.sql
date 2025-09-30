@@ -14,6 +14,9 @@ set
     @descripcion_comercial = '',
 
     @otra_info = '',
+    @id_bancos_financiador = 0,
+    @id_banco_constructor = 0,
+   
 
 
     @subsidios_vis = '',
@@ -92,6 +95,8 @@ set
     id_pie_legal = nullif(@id_pie_legal, 0),
     id_tipo_financiacion = nullif(@id_tipo_financiacion, 0),
     id_tipo_vis = nullif(@id_tipo_vis, 0),
+    id_banco_constructor = nullif(@id_banco_constructor, 0),
+    id_bancos_financiador = nullif(@id_bancos_financiador, 0),
 
     centro_costos = @centro_costos,
     id_fiduciaria = nullif(@id_fiduciaria, 0),
@@ -131,53 +136,53 @@ set
     where id_proyecto = @id_proyecto;
 
 
-    set @datos = @bancos_financiadores;
-    set @tabla = 'fact_banco_financiador';
-    set @campo = 'id_banco_financiador';
-    set @i = 1;
+    -- set @datos = @bancos_financiadores;
+    -- set @tabla = 'fact_banco_financiador';
+    -- set @campo = 'id_banco_financiador';
+    -- set @i = 1;
 
-    if trim(@datos) <> '' then
-        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
-        prepare stmt from @sql;
-        execute stmt;
-        deallocate prepare stmt;
+    -- if trim(@datos) <> '' then
+    --     set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+    --     prepare stmt from @sql;
+    --     execute stmt;
+    --     deallocate prepare stmt;
 
-        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
-        while @i <= @n do
-            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
-            if @item <> '' then
-                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
-                prepare stmt from @sql;
-                execute stmt;
-                deallocate prepare stmt;
-            end if;
-            set @i = @i + 1;
-        end while;
-    end if;
+    --     set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+    --     while @i <= @n do
+    --         set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+    --         if @item <> '' then
+    --             set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+    --             prepare stmt from @sql;
+    --             execute stmt;
+    --             deallocate prepare stmt;
+    --         end if;
+    --         set @i = @i + 1;
+    --     end while;
+    -- end if;
 
-    set @datos = @banco_constructor;
-    set @tabla = 'fact_banco_constructor';
-    set @campo = 'id_banco_constructor';
-    set @i = 1;
+    -- set @datos = @banco_constructor;
+    -- set @tabla = 'fact_banco_constructor';
+    -- set @campo = 'id_banco_constructor';
+    -- set @i = 1;
 
-    if trim(@datos) <> '' then
-        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
-        prepare stmt from @sql;
-        execute stmt;
-        deallocate prepare stmt;
+    -- if trim(@datos) <> '' then
+    --     set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+    --     prepare stmt from @sql;
+    --     execute stmt;
+    --     deallocate prepare stmt;
 
-        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
-        while @i <= @n do
-            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
-            if @item <> '' then
-                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
-                prepare stmt from @sql;
-                execute stmt;
-                deallocate prepare stmt;
-            end if;
-            set @i = @i + 1;
-        end while;
-    end if;
+    --     set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+    --     while @i <= @n do
+    --         set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+    --         if @item <> '' then
+    --             set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+    --             prepare stmt from @sql;
+    --             execute stmt;
+    --             deallocate prepare stmt;
+    --         end if;
+    --         set @i = @i + 1;
+    --     end while;
+    -- end if;
 
     set @datos = @estado_publicacion;
     set @tabla = 'fact_estado_publicacion';

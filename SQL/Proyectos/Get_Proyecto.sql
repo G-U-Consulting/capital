@@ -61,6 +61,8 @@ select
     a.created_by,
     a.id_tipo_financiacion,
     a.id_tipo_vis,
+    a.id_banco_constructor,
+    a.id_bancos_financiador,
     a.id_lista,
     a.alerta_cambio_lista,
     id_opcion_visual,

@@ -60,6 +60,7 @@ export default {
             tipo_tramite: [],
             planes_pago: [],
             visitas: [],
+            banco_financiador: [],
             planSeleccionado: '',
             iscliente: false,
             israpida: false,
@@ -73,6 +74,7 @@ export default {
             contadorProyectos: {},
             cotizaciones: [],
             unidades: [],
+            tipo_factor: [],
             registroCompras: [
                 {
                     fecha: '2025-06-01',
@@ -108,6 +110,13 @@ export default {
             vetoData: '',
             camposBloqueados: false, 
             registro: false,
+
+            bancoSeleccionado: 0,
+            unidadSeleccionada: "",
+            anioSeleccionado: "",
+            unidadesDisponibles: [],
+            listaAnios: []
+            
         };
     },
     computed: {
@@ -171,6 +180,15 @@ export default {
                     return false;
                 });
             }
+        },
+        textoCotizacion() {
+            if (!this.unidades || this.unidades.length === 0) return "";
+
+            let unidadesTexto = this.unidades
+                .map(u => `Torre ${u.consecutivo || ""} ${u.numero_apartamento || ""}`)
+                .join(" || ");
+
+            return `${this.nombre} - ${unidadesTexto}`;
         }
     },
     watch: {
@@ -202,6 +220,8 @@ export default {
         this.tipo_tramite = resp.data[7];
         this.planes_pago = resp.data[8];
         this.tipo_financiacion = resp.data[9];
+        this.banco_financiador = resp.data[10];
+        this.tipo_factor = resp.data[11];
         this.campoObligatorio();
         window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
         window.addEventListener('message', this.handleMessages);
@@ -614,6 +634,7 @@ export default {
             });
 
             this.cotizaciones = resp.data[0] || [];
+            this.nombre = resp.data[0][0]?.nombre || '';
 
             for (const item of this.cotizaciones) {
                 await this.cargarCotizacion(item.cotizacion);
@@ -982,6 +1003,42 @@ export default {
 			showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
 		},
         //////// mode 3 ////////////
-        
+        async cargarFactor() {
+            this.factorSeleccionado = null;
+            this.anioSeleccionado = "";
+            this.listaAnios = [];
+            this.unidadSeleccionada = "";
+
+            if (!this.bancoSeleccionado || this.bancoSeleccionado === 0) {
+                this.unidadSeleccionada = "";
+                this.anioSeleccionado = "";
+                this.unidadesDisponibles = [];
+                return;
+            }
+
+            if (!this.bancoSeleccionado) return;
+
+            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_FactorPorBanco', {
+                id_banco: this.bancoSeleccionado
+            });
+
+            this.factoresBanco = resp.data[0];
+
+            this.unidadesDisponibles = [...new Set(this.factoresBanco.filter(f => f.valor != 0).map(f => f.unidad))];
+        },
+        cargarAnios() {
+            if (!this.unidadSeleccionada) {
+                this.listaAnios = [];
+                return;
+            }
+            this.listaAnios = [
+                ...new Set(
+                    this.factoresBanco
+                        .filter(f => f.unidad === this.unidadSeleccionada)
+                        .filter(f => f.valor != 0)
+                        .map(f => f.factor)
+                )
+            ].sort((a, b) => parseInt(a) - parseInt(b));
+        },
     },
 }
