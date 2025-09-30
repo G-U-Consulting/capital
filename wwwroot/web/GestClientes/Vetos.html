@@ -22,11 +22,7 @@
                         <option :value="'1'">Vigentes</option>
                     </select>
                 </div>
-                <div class="pure-u-1-1 pure-u-md-5-24">
-                    <!-- <button v-if="showAprobar" style="display: block; margin-left: auto;" @click="openModal">
-                        Aprobar veto
-                    </button> -->
-                </div>
+                <div class="pure-u-1-1 pure-u-md-5-24"></div>
                 <div class="pure-u-1-1 pure-u-md-5-24">
                     <button style="display: block; margin-left: auto;" @click="openModal">
                         Solicitar veto
@@ -35,18 +31,18 @@
             </div>
         </div>
         <div class="main-content">
-            <table class="dataTable spaceRows" style="table-layout: auto; font-size: 15px;">
+            <table class="dataTable" style="font-size: 15px;">
                 <thead>
                     <tr>
-                        <th>Fecha</th>
-                        <th>Documento</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Teléfono</th>
-                        <th style="width: 25%;">Motivo</th>
-                        <th>Vetado por</th>
-                        <th style="width: 6%;" v-if="showAprobar">Validar</th>
-                        <th style="width: 6%;">Eliminar</th>
+                        <th style="width: 90px;">Fecha</th>
+                        <th style="width: 10%;">Documento</th>
+                        <th style="width: 18%;">Nombre</th>
+                        <th style="width: 14%;">Email</th>
+                        <th style="width: 10%;">Teléfono</th>
+                        <th style="width: 16%;">Motivo</th>
+                        <th style="width: 12%;">Vetado por</th>
+                        <th style="width: 60px;" v-if="showAprobar">Validar</th>
+                        <th style="width: 69px;">Eliminar</th>
                     </tr>
                 </thead>
                 <tbody>

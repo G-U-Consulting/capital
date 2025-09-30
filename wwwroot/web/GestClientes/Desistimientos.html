@@ -29,14 +29,12 @@
                 <div class="pure-u-1-1 pure-u-md-1-8 formInputStandard">
                     <div class="combo-container" @blur="optVisible = false">
                         <input type="text" class="combo-input" placeholder="Proyectos"
-                        v-model="filtros.desistimientos['proyecto']" @click="optVisible = true;">
+                            v-model="filtros.desistimientos['proyecto']" @click="optVisible = true;">
                         <select class="combo-options" :size="completeProjects().length + 1"
                             :style="`display: ${optVisible && completeProjects().length ? 'block' : 'none'}`"
-                            v-model="filtros.desistimientos['proyecto']" 
-                            @change="optVisible = false;">
+                            v-model="filtros.desistimientos['proyecto']" @change="optVisible = false;">
                             <option value="">[Todos]</option>
-                            <option v-for="p in completeProjects()" 
-                                :value="p.nombre">
+                            <option v-for="p in completeProjects()" :value="p.nombre">
                                 {{p.nombre}}
                             </option>
                         </select>
@@ -392,8 +390,8 @@
                 </div>
                 <div class="pure-u-1-4 formInputStandard">
                     <label class="check" for="devolver_reforma" style="margin-top: 1.7rem;">
-                        <input type="checkbox" id="devolver_reforma" v-model="desistimiento.devolver_reforma" true-value="1"
-                            false-value="0" />
+                        <input type="checkbox" id="devolver_reforma" v-model="desistimiento.devolver_reforma"
+                            true-value="1" false-value="0" />
                         <span class="checkmark"></span>
                         Devolver Valor Reformas
                     </label>
@@ -501,7 +499,7 @@
 
         </div>
         <div class="pure-u-2-5" style="text-align: left; padding-top: 1rem;">
-            <button v-if="previews.length && desistimiento.id_estado != '5' && desistimiento.id_estado != '6'" 
+            <button v-if="previews.length && desistimiento.id_estado != '5' && desistimiento.id_estado != '6'"
                 @click="onSaveFiles">Guardar Adjuntos</button>
         </div>
         <div class="pure-u-1-5" style="text-align: center; padding-top: 1rem;">
@@ -545,22 +543,27 @@
                     <select v-model="selApprover">
                         <option v-for="a in optApprove" :value="a">{{a.name}}</option>
                     </select>
-                    <textarea rows="5" v-model="desistimiento.com_coordinacion" style="resize: none; height: auto; margin-top: .5rem;"
-                        :placeholder="`Comentarios ${selApprover.type}`" :disabled="desistimiento.id_estado !== '2'"></textarea>
+                    <textarea rows="5" v-model="desistimiento.com_coordinacion"
+                        style="resize: none; height: auto; margin-top: .5rem;"
+                        :placeholder="`Comentarios ${selApprover.type}`"
+                        :disabled="desistimiento.id_estado !== '2'"></textarea>
                 </div>
                 <div class="pure-u-1-2" style="padding: 0 .5rem;">
                     <input type="date" readonly :disabled="desistimiento.id_estado !== '2'"
                         :value="desistimiento.fec_com_coordinacion || formatDatetime('', 'bdate')">
                 </div>
                 <div class="pure-u-1-2"></div>
-                <div v-if="enableCoordinacion || enableDireccion" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '2'}">
+                <div v-if="enableCoordinacion || enableDireccion"
+                    v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '2'}">
                     <div class="pure-u-1-2 formInputStandard">
-                        <button class="red-btn" @click="desistimiento.id_estado === '2' && includesMsg(desistimiento.com_coordinacion) && setEstado('3')">
+                        <button class="red-btn"
+                            @click="desistimiento.id_estado === '2' && includesMsg(desistimiento.com_coordinacion) && setEstado('3')">
                             Aprobar
                         </button>
                     </div>
                     <div class="pure-u-1-2 formInputStandard">
-                        <button @click="desistimiento.id_estado === '2' && includesMsg(desistimiento.com_coordinacion) && setEstado('6')">
+                        <button
+                            @click="desistimiento.id_estado === '2' && includesMsg(desistimiento.com_coordinacion) && setEstado('6')">
                             No Aceptar
                         </button>
                     </div>
@@ -570,8 +573,9 @@
                 <div class="formInputStandard">
                     <span>Gerencia</span>
                     <input type="text" :value="desistimiento.gerente" readonly>
-                    <textarea rows="5" v-model="desistimiento.com_gerencia" style="resize: none; height: auto; margin-top: .5rem;"
-                        placeholder="Comentarios Gerencia" :disabled="desistimiento.id_estado !== '3'"></textarea>
+                    <textarea rows="5" v-model="desistimiento.com_gerencia"
+                        style="resize: none; height: auto; margin-top: .5rem;" placeholder="Comentarios Gerencia"
+                        :disabled="desistimiento.id_estado !== '3'"></textarea>
                 </div>
                 <div class="pure-u-1-2" style="padding: 0 .5rem;">
                     <input type="date" readonly :disabled="desistimiento.id_estado !== '3'"
@@ -580,12 +584,14 @@
                 <div class="pure-u-1-2"></div>
                 <div v-if="enableGerencia" v-bind:class="{'grp-btn-disabled': desistimiento.id_estado !== '3'}">
                     <div class="pure-u-1-2 formInputStandard">
-                        <button class="red-btn" @click="desistimiento.id_estado === '3' && includesMsg(desistimiento.com_gerencia) && setEstado('4')">
+                        <button class="red-btn"
+                            @click="desistimiento.id_estado === '3' && includesMsg(desistimiento.com_gerencia) && setEstado('4')">
                             Aprobar
                         </button>
                     </div>
                     <div class="pure-u-1-2 formInputStandard">
-                        <button @click="desistimiento.id_estado === '3' && includesMsg(desistimiento.com_gerencia) && setEstado('6')">
+                        <button
+                            @click="desistimiento.id_estado === '3' && includesMsg(desistimiento.com_gerencia) && setEstado('6')">
                             No Aceptar
                         </button>
                     </div>
@@ -597,7 +603,7 @@
                 <span>Carta de segunda oportunidad</span>
                 <span class="arrow" v-bind:class="{'expanded': showCarta}">&lt;</span>
             </div>
-            <div v-show="showCarta" style="padding: .5rem;">
+            <div id="pdf-content" v-show="showCarta" style="padding: .5rem;">
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Titular</label>
                     <input type="text" :value="desistimiento.nombre_cliente" readonly>
@@ -619,7 +625,7 @@
                     <input type="text" :value="f_val_carta" readonly>
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
-                    <button>
+                    <button @click="printPDF">
                         Ver Carta
                     </button>
                 </div>
@@ -766,5 +772,201 @@
                 Terminar
             </button>
         </div>
+    </div>
+</div>
+
+<div style="display: none;" v-if="desistimiento && mode == 3">
+    <div id="template-carta" style="height: 296mm; display: flex; flex-direction: column; position: relative;">
+
+        <img src="../../img/background/pdf_header.png" alt="Capital" style="width: 100%; height: auto;">
+        <img src="../../img/background/pdf_watermark.png" 
+            style="position: absolute;
+                    top: 64.2%;
+                    left: 52%;
+                    opacity: 0.1;
+                    z-index: 0;
+                    width: 400px;"/>
+        <div style="padding: 0 2.2rem; font-size: 14px; font-family: Arial, Helvetica, sans-serif; 
+            color: #000; font-weight: 400; line-height: 1.2; flex: 1;">
+            
+            <p>{{desistimiento.sede}}, {{formatDatetime(desistimiento.created_on, 'textdate')}}</p>
+            <p>Señor(a):
+                <br>
+                <span style="font-weight: bold;">{{desistimiento.nombre_cliente}} </span>
+                <span> (CC {{desistimiento.numero_documento}})</span>
+            </p>
+            <p style="font-weight: bold;">
+                Ref: Carta de Segunda Oportunidad
+                <br>
+                Desistimiento Inmueble: {{desistimiento.proyecto}} TORRE {{desistimiento.torre}}
+                {{desistimiento.unidad}}
+            </p>
+            <p style="margin-top: 2rem;">Respetado(s) señor(es):</p>
+            <p style="text-align: justify;">
+                Reciba(n) un cordial saludo. Lamentamos profundamente que no hayamos logrado
+                cumplir nuestro objetivo
+                común de llevar
+                su negocio a feliz término. En Constructora Capital reiteramos nuestro compromiso de hacer tu vida
+                nuestro proyecto, por
+                esta razón y de manera especial queremos informarle que a partir de este momento y
+                <span style="font-weight: bold;">{{formatDatetime(null, 'textdate',
+                    dateAddYears(desistimiento.created_on, 1))}}</span>
+                usted tendrá la posibilidad de adquirir otro inmueble en alguno de nuestros proyectos; y para ello puede
+                emplear el valor
+                penalizado como abono a un inmueble.
+            </p>
+            <div style="border: 1px solid black; width: 100%;">
+                <div style="padding: 6px .5rem; border-bottom: 1px solid black; display: flex;">
+                    <span style="width: 50%; font-weight: bold;">VALOR PENALIZADO</span>
+                    <span style="width: 50%;">${{f_pnl_neta}}</span>
+                </div>
+                <div style="padding: 6px .5rem; border-bottom: 1px solid black; display: flex;">
+                    <span style="width: 50%; font-weight: bold;">GASTOS ADMINISTRATIVOS</span>
+                    <span style="width: 50%;">${{f_gasto}}</span>
+                </div>
+                <div style="padding: 6px .5rem; display: flex; background: #eee;">
+                    <span style="width: 50%; font-weight: bold;">VALOR AUTORIZADO NUEVO NEGOCIO</span>
+                    <span style="width: 50%;">${{f_val_carta}}</span>
+                </div>
+            </div>
+            <p style="text-align: justify;">
+                Para hacer efectiva esta opción, lo invitamos a acercarse a cualquiera de nuestras salas de ventas,
+                realizar su separación y
+                presentar este documento al asesor para que este refleje el valor del descuento en la nueva negociación.
+            </p>
+            <p style="text-align: justify;">
+                Es importante tener en cuenta las condiciones del nuevo negocio, mantener un impecable comportamiento en
+                los pagos y
+                cumplir con las fechas pactadas para cada uno de los trámites de su proceso de compra y de esta forma
+                evitar un nuevo
+                desistimiento. Por favor tener presente que este valor es aplicable por una sola vez en cabeza del (de
+                los) titular(es) de esta
+                carta.
+            </p>
+            <p style="text-align: justify;">
+                Lo invitamos a visitar nuestra página web www.constructoracapital.com.co para conocer los proyectos con
+                inventario
+                disponible o estar informándose de los lanzamientos que realizaremos en los próximos meses, para así
+                poder escoger el
+                proyecto que le permita alcanzar su meta de comprar vivienda con nosotros.
+            </p>
+            <p style="font-weight: bold; text-align: justify;">
+                NOTA: Esta carta no es un título valor, su aplicación al respectivo
+                plan de pagos estará sujeto a revisión por parte
+                de Constructora Capital para garantizar que los recursos se encuentran vigentes y/o no han sido
+                aplicados a otras
+                negociaciones o reintegrados al titular de la carta por alguna excepción o reconsideración en el
+                proceso de desistimiento que genero la presente carta.
+            </p>Cordialmente,</p>
+            <div style="height: 100px;"></div>
+            <p>
+                <span style="font-weight: bold;">CARLOS ALBERTO PERRY WOBST</span>
+                <br>
+                Gerente Comercial Constructora Capital Bogotá S.A.S
+            </p>
+        </div>
+        <div style="height: 50px; text-align: center; font-size: 12px;">
+            <span style="display: block;">Constructora Capital Bogotá S.A.S. NIT: 900192711-6</span>
+            <span style="display: block;">
+                Carrera 67 Nº 100 - 20 Of. 503 | PBX: (571) 641 7033 | Bogotá - Colombia
+                <span style="font-weight: bold;">www.constructoracapital.com</span>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div style="display: none;" v-if="desistimiento && mode == 3">
+    <div id="template-carta">
+        <div class="formDivision">
+            <span>Valores DataMart</span>
+        </div>
+        <table class="dataTable">
+            <thead>
+                <tr>
+                    <th>Fecha FPC</th>
+                    <th>FEC Program.</th>
+                    <th>Valor Venta Neto</th>
+                    <th>Valor Abonado</th>
+                    <th>A Capital</th>
+                    <th>A Intereses</th>
+                    <th>Condonación</th>
+                    <th>Imp. Reformas</th>
+                </tr>
+            </thead>
+            <tbody class="editTable">
+                <tr>
+                    <td>
+                        <input type="date" v-model="desistimiento.fecha_fpc">
+                    </td>
+                    <td>
+                        <input type="date" v-model="desistimiento.fecha_program">
+                    </td>
+                    <td>
+                        <input type="text" v-model="f_v_venta_neto">
+                    </td>
+                    <td>
+                        <input type="text" :value="f_v_abonado">
+                    </td>
+                    <td>
+                        <input type="text" v-model="f_a_capital">
+                    </td>
+                    <td>
+                        <input type="text" v-model="f_a_intereses">
+                    </td>
+                    <td>
+                        <input type="text" v-model="f_condonacion">
+                    </td>
+                    <td>
+                        <input type="text" v-model="f_imp_reformas">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="formDivision">
+            <span>Liquidación</span>
+        </div>
+        <table class="dataTable">
+            <thead>
+                <tr>
+                    <th>% PNL PCV</th>
+                    <th>% PNL Aplicada</th>
+                    <th>PNL Aplicada</th>
+                    <th>PNL Bruta</th>
+                    <th>PNL Neta</th>
+                    <th>Devolución</th>
+                    <th>4xmil</th>
+                    <th>Líquido</th>
+                </tr>
+            </thead>
+            <tbody class="editTable">
+                <tr>
+                    <td>
+                        <input type="text" v-model="f_pnl_pcv">
+                    </td>
+                    <td>
+                        <input type="text" v-model="f_pnl_aplicada_ptg">
+                    </td>
+                    <td>
+                        <input type="text" :value="f_pnl_aplicada_val">
+                    </td>
+                    <td>
+                        <input type="text" :value="f_pnl_bruta">
+                    </td>
+                    <td>
+                        <input type="text" :value="f_pnl_neta">
+                    </td>
+                    <td>
+                        <input type="text" :value="f_devolucion">
+                    </td>
+                    <td>
+                        <input type="text" :value="f_4xmil">
+                    </td>
+                    <td>
+                        <input type="text" :value="f_liquido">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>

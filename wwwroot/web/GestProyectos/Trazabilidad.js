@@ -10,12 +10,15 @@ export default {
             clases: [],
             unidades: [],
             tipos: [],
+            estados: [],
             unidad: {},
             selSede: {},
             selCiu: {},
             selPro: {},
             selTorre: {},
             selUnd: {},
+
+            editTipoEstado: true,
 
             optVisible: false,
             filtros: {
@@ -44,13 +47,14 @@ export default {
 
         async loadData() {
             showProgress();
-            [this.sedes, this.ciudadelas, this.proyectos, this.clases] = 
+            [this.sedes, this.ciudadelas, this.proyectos, this.clases, this.estados] = 
                 (await httpFunc("/generic/genericDS/Gestion:Get_InitData", {})).data;
             hideProgress();
         },
         async loadTorres(pro) {
             if (pro && pro.id_proyecto) {
                 showProgress();
+                delete this.filtros.unidades.id_tipo;
                 [pro.torres, this.tipos] = (await httpFunc("/generic/genericDS/Gestion:Get_Torres", { id_proyecto: pro.id_proyecto })).data;
                 this.selTorre = {};
                 this.unidades = [];
@@ -59,10 +63,14 @@ export default {
         },
         async loadUnidades(torre) {
             if (torre && torre.id_torre) {
-                showProgress();
-                torre.unidades = (await httpFunc("/generic/genericDT/Gestion:Get_Unidades", { id_torre: torre.id_torre })).data;
-                this.unidades = torre.unidades;
-                hideProgress();
+                if (torre.unidades && torre.unidades.length)
+                    this.unidades = torre.unidades;
+                else {
+                    showProgress();
+                    torre.unidades = (await httpFunc("/generic/genericDT/Gestion:Get_Unidades", { id_torre: torre.id_torre })).data;
+                    this.unidades = torre.unidades;
+                    hideProgress();
+                }
             }
         },
         async onSelect(und) {
@@ -81,6 +89,14 @@ export default {
             und.logs = (await httpFunc("/generic/genericDT/Gestion:Get_Logs", { id_unidad: und.id_unidad })).data;
             hideProgress();
         },
+        valClase() {
+            if (this.filtros.unidades.id_clase && this.filtros.unidades.id_clase != '8') {
+                delete this.filtros.unidades.id_tipo;
+                delete this.filtros.unidades.id_estado_unidad;
+                this.editTipoEstado = false;
+            }
+            else this.editTipoEstado = true;
+        }
 
     },
     computed: {

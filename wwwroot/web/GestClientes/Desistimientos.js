@@ -54,6 +54,8 @@ export default {
             dragIndex: null,
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
 
+            nameMonths: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+
             editRow: false,
             selRow: null,
 
@@ -483,6 +485,8 @@ export default {
                 meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
             if (type === 'date')
                 return `${day}/${month}/${year}`;
+            if (type === 'textdate')
+                return `${day} de ${this.nameMonths[date.getMonth()]} de ${year}`;
             if (type === 'bdate')
                 return `${year}-${month}-${day}`;
             if (type === 'bdatetime')
@@ -492,6 +496,11 @@ export default {
             if (type === 'vtime')
                 return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
             return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
+        },
+        dateAddYears(date, years) {
+            let newDate = new Date(date);
+            newDate.setFullYear(newDate.getFullYear() + years);
+            return newDate;
         },
 
         includesMsg(text) {
@@ -586,6 +595,25 @@ export default {
             await GlobalVariables.loadPermisos();
             return !!GlobalVariables.permisos.filter((p) => p.id_permiso == id).length;
         },
+
+        printPDF() {
+            this.$nextTick(() => {
+                const content = document.getElementById('template-carta');
+                console.log(content);
+
+                html2pdf().set({
+                    margin: 0,
+                    letterRendering: true,
+                    filename: 'tabla.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 5 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                }).from(content).outputPdf('bloburl').then((pdfUrl) => {
+                    window.open(pdfUrl, '_blank');
+                });
+            });
+        }
+
     },
     computed: {
         f_campo: {
@@ -597,7 +625,7 @@ export default {
             set(val) { this.desistimiento['interes'] = this.cleanNumber(val); }
         },
         f_gasto: {
-            get() { return this.formatNumber(this.desistimiento['gasto'], true); },
+            get() { return this.formatNumber(this.desistimiento['gasto'], false); },
             set(val) { this.desistimiento['gasto'] = this.cleanNumber(val); }
         },
         f_descuento: {
