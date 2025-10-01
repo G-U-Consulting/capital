@@ -24,7 +24,7 @@
                 </div>
                 <div class="pure-u-1-1 pure-u-md-5-24"></div>
                 <div class="pure-u-1-1 pure-u-md-5-24">
-                    <button style="display: block; margin-left: auto;" @click="openModal">
+                    <button style="display: block; margin-left: auto;" @click="openModal(); newMode = true;">
                         Solicitar veto
                     </button>
                 </div>
@@ -46,7 +46,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="v in getFilteredList('vetos')">
+                    <tr v-for="v in getFilteredList('vetos')" @dblclick="onSelect(v)">
                         <td>{{v.fecha}}</td>
                         <td>{{v.numero_documento}}</td>
                         <td>{{v.nombre}}</td>
@@ -78,7 +78,7 @@
         <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal" class="modal-cerrar events">
         <div class="pure-u-1-1">
             <h2 style="text-align: center; margin-bottom: 1rem;">
-                Solicitud Nuevo Veto
+                {{newMode ? 'Solicitud Nuevo Veto' : 'Detalles Veto'}}
             </h2>
         </div>
         <div class="modal-scroll" style="width: 100%; min-height: 20rem">
@@ -86,10 +86,10 @@
                 <label>Número de Documento</label>
                 <div style="display: flex;">
                     <div class="pure-u-1-1 pure-u-md-22-2">
-                        <input type="text" v-model="searchCli" maxlength="50"
+                        <input type="text" v-model="searchCli" maxlength="50" :readonly="!newMode"
                             @input="validarNumero(null, 'searchCli'); cliente = {}; searched = false;" />
                     </div>
-                    <div class="pure-u-1-1 pure-u-md-2-24">
+                    <div v-if="newMode" class="pure-u-1-1 pure-u-md-2-24">
                         <div class="imgGraybutton" @click="getCliente">
                             <img src="./img/ico/svg/search.svg" />
                         </div>
@@ -105,7 +105,7 @@
                 </select>
             </div>
 
-            <div v-if="searched && !cliente.id_cliente">
+            <div v-if="searched && !cliente.id_cliente && newMode">
                 <div class="pure-u-1-2 pure-u-md-1-2 formInputStandard">
                     <label>Nombres*</label>
                     <input type="text" v-model="cliente.nombres" @input="validarTexto(cliente, 'nombres')">
@@ -168,14 +168,14 @@
 
             <div class="pure-u-1-1 formInputStandard">
                 <label>Motivo</label>
-                <textarea rows="5" v-model="cliente.motivo" style="resize: none; height: auto;">
+                <textarea rows="5" v-model="cliente.motivo" style="resize: none; height: auto;" :readonly="!newMode">
                     </textarea>
             </div>
 
         </div>
         <div class="pure-u-2-5"></div>
         <div class="pure-u-1-5" style="text-align: center;">
-            <button @click="onRequest">Solicitar</button>
+            <button v-if="newMode" @click="onRequest">Solicitar</button>
         </div>
     </div>
 </div>

@@ -118,6 +118,12 @@ export default {
                 this.ruta = [this.ruta[0], this.ruta[1], { text: 'Aprobación', action: () => this.setMode(3) }];
                 this.setRuta();
                 await this.loadAccounts();
+
+                let img = await fetch('../../img/ico/svg/logo-capital.svg');
+                img = await img.text();
+                console.log(img);
+                const container = document.getElementById('logo-capital');
+                container.innerHTML = img;
             }
         },
         async loadData() {
@@ -185,6 +191,7 @@ export default {
         cleanNumber(value) {
             let cleaned = value.replace(/['.]/g, "");
             cleaned = cleaned.replace(",", ".");
+            if (cleaned == '00') cleaned = '0';
             return cleaned;
         },
         onAddAccount() {
@@ -260,6 +267,12 @@ export default {
             let res = null;
             try {
                 Object.keys(this.desistimiento).forEach(k => !this.desistimiento[k] && delete this.desistimiento[k]);
+                let val_extra = this.desistimiento.extra_prorroga_carta, fecha_extra = this.desistimiento.fec_prorroga_carta;
+                console.log(val_extra, fecha_extra)
+                if (val_extra && val_extra != '0' && !fecha_extra)
+                    throw { errorMessage: 'Si ingresaste un valor extra por prórroga, debes indicar la fecha de prórroga.' }
+                if ((!val_extra || val_extra == '0') && fecha_extra)
+                    throw { errorMessage: 'Si ingresaste una fecha de prórroga, debes ingresar un valor extra por prórroga.' }
                 res = await httpFunc(`/generic/genericST/Clientes:${this.isNew ? 'Ins' : 'Upd'}_Desistimiento`, this.desistimiento);
                 if (res.isError || res.data !== 'OK') throw res;
                 await this.loadData();
@@ -596,18 +609,16 @@ export default {
             return !!GlobalVariables.permisos.filter((p) => p.id_permiso == id).length;
         },
 
-        printPDF() {
+        printPDF(id) {
             this.$nextTick(() => {
-                const content = document.getElementById('template-carta');
-                console.log(content);
-
+                const content = document.getElementById(id);
                 html2pdf().set({
                     margin: 0,
                     letterRendering: true,
                     filename: 'tabla.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
+                    image: { type: 'jpeg', quality: 1 },
                     html2canvas: { scale: 5 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
                 }).from(content).outputPdf('bloburl').then((pdfUrl) => {
                     window.open(pdfUrl, '_blank');
                 });
@@ -621,7 +632,7 @@ export default {
             set(val) { this.desistimiento[this.getCampoPenalidad()] = this.cleanNumber(val); }
         },
         f_interes: {
-            get() { return this.formatNumber(this.desistimiento['interes'], true); },
+            get() { return this.formatNumber(this.desistimiento['interes'], false); },
             set(val) { this.desistimiento['interes'] = this.cleanNumber(val); }
         },
         f_gasto: {
@@ -629,7 +640,7 @@ export default {
             set(val) { this.desistimiento['gasto'] = this.cleanNumber(val); }
         },
         f_descuento: {
-            get() { return this.formatNumber(this.desistimiento['descuento'], true); },
+            get() { return this.formatNumber(this.desistimiento['descuento'], false); },
             set(val) { this.desistimiento['descuento'] = this.cleanNumber(val); }
         },
         f_cant_incumplida: {
@@ -753,6 +764,7 @@ export default {
             get() {
                 let val = Number(this.cleanNumber(this.f_pnl_neta)) - Number(this.cleanNumber(this.f_gasto))
                     - Number(this.cleanNumber(this.f_extra_prorroga_carta));
+                this.desistimiento.val_carta_texto = Number2Text(val).toUpperCase();
                 return this.formatNumber(val.toString(), false);
             },
         },

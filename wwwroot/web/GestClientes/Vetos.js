@@ -17,6 +17,7 @@ export default {
 
             showAprobar: false,
             searched: false,
+            newMode: true,
         };
     },
     async mounted() {
@@ -49,34 +50,34 @@ export default {
         },
         async onDelete(veto) {
             showProgress();
-			let res = null;
-			try {
-				res = await httpFunc('/generic/genericST/Clientes:Del_Veto', { id_veto: veto.id_veto });
-				if (res.isError || res.data !== 'OK') throw res;
-				this.loadData();
-			} catch (e) {
-				console.error(e);
-				showMessage('Error: ' + e.errorMessage || e.data);
-			}
-			hideProgress();
+            let res = null;
+            try {
+                res = await httpFunc('/generic/genericST/Clientes:Del_Veto', { id_veto: veto.id_veto });
+                if (res.isError || res.data !== 'OK') throw res;
+                this.loadData();
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+            }
+            hideProgress();
         },
         async onApprove(veto) {
             showProgress();
-			let res = null;
-			try {
-				res = await httpFunc('/generic/genericST/Clientes:Upd_Veto', 
+            let res = null;
+            try {
+                res = await httpFunc('/generic/genericST/Clientes:Upd_Veto',
                     { id_veto: veto.id_veto, vigente: '1', usuario: GlobalVariables.username });
-				if (res.isError || res.data !== 'OK') throw res;
-				this.loadData();
-			} catch (e) {
-				console.error(e);
-				showMessage('Error: ' + e.errorMessage || e.data);
-			}
-			hideProgress();
+                if (res.isError || res.data !== 'OK') throw res;
+                this.loadData();
+            } catch (e) {
+                console.error(e);
+                showMessage('Error: ' + e.errorMessage || e.data);
+            }
+            hideProgress();
         },
         reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
-			showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
-		},
+            showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
+        },
         openModal() {
             let $modal = document.getElementById('modalOverlay');
             if ($modal) $modal.style.display = 'flex';
@@ -96,7 +97,7 @@ export default {
             }
         },
         async getCliente() {
-            if (this.searchCli) {
+            if (this.searchCli && this.newMode) {
                 showProgress();
                 let res = (await httpFunc('/generic/genericDT/Clientes:Get_Cliente', { numero_documento: this.searchCli })).data;
                 if (res && res.length) this.cliente = res[0];
@@ -133,7 +134,7 @@ export default {
                 if (!this.cliente.numero_documento) this.cliente.numero_documento = this.searchCli;
                 let res = null;
                 try {
-                    res = await httpFunc('/generic/genericST/Clientes:Ins_Veto', 
+                    res = await httpFunc('/generic/genericST/Clientes:Ins_Veto',
                         { ...this.cliente, usuario: GlobalVariables.username });
                     if (res.isError || res.data !== 'OK') throw res;
                     this.loadData();
@@ -151,16 +152,22 @@ export default {
         },
         validarNumero(obj, field) {
             if (obj && field) obj[field] = obj[field].replaceAll(/[^0-9]/g, '');
-            else if(field) this[field] = this[field].replaceAll(/[^0-9]/g, '');
+            else if (field) this[field] = this[field].replaceAll(/[^0-9]/g, '');
         },
         async validarTexto(obj, field) {
             if (obj && field) obj[field] = obj[field].replaceAll(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
-            else if(field) this[field] = this[field].replaceAll(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+            else if (field) this[field] = this[field].replaceAll(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
         },
         isEmail(email) {
             let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
             return !email || regex.test(email);
         },
+        onSelect(veto) {
+            this.openModal();
+            this.newMode = false;
+            this.cliente = { ...veto };
+            this.searchCli = veto.numero_documento;
+        }
     },
     computed: {
         getFilteredList() {

@@ -4086,3 +4086,44 @@ tr.cal-row-info > td {
   border: 2px solid #832020 !important;
   outline: none;
 }
+
+.pdf-template {
+  width: 215.9mm; 
+  height: 279.4mm; 
+  display: flex; 
+  flex-direction: column; 
+  position: relative;
+}
+.pdf-template * {
+  font-family: sans-serif !important;
+}
+.pdf-table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin-top: .5rem;
+  width: 100%;
+}
+.pdf-table * {
+  font-family: sans-serif !important;
+  font-size: 11px;
+}
+.pdf-table td, .pdf-table th {
+  border-bottom: #777 solid 1px;
+  border-right: #777 solid 1px;
+  padding: 4px;
+}
+.pdf-table th {
+  border-top: #777 solid 1px;
+  background: #eee;
+  font-weight: bold;
+  color: #000;
+}
+.st0 {
+  fill: #1890AC;
+}
+.st1 {
+  fill: #241F20;
+}
+.st2 {
+  fill: url(#XMLID_3_);
+}

@@ -335,7 +335,7 @@
             <div v-show="showGestion" style="padding: .5rem;">
                 <div class="pure-u-1-2 formInputStandard">
                     <label>Categoría Desistimiento:</label>
-                    <select v-model="desistimiento.id_categoria">
+                    <select v-model="desistimiento.id_categoria" :disabled="Number(desistimiento.id_estado) > 4">
                         <option value="">[Seleccionar]</option>
                         <option v-for="c in categorias" :value="c.id_categoria">
                             {{c.categoria}}
@@ -344,7 +344,7 @@
                 </div>
                 <div class="pure-u-1-4 formInputStandard">
                     <label>Fiduciaria:</label>
-                    <select v-model="desistimiento.id_fiduciaria">
+                    <select v-model="desistimiento.id_fiduciaria" :disabled="Number(desistimiento.id_estado) > 4">
                         <option value="">[Seleccionar]</option>
                         <option v-for="f in fiduciarias" :value="f.id_fiduciaria">
                             {{f.fiduciaria}}
@@ -353,7 +353,7 @@
                 </div>
                 <div class="pure-u-1-4 formInputStandard">
                     <label>Etapa Proyecto:</label>
-                    <select v-model="desistimiento.etapa">
+                    <select v-model="desistimiento.etapa" :disabled="Number(desistimiento.id_estado) > 4">
                         <option value="">[Seleccionar]</option>
                         <option value="INMOBILIARIO">INMOBILIARIO</option>
                         <option value="PREVENTA">PREVENTA</option>
@@ -362,7 +362,7 @@
 
                 <div class="pure-u-1-4 formInputStandard">
                     <label>Aplica Penalidad:</label>
-                    <select v-model="desistimiento.id_penalidad">
+                    <select v-model="desistimiento.id_penalidad" :disabled="Number(desistimiento.id_estado) > 4">
                         <option v-for="p in penalidades" :value="p.id_penalidad">
                             {{p.penalidad}}
                         </option>
@@ -371,26 +371,32 @@
                 <div class="pure-u-1-4">
                     <div class="formInputStandard" v-if="getCampoPenalidad()">
                         <label>{{getCampoPenalidad()}}:</label>
-                        <input type="text" v-model="f_campo" @input="validarNumero">
+                        <input v-if="Number(desistimiento.id_estado) > 4" type="text" :value="f_campo" readonly>
+                        <input v-else type="text" v-model="f_campo" @input="validarNumero">
                     </div>
                 </div>
                 <div class="pure-u-1-2"></div>
 
                 <div class="pure-u-1-4 formInputStandard">
                     <label>Interés Generado:</label>
-                    <input type="text" v-model="f_interes" @input="validarNumero">
+                    <input v-if="Number(desistimiento.id_estado) > 4" type="text" :value="f_interes" readonly>
+                    <input v-else type="text" v-model="f_interes" @input="validarNumero">
                 </div>
                 <div class="pure-u-1-4 formInputStandard">
                     <label>Gastos Administrativos:</label>
-                    <input type="text" v-model="f_gasto" @input="validarNumero">
+                    <input v-if="Number(desistimiento.id_estado) > 4" type="text" :value="f_gasto" readonly>
+                    <input v-else type="text" v-model="f_gasto" @input="validarNumero">
                 </div>
                 <div class="pure-u-1-4 formInputStandard">
                     <label>Otro descuento devolución:</label>
-                    <input type="text" v-model="f_descuento" @input="validarNumero">
+                    <input v-if="Number(desistimiento.id_estado) > 4" type="text" :value="f_descuento" readonly>
+                    <input v-else type="text" v-model="f_descuento" @input="validarNumero">
                 </div>
                 <div class="pure-u-1-4 formInputStandard">
                     <label class="check" for="devolver_reforma" style="margin-top: 1.7rem;">
-                        <input type="checkbox" id="devolver_reforma" v-model="desistimiento.devolver_reforma"
+                        <input v-if="Number(desistimiento.id_estado) > 4" type="checkbox" id="devolver_reforma"
+                            :value="desistimiento.devolver_reforma" true-value="1" false-value="0" disabled />
+                        <input v-else type="checkbox" id="devolver_reforma" v-model="desistimiento.devolver_reforma"
                             true-value="1" false-value="0" />
                         <span class="checkmark"></span>
                         Devolver Valor Reformas
@@ -420,12 +426,10 @@
                     <tbody class="editTable">
                         <tr>
                             <td>
-                                <input type="text" v-model="f_pnl_pcv" readonly
-                                    @input="validarNumero($event, false), valMax($event, 100)">
+                                <input type="text" v-model="f_pnl_pcv" readonly>
                             </td>
                             <td>
-                                <input type="text" v-model="f_pnl_aplicada_ptg" readonly
-                                    @input="validarNumero($event, false), valMax($event, 100)">
+                                <input type="text" v-model="f_pnl_aplicada_ptg" readonly>
                             </td>
                             <td>
                                 <input type="text" :value="f_pnl_aplicada_val" readonly>
@@ -614,7 +618,7 @@
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Fecha prorroga</label>
-                    <input type="date" v-model="desistimiento.fecha_prorroga_carta">
+                    <input type="date" v-model="desistimiento.fec_prorroga_carta">
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Extra por prorroga</label>
@@ -625,12 +629,18 @@
                     <input type="text" :value="f_val_carta" readonly>
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
-                    <button @click="printPDF">
+                    <button @click="printPDF('template-carta')">
                         Ver Carta
                     </button>
                 </div>
                 <div class="pure-u-1-5 formInputStandard">
-                    <button class="red-btn">Enviar carta</button>
+                    <button class="red-btn" @click="printPDF('template-formato-dev')">Enviar carta</button>
+                </div>
+                <div class="pure-u-2-5 formInputStandard"></div>
+                <div class="pure-u-1-5 formInputStandard" style="text-align: right;">
+                    <button v-if="desistimiento.id_estado == '4'" @click="onSave(true)">
+                        Guardar
+                    </button>
                 </div>
             </div>
 
@@ -776,19 +786,17 @@
 </div>
 
 <div style="display: none;" v-if="desistimiento && mode == 3">
-    <div id="template-carta" style="height: 296mm; display: flex; flex-direction: column; position: relative;">
+    <div id="template-carta" class="pdf-template">
 
         <img src="../../img/background/pdf_header.png" alt="Capital" style="width: 100%; height: auto;">
-        <img src="../../img/background/pdf_watermark.png" 
-            style="position: absolute;
-                    top: 64.2%;
+        <img src="../../img/background/pdf_watermark.png" style="position: absolute;
+                    top: 65%;
                     left: 52%;
                     opacity: 0.1;
                     z-index: 0;
-                    width: 400px;"/>
-        <div style="padding: 0 2.2rem; font-size: 14px; font-family: Arial, Helvetica, sans-serif; 
-            color: #000; font-weight: 400; line-height: 1.2; flex: 1;">
-            
+                    width: 400px;" />
+        <div style="padding: 0 2.2rem; font-size: 13px; color: #000; font-weight: 400; line-height: 1.19; flex: 1;">
+
             <p>{{desistimiento.sede}}, {{formatDatetime(desistimiento.created_on, 'textdate')}}</p>
             <p>Señor(a):
                 <br>
@@ -809,8 +817,10 @@
                 su negocio a feliz término. En Constructora Capital reiteramos nuestro compromiso de hacer tu vida
                 nuestro proyecto, por
                 esta razón y de manera especial queremos informarle que a partir de este momento y
-                <span style="font-weight: bold;">{{formatDatetime(null, 'textdate',
-                    dateAddYears(desistimiento.created_on, 1))}}</span>
+                <span style="font-weight: bold;">{{desistimiento.fec_prorroga_carta
+                    ? formatDatetime(desistimiento.fec_prorroga_carta, 'textdate')
+                    : formatDatetime(null, 'textdate', dateAddYears(desistimiento.created_on, 1))}}
+                    {{desistimiento.fec_prorroga_carta ? ' (Fecha Prorrogada)' : ''}}</span>
                 usted tendrá la posibilidad de adquirir otro inmueble en alguno de nuestros proyectos; y para ello puede
                 emplear el valor
                 penalizado como abono a un inmueble.
@@ -824,9 +834,18 @@
                     <span style="width: 50%; font-weight: bold;">GASTOS ADMINISTRATIVOS</span>
                     <span style="width: 50%;">${{f_gasto}}</span>
                 </div>
+                <div style="padding: 6px .5rem; border-bottom: 1px solid black;"
+                    :style="`display: ${f_extra_prorroga_carta && f_extra_prorroga_carta != '0' ? 'flex': 'none'}`">
+                    <span style="width: 50%; font-weight: bold;">EXTRA POR PRÓRROGA</span>
+                    <span style="width: 50%;">${{f_extra_prorroga_carta}}</span>
+                </div>
                 <div style="padding: 6px .5rem; display: flex; background: #eee;">
                     <span style="width: 50%; font-weight: bold;">VALOR AUTORIZADO NUEVO NEGOCIO</span>
                     <span style="width: 50%;">${{f_val_carta}}</span>
+                </div>
+                <div style="padding: 0 .5rem 6px .5rem; display: flex; background: #eee; align-items: center;">
+                    <span style="width: 50%; font-weight: bold;">VALOR EN LETRAS</span>
+                    <span style="width: 50%;">{{desistimiento.val_carta_texto}}</span>
                 </div>
             </div>
             <p style="text-align: justify;">
@@ -844,8 +863,10 @@
                 carta.
             </p>
             <p style="text-align: justify;">
-                Lo invitamos a visitar nuestra página web www.constructoracapital.com.co para conocer los proyectos con
-                inventario
+                Lo invitamos a visitar nuestra página web
+                <a style="color: #000; text-decoration: none;"
+                    href="https://www.constructoracapital.com">www.constructoracapital.com.co</a>
+                para conocer los proyectos con inventario
                 disponible o estar informándose de los lanzamientos que realizaremos en los próximos meses, para así
                 poder escoger el
                 proyecto que le permita alcanzar su meta de comprar vivienda con nosotros.
@@ -857,8 +878,9 @@
                 aplicados a otras
                 negociaciones o reintegrados al titular de la carta por alguna excepción o reconsideración en el
                 proceso de desistimiento que genero la presente carta.
-            </p>Cordialmente,</p>
-            <div style="height: 100px;"></div>
+            </p>
+            <p>Cordialmente,</p>
+            <div style="height: 90px;"></div>
             <p>
                 <span style="font-weight: bold;">CARLOS ALBERTO PERRY WOBST</span>
                 <br>
@@ -869,104 +891,181 @@
             <span style="display: block;">Constructora Capital Bogotá S.A.S. NIT: 900192711-6</span>
             <span style="display: block;">
                 Carrera 67 Nº 100 - 20 Of. 503 | PBX: (571) 641 7033 | Bogotá - Colombia
-                <span style="font-weight: bold;">www.constructoracapital.com</span>
+                <a style="color: #000; text-decoration: none; font-weight: bold;"
+                    href="https://www.constructoracapital.com">www.constructoracapital.com</a>
             </span>
         </div>
     </div>
 </div>
 
-<div style="display: none;" v-if="desistimiento && mode == 3">
-    <div id="template-carta">
-        <div class="formDivision">
-            <span>Valores DataMart</span>
+<div style="display: block;" v-if="desistimiento && mode == 3">
+    <div id="template-formato-dev" class="pdf-template">
+        <div
+            style="padding: 2.2rem; padding-bottom: .5rem; padding-top: 1.8rem; display: flex; justify-content: space-between; line-height: 1.08;">
+            <div style="width: 23%;" id="logo-capital">
+            </div>
+            <div style="height: 100%; display: flex; align-items: center; width: 25%;">
+                <h4 style="color: #009AB9; font-weight: bold;">Formato único de Devolución</h4>
+            </div>
+            <div style="height: 100%; display: flex; flex-direction: column; width: 33%; font-size: 12.5px;">
+                <div><span style="font-weight: bold;">Radicado #</span>{{desistimiento.radicado}}</div>
+                <div><span style="font-weight: bold;">ID Venta Sinco:</span> {{desistimiento.id_venta}}</div>
+                <div style="margin-top: 13px;"><span style="font-weight: bold;">Estado Actual:</span>
+                    {{desistimiento.estado}}</div>
+                <div><span style="font-weight: bold;">Cant. Incumplimientos:</span> {{desistimiento.cant_incumplida}}
+                </div>
+                <div><span style="font-weight: bold;">Fecha Creado:</span> {{formatDatetime(desistimiento.created_on,
+                    'bdate')}}</div>
+                <div><span style="font-weight: bold;">Fecha Resolución Sinco:</span> {{desistimiento.fecha_resolucion ?
+                    formatDatetime(desistimiento.fecha_resolucion, 'bdate') : ''}}</div>
+            </div>
         </div>
-        <table class="dataTable">
-            <thead>
-                <tr>
-                    <th>Fecha FPC</th>
-                    <th>FEC Program.</th>
-                    <th>Valor Venta Neto</th>
-                    <th>Valor Abonado</th>
-                    <th>A Capital</th>
-                    <th>A Intereses</th>
-                    <th>Condonación</th>
-                    <th>Imp. Reformas</th>
-                </tr>
-            </thead>
-            <tbody class="editTable">
-                <tr>
-                    <td>
-                        <input type="date" v-model="desistimiento.fecha_fpc">
-                    </td>
-                    <td>
-                        <input type="date" v-model="desistimiento.fecha_program">
-                    </td>
-                    <td>
-                        <input type="text" v-model="f_v_venta_neto">
-                    </td>
-                    <td>
-                        <input type="text" :value="f_v_abonado">
-                    </td>
-                    <td>
-                        <input type="text" v-model="f_a_capital">
-                    </td>
-                    <td>
-                        <input type="text" v-model="f_a_intereses">
-                    </td>
-                    <td>
-                        <input type="text" v-model="f_condonacion">
-                    </td>
-                    <td>
-                        <input type="text" v-model="f_imp_reformas">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div style="padding: .5rem 2.2rem;">
+            <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Información del Negocio</span>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th style="border-left: #777 solid 1px;">Macroproyecto</th>
+                        <th>Proyecto</th>
+                        <th>Agrupación</th>
+                        <th>No.Encargo</th>
+                        <th>Referencia Banc.</th>
+                        <th>Fecha FPC</th>
+                        <th>FEC Programada</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border-left: #777 solid 1px;">{{desistimiento.proyecto}}</td>
+                        <td>{{`${desistimiento.proyecto} Torre ${desistimiento.torre}`}}</td>
+                        <td>{{desistimiento.unidad}}</td>
+                        <td></td>
+                        <td></td>
+                        <td>{{desistimiento.fecha_fpc}}</td>
+                        <td>{{desistimiento.fecha_program}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <div class="formDivision">
-            <span>Liquidación</span>
+        
+        <div style="padding: .5rem 2.2rem;">
+            <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Información General Desistimiento</span>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th style="border-left: #777 solid 1px;">Categoría Desistimiento</th>
+                        <th>Fiduciaria</th>
+                        <th>Etapa Proyecto</th>
+                        <th>% PNL PCV</th>
+                        <th>% PNL Aplicada</th>
+                        <th>PNL Aplicada</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border-left: #777 solid 1px;">{{desistimiento.categoria}}</td>
+                        <td>{{desistimiento.fiduciaria}}</td>
+                        <td>{{desistimiento.etapa}}</td>
+                        <td>{{f_pnl_pcv}}</td>
+                        <td>{{f_pnl_aplicada_ptg}}</td>
+                        <td>{{f_pnl_aplicada_val}}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <table class="dataTable">
-            <thead>
-                <tr>
-                    <th>% PNL PCV</th>
-                    <th>% PNL Aplicada</th>
-                    <th>PNL Aplicada</th>
-                    <th>PNL Bruta</th>
-                    <th>PNL Neta</th>
-                    <th>Devolución</th>
-                    <th>4xmil</th>
-                    <th>Líquido</th>
-                </tr>
-            </thead>
-            <tbody class="editTable">
-                <tr>
-                    <td>
-                        <input type="text" v-model="f_pnl_pcv">
-                    </td>
-                    <td>
-                        <input type="text" v-model="f_pnl_aplicada_ptg">
-                    </td>
-                    <td>
-                        <input type="text" :value="f_pnl_aplicada_val">
-                    </td>
-                    <td>
-                        <input type="text" :value="f_pnl_bruta">
-                    </td>
-                    <td>
-                        <input type="text" :value="f_pnl_neta">
-                    </td>
-                    <td>
-                        <input type="text" :value="f_devolucion">
-                    </td>
-                    <td>
-                        <input type="text" :value="f_4xmil">
-                    </td>
-                    <td>
-                        <input type="text" :value="f_liquido">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+
+        <div style="padding: .5rem 2.2rem;">
+            <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Comentario</span>
+            <p style="text-align: justify;">{{desistimiento.observacion}}</p>
+        </div>
+
+        <div style="padding: .5rem 2.2rem;">
+            <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Información General Desistimiento</span>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th style="border-left: #777 solid 1px;">Valor Venta Neto</th>
+                        <th>Valor Abonado</th>
+                        <th>Abonado a Intereses</th>
+                        <th>Abonado a Capital</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border-left: #777 solid 1px;">${{f_v_venta_neto}}</td>
+                        <td>${{f_v_abonado}}</td>
+                        <td>${{f_a_intereses}}</td>
+                        <td>${{f_a_capital}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="padding: .5rem 2.2rem;">
+            <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Liquidación - Aplica penalidad: {{desistimiento.penalidad}}</span>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th style="border-left: #777 solid 1px;">Valor Abonado</th>
+                        <th>PNL Bruta</th>
+                        <th>PNL Neta</th>
+                        <th>Interés Pagado</th>
+                        <th>Interés Generado</th>
+                        <th>Interés Condonado</th>
+                        <th>Reformas</th>
+                        <th>Otro descuento devolución</th>
+                        <th>Saldo a favor del cliente</th>
+                        <th>4xMil</th>
+                        <th>Giro al cliente</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border-left: #777 solid 1px;">${{f_v_abonado}}</td>
+                        <td>${{f_pnl_bruta}}</td>
+                        <td>${{f_pnl_neta}}</td>
+                        <td>${{f_a_intereses}}</td>
+                        <td>${{f_interes}}</td>
+                        <td>${{f_condonacion}}</td>
+                        <td>${{f_imp_reformas}}</td>
+                        <td>${{f_descuento}}</td>
+                        <td>${{f_devolucion}}</td>
+                        <td>${{f_4xmil}}</td>
+                        <td>${{f_liquido}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="padding: .5rem 2.2rem;">
+            <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Carta de Segunda Oportunidad</span>
+            <table class="pdf-table">
+                <thead>
+                    <tr>
+                        <th style="border-left: #777 solid 1px;">Carta.</th>
+                        <th>PNL Neta</th>
+                        <th>Gastos Admin.</th>
+                        <th>Vlr. Carta</th>
+                        <th>Vigencia</th>
+                        <th>Fecha Prórroga</th>
+                        <th>Vlr Extra Prórroga</th>
+                        <th>Vlr Carta Prorrogada</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border-left: #777 solid 1px;">SI</td>
+                        <td>${{f_pnl_neta}}</td>
+                        <td>${{f_gasto}}</td>
+                        <td>${{f_val_carta}}</td>
+                        <td>{{formatDatetime(null, 'bdate', dateAddYears(desistimiento.created_on, 1))}}</td>
+                        <td>{{desistimiento.fecha_prorroga_carta}}</td>
+                        <td>${{f_extra_prorroga_carta}}</td>
+                        <td>${{f_val_carta}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

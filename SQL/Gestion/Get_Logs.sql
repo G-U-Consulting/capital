@@ -5,7 +5,7 @@
 set @id_unidad = NULL;
 --END_PARAM
 
-select l.id_log, l.titulo, l.texto, l.fecha, u.nombres as usuario
+select l.id_log, l.titulo, l.texto, date_format(l.fecha, '%Y-%m-%d %T') as fecha, u.nombres as usuario
 from dim_log_unidades l
 join fact_usuarios u on l.id_usuario = u.id_usuario
 where l.id_unidad = @id_unidad
