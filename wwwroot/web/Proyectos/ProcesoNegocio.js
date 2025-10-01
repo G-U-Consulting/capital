@@ -228,6 +228,40 @@ export default {
  
     },
     methods: {
+        actualizar(e, item) {
+            const el = e.target;
+            const digits = (el.innerText || "").replace(/[^0-9]/g, "");
+            const num = digits === "" ? 0 : parseInt(digits, 10);
+
+            item.valor_descuento = num;
+
+            const id = this.cotizacionSeleccionada || this.cotizacionActiva;
+
+            const cot = this.cotizaciones.find(
+                c => Number(c.cotizacion) === Number(id)
+            );
+
+            if (cot) {
+                const totalBruto = cot.unidades.reduce((sum, u) => sum + (u.valor_unidad || 0), 0);
+                const totalDescuentos = cot.unidades.reduce((sum, u) => sum + (u.valor_descuento || 0), 0);
+                const nuevoImporte = totalBruto - totalDescuentos;
+
+                cot.importe = nuevoImporte;
+
+                if (Number(cot.cotizacion) === Number(this.cotizacionActiva)) {
+                    this.importeActiva = nuevoImporte;
+                }
+            }
+        },
+
+        formatear(e) {
+            const el = e.target;
+            const digits = (el.innerText || "").replace(/[^0-9]/g, "");
+            const num = digits === "" ? 0 : parseInt(digits, 10);
+
+            el.innerText = "$ " + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        },
+
         async handleMessages(event) {
             if (event.data?.type === 'REFRESH_COTIZACION') {
                 console.log("Actualizando cotización desde Unidades.js");
@@ -275,7 +309,7 @@ export default {
 
             if (this.mode === 2 && nextIndex === 3) {
                 if (!this.cotizacionSeleccionada) {
-                    return showMessage("Debe seleccionar una cotización para opcionarla.");
+                    return showMessage("No ha seleccionado ninguna cotización");
                 }
 
                 const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
@@ -514,13 +548,25 @@ export default {
                     this.noregistro = false;
                     this.limpiarObj();
                 }
-                    
             }
 
-            if (index == 2) {
+            if (index == 2) {   
                 await this.getCotizaciones();
             }
 
+            if (index == 3) {
+                const updatePromises = this.unidades.map(unidad => {
+                    let payload = unidad;
+                    return httpFunc('/generic/genericST/ProcesoNegocio:Upd_Unidades', payload);
+                });
+                try {
+                    let results = await Promise.all(updatePromises);
+                    console.log("Resultados del batch:", results);
+                } catch (error) {
+                    console.error("Error en alguna actualización del batch:", error);
+                }
+            }
+            
             this.currentSubmode = index;
         },
         isTabBlocked(index) {
@@ -810,6 +856,7 @@ export default {
         },
         async sincliente() {
             await this.getCotizaciones();
+            this.policyAccepted = true;
             this.mode = 2;
         },
         async continuarCliente() {

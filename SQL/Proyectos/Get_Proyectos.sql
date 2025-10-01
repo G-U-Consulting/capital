@@ -72,7 +72,9 @@ select
     t.fecha_escrituracion_min,
     t.fecha_escrituracion_max,
     v.valor_unidad_min,
-    v.valor_unidad_max
+    v.valor_unidad_max,
+    ifnull(u.unidades_libres, 0) as unidades_libres,
+    case when ifnull(u.unidades_libres, 0) > 0 then 1 else 0 end as has_units
 from fact_proyectos a
 left join dim_ciudadela b on a.id_ciudadela = b.id_ciudadela
 left join dim_estado_publicacion c on a.id_estado_publicacion = c.id_estado_publicacion
@@ -112,6 +114,14 @@ left join (
     from fact_unidades
     group by id_proyecto
 ) o on a.id_proyecto = o.id_proyecto
+left join (
+    select 
+        id_proyecto,
+        count(*) as unidades_libres
+    from fact_unidades
+    where id_estado_unidad = 1
+    group by id_proyecto
+) u on a.id_proyecto = u.id_proyecto
 left join (
     select 
         u.id_proyecto,

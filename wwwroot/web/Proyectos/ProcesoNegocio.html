@@ -561,9 +561,9 @@
                                         @focus="seleccionarCotizacion(item.cotizacion)" />
                                 </td>
                                 <td class="col-1-6" style="text-align: right;">
-                                      {{ item.importe ? formatoMoneda(item.importe) : '' }}
+                                    {{ item.importe ? formatoMoneda(item.importe - (item.valor_descuento || 0)) : '' }}
                                 </td>
-                            <td v-if="!item.importe" style="text-align: center;">
+                                <td v-if="!item.importe" style="text-align: center;">
                                 <span class="delete"
                                     @click.stop.prevent="reqOperation(`Desea eliminar la cotizacion? <b></b>.`, deleteCotiz, null, item)"> ✖
                                 </span>
@@ -603,7 +603,10 @@
                                 <td>{{ item.fecha_formateada }}</td>
                                 <td>{{ item.observacion_apto }}</td>
                                 <td style="text-align: right;">{{ formatoMoneda(item.valor_unidad) }}</td>
-                                <td style="text-align: right;">{{ formatoMoneda(item.valor_descuento) }}</td>
+                                <td style="text-align: right" contenteditable="true" @focus="item.editando = true"
+                                    @blur="formatear($event, item); item.editando = false;" @input="actualizar($event, item)" class="editable-cell">
+                                    {{ item.editando ? item.valor_descuento : formatoMoneda(item.valor_descuento) }}
+                                </td>
                                 <td>{{ item.lista }}</td>
                                 <td style="text-align: center;">{{ item.inv_terminado }}</td>
                                  <td style="text-align: center;">

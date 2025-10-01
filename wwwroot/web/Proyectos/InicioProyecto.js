@@ -835,6 +835,17 @@ export default {
             else delete this.filtros.proyectos['is_active'];
             save && await GlobalVariables.setPreferences('soloProyectosActivos', this.onlyActive ? 's' : 'n');
         },
+        async onChangeLibres(save = true) {
+            if (this.onlyLibres)
+                this.filtros.proyectos['has_units'] = '1';
+            else
+                delete this.filtros.proyectos['has_units'];
+
+            save && await GlobalVariables.setPreferences(
+                'soloProyectosConLibres',
+                this.onlyLibres ? 's' : 'n'
+            );
+        },
         async loadOnlyActive() {
             let onlyActive = await GlobalVariables.getPreferences('soloProyectosActivos', true);
             if (!onlyActive) await GlobalVariables.setPreferences('soloProyectosActivos', 'n', true);

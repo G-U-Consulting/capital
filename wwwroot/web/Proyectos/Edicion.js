@@ -98,6 +98,7 @@
                 centro_costos: "",
                 id_fiduciaria: 0,
                 id_opcion_visual: 0,
+                acabados: "",
 
                 lanzamiento: 0,
                 ciudad_lanzamiento: "",
@@ -130,7 +131,8 @@
                 incluir_brochure: 0,
                 link_brochure: "",
             },
-
+            tieneCambiosPendientes: false,
+            cargandoProyecto: false,
             camposPorSubmode: {
                 0: ["nombre"],
                 1: ["id_banco_constructor"],
@@ -193,6 +195,15 @@
             adm: "0 Solicitudes @Adm",
         };
     },
+    watch: {
+        editObjProyecto: {
+            deep: true,
+            handler(nuevo) {
+                if (this.cargandoProyecto) return;
+                this.tieneCambiosPendientes = !this.sonIguales(nuevo, this.originalObjProyecto);
+            }
+        }
+    },
     computed: {
         tabClasses() {
             return this.tabs.map((_, index) => {
@@ -201,7 +212,8 @@
                 } else if (!this.tabsIncomplete.includes(index)) {
                     return 'wizarTabCompleted';
                 } else {
-                    return 'wizarTabIncomplete';
+                    // return 'wizarTabIncomplete';
+                    return 'wizarTabCompleted';
                 }
             });
         },
@@ -236,8 +248,6 @@
         await this.setViewMode();
         await this.setMainMode();
         await this.loadOnlyActive();
-        //TODO - Quitar
-        //this.selectProject(this.proyectos[0]);
     },
     methods: {
         async setMainMode() {
@@ -289,6 +299,9 @@
                 this.setMode(0);
             }
         },
+        sonIguales(obj1, obj2) {
+            return JSON.stringify(obj1) === JSON.stringify(obj2);
+        },
         setMode(mode) {
             this.mode = mode;
             if (mode == 0)
@@ -296,7 +309,21 @@
             if (mode == 1)
                 GlobalVariables.miniModuleCallback("NewProject", null)
         },
+        confirmarCambioSubmode(index) {
+            if (this.tieneCambiosPendientes) {
+                showMessage(
+                    "⚠️ Existen cambios sin guardar. ¿Seguro que deseas continuar?",
+                    () => {
+                        this.setSubmode(index);
+                    },
+                    null
+                );
+                return;
+            }
+            this.setSubmode(index);
+        },
         setSubmode(index) {
+          
             const anteriorIndex = this.submode;
 
             const validarSubmode = (submodeIndex) => {
@@ -373,7 +400,9 @@
             return emailRegex.test(email);
         },
         async selectProject(item, mode = 2) {
+            this.cargandoProyecto = true;
             showProgress();
+
             this.editObjProyecto = {
                 ...this.editObjProyecto,
                 id_proyecto: item["id_proyecto"]
@@ -385,77 +414,50 @@
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": item["id_proyecto"] });
             resp = resp.data;
             const proyecto = resp[0][0];
+
             Object.keys(this.editObjProyecto).forEach(key => {
                 if (proyecto[key] !== undefined && proyecto[key] !== null) {
                     this.editObjProyecto[key] = proyecto[key];
                 }
             });
 
-            // var tViSeleccionada = resp[0][0].id_tipo_vis;
-            // this.tiposVIS.forEach(item => {
-            //     if (tViSeleccionada) {
-            //         item.checked = (item.id_tipo_vis == tViSeleccionada);
-            //     } else {
-            //         item.checked = false;
-            //     }
-            // });
-            var tFSeleccionada = resp[0][0].id_tipo_financiacion;
+            var tFSeleccionada = proyecto.id_tipo_financiacion;
             this.tiposFinanciacion.forEach(item => {
-                if (tFSeleccionada) {
-                    item.checked = (item.id_tipo_financiacion == tFSeleccionada);
-                } else {
-                    item.checked = false;
-                }
+                item.checked = tFSeleccionada ? (item.id_tipo_financiacion == tFSeleccionada) : false;
             });
-            var oVSeleccionada = resp[0][0].id_opcion_visual;
+
+            var oVSeleccionada = proyecto.id_opcion_visual;
             this.opcionesVisuales.forEach(item => {
-                if (oVSeleccionada) {
-                    item.checked = (item.id_opcion_visual == oVSeleccionada);
-                } else {
-                    item.checked = false;
-                }
+                item.checked = oVSeleccionada ? (item.id_opcion_visual == oVSeleccionada) : false;
             });
 
-            // const tipo = (resp[0][0].tipo_proyecto || '')
-            //     .split(',')
-            //     .map(id => parseInt(id));
-
-            // this.tipo.forEach(item => {
-            //     const id = parseInt(item.id_tipo_proyecto);
-            //     item.checked = tipo.includes(id);
-            // });
-
-            const estadopublicacion = (resp[0][0].estado_publicacion || '')
+            const estadopublicacion = (proyecto.estado_publicacion || '')
                 .split(',')
                 .map(id => parseInt(id));
-
             this.estado_publicacion.forEach(item => {
                 const id = parseInt(item.id_estado_publicacion);
                 item.checked = estadopublicacion.includes(id);
             });
 
-            // const listaContructor = (resp[0][0].banco_constructor || '')
-            //     .split(',')
-            //     .map(id => parseInt(id));
-
-            // this.banco_constructor.forEach(item => {
-            //     const id = parseInt(item.id_banco_constructor);
-            //     item.checked = listaContructor.includes(id);
-            // });
-
-            // const listaFinanciadores = (resp[0][0].bancos_financiadores || '')
-            //     .split(',')
-            //     .map(id => parseInt(id));
-
-            // this.bancos_financiador.forEach(item => {
-            //     const id = parseInt(item.id_bancos_financiador);
-            //     item.checked = listaFinanciadores.includes(id);
-            // });
-
-            const salaVenta = (resp[0][0].salas_venta || '')
+            const listaContructor = (proyecto.banco_constructor || '')
                 .split(',')
                 .map(id => parseInt(id));
+            this.banco_constructor.forEach(item => {
+                const id = parseInt(item.id_banco_constructor);
+                item.checked = listaContructor.includes(id);
+            });
 
+            const listaFinanciadores = (proyecto.bancos_financiadores || '')
+                .split(',')
+                .map(id => parseInt(id));
+            this.bancos_financiador.forEach(item => {
+                const id = parseInt(item.id_bancos_financiador);
+                item.checked = listaFinanciadores.includes(id);
+            });
+
+            const salaVenta = (proyecto.salas_venta || '')
+                .split(',')
+                .map(id => parseInt(id));
             this.salas_venta.forEach(item => {
                 const id = parseInt(item.id_sala_venta);
                 item.checked = salaVenta.includes(id);
@@ -465,11 +467,11 @@
                 const numericKey = parseInt(key, 10);
                 this.submode = numericKey;
                 await this.setSubmode();
-
             }
             this.submode = 0;
             this.setMode(mode);
             await GlobalVariables.miniModuleCallback("SelectedProject", GlobalVariables.proyecto);
+
             if (mode == 'portada') {
                 let item = document.querySelector('.lateralMenuItemSelected');
                 item && item.classList.remove('lateralMenuItemSelected');
@@ -479,6 +481,11 @@
                 item && !item.classList.contains('lateralMenuItemSelected')
                     && item.classList.add('lateralMenuItemSelected');
             }
+
+            this.originalObjProyecto = JSON.parse(JSON.stringify(this.editObjProyecto));
+            this.tieneCambiosPendientes = false;
+
+            this.cargandoProyecto = false;
             hideProgress();
         },
         async newProject() {
@@ -585,17 +592,17 @@
                 .map(item => item.id_estado_publicacion);
             this.objProyecto.estado_publicacion = estadopublicacion.join(',');
 
-            // const bancosconstructor = this.banco_constructor
-            //     .filter(item => item.checked)
-            //     .map(item => item.id_banco_constructor);
+            const bancosconstructor = this.banco_constructor
+                .filter(item => item.checked)
+                .map(item => item.id_banco_constructor);
 
-            // this.objProyecto.banco_constructor = bancosconstructor.join(',');
+            this.objProyecto.banco_constructor = bancosconstructor.join(',');
 
-            // const bancosSeleccionados = this.bancos_financiador
-            //     .filter(item => item.checked)
-            //     .map(item => item.id_bancos_financiador);
+            const bancosSeleccionados = this.bancos_financiador
+                .filter(item => item.checked)
+                .map(item => item.id_bancos_financiador);
 
-            // this.objProyecto.bancos_financiadores = bancosSeleccionados.join(',');
+            this.objProyecto.bancos_financiadores = bancosSeleccionados.join(',');
 
             const sala_venta = this.salas_venta
                 .filter(item => item.checked)
@@ -715,15 +722,15 @@
             }
 
 
-            // const bancosconstructor = this.banco_constructor
-            //     .filter(item => item.checked)
-            //     .map(item => item.id_banco_constructor);
-            // this.editObjProyecto.banco_constructor = bancosconstructor.join(',');
+            const bancosconstructor = this.banco_constructor
+                .filter(item => item.checked)
+                .map(item => item.id_banco_constructor);
+            this.editObjProyecto.banco_constructor = bancosconstructor.join(',');
 
-            // const bancosfinanciador = this.bancos_financiador
-            //     .filter(item => item.checked)
-            //     .map(item => item.id_bancos_financiador);
-            // this.editObjProyecto.bancos_financiadores = bancosfinanciador.join(',');
+            const bancosfinanciador = this.bancos_financiador
+                .filter(item => item.checked)
+                .map(item => item.id_bancos_financiador);
+            this.editObjProyecto.bancos_financiadores = bancosfinanciador.join(',');
 
             const sala_venta = this.salas_venta
                 .filter(item => item.checked)
@@ -734,6 +741,7 @@
                 showProgress();
                 const result = await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", this.editObjProyecto);
                 hideProgress();
+                this.tieneCambiosPendientes = false;
                 this.setMainMode();
             } catch (error) {
                 console.error("Error al insertar el proyecto:", error);

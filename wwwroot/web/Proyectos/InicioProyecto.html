@@ -47,7 +47,14 @@
                         Solo activos
                     </label>
                 </div>
-                <div class="pure-u-1-1 pure-u-md-1-6" style="text-align: right;">
+                <div class="pure-u-1-1 pure-u-md-1-12" style="display: flex; align-items: center;">
+                    <label class="check">
+                        <input type="checkbox" value='1' v-model="onlyLibres" @change="onChangeLibres" />
+                        <span class="checkmark"></span>
+                        Con Libres
+                    </label>
+                </div>
+                <div class="pure-u-1-1 pure-u-md-1-12">
                     <button v-on:click="setMode(1)" v-if="hasPermission(12)" @click="cleanObjectData">Nuevo Proyecto</button>
                 </div>
             </div>
