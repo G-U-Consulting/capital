@@ -115,7 +115,8 @@ export default {
             unidadSeleccionada: "",
             anioSeleccionado: "",
             unidadesDisponibles: [],
-            listaAnios: []
+            listaAnios: [],
+            isClienteVetado: null,
             
         };
     },
@@ -228,43 +229,8 @@ export default {
  
     },
     methods: {
-        actualizar(e, item) {
-            const el = e.target;
-            const digits = (el.innerText || "").replace(/[^0-9]/g, "");
-            const num = digits === "" ? 0 : parseInt(digits, 10);
-
-            item.valor_descuento = num;
-
-            const id = this.cotizacionSeleccionada || this.cotizacionActiva;
-
-            const cot = this.cotizaciones.find(
-                c => Number(c.cotizacion) === Number(id)
-            );
-
-            if (cot) {
-                const totalBruto = cot.unidades.reduce((sum, u) => sum + (u.valor_unidad || 0), 0);
-                const totalDescuentos = cot.unidades.reduce((sum, u) => sum + (u.valor_descuento || 0), 0);
-                const nuevoImporte = totalBruto - totalDescuentos;
-
-                cot.importe = nuevoImporte;
-
-                if (Number(cot.cotizacion) === Number(this.cotizacionActiva)) {
-                    this.importeActiva = nuevoImporte;
-                }
-            }
-        },
-
-        formatear(e) {
-            const el = e.target;
-            const digits = (el.innerText || "").replace(/[^0-9]/g, "");
-            const num = digits === "" ? 0 : parseInt(digits, 10);
-
-            el.innerText = "$ " + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        },
-
         async handleMessages(event) {
             if (event.data?.type === 'REFRESH_COTIZACION') {
-                console.log("Actualizando cotización desde Unidades.js");
                 await this.seleccionarCotizacion(event.data.cotizacionId);
             }
         },
@@ -551,7 +517,9 @@ export default {
             }
 
             if (index == 2) {   
+                await this.seleccionarCotizacion(null);
                 await this.getCotizaciones();
+                this.cotizacionSeleccionada = null;
             }
 
             if (index == 3) {
@@ -561,7 +529,6 @@ export default {
                 });
                 try {
                     let results = await Promise.all(updatePromises);
-                    console.log("Resultados del batch:", results);
                 } catch (error) {
                     console.error("Error en alguna actualización del batch:", error);
                 }
@@ -674,53 +641,62 @@ export default {
             this.mostrarModal = true
         },
         async getCotizaciones() {
-            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', {
-                id_cliente: this.id_cliente,
-                id_proyecto: GlobalVariables.id_proyecto
-            });
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', {
+                    id_cliente: this.id_cliente,
+                    id_proyecto: GlobalVariables.id_proyecto
+                });
 
-            this.cotizaciones = resp.data[0] || [];
-            this.nombre = resp.data[0][0]?.nombre || '';
+                this.cotizaciones = resp.data[0] || [];
+                this.nombre = resp.data[0][0]?.nombre || '';
 
-            for (const item of this.cotizaciones) {
-                await this.cargarCotizacion(item.cotizacion);
+                this.cotizaciones.forEach(async (item, index) => {
+                    const { unidades, totalFinal } = await this.cargarCotizacion(item.cotizacion);
+
+                    this.cotizaciones[index] = {
+                        ...this.cotizaciones[index],
+                        unidades,
+                        importe: totalFinal
+                    };
+                });
+            } finally {
+                hideProgress();
             }
         },
         async cargarCotizacion(cotizacionId) {
-            let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
+            const respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                 id_cliente: this.id_cliente,
                 id_proyecto: GlobalVariables.id_proyecto,
                 cotizacion: cotizacionId
             });
 
-            const parseNumber = (str) => {
-                if (typeof str === 'string') {
-                    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
-                }
-                return Number(str) || 0;
-            };
+            const parseNumber = str =>
+                typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;
 
-            const unidades = respa.data[0].map(unidad => ({
-                ...unidad,
-                valor_unidad: parseNumber(unidad.valor_unidad),
-                valor_descuento: parseNumber(unidad.valor_descuento)
-            }));
+            let sumaValores = 0;
+            let sumaDescuentos = 0;
 
-            const sumaValores = unidades.reduce((total, unidad) => total + unidad.valor_unidad, 0);
-            const sumaDescuentos = unidades.reduce((total, unidad) => total + unidad.valor_descuento, 0);
+            const unidades = respa.data[0].map(unidad => {
+                const valor_unidad = parseNumber(unidad.valor_unidad);
+                const valor_descuento = parseNumber(unidad.valor_descuento);
+                sumaValores += valor_unidad;
+                sumaDescuentos += valor_descuento;
+                return { ...unidad, valor_unidad, valor_descuento };
+            });
+
             const totalFinal = sumaValores - sumaDescuentos;
 
-            const cotizacion = this.cotizaciones.find(
-                c => Number(c.cotizacion) === Number(cotizacionId)
+            this.cotizaciones = this.cotizaciones.map(c =>
+                Number(c.cotizacion) === Number(cotizacionId)
+                    ? { ...c, unidades, importe: totalFinal }
+                    : c
             );
 
-            if (cotizacion) {
-                cotizacion.unidades = unidades;
-                cotizacion.importe = totalFinal;
+            this.cotizacionActiva = cotizacionId;
+            this.importeActiva = totalFinal;
 
-                this.cotizacionActiva = cotizacionId;
-                this.importeActiva = totalFinal;
-            }
+            return { unidades, totalFinal };
         },
         async seleccionarCotizacion(cotizacionId) {
             this.cotizacionSeleccionada = cotizacionId;
@@ -855,7 +831,9 @@ export default {
             }
         },
         async sincliente() {
+            await this.seleccionarCotizacion(null);
             await this.getCotizaciones();
+            this.cotizacionSeleccionada = null;
             this.policyAccepted = true;
             this.mode = 2;
         },
@@ -1049,6 +1027,33 @@ export default {
         reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
 			showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
 		},
+        onBlurDescuento(e, item) {
+            const el = e.target;
+            const digits = (el.innerText || "").replace(/[^0-9]/g, "");
+            const num = digits === "" ? 0 : Number(digits);
+            item.valor_descuento = num;
+            item.editValor = null;
+            item.editando = false;
+            this.recalcularImporte();
+            el.innerText = this.formatoMoneda(num);
+        },
+        formatoMoneda(num) {
+            return "$ " + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        },
+        recalcularImporte() {
+            const id = this.cotizacionSeleccionada || this.cotizacionActiva;
+            const cot = this.cotizaciones.find(c => Number(c.cotizacion) === Number(id));
+            if (!cot) return;
+
+            const totalBruto = cot.unidades.reduce((sum, u) => sum + (u.valor_unidad || 0), 0);
+            const totalDescuentos = cot.unidades.reduce((sum, u) => sum + (u.valor_descuento || 0), 0);
+            const nuevoImporte = totalBruto - totalDescuentos;
+
+            cot.importe = nuevoImporte;
+            if (Number(cot.cotizacion) === Number(this.cotizacionActiva)) {
+                this.importeActiva = nuevoImporte;
+            }
+        },
         //////// mode 3 ////////////
         async cargarFactor() {
             this.factorSeleccionado = null;

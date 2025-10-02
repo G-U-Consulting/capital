@@ -129,6 +129,7 @@ export default {
             interval: null,
             selectedProject: null,
             adm: "0 Solicitudes @Adm",
+            onlyLibres: null,
         };
     },
     computed: {

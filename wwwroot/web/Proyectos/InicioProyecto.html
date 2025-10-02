@@ -105,62 +105,64 @@
                         <img :src="selectedProject.img" />
                     </div>
                     <table class="detail-table">
-                        <tr>
-                            <td><strong>Tipo de Proyecto:</strong></td>
-                            <td>{{ selectedProject.tipo_proyecto }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Tipo de Proyecto</strong></td>
-                            <td>{{ selectedProject.tipo_vis}}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Área/Etapa/Etapas</strong></td>
-                            <td>{{ selectedProject.etapas }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Aptos/Casas totales</strong></td>
-                            <td>{{ selectedProject.total }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Área total</strong></td>
-                            <td>{{ selectedProject.areaTotal }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Área priv. cubierta desde</strong></td>
-                            <td>{{ selectedProject.areaPrivadaDesde }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Área const. desde</strong></td>
-                            <td>{{ selectedProject.areaConstruida }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Precio desde</strong></td>
-                            <td>{{ selectedProject.precioDesde }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Precio hasta</strong></td>
-                            <td>{{ selectedProject.precioHasta }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Fecha entrega desde</strong></td>
-                            <td>{{ selectedProject.fechaEntregaDesde }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Fecha entrega hasta</strong></td>
-                            <td>{{ selectedProject.fechaEntregaHasta }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Información adicional</strong></td>
-                            <td>{{ selectedProject.infoAdicional }}</td>
-                        </tr>
-                        <tr v-if="selectedProject.zonasComunes">
-                            <td><strong>Zonas comunes</strong></td>
-                            <td>
-                                <ul>
-                                    <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
-                                </ul>
-                            </td>
-                        </tr>
+                        <tbody>
+                            <tr>
+                                <td><strong>Tipo de Proyecto:</strong></td>
+                                <td>{{ selectedProject.tipo_proyecto }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tipo de Proyecto</strong></td>
+                                <td>{{ selectedProject.tipo_vis}}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área/Etapa/Etapas</strong></td>
+                                <td>{{ selectedProject.etapas }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Aptos/Casas Libres</strong></td>
+                                <td>{{ selectedProject.unidades_libres }} / {{ selectedProject.total }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área total</strong></td>
+                                <td>{{ selectedProject.areaTotal }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área priv. cubierta desde</strong></td>
+                                <td>{{ selectedProject.areaPrivadaDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Área const. desde</strong></td>
+                                <td>{{ selectedProject.areaConstruida }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Precio desde</strong></td>
+                                <td>{{ selectedProject.precioDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Precio hasta</strong></td>
+                                <td>{{ selectedProject.precioHasta }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha entrega desde</strong></td>
+                                <td>{{ selectedProject.fechaEntregaDesde }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fecha entrega hasta</strong></td>
+                                <td>{{ selectedProject.fechaEntregaHasta }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Información adicional</strong></td>
+                                <td>{{ selectedProject.infoAdicional }}</td>
+                            </tr>
+                            <tr v-if="selectedProject.zonasComunes">
+                                <td><strong>Zonas comunes</strong></td>
+                                <td>
+                                    <ul>
+                                        <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                     <div class="detail-footer">
                         <button @click="selectProject(selectedProject, 'portada')" class="btn-editar">Entrar a Proyecto</button>
@@ -241,54 +243,56 @@
                     </div>
                     <div class="scrollable-content">    
                         <table class="detail-table">
-                            <tr>
-                                <td><strong>Unidad de Venta:</strong></td>
-                                <td>{{ selectedProject.tipo_proyecto }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Tipo Proyecto</strong></td>
-                                <td>{{ selectedProject.tipo_vis }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Aptos/Casas totales</strong></td>
-                                <td>{{ selectedProject.total_torres }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Área total</strong></td>
-                                <td style="text-align: right;">{{ selectedProject.area_total_proyecto }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Área priv. cubierta desde</strong></td>
-                                <td style="text-align: right;">{{ selectedProject.min_area_privada_cub }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Área total + Acue</strong></td>
-                                <td style="text-align: right;">{{ selectedProject.area_total_mas_acue }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Precio desde</strong></td>
-                                <td style="text-align: right;">{{ selectedProject.valor_unidad_min }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Precio hasta</strong></td>
-                                <td style="text-align: right;">{{ selectedProject.valor_unidad_max }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Fecha entrega desde</strong></td>
-                                <td>{{ selectedProject.fecha_escrituracion_min }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Fecha entrega hasta</strong></td>
-                                <td>{{ selectedProject.fecha_escrituracion_max }}</td>
-                            </tr>
-                            <tr v-if="selectedProject.zonasComunes">
-                                <td><strong>Zonas comunes</strong></td>
-                                <td>
-                                    <ul>
-                                        <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
-                                    </ul>
-                                </td>
-                            </tr>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Unidad de Venta:</strong></td>
+                                    <td>{{ selectedProject.tipo_proyecto }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Tipo Proyecto</strong></td>
+                                    <td>{{ selectedProject.tipo_vis }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Aptos/Casas Libres</strong></td>
+                                    <td>{{ selectedProject.unidades_libres }} / {{ selectedProject.total_torres }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Área total</strong></td>
+                                    <td style="text-align: right;">{{ selectedProject.area_total_proyecto }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Área priv. cubierta desde</strong></td>
+                                    <td style="text-align: right;">{{ selectedProject.min_area_privada_cub }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Área total + Acue</strong></td>
+                                    <td style="text-align: right;">{{ selectedProject.area_total_mas_acue }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Precio desde</strong></td>
+                                    <td style="text-align: right;">{{ selectedProject.valor_unidad_min }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Precio hasta</strong></td>
+                                    <td style="text-align: right;">{{ selectedProject.valor_unidad_max }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha entrega desde</strong></td>
+                                    <td>{{ selectedProject.fecha_escrituracion_min }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha entrega hasta</strong></td>
+                                    <td>{{ selectedProject.fecha_escrituracion_max }}</td>
+                                </tr>
+                                <tr v-if="selectedProject.zonasComunes">
+                                    <td><strong>Zonas comunes</strong></td>
+                                    <td>
+                                        <ul>
+                                            <li v-for="zona in selectedProject.zonasComunes">{{ zona }}</li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                     <div class="detail-footer">

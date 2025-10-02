@@ -110,7 +110,7 @@
                     <div class='pure-g'>
                         <div v-for='item in salas_venta' class='pure-u-1-4'>
                             <label class="check">   
-                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <input type="checkbox" value='1' v-model="item.checked" @change="syncChecks('salas_venta')" />
                                 <span class="checkmark"></span>
                                 {{ item.sala_venta }}
                             </label>
@@ -127,7 +127,7 @@
                     <div class='pure-g'>
                         <div v-for='item in estado_publicacion' class='pure-u-1-4'>
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked"   />
+                                <input type="checkbox" value='1' v-model="item.checked" @change="syncChecks('estado_publicacion')" />
                                 <span class="checkmark"></span>
                                 {{ item.estado_publicacion }}
                             </label>
@@ -173,7 +173,7 @@
                     <div class='pure-g'>
                         <div v-for='item in banco_constructor' class='pure-u-1-4'>
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" />
+                                <input type="checkbox" value='1' v-model="item.checked" @change="syncChecks('banco_constructor')" />
                                 <span class="checkmark"></span>
                                 {{ item.banco }}
                             </label>
@@ -189,7 +189,7 @@
                     <div class='pure-g'>
                         <div v-for='item in bancos_financiador' class='pure-u-1-4'>
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked"/>
+                                <input type="checkbox" value='1' v-model="item.checked" @change="syncChecks('bancos_financiador')" />
                                 <span class="checkmark"></span>
                                 {{ item.banco }}
                             </label>
@@ -280,7 +280,7 @@
                     <div class='pure-g'>
                         <div v-for='item in tiposFinanciacion' class='pure-u-1-6'>
                             <label class="check">
-                                <input type='checkbox' value='1' v-model='item.checked' />
+                                <input type='checkbox' value='1' v-model='item.checked' @change="syncChecks('tiposFinanciacion')" />
                                 <span class="checkmark"></span>
                                 {{item.tipo_financiacion}}
                             </label>
@@ -411,7 +411,7 @@
                     <div class='pure-g'>
                         <div v-for='item in opcionesVisuales' class='pure-u-1-2'>
                             <label class="check">
-                                <input type='checkbox' value='1' v-model='item.checked' />
+                                <input type='checkbox' value='1' v-model='item.checked' @change="syncChecks('opcionesVisuales')" />
                                 <span class="checkmark"></span>
                                 {{item.opcion_visual}}
                             </label>
@@ -458,7 +458,7 @@
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
                     <span>Coord. geográficas</span>
-                    <input type='text' v-model='editObjProyecto.latitud' maxlen='100' />
+                    <input type='number' v-model='editObjProyecto.latitud' maxlen='100' />
                 </div>
             </div>
             <!--Lanzamiento VIP-->

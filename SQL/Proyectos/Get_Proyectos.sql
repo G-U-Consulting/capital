@@ -155,4 +155,3 @@ left join (
     from fact_unidades u
     group by u.id_proyecto
 ) v on a.id_proyecto = v.id_proyecto
-

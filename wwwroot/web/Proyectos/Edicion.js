@@ -18,13 +18,13 @@
                 id_estado_publicacion: 0,
 
                 subsidios_vis: "",
-                dias_separacion: "",
+                dias_separacion: "0",
                 dias_cierre_sala: "",
                 meses_ci: "",
                 dias_pago_ci_banco_amigo: "",
                 dias_pago_ci_banco_no_amigo: "",
                 email_cotizaciones: "",
-                meta_ventas: "",
+                meta_ventas: 0,
                 email_coordinacion_sala: "",
                 id_pie_legal: 0,
                 id_banco_constructor: 0,
@@ -39,9 +39,9 @@
                 lanzamiento: 0,
                 ciudad_lanzamiento: "",
                 fecha_lanzamiento: "",
-                latitud: "",
-                bloqueo_libres: "",
-                inmuebles_opcionados: "",
+                latitud: 0,
+                bloqueo_libres: 0,
+                inmuebles_opcionados: 0,
                 tipos_excluidos: "",
                 link_waze: "",
                 linea_whatsapp: "",
@@ -53,14 +53,14 @@
 
                 link_general_onelink: "",
                 link_especifico_onelink: "",
-                incluir_especificaciones_tecnicias: "",
+                incluir_especificaciones_tecnicias: 0,
                 link_especificaciones_tecnicias: "",
-                incluir_cartilla_negocios_cotizacion: "",
-                incluir_cartilla_negocios_opcion: "",
+                incluir_cartilla_negocios_cotizacion: 0,
+                incluir_cartilla_negocios_opcion: 0,
                 link_cartilla_negocios: "",
-                frame_seguimiento_visible: "",
+                frame_seguimiento_visible: 0,
                 link_seguimiento_leads: "",
-                frame_evaluacion_conocimiento: "",
+                frame_evaluacion_conocimiento: 0,
                 link_evaluacion_conocimiento: "",
                 avance_obra_visible: 0,
                 link_avance_obra: "",
@@ -81,13 +81,13 @@
                 descripcion_comercial: "",
 
                 subsidios_vis: "",
-                dias_separacion: "",
-                dias_cierre_sala: "",
-                meses_ci: "",
+                dias_separacion: 0,
+                dias_cierre_sala: 0,
+                meses_ci: 0,
                 dias_pago_ci_banco_amigo: "",
                 dias_pago_ci_banco_no_amigo: "",
                 email_cotizaciones: "",
-                meta_ventas: "",
+                meta_ventas: 0,
                 email_coordinacion_sala: "",
                 id_pie_legal: 0,
                 id_banco_constructor: 0,
@@ -103,9 +103,9 @@
                 lanzamiento: 0,
                 ciudad_lanzamiento: "",
                 fecha_lanzamiento: "",
-                latitud: "",
-                bloqueo_libres: "",
-                inmuebles_opcionados: "",
+                latitud: 0,
+                bloqueo_libres: 0,
+                inmuebles_opcionados: 0,
                 tipos_excluidos: "",
                 link_waze: "",
                 linea_whatsapp: "",
@@ -117,14 +117,14 @@
 
                 link_general_onelink: "",
                 link_especifico_onelink: "",
-                incluir_especificaciones_tecnicias: "",
+                incluir_especificaciones_tecnicias: 0,
                 link_especificaciones_tecnicias: "",
-                incluir_cartilla_negocios_cotizacion: "",
-                incluir_cartilla_negocios_opcion: "",
+                incluir_cartilla_negocios_cotizacion: 0,
+                incluir_cartilla_negocios_opcion: 0,
                 link_cartilla_negocios: "",
-                frame_seguimiento_visible: "",
+                frame_seguimiento_visible: 0,
                 link_seguimiento_leads: "",
-                frame_evaluacion_conocimiento: "",
+                frame_evaluacion_conocimiento: 0,
                 link_evaluacion_conocimiento: "",
                 avance_obra_visible: 0,
                 link_avance_obra: "",
@@ -399,6 +399,19 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         },
+        syncChecks(tipo) {
+            const mapKeys = {
+                tiposFinanciacion: { arr: this.tiposFinanciacion, key: 'id_tipo_financiacion' },
+                opcionesVisuales: { arr: this.opcionesVisuales, key: 'id_opcion_visual' },
+                estado_publicacion: { arr: this.estado_publicacion, key: 'id_estado_publicacion' },
+                banco_constructor: { arr: this.banco_constructor, key: 'id_banco_constructor' },
+                bancos_financiador: { arr: this.bancos_financiador, key: 'id_bancos_financiador' },
+                salas_venta: { arr: this.salas_venta, key: 'id_sala_venta' },
+            };
+
+            const { arr, key } = mapKeys[tipo];
+            this.editObjProyecto[tipo] = arr.filter(x => x.checked).map(x => x[key]);
+        },
         async selectProject(item, mode = 2) {
             this.cargandoProyecto = true;
             showProgress();
@@ -463,6 +476,43 @@
                 item.checked = salaVenta.includes(id);
             });
 
+            this.editObjProyecto = {
+                ...this.editObjProyecto,
+                id_proyecto: item["id_proyecto"],
+                tiposFinanciacion: this.tiposFinanciacion.filter(x => x.checked).map(x => x.id_tipo_financiacion),
+                opcionesVisuales: this.opcionesVisuales.filter(x => x.checked).map(x => x.id_opcion_visual),
+                estado_publicacion: this.estado_publicacion.filter(x => x.checked).map(x => x.id_estado_publicacion),
+                banco_constructor: this.banco_constructor.filter(x => x.checked).map(x => x.id_banco_constructor),
+                bancos_financiador: this.bancos_financiador.filter(x => x.checked).map(x => x.id_bancos_financiador),
+                salas_venta: this.salas_venta.filter(x => x.checked).map(x => x.id_sala_venta),
+
+            };
+
+            this.editObjProyecto.dias_separacion = Number(proyecto.dias_separacion) || 0;
+            this.editObjProyecto.dias_cierre_sala = Number(proyecto.dias_cierre_sala) || 0;
+            this.editObjProyecto.meses_ci = Number(proyecto.meses_ci) || 0;
+            this.editObjProyecto.latitud = Number(proyecto.latitud) || 0;
+            this.editObjProyecto.inmuebles_opcionados = Number(proyecto.inmuebles_opcionados) || 0;
+            this.editObjProyecto.meta_ventas = Number(proyecto.meta_ventas) || 0;
+            this.editObjProyecto.bloqueo_libres = Number(proyecto.bloqueo_libres) || 0;
+            this.editObjProyecto.incluir_especificaciones_tecnicias = Number(proyecto.incluir_especificaciones_tecnicias) || 0;
+            this.editObjProyecto.incluir_cartilla_negocios_cotizacion = Number(proyecto.incluir_cartilla_negocios_cotizacion) || 0;
+            this.editObjProyecto.incluir_cartilla_negocios_opcion = Number(proyecto.incluir_cartilla_negocios_opcion) || 0;
+            this.editObjProyecto.frame_seguimiento_visible = Number(proyecto.frame_seguimiento_visible) || 0;
+            this.editObjProyecto.frame_evaluacion_conocimiento = Number(proyecto.frame_evaluacion_conocimiento) || 0;
+            this.editObjProyecto.avance_obra_visible = Number(proyecto.avance_obra_visible) || 0;
+            this.editObjProyecto.incluir_brochure = Number(proyecto.incluir_brochure) || 0;
+            if (
+                proyecto.fecha_lanzamiento &&
+                proyecto.fecha_lanzamiento !== "0000-00-00" 
+            ) {
+                this.editObjProyecto.fecha_lanzamiento = proyecto.fecha_lanzamiento.substring(0, 10);
+            } else {
+                this.editObjProyecto.fecha_lanzamiento = "";
+            }
+
+
+
             for (const key of Object.keys(this.camposPorSubmode)) {
                 const numericKey = parseInt(key, 10);
                 this.submode = numericKey;
@@ -483,6 +533,7 @@
             }
 
             this.originalObjProyecto = JSON.parse(JSON.stringify(this.editObjProyecto));
+            
             this.tieneCambiosPendientes = false;
 
             this.cargandoProyecto = false;
