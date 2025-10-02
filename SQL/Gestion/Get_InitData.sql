@@ -9,10 +9,23 @@ from dim_sede
 where is_active = 1
 order by sede;
 
-select id_ciudadela, ciudadela, id_sede
+select id_zona_proyecto, zona_proyecto, id_sede
+from dim_zona_proyecto
+where is_active = 1
+order by zona_proyecto;
+
+select id_ciudadela, ciudadela, id_zona_proyecto
 from dim_ciudadela
 where is_active = 1
 order by ciudadela;
+
+select sv.id_sala_venta, sv.sala_venta, sv.id_sede, sv.id_zona_proyecto, sv.id_ciudadela, 
+    group_concat(sp.id_proyecto separator ',') as ids_proyectos
+from dim_sala_venta sv
+left join dim_sala_proyecto sp on sv.id_sala_venta = sp.id_sala_venta
+where sv.is_active = 1
+group by sv.id_sala_venta
+order by sv.sala_venta;
 
 select id_proyecto, nombre, id_sede, id_zona_proyecto, id_ciudadela
 from fact_proyectos

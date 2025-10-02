@@ -55,6 +55,8 @@ export default {
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
 
             nameMonths: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+            currenTime: null,
+            currentUser: {},
 
             editRow: false,
             selRow: null,
@@ -121,14 +123,14 @@ export default {
 
                 let img = await fetch('../../img/ico/svg/logo-capital.svg');
                 img = await img.text();
-                console.log(img);
+                await this.$nextTick();
                 const container = document.getElementById('logo-capital');
-                container.innerHTML = img;
+                if (container) container.innerHTML = img;
             }
         },
         async loadData() {
             showProgress();
-            let smmlv = [];
+            let smmlv = [], user = [];
             [
                 this.desistimientos,
                 this.categorias,
@@ -137,9 +139,11 @@ export default {
                 this.ventas,
                 this.estados,
                 this.proyectos,
+                user,
                 smmlv
-            ] = (await httpFunc("/generic/genericDS/Clientes:Get_Desistimientos", {})).data;
+            ] = (await httpFunc("/generic/genericDS/Clientes:Get_Desistimientos", { usuario: GlobalVariables.username })).data;
             if (smmlv.length) this.smmlv2 = smmlv[0].smmlv2;
+            if (user.length) this.currentUser = user[0];
             hideProgress();
         },
         async loadAccounts() {
@@ -147,6 +151,7 @@ export default {
             [this.cuentas, this.compradores] = (await httpFunc("/generic/genericDS/Clientes:Get_Cuentas",
                 { id_desistimiento: this.desistimiento.id_desistimiento })).data;
             this.cuentas.forEach(c => c.porcentaje = c.porcentaje.replace(',', '.'));
+            console.log(this.cuentas);
             hideProgress();
         },
         validarNumero(e, int) {
@@ -254,6 +259,7 @@ export default {
                 unidad: venta.unidad,
                 gasto: this.smmlv2,
                 devolver_reforma: '1',
+                carta_cong: '0',
                 created_by: GlobalVariables.username,
                 created_on: this.formatDatetime('', 'bdatetime'),
             };
@@ -495,6 +501,7 @@ export default {
                 year = date.getFullYear(),
                 hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
                 minutes = date.getMinutes().toString().padStart(2, '0'),
+                seconds = date.getSeconds().toString().padStart(2, '0'),
                 meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
             if (type === 'date')
                 return `${day}/${month}/${year}`;
@@ -504,6 +511,8 @@ export default {
                 return `${year}-${month}-${day}`;
             if (type === 'bdatetime')
                 return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
+            if (type === 'bdatetimes')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
             if (type === 'time')
                 return `${hour}:${minutes} ${meridian}`;
             if (type === 'vtime')
@@ -610,6 +619,7 @@ export default {
         },
 
         printPDF(id) {
+            this.currenTime = this.formatDatetime(null, 'bdatetimes');
             this.$nextTick(() => {
                 const content = document.getElementById(id);
                 html2pdf().set({

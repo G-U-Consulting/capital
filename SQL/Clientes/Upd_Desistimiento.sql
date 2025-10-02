@@ -35,6 +35,7 @@ set @id_desistimiento = NULL,
     @com_gerencia = NULL,
     @fec_com_gerencia = NULL,
     @devolver_reforma = NULL,
+    @carta_cong = NULL,
     @updated_by = NULL;
 --END_PARAM
 
@@ -70,6 +71,7 @@ set id_venta = @id_venta,
     fec_prorroga_carta = if(@fec_prorroga_carta = '', null, @fec_prorroga_carta),
     extra_prorroga_carta = @extra_prorroga_carta,
     devolver_reforma = if(@devolver_reforma = '1', 1, 0),
+    carta_cong = if(@carta_cong = '1', 1, 0),
     updated_by = @updated_by
 where id_desistimiento = @id_desistimiento;
 

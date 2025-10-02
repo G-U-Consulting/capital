@@ -2,7 +2,7 @@
 -- Proceso: Clientes/Get_Desistimientos
 -- =============================================
 --START_PARAM
-
+set @usuario = NULL;
 --END_PARAM
 
 select date_format(d.ultima_fecha, '%Y-%m-%d %T') as ultima_fecha, 
@@ -68,5 +68,9 @@ order by id_estado;
 
 select id_proyecto, nombre
 from fact_proyectos;
+
+select nombres
+from fact_usuarios
+where usuario = @usuario;
 
 select smmlv*2 as smmlv2 from dim_subsidio_vis where periodo = year(current_date);

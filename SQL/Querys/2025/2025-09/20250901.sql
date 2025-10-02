@@ -318,6 +318,7 @@ create table dim_desistimiento(
     fec_prorroga_carta date,
     extra_prorroga_carta decimal(20, 2),
     devolver_reforma bit,
+    carta_cong bit default 0,
     created_on datetime default current_timestamp,
     created_by varchar(50) not null,
     updated_by varchar(50) not null

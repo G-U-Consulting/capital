@@ -2069,7 +2069,7 @@ div.btn-left-rotafolio img {
 tr.destacada {
   border: 2px #007891 solid;
 }
-.dataTable.spaceRows td {
+.dataTable.spaceRows td, .pdf-table.spaceRows td {
   white-space: normal;
   text-overflow: unset;
   word-wrap: break-word;

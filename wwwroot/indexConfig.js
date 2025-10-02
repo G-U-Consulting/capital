@@ -141,9 +141,9 @@
         jsUrl: "./web/GestClientes/ListaEspera.js",
         allow: ["*"]
     },
-    "GCEstatus": {
-        templateUrl: "./web/GestClientes/Estatus.html",
-        jsUrl: "./web/GestClientes/Estatus.js",
+    "GCTrazabilidad": {
+        templateUrl: "./web/GestClientes/Trazabilidad.html",
+        jsUrl: "./web/GestClientes/Trazabilidad.js",
         allow: ["*"]
     },
     "GCPreCredito": {
