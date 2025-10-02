@@ -669,19 +669,22 @@
                 Modo de Pago
             </div>
             <div class="pure-g" style="margin-top: 1em;">
+                <!-- CONTADO -->
                 <div class="pure-u-1 pure-u-md-3-8" style="margin-bottom: .5em;">
-                    <fieldset style="border: 1px solid lightgray; padding: 1em;">
+                    <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'contado' }]"
+                        @click="pagoSeleccionado = 'contado'">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1-1">
-                                <input type="checkbox" />
+                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado" />
                                 <span class="checkmark"></span>
                                 Contado
                             </label>
                         </div>
+            
                         <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1.7rem;">
                             <span class="pure-u-1 pure-u-md-1-4">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-3-4">
-                                <select class="pure-input-1" v-model="planSeleccionado">
+                                <select class="pure-input-1" v-model="planSeleccionado" :disabled="pagoSeleccionado !== 'contado'">
                                     <option value="">Seleccione</option>
                                     <option v-for="plan in planes_pago" :key="plan.id_planes_pago" :value="plan.id_planes_pago">
                                         {{ plan.descripcion }}
@@ -691,49 +694,64 @@
                         </div>
                     </fieldset>
                 </div>
+            
+                <!-- FINANCIADO -->
                 <div class="pure-u-1 pure-u-md-5-8">
-                    <fieldset style="border: 1px solid lightgray; padding: 1em;">
+                    <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'financiado' }]"
+                        @click="pagoSeleccionado = 'financiado'">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1 pure-u-md-1-6">
-                                <input type="checkbox" value=""/>
+                                <input type="radio" name="pago" value="financiado" v-model="pagoSeleccionado" />
                                 <span class="checkmark"></span>
                                 Financiado
                             </label>
-                             <span class="pure-u-1 pure-u-md-1-6">Entidad:</span>
+            
+                            <span class="pure-u-1 pure-u-md-1-6">Entidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1" v-model="bancoSeleccionado" @change="cargarFactor">
+                                <select class="pure-input-1" v-model="bancoSeleccionado" @change="cargarFactor"
+                                    :disabled="pagoSeleccionado !== 'financiado'">
                                     <option :value="0">Seleccione banco</option>
-                                    <option v-for="b in banco_financiador" :key="b.id_bancos_financiador" :value="b.id_bancos_financiador">
+                                    <option v-for="b in banco_financiador" :key="b.id_bancos_financiador"
+                                        :value="b.id_bancos_financiador">
                                         {{ b.banco }}
                                     </option>
                                 </select>
                             </div>
+            
+                            <!-- === AQUÍ AGREGUÉ el bloque que mencionaste === -->
                             <div class="pure-u-1 pure-u-md-1-24"></div>
                             <span class="pure-u-1 pure-u-md-1-12">Tipo:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1" v-model="unidadSeleccionada" @change="cargarAnios">
+                                <select class="pure-input-1" v-model="unidadSeleccionada" @change="cargarAnios"
+                                    :disabled="pagoSeleccionado !== 'financiado'">
                                     <option value="">Seleccione unidad</option>
                                     <option v-for="unidad in unidadesDisponibles" :key="unidad" :value="unidad">
                                         {{ unidad }}
                                     </option>
                                 </select>
                             </div>
+                            <!-- === FIN del bloque agregado === -->
+            
                         </div>
+            
                         <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1rem;">
                             <div class="pure-u-1 pure-u-md-1-6"></div>
-                               <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
+                            <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1">
-                                    <option :value="" selected>Seleccione</option>
-                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion" :value="tipo.id_tipo_financiacion">
-                                         {{ tipo.tipo_financiacion }}
+                                <select class="pure-input-1" :disabled="pagoSeleccionado !== 'financiado'">
+                                    <option value="">Seleccione</option>
+                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion"
+                                        :value="tipo.id_tipo_financiacion">
+                                        {{ tipo.tipo_financiacion }}
                                     </option>
                                 </select>
                             </div>
+            
                             <div class="pure-u-1 pure-u-md-1-24"></div>
                             <span class="pure-u-1 pure-u-md-1-12">Años:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1" v-model="anioSeleccionado">
+                                <select class="pure-input-1" v-model="anioSeleccionado"
+                                    :disabled="pagoSeleccionado !== 'financiado'">
                                     <option value="">Seleccione años</option>
                                     <option v-for="anio in listaAnios" :key="anio" :value="anio">
                                         {{ anio }}
@@ -774,7 +792,7 @@
                     </div>
                      <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span>Ingresos</span>
+                            <span>Ingresos Mensuales</span>
                             <input type="text" value="0,00" />
                         </div>
                     </div>

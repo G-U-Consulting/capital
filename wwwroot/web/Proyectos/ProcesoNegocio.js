@@ -75,6 +75,7 @@ export default {
             cotizaciones: [],
             unidades: [],
             tipo_factor: [],
+            pagoSeleccionado: '',
             registroCompras: [
                 {
                     fecha: '2025-06-01',

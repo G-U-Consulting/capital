@@ -4127,3 +4127,19 @@ tr.cal-row-info > td {
 .st2 {
   fill: url(#XMLID_3_);
 }
+
+.opcionPago {
+  border: 1px solid lightgray;
+  padding: 1em;
+  border-radius: 6px;
+  transition: box-shadow 0.20s ease, border-color 0.20s ease;
+  cursor: pointer;
+  background: white;
+}
+
+.opcionPago.activo {
+  border-color: #777;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12), 0 0 0 3px rgba(119,119,119,0.25);
+}
+
+
