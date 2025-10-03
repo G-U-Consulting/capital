@@ -118,6 +118,7 @@ export default {
             unidadesDisponibles: [],
             listaAnios: [],
             isClienteVetado: null,
+            subsidioActivo: false,
             
         };
     },
@@ -227,6 +228,7 @@ export default {
         this.campoObligatorio();
         window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
         window.addEventListener('message', this.handleMessages);
+        this.isSubsidio()
  
     },
     methods: {
@@ -1093,5 +1095,12 @@ export default {
                 )
             ].sort((a, b) => parseInt(a) - parseInt(b));
         },
+        async isSubsidio() {
+            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Poyecto', {
+                id_proyecto: GlobalVariables.id_proyecto
+            });
+            let dato = resp.data[0][0].id_tipo_vis
+            this.subsidioActivo = dato != 4;
+        }
     },
 }

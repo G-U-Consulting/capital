@@ -770,13 +770,13 @@
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Cesantías</span>
-                            <input type="text" value="0,00" />
+                            <input type="text" value="0,00" style="text-align: right;"/>
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Ahorros</span>
-                            <input type="text" value="0,00" />
+                            <input type="text" style="text-align: right;" value="0,00" />
                         </div>
                     </div>
                 </div>
@@ -784,22 +784,22 @@
                     <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
-                                <input type="checkbox" value='1'/>
+                                <input type="checkbox" v-model="subsidioActivo" />
                                 <span class="checkmark"></span>
                                 Subsidio
                             </label>
                         </div>
                     </div>
                      <div class="pure-u-1 pure-u-md-1-6">
-                        <div class="formInputStandard">
+                        <div class="formInputStandard" >
                             <span>Ingresos Mensuales</span>
-                            <input type="text" value="0,00" />
+                            <input style="text-align: right;" type="text" value="0,00" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Valor Subsidio</span>
-                            <input type="text" value="0,00" style="color: red;" />
+                            <input style="text-align: right;" type="text" value="0,00"/>
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-24"></div>
