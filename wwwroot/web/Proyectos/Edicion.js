@@ -248,6 +248,13 @@
         await this.setViewMode();
         await this.setMainMode();
         await this.loadOnlyActive();
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "Edicion";
+    },
+    beforeUnmount() {
+        if (window.activeMiniModule === this) {
+            window.activeMiniModule = null;
+        }
     },
     methods: {
         async setMainMode() {
@@ -311,9 +318,10 @@
         },
         confirmarCambioSubmode(index) {
             if (this.tieneCambiosPendientes) {
-                showMessage(
-                    "⚠️ Existen cambios sin guardar. ¿Seguro que deseas continuar?",
+                showConfirm(
+                    "⚠️ Existen cambios sin guardar.",
                     () => {
+                         this.tieneCambiosPendientes = false;
                         this.setSubmode(index);
                     },
                     null

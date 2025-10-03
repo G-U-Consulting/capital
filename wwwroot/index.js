@@ -72,6 +72,21 @@ mainVue = {
         GlobalVariables.loadPermisos = this.loadPermisos;
         GlobalVariables.loadModule = this.loadModule;
         GlobalVariables.loadMiniModule = this.loadMiniModule;
+        GlobalVariables._originalLoadMiniModule = GlobalVariables.loadMiniModule;
+        GlobalVariables.loadMiniModule = (modName, zone, data) => {
+            if (window.activeMiniModule?.tieneCambiosPendientes) {
+                showConfirm(
+                    "⚠️ Existen cambios sin guardar en Edición Proyecto",
+                    () => {
+                        window.activeMiniModule.tieneCambiosPendientes = false;
+                        GlobalVariables._originalLoadMiniModule(modName, zone, data);
+                    },
+                    null,
+                );
+                return;
+            }
+            GlobalVariables._originalLoadMiniModule(modName, zone, data);
+        };
         GlobalVariables.ruta = localStorage.getItem('ruta');
         GlobalVariables.passwordPolicy = await this.getSeguridad();
         if (pars.loc != null && this.modules[pars.loc] != null) {

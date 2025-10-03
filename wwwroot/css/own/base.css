@@ -2696,6 +2696,15 @@ tr.cal-row-info > td {
   display: block;
 }
 
+.detail-logo .no-logo {
+  height: 5rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  justify-content: center;
+  align-content: center;
+  font-style: italic;
+}
+
 .detail-table {
   width: 100%;
   border-collapse: collapse;
@@ -2888,14 +2897,14 @@ tr.cal-row-info > td {
   border-radius: 8px;
 }
 
-.detail-logo {
+/* .detail-logo {
   flex-shrink: 0; 
   padding-bottom: 1rem;
   background-color: rgba(255, 255, 255, 0.9);
   z-index: 2;
   position: sticky;
   top: 0;
-}
+} */
 
 .scrollable-content {
   flex-grow: 1;

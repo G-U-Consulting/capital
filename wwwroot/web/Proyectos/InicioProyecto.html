@@ -101,8 +101,9 @@
                     </table>
                 </div>
                 <div v-if="selectedProject" class="detail-panel">
-                    <div class="detail-logo" v-if="selectedProject.img">
-                        <img :src="selectedProject.img" />
+                    <div class="detail-logo">
+                        <img v-if="selectedProject.img" :src="selectedProject.img" />
+                        <span v-else class="no-logo">Sin logo</span>
                     </div>
                     <table class="detail-table">
                         <tbody>
@@ -238,8 +239,9 @@
                             <label class="toggle-label" :for="'toggle' + selectedProject.nombre" style="transform: rotate(180deg);"></label>
                         </div>
                     </div>
-                    <div class="detail-logo" v-if="selectedProject.img">
-                        <img :src="selectedProject.img" />
+                    <div class="detail-logo">
+                        <img v-if="selectedProject.img" :src="selectedProject.img" />
+                        <span v-else class="no-logo">Sin logo</span>
                     </div>
                     <div class="scrollable-content">    
                         <table class="detail-table">
@@ -253,7 +255,7 @@
                                     <td>{{ selectedProject.tipo_vis }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Aptos/Casas Libres</strong></td>
+                                    <td><strong>{{selectedProject.tipo_proyecto}} Libres</strong></td>
                                     <td>{{ selectedProject.unidades_libres }} / {{ selectedProject.total_torres }}</td>
                                 </tr>
                                 <tr>
