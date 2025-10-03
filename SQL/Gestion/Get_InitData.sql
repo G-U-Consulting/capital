@@ -40,3 +40,8 @@ order by tipo_proyecto;
 select id_estado_unidad, estado_unidad
 from dim_estado_unidad
 where is_active = 1;
+
+select * 
+from fact_usuarios u
+join fact_roles_usuarios ru on u.id_usuario = ru.id_usuario
+where (ru.id_rol = 6 or ru.id_rol = 31) and u.is_active = 1;

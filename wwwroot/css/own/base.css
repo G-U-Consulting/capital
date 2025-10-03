@@ -1573,6 +1573,7 @@ tr.selected input {
   transition: all 0.2s ease;
   color: #003848;
   user-select: none;
+  background: #fff;
 }
 .radio-group input[type="radio"]:checked + label {
   background-color: #00839C;
@@ -4126,15 +4127,6 @@ tr.cal-row-info > td {
   background: #eee;
   font-weight: bold;
   color: #000;
-}
-.st0 {
-  fill: #1890AC;
-}
-.st1 {
-  fill: #241F20;
-}
-.st2 {
-  fill: url(#XMLID_3_);
 }
 
 .opcionPago {

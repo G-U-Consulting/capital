@@ -3,87 +3,58 @@
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
         <div class='pure-u-1-1 pure-u-md-1-1 formDivision right-button' style="margin-bottom: 4px;">
             <span style="font-size: 1.5em;">Trazabilidad Estados Clientes</span>
-            <button>Informe</button>
+            <div style="display: flex; gap: 5px; width: 240px;">
+                <button>Enviar Correos</button>
+                <button>Ver Gráfico</button>
+            </div>
         </div>
         <div class="filtros-container" style="padding: .7rem;">
-            <div class="filtros-center" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">
-                <select v-model="selSede"
-                    @change="selZona = {}; selCiu = {}; selSala = {}; selPro = {}; selTorre = {}; unidades = []">
-                    <option :value="{}">[Sedes]</option>
-                    <option v-for="s in sedes" :value="s">
-                        {{s.sede}}
-                    </option>
-                </select>
-                <select v-model="selZona"
-                    @change="selCiu = {}; selSala = {}; selPro = {}; selTorre = {}; unidades = []">
-                    <option :value="{}">[Zonas]</option>
-                    <option v-for="z in zonas.filter(i => !selSede.id_sede || i.id_sede === selSede.id_sede)"
-                        :value="z">
-                        {{z.zona_proyecto}}
-                    </option>
-                </select>
-                <select v-model="selCiu" @change="selSala = {}; selPro = {}; selTorre = {}; unidades = []">
-                    <option :value="{}">[Ciudadelas]</option>
-                    <option
-                        v-for="c in ciudadelas.filter(i => !selZona.id_zona_proyecto || i.id_zona_proyecto === selZona.id_zona_proyecto)"
-                        :value="c">
-                        {{c.ciudadela}}
-                    </option>
-                </select>
-                <select v-model="selSala" @change="selPro = {}; selTorre = {}; unidades = []">
-                    <option :value="{}">[Salas]</option>
-                    <option v-for="s in salas
-                            .filter(i => (!selSede.id_sede || i.id_sede === selSede.id_sede)
-                                && (!selZona.id_zona_proyecto || i.id_zona_proyecto === selZona.id_zona_proyecto)
-                                && (!selCiu.id_ciudadela || i.id_ciudadela === selCiu.id_ciudadela))" :value="s">
-                        {{s.sala_venta}}
-                    </option>
-                </select>
-                <select v-model="selPro" @change="loadTorres(selPro)">
-                    <option :value="{}">[Proyectos]</option>
-                    <option v-for="p in proyectos
-                            .filter(i => (!selSede.id_sede || i.id_sede === selSede.id_sede)
-                                && (!selZona.id_zona_proyecto || i.id_zona_proyecto === selZona.id_zona_proyecto)
-                                && (!selCiu.id_ciudadela || i.id_ciudadela === selCiu.id_ciudadela)
-                                && (!selSala.id_sala_venta || selSala.ids_proyectos.includes(i.id_proyecto)))"
-                        :value="p">
-                        {{p.nombre}}
-                    </option>
-                </select>
-                <select v-model="selTorre" @change="loadUnidades(selTorre)">
-                    <option :value="{}">[Torres]</option>
-                    <option v-for="t in selPro.torres" :value="t">
-                        {{t.consecutivo}}
-                    </option>
-                </select>
-                <select v-model="filtros.unidades['id_clase']" class="pure-input-1" @change="valClase">
-                    <option :value="undefined">[Clase]</option>
-                    <option v-for="c in clases" :value="c.id_clase">{{c.clase}}</option>
-                </select>
-                <select v-model="filtros.unidades['id_tipo']" class="pure-input-1" :disabled="!editTipoEstado">
-                    <option :value="undefined">[Tipos]</option>
-                    <option v-for="t in tipos" :value="t.id_tipo">{{t.tipo}}</option>
-                </select>
-                <select v-model="filtros.unidades['id_estado_unidad']" class="pure-input-1" :disabled="!editTipoEstado">
-                    <option :value="undefined">[Estados]</option>
-                    <option v-for="e in estados" :value="e.id_estado_unidad">{{e.estado_unidad}}</option>
-                </select>
-                <input type="text" placeholder="ID Unidad" v-model="filtros.unidades['unidad']" maxlength="10" />
+            <div class="filtros-center" style="grid-template-columns: repeat(9, 1fr);">
 
-                <div class="checkbox-group"
-                    style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; justify-content: space-evenly;">
+                <div style="display: flex; grid-column: 1 / -1; align-items: center; gap: .5rem">
+                    <div class="radio-group cal-opc">
+                        <label for="view-s" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-s" :checked="filMode == 'week'"
+                                @click="updateFilMode('week')">
+                            <span>Última Semana</span>
+                        </label>
+                        <label for="view-m" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-m" :checked="filMode == 'month'"
+                                @click="updateFilMode('month')">
+                            <span>Último Mes</span>
+                        </label>
+                        <label for="view-r" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-r" :checked="filMode == 'range'"
+                                @click="updateFilMode('range')">
+                            <span>Rango Fechas</span>
+                        </label>
+                    </div>
+                    <div v-if="filMode == 'range'" style="display: flex; align-items: center;">
+                        <input type="date" style="width: 8rem;">
+                        &ensp;-&ensp;
+                        <input type="date" style="width: 8rem;">
+                    </div>
+                </div>
+                <div class="checkbox-group" style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; 
+                    justify-content: space-evenly; grid-column: 1 / 4;">
+                    <select>
+                        <option value="">[Asesor]</option>
+                        <option v-for="a in asesores" :value="a">{{a.nombres}}</option>
+                    </select>
+                </div>
+                <div class="checkbox-group" style="margin-top: .4rem; margin-left: -5px; padding-top: .5rem; padding-left: 5px;
+                    border-top: 2px solid #d1d5db; justify-content: space-evenly; grid-column: 4 / -1;">
                     <label><input type="checkbox" true-value="1" false-value=""> Visitas</label>
-                    <label><input type="checkbox" true-value="1" false-value=""> Cotizados Sin opcionar</label>
-                    <label><input type="checkbox" true-value="1" false-value=""> Cotizados Con opcionar</label>
-                    <label><input type="checkbox" true-value="1" false-value=""> Opcionados Sin consignar</label>
-                    <label><input type="checkbox" true-value="1" false-value=""> Opcionados Con consignar</label>
+                    <label><input type="checkbox" true-value="1" false-value=""> Cotizaciones</label>
+                    <label><input type="checkbox" true-value="1" false-value=""> Opciones</label>
                     <label><input type="checkbox" true-value="1" false-value=""> Ventas</label>
                     <label><input type="checkbox" true-value="1" false-value=""> Liberaciones</label>
                 </div>
             </div>
         </div>
 
-        <div style="height: calc(100vh - 24rem); overflow-y: auto;">
+        <div style="height: calc(100vh - 20rem); overflow-y: auto;">
+
             <table class="dataTable">
                 <thead>
                     <tr>
@@ -107,8 +78,8 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
 
+        </div>
     </div>
 </div>
 

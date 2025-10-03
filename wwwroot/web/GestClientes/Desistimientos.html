@@ -454,8 +454,6 @@
                 </table>
             </div>
 
-
-
             <div class='formDivision deployable' @click="showDocs = !showDocs">
                 <span>Documentos Adjuntos</span>
                 <span class="arrow" v-bind:class="{'expanded': showDocs}">&lt;</span>
@@ -547,7 +545,7 @@
                 <span>Aprobaciones Coordinación/Dirección y Gerencia</span>
             </div>
             <div class="pure-u-1-2">
-                <div class="formInputStandard">
+                <div class="formInputStandard" style="padding-bottom: 4px;">
                     <span>{{selApprover.type}}</span>
                     <select v-model="selApprover">
                         <option v-for="a in optApprove" :value="a">{{a.name}}</option>
@@ -557,7 +555,8 @@
                         :placeholder="`Comentarios ${selApprover.type}`"
                         :disabled="desistimiento.id_estado !== '2'"></textarea>
                 </div>
-                <div class="pure-u-1-2" style="padding: 0 .5rem;">
+                <div class="pure-u-1-2 formInputStandard" style="padding: 0 .5rem;">
+                    <span>Fecha</span>
                     <input type="date" readonly :disabled="desistimiento.id_estado !== '2'"
                         :value="desistimiento.fec_com_coordinacion || formatDatetime('', 'bdate')">
                 </div>
@@ -579,20 +578,22 @@
                 </div>
             </div>
             <div class="pure-u-1-2">
-                <div class="formInputStandard">
+                <div class="formInputStandard" style="padding-bottom: 4px;">
                     <span>Gerencia</span>
                     <input type="text" :value="desistimiento.gerente" readonly>
                     <textarea rows="5" v-model="desistimiento.com_gerencia"
                         style="resize: none; height: auto; margin-top: .5rem;" placeholder="Comentarios Gerencia"
                         :disabled="desistimiento.id_estado !== '3'"></textarea>
                 </div>
-                <div class="pure-u-1-2" style="padding: 0px 0.5rem;">
+                <div class="pure-u-1-2 formInputStandard" style="padding: 0px 0.5rem;">
+                    <span>Carta Cong.</span>
                     <select v-model="desistimiento.carta_cong" :disabled="desistimiento.id_estado !== '3'">
                         <option value="0">NO</option>
                         <option value="1">SI</option>
                     </select>
                 </div>
-                <div class="pure-u-1-2" style="padding: 0 .5rem;">
+                <div class="pure-u-1-2 formInputStandard" style="padding: 0 .5rem;">
+                    <span>Fecha</span>
                     <input type="date" readonly :disabled="desistimiento.id_estado !== '3'"
                         :value="desistimiento.fec_com_gerencia || formatDatetime('', 'bdate')">
                 </div>
@@ -617,7 +618,7 @@
                 <span>Carta de segunda oportunidad</span>
                 <span class="arrow" v-bind:class="{'expanded': showCarta}">&lt;</span>
             </div>
-            <div id="pdf-content" v-show="showCarta" style="padding: .5rem;">
+            <div v-show="showCarta" style="padding: .5rem;">
                 <div class="pure-u-1-5 formInputStandard">
                     <label>Titular</label>
                     <input type="text" :value="desistimiento.nombre_cliente" readonly>
@@ -826,7 +827,7 @@
                 común de llevar
                 su negocio a feliz término. En Constructora Capital reiteramos nuestro compromiso de hacer tu vida
                 nuestro proyecto, por
-                esta razón y de manera especial queremos informarle que a partir de este momento y
+                esta razón y de manera especial queremos informarle que a partir de este momento y hasta el 
                 <span style="font-weight: bold;">{{desistimiento.fec_prorroga_carta
                     ? formatDatetime(desistimiento.fec_prorroga_carta, 'textdate')
                     : formatDatetime(null, 'textdate', dateAddYears(desistimiento.created_on, 1))}}
@@ -1017,7 +1018,7 @@
 
         <div style="padding: .4rem 2.2rem;">
             <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Liquidación - Aplica penalidad:
-                {{penalidades.find(p => p,id_penalidad == desistimiento.id_penalidad)?.penalidad}}</span>
+                {{penalidades.find(p => p.id_penalidad == desistimiento.id_penalidad)?.penalidad}}</span>
             <table class="pdf-table">
                 <thead>
                     <tr>

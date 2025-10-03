@@ -425,3 +425,14 @@ begin
 
     end if;
 end;
+
+
+select * from fact_cotizaciones;
+select * from fact_negocios_unidades;
+/*
+select id_visita as id_obj, id_cliente, null as id_unidad, created_on, created_by as asesor, 'fact_visitas' as obj from fact_visitas;
+select id_venta as id_obj, id_cliente, id_unidad, created_on, created_by as asesor, 'fact_ventas' as obj from fact_ventas;
+select d.id_desistimiento as id_obj, v.id_cliente, v.id_unidad, d.created_on, d.created_by as asesor, 'dim_desistimiento' as obj
+from dim_desistimiento d join fact_ventas v
+on d.id_venta = v.id_venta;
+*/

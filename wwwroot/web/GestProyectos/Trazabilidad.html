@@ -3,10 +3,13 @@
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
         <div class='pure-u-1-1 pure-u-md-1-1 formDivision right-button' style="margin-bottom: 4px;">
             <span style="font-size: 1.5em;">Trazabilidad Estados Unidades</span>
-            <button>Informe</button>
+            <div style="display: flex; gap: 5px; width: 240px;">
+                <button>Enviar Correos</button>
+                <button>Ver Gráfico</button>
+            </div>
         </div>
         <div class="filtros-container" style="padding: .7rem;">
-            <div class="filtros-center" style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));">
+            <div class="filtros-center" style="grid-template-columns: repeat(9, 1fr);">
                 <select v-model="selSede"
                     @change="selZona = {}; selCiu = {}; selSala = {}; selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Sedes]</option>
@@ -64,23 +67,71 @@
                     <option :value="undefined">[Tipos]</option>
                     <option v-for="t in tipos" :value="t.id_tipo">{{t.tipo}}</option>
                 </select>
-                <select v-model="filtros.unidades['id_estado_unidad']" class="pure-input-1" :disabled="!editTipoEstado">
-                    <option :value="undefined">[Estados]</option>
-                    <option v-for="e in estados" :value="e.id_estado_unidad">{{e.estado_unidad}}</option>
-                </select>
                 <input type="text" placeholder="ID Unidad" v-model="filtros.unidades['unidad']" maxlength="10" />
 
-                <div class="checkbox-group" 
-                    style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; justify-content: space-evenly;">
-                    <label><input type="checkbox" true-value="1" false-value=""> Cotizados Sin opcionar</label>
-                    <label><input type="checkbox" true-value="1" false-value=""> Opcionados Sin consignar</label>
-                    <label><input type="checkbox" true-value="1" false-value=""> Vendidos</label>
-                    <label><input type="checkbox" true-value="1" false-value=""> Libres</label>
+                <div style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; 
+                    display: flex; grid-column: 1 / -1; align-items: center; gap: .5rem">
+                    <div class="radio-group cal-opc">
+                        <label for="view-s" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-s" :checked="filMode == 'week'"
+                                @click="updateFilMode('week')">
+                            <span>Última Semana</span>
+                        </label>
+                        <label for="view-m" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-m" :checked="filMode == 'month'"
+                                @click="updateFilMode('month')">
+                            <span>Último Mes</span>
+                        </label>
+                        <label for="view-r" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-r" :checked="filMode == 'range'"
+                                @click="updateFilMode('range')">
+                            <span>Rango Fechas</span>
+                        </label>
+                    </div>
+                    <div v-if="filMode == 'range'" style="display: flex; align-items: center;">
+                        <input type="date" style="width: 8rem;">
+                        &ensp;-&ensp;
+                        <input type="date" style="width: 8rem;">
+                    </div>
+                </div>
+                <div class="checkbox-group" style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; 
+                    justify-content: space-evenly; grid-column: 1 / 4;">
+                    <select>
+                        <option value="">[Asesor]</option>
+                        <option v-for="a in asesores" :value="a">{{a.nombres}}</option>
+                    </select>
+                </div>
+                <div class="checkbox-group" style="margin-top: .4rem; margin-left: -5px; padding-top: .5rem; padding-left: 5px;
+                    border-top: 2px solid #d1d5db; justify-content: space-evenly; grid-column: 4 / -1;">
+                    <label>
+                        <input type="checkbox" true-value="1" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        Libres
+                    </label>
+                    <label>
+                        <input type="checkbox" true-value="1" false-value=""> 
+                        Cotizados
+                    </label>
+                    <label>
+                        <input type="checkbox" true-value="2" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        Opcionados
+                    </label>
+                    <label>
+                        <input type="checkbox" true-value="3" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        Consignados
+                    </label>
+                    <label>
+                        <input type="checkbox" true-value="4" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        Vendidos
+                    </label>
+                    <label>
+                        <input type="checkbox" true-value="1" false-value=""> 
+                        Desistidos
+                    </label>
                 </div>
             </div>
         </div>
 
-        <div style="height: calc(100vh - 22.5rem); overflow-y: auto;">
+        <div style="height: calc(100vh - 23rem); overflow-y: auto;">
 
             <table class="dataTable">
                 <thead>
@@ -100,7 +151,8 @@
                         <td>{{u.clase}}</td>
                         <td>{{u.tipo}}</td>
                         <td>{{u.estado_unidad}}</td>
-                        <td style="text-align: center;">{{u.id_estado_unidad && u.id_estado_unidad != '1' ? '🔒' : ''}}</td>
+                        <td style="text-align: center;">{{u.id_estado_unidad && u.id_estado_unidad != '1' ? '🔒' : ''}}
+                        </td>
                     </tr>
                 </tbody>
             </table>

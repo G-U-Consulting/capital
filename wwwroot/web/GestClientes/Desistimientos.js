@@ -104,6 +104,12 @@ export default {
                 this.setRuta();
             }
             if (mode === 2) {
+                this.showClient = false;
+                this.showInfo = false;
+                this.showDatamart = false;
+                this.showGestion = false;
+                this.showLiq = false;
+                this.showDocs = false;
                 this.ruta = [this.ruta[0],
                 {
                     text: !this.isNew ? `Edición - Venta ${this.desistimiento.id_venta}` : 'Creación',
@@ -114,6 +120,8 @@ export default {
             }
             if (mode === 3) {
                 this.cleanEdit();
+                this.showCarta = false;
+                this.showCuentas = false;
                 this.optApprove[0].name = this.desistimiento.cordinador;
                 this.optApprove[1].name = this.desistimiento.director;
                 this.selApprover = this.optApprove[0];
@@ -620,19 +628,22 @@ export default {
 
         printPDF(id) {
             this.currenTime = this.formatDatetime(null, 'bdatetimes');
-            this.$nextTick(() => {
-                const content = document.getElementById(id);
-                html2pdf().set({
-                    margin: 0,
-                    letterRendering: true,
-                    filename: 'tabla.pdf',
-                    image: { type: 'jpeg', quality: 1 },
-                    html2canvas: { scale: 5 },
-                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                }).from(content).outputPdf('bloburl').then((pdfUrl) => {
-                    window.open(pdfUrl, '_blank');
+            if (!this.cuentas.length || this.validarCuentas()) {
+                this.$nextTick(() => {
+                    const content = document.getElementById(id);
+                    html2pdf().set({
+                        margin: 0,
+                        letterRendering: true,
+                        filename: 'tabla.pdf',
+                        image: { type: 'jpeg', quality: 1 },
+                        html2canvas: { scale: 5 },
+                        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                    }).from(content).outputPdf('bloburl').then((pdfUrl) => {
+                        window.open(pdfUrl, '_blank');
+                    });
                 });
-            });
+            }
+            else showMessage('Error: El valor de los porcentajes de las cuentas no suma el 100%.');
         }
 
     },

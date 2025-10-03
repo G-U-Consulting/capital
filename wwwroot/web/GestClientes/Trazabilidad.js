@@ -13,6 +13,7 @@ export default {
             unidades: [],
             tipos: [],
             estados: [],
+            asesores: [],
             unidad: {},
             selSede: {},
             selCiu: {},
@@ -25,6 +26,7 @@ export default {
             editTipoEstado: true,
 
             optVisible: false,
+            filMode: 'week',
             filtros: {
                 unidades: {}
             },
@@ -52,7 +54,7 @@ export default {
         async loadData() {
             showProgress();
             let salas = [];
-            [this.sedes, this.zonas, this.ciudadelas, salas, this.proyectos, this.clases, this.estados] = 
+            [this.sedes, this.zonas, this.ciudadelas, salas, this.proyectos, this.clases, this.estados, this.asesores] = 
                 (await httpFunc("/generic/genericDS/Gestion:Get_InitData", {})).data;
             this.salas = salas.map(s => ({...s, ids_proyectos: s.ids_proyectos.split(',')}));
             console.log(this.salas);
@@ -103,6 +105,10 @@ export default {
                 this.editTipoEstado = false;
             }
             else this.editTipoEstado = true;
+        },
+
+        updateFilMode(mode) {
+            this.filMode = mode;
         }
 
     },
