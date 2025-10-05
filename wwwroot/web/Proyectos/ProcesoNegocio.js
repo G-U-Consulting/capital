@@ -119,7 +119,15 @@ export default {
             listaAnios: [],
             isClienteVetado: null,
             subsidioActivo: false,
-            
+            cajas_compensacion: [],
+            caja_compensacion: "",
+            listaAniosEntrega: [],
+            seleccionAnioEntrega: "",
+            valor_subsidio: 0,
+            subsidio_vivienda: [],
+            ingresos_mensuales: 0,
+            ingresos_mensuales_texto: "",
+
         };
     },
     computed: {
@@ -225,6 +233,8 @@ export default {
         this.tipo_financiacion = resp.data[9];
         this.banco_financiador = resp.data[10];
         this.tipo_factor = resp.data[11];
+        this.cajas_compensacion = resp.data[12];
+        this.subsidio_vivienda = resp.data[13];
         this.campoObligatorio();
         window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
         window.addEventListener('message', this.handleMessages);
@@ -232,6 +242,66 @@ export default {
  
     },
     methods: {
+        formatearEnTiempoReal(event) {
+            const input = event.target;
+            const cursorPos = input.selectionStart;
+            const valorSinFormato = input.value.replace(/\./g, '').replace(/[^\d]/g, '');
+            if (!valorSinFormato) {
+                this.ingresos_mensuales = 0;
+                this.ingresos_mensuales_texto = '';
+                this.valor_subsidio = 0;
+                return;
+            }
+            const largoAntes = input.value.length;
+            const valorFormateado = new Intl.NumberFormat('es-CO').format(parseInt(valorSinFormato));
+            this.ingresos_mensuales_texto = valorFormateado;
+            this.ingresos_mensuales = parseInt(valorSinFormato);
+            const largoDespues = valorFormateado.length;
+            const diff = largoDespues - largoAntes;
+            this.$nextTick(() => {
+                const nuevaPos = Math.max(0, cursorPos + diff);
+                input.setSelectionRange(nuevaPos, nuevaPos);
+            });
+            if (this.seleccionAnioEntrega) this.calcularSubsidio();
+        },
+        calcularSubsidio() {
+            if (!this.ingresos_mensuales || !this.seleccionAnioEntrega) {
+                this.valor_subsidio = 0;
+                return;
+            }
+            const registro = this.subsidio_vivienda.find(s => s.periodo == this.seleccionAnioEntrega);
+            if (!registro) {
+                this.valor_subsidio = 0;
+                return;
+            }
+            const parseNumber = (valor) => {
+                if (!valor) return 0;
+                return parseFloat(valor.replace(/\./g, '').replace(',', '.'));
+            };
+            const smmlv = parseNumber(registro.smmlv);
+            const smmlv_0_2 = parseNumber(registro.smmlv_0_2);
+            const smmlv_2_4 = parseNumber(registro.smmlv_2_4);
+
+            if (this.ingresos_mensuales <= smmlv * 2) {
+                this.valor_subsidio = smmlv_0_2;
+            } else if (this.ingresos_mensuales <= smmlv * 4) {
+                this.valor_subsidio = smmlv_2_4;
+            } else {
+                this.valor_subsidio = 0;
+            }
+            console.log("Año:", this.seleccionAnioEntrega,
+                "Ingresos:", this.ingresos_mensuales,
+                "SMMLV:", smmlv,
+                "Subsidio:", this.valor_subsidio);
+        },
+        formatoMoneda(valor) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0,
+            }).format(valor || 0);
+        },
+    
         async handleMessages(event) {
             if (event.data?.type === 'REFRESH_COTIZACION') {
                 await this.seleccionarCotizacion(event.data.cotizacionId);
@@ -673,6 +743,21 @@ export default {
                 id_proyecto: GlobalVariables.id_proyecto,
                 cotizacion: cotizacionId
             });
+
+            this.añoentrega = respa.data[0][0]?.fecha_entrega.match(/\d{4}/)?.[0] || '';
+
+            let añoActual = new Date().getFullYear();
+            let añoEntrega = parseInt(this.añoentrega);
+
+            if (añoEntrega && añoEntrega >= añoActual) {
+                this.listaAniosEntrega = Array.from(
+                    { length: añoEntrega - añoActual + 1 },
+                    (_, i) => añoActual + i
+                );
+            } else {
+                this.listaAniosEntrega = [añoActual];
+            }
+
 
             const parseNumber = str =>
                 typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;

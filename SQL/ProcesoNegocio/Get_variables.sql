@@ -49,3 +49,11 @@ where is_active = 1;
 
 select id_factor, factor, unidad 
 from dim_factor order by id_factor;
+
+select id_caja , caja
+from dim_caja_compensacion
+where is_active = 1;
+
+select id_subsidio, smmlv, smmlv_0_2, smmlv_2_4, periodo
+from dim_subsidio_vis
+where is_active = 1;

@@ -15,7 +15,8 @@ set @id_cliente = '2',
     @valor_unidad = '249820000,00',
     @lista = '1',
     @id_unidad = '0',
-    @numero_apartamento = 'Apto 410';
+    @numero_apartamento = 'Apto 410',
+    @fecha_entrega = '2023-12-31';
 --END_PARAM
 
 insert into fact_negocios_unidades (
@@ -33,7 +34,8 @@ insert into fact_negocios_unidades (
     valor_unidad,
     lista,
     numero_apartamento,
-    id_unidad
+    id_unidad,
+    fecha_entrega
 )
 select
     @id_cliente,
@@ -50,7 +52,8 @@ select
     @valor_unidad,
     @lista,
     @numero_apartamento,
-    @id_unidad
+    @id_unidad,
+    @fecha_entrega
 from fact_torres t
 where t.consecutivo = convert(@torre using utf8mb4) collate utf8mb4_unicode_ci
 limit 1;

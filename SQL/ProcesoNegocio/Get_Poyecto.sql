@@ -9,6 +9,5 @@ set @id_proyecto = '3';
 select 
     a.id_proyecto,
     a.id_tipo_vis
-
 from fact_proyectos a
 where a.id_proyecto = @id_proyecto;

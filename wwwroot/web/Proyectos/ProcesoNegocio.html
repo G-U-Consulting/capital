@@ -669,7 +669,6 @@
                 Modo de Pago
             </div>
             <div class="pure-g" style="margin-top: 1em;">
-                <!-- CONTADO -->
                 <div class="pure-u-1 pure-u-md-3-8" style="margin-bottom: .5em;">
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'contado' }]"
                         @click="pagoSeleccionado = 'contado'">
@@ -680,7 +679,6 @@
                                 Contado
                             </label>
                         </div>
-            
                         <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1.7rem;">
                             <span class="pure-u-1 pure-u-md-1-4">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-3-4">
@@ -694,8 +692,6 @@
                         </div>
                     </fieldset>
                 </div>
-            
-                <!-- FINANCIADO -->
                 <div class="pure-u-1 pure-u-md-5-8">
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'financiado' }]"
                         @click="pagoSeleccionado = 'financiado'">
@@ -705,7 +701,6 @@
                                 <span class="checkmark"></span>
                                 Financiado
                             </label>
-            
                             <span class="pure-u-1 pure-u-md-1-6">Entidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
                                 <select class="pure-input-1" v-model="bancoSeleccionado" @change="cargarFactor"
@@ -717,8 +712,6 @@
                                     </option>
                                 </select>
                             </div>
-            
-                            <!-- === AQUÍ AGREGUÉ el bloque que mencionaste === -->
                             <div class="pure-u-1 pure-u-md-1-24"></div>
                             <span class="pure-u-1 pure-u-md-1-12">Tipo:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
@@ -730,10 +723,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <!-- === FIN del bloque agregado === -->
-            
                         </div>
-            
                         <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1rem;">
                             <div class="pure-u-1 pure-u-md-1-6"></div>
                             <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
@@ -746,7 +736,6 @@
                                     </option>
                                 </select>
                             </div>
-            
                             <div class="pure-u-1 pure-u-md-1-24"></div>
                             <span class="pure-u-1 pure-u-md-1-12">Años:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
@@ -781,7 +770,7 @@
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-1">
-                    <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.5em">
+                    <div class="pure-u-1 pure-u-md-1-8" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
                                 <input type="checkbox" v-model="subsidioActivo" />
@@ -790,16 +779,28 @@
                             </label>
                         </div>
                     </div>
-                     <div class="pure-u-1 pure-u-md-1-6">
-                        <div class="formInputStandard" >
+                    <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
                             <span>Ingresos Mensuales</span>
-                            <input style="text-align: right;" type="text" value="0,00" />
+                            <input ref="inputIngresos" style="text-align: right;" type="text" v-model="ingresos_mensuales_texto"
+                                @input="formatearEnTiempoReal" :disabled="!subsidioActivo"/>
+                        </div>
+                    </div>
+                    <div class="pure-u-1 pure-u-md-1-12">
+                        <div class="formInputStandard">
+                            <span>Año Entrega</span>
+                            <select v-model="seleccionAnioEntrega" @change="calcularSubsidio" style="width: 100%;" :disabled="!subsidioActivo">
+                                <option value="">Seleccione</option>
+                                <option v-for="anio in listaAniosEntrega" :key="anio" :value="anio">
+                                    {{ anio }}
+                                </option>
+                            </select>
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Valor Subsidio</span>
-                            <input style="text-align: right;" type="text" value="0,00"/>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(valor_subsidio)" readonly :disabled="!subsidioActivo"/>
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-24"></div>
@@ -810,8 +811,11 @@
                     </div>
                     <div class="pure-u-1 pure-u-md-1-5" style="margin-top: 1.5em">
                         <div class="formInputStandard">
-                            <select style="width: 100%;">
-                                <option>Seleccione</option>
+                            <select v-model="caja_compensacion" style="width: 100%;" :disabled="!subsidioActivo">
+                                <option value="">Seleccione</option>
+                                <option v-for="caja in cajas_compensacion" :key="caja.id_caja" :value="caja.id_caja">
+                                    {{ caja.caja }}
+                                </option>
                             </select>
                         </div>
                     </div>

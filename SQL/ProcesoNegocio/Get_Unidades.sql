@@ -26,7 +26,8 @@ select
   at.nombre as agrupacion_nombre,
   at.descripcion as agrupacion_descripcion,
   at.total as agrupacion_total,
-  f.id_tipo_proyecto
+  f.id_tipo_proyecto,
+  t.fecha_escrituracion
 from fact_unidades u
 left join fact_proyectos p on p.id_proyecto = u.id_proyecto
 left join dim_lista_precios l on l.id_lista = COALESCE(u.id_lista, p.id_lista)
@@ -35,6 +36,7 @@ left join dim_estado_unidad e on u.id_estado_unidad = e.id_estado_unidad
 left join dim_cuenta_convenio c on u.id_cuenta_convenio = c.id_cuenta_convenio
 left join fact_negocios_unidades d on u.id_unidad = d.id_unidad
 left join dim_tipo_proyecto f on f.tipo_proyecto in (u.clase, concat(u.clase, 's'))
+left join fact_torres t on t.id_torre = u.id_torre
 left join (
     select
         a.id_agrupacion,

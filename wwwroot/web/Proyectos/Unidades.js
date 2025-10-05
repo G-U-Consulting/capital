@@ -422,6 +422,13 @@
 			this.ruta = [this.ruta[0], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
 		},
+        toMySQLDateTime(f) {
+            if (!f) return null;
+            f = f.replace(/\u00A0/g, ' ').replace(/\./g, '').trim();
+            let [d, m, y, h, mi, s, ampm] = f.match(/(\d+)/g);
+            h = +h % 12 + (f.includes('p') ? 12 : 0);
+            return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')} ${h.toString().padStart(2, '0')}:${mi}:${s}`;
+        },
 		async addUnidad(apto) {
 			let payload = {
 				id_cliente: GlobalVariables.id_cliente,
@@ -438,6 +445,7 @@
 				lista: apto.lista,
 				numero_apartamento: apto.nombre_unidad,
 				id_unidad: apto.id_unidad,
+				fecha_entrega: this.toMySQLDateTime(apto.fecha_escrituracion),
 			};
 
 			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', payload);
