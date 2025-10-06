@@ -15,7 +15,7 @@ select date_format(d.ultima_fecha, '%Y-%m-%d %T') as ultima_fecha,
     date_format(d.fec_prorroga_carta, '%Y-%m-%d') as fec_prorroga_carta,
     d.*, p.id_proyecto, p.nombre as proyecto, t.id_torre, t.consecutivo as torre,
     d.pnl_monto as `Monto`,
-    coalesce(a.nombre, u.numero_apartamento) as unidad, e.id_estado, e.nombre as estado,
+    coalesce(a.nombre, u.nombre_unidad) as unidad, e.id_estado, e.nombre as estado,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
     c.numero_documento, c.nombres, c.apellido1, c.apellido2, c.id_cliente, us.nombres as asesor,
     cor.nombres as cordinador, dir.nombres as director, ger.nombres as gerente, s.sede, sv.sala_venta
@@ -26,7 +26,7 @@ join fact_clientes c on v.id_cliente = c.id_cliente
 join fact_unidades u on v.id_unidad = u.id_unidad
 join fact_torres t on u.id_torre = t.id_torre
 join fact_proyectos p on u.id_proyecto = p.id_proyecto
-join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
+left join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
 join fact_usuarios us on d.created_by = us.usuario collate utf8mb4_general_ci
 join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
 join fact_usuarios cor on sv.id_cordinador = cor.id_usuario

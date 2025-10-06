@@ -2607,7 +2607,8 @@ tr.cal-row-info > td {
 }
 .unidades-tabla-modal {
   height: calc(100vh - 18rem); 
-  overflow-y: auto; width: 100%;
+  overflow-y: auto; 
+  width: 100%;
   margin-top: 1rem;
 }
 .unidades-tabla-modal th {
@@ -3224,6 +3225,18 @@ tr.cal-row-info > td {
     gap: 0.5rem;
     grid-column: 1 / -1;
 }
+.checkbox-group-traz1, .checkbox-group-traz2 {
+  margin-top: .4rem; 
+  padding-top: .5rem; 
+  border-top: 2px solid #d1d5db; 
+  justify-content: space-evenly;
+  grid-column: 1 / 4;
+}
+.checkbox-group-traz2 {
+  margin-left: -5px; 
+  padding-left: 5px;
+  grid-column: 4 / -1;
+}
 
 @media (max-width: 1536px) {
     .filtros-center {
@@ -3233,6 +3246,12 @@ tr.cal-row-info > td {
     gap: 0rem;
    
 }
+  .checkbox-group-traz1 {
+    grid-column: 1 / 3;
+  }
+  .checkbox-group-traz2 {
+    grid-column: 3 / -1;
+  }
 }
 @media (max-width: 768px) {
     .filtros-bloque {

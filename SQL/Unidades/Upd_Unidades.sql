@@ -153,7 +153,7 @@ select ft.id_torre, tu.id_tipo
 from fact_torres ft, dim_tipo_unidad tu 
 where ft.id_proyecto = @id_proyecto and tu.id_proyecto = @id_proyecto;
 
-select coalesce(concat(codigo, ' '), 'APT ') into @cod_apt from dim_tipo_proyecto where id_tipo_proyecto = 8;
+select coalesce(codigo, 'APT') into @cod_apt from dim_tipo_proyecto where id_tipo_proyecto = 8;
 insert into fact_unidades(
     id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
@@ -169,7 +169,7 @@ select distinct
     concat(if(t.clase is not null and t.clase != '', 
         (select coalesce(tp.codigo, @cod_apt) 
             from dim_tipo_proyecto tp 
-            where tp.tipo_proyecto = t.clase), @cod_apt), t.apartamento) as nombre_unidad,
+            where tp.tipo_proyecto = t.clase), @cod_apt), ' ', t.apartamento) as nombre_unidad,
     convert(t.apartamento, int) as numero_apartamento,
     convert(t.piso, int) as piso,
     t.tipo as tipo,

@@ -94,15 +94,13 @@
                         <input type="date" style="width: 8rem;">
                     </div>
                 </div>
-                <div class="checkbox-group" style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; 
-                    justify-content: space-evenly; grid-column: 1 / 4;">
+                <div class="checkbox-group checkbox-group-traz1">
                     <select>
                         <option value="">[Asesor]</option>
                         <option v-for="a in asesores" :value="a">{{a.nombres}}</option>
                     </select>
                 </div>
-                <div class="checkbox-group" style="margin-top: .4rem; margin-left: -5px; padding-top: .5rem; padding-left: 5px;
-                    border-top: 2px solid #d1d5db; justify-content: space-evenly; grid-column: 4 / -1;">
+                <div class="checkbox-group checkbox-group-traz2">
                     <label>
                         <input type="checkbox" true-value="1" false-value="" v-model="filtros.unidades.id_estado_unidad">
                         Libres
