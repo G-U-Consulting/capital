@@ -671,10 +671,10 @@
             <div class="pure-g" style="margin-top: 1em;">
                 <div class="pure-u-1 pure-u-md-3-8" style="margin-bottom: .5em;">
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'contado' }]"
-                        @click="pagoSeleccionado = 'contado'">
+                        @click="onSeleccionContado">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1-1">
-                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado" />
+                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado"/>
                                 <span class="checkmark"></span>
                                 Contado
                             </label>
@@ -682,7 +682,7 @@
                         <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1.7rem;">
                             <span class="pure-u-1 pure-u-md-1-4">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-3-4">
-                                <select class="pure-input-1" v-model="planSeleccionado" :disabled="pagoSeleccionado !== 'contado'">
+                                <select class="pure-input-1" v-model="planSeleccionado" @change="calcularPlanPago">
                                     <option value="">Seleccione</option>
                                     <option v-for="plan in planes_pago" :key="plan.id_planes_pago" :value="plan.id_planes_pago">
                                         {{ plan.descripcion }}
@@ -728,10 +728,10 @@
                             <div class="pure-u-1 pure-u-md-1-6"></div>
                             <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1" :disabled="pagoSeleccionado !== 'financiado'">
+                                <select class="pure-input-1" v-model="tipoFinanciacionSeleccionada" :disabled="pagoSeleccionado !== 'financiado'"
+                                    @change="calcularFinanciacion">
                                     <option value="">Seleccione</option>
-                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion"
-                                        :value="tipo.id_tipo_financiacion">
+                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion" :value="tipo.tipo_financiacion">
                                         {{ tipo.tipo_financiacion }}
                                     </option>
                                 </select>
@@ -759,20 +759,22 @@
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Cesantías</span>
-                            <input type="text" value="0,00" style="text-align: right;"/>
+                            <input type="text" style="text-align: right;" :value="new Intl.NumberFormat('es-CO').format(cesantias)"
+                                @input="formatearEnTiempoRealGenerico($event, 'cesantias')" @blur="calcularFinanciacion" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Ahorros</span>
-                            <input type="text" style="text-align: right;" value="0,00" />
+                            <input type="text" style="text-align: right;" :value="new Intl.NumberFormat('es-CO').format(ahorros)"
+                                @input="formatearEnTiempoRealGenerico($event, 'ahorros')" @blur="calcularFinanciacion" />
                         </div>
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-1">
                     <div class="pure-u-1 pure-u-md-1-8" style="margin-top: 1.5em">
                         <div class="formInputStandard">
-                            <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;">
+                            <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;" v-show="pagoSeleccionado === 'financiado'">
                                 <input type="checkbox" v-model="subsidioActivo" />
                                 <span class="checkmark"></span>
                                 Subsidio
@@ -783,13 +785,15 @@
                         <div class="formInputStandard">
                             <span>Ingresos Mensuales</span>
                             <input ref="inputIngresos" style="text-align: right;" type="text" v-model="ingresos_mensuales_texto"
-                                @input="formatearEnTiempoReal" :disabled="!subsidioActivo"/>
+                                @input="formatearEnTiempoRealGenerico($event, 'ingresos_mensuales')"
+                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado'" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-12">
                         <div class="formInputStandard">
                             <span>Año Entrega</span>
-                            <select v-model="seleccionAnioEntrega" @change="calcularSubsidio" style="width: 100%;" :disabled="!subsidioActivo">
+                            <select v-model="seleccionAnioEntrega" @change="calcularSubsidio" style="width: 100%;"
+                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado'">
                                 <option value="">Seleccione</option>
                                 <option v-for="anio in listaAniosEntrega" :key="anio" :value="anio">
                                     {{ anio }}
@@ -800,7 +804,8 @@
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Valor Subsidio</span>
-                            <input style="text-align: right;" type="text" :value="formatoMoneda(valor_subsidio)" readonly :disabled="!subsidioActivo"/>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(valor_subsidio)" readonly
+                                :disabled="pagoSeleccionado === 'contado'" />
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-24"></div>
@@ -811,7 +816,8 @@
                     </div>
                     <div class="pure-u-1 pure-u-md-1-5" style="margin-top: 1.5em">
                         <div class="formInputStandard">
-                            <select v-model="caja_compensacion" style="width: 100%;" :disabled="!subsidioActivo">
+                            <select v-model="caja_compensacion" style="width: 100%;"
+                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado'">
                                 <option value="">Seleccione</option>
                                 <option v-for="caja in cajas_compensacion" :key="caja.id_caja" :value="caja.id_caja">
                                     {{ caja.caja }}
@@ -821,9 +827,13 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1-1 formDivision" style="display: flex; justify-content: space-between; margin-top: 1em;">
-                <span>Importe Financiable:</span>
-                <span>Cuota Inicial:</span>
+            <div class="pure-u-1-1 formDivision" style="font-size: 1.2em; margin-top: 1em;">
+                <div class="pure-u-1 pure-u-md-1-3">
+                    <span >Importe Financiable: <span class="resaltado">{{ formatoMoneda(valor_credito) }}</span></span>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <span >Cuota Inicial después de subsidio, cesantías y/o ahorros: <span class="resaltado">{{ formatoMoneda(cuota_inicial) }}</span></span>
+                </div>
             </div>
         </div>
     </div>

@@ -126,7 +126,15 @@ export default {
             valor_subsidio: 0,
             subsidio_vivienda: [],
             ingresos_mensuales: 0,
-            ingresos_mensuales_texto: "",
+            ingresos_mensuales_texto: 0,
+
+            cuota_inicial: 0,
+            valor_credito: 0,
+            cesantias: 0,
+            ahorros: 0,
+            seleccionPlan: 0,
+
+            tipoFinanciacionSeleccionada: '',
 
         };
     },
@@ -203,6 +211,12 @@ export default {
         }
     },
     watch: {
+        tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
+        importeActiva() { this.calcularFinanciacion(); },
+        cesantias() { this.calcularFinanciacion(); },
+        ahorros() { this.calcularFinanciacion(); },
+        valor_subsidio() { this.calcularFinanciacion(); },
+        pagoSeleccionado() { this.calcularFinanciacion(); },
         visitasFiltradas: {
             handler(val) {
                 this.contarProyectos(val);
@@ -242,27 +256,40 @@ export default {
  
     },
     methods: {
-        formatearEnTiempoReal(event) {
+        formatearEnTiempoRealGenerico(event, campo) {
             const input = event.target;
             const cursorPos = input.selectionStart;
             const valorSinFormato = input.value.replace(/\./g, '').replace(/[^\d]/g, '');
             if (!valorSinFormato) {
-                this.ingresos_mensuales = 0;
-                this.ingresos_mensuales_texto = '';
-                this.valor_subsidio = 0;
+                this[campo] = 0;
+                this[campo + '_texto'] = '';
+                this.calcularFinanciacion();
                 return;
             }
             const largoAntes = input.value.length;
             const valorFormateado = new Intl.NumberFormat('es-CO').format(parseInt(valorSinFormato));
-            this.ingresos_mensuales_texto = valorFormateado;
-            this.ingresos_mensuales = parseInt(valorSinFormato);
+            this[campo + '_texto'] = valorFormateado;
+            this[campo] = parseInt(valorSinFormato);
             const largoDespues = valorFormateado.length;
             const diff = largoDespues - largoAntes;
             this.$nextTick(() => {
                 const nuevaPos = Math.max(0, cursorPos + diff);
                 input.setSelectionRange(nuevaPos, nuevaPos);
             });
-            if (this.seleccionAnioEntrega) this.calcularSubsidio();
+            this.calcularFinanciacion();
+        },
+        onSeleccionContado() {
+            this.pagoSeleccionado = 'contado';
+            this.onPagoChange();
+        },
+
+        onPagoChange() {
+            if (this.pagoSeleccionado === 'contado') {
+                this.ingresos_mensuales_texto = 0;
+                this.seleccionAnioEntrega = '';
+                this.valor_subsidio = 0;
+                this.caja_compensacion = '';
+            }
         },
         calcularSubsidio() {
             if (!this.ingresos_mensuales || !this.seleccionAnioEntrega) {
@@ -294,6 +321,76 @@ export default {
                 "SMMLV:", smmlv,
                 "Subsidio:", this.valor_subsidio);
         },
+        calcularFinanciacion() {
+            if (!this.tipoFinanciacionSeleccionada || !this.importeActiva) {
+                this.cuota_inicial = 0;
+                this.valor_credito = 0;
+                return;
+            }
+            const plan = this.tipo_financiacion.find(
+                p => p.tipo_financiacion === this.tipoFinanciacionSeleccionada
+            );
+            if (!plan || !plan.tipo_financiacion) return;
+            const match = plan.tipo_financiacion.match(/(\d+)[^\d]+(\d+)/);
+            if (!match) {
+                this.cuota_inicial = 0;
+                this.valor_credito = 0;
+                return;
+            }
+            const [_, pctInicial, pctCredito] = match.map(Number);
+            const baseInicial = this.importeActiva * (pctInicial / 100);
+            const baseCredito = this.importeActiva * (pctCredito / 100);
+            let totalAportes = (Number(this.cesantias) || 0) + (Number(this.ahorros) || 0);
+            if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
+                totalAportes += (Number(this.valor_subsidio) || 0);
+            }
+            if (totalAportes >= baseInicial) {
+                const excedente = totalAportes - baseInicial;
+                this.cuota_inicial = 0;
+                this.valor_credito = Math.max(baseCredito - excedente, 0);
+            } else {
+                this.cuota_inicial = baseInicial - totalAportes;
+                this.valor_credito = baseCredito;
+            }
+        },
+        calcularPlanPago() {
+            if (!this.planSeleccionado || !this.importeActiva) {
+                this.cuota_inicial = 0;
+                this.valor_credito = 0;
+                return;
+            }
+            const plan = this.planes_pago.find(p => p.id_planes_pago == this.planSeleccionado);
+            if (!plan || !plan.descripcion) return;
+            let pctInicial = 0;
+            let pctFinal = 0;
+            const match = plan.descripcion.match(/(\d+)\s*%.*?(\d+)\s*%/);
+            if (match) {
+                pctInicial = Number(match[1]);
+                pctFinal = Number(match[2]);
+            } else if (/100\s*%/.test(plan.descripcion)) {
+                pctInicial = 100;
+                pctFinal = 0;
+            } else {
+                this.cuota_inicial = 0;
+                this.valor_credito = 0;
+                return;
+            }
+            const baseInicial = this.importeActiva * (pctInicial / 100);
+            const baseCredito = this.importeActiva * (pctFinal / 100);
+            const totalAportes = (Number(this.cesantias) || 0) + (Number(this.ahorros) || 0);
+            this.cuota_inicial = Math.max(baseInicial - totalAportes, 0);
+            this.valor_credito = baseCredito;
+            console.log("Cálculo plan de pago:", {
+                descripcion: plan.descripcion,
+                pctInicial,
+                pctFinal,
+                baseInicial,
+                baseCredito,
+                totalAportes,
+                cuota_inicial: this.cuota_inicial,
+                valor_credito: this.valor_credito
+            });
+        },
         formatoMoneda(valor) {
             return new Intl.NumberFormat('es-CO', {
                 style: 'currency',
@@ -301,7 +398,6 @@ export default {
                 minimumFractionDigits: 0,
             }).format(valor || 0);
         },
-    
         async handleMessages(event) {
             if (event.data?.type === 'REFRESH_COTIZACION') {
                 await this.seleccionarCotizacion(event.data.cotizacionId);
