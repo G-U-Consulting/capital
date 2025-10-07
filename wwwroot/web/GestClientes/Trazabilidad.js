@@ -15,15 +15,20 @@ export default {
                     created_on2: this.formatDatetime('', 'bdate', new Date())
                 }
             },
+
+            chart: null,
+            selTodos: false,
+            updateTimeout: null,
+            chartMode: 'acciones_asesor',
         };
     },
     async mounted() {
-        this.ruta = [{ text: 'Trazabilidad Estados', action: () => this.setMode(0) }];
+        this.ruta = [{ text: 'Trazabilidad Acciones', action: () => this.setMode(0) }];
         this.setRuta();
         await this.loadData();
     },
     async unmounted() {
-
+        if (this.chart) this.chart.destroy();
     },
     methods: {
         setRuta() {
@@ -54,17 +59,18 @@ export default {
                 this.filtros.trazabilidad.created_on2 = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
             }
         },
-        async openModal() {
+        openModal() {
             let $modal = document.getElementById('modalOverlay');
             $modal && ($modal.style.display = 'flex');
             $modal && (this.modal = $modal);
-            await this.$nextTick();
-            this.initChart();
+            this.selTodos = true;
+            this.onSelTodos();
         },
         closeModal(e, forzar) {
-            console.log(e, forzar);
-            if (this.modal && (e.target === this.modal || forzar))
+            if (this.modal && (e.target === this.modal || forzar)) {
                 this.modal.style.display = 'none';
+                if (this.chart) this.chart.destroy();
+            }
         },
         formatDatetime(text, type = 'datetime', _date) {
             const date = _date || (text ? new Date(text) : new Date());
@@ -91,31 +97,68 @@ export default {
                 return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
             return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
         },
-        initChart() {
+        onSelTodos() {
+            clearTimeout(this.updateTimeout);
+            this.asesores.forEach(a => a.selected = this.selTodos);
+            this.initChart();
+        },
+        toggleAsesor(a) {
+            clearTimeout(this.updateTimeout);
+            a.selected = !a.selected;
+            if (this.asesores.every(a => a.selected)) this.selTodos = true;
+            else this.selTodos = false;
+            this.initChart();
+        },
+        async initChart() {
+            if (this.chart) this.chart.destroy();
             const ctx = document.getElementById('chart-js');
+            const config = {
+                type: 'bar',
+                options: {
+                    responsive: true,
+                    animation: false,
+                    maintainAspectRatio: false,
+                }
+            };
+            
+            if (this.chartMode === 'acciones_asesor') 
+                this.dataAccionesAsesor(config);
+            else if (this.chartMode === 'temporal_asesor') 
+                this.dataTemporalAsesor(config);
+            else if (this.chartMode === 'temporal_unidad') 
+                this.dataTemporalUnidad(config);
+            if (ctx) this.chart = new Chart(ctx, config);
+        },
+        exportChart() {
+            if (this.chart) {
+                const link = document.createElement('a');
+                link.href = this.chart.toBase64Image();
+                link.download = `${this.chartMode}_${this.filtros.trazabilidad.created_on1}_${this.filtros.trazabilidad.created_on2}.png`;
+                link.click();
+            }
+        },
 
+        dataAccionesAsesor(config) {
             let asesores = [], labels = [];
             if (!this.filtros.trazabilidad.asesor) 
-                asesores = this.asesores.sort((a, b) => a.nombres.localeCompare(b.nombres));
+                asesores = this.asesores.filter(a => a.selected);
             else 
                 asesores = [this.asesores.find(a => a.usuario === this.filtros.trazabilidad.asesor)];
             labels = asesores.map(a => a.nombres);
-            
             asesores.forEach(a => {
                 a.visitas = this.getFilteredList('trazabilidad').filter(t => t.obj === 'Visita' && a.usuario === t.asesor).length;
                 a.cotizaciones = this.getFilteredList('trazabilidad').filter(t => t.obj === 'Cotización' && a.usuario === t.asesor).length;
                 a.opciones = this.getFilteredList('trazabilidad').filter(t => t.obj === 'Opción' && a.usuario === t.asesor).length;
                 a.ventas = this.getFilteredList('trazabilidad').filter(t => t.obj === 'Venta' && a.usuario === t.asesor).length;
-                a.liberaciones = this.getFilteredList('trazabilidad').filter(t => t.obj === 'Desistimiento' && a.usuario === t.asesor).length;
+                a.desistimientos = this.getFilteredList('trazabilidad').filter(t => t.obj === 'Desistimiento' && a.usuario === t.asesor).length;
             });
-            
             const data = {
                 labels: labels,
                 datasets: [
                     {
                         label: 'Visitas',
                         data: asesores.map(a => a.visitas),
-                        backgroundColor: "#ee4444",
+                        backgroundColor: "#44ee85",
                     },
                     {
                         label: 'Cotizaciones',
@@ -125,44 +168,109 @@ export default {
                     {
                         label: 'Opciones',
                         data: asesores.map(a => a.opciones),
-                        backgroundColor: "#44ee44",
+                        backgroundColor: "#0094b9",
                     },
                     {
                         label: 'Ventas',
                         data: asesores.map(a => a.ventas),
-                        backgroundColor: "#9c44eeff",
+                        backgroundColor: "#173d5b",
                     },
                     {
-                        label: 'Liberaciones',
-                        data: asesores.map(a => a.liberaciones),
-                        backgroundColor: "#eed444ff",
+                        label: 'Desistimientos',
+                        data: asesores.map(a => a.desistimientos),
+                        backgroundColor: "#eed444",
                     },
                 ]
             };
-            const config = {
-                type: 'bar',
-                data: data,
-                options: {
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Procesos por asesor'
-                        },
+            config.data = data;
+        },
+        dataTemporalAsesor(config) {
+            let asesores = [];
+            if (!this.filtros.trazabilidad.asesor) 
+                asesores = this.asesores.filter(a => a.selected);
+            else 
+                asesores = [this.asesores.find(a => a.usuario === this.filtros.trazabilidad.asesor)];
+            const fechas = Array.from(new Set(
+                this.getFilteredList('trazabilidad').map(t => t.created_on)
+            )).sort();
+            const palette = [
+                "#44ee85", "#4444ee", "#0094b9", "#173d5b", "#eed444", "#ee4444", "#b944ee", "#44eeb9", "#eea944"
+            ];
+            const getColor = (i) => i < palette.length ? palette[i] : `hsl(${(i * 360 / asesores.length)}, 70%, 60%)`;
+            const datasets = asesores.map((a, idx) => ({
+                label: a.nombres,
+                data: fechas.map(fecha =>
+                    this.getFilteredList('trazabilidad').filter(
+                        t => t.asesor === a.usuario && t.created_on === fecha
+                    ).length
+                ),
+                backgroundColor: getColor(idx),
+            }));
+
+            config.data = {
+                labels: fechas,
+                datasets: datasets
+            };
+            config.options = {
+                responsive: true,
+                animation: false,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: { display: true, text: 'Fecha' }
                     },
-                    responsive: true,
-                    scales: {
-                        x: {
-                            stacked: true,
-                        },
-                        y: {
-                            stacked: true
-                        }
+                    y: {
+                        stacked: true,
+                        title: { display: true, text: 'Acciones' }
                     }
                 }
             };
-            console.log(ctx, data, this.chart);
-            if (ctx) this.chart = new Chart(ctx, config);
         },
+        dataTemporalUnidad(config) {
+            let unidades = [];
+            if (!this.filtros.trazabilidad.unidad)
+                unidades = Array.from(new Set(
+                    this.getFilteredList('trazabilidad').map(t => t.unidad).filter(u => u)
+                ));
+            else
+                unidades = [this.filtros.trazabilidad.unidad];
+            const fechas = Array.from(new Set(
+                this.getFilteredList('trazabilidad').map(t => t.created_on)
+            )).sort();
+            const palette = [
+                "#44ee85", "#4444ee", "#0094b9", "#173d5b", "#eed444", "#ee4444", "#b944ee", "#44eeb9", "#eea944"
+            ];
+            const getColor = (i) => i < palette.length ? palette[i] : `hsl(${(i * 360 / unidades.length)}, 70%, 60%)`;
+            const datasets = unidades.map((u, idx) => ({
+                label: u,
+                data: fechas.map(fecha =>
+                    this.getFilteredList('trazabilidad').filter(
+                        t => t.unidad === u && t.created_on === fecha
+                    ).length
+                ),
+                backgroundColor: getColor(idx),
+            }));
+            config.data = {
+                labels: fechas,
+                datasets: datasets
+            };
+            config.options = {
+                responsive: true,
+                animation: false,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: { display: true, text: 'Fecha' }
+                    },
+                    y: {
+                        stacked: true,
+                        title: { display: true, text: 'Acciones' }
+                    }
+                }
+            };
+        }
     },
     computed: {
         getFilteredList() {
@@ -171,10 +279,10 @@ export default {
 					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
 						if (tabla == 'trazabilidad' && key == 'created_on1')
 							return !this.filtros[tabla][key] || 
-                                (new Date(this.filtros[tabla][key])).getTime() <= (new Date(item.created_on + ' 00:00').getTime());
+                                (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() <= (new Date(item.created_on + ' 00:00').getTime());
 						if (tabla == 'trazabilidad' && key == 'created_on2')
 							return !this.filtros[tabla][key] || 
-                                (new Date(this.filtros[tabla][key])).getTime() >= (new Date(item.created_on + ' 00:00').getTime());
+                                (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() >= (new Date(item.created_on + ' 00:00').getTime());
 						if (key.startsWith('id_') || key === 'created_by')
 							return !this.filtros[tabla][key] || String(item[key]) === this.filtros[tabla][key];
 						else return !this.filtros[tabla][key] || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());

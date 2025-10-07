@@ -8,39 +8,53 @@
 select * from (
 select id_visita as id_obj, v.id_cliente, 
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente, 
-    null as id_unidad, null as unidad,
+    null as id_unidad, null as unidad, p.id_proyecto, p.nombre as proyecto,
     date_format(v.created_on, '%Y-%m-%d') as created_on, v.created_by as asesor, us.nombres as nombre_asesor, 'Visita' as obj 
 from fact_visitas v 
 join fact_clientes c on v.id_cliente = c.id_cliente
+join fact_proyectos p on v.id_proyecto = p.id_proyecto
 left join fact_usuarios us on v.created_by = us.usuario collate utf8mb4_unicode_ci
 union
 select id_venta as id_obj, v.id_cliente, 
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente, 
-    un.id_unidad, coalesce(a.nombre, un.nombre_unidad) as unidad,
+    un.id_unidad, coalesce(a.nombre, un.nombre_unidad) as unidad, p.id_proyecto, p.nombre as proyecto,
     date_format(v.created_on, '%Y-%m-%d') as created_on, v.created_by as asesor, us.nombres as nombre_asesor, 'Venta' as obj 
 from fact_ventas v 
 join fact_clientes c on v.id_cliente = c.id_cliente
 join fact_unidades un on v.id_unidad = un.id_unidad
+join fact_proyectos p on un.id_proyecto = p.id_proyecto
 left join dim_agrupacion_unidad a on un.id_agrupacion = a.id_agrupacion
 left join fact_usuarios us on v.created_by = us.usuario collate utf8mb4_unicode_ci
 union
 select d.id_desistimiento as id_obj, v.id_cliente, 
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente, 
-    un.id_unidad, coalesce(a.nombre, un.nombre_unidad) as unidad,
+    un.id_unidad, coalesce(a.nombre, un.nombre_unidad) as unidad, p.id_proyecto, p.nombre as proyecto,
     date_format(d.created_on, '%Y-%m-%d') as created_on, d.created_by as asesor, us.nombres as nombre_asesor, 'Desistimiento' as obj
 from dim_desistimiento d 
 join fact_ventas v on d.id_venta = v.id_venta
 join fact_clientes c on v.id_cliente = c.id_cliente
 join fact_unidades un on v.id_unidad = un.id_unidad
+join fact_proyectos p on un.id_proyecto = p.id_proyecto
 left join dim_agrupacion_unidad a on un.id_agrupacion = a.id_agrupacion
 left join fact_usuarios us on d.created_by = us.usuario collate utf8mb4_unicode_ci
+union
+select co.id_cotizacion as id_obj, co.id_cliente, 
+    concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
+    n.id_unidad, coalesce(a.nombre, un.nombre_unidad) as unidad, p.id_proyecto, p.nombre as proyecto,
+    date_format(co.created_on, '%Y-%m-%d') as created_on, co.created_by as asesor, us.nombres as nombre_asesor, 'Cotización' as obj
+from fact_cotizaciones co
+left join fact_clientes c on co.id_cliente = c.id_cliente
+left join fact_negocios_unidades n on co.id_cotizacion = n.id_cotizacion
+left join fact_unidades un on n.id_unidad = un.id_unidad
+left join dim_agrupacion_unidad a on un.id_agrupacion = a.id_agrupacion
+left join fact_usuarios us on co.created_by = us.usuario collate utf8mb4_unicode_ci 
+join fact_proyectos p on co.id_proyecto = p.id_proyecto
 ) as res
 order by res.created_on desc;
 
 select u.id_usuario, u.nombres, u.usuario
 from fact_usuarios u
 join fact_roles_usuarios ru on u.id_usuario = ru.id_usuario
-where (ru.id_rol = 6 or ru.id_rol = 31) and u.is_active = 1;
+where (ru.id_rol = 6 or ru.id_rol = 31) and u.is_active = 1
+order by u.nombres;
 
-/* select * from fact_cotizaciones;
-select * from fact_negocios_unidades; */

@@ -2,7 +2,7 @@
     <div class="pure-u-1-24 pure-u-md-1-24"></div>
     <div class="pure-u-22-24 pure-u-md-22-24 menuCard">
         <div class='pure-u-1-1 pure-u-md-1-1 formDivision right-button' style="margin-bottom: 4px;">
-            <span style="font-size: 1.5em;">Trazabilidad Estados Clientes</span>
+            <span style="font-size: 1.5em;">Trazabilidad Acciones Clientes</span>
             <div style="display: flex; gap: 5px; width: 240px;">
                 <button>Enviar Correos</button>
                 <button @click="openModal">Ver Gráfico</button>
@@ -39,10 +39,14 @@
                 </div>
                 <div class="checkbox-group" style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; 
                     justify-content: space-evenly; grid-column: 1 / 4;">
-                    <select v-model="filtros.trazabilidad.asesor">
-                        <option :value="undefined">[Asesor]</option>
-                        <option v-for="a in asesores" :value="a.usuario">{{a.nombres}}</option>
-                    </select>
+                    <div style="display: flex; gap: .5rem">
+                        <select v-model="filtros.trazabilidad.asesor" style="flex: 3;">
+                            <option :value="undefined">[Asesor]</option>
+                            <option v-for="a in asesores" :value="a.usuario">{{a.nombres}}</option>
+                        </select>
+                        <input type="text" v-model="filtros.trazabilidad.nombre_cliente" 
+                            placeholder="Cliente" style="flex: 2;">
+                    </div>
                 </div>
                 <div class="checkbox-group" style="margin-top: .4rem; margin-left: -5px; padding-top: .5rem; padding-left: 5px;
                     border-top: 2px solid #d1d5db; justify-content: space-evenly; grid-column: 4 / -1;">
@@ -66,7 +70,7 @@
                     <label>
                         <input type="checkbox" true-value="Desistimiento" false-value=""
                             v-model="filtros.trazabilidad.obj">
-                        Liberaciones
+                        Desistimientos
                     </label>
                 </div>
             </div>
@@ -77,16 +81,18 @@
             <table class="dataTable">
                 <thead>
                     <tr>
-                        <th style="width: 26%;">Cliente</th>
-                        <th style="width: 18%;">Unidad</th>
-                        <th style="width: 15%;">Fecha</th>
-                        <th style="width: 26%;">Asesor</th>
-                        <th style="width: 15%;">Tipo</th>
+                        <th style="width: 23%;">Cliente</th>
+                        <th style="width: 14%;">Proyecto</th>
+                        <th style="width: 15%;">Unidad</th>
+                        <th style="width: 12%;">Fecha</th>
+                        <th style="width: 23%;">Asesor</th>
+                        <th style="width: 13%;">Tipo Acción</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="t in getFilteredList('trazabilidad')" @dblclick="onSelect(u)">
                         <td>{{t.nombre_cliente}}</td>
+                        <td>{{t.proyecto}}</td>
                         <td>{{t.unidad}}</td>
                         <td>{{t.created_on}}</td>
                         <td>{{t.nombre_asesor}}</td>
@@ -108,8 +114,28 @@
                     Periodo {{filtros.trazabilidad.created_on1}} - {{filtros.trazabilidad.created_on2}}
                 </h2>
 
-                <div class="unidades-tabla-modal" style="height: 75vh;">
+                <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
+                    <select v-model="chartMode" style="width: 10rem;" @change="initChart">
+                        <option value="acciones_asesor">Acciones por Asesor</option>
+                        <option value="temporal_asesor">Linea Temporal Asesor</option>
+                        <option value="temporal_unidad">Linea Temporal Unidad</option>
+                    </select>
+                    <button @click="exportChart">Exportar</button>
+                </div>
+
+                <div class="unidades-tabla-modal" style="height: 66vh;">
                     <canvas id="chart-js"></canvas>
+                </div>
+
+                <div v-if="!filtros.trazabilidad.asesor && chartMode == 'acciones_asesor'" class="checkbox-group horizontal-bar-checks">
+                    <label @click="selTodos = !selTodos; onSelTodos()">
+                        <input type="checkbox" v-model="selTodos">
+                        Todos
+                    </label>
+                    <label v-for="a in asesores" @click="toggleAsesor(a)">
+                        <input type="checkbox" v-model="a.selected">
+                        {{a.nombres}}
+                    </label>
                 </div>
             </div>
         </div>
