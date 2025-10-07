@@ -138,9 +138,9 @@ create table fact_cotizaciones (
 
 create table fact_negocios_unidades (
     id_negocios_unidades int auto_increment primary key,
-    id_cotizaciones int not null,
-    id_cliente int not null,
-    id_proyecto int not null,
+    id_cotizacion int,
+    id_cliente int,
+    id_proyecto int,
     usuario varchar(200),
     unidad int,
     id_unidad int,
@@ -160,9 +160,6 @@ create table fact_negocios_unidades (
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
-
-
-
 
 /*
 drop table fact_clientes;

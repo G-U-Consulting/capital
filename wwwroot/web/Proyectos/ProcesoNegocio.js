@@ -520,7 +520,7 @@ export default {
             }
          
             this.isboton = true;
-            this.mode = 0;
+            this.mode = 1;
             this.israpida = false;
             this.policyAccepted = false;
             this.iscliente = !israpida;
@@ -882,7 +882,8 @@ export default {
 
             return { unidades, totalFinal };
         },
-        async seleccionarCotizacion(cotizacionId) {
+        async seleccionarCotizacion(cotizacionId, id) {
+            this.idcotizacion = id || null;
             this.cotizacionSeleccionada = cotizacionId;
 
             await this.cargarCotizacion(cotizacionId);
@@ -913,7 +914,8 @@ export default {
                 id_cotizacion: 0, 
                 id_proyecto: GlobalVariables.id_proyecto,
                 id_cliente: this.id_cliente,
-                cotizacion: siguienteId
+                cotizacion: siguienteId,
+                usuario: GlobalVariables.username
             });
             let id_cotizacion = resp.data[0][0].id_cotizacion;
 
@@ -1082,7 +1084,8 @@ export default {
             }
 
             const idProyecto = GlobalVariables.id_proyecto;
-            const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + idProyecto + '&id_cliente=' + this.id_cliente + '&id_cotizacion=' + this.cotizacionSeleccionada;
+            const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + idProyecto + '&id_cliente=' + this.id_cliente + '&cotizacion=' + this.cotizacionSeleccionada
+            + '&id_cotizacion=' + (this.idcotizacion || '');
             const screenWidth = window.screen.availWidth;
             const screenHeight = window.screen.availHeight;
             const features = [

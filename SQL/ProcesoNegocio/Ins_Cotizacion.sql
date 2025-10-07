@@ -8,6 +8,7 @@ set @id_cliente = 0,
     @fecha = '',
     @descripcion = '',
     @importeTotal = 0,
+    @usuario = '',
     @id_proyecto = 0; 
 --END_PARAM
 
@@ -25,8 +26,8 @@ else
         importe = @importeTotal
     where id_cotizacion = @id_cotizacion;
 
-    insert into fact_cotizaciones (id_cliente, fecha, descripcion, cotizacion, importe, id_proyecto)
-    select @id_cliente, now(), @descripcion, @cotizacion, @importeTotal, @id_proyecto
+    insert into fact_cotizaciones (id_cliente, fecha, descripcion, cotizacion, importe, id_proyecto, created_by)
+    select @id_cliente, now(), @descripcion, @cotizacion, @importeTotal, @id_proyecto, @usuario
     where row_count() = 0;
 
     select if(row_count() > 0, last_insert_id(), @id_cotizacion) + 0 as id_cotizacion;

@@ -23,6 +23,7 @@ export default {
         const id_proyecto = params.get('id_proyecto');
         const id_cliente = params.get('id_cliente');
         this.id_cotizacion = params.get('id_cotizacion');
+        this.cotizacion = params.get('cotizacion');
         this.id_cliente = id_cliente;
         this.setProyecto(id_proyecto, subLoc);
     },
@@ -62,6 +63,7 @@ export default {
             GlobalVariables.proyecto = this.proyecto;
             GlobalVariables.id_cliente = this.id_cliente;
             GlobalVariables.id_cotizacion = this.id_cotizacion;
+            GlobalVariables.cotizacion = this.cotizacion;
         },
 
         async setMainMode(mode, sel = false) {
@@ -84,15 +86,15 @@ export default {
         },
 
         getPathName(mode) {
-            if (mode === 'EdicionProyectos') return `${this.proyecto.nombre} / Edición Proyecto`;
-            if (mode === 'Clientes') return `${this.proyecto.nombre} / Clientes`;
-            if (mode === 'Medios') return `${this.proyecto.nombre} / Imágenes y Vídeos`;
-            if (mode === 'Documentacion') return `${this.proyecto.nombre} / Documentación`;
-            if (mode === 'Bancos') return `${this.proyecto.nombre} / Bancos`;
-            if (mode === 'Recorridos') return `${this.proyecto.nombre} / Recorridos`;
-            if (mode === 'Rotafolio') return `${this.proyecto.nombre} / Rotafolio`;
-            if (mode === 'ProcesoNegocio') return `${this.proyecto.nombre} / Proceso Negocio`;
-            if (mode === 'MiCalendario') return `${this.proyecto.nombre} / Calendario`;
+            if (mode === 'EdicionProyectos') return `${this.proyecto.nombre}`;
+            if (mode === 'Clientes') return `${this.proyecto.nombre}`;
+            if (mode === 'Medios') return `${this.proyecto.nombre}`;
+            if (mode === 'Documentacion') return `${this.proyecto.nombre} `;
+            if (mode === 'Bancos') return `${this.proyecto.nombre}`;
+            if (mode === 'Recorridos') return `${this.proyecto.nombre}`;
+            if (mode === 'Rotafolio') return `${this.proyecto.nombre}`;
+            if (mode === 'ProcesoNegocio') return `${this.proyecto.nombre}`;
+            if (mode === 'MiCalendario') return `${this.proyecto.nombre}`;
             return '';
         },
 
