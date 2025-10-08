@@ -44,33 +44,16 @@
                             <option :value="undefined">[Asesor]</option>
                             <option v-for="a in asesores" :value="a.usuario">{{a.nombres}}</option>
                         </select>
-                        <input type="text" v-model="filtros.trazabilidad.nombre_cliente" 
-                            placeholder="Cliente" style="flex: 2;">
+                        <input type="text" v-model="filtros.trazabilidad.nombre_cliente" placeholder="Cliente"
+                            style="flex: 2;">
                     </div>
                 </div>
                 <div class="checkbox-group" style="margin-top: .4rem; margin-left: -5px; padding-top: .5rem; padding-left: 5px;
                     border-top: 2px solid #d1d5db; justify-content: space-evenly; grid-column: 4 / -1;">
-                    <label>
-                        <input type="checkbox" true-value="Visita" false-value="" v-model="filtros.trazabilidad.obj">
-                        Visitas
-                    </label>
-                    <label>
-                        <input type="checkbox" true-value="Cotización" false-value=""
-                            v-model="filtros.trazabilidad.obj">
-                        Cotizaciones
-                    </label>
-                    <label>
-                        <input type="checkbox" true-value="Opción" false-value="" v-model="filtros.trazabilidad.obj">
-                        Opciones
-                    </label>
-                    <label>
-                        <input type="checkbox" true-value="Venta" false-value="" v-model="filtros.trazabilidad.obj">
-                        Ventas
-                    </label>
-                    <label>
-                        <input type="checkbox" true-value="Desistimiento" false-value=""
-                            v-model="filtros.trazabilidad.obj">
-                        Desistimientos
+                    <label v-for="a in acciones">
+                        <input type="checkbox" :true-value="a.obj" false-value="" v-model="filtros.trazabilidad.obj"
+                            @change="setAccion">
+                        {{a.accion}}
                     </label>
                 </div>
             </div>
@@ -90,7 +73,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="t in getFilteredList('trazabilidad')" @dblclick="onSelect(u)">
+                    <tr v-for="t in getFilteredList('trazabilidad')">
                         <td>{{t.nombre_cliente}}</td>
                         <td>{{t.proyecto}}</td>
                         <td>{{t.unidad}}</td>
@@ -115,10 +98,16 @@
                 </h2>
 
                 <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
-                    <select v-model="chartMode" style="width: 10rem;" @change="initChart">
+                    <select v-model="chartMode" style="width: 10rem;" @change="resetChart">
                         <option value="acciones_asesor">Acciones por Asesor</option>
                         <option value="temporal_asesor">Linea Temporal Asesor</option>
                         <option value="temporal_unidad">Linea Temporal Unidad</option>
+                    </select>
+                    <select v-if="chartMode == 'temporal_unidad'" v-model="groupMode" style="width: 10rem;"
+                        @change="initChart">
+                        <option value="sede">Sede</option>
+                        <option value="zona">Zona</option>
+                        <option value="ciudadela">Ciudadela</option>
                     </select>
                     <button @click="exportChart">Exportar</button>
                 </div>
@@ -127,15 +116,30 @@
                     <canvas id="chart-js"></canvas>
                 </div>
 
-                <div v-if="!filtros.trazabilidad.asesor && chartMode == 'acciones_asesor'" class="checkbox-group horizontal-bar-checks">
-                    <label @click="selTodos = !selTodos; onSelTodos()">
-                        <input type="checkbox" v-model="selTodos">
+                <div v-if="!filtros.trazabilidad.asesor && chartMode === 'acciones_asesor'"
+                    class="checkbox-group horizontal-bar-checks">
+                    <label @click="selTodosAs = !selTodosAs; onSelTodosAs()">
+                        <input style="pointer-events: none;" type="checkbox" v-model="selTodosAs">
                         Todos
                     </label>
                     <label v-for="a in asesores" @click="toggleAsesor(a)">
-                        <input type="checkbox" v-model="a.selected">
+                        <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
                         {{a.nombres}}
                     </label>
+                </div>
+
+                <div class="checkbox-group horizontal-bar-checks"
+                    v-else-if="!filtros.trazabilidad.obj && (chartMode === 'temporal_asesor' || chartMode === 'temporal_unidad')">
+                    <label @click="selTodosAcc = !selTodosAcc; onSelTodosAcc()">
+                        <input style="pointer-events: none;" type="checkbox" v-model="selTodosAcc">
+                        Todos
+                    </label>
+
+                    <label v-for="a in acciones" @click="toggleAccion(a)">
+                        <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
+                        {{ a.accion }}
+                    </label>
+
                 </div>
             </div>
         </div>

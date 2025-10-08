@@ -173,7 +173,6 @@
 			this.fiduciarias = fiduciarias;
 			this.instructivos = instructivos;
 			this.clases = clases;
-			console.log(this.clases);
 			let pisos = new Set(), localizaciones = new Set();
 			if (torres.length && aptos.length) {
 				let a_num_fields = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'valor_complemento', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'],

@@ -389,15 +389,15 @@ select 'OK' as respuesta;
 select * from dim_agrupacion_unidad;
 select * from fact_unidades where id_proyecto = 5 limit 2000;
 select * from tmp_agrupaciones;
-update fact_unidades set id_agrupacion = null where id_proyecto=1;
+update fact_unidades set id_agrupacion = null where id_proyecto=3;
 delete from dim_hito_cargo where id_hito in (select h.id_hito from fact_unidades u 
-    join dim_hito_sala h on u.id_torre = h.id_torre where u.id_proyecto = 1 group by h.id_hito);
-delete from dim_hito_sala where id_torre in (select id_torre from fact_torres where id_proyecto = 1);
-delete from dim_agrupacion_unidad where id_proyecto=1;
-delete from dim_lista_tipo_torre where id_torre in (select id_torre from fact_torres where id_proyecto = 1);
-delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 1);
-delete from fact_unidades where id_proyecto = 1;
-delete from fact_torres where id_proyecto = 1;
-update fact_proyectos set id_lista = null where id_proyecto = 1;
-delete from dim_lista_precios where id_proyecto=1;
+    join dim_hito_sala h on u.id_torre = h.id_torre where u.id_proyecto = 3 group by h.id_hito);
+delete from dim_hito_sala where id_torre in (select id_torre from fact_torres where id_proyecto = 3);
+delete from dim_agrupacion_unidad where id_proyecto=3;
+delete from dim_lista_tipo_torre where id_torre in (select id_torre from fact_torres where id_proyecto = 3);
+delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 3);
+delete from fact_unidades where id_proyecto = 3;
+delete from fact_torres where id_proyecto = 3;
+update fact_proyectos set id_lista = null where id_proyecto = 3;
+delete from dim_lista_precios where id_proyecto=3;
 */
