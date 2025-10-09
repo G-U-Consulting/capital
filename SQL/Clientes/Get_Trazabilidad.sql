@@ -73,5 +73,3 @@ where is_active = 1;
 select id_ciudadela, ciudadela
 from dim_ciudadela
 where is_active = 1;
-
-select * from fact_unidades where id_unidad = 89162;

@@ -114,7 +114,7 @@
 		await this.loadUnidades(true);
 		if (this.torres.length) this.setTabmode(0);
 		let b = !!this.torres.length;
-		this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
+		this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Torres y Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
 		if (b) this.ruta.push({ text: `Torres`, action: () => this.setTabmode(0) })
 		this.setRuta();
 		this.listResources();
@@ -329,7 +329,7 @@
 			this.mode = 3;
 			this.viewProperties === '3d' && setTimeout(this.threeInit, 10);
 			let b = !!this.torres.length;
-			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
+			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Torres y Unidades`, action: () => b ? this.setTabmode(0) : this.setTabmode(-1, true) }];
 			if (b) this.ruta.push({ text: `Torres`, action: () => this.setTabmode(0) })
 			this.setRuta();
 		},

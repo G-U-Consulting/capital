@@ -5,7 +5,7 @@
             <span style="font-size: 1.5em;">Inventario</span>
             <div style="display: flex; gap: 5px; width: 240px;">
                 <button>Enviar Correos</button>
-                <button>Ver Gráfico</button>
+                <button @click="openModal">Ver Gráfico</button>
             </div>
         </div>
         <div class="filtros-container" style="padding: .7rem;">
@@ -14,23 +14,23 @@
                     @change="selZona = {}; selCiu = {}; selSala = {}; selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Sedes]</option>
                     <option v-for="s in sedes" :value="s">
-                        {{s.sede}}
+                        {{s.nombre}}
                     </option>
                 </select>
                 <select v-model="selZona"
                     @change="selCiu = {}; selSala = {}; selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Zonas]</option>
-                    <option v-for="z in zonas.filter(i => !selSede.id_sede || i.id_sede === selSede.id_sede)"
+                    <option v-for="z in zonas.filter(i => !selSede.id || i.id_sede === selSede.id)"
                         :value="z">
-                        {{z.zona_proyecto}}
+                        {{z.nombre}}
                     </option>
                 </select>
                 <select v-model="selCiu" @change="selSala = {}; selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Ciudadelas]</option>
                     <option
-                        v-for="c in ciudadelas.filter(i => !selZona.id_zona_proyecto || i.id_zona_proyecto === selZona.id_zona_proyecto)"
+                        v-for="c in ciudadelas.filter(i => !selZona.id || i.id_zona_proyecto === selZona.id)"
                         :value="c">
-                        {{c.ciudadela}}
+                        {{c.nombre}}
                     </option>
                 </select>
                 <select v-model="selSala" @change="selPro = {}; selTorre = {}; unidades = []">
@@ -108,11 +108,13 @@
                         Cotizados
                     </label>
                     <label>
-                        <input type="checkbox" true-value="2" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        <input type="checkbox" true-value="2" false-value=""
+                            v-model="filtros.unidades.id_estado_unidad">
                         Opcionados
                     </label>
                     <label>
-                        <input type="checkbox" true-value="3" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        <input type="checkbox" true-value="3" false-value=""
+                            v-model="filtros.unidades.id_estado_unidad">
                         Consignados
                     </label>
                 </div>
@@ -145,6 +147,48 @@
                 </tbody>
             </table>
 
+        </div>
+    </div>
+
+    <div class="cal-modal-overlay" id="modalOverlay" @click.stop.prevent="closeModal">
+        <div class="modal-container" style="min-width: 75vw; max-width: 75vw;">
+            <div style=" position: relative;">
+                <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal($event, true)"
+                    class="modal-cerrar">
+                <h2 style="text-align: center; margin-bottom: .5rem;">
+                    Inventario Estados
+                </h2>
+
+                <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
+                    <select v-model="chartMode" style="width: 10rem;" @change="resetChart">
+                        <option value="estados_unidad">Estados Unidades</option>
+                    </select>
+                    <select v-if="chartMode == 'estados_unidad'" v-model="groupMode" style="width: 10rem;"
+                        @change="resetChart">
+                        <option value="sedes">Sede</option>
+                        <option value="zonas">Zona</option>
+                        <option value="ciudadelas">Ciudadela</option>
+                    </select>
+                    <button @click="exportChart">Exportar</button>
+                </div>
+
+                <div class="unidades-tabla-modal" style="height: 66vh;">
+                    <canvas id="chart-js"></canvas>
+                </div>
+
+                <div v-if="chartMode === 'estados_unidad'"
+                    class="checkbox-group horizontal-bar-checks">
+                    <label @click="selTodos = !selTodos; onSelTodos()">
+                        <input style="pointer-events: none;" type="checkbox" v-model="selTodos">
+                        Todos
+                    </label>
+                    <label v-for="t in getItems()" @click="toggleItem(t)">
+                        <input style="pointer-events: none;" type="checkbox" v-model="t.selected">
+                        {{ t.nombre }}
+                    </label>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>

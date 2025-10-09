@@ -30,6 +30,11 @@ export default {
             filtros: {
                 unidades: {}
             },
+
+            groupMode: 'sedes',
+            chartMode: 'estados_unidad',
+
+            selTodos: true,
         };
     },
     async mounted() {
@@ -53,11 +58,13 @@ export default {
 
         async loadData() {
             showProgress();
-            let salas = [];
-            [this.sedes, this.zonas, this.ciudadelas, salas, this.proyectos, this.clases, this.estados, this.asesores] = 
+            let sedes = [], zonas = [], ciudadelas = [], salas = [];
+            [sedes, zonas, ciudadelas, salas, this.proyectos, this.clases, this.estados, this.asesores] = 
                 (await httpFunc("/generic/genericDS/Gestion:Get_InitData", {})).data;
             this.salas = salas.map(s => ({...s, ids_proyectos: s.ids_proyectos.split(',')}));
-            console.log(this.salas);
+            this.sedes = sedes.map(t => ({...t, selected: true}));
+            this.zonas = zonas.map(t => ({...t, selected: true}));
+            this.ciudadelas = ciudadelas.map(t => ({...t, selected: true}));
             hideProgress();
         },
         async loadTorres(pro) {
@@ -109,8 +116,130 @@ export default {
 
         updateFilMode(mode) {
             this.filMode = mode;
-        }
+            if (mode === 'week') {
+                this.filtros.unidades.created_on1 = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7));
+                this.filtros.unidades.created_on2 = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
+            }
+            if (mode === 'month') {
+                this.filtros.unidades.created_on1 = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 30));
+                this.filtros.unidades.created_on2 = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
+            }
+        },
+        openModal() {
+            let $modal = document.getElementById('modalOverlay');
+            $modal && ($modal.style.display = 'flex');
+            $modal && (this.modal = $modal);
+            this.selTodos = true;
+            this.onSelTodos();
+        },
+        closeModal(e, forzar) {
+            if (this.modal && (e.target === this.modal || forzar)) {
+                this.modal.style.display = 'none';
+                if (this.chart) this.chart.destroy();
+            }
+        },
+        formatDatetime(text, type = 'datetime', _date) {
+            const date = _date || (text ? new Date(text) : new Date());
+            let day = date.getDate().toString().padStart(2, '0'),
+                month = (date.getMonth() + 1).toString().padStart(2, '0'),
+                year = date.getFullYear(),
+                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
+                minutes = date.getMinutes().toString().padStart(2, '0'),
+                seconds = date.getSeconds().toString().padStart(2, '0'),
+                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
+            if (type === 'date')
+                return `${day}/${month}/${year}`;
+            if (type === 'textdate')
+                return `${day} de ${this.nameMonths[date.getMonth()]} de ${year}`;
+            if (type === 'bdate')
+                return `${year}-${month}-${day}`;
+            if (type === 'bdatetime')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
+            if (type === 'bdatetimes')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
+            if (type === 'time')
+                return `${hour}:${minutes} ${meridian}`;
+            if (type === 'vtime')
+                return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
+            return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
+        },
+        onSelTodos() {
+            this[this.groupMode].forEach(t => t.selected = this.selTodos);
+            this.initChart();
+        },
+        toggleItem(t) {
+            t.selected = !t.selected;
+            if (this[this.groupMode].every(e => e.selected)) this.selTodos = true;
+            else this.selTodos = false;
+            this.initChart();
+        },
+        resetChart() {
+            this.selTodos = true;
+            this.onSelTodos();
+        },
+        async initChart() {
+            if (this.chart) this.chart.destroy();
+            const ctx = document.getElementById('chart-js');
+            const config = {
+                type: 'bar',
+                options: {
+                    responsive: true,
+                    animation: false,
+                    maintainAspectRatio: false,
+                }
+            };
 
+            if (this.chartMode === 'estados_unidad')
+                this.dataEstadosUnidad(config);
+            /* else if (this.chartMode === 'temporal_asesor')
+                this.dataTemporalAsesor(config);
+            else if (this.chartMode === 'temporal_unidad')
+                this.dataTemporalUnidad(config); */
+            if (ctx) this.chart = new Chart(ctx, config);
+        },
+        exportChart() {
+            if (this.chart) {
+                const link = document.createElement('a');
+                link.href = this.chart.toBase64Image();
+                link.download = `${this.chartMode}_${this.groupMode}_${this.formatDatetime('', 'bdatetimes')}.png`;
+                link.click();
+            }
+        },
+        getColor(i, length) {
+            const palette = [
+                "#44ee85", "#4444ee", "#0094b9", "#173d5b", "#eed444", "#ee4444", "#b944ee", "#44eeb9", "#eea944"
+            ];
+            return i < palette.length ? palette[i] : `hsl(${(i * 360 / length)}, 70%, 60%)`;
+        },
+
+        dataEstadosUnidad(config) {
+            let items = this[this.groupMode].filter(t => t.selected),
+                labels = items.map(i => i.nombre.substr(0, 20));
+            
+            const data = {
+                labels: labels,
+                datasets: this.estados.map(e => (
+                    {
+                        label: e.estado_unidad,
+                        data: items.map(t => t[e.estado_unidad.toLowerCase()]),
+                        backgroundColor: e.color_fondo,
+                        borderColor: '#666',
+                        borderWidth: 1
+                    }
+                )),
+            };
+            config.data = data;
+            config.options.scales = {
+                x: {
+                    stacked: false,
+                    title: { display: true, text: this.groupMode }
+                },
+                y: {
+                    stacked: false,
+                    title: { display: true, text: 'Unidades' }
+                }
+            };
+        },
     },
     computed: {
         completeProjects() {
@@ -132,5 +261,8 @@ export default {
 				) : [];
 			};
 		},
+        getItems() {
+            return () => this[this.groupMode];
+        },
     }
 }

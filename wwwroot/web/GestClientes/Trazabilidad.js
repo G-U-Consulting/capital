@@ -155,9 +155,9 @@ export default {
 
             if (this.chartMode === 'acciones_asesor')
                 this.dataAccionesAsesor(config);
-            else if (this.chartMode === 'temporal_asesor')
+            if (this.chartMode === 'temporal_asesor')
                 this.dataTemporalAsesor(config);
-            else if (this.chartMode === 'temporal_unidad')
+            if (this.chartMode === 'temporal_unidad')
                 this.dataTemporalUnidad(config);
             if (ctx) this.chart = new Chart(ctx, config);
         },
