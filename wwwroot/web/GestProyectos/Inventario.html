@@ -20,15 +20,13 @@
                 <select v-model="selZona"
                     @change="selCiu = {}; selSala = {}; selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Zonas]</option>
-                    <option v-for="z in zonas.filter(i => !selSede.id || i.id_sede === selSede.id)"
-                        :value="z">
+                    <option v-for="z in zonas.filter(i => !selSede.id || i.id_sede === selSede.id)" :value="z">
                         {{z.nombre}}
                     </option>
                 </select>
                 <select v-model="selCiu" @change="selSala = {}; selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Ciudadelas]</option>
-                    <option
-                        v-for="c in ciudadelas.filter(i => !selZona.id || i.id_zona_proyecto === selZona.id)"
+                    <option v-for="c in ciudadelas.filter(i => !selZona.id || i.id_zona_proyecto === selZona.id)"
                         :value="c">
                         {{c.nombre}}
                     </option>
@@ -162,12 +160,18 @@
                 <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
                     <select v-model="chartMode" style="width: 10rem;" @change="resetChart">
                         <option value="estados_unidad">Estados Unidades</option>
+                        <option value="estados_torre">Estados por Torre</option>
                     </select>
                     <select v-if="chartMode == 'estados_unidad'" v-model="groupMode" style="width: 10rem;"
                         @change="resetChart">
                         <option value="sedes">Sede</option>
                         <option value="zonas">Zona</option>
                         <option value="ciudadelas">Ciudadela</option>
+                    </select>
+                    <select v-else-if="chartMode == 'estados_torre'" v-model="idProChart" style="width: 10rem;"
+                        @change="getStatsPro">
+                        <option :value="null">[Proyecto]</option>
+                        <option v-for="p in proyectos" :value="p.id_proyecto">{{p.nombre}}</option>
                     </select>
                     <button @click="exportChart">Exportar</button>
                 </div>
@@ -176,8 +180,7 @@
                     <canvas id="chart-js"></canvas>
                 </div>
 
-                <div v-if="chartMode === 'estados_unidad'"
-                    class="checkbox-group horizontal-bar-checks">
+                <div v-if="chartMode === 'estados_unidad'" class="checkbox-group horizontal-bar-checks">
                     <label @click="selTodos = !selTodos; onSelTodos()">
                         <input style="pointer-events: none;" type="checkbox" v-model="selTodos">
                         Todos

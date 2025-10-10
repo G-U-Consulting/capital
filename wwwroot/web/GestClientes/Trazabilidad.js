@@ -24,7 +24,8 @@ export default {
             selTodosAs: false,
             selTodosAcc: false,
             chartMode: 'acciones_asesor',
-            groupMode: 'sede'
+            groupMode: 'sede',
+            verBarras: true,
         };
     },
     async mounted() {
@@ -132,14 +133,10 @@ export default {
             this.initChart();
         },
         resetChart() {
-            if (this.chartMode === 'acciones_asesor') {
-                this.selTodosAs = true;
-                this.onSelTodosAs();
-            }
-            if (this.chartMode === 'temporal_asesor' || this.chartMode === 'temporal_unidad') {
-                this.selTodosAcc = true;
-                this.onSelTodosAcc();
-            }
+            this.selTodosAs = true;
+            this.onSelTodosAs();
+            this.selTodosAcc = true;
+            this.onSelTodosAcc();
         },
         async initChart() {
             if (this.chart) this.chart.destroy();
@@ -220,19 +217,21 @@ export default {
                     ).length
                 ),
                 backgroundColor: this.getColor(idx, asesores.length),
+                borderColor: this.getColor(idx, asesores.length),
+                tension: 0.3
             }));
-
+            config.type = this.verBarras ? 'bar' : 'line';
             config.data = {
                 labels: fechas,
                 datasets: datasets
             };
             config.options.scales = {
                 x: {
-                    stacked: true,
+                    stacked: this.verBarras,
                     title: { display: true, text: 'Fecha' }
                 },
                 y: {
-                    stacked: true,
+                    stacked: this.verBarras,
                     title: { display: true, text: 'Acciones' }
                 }
             };

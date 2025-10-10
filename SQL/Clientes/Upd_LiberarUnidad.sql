@@ -32,11 +32,3 @@ select coalesce(u2.id_unidad, u1.id_unidad) as id_unidad, @userid as id_usuario,
     where v.id_venta = @id_venta;
 
 select 'OK' as result;
-
-/*
-select * from fact_unidades where id_unidad in (
-79078,
-79979,
-81033
-);
-*/

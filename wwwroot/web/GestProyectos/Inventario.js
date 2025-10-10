@@ -14,6 +14,7 @@ export default {
             tipos: [],
             estados: [],
             asesores: [],
+            statsPro: [],
             unidad: {},
             selSede: {},
             selCiu: {},
@@ -33,6 +34,7 @@ export default {
 
             groupMode: 'sedes',
             chartMode: 'estados_unidad',
+            idProChart: null,
 
             selTodos: true,
         };
@@ -59,12 +61,12 @@ export default {
         async loadData() {
             showProgress();
             let sedes = [], zonas = [], ciudadelas = [], salas = [];
-            [sedes, zonas, ciudadelas, salas, this.proyectos, this.clases, this.estados, this.asesores] = 
+            [sedes, zonas, ciudadelas, salas, this.proyectos, this.clases, this.estados, this.asesores] =
                 (await httpFunc("/generic/genericDS/Gestion:Get_InitData", {})).data;
-            this.salas = salas.map(s => ({...s, ids_proyectos: s.ids_proyectos.split(',')}));
-            this.sedes = sedes.map(t => ({...t, selected: true}));
-            this.zonas = zonas.map(t => ({...t, selected: true}));
-            this.ciudadelas = ciudadelas.map(t => ({...t, selected: true}));
+            this.salas = salas.map(s => ({ ...s, ids_proyectos: s.ids_proyectos.split(',') }));
+            this.sedes = sedes.map(t => ({ ...t, selected: true }));
+            this.zonas = zonas.map(t => ({ ...t, selected: true }));
+            this.ciudadelas = ciudadelas.map(t => ({ ...t, selected: true }));
             hideProgress();
         },
         async loadTorres(pro) {
@@ -191,17 +193,18 @@ export default {
 
             if (this.chartMode === 'estados_unidad')
                 this.dataEstadosUnidad(config);
-            /* else if (this.chartMode === 'temporal_asesor')
-                this.dataTemporalAsesor(config);
-            else if (this.chartMode === 'temporal_unidad')
-                this.dataTemporalUnidad(config); */
+            if (this.chartMode === 'estados_torre')
+                this.dataEstadosTorre(config);
             if (ctx) this.chart = new Chart(ctx, config);
         },
         exportChart() {
             if (this.chart) {
+                console.log(this.chart);
                 const link = document.createElement('a');
                 link.href = this.chart.toBase64Image();
-                link.download = `${this.chartMode}_${this.groupMode}_${this.formatDatetime('', 'bdatetimes')}.png`;
+                link.download = `${this.chartMode}_${this.chartMode == 'estados_unidad' 
+                    ? this.groupMode : this.chartMode == 'estados_torre' 
+                    ? this.proyectos.find(p => p.id_proyecto === this.idProChart)?.nombre : ''}_${this.formatDatetime('', 'bdatetimes')}.png`;
                 link.click();
             }
         },
@@ -211,11 +214,20 @@ export default {
             ];
             return i < palette.length ? palette[i] : `hsl(${(i * 360 / length)}, 70%, 60%)`;
         },
+        async getStatsPro() {
+            showProgress();
+            if (this.idProChart)
+                this.statsPro = (await httpFunc("/generic/genericDT/Gestion:Get_StatsProyecto", { id_proyecto: this.idProChart })).data;
+            else this.statsPro = [];
+            console.log(this.statsPro);
+            hideProgress();
+            this.resetChart();
+        },
 
         dataEstadosUnidad(config) {
             let items = this[this.groupMode].filter(t => t.selected),
                 labels = items.map(i => i.nombre.substr(0, 20));
-            
+
             const data = {
                 labels: labels,
                 datasets: this.estados.map(e => (
@@ -240,6 +252,33 @@ export default {
                 }
             };
         },
+        dataEstadosTorre(config) {
+            let labels = this.statsPro.map(t => 'Torre ' + t.consecutivo);
+
+            const data = {
+                labels: labels,
+                datasets: this.estados.map(e => (
+                    {
+                        label: e.estado_unidad,
+                        data: this.statsPro.map(t => t[e.estado_unidad.toLowerCase()]),
+                        backgroundColor: e.color_fondo,
+                        borderColor: '#666',
+                        borderWidth: 1
+                    }
+                )),
+            };
+            config.data = data;
+            config.options.scales = {
+                x: {
+                    stacked: false,
+                    title: { display: true, text: 'Torres' }
+                },
+                y: {
+                    stacked: false,
+                    title: { display: true, text: 'Unidades' }
+                }
+            };
+        },
     },
     computed: {
         completeProjects() {
@@ -249,18 +288,18 @@ export default {
             }
         },
         getFilteredList() {
-			return (tabla) => {
-				return this[tabla] ? this[tabla].filter(item =>
-					this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
-						if (tabla == 'unidades' && key == 'torres')
-							return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
-						if (key.startsWith('id_') || key == 'localizacion' || key == 'piso')
-							return !this.filtros[tabla][key] || String(item[key]) === this.filtros[tabla][key];
-						else return !this.filtros[tabla][key] || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
-					}) : []
-				) : [];
-			};
-		},
+            return (tabla) => {
+                return this[tabla] ? this[tabla].filter(item =>
+                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
+                        if (tabla == 'unidades' && key == 'torres')
+                            return this.filtros[tabla][key].length === 0 || this.filtros[tabla][key].includes(item.idtorre);
+                        if (key.startsWith('id_') || key == 'localizacion' || key == 'piso')
+                            return !this.filtros[tabla][key] || String(item[key]) === this.filtros[tabla][key];
+                        else return !this.filtros[tabla][key] || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
+                    }) : []
+                ) : [];
+            };
+        },
         getItems() {
             return () => this[this.groupMode];
         },
