@@ -89,9 +89,9 @@
                         </label>
                     </div>
                     <div v-if="filMode == 'range'" style="display: flex; align-items: center;">
-                        <input type="date" style="width: 8rem;">
+                        <input type="date" style="width: 8rem;" v-model="filFecha1">
                         &ensp;-&ensp;
-                        <input type="date" style="width: 8rem;">
+                        <input type="date" style="width: 8rem;" v-model="filFecha2">
                     </div>
                 </div>
                 <div class="checkbox-group checkbox-group-traz1">
@@ -177,6 +177,11 @@
                         <option value="sedes">Sede</option>
                         <option value="zonas">Zona</option>
                         <option value="ciudadelas">Ciudadela</option>
+                    </select>
+                    <select v-if="chartMode == 'cambio_estado'" v-model="proDiff" style="width: 10rem;"
+                        @change="resetChart">
+                        <option :value="{}">[Proyectos]</option>
+                        <option v-for="p in proyectos" :value="p">{{p.nombre}}</option>
                     </select>
                     <button @click="exportChart">Exportar</button>
                 </div>

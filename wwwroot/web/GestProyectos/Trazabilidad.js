@@ -22,6 +22,7 @@ export default {
             selPro: {},
             selTorre: {},
             selUnd: {},
+            proDiff: {},
 
             editTipoEstado: true,
 
@@ -30,6 +31,8 @@ export default {
             filtros: {
                 unidades: {}
             },
+            filFecha1: this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7)),
+            filFecha2: this.formatDatetime('', 'bdate', new Date()),
 
             groupMode: 'sedes',
             chartMode: 'estados_unidad',
@@ -41,6 +44,7 @@ export default {
         this.ruta = [{ text: 'Trazabilidad Estados', action: () => this.setMode(0) }];
         this.setRuta();
         await this.loadData();
+        await this.loadDiffEstado();
     },
     async unmounted() {
 
@@ -105,6 +109,13 @@ export default {
             und.logs = (await httpFunc("/generic/genericDT/Gestion:Get_Logs", { id_unidad: und.id_unidad })).data;
             hideProgress();
         },
+        async loadDiffEstado() {
+            showProgress();
+            let diff = (await httpFunc("/generic/genericDT/Gestion:Get_DiffEstados", {})).data;
+            this.proyectos.forEach(p => p.diff = diff.filter(d => d.id_proyecto === p.id_proyecto)
+                .map(d => ({...d, fecha: new Date(d.fecha + ' 00:00')})));
+            hideProgress();
+        },
         valClase() {
             if (this.filtros.unidades.id_clase && this.filtros.unidades.id_clase != '8') {
                 delete this.filtros.unidades.id_tipo;
@@ -117,12 +128,12 @@ export default {
         updateFilMode(mode) {
             this.filMode = mode;
             if (mode === 'week') {
-                this.filtros.unidades.created_on1 = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7));
-                this.filtros.unidades.created_on2 = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
+                this.filFecha1 = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7));
+                this.filFecha2 = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
             }
             if (mode === 'month') {
-                this.filtros.unidades.created_on1 = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 30));
-                this.filtros.unidades.created_on2 = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
+                this.filFecha1 = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 30));
+                this.filFecha2 = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
             }
         },
         openModal() {
@@ -241,13 +252,11 @@ export default {
         async dataCambioEstado() {
             let $cont = document.getElementById('d3-js');
             if ($cont) {
-                let data = await fetch('../../docs/data.json');
-                data = (await data.json()).map(d => ({...d, date: new Date(d.date)}));
-                console.log(data);
+                let [data, numUnd] = this.getDiffStates();
 
                 let sizes = $cont.getBoundingClientRect();
                 const width = sizes.width;
-                const height = sizes.height;
+                const height = sizes.height - 10;
                 const marginTop = 20;
                 const marginRight = 20;
                 const marginBottom = 20;
@@ -256,9 +265,9 @@ export default {
                 // Determine the series that need to be stacked.
                 const series = d3.stack()
                     .offset(d3.stackOffsetExpand)
-                    .keys(d3.union(data.map(d => d.industry))) // distinct series keys, in input order
-                    .value(([, D], key) => D.get(key).unemployed) // get value for each series key and stack
-                    (d3.index(data, d => d.date, d => d.industry)); // group by stack then series key
+                    .keys(d3.union(data.map(d => d.state))) // distinct series keys, in input order
+                    .value(([, D], key) => D.get(key).total) // get value for each series key and stack
+                    (d3.index(data, d => d.date, d => d.state)); // group by stack then series key
 
                 // Prepare the scales for positional and color encodings.
                 const x = d3.scaleUtc()
@@ -305,7 +314,7 @@ export default {
                 svg.append("g")
                     .attr("transform", `translate(${marginLeft},0)`)
                     .call(d3.axisLeft(y).ticks(height / 80, "%")
-                        .tickFormat(d => Math.round(d * 6000)))
+                        .tickFormat(d => Math.round(d * numUnd)))
                     .call(g => g.select(".domain").remove())
                     .call(g => g.selectAll(".tick line")
                         .filter(d => d === 0 || d === 1)
@@ -316,15 +325,47 @@ export default {
                         .attr("y", 10)
                         .attr("fill", "currentColor")
                         .attr("text-anchor", "start")
-                        .text("↑ Unemployed persons"));
+                        .text("↑ Total Unidades"));
 
                 // Return the chart with the color scale as a property (for the legend).
                 let chart = Object.assign(svg.node(), { scales: { color } });
-                $cont.insertAdjacentElement('afterbegin', chart);
-
-                console.log($cont.getBoundingClientRect(), chart);
+                $cont.innerHTML = chart.outerHTML;
+                //$cont.insertAdjacentElement('afterbegin', chart);
             }
         },
+        getDiffStates() {
+            let selChanges = [], data = [], proCount = {}, numUnd = 0,
+                estados = this.estados.map(e => ({ estado: e.estado_unidad.toLowerCase(), id: e.id_estado_unidad })),
+                start = new Date(this.filFecha1 + ' 00:00'),
+                end = new Date(this.filFecha2 + ' 00:00');
+            if (this.proDiff && this.proDiff.diff) {
+                selChanges = this.proDiff.diff.filter(d => d.fecha >= start && d.fecha <= end);
+                estados.forEach(e => proCount[e.estado] = Number(this.proDiff[e.estado]));
+            }
+            else {
+                this.proyectos.forEach(p => 
+                    selChanges.push(...p.diff.filter(d => d.fecha >= start && d.fecha <= end)));
+                estados.forEach(e => proCount[e.estado] = this.proyectos.reduce((a, b) => a + Number(b[e.estado] || 0), 0));
+            }
+            Object.keys(proCount).forEach(k => numUnd += proCount[k]);
+            while (end >= start) {
+                let tomorrow = new Date(end + 1000 * 3600 * 24), 
+                    changes = selChanges.filter(c => c.fecha.getTime() == tomorrow.getTime());
+                    estados.forEach(e => {
+                        proCount[e.estado] = proCount[e.estado] 
+                            + changes.filter(c => c.id_estado_unidad2 == e.id).length
+                            - changes.filter(c => c.id_estado_unidad1 == e.id).length;
+                        data.unshift({
+                            date: end,
+                            state: e.estado,
+                            total: proCount[e.estado]
+                        });
+                    });
+                
+                end = new Date(end.getTime() - 1000 * 3600 * 24);
+            }
+            return [data, numUnd];
+        }
     },
     computed: {
         completeProjects() {

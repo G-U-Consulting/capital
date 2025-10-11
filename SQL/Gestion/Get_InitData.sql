@@ -48,10 +48,16 @@ where sv.is_active = 1
 group by sv.id_sala_venta
 order by sv.sala_venta;
 
-select id_proyecto, nombre, id_sede, id_zona_proyecto, id_ciudadela
-from fact_proyectos
-where is_active = 1
-order by nombre;
+select p.id_proyecto, p.nombre, p.id_sede, p.id_zona_proyecto, p.id_ciudadela,
+    count(if(u.id_estado_unidad = 1, 1, null)) as libre,
+    count(if(u.id_estado_unidad = 2, 1, null)) as opcionado,
+    count(if(u.id_estado_unidad = 3, 1, null)) as consignado,
+    count(if(u.id_estado_unidad = 4, 1, null)) as vendido
+from fact_proyectos p
+left join fact_unidades u on p.id_proyecto = u.id_proyecto
+where p.is_active = 1
+group by p.id_proyecto
+order by p.nombre;
 
 select id_tipo_proyecto as id_clase, tipo_proyecto as clase
 from dim_tipo_proyecto
