@@ -1214,6 +1214,25 @@
         <div class="modal-container" style="min-width: 50vw; max-width: 50vw;">
             <h2 style="text-align: center; margin-bottom: .5rem;">Motivo Liberación</h2>
             <div class="pure-g">
+                <div class="pure-u-1-4 formInputStandard">
+                    <span>Lista Actual</span>
+                    <input type="text" :value="'Lista ' + currentList.lista" readonly>
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <span>Valor</span>
+                    <input type="text" :value="formatNumber(currentList.precio, false)" readonly>
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <span>Nueva Lista</span>
+                    <select v-model="selLista">
+                        <option :value="{}">[Seleccione]</option>
+                        <option v-for="l in tmpListas" :value="l">Lista {{l.lista}}</option>
+                    </select>
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <span>Nuevo Valor</span>
+                    <input type="text" :value="formatNumber(selLista.precio, false)" readonly>
+                </div>
                 <div class="pure-u-1-1 formInputStandard">
                     <textarea rows="10" v-model="textLog" style="resize: none; height: auto;"></textarea>
                 </div>

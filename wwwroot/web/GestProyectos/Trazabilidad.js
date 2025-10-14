@@ -14,6 +14,7 @@ export default {
             tipos: [],
             estados: [],
             asesores: [],
+            tmpListas: [],
             unidad: {},
             selSede: {},
             selCiu: {},
@@ -23,8 +24,11 @@ export default {
             selTorre: {},
             selUnd: {},
             proDiff: {},
+            selLista: {},
+            currentList: {},
 
             editTipoEstado: true,
+            textLog: '',
 
             optVisible: false,
             filMode: 'week',
@@ -207,11 +211,34 @@ export default {
             if (ctx) this.chart = new Chart(ctx, config);
         },
         exportChart() {
-            if (this.chart) {
+            if (this.chart && this.chart.ctx) {
                 const link = document.createElement('a');
                 link.href = this.chart.toBase64Image();
                 link.download = `${this.chartMode}_${this.groupMode}_${this.formatDatetime('', 'bdatetimes')}.png`;
                 link.click();
+            }
+            else {
+                const svgElement = document.querySelector("#d3-js>svg");
+                if (svgElement) {
+                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    const img = new Image();
+                    const self = this;
+                    img.onload = () => {
+                        canvas.width = svgElement.clientWidth;
+                        canvas.height = svgElement.clientHeight;
+                        ctx.drawImage(img, 0, 0);
+                        const pngFile = canvas.toDataURL("image/png");
+                        
+                        const link = document.createElement("a");
+                        link.download = `${self.chartMode}_${this.proDiff.nombre || 'proyectos'}_${self.filFecha1}_${self.filFecha2}.png`;
+                        link.href = pngFile;
+                        link.click();
+                    };
+
+                    img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+                }
             }
         },
         getColor(i, length) {
@@ -253,6 +280,7 @@ export default {
             let $cont = document.getElementById('d3-js');
             if ($cont) {
                 let [data, numUnd] = this.getDiffStates();
+                console.log(data, numUnd);
 
                 let sizes = $cont.getBoundingClientRect();
                 const width = sizes.width;
@@ -348,24 +376,114 @@ export default {
                 estados.forEach(e => proCount[e.estado] = this.proyectos.reduce((a, b) => a + Number(b[e.estado] || 0), 0));
             }
             Object.keys(proCount).forEach(k => numUnd += proCount[k]);
+            const changesByDate = new Map();
+            selChanges.forEach(c => {
+                const time = c.fecha.getTime();
+                if (!changesByDate.has(time)) changesByDate.set(time, []);
+                changesByDate.get(time).push(c);
+            });
             while (end >= start) {
                 let tomorrow = new Date(end + 1000 * 3600 * 24), 
-                    changes = selChanges.filter(c => c.fecha.getTime() == tomorrow.getTime());
+                    changes = changesByDate.get(tomorrow.getTime()) || [];
                     estados.forEach(e => {
-                        proCount[e.estado] = proCount[e.estado] 
-                            + changes.filter(c => c.id_estado_unidad2 == e.id).length
-                            - changes.filter(c => c.id_estado_unidad1 == e.id).length;
                         data.unshift({
                             date: end,
                             state: e.estado,
                             total: proCount[e.estado]
                         });
+                        proCount[e.estado] = proCount[e.estado] 
+                            + changes.filter(c => c.id_estado_unidad1 == e.id).length
+                            - changes.filter(c => c.id_estado_unidad2 == e.id).length;
                     });
                 
                 end = new Date(end.getTime() - 1000 * 3600 * 24);
             }
             return [data, numUnd];
-        }
+        },
+        reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
+			showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
+		},
+        async openUnlockModal(unidad) {
+            showProgress();
+            let tmpListas = (await httpFunc("/generic/genericDT/Gestion:Get_Listas", 
+                { id_unidad: unidad.id_unidad })).data;
+			this.tmpListas = tmpListas.map(l => ({ ...l, precio: l.precio.replace(',', '.') }));
+			let $modal = document.getElementById('modalOverlayUnlock');
+			$modal && ($modal.style.display = 'flex');
+			this.tmpUnidad = unidad;
+            this.selLista = this.tmpListas.find(l => l.id_lista === unidad.id_lista) || {};
+            this.currentList = { ...this.selLista };
+            hideProgress();
+		},
+		closeUnlockModal(e) {
+			if (e && e.target.matches('#modalOverlayUnlock')) {
+				e.target.style.display = 'none';
+				this.textLog = '';
+                this.selLista = {};
+                this.currentList = {};
+                this.tmpListas = [];
+			}
+			if (!e || e.target.matches('.closeListModal')) {
+				document.getElementById('modalOverlayUnlock').style.display = 'none';
+				this.textLog = '';
+                this.selLista = {};
+                this.currentList = {};
+                this.tmpListas = [];
+			}
+		},
+        reqUnlockApto(apto) {
+			if (!this.textLog)
+				showMessage("Debe ingresar el motivo");
+			else if (apto.id_estado_unidad != '1')
+				this.reqOperation(`El estado de la unidad <b>${apto.unidad}</b> cambiará de <b>${apto.estado_unidad}</b> a <b>Libre</b>`,
+					this.unlockApto, null, apto);
+		},
+        async unlockApto(apto) {
+            showProgress();
+			apto.estatus = 'Libre';
+			apto.id_estado_unidad = '1';
+            try {
+				let res = await (httpFunc('/generic/genericST/Gestion:Upd_EstadoLog', {
+					id_unidad: apto.id_unidad,
+                    id_estado_unidad: apto.id_estado_unidad,
+                    texto: this.textLog,
+                    id_lista: this.selLista.id_lista,
+					Usuario: GlobalVariables.username
+				}));
+				if (res.isError || res.data !== 'OK') throw res;
+                this.closeUnlockModal();
+			} catch (e) {
+				console.error(e);
+				showMessage('Error: ' + e.errorMessage || e.data);
+			}
+            hideProgress();
+		},
+        formatNumber(value, dec = true, ndec) {
+			if (!value) return "";
+			let [parteEntera, parteDecimal] = value.split(".");
+			parteEntera = parteEntera.replace(/\D/g, "");
+			parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
+			if (ndec >= 0)
+				parteDecimal = dec && ndec > 0 ? parteDecimal.padEnd(ndec, '0') : "";
+
+			let groups = [];
+			let len = parteEntera.length;
+			for (let i = len; i > 0; i -= 3)
+				groups.unshift(parteEntera.substring(Math.max(0, i - 3), i));
+
+			let formattedEntera = groups[0] || "";
+			for (let i = 1; i < groups.length; i++)
+				formattedEntera += '.' + groups[i];
+
+			let result = formattedEntera;
+			if (parteDecimal) {
+				if (ndec > 0 && parteDecimal.length > ndec)
+					parteDecimal = Math.round(parseInt(parteDecimal) / Math.pow(10, parteDecimal.length - ndec)).toString();
+				result += "," + parteDecimal;
+			}
+
+			return result;
+		},
     },
     computed: {
         completeProjects() {

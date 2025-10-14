@@ -68,6 +68,9 @@
 			gruposImg: [],
 			projectList: '',
 			projectAlert: '',
+			tmpListas: [],
+            selLista: {},
+            currentList: {},
 
 			filtros: {
 				aptos: {
@@ -1105,19 +1108,32 @@
 		closeExpanded() {
 			this.expandedVisible = false;
 		},
-		openUnlockModal(apto) {
+		async openUnlockModal(apto) {
+			showProgress();
+            let tmpListas = (await httpFunc("/generic/genericDT/Gestion:Get_Listas", 
+                { id_unidad: apto.id_unidad })).data;
+			this.tmpListas = tmpListas.map(l => ({ ...l, precio: l.precio.replace(',', '.') }));
 			let $modal = document.getElementById('modalOverlayUnlock');
 			$modal && ($modal.style.display = 'flex');
 			this.tmpApto = apto;
+			this.selLista = this.tmpListas.find(l => l.id_lista === apto.id_lista) || {};
+            this.currentList = { ...this.selLista };
+            hideProgress();
 		},
 		closeUnlockModal(e) {
 			if (e && e.target.matches('#modalOverlayUnlock')) {
 				e.target.style.display = 'none';
 				this.textLog = '';
+				this.selLista = {};
+                this.currentList = {};
+                this.tmpListas = [];
 			}
 			if (!e || e.target.matches('.closeListModal')) {
 				document.getElementById('modalOverlayUnlock').style.display = 'none';
 				this.textLog = '';
+				this.selLista = {};
+                this.currentList = {};
+                this.tmpListas = [];
 			}
 		},
 		reqUnlockApto(apto) {
@@ -1128,25 +1144,27 @@
 					this.unlockApto, null, apto);
 		},
 		async unlockApto(apto) {
+			showProgress();
 			apto.estatus = 'Libre';
 			apto.id_estado_unidad = '1';
-			this.apto = apto;
-			await this.onSave();
-			await this.addLog(apto);
-		},
-		async addLog(apto) {
-			showProgress();
-			let res = null;
-			try {
-				res = await httpFunc(`/generic/genericST/Unidades:Ins_LogUnidad`,
-					{ id_unidad: apto.id_unidad, texto: this.textLog });
-				this.closeUnlockModal();
+			apto.id_lista = this.selLista.id_lista;
+			apto.lista = this.selLista.lista;
+			apto.valor_unidad = this.selLista.precio;
+            try {
+				let res = await (httpFunc('/generic/genericST/Gestion:Upd_EstadoLog', {
+					id_unidad: apto.id_unidad,
+                    id_estado_unidad: apto.id_estado_unidad,
+                    texto: this.textLog,
+                    id_lista: apto.id_lista,
+					Usuario: GlobalVariables.username
+				}));
 				if (res.isError || res.data !== 'OK') throw res;
+                this.closeUnlockModal();
 			} catch (e) {
 				console.error(e);
-				showMessage('Error:   ' + e.errorMessage || e.data);
+				showMessage('Error: ' + e.errorMessage || e.data);
 			}
-			hideProgress();
+            hideProgress();
 		},
 	},
 	computed: {

@@ -20,15 +20,13 @@
                 <select v-model="selZona"
                     @change="selCiu = {}; selSala = {}; selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Zonas]</option>
-                    <option v-for="z in zonas.filter(i => !selSede.id || i.id_sede === selSede.id)"
-                        :value="z">
+                    <option v-for="z in zonas.filter(i => !selSede.id || i.id_sede === selSede.id)" :value="z">
                         {{z.nombre}}
                     </option>
                 </select>
                 <select v-model="selCiu" @change="selSala = {}; selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Ciudadelas]</option>
-                    <option
-                        v-for="c in ciudadelas.filter(i => !selZona.id || i.id_zona_proyecto === selZona.id)"
+                    <option v-for="c in ciudadelas.filter(i => !selZona.id || i.id_zona_proyecto === selZona.id)"
                         :value="c">
                         {{c.nombre}}
                     </option>
@@ -102,7 +100,8 @@
                 </div>
                 <div class="checkbox-group checkbox-group-traz2">
                     <label>
-                        <input type="checkbox" true-value="1" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        <input type="checkbox" true-value="1" false-value=""
+                            v-model="filtros.unidades.id_estado_unidad">
                         Libres
                     </label>
                     <label>
@@ -110,19 +109,22 @@
                         Cotizados
                     </label>
                     <label>
-                        <input type="checkbox" true-value="2" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        <input type="checkbox" true-value="2" false-value=""
+                            v-model="filtros.unidades.id_estado_unidad">
                         Opcionados
                     </label>
                     <label>
-                        <input type="checkbox" true-value="3" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        <input type="checkbox" true-value="3" false-value=""
+                            v-model="filtros.unidades.id_estado_unidad">
                         Consignados
                     </label>
                     <label>
-                        <input type="checkbox" true-value="4" false-value="" v-model="filtros.unidades.id_estado_unidad">
+                        <input type="checkbox" true-value="4" false-value=""
+                            v-model="filtros.unidades.id_estado_unidad">
                         Vendidos
                     </label>
                     <label>
-                        <input type="checkbox" true-value="1" false-value=""> 
+                        <input type="checkbox" true-value="1" false-value="">
                         Desistidos
                     </label>
                 </div>
@@ -149,7 +151,8 @@
                         <td>{{u.clase}}</td>
                         <td>{{u.tipo}}</td>
                         <td>{{u.estado_unidad}}</td>
-                        <td style="text-align: center;">{{u.id_estado_unidad && u.id_estado_unidad != '1' ? '🔒' : ''}}
+                        <td style="text-align: center;" @click="openUnlockModal(u)">
+                            {{u.id_estado_unidad && u.id_estado_unidad != '1' ? '🔒' : ''}}
                         </td>
                     </tr>
                 </tbody>
@@ -191,8 +194,7 @@
                     <div v-else-if="chartMode == 'cambio_estado'" id="d3-js" style="width: 100%; height: 100%;"></div>
                 </div>
 
-                <div v-if="chartMode === 'estados_unidad'"
-                    class="checkbox-group horizontal-bar-checks">
+                <div v-if="chartMode === 'estados_unidad'" class="checkbox-group horizontal-bar-checks">
                     <label @click="selTodos = !selTodos; onSelTodos()">
                         <input style="pointer-events: none;" type="checkbox" v-model="selTodos">
                         Todos
@@ -203,6 +205,40 @@
                     </label>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <div class="cal-modal-overlay" id="modalOverlayUnlock" @click.stop.prevent="closeUnlockModal">
+        <div class="modal-container" style="min-width: 50vw; max-width: 50vw;">
+            <h2 style="text-align: center; margin-bottom: .5rem;">Motivo Liberación</h2>
+            <div class="pure-g">
+                <div class="pure-u-1-4 formInputStandard">
+                    <span>Lista Actual</span>
+                    <input type="text" :value="'Lista ' + currentList.lista" readonly>
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <span>Valor</span>
+                    <input type="text" :value="formatNumber(currentList.precio, false)" readonly>
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <span>Nueva Lista</span>
+                    <select v-model="selLista">
+                        <option :value="{}">[Seleccione]</option>
+                        <option v-for="l in tmpListas" :value="l">Lista {{l.lista}}</option>
+                    </select>
+                </div>
+                <div class="pure-u-1-4 formInputStandard">
+                    <span>Nuevo Valor</span>
+                    <input type="text" :value="formatNumber(selLista.precio, false)" readonly>
+                </div>
+                <div class="pure-u-1-1 formInputStandard">
+                    <textarea rows="10" v-model="textLog" style="resize: none; height: auto;"></textarea>
+                </div>
+            </div>
+            <div class="pure-u-5-12"></div>
+            <div class="pure-u-1-6" style="text-align: center;">
+                <button @click="reqUnlockApto(tmpUnidad)" class="pure-button pure-button-primary">Confirmar</button>
             </div>
         </div>
     </div>
