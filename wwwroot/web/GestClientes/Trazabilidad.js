@@ -9,10 +9,13 @@ export default {
             sedes: [],
             zonas: [],
             ciudadelas: [],
+            salas: [],
             trazabilidad: [],
             acciones: [],
+            proyectos: [],
 
             filMode: 'week',
+            filIdSala: '',
             filtros: {
                 trazabilidad: {
                     created_on1: this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7)),
@@ -49,8 +52,11 @@ export default {
 
         async loadData() {
             showProgress();
-            [this.trazabilidad, this.asesores, this.sedes, this.zonas, this.ciudadelas] =
+            let asesores = [], salas = [];
+            [this.trazabilidad, asesores, this.sedes, this.zonas, this.ciudadelas, salas, this.proyectos] =
                 (await httpFunc("/generic/genericDS/Clientes:Get_Trazabilidad", {})).data;
+            this.asesores = asesores.map(a => ({ ...a, ids_sala_venta: a.ids_sala_venta.split(',') }));
+            this.salas = salas.map(s => ({ ...s, ids_proyectos: s.ids_proyectos.split(',') }));
             this.acciones = [
                 { accion: "Visitas", obj: "Visita", selected: true },
                 { accion: "Cotizaciones", obj: "Cotización", selected: true },
@@ -179,9 +185,9 @@ export default {
         dataAccionesAsesor(config) {
             let asesores = [], labels = [];
             if (!this.filtros.trazabilidad.asesor)
-                asesores = this.asesores.filter(a => a.selected);
+                asesores = this.filAsesorSala.filter(a => a.selected);
             else
-                asesores = [this.asesores.find(a => a.usuario === this.filtros.trazabilidad.asesor)];
+                asesores = [this.filAsesorSala.find(a => a.usuario === this.filtros.trazabilidad.asesor)];
             labels = asesores.map(a => a.nombres);
             asesores.forEach(a =>
                 this.acciones.filter(ac => ac.selected).forEach(ac =>
@@ -203,9 +209,9 @@ export default {
         dataTemporalAsesor(config) {
             let asesores = [], acciones = this.acciones.filter(ac => ac.selected).map(ac => ac.obj);
             if (!this.filtros.trazabilidad.asesor)
-                asesores = this.asesores.filter(a => a.selected);
+                asesores = this.filAsesorSala.filter(a => a.selected);
             else
-                asesores = [this.asesores.find(a => a.usuario === this.filtros.trazabilidad.asesor)];
+                asesores = [this.filAsesorSala.find(a => a.usuario === this.filtros.trazabilidad.asesor)];
             const fechas = Array.from(new Set(
                 this.getFilteredList('trazabilidad').map(t => t.created_on)
             )).sort();
@@ -218,7 +224,7 @@ export default {
                 ),
                 backgroundColor: this.getColor(idx, asesores.length),
                 borderColor: this.getColor(idx, asesores.length),
-                tension: 0.3
+                tension: 0
             }));
             config.type = this.verBarras ? 'bar' : 'line';
             config.data = {
@@ -243,7 +249,8 @@ export default {
             items = Array.from(new Set(
                 group === 'sede' ? this.getFilteredList('trazabilidad').filter(t => t.id_sede).map(t => t.id_sede) :
                     group === 'zona' ? this.getFilteredList('trazabilidad').filter(t => t.id_zona_proyecto).map(t => t.id_zona_proyecto) :
-                        group === 'ciudadela' ? this.getFilteredList('trazabilidad').filter(t => t.id_ciudadela).map(t => t.id_ciudadela) : []
+                        group === 'ciudadela' ? this.getFilteredList('trazabilidad').filter(t => t.id_ciudadela).map(t => t.id_ciudadela) :
+                            group === 'proyecto' ? this.getFilteredList('trazabilidad').filter(t => t.id_proyecto).map(t => t.id_proyecto) : []
             ));
 
             const fechas = Array.from(new Set(
@@ -252,11 +259,13 @@ export default {
             const datasets = items.map((id, idx) => ({
                 label: group === 'sede' ? this.sedes.find(s => s.id_sede === id)?.sede :
                     group === 'zona' ? this.zonas.find(z => z.id_zona_proyecto === id)?.zona_proyecto :
-                        group === 'ciudadela' ? this.ciudadelas.find(c => c.id_ciudadela === id)?.ciudadela : '',
+                        group === 'ciudadela' ? this.ciudadelas.find(c => c.id_ciudadela === id)?.ciudadela :
+                            group === 'proyecto' ? this.proyectos.find(p => p.id_proyecto === id)?.proyecto : '',
                 data: fechas.map(fecha =>
                     this.getFilteredList('trazabilidad').filter(
                         t => ((group === 'sede' && t.id_sede === id) || (group === 'zona' && t.id_zona_proyecto === id)
-                            || (group === 'ciudadela' && t.id_ciudadela === id)) && t.created_on === fecha && acciones.includes(t.obj)
+                            || (group === 'ciudadela' && t.id_ciudadela === id) || (group === 'proyecto' && t.id_proyecto === id)) 
+                            && t.created_on === fecha && acciones.includes(t.obj)
                     ).length
                 ),
                 backgroundColor: this.getColor(idx, items.length),
@@ -275,13 +284,27 @@ export default {
                     title: { display: true, text: 'Acciones' }
                 }
             };
-        }
+        },
+        async exportExcel(tabla) {
+            try {
+                showProgress();
+                let datos = this.getFilteredList(tabla);
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
     },
     computed: {
         getFilteredList() {
             return (tabla) => {
                 return this[tabla] ? this[tabla].filter(item =>
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
+                        console.log(this.trazabilidad, this.filtros[tabla][key]);
                         if (tabla == 'trazabilidad' && key == 'created_on1')
                             return !this.filtros[tabla][key] ||
                                 (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() <= (new Date(item.created_on + ' 00:00').getTime());
@@ -294,6 +317,9 @@ export default {
                     }) : []
                 ) : [];
             };
+        },
+        filAsesorSala: {
+            get() { return this.asesores.filter(a => !this.filIdSala || a.ids_sala_venta.includes(this.filIdSala)) }
         },
     }
 }

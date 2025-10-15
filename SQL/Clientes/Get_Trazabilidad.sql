@@ -56,10 +56,12 @@ join fact_proyectos p on co.id_proyecto = p.id_proyecto
 ) as res
 order by res.created_on desc;
 
-select u.id_usuario, u.nombres, u.usuario
+select u.id_usuario, u.nombres, u.usuario, group_concat(ps.id_sala_venta separator ',') as ids_sala_venta
 from fact_usuarios u
 join fact_roles_usuarios ru on u.id_usuario = ru.id_usuario
+left join dim_personal_sala ps on u.id_usuario = ps.id_usuario
 where (ru.id_rol = 6 or ru.id_rol = 31) and u.is_active = 1
+group by u.id_usuario
 order by u.nombres;
 
 select id_sede, sede
@@ -73,3 +75,15 @@ where is_active = 1;
 select id_ciudadela, ciudadela
 from dim_ciudadela
 where is_active = 1;
+
+select sv.id_sala_venta, sv.sala_venta, sv.id_sede, sv.id_zona_proyecto, sv.id_ciudadela, 
+    group_concat(sp.id_proyecto separator ',') as ids_proyectos
+from dim_sala_venta sv
+left join dim_sala_proyecto sp on sv.id_sala_venta = sp.id_sala_venta
+where sv.is_active = 1
+group by sv.id_sala_venta
+order by sv.sala_venta;
+
+select id_proyecto, nombre as proyecto
+from fact_proyectos
+order by nombre;

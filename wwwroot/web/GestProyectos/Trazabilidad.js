@@ -33,7 +33,7 @@ export default {
             optVisible: false,
             filMode: 'week',
             filtros: {
-                unidades: {}
+                unidades: { gestionado_por: '' }
             },
             filFecha1: this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7)),
             filFecha2: this.formatDatetime('', 'bdate', new Date()),

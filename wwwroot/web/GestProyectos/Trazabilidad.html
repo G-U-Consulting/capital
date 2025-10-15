@@ -93,9 +93,9 @@
                     </div>
                 </div>
                 <div class="checkbox-group checkbox-group-traz1">
-                    <select>
+                    <select v-model="filtros.unidades.gestionado_por">
                         <option value="">[Asesor]</option>
-                        <option v-for="a in asesores" :value="a">{{a.nombres}}</option>
+                        <option v-for="a in asesores" :value="a.usuario">{{a.nombres}}</option>
                     </select>
                 </div>
                 <div class="checkbox-group checkbox-group-traz2">
@@ -103,10 +103,6 @@
                         <input type="checkbox" true-value="1" false-value=""
                             v-model="filtros.unidades.id_estado_unidad">
                         Libres
-                    </label>
-                    <label>
-                        <input type="checkbox" true-value="1" false-value="">
-                        Cotizados
                     </label>
                     <label>
                         <input type="checkbox" true-value="2" false-value=""
@@ -122,10 +118,6 @@
                         <input type="checkbox" true-value="4" false-value=""
                             v-model="filtros.unidades.id_estado_unidad">
                         Vendidos
-                    </label>
-                    <label>
-                        <input type="checkbox" true-value="1" false-value="">
-                        Desistidos
                     </label>
                 </div>
             </div>
@@ -180,6 +172,7 @@
                         <option value="sedes">Sede</option>
                         <option value="zonas">Zona</option>
                         <option value="ciudadelas">Ciudadela</option>
+                        <option value="proyectos">Proyectos</option>
                     </select>
                     <select v-if="chartMode == 'cambio_estado'" v-model="proDiff" style="width: 10rem;"
                         @change="resetChart">

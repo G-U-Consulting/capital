@@ -94,17 +94,13 @@
                 </div>
                 <div class="checkbox-group" style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; 
                     justify-content: space-evenly; grid-column: 1 / 4;">
-                    <select>
+                    <select v-model="filtros.unidades.gestionado_por">
                         <option value="">[Asesor]</option>
-                        <option v-for="a in asesores" :value="a">{{a.nombres}}</option>
+                        <option v-for="a in asesores" :value="a.usuario">{{a.nombres}}</option>
                     </select>
                 </div>
                 <div class="checkbox-group" style="margin-top: .4rem; margin-left: -5px; padding-top: .5rem; padding-left: 5px;
                     border-top: 2px solid #d1d5db; justify-content: space-evenly; grid-column: 4 / -1;">
-                    <label>
-                        <input type="checkbox" true-value="1" false-value="">
-                        Cotizados
-                    </label>
                     <label>
                         <input type="checkbox" true-value="2" false-value=""
                             v-model="filtros.unidades.id_estado_unidad">
@@ -167,6 +163,7 @@
                         <option value="sedes">Sede</option>
                         <option value="zonas">Zona</option>
                         <option value="ciudadelas">Ciudadela</option>
+                        <option value="proyectos">Proyectos</option>
                     </select>
                     <select v-else-if="chartMode == 'estados_torre'" v-model="idProChart" style="width: 10rem;"
                         @change="getStatsPro">

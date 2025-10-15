@@ -29,7 +29,7 @@ export default {
             optVisible: false,
             filMode: 'week',
             filtros: {
-                unidades: {}
+                unidades: { gestionado_por: '' }
             },
 
             groupMode: 'sedes',

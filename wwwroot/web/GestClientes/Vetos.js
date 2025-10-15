@@ -167,7 +167,20 @@ export default {
             this.newMode = false;
             this.cliente = { ...veto };
             this.searchCli = veto.numero_documento;
-        }
+        },
+        async exportExcel(tabla) {
+            try {
+                showProgress();
+                let datos = this.getFilteredList(tabla);
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
     },
     computed: {
         getFilteredList() {

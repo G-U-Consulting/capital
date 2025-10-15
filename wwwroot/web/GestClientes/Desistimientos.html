@@ -55,6 +55,38 @@
                         </option>
                     </select>
                 </div>
+
+                <div style="display: flex; align-items: center; gap: .5rem; width: 100%; margin: 0 .5rem;">
+                    <div class="radio-group cal-opc">
+                        <label for="view-s" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-s" :checked="filMode == 'week'"
+                                @click="updateFilMode('week')">
+                            <span>Última Semana</span>
+                        </label>
+                        <label for="view-m" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-m" :checked="filMode == 'month'"
+                                @click="updateFilMode('month')">
+                            <span>Último Mes</span>
+                        </label>
+                        <label for="view-r" style="text-align: center; width: 8rem;">
+                            <input type="radio" name="view" id="view-r" :checked="filMode == 'range'"
+                                @click="updateFilMode('range')">
+                            <span>Rango Fechas</span>
+                        </label>
+                    </div>
+                    <div v-if="filMode == 'range'" style="display: flex; align-items: center;">
+                        <input type="date" style="width: 8rem;" v-model="filtros.desistimientos.created_onI"
+                            :max="filtros.desistimientos.created_onF">
+                        &ensp;-&ensp;
+                        <input type="date" style="width: 8rem;" v-model="filtros.desistimientos.created_onF"
+                            :min="filtros.desistimientos.created_onI" :max="formatDatetime('', 'bdate')">
+                    </div>
+                    <div style="margin-left: auto;">
+                        <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                            @click="exportExcel('desistimientos')" title="Descargar datos a Excel" />
+                    </div>
+                </div>
+
             </div>
         </div>
         <div class="main-content">
@@ -827,7 +859,7 @@
                 común de llevar
                 su negocio a feliz término. En Constructora Capital reiteramos nuestro compromiso de hacer tu vida
                 nuestro proyecto, por
-                esta razón y de manera especial queremos informarle que a partir de este momento y hasta el 
+                esta razón y de manera especial queremos informarle que a partir de este momento y hasta el
                 <span style="font-weight: bold;">{{desistimiento.fec_prorroga_carta
                     ? formatDatetime(desistimiento.fec_prorroga_carta, 'textdate')
                     : formatDatetime(null, 'textdate', dateAddYears(desistimiento.created_on, 1))}}

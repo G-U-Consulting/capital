@@ -22,7 +22,12 @@
                         <option :value="'1'">Vigentes</option>
                     </select>
                 </div>
-                <div class="pure-u-1-1 pure-u-md-5-24"></div>
+                <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                <div class="pure-u-1-1 pure-u-md-1-24" style="margin-left: auto;">
+                    <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                        @click="exportExcel('vetos')" title="Descargar datos a Excel" />
+                </div>
+                <div class="pure-u-1-1 pure-u-md-3-24"></div>
                 <div class="pure-u-1-1 pure-u-md-5-24">
                     <button style="display: block; margin-left: auto;" @click="openModal(); newMode = true;">
                         Solicitar veto

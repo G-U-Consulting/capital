@@ -28,8 +28,13 @@ export default {
 
             optApprove: [{ type: 'Cordinación', name: null }, { type: 'Dirección', name: null }],
             optVisible: false,
+            filMode: 'week',
             filtros: {
-                desistimientos: { id_estado: '' }
+                desistimientos: {
+                    id_estado: '',
+                    created_onI: this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7)),
+                    created_onF: this.formatDatetime('', 'bdate', new Date())
+                }
             },
             selApprover: {},
 
@@ -159,7 +164,6 @@ export default {
             [this.cuentas, this.compradores] = (await httpFunc("/generic/genericDS/Clientes:Get_Cuentas",
                 { id_desistimiento: this.desistimiento.id_desistimiento })).data;
             this.cuentas.forEach(c => c.porcentaje = c.porcentaje.replace(',', '.'));
-            console.log(this.cuentas);
             hideProgress();
         },
         validarNumero(e, int) {
@@ -236,6 +240,18 @@ export default {
             const url = './?loc=GestClientes&id_cliente=' + id;
             window.open(url, '_blank');
         },
+
+        updateFilMode(mode) {
+            this.filMode = mode;
+            if (mode === 'week') {
+                this.filtros.desistimientos.created_onI = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7));
+                this.filtros.desistimientos.created_onF = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
+            }
+            if (mode === 'month') {
+                this.filtros.desistimientos.created_onI = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 30));
+                this.filtros.desistimientos.created_onF = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
+            }
+        },
         onSelectDes(des) {
             this.tooltipVisibleL = false;
             this.tooltipVisibleR = false;
@@ -282,7 +298,6 @@ export default {
             try {
                 Object.keys(this.desistimiento).forEach(k => !this.desistimiento[k] && delete this.desistimiento[k]);
                 let val_extra = this.desistimiento.extra_prorroga_carta, fecha_extra = this.desistimiento.fec_prorroga_carta;
-                console.log(val_extra, fecha_extra)
                 if (val_extra && val_extra != '0' && !fecha_extra)
                     throw { errorMessage: 'Si ingresaste un valor extra por prórroga, debes indicar la fecha de prórroga.' }
                 if ((!val_extra || val_extra == '0') && fecha_extra)
@@ -644,7 +659,21 @@ export default {
                 });
             }
             else showMessage('Error: El valor de los porcentajes de las cuentas no suma el 100%.');
-        }
+        },
+        
+        async exportExcel(tabla) {
+            try {
+                showProgress();
+                let datos = this.getFilteredList(tabla);
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
 
     },
     computed: {
@@ -800,9 +829,15 @@ export default {
         getFilteredList() {
             return (tabla) => {
                 return this[tabla] ? this[tabla].filter(item =>
-                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
-                        this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
-                    ) : []
+                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
+                        if (tabla == 'desistimientos' && key == 'created_onI')
+                            return !this.filtros[tabla][key] ||
+                                (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() <= (new Date(item.created_on.split(' ')[0] + ' 00:00').getTime());
+                        if (tabla == 'desistimientos' && key == 'created_onF')
+                            return !this.filtros[tabla][key] ||
+                                (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() >= (new Date(item.created_on.split(' ')[0] + ' 00:00').getTime());
+                        return this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());
+                    }) : []
                 ) : [];
             };
         },

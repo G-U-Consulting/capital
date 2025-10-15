@@ -11,7 +11,7 @@
         <div class="filtros-container" style="padding: .7rem;">
             <div class="filtros-center" style="grid-template-columns: repeat(9, 1fr);">
 
-                <div style="display: flex; grid-column: 1 / -1; align-items: center; gap: .5rem">
+                <div style="display: flex; grid-column: 1 / -1; align-items: center; gap: .5rem; width: 100%;">
                     <div class="radio-group cal-opc">
                         <label for="view-s" style="text-align: center; width: 8rem;">
                             <input type="radio" name="view" id="view-s" :checked="filMode == 'week'"
@@ -35,6 +35,10 @@
                         &ensp;-&ensp;
                         <input type="date" style="width: 8rem;" v-model="filtros.trazabilidad.created_on2"
                             :min="filtros.trazabilidad.created_on1" :max="formatDatetime('', 'bdate')">
+                    </div>
+                    <div style="margin-left: auto;">
+                        <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                            @click="exportExcel('trazabilidad')" title="Descargar datos a Excel" />
                     </div>
                 </div>
                 <div class="checkbox-group" style="margin-top: .4rem; padding-top: .5rem; border-top: 2px solid #d1d5db; 
@@ -108,6 +112,7 @@
                         <option value="sede">Sede</option>
                         <option value="zona">Zona</option>
                         <option value="ciudadela">Ciudadela</option>
+                        <option value="proyecto">Proyecto</option>
                     </select>
                     <button @click="exportChart">Exportar</button>
                     <label v-if="chartMode == 'temporal_asesor'" @click="verBarras = !verBarras; resetChart();"
@@ -121,31 +126,38 @@
                     <canvas id="chart-js"></canvas>
                 </div>
 
-                <div v-if="!filtros.trazabilidad.asesor && chartMode === 'acciones_asesor'"
-                    class="checkbox-group horizontal-bar-checks">
-                    <label @click="selTodosAs = !selTodosAs; onSelTodosAs()">
-                        <input style="pointer-events: none;" type="checkbox" v-model="selTodosAs">
-                        Todos
-                    </label>
-                    <label v-for="a in asesores" @click="toggleAsesor(a)">
-                        <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
-                        {{a.nombres}}
-                    </label>
+                <div style="display: flex; gap: .5rem">
+                    <div v-if="!filtros.trazabilidad.asesor && (chartMode === 'acciones_asesor' || chartMode === 'temporal_asesor')"
+                        style="flex: 1; margin-left: .5rem; display: flex; align-items: center;">
+                        <select v-model="filIdSala" @change="selTodosAs = true; onSelTodosAs()">
+                            <option value="">[Salas]</option>
+                            <option v-for="s in salas" :value="s.id_sala_venta">{{s.sala_venta}}</option>
+                        </select>
+                    </div>
+                    <div v-if="!filtros.trazabilidad.asesor && chartMode === 'acciones_asesor'"
+                        class="checkbox-group horizontal-bar-checks" style="flex: 5;">
+                        <label @click="selTodosAs = !selTodosAs; onSelTodosAs()">
+                            <input style="pointer-events: none;" type="checkbox" v-model="selTodosAs">
+                            Todos
+                        </label>
+                        <label v-for="a in filAsesorSala" @click="toggleAsesor(a)">
+                            <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
+                            {{a.nombres}}
+                        </label>
+                    </div>
+                    <div class="checkbox-group horizontal-bar-checks" style="flex: 5;"
+                        v-if="!filtros.trazabilidad.obj && (chartMode === 'temporal_asesor' || chartMode === 'temporal_unidad')">
+                        <label @click="selTodosAcc = !selTodosAcc; onSelTodosAcc()">
+                            <input style="pointer-events: none;" type="checkbox" v-model="selTodosAcc">
+                            Todos
+                        </label>
+                        <label v-for="a in acciones" @click="toggleAccion(a)">
+                            <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
+                            {{ a.accion }}
+                        </label>
+                    </div>
                 </div>
 
-                <div class="checkbox-group horizontal-bar-checks"
-                    v-else-if="!filtros.trazabilidad.obj && (chartMode === 'temporal_asesor' || chartMode === 'temporal_unidad')">
-                    <label @click="selTodosAcc = !selTodosAcc; onSelTodosAcc()">
-                        <input style="pointer-events: none;" type="checkbox" v-model="selTodosAcc">
-                        Todos
-                    </label>
-
-                    <label v-for="a in acciones" @click="toggleAccion(a)">
-                        <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
-                        {{ a.accion }}
-                    </label>
-
-                </div>
             </div>
         </div>
     </div>
