@@ -890,6 +890,12 @@ export default {
         async tortaProject(item) {
             this.selectedProject = item;
             this.edge = item.edge_estado;
+        },
+        mostrarValor(valor) {
+            return (valor && valor != 0) ? valor : 'No disponible';
+        },
+        getClase(valor) {
+            return (!valor || valor == 0) ? 'no-info' : '';
         }
     }
 };

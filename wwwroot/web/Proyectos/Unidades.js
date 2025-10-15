@@ -448,8 +448,9 @@
 				id_unidad: apto.id_unidad,
 				fecha_entrega: this.toMySQLDateTime(apto.fecha_escrituracion),
 			};
-
+			
 			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', payload);
+			
 
 			if (res.data.includes("OK")) {
 				this.mode = 3;
@@ -460,7 +461,7 @@
 				if (window.opener) {
 					window.opener.postMessage({
 						type: 'REFRESH_COTIZACION',
-						cotizacionId: GlobalVariables.id_cotizacion
+						cotizacionId: GlobalVariables.cotizacion
 					}, '*');
 				}
 			} else {
@@ -690,7 +691,7 @@
 				id_torre: apto.id_torre,
 				piso: apto.piso,
 				id_tipo: apto.id_tipo,
-				id_clase: apto.id_tipo_proyecto,
+				/*id_clase: apto.id_tipo_proyecto,*/
 				localizacion: apto.localizacion,
 				num_alcobas: apto.num_alcobas,
 				num_banos: apto.num_banos,
@@ -706,8 +707,12 @@
 				tiene_acabados: apto.tiene_acabados,
 			};
 
-			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_ListaEspera', payload);
+			if (payload.id_cliente == 0){
+				showMessage("No hay un cliente seleccionado: está en la opción Cotizar sin cliente.");
+				return;
+			}
 
+			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_ListaEspera', payload);
 
 			if ((res.errorMessage && res.errorMessage.includes("Duplicate")) ||
 				(res.error && res.error.message && res.error.message.includes("Duplicate")) ||

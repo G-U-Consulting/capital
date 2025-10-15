@@ -909,21 +909,24 @@ export default {
                 const ids = this.cotizaciones.map(c => parseInt(c.cotizacion) || 0);
                 siguienteId = Math.max(...ids) + 1;
             }
+            let id_cotizacion = 0;
 
-            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_Cotizacion', { 
-                id_cotizacion: 0, 
-                id_proyecto: GlobalVariables.id_proyecto,
-                id_cliente: this.id_cliente,
-                cotizacion: siguienteId,
-                usuario: GlobalVariables.username
-            });
-            let id_cotizacion = resp.data[0][0].id_cotizacion;
+            if (this.id_cliente != 0) {
+                let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_Cotizacion', {
+                    id_cotizacion: 0,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    id_cliente: this.id_cliente,
+                    cotizacion: siguienteId,
+                    usuario: GlobalVariables.username
+                });
 
-            if (id_cotizacion == '-1') {
-                showMessage("Ya existe una cotización activa para este cliente en el día de hoy.");
-                return;
+                id_cotizacion = resp.data[0][0].id_cotizacion;
+
+                //if (id_cotizacion == '-1') {
+                //    showMessage("Ya existe una cotización activa para este cliente en el día de hoy.");
+                //    return;
+                //}
             }
-
             this.cotizaciones.push({
                 cotizacion: siguienteId,
                 fecha: formatoFecha,
@@ -931,7 +934,7 @@ export default {
                 importe: 0,
                 id_proyecto: GlobalVariables.id_proyecto,
                 id_cliente: this.id_cliente,
-                id_cotizacion: id_cotizacion,
+                id_cotizacion: id_cotizacion ?? 0,
                 cotizacion: siguienteId
             });
 
@@ -1017,6 +1020,8 @@ export default {
             }
         },
         async sincliente() {
+            await this.limpiarObj();
+            this.id_cliente = 0;
             await this.seleccionarCotizacion(null);
             await this.getCotizaciones();
             this.cotizacionSeleccionada = null;

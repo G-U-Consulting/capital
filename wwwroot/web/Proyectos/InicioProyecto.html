@@ -255,8 +255,16 @@
                                     <td>{{ selectedProject.tipo_vis }}</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>{{selectedProject.tipo_proyecto}} Libres</strong></td>
-                                    <td>{{ selectedProject.unidades_libres }} / {{ selectedProject.total_torres }}</td>
+                                    <td><strong>{{ selectedProject.tipo_proyecto }} Libres</strong></td>
+                                    <td>
+                                        <span :class="getClase(selectedProject.unidades_libres)">
+                                            {{ mostrarValor(selectedProject.unidades_libres) }}
+                                        </span>
+                                        /
+                                        <span :class="getClase(selectedProject.total_torres)">
+                                            {{ mostrarValor(selectedProject.total_torres) }}
+                                        </span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><strong>Área total</strong></td>

@@ -4170,3 +4170,12 @@ tr.cal-row-info > td {
   max-height: 4.75rem;
   margin-top: .5rem;
 }
+
+.no-info {
+  height: 5rem;
+  font-size: 0.9rem;
+  color: #aaa;
+  justify-content: center;
+  align-content: center;
+  font-style: italic;
+}
