@@ -91,6 +91,10 @@
                         &ensp;-&ensp;
                         <input type="date" style="width: 8rem;" v-model="filFecha2">
                     </div>
+                    <div style="margin-left: auto;">
+                        <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                            @click="exportExcel('unidades')" title="Descargar datos a Excel" />
+                    </div>
                 </div>
                 <div class="checkbox-group checkbox-group-traz1">
                     <select v-model="filtros.unidades.gestionado_por">
@@ -183,8 +187,8 @@
                 </div>
 
                 <div class="unidades-tabla-modal" style="height: 66vh;">
-                    <canvas v-if="chartMode == 'estados_unidad'" id="chart-js"></canvas>
-                    <div v-else-if="chartMode == 'cambio_estado'" id="d3-js" style="width: 100%; height: 100%;"></div>
+                    <canvas  id="chart-js"></canvas>
+                    <!-- <div v-if="chartMode == 'cambio_estado'" id="d3-js" style="width: 100%; height: 100%;"></div> -->
                 </div>
 
                 <div v-if="chartMode === 'estados_unidad'" class="checkbox-group horizontal-bar-checks">

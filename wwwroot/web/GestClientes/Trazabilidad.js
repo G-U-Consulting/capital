@@ -82,10 +82,7 @@ export default {
             let $modal = document.getElementById('modalOverlay');
             $modal && ($modal.style.display = 'flex');
             $modal && (this.modal = $modal);
-            this.selTodosAs = true;
-            this.onSelTodosAs();
-            this.selTodosAcc = true;
-            this.onSelTodosAcc();
+            this.resetChart();
         },
         closeModal(e, forzar) {
             if (this.modal && (e.target === this.modal || forzar)) {
@@ -139,10 +136,14 @@ export default {
             this.initChart();
         },
         resetChart() {
-            this.selTodosAs = true;
-            this.onSelTodosAs();
-            this.selTodosAcc = true;
-            this.onSelTodosAcc();
+            if (this.chartMode == 'acciones_asesor') {
+                this.selTodosAs = true;
+                this.onSelTodosAs();
+            }
+            if (this.chartMode == 'temporal_asesor' || this.chartMode == 'temporal_unidad') {
+                this.selTodosAcc = true;
+                this.onSelTodosAcc();
+            }
         },
         async initChart() {
             if (this.chart) this.chart.destroy();
@@ -304,7 +305,6 @@ export default {
             return (tabla) => {
                 return this[tabla] ? this[tabla].filter(item =>
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
-                        console.log(this.trazabilidad, this.filtros[tabla][key]);
                         if (tabla == 'trazabilidad' && key == 'created_on1')
                             return !this.filtros[tabla][key] ||
                                 (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() <= (new Date(item.created_on + ' 00:00').getTime());

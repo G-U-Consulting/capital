@@ -606,7 +606,20 @@ export default {
                     ? 'La fecha deadline debe ser mayor a la fecha de alta' : err));
             }
             hideProgress();
-        }
+        },
+        async exportExcel(tabla) {
+            try {
+                showProgress();
+                let datos = this.getFilteredList(tabla);
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
     },
     computed: {
         getFilteredList() {

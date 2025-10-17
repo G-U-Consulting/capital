@@ -207,14 +207,16 @@ export default {
             if (this.chartMode === 'estados_unidad')
                 this.dataEstadosUnidad(config);
             if (this.chartMode === 'cambio_estado')
-                this.dataCambioEstado();
+                this.dataCambioEstado2(config);
             if (ctx) this.chart = new Chart(ctx, config);
         },
         exportChart() {
             if (this.chart && this.chart.ctx) {
                 const link = document.createElement('a');
                 link.href = this.chart.toBase64Image();
-                link.download = `${this.chartMode}_${this.groupMode}_${this.formatDatetime('', 'bdatetimes')}.png`;
+                link.download = this.chartMode == 'estados_unidad'
+                    ? `${this.chartMode}_${this.groupMode}_${this.formatDatetime('', 'bdatetimes')}.png`
+                    : `${this.chartMode}_${this.proDiff.nombre || 'proyectos'}_${this.filFecha1}_${this.filFecha2}.png`
                 link.click();
             }
             else {
@@ -276,11 +278,10 @@ export default {
                 }
             };
         },
-        async dataCambioEstado() {
+        async dataCambioEstado1() {
             let $cont = document.getElementById('d3-js');
             if ($cont) {
                 let [data, numUnd] = this.getDiffStates();
-                console.log(data, numUnd);
 
                 let sizes = $cont.getBoundingClientRect();
                 const width = sizes.width;
@@ -293,9 +294,9 @@ export default {
                 // Determine the series that need to be stacked.
                 const series = d3.stack()
                     .offset(d3.stackOffsetExpand)
-                    .keys(d3.union(data.map(d => d.state))) // distinct series keys, in input order
-                    .value(([, D], key) => D.get(key).total) // get value for each series key and stack
-                    (d3.index(data, d => d.date, d => d.state)); // group by stack then series key
+                    .keys(d3.union(data.map(d => d.state)))
+                    .value(([, D], key) => D.get(key).total)
+                    (d3.index(data, d => d.date, d => d.state));
 
                 // Prepare the scales for positional and color encodings.
                 const x = d3.scaleUtc()
@@ -307,13 +308,12 @@ export default {
 
                 const color = d3.scaleOrdinal()
                     .domain(series.map(d => d.key))
-                    .range(d3.schemeTableau10);
+                    .range(this.estados.map(e => e.color_fondo).reverse());
 
                 // Construct an area shape.
-                const area = d3.area()
-                    .x(d => x(d.data[0]))
-                    .y0(d => y(d[0]))
-                    .y1(d => y(d[1]));
+                const line = d3.line()
+                    .x((d, i) => x(d.data[0])) // ← d.data es [date, Map(state → value)]
+                    .y(d => y(d[1])); // ← borde superior
 
                 // Create the SVG container.
                 const svg = d3.create("svg")
@@ -323,14 +323,22 @@ export default {
                     .attr("style", "max-width: 100%; height: auto;");
 
                 // Append a path for each series.
-                svg.append("g")
-                    .selectAll()
+                svg.selectAll(".line-shadow")
                     .data(series)
-                    .join("path")
-                    .attr("fill", d => color(d.key))
-                    .attr("d", area)
-                    .append("title")
-                    .text(d => d.key);
+                    .enter().append("path")
+                    .attr("class", "line-shadow")
+                    .attr("d", line)
+                    .style("fill", "none")
+                    .style("stroke", "#585858ff")
+                    .style("stroke-width", 5);
+                svg.selectAll(".line")
+                    .data(series)
+                    .enter().append("path")
+                    .attr("class", "line")
+                    .attr("d", line)
+                    .style("fill", "none")
+                    .style("stroke", d => color(d.key)) // usa tu escala de color
+                    .style("stroke-width", 3);
 
                 // Append the x axis, and remove the domain line.
                 svg.append("g")
@@ -343,9 +351,8 @@ export default {
                     .attr("transform", `translate(${marginLeft},0)`)
                     .call(d3.axisLeft(y).ticks(height / 80, "%")
                         .tickFormat(d => Math.round(d * numUnd)))
-                    .call(g => g.select(".domain").remove())
                     .call(g => g.selectAll(".tick line")
-                        .filter(d => d === 0 || d === 1)
+                        .filter(d => d === 0)
                         .clone()
                         .attr("x2", width - marginLeft - marginRight))
                     .call(g => g.append("text")
@@ -360,6 +367,38 @@ export default {
                 $cont.innerHTML = chart.outerHTML;
                 //$cont.insertAdjacentElement('afterbegin', chart);
             }
+        },
+        async dataCambioEstado2(config) {
+            let estados = this.estados;
+            let datos = this.getDiffStates()[0].sort((a, b) => a.date.getTime() - b.date.getTime());
+            const fechas = Array.from(new Set(
+                datos.map(t => t.date)
+            ));
+            const datasets = estados.map((e, idx) => ({
+                label: e.estado_unidad,
+                data: fechas.map(fecha =>
+                    datos.find(
+                        t => t.state.toLowerCase() === e.estado_unidad.toLowerCase() && t.date.getTime() === fecha.getTime()
+                    )?.total || 0
+                ),
+                backgroundColor: e.color_fondo.toLowerCase() == '#ffffff' ? '#bbb' : e.color_fondo,
+                borderColor: e.color_fondo.toLowerCase() == '#ffffff' ? '#bbb' : e.color_fondo,
+            }));
+            config.type = 'line';
+            config.data = {
+                labels: fechas.map(f => this.formatDatetime('', 'bdate', f)),
+                datasets: datasets
+            };
+            config.options.scales = {
+                x: {
+                    stacked: false,
+                    title: { display: true, text: 'Fecha' }
+                },
+                y: {
+                    stacked: false,
+                    title: { display: true, text: 'Total Unidades' }
+                }
+            };
         },
         getDiffStates() {
             let selChanges = [], data = [], proCount = {}, numUnd = 0,
@@ -484,6 +523,19 @@ export default {
 
 			return result;
 		},
+        async exportExcel(tabla) {
+            try {
+                showProgress();
+                let datos = this.getFilteredList(tabla);
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
     },
     computed: {
         completeProjects() {

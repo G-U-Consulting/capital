@@ -11,7 +11,7 @@
             Promotores, Asesores, Coordinadores y Personal de Aseo
         </div>
         <div style="padding: .5rem;">
-            <div class="pure-u-1-2 pure-u-md-9-24">
+            <div class="pure-u-1-2 pure-u-md-3-8">
                 <input type="text" placeholder="Ingrese numero de documento o nombre" v-model="searchID">
             </div>
             <div class="pure-u-1-24 pure-u-md-1-24">
@@ -26,6 +26,9 @@
                     <span class="checkmark"></span>
                     Solo activos
                 </label>
+            </div>
+            <div class="pure-u-1-24 pure-u-md-3-8" style="text-align: right;">
+                <button @click="exportExcel('usuarios')">Descargar Excel</button>
             </div>
         </div>
         <div class="formInputStandard pure-u-1-2 pure-u-md-9-24">

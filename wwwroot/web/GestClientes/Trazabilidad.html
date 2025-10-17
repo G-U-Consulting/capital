@@ -104,11 +104,16 @@
                 <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
                     <select v-model="chartMode" style="width: 10rem;" @change="resetChart">
                         <option value="acciones_asesor">Acciones por Asesor</option>
-                        <option value="temporal_asesor">Linea Temporal Asesor</option>
-                        <option value="temporal_unidad">Linea Temporal Unidad</option>
+                        <option value="temporal_asesor">Temporal Asesor</option>
+                        <option value="temporal_unidad">Temporal Unidad</option>
+                    </select>
+                    <select v-if="chartMode == 'acciones_asesor' || chartMode == 'temporal_asesor'" 
+                        style="width: 10rem;" v-model="filIdSala" @change="resetChart">
+                        <option value="">[Salas]</option>
+                        <option v-for="s in salas" :value="s.id_sala_venta">{{s.sala_venta}}</option>
                     </select>
                     <select v-if="chartMode == 'temporal_unidad'" v-model="groupMode" style="width: 10rem;"
-                        @change="initChart">
+                        @change="resetChart">
                         <option value="sede">Sede</option>
                         <option value="zona">Zona</option>
                         <option value="ciudadela">Ciudadela</option>
@@ -127,13 +132,6 @@
                 </div>
 
                 <div style="display: flex; gap: .5rem">
-                    <div v-if="!filtros.trazabilidad.asesor && (chartMode === 'acciones_asesor' || chartMode === 'temporal_asesor')"
-                        style="flex: 1; margin-left: .5rem; display: flex; align-items: center;">
-                        <select v-model="filIdSala" @change="selTodosAs = true; onSelTodosAs()">
-                            <option value="">[Salas]</option>
-                            <option v-for="s in salas" :value="s.id_sala_venta">{{s.sala_venta}}</option>
-                        </select>
-                    </div>
                     <div v-if="!filtros.trazabilidad.asesor && chartMode === 'acciones_asesor'"
                         class="checkbox-group horizontal-bar-checks" style="flex: 5;">
                         <label @click="selTodosAs = !selTodosAs; onSelTodosAs()">
