@@ -3,7 +3,6 @@
 -- =============================================
 --START_PARAM
 set 
-	@id_lista,
 	@id_cliente,
 	@usuario,
 	@id_proyecto,
@@ -35,7 +34,6 @@ set @id_usuario = (
 );
 
 insert into fact_lista_espera (
-	id_lista,
 	id_cliente,
 	id_usuario,
 	id_proyecto,
@@ -59,7 +57,6 @@ insert into fact_lista_espera (
 	tiene_acabados
 )
 select
-	@id_lista,
 	@id_cliente,
 	@id_usuario,
 	@id_proyecto,

@@ -39,10 +39,9 @@
                                 <option v-for="e in estados" :value="e.id_estado_unidad">{{ e.estado_unidad }}
                                 </option>
                             </select>
-                            <select v-model="filtros.aptos['localizacion']">
+                            <select v-model="filtros.aptos['localizacion']" class="pure-input-1">
                                 <option value="">[Localización]</option>
-                                <option value="Interior">Interior</option>
-                                <option value="Exterior">Exterior</option>
+                                <option v-for="l in localizaciones" :value="l">{{l}}</option>
                             </select>
                             <div class="checkbox-group">
                                 <label><input type="checkbox" v-model="filtros.aptos['tiene_balcon']" true-value="1"

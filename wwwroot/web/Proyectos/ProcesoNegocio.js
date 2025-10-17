@@ -136,6 +136,11 @@ export default {
 
             tipoFinanciacionSeleccionada: '',
 
+            valor_reformas: 0,
+            valor_reformas_texto: '',
+            valor_descuento: 0,
+            valor_acabados: 0
+
         };
     },
     computed: {
@@ -431,25 +436,22 @@ export default {
             }
 
             if (this.mode === 1 && nextIndex === 2) {
-
                 if (this.registro == false && this.noregistro != true) {
                     var resp = await this.nuevaVisita();
                 }
-
                 if (resp?.includes("Error")) {
                     return;
                 }
-
             }
 
             if (this.mode === 2 && nextIndex === 3) {
                 if (!this.cotizacionSeleccionada) {
-                    return showMessage("No ha seleccionado ninguna cotización");
+                    return showMessage("No hay cotización seleccionada.");
                 }
 
                 const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
                 if (!cotizacion) {
-                    return showMessage("La cotización seleccionada no existe.");
+                    return showMessage("No hay cotización seleccionada.");
                 }
 
                 const hoyStr = new Date().toISOString().slice(0, 10);
@@ -462,7 +464,7 @@ export default {
                 }
 
                 if (cotizacion.importe <= 0) {
-                    return showMessage("La cotización seleccionada no tiene un importe válido.");
+                    return showMessage("La cotización seleccionada no tiene Item.");
                 }
             }
 
@@ -844,6 +846,22 @@ export default {
 
             let añoActual = new Date().getFullYear();
             let añoEntrega = parseInt(this.añoentrega);
+
+            this.valor_reformas = respa.data[0][0]?.valor_reformas || 0;
+            this.valor_descuento = respa.data[0][0]?.valor_descuento || 0;
+            this.valor_acabados = respa.data[0][0]?.valor_acabados || 0;
+
+            this.valor_reformas_texto = new Intl.NumberFormat('es-CO').format(
+                Number((this.valor_reformas || '0').toString().replace(',', '.'))
+            );
+            this.valor_descuento_texto = new Intl.NumberFormat('es-CO').format(
+                Number((this.valor_descuento || '0').toString().replace(',', '.'))
+            );
+            this.valor_acabados_texto = new Intl.NumberFormat('es-CO').format(
+                Number((this.valor_acabados || '0').toString().replace(',', '.'))
+            );
+
+
 
             if (añoEntrega && añoEntrega >= añoActual) {
                 this.listaAniosEntrega = Array.from(

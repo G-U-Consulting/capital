@@ -307,7 +307,7 @@
         <!-- ----------------------------------------------------------------- -->
         <div class="pure-g" v-if="mode == 1">
             <div class='pure-u-1-1' style="font-size: 1.6em;">
-                {{ ObjCliente.nombres }}
+                {{ ObjCliente.nombres + " " + ObjCliente.apellido1 + " " +  ObjCliente.apellido2 }}
             </div>
             <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index" :class="[
                 'tab-registro', { active: activeTab === index },{ 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }]">
@@ -652,9 +652,9 @@
         <!-- ----------------------------- Opción ---------------------------- -->
         <!-- ----------------------------------------------------------------- -->
         <div v-if="mode == 3">
-            <div class='pure-u-1-1'>
+            <!-- <div class='pure-u-1-1'>
                 <samp class="resaltado">{{ ObjCliente.nombres + " " + ObjCliente.apellido1 + " " +  ObjCliente.apellido2 }}</samp>
-            </div>
+            </div> -->
             <div class='pure-u-1-1 formDivision' style="display: flex; justify-content: space-between;">
                 <div class="pure-u-1 pure-u-md-6-8" style="display: flex;gap: .5rem;">
                     <span style="font-size: 1.2em;">Opcionar:</span>
@@ -750,7 +750,7 @@
                 </div>
             </div>
             <div class='pure-u-1-1 formDivision' style="font-size: 1.2em;">
-                Aportes y subsidios
+                Descuentos, subsidios, aportes, reformas y acabados.
             </div>
             <div class="pure-g">
                 <div class="pure-u-1 pure-u-md-1-1">
@@ -766,6 +766,30 @@
                             <span>Ahorros</span>
                             <input type="text" style="text-align: right;" :value="new Intl.NumberFormat('es-CO').format(ahorros)"
                                 @input="formatearEnTiempoRealGenerico($event, 'ahorros')" @blur="calcularFinanciacion" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1 pure-u-md-1-6">
+
+                    </div>
+                     <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Reformas</span>
+                            <input type="text" style="text-align: right;" :value="valor_reformas_texto"
+                                @input="formatearEnTiempoRealGenerico($event, 'valor_reformas')" @blur="calcularFinanciacion" />
+                        </div>
+                    </div>
+                     <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Acabados</span>
+                            <input type="text" style="text-align: right;" :value="valor_acabados_texto"
+                                @input="formatearEnTiempoRealGenerico($event, 'valor_acabados')" @blur="calcularFinanciacion" />
+                        </div>
+                    </div>
+                     <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Descuento Lista</span>
+                            <input type="text" style="text-align: right;" :value="valor_descuento_texto"
+                                @input="formatearEnTiempoRealGenerico($event, 'valor_descuento')" @blur="calcularFinanciacion" />
                         </div>
                     </div>
                 </div>
@@ -807,12 +831,12 @@
                         </div>
                     </div>
                     <div class="pure-u-1-1 pure-u-md-1-24"></div>
-                    <div class="pure-u-1-1 pure-u-md-1-5" style="margin-top: 1.5em">
+                    <div class="pure-u-1-1 pure-u-md-1-6" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <span style="margin-top: .4em;">Caja de compensación:</span>
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-5" style="margin-top: 1.5em">
+                    <div class="pure-u-1 pure-u-md-1-4" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <select v-model="caja_compensacion" style="width: 100%;"
                                 :disabled="!subsidioActivo || pagoSeleccionado === 'contado'">

@@ -257,12 +257,17 @@
                                 <tr>
                                     <td><strong>{{ selectedProject.tipo_proyecto }} Libres</strong></td>
                                     <td>
-                                        <span :class="getClase(selectedProject.unidades_libres)">
-                                            {{ mostrarValor(selectedProject.unidades_libres) }}
+                                        <span v-if="unoNoDisponible" class="no-info">
+                                            No disponible
                                         </span>
-                                        /
-                                        <span :class="getClase(selectedProject.total_torres)">
-                                            {{ mostrarValor(selectedProject.total_torres) }}
+                                        <span v-else>
+                                            <span :class="getClase(selectedProject.unidades_libres)">
+                                                {{ mostrarValor(selectedProject.unidades_libres) }}
+                                            </span>
+                                            /
+                                            <span :class="getClase(selectedProject.total_torres)">
+                                                {{ mostrarValor(selectedProject.total_torres) }}
+                                            </span>
                                         </span>
                                     </td>
                                 </tr>

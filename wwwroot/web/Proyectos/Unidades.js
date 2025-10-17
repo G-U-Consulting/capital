@@ -13,6 +13,7 @@
 			agrupaciones: [],
 			groupedAptos: [],
 			ids_unidades: [],
+			localizaciones: [],
 			preview: [],
 			clases: [],
 			loading: true,
@@ -120,7 +121,7 @@
 				this.filtros.groupedAptos.id_clase = claseApartamento.id_clase;
 			}
 
-			let pisos = new Set(), tipos = new Set();
+			let pisos = new Set(), tipos = new Set(), localizaciones = new Set();;
 			if (torres.length && aptos.length) {
 				let number_fileds = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'];
 				aptos.forEach(a => number_fileds.forEach(key => a[key] = a[key].replace(',', '.')));
@@ -128,6 +129,7 @@
 				aptos.forEach(a => {
 					a.piso && pisos.add(a.piso);
 					a.codigo_planta && tipos.add(a.codigo_planta);
+					a.localizacion && localizaciones.add(a.localizacion);
 					let torre = torres.find(t => t.id_torre === a.id_torre);
 					if (torre) {
 						let i = torre.pisos.findIndex(p => p.idpiso == a.piso && p.idtorre == torre.idtorre);
@@ -145,6 +147,7 @@
 				this.aptos = aptos;
 				this.pisos = [...pisos].sort((a, b) => parseInt(b) - parseInt(a));
 				this.tipos = [...tipos].sort();
+				this.localizaciones = [...localizaciones].sort();
 
 				this.computeViews();
 
@@ -443,6 +446,8 @@
 				observacion_apto: apto.observacion_apto,
 				valor_descuento: apto.valor_descuento,
 				valor_unidad: apto.valor_unidad,
+				valor_acabados: apto.valor_acabados,
+				valor_reformas: apto.valor_reformas,
 				lista: apto.lista,
 				numero_apartamento: apto.nombre_unidad,
 				id_unidad: apto.id_unidad,

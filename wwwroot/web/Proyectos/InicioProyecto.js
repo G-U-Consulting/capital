@@ -185,7 +185,12 @@ export default {
         },
         proyectosNormales() {
             return this.proyectosFiltrados.filter(p => p.lanzamiento !== '1');
+        },
+        unoNoDisponible() {
+            return this.esNoDisponible(this.selectedProject.unidades_libres) ||
+                this.esNoDisponible(this.selectedProject.total_torres);
         }
+
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
@@ -892,10 +897,13 @@ export default {
             this.edge = item.edge_estado;
         },
         mostrarValor(valor) {
-            return (valor && valor != 0) ? valor : 'No disponible';
+            return this.esNoDisponible(valor) ? 'No disponible' : valor;
         },
         getClase(valor) {
-            return (!valor || valor == 0) ? 'no-info' : '';
+            return this.esNoDisponible(valor) ? 'no-info' : '';
+        },
+        esNoDisponible(valor) {
+            return valor === null || valor === undefined || valor === '';
         }
     }
 };
