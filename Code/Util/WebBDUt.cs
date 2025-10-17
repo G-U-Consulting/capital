@@ -648,12 +648,28 @@ public static class WebBDUt {
         return dataSet;
     }
 
-    public static JObject SetJsonToFile(string json, bool isCsv){
-        DataTable? dt = JsonConvert.DeserializeObject<DataTable>(json);
+    public static JObject SetJsonToFile(string json, bool isCsv) {
         DataSet ds = new();
-        ds.Tables.Add(dt);
+        JToken jt = JToken.Parse(json);
+        if (jt is JArray)
+        {
+            DataTable? dt = JsonConvert.DeserializeObject<DataTable>(json);
+            ds.Tables.Add(dt);
+        }
+        else if (jt is JObject)
+        {
+            foreach (JProperty prop in jt.Children<JProperty>())
+            {
+                DataTable? dt = JsonConvert.DeserializeObject<DataTable>(prop.Value.ToString());
+                if (dt != null)
+                {
+                    dt.TableName = prop.Name;
+                    ds.Tables.Add(dt);
+                }
+            }
+        }
         if (isCsv)
-            return SetToFile(ds, true, true);
+                return SetToFile(ds, true, true);
         return SetToFile(ds, false);
     }
     public static string ExcelToJson(string path)
@@ -702,7 +718,7 @@ public static class WebBDUt {
     }
     public static JObject SetToFile(DataSet ds, bool isTxt, bool isCsv)
     {
-        JObject ret = new JObject();
+        JObject ret = [];
         string message = null;
         string retUrl = null;
         bool isError = false;
@@ -737,7 +753,8 @@ public static class WebBDUt {
             for (int i = 0; i < ds.Tables.Count; i++)
             {
                 dt = ds.Tables[i];
-                dt.TableName = "Hoja" + (i + 1);
+                if (dt.TableName == null || dt.TableName == "")
+                    dt.TableName = "Hoja" + (i + 1);
                 wp.AddWorksheet(dt);
             }
             string url = Guid.NewGuid().ToString() + ".xlsx";

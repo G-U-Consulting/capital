@@ -380,7 +380,7 @@ export default {
             if (this.mainmode == 13) path.text = "Otros Documentos";
             if (this.mainmode == 14) path.text = "Subsidios VIS";
             if (this.mainmode == 15) path.text = "Tipos Financiación";
-            if (this.mainmode == 16) path.text = "Tipo Unidades y Ventas";
+            if (this.mainmode == 16) path.text = "Clase Unidades";
             if (this.mainmode == 17) path.text = "Estados Publicación";
             if (this.mainmode == 18) path.text = "Tipologías Proyecto";
             if (this.mainmode == 19) path.text = "Emails Receptores";
@@ -409,6 +409,38 @@ export default {
                 let datos = this.getFilteredList(tabla);
                 var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
                 var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
+        async exportExcelBanco(tabla) {
+            let datos = JSON.parse(JSON.stringify(this.getFilteredList(tabla)));
+            if (tabla == 'bancos') {
+                let keys = new Set(this.factores.map(f => f.factor));
+                datos.forEach(d => keys.forEach(k => d[k] = this.has_factor(d.id_banco, k) || "❌"));
+                datos = { Resumen: datos };
+                datos.Resumen.forEach(b => {
+                    let tmp = [];
+                    this.tipos_factor.forEach(tf => {
+                        let obj = { "Fact./ millón": tf.tipo_factor };
+                        this.factores.forEach(f => {
+                            obj[`${f.factor} - ${f.unidad}`] = this.bancos_factores.find(bf =>
+                                bf.id_banco === b.id_banco && bf.id_tipo_factor === tf.id_tipo_factor && bf.id_factor === f.id_factor
+                            )?.valor || 0;
+                        });
+                        tmp.push(obj);
+                    })
+                    datos[b.banco] = tmp;
+                });
+                console.log(datos);
+            }
+            try {
+                showProgress();
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoBancos" })).data;
                 window.open("./docs/" + archivo, "_blank");
             }
             catch (e) {

@@ -17,6 +17,8 @@ namespace capital.Code.Util {
                 return FormatoRoles(file, rootPath);
             else if(format == "FormatoMaestros")
                 return FormatoMaestros(file, rootPath);
+            else if(format == "FormatoBancos")
+                return FormatoBancos(file, rootPath);
             else if(format == "FormatoProgSalas")
                 return FormatoProgSalas(file, rootPath);
             else
@@ -199,6 +201,72 @@ namespace capital.Code.Util {
             }
 
             Common_Formats(ws, table);
+
+            workbook.Save();
+            return file;
+        }
+        
+        public static string FormatoBancos(string file, string rootPath) {
+            string path = Path.Combine(rootPath, "wwwroot", "docs", file);
+            XLWorkbook workbook = new(path);
+
+            foreach (IXLWorksheet ws in workbook.Worksheets)
+            {
+                ws.ShowGridLines = false;
+
+                ws.Row(1).InsertRowsAbove(1);
+                ws.Row(1).Height = 30;
+                ws.Column(1).InsertColumnsBefore(1);
+
+                foreach (IXLTable table in ws.Tables)
+                {
+                    IXLTableField? tf = table.Fields.FirstOrDefault(f => f.Name == "is_active");
+                    if (tf != null)
+                    {
+                        IXLColumn? columna = table.Worksheet.Column(tf.Column.ColumnNumber());
+                        columna?.Delete();
+                    }
+
+                    foreach (var field in table.Fields)
+                    {
+                        int col = field.Column.ColumnNumber();
+                        if (field.Name.StartsWith("id_"))
+                        {
+                            ws.Column(col).Width = 15;
+                            ws.Column(col).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            string name = field.Name.Replace("id_", "");
+                            name = "# " + name[..1].ToUpper() + name[1..].ToLower();
+                            field.HeaderCell.Value = name.Replace("_", " ");
+                        }
+                        else if (field.Name.Contains("año"))
+                        {
+                            ws.Column(col).Width = 17;
+                            ws.Column(col).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            string name = field.Name;
+                            name = name[..1].ToUpper() + name[1..];
+                            field.HeaderCell.Value = name.Replace("_", " ");
+                            if (ws.Name != "Resumen")
+                            {
+                                ws.Column(col).Style.NumberFormat.Format = "\"$\"#,##0";
+                                // Opcional: forzar conversión a número si las celdas vienen como texto
+                                foreach (var cell in ws.Column(col).CellsUsed().Where(c => c.Address.RowNumber > table.RangeAddress.FirstAddress.RowNumber))
+                                {
+                                    if (double.TryParse(cell.GetString(), out double v))
+                                        cell.Value = v;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            ws.Column(col).Width = field.Name == "banco" ? 30 : 25;
+                            string name = field.Name;
+                            name = name[..1].ToUpper() + name[1..].ToLower();
+                            field.HeaderCell.Value = name.Replace("_", " ");
+                        }
+                    }
+                Common_Formats(ws, table);
+                }
+            }
 
             workbook.Save();
             return file;

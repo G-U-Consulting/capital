@@ -14,6 +14,10 @@
                         <img src="./img/ico/eraser.png" />
                     </div>
                 </div>
+                <div style="margin-left: auto;">
+                    <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                        @click="exportExcel('bancos')" title="Descargar datos a Excel" />
+                </div>
             </div>
         </div>
         <div class="main-content">
@@ -28,7 +32,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="banco in getFilteredList('bancos')" @click="onSelectBanco(banco)">
+                    <tr v-for="banco in getFilteredList('bancos')" @dblclick="onSelectBanco(banco)">
                         <td
                             v-for="key in Object.keys(banco).filter(k => !k.startsWith('id_') && !k.startsWith('is_') )">
                             {{banco[key]}}</td>
