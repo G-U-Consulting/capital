@@ -133,6 +133,7 @@ export default {
             cesantias: 0,
             ahorros: 0,
             seleccionPlan: 0,
+            valor_descuento_adicional: 0,
 
             tipoFinanciacionSeleccionada: '',
 
@@ -142,99 +143,6 @@ export default {
             valor_acabados: 0
 
         };
-    },
-    computed: {
-        tabClasses() {
-            return this.tabs.map((_, index) => {
-                if (this.isTabBlocked(index)) {
-                    return 'wizarTabDisabled';
-                } else if (this.mode === index) {
-                    return 'wizarTabActive';
-                } else if (!this.tabsIncomplete.includes(index)) {
-                    return 'wizarTabIncomplete';
-                } else {
-                    return 'wizarTabCompleted';
-                }
-            });
-        },
-        proyectosUnicos() {
-            const proyectos = this.visitas.map(v => v.proyecto);
-            return [...new Set(proyectos)];
-        }, visitasFiltradas() {
-            if (!this.filtroProyecto) return this.visitas;
-            return this.visitas.filter(v => v.proyecto === this.filtroProyecto);
-        },
-        tramite() {
-            return this.modo_atencion.some(item => item.modo_atencion === 'Tramites' && item.checked);
-        },
-        Otro() {
-            return this.modo_atencion.some(item => item.modo_atencion === 'Otro' && item.checked);
-        },
-        cotizacionesFiltradas() {
-            if (this.ishistory) {
-                return this.cotizaciones;
-            } else {
-                const hoy = new Date();
-                const yyyy = hoy.getFullYear();
-                const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-                const dd = String(hoy.getDate()).padStart(2, '0');
-                const hoyStr = `${yyyy}-${mm}-${dd}`;
-                return this.cotizaciones.filter(cot => {
-                    let fecha = cot.fecha;
-                    if (fecha instanceof Date) {
-                        const fyyyy = fecha.getFullYear();
-                        const fmm = String(fecha.getMonth() + 1).padStart(2, '0');
-                        const fdd = String(fecha.getDate()).padStart(2, '0');
-                        return `${fyyyy}-${fmm}-${fdd}` === hoyStr;
-                    }
-        
-                    if (fecha.includes('-') && fecha.includes(':')) {
-                        const fechaStr = fecha.split(' ')[0];
-                        return fechaStr === hoyStr;
-                    }
-
-                    if (fecha.includes('/')) {
-                        const partesFecha = fecha.split(' ')[0].split('/');
-                        if (partesFecha.length === 3) {
-                            const [dia, mes, anio] = partesFecha;
-                            const normalizada = `${anio}-${mes}-${dia}`;
-                            return normalizada === hoyStr;
-                        }
-                    }
-                    return false;
-                });
-            }
-        },
-        textoCotizacion() {
-            if (!this.unidades || this.unidades.length === 0) return "";
-
-            let unidadesTexto = this.unidades
-                .map(u => `Torre ${u.consecutivo || ""} ${u.numero_apartamento || ""}`)
-                .join(" || ");
-
-            return `${this.nombre} - ${unidadesTexto}`;
-        }
-    },
-    watch: {
-        tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
-        importeActiva() { this.calcularFinanciacion(); },
-        cesantias() { this.calcularFinanciacion(); },
-        ahorros() { this.calcularFinanciacion(); },
-        valor_subsidio() { this.calcularFinanciacion(); },
-        pagoSeleccionado() { this.calcularFinanciacion(); },
-        visitasFiltradas: {
-            handler(val) {
-                this.contarProyectos(val);
-            },
-            immediate: true,
-            deep: true
-        }
-    },
-    beforeDestroy() {
-        window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
-    },
-     beforeUnmount() {
-        window.removeEventListener('message', this.handleMessages);
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
@@ -261,33 +169,54 @@ export default {
  
     },
     methods: {
-        formatearEnTiempoRealGenerico(event, campo) {
-            const input = event.target;
-            const cursorPos = input.selectionStart;
-            const valorSinFormato = input.value.replace(/\./g, '').replace(/[^\d]/g, '');
-            if (!valorSinFormato) {
-                this[campo] = 0;
-                this[campo + '_texto'] = '';
-                this.calcularFinanciacion();
-                return;
-            }
-            const largoAntes = input.value.length;
-            const valorFormateado = new Intl.NumberFormat('es-CO').format(parseInt(valorSinFormato));
-            this[campo + '_texto'] = valorFormateado;
-            this[campo] = parseInt(valorSinFormato);
-            const largoDespues = valorFormateado.length;
-            const diff = largoDespues - largoAntes;
-            this.$nextTick(() => {
-                const nuevaPos = Math.max(0, cursorPos + diff);
-                input.setSelectionRange(nuevaPos, nuevaPos);
-            });
-            this.calcularFinanciacion();
-        },
-        onSeleccionContado() {
-            this.pagoSeleccionado = 'contado';
-            this.onPagoChange();
-        },
+        formatNumber(value, dec = true, ndec = 2) {
+            if (value == null || value === "") return "";
 
+            value = value.toString();
+            value = value.replace(/\./g, "");
+            value = value.replace(",", ".");
+
+            let [parteEntera, parteDecimal] = value.split(".");
+            parteEntera = parteEntera.replace(/\D/g, "");
+            parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
+
+            if (ndec >= 0)
+                parteDecimal = dec && ndec > 0 ? parteDecimal.padEnd(ndec, '0') : "";
+
+            let groups = [];
+            let len = parteEntera.length;
+            for (let i = len; i > 0; i -= 3)
+                groups.unshift(parteEntera.substring(Math.max(0, i - 3), i));
+
+            let formattedEntera = groups[0] || "";
+            for (let i = 1; i < groups.length; i++)
+                formattedEntera += '.' + groups[i];
+
+            let result = formattedEntera;
+            if (parteDecimal && dec && ndec > 0) {
+                if (parteDecimal.length > ndec)
+                    parteDecimal = Math.round(
+                        parseInt(parteDecimal) / Math.pow(10, parteDecimal.length - ndec)
+                    ).toString();
+                result += "," + parteDecimal;
+            }
+
+            return result;
+        },
+		cleanNumber(value) {
+			let cleaned = value.replace(/['.]/g, "");
+			cleaned = cleaned.replace(",", ".");
+			return cleaned;
+		},
+		validarFormato(e) {
+			e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
+			if (e.target.value == '') e.target.value = '0';
+			e.target.value = e.target.value.replace(/^0+(\d)/, '$1');
+		},
+        toggleApto(apto) {
+			let i = this.ids_unidades.indexOf(apto.id_unidad);
+			i === -1 ? this.ids_unidades.push(apto.id_unidad) : this.ids_unidades.splice(i, 1);
+		},
         onPagoChange() {
             if (this.pagoSeleccionado === 'contado') {
                 this.ingresos_mensuales_texto = 0;
@@ -395,13 +324,6 @@ export default {
                 cuota_inicial: this.cuota_inicial,
                 valor_credito: this.valor_credito
             });
-        },
-        formatoMoneda(valor) {
-            return new Intl.NumberFormat('es-CO', {
-                style: 'currency',
-                currency: 'COP',
-                minimumFractionDigits: 0,
-            }).format(valor || 0);
         },
         async handleMessages(event) {
             if (event.data?.type === 'REFRESH_COTIZACION') {
@@ -848,20 +770,8 @@ export default {
             let añoEntrega = parseInt(this.añoentrega);
 
             this.valor_reformas = respa.data[0][0]?.valor_reformas || 0;
-            this.valor_descuento = respa.data[0][0]?.valor_descuento || 0;
             this.valor_acabados = respa.data[0][0]?.valor_acabados || 0;
-
-            this.valor_reformas_texto = new Intl.NumberFormat('es-CO').format(
-                Number((this.valor_reformas || '0').toString().replace(',', '.'))
-            );
-            this.valor_descuento_texto = new Intl.NumberFormat('es-CO').format(
-                Number((this.valor_descuento || '0').toString().replace(',', '.'))
-            );
-            this.valor_acabados_texto = new Intl.NumberFormat('es-CO').format(
-                Number((this.valor_acabados || '0').toString().replace(',', '.'))
-            );
-
-
+          
 
             if (añoEntrega && añoEntrega >= añoActual) {
                 this.listaAniosEntrega = Array.from(
@@ -1126,14 +1036,6 @@ export default {
 
             GlobalVariables.ventanaUnidades = window.open(url, 'VentanaModuloUnidades', features);
         },
-        formatoMoneda(valor) {
-            if (isNaN(valor)) return '';
-            return new Intl.NumberFormat('es-CO', {
-                style: 'currency',
-                currency: 'COP',
-                minimumFractionDigits: 0
-            }).format(valor);
-        },
         async refrescarImportes() {
             const parseNumber = (str) => {
                 if (typeof str === 'string') {
@@ -1181,19 +1083,16 @@ export default {
 
         },
         async terminarAtencion() {
-
             let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
                 terminarAtencion: 1,
                 id_cliente: this.id_cliente,
                 id_proyecto: GlobalVariables.id_proyecto,
                 id_visita: this.id_visita
             });
-
             let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                 id_cliente: this.id_cliente,
                 id_proyecto: GlobalVariables.id_proyecto,
             });
-
             this.cliente = null;
             this.ObjCliente = {};
             this.mode = 0;
@@ -1309,5 +1208,108 @@ export default {
             let dato = resp.data[0][0].id_tipo_vis
             this.subsidioActivo = dato != 4;
         }
+    },
+    computed: {
+        tabClasses() {
+            return this.tabs.map((_, index) => {
+                if (this.isTabBlocked(index)) {
+                    return 'wizarTabDisabled';
+                } else if (this.mode === index) {
+                    return 'wizarTabActive';
+                } else if (!this.tabsIncomplete.includes(index)) {
+                    return 'wizarTabIncomplete';
+                } else {
+                    return 'wizarTabCompleted';
+                }
+            });
+        },
+        proyectosUnicos() {
+            const proyectos = this.visitas.map(v => v.proyecto);
+            return [...new Set(proyectos)];
+        }, visitasFiltradas() {
+            if (!this.filtroProyecto) return this.visitas;
+            return this.visitas.filter(v => v.proyecto === this.filtroProyecto);
+        },
+        tramite() {
+            return this.modo_atencion.some(item => item.modo_atencion === 'Tramites' && item.checked);
+        },
+        Otro() {
+            return this.modo_atencion.some(item => item.modo_atencion === 'Otro' && item.checked);
+        },
+        cotizacionesFiltradas() {
+            if (this.ishistory) {
+                return this.cotizaciones;
+            } else {
+                const hoy = new Date();
+                const yyyy = hoy.getFullYear();
+                const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+                const dd = String(hoy.getDate()).padStart(2, '0');
+                const hoyStr = `${yyyy}-${mm}-${dd}`;
+                return this.cotizaciones.filter(cot => {
+                    let fecha = cot.fecha;
+                    if (fecha instanceof Date) {
+                        const fyyyy = fecha.getFullYear();
+                        const fmm = String(fecha.getMonth() + 1).padStart(2, '0');
+                        const fdd = String(fecha.getDate()).padStart(2, '0');
+                        return `${fyyyy}-${fmm}-${fdd}` === hoyStr;
+                    }
+        
+                    if (fecha.includes('-') && fecha.includes(':')) {
+                        const fechaStr = fecha.split(' ')[0];
+                        return fechaStr === hoyStr;
+                    }
+
+                    if (fecha.includes('/')) {
+                        const partesFecha = fecha.split(' ')[0].split('/');
+                        if (partesFecha.length === 3) {
+                            const [dia, mes, anio] = partesFecha;
+                            const normalizada = `${anio}-${mes}-${dia}`;
+                            return normalizada === hoyStr;
+                        }
+                    }
+                    return false;
+                });
+            }
+        },
+        textoCotizacion() {
+            if (!this.unidades || this.unidades.length === 0) return "";
+            let unidadesTexto = this.unidades
+                .map(u => `Torre ${u.consecutivo || ""} ${u.numero_apartamento || ""}`)
+                .join(" || ");
+            return `${this.nombre} - ${unidadesTexto}`;
+        },
+        f_valor_descuento_adicional: {
+			get() { return this.formatNumber(this.valor_descuento_adicional, false); },
+			set(val) { this.valor_descuento_adicional = this.cleanNumber(val); }
+		},
+        f_valor_reformas: {
+			get() { return this.formatNumber(this.valor_reformas, false); },
+			set(val) { this.valor_reformas = this.cleanNumber(val); }
+		},
+        f_valor_acabados: {
+			get() { return this.formatNumber(this.valor_acabados, false); },
+			set(val) { this.valor_acabados = this.cleanNumber(val); }
+		},
+    },
+    watch: {
+        tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
+        importeActiva() { this.calcularFinanciacion(); },
+        cesantias() { this.calcularFinanciacion(); },
+        ahorros() { this.calcularFinanciacion(); },
+        valor_subsidio() { this.calcularFinanciacion(); },
+        pagoSeleccionado() { this.calcularFinanciacion(); },
+        visitasFiltradas: {
+            handler(val) {
+                this.contarProyectos(val);
+            },
+            immediate: true,
+            deep: true
+        }
+    },
+    beforeDestroy() {
+        window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
+    },
+     beforeUnmount() {
+        window.removeEventListener('message', this.handleMessages);
     },
 }

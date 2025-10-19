@@ -603,9 +603,8 @@
                                 <td>{{ item.fecha_formateada }}</td>
                                 <td>{{ item.observacion_apto }}</td>
                                 <td style="text-align: right;">{{ formatoMoneda(item.valor_unidad) }}</td>
-                                <td style="text-align: right" contenteditable="true" @focus="item.editando = true" @blur="onBlurDescuento($event, item)"
-                                    class="editable-cell">
-                                    {{ item.editando ? item.editValor || item.valor_descuento : formatoMoneda(item.valor_descuento) }}
+                                <td style="text-align: right">
+                                    {{ formatoMoneda(item.valor_descuento) }}
                                 </td>
                                 <td>{{ item.lista }}</td>
                                 <td style="text-align: center;">{{ item.inv_terminado }}</td>
@@ -774,22 +773,19 @@
                      <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Reformas</span>
-                            <input type="text" style="text-align: right;" :value="valor_reformas_texto"
-                                @input="formatearEnTiempoRealGenerico($event, 'valor_reformas')" @blur="calcularFinanciacion" />
+                            <input type="text" style="text-align: right;" v-model="f_valor_reformas" @keyup="validarFormato"/>
                         </div>
                     </div>
                      <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Acabados</span>
-                            <input type="text" style="text-align: right;" :value="valor_acabados_texto"
-                                @input="formatearEnTiempoRealGenerico($event, 'valor_acabados')" @blur="calcularFinanciacion" />
+                            <input type="text" style="text-align: right;" v-model="f_valor_acabados" @keyup="validarFormato"/>
                         </div>
                     </div>
                      <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span>Descuento Lista</span>
-                            <input type="text" style="text-align: right;" :value="valor_descuento_texto"
-                                @input="formatearEnTiempoRealGenerico($event, 'valor_descuento')" @blur="calcularFinanciacion" />
+                            <span>Descuento Adicional</span>
+                            <input type="text" style="text-align: right;" v-model="f_valor_descuento_adicional" @keyup="validarFormato"/>
                         </div>
                     </div>
                 </div>

@@ -23,6 +23,7 @@ select
   e.estado_unidad as estatus,
   u.numero_apartamento as apartamento,
   (d.id_unidad is not null) as asignado,
+  d.id_cliente as id_cliente,
   at.nombre as agrupacion_nombre,
   at.descripcion as agrupacion_descripcion,
   at.total as agrupacion_total,
