@@ -1350,9 +1350,14 @@ export default {
             let tnaActual = tnaAntes;
             const iBase = tnaAntes / 100 / 12;
 
-            let cuotaActual = redondear0(
-                capital * (iBase * Math.pow(1 + iBase, n)) / (Math.pow(1 + iBase, n) - 1)
-            );
+            let cuotaActual;
+            if (iBase === 0) {
+                cuotaActual = redondear0(capital / n);
+            } else {
+                cuotaActual = redondear0(
+                    capital * (iBase * Math.pow(1 + iBase, n)) / (Math.pow(1 + iBase, n) - 1)
+                );
+            }
 
             let fechaPeriodo = new Date(anioBase, mesBase - 1, diaBase);
 
@@ -1371,9 +1376,13 @@ export default {
                     const periodosRestantes = n - j;
 
                     if (periodosRestantes > 0) {
-                        cuotaActual = redondear0(
-                            saldo * (iNueva * Math.pow(1 + iNueva, periodosRestantes)) / (Math.pow(1 + iNueva, periodosRestantes) - 1)
-                        );
+                        if (iNueva === 0) {
+                            cuotaActual = redondear0(saldo / periodosRestantes);
+                        } else {
+                            cuotaActual = redondear0(
+                                saldo * (iNueva * Math.pow(1 + iNueva, periodosRestantes)) / (Math.pow(1 + iNueva, periodosRestantes) - 1)
+                            );
+                        }
                     }
                 }
 
