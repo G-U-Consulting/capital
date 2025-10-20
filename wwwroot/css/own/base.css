@@ -2943,6 +2943,56 @@ tr.cal-row-info > td {
   z-index: 1000;
 }
 
+.tabla-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.tabla-modal-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 0;
+  width: 90%;
+  max-height: 100dvh;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  font-size: 1em;
+  overflow: hidden; 
+}
+
+.tabla-modal-box h3 {
+  margin-top: 0;
+  font-size: 1.4em;
+  padding: 1em;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-scroll-content {
+    overflow-y: auto;
+    max-height: calc(90vh - 100px);
+    padding: 0 1.5em 1.5em 1.5em;
+}
+
+.asunto-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    z-index: 20;
+}
+
 .asunto-modal-box {
   background: #fff;
   border-radius: 10px;

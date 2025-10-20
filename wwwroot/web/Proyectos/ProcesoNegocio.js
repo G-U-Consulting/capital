@@ -66,6 +66,7 @@ export default {
             israpida: false,
             cliente: '',
             isboton: true,
+            tablaAmortizacion: false,
             tab: ['Registros de visita', 'Registros de compras'],
             activeTab: 0,
             visitas: [],
@@ -126,7 +127,6 @@ export default {
             valor_subsidio: 0,
             subsidio_vivienda: [],
             ingresos_mensuales: 0,
-            ingresos_mensuales_texto: 0,
 
             cuota_inicial: 0,
             valor_credito: 0,
@@ -140,7 +140,28 @@ export default {
             valor_reformas: 0,
             valor_reformas_texto: '',
             valor_descuento: 0,
-            valor_acabados: 0
+            valor_acabados: 0,
+
+            principalStr: '',
+            tnaAntes: 12,
+            tnaDespues: 12,
+            fechaEntrega: '',
+            fechaPE: '',
+            fechaPrimeraCuota: '',
+            meses: 12,
+            decimales: 2,
+            payment: 0,
+            schedule: [],
+
+            d_tna_antes: 0,
+            d_tna_despues: 0,
+            d_fecha_entrega: '',
+            d_fecha_pe: '',
+            d_fecha_cuota: null,
+            d_meses: 0,
+            meses_max: 0,
+            fechaAnterior: null,
+            tablaPeriodos: []
 
         };
     },
@@ -217,14 +238,6 @@ export default {
 			let i = this.ids_unidades.indexOf(apto.id_unidad);
 			i === -1 ? this.ids_unidades.push(apto.id_unidad) : this.ids_unidades.splice(i, 1);
 		},
-        onPagoChange() {
-            if (this.pagoSeleccionado === 'contado') {
-                this.ingresos_mensuales_texto = 0;
-                this.seleccionAnioEntrega = '';
-                this.valor_subsidio = 0;
-                this.caja_compensacion = '';
-            }
-        },
         calcularSubsidio() {
             if (!this.ingresos_mensuales || !this.seleccionAnioEntrega) {
                 this.valor_subsidio = 0;
@@ -261,40 +274,56 @@ export default {
                 this.valor_credito = 0;
                 return;
             }
+
             const plan = this.tipo_financiacion.find(
                 p => p.tipo_financiacion === this.tipoFinanciacionSeleccionada
             );
             if (!plan || !plan.tipo_financiacion) return;
+
             const match = plan.tipo_financiacion.match(/(\d+)[^\d]+(\d+)/);
             if (!match) {
                 this.cuota_inicial = 0;
                 this.valor_credito = 0;
                 return;
             }
+
             const [_, pctInicial, pctCredito] = match.map(Number);
-            const baseInicial = this.importeActiva * (pctInicial / 100);
-            const baseCredito = this.importeActiva * (pctCredito / 100);
-            let totalAportes = (Number(this.cesantias) || 0) + (Number(this.ahorros) || 0);
+
+            const baseCredito = this.toNumber(this.importeActiva) * (pctCredito / 100);
+
+            const baseInicial = this.toNumber(this.importeActiva) * (pctInicial / 100);
+
+            const cuotaInicialTotal =
+                baseInicial +
+                this.toNumber(this.valor_reformas) +
+                this.toNumber(this.valor_acabados) -
+                this.toNumber(this.valor_descuento_adicional);
+
+            let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
             if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
-                totalAportes += (Number(this.valor_subsidio) || 0);
+                totalAportes += this.toNumber(this.valor_subsidio);
             }
-            if (totalAportes >= baseInicial) {
-                const excedente = totalAportes - baseInicial;
+
+            if (totalAportes >= cuotaInicialTotal) {
+                const excedente = totalAportes - cuotaInicialTotal;
                 this.cuota_inicial = 0;
-                this.valor_credito = Math.max(baseCredito - excedente, 0);
+                this.valor_credito = Math.max(Math.round(baseCredito - excedente), 0);
             } else {
-                this.cuota_inicial = baseInicial - totalAportes;
-                this.valor_credito = baseCredito;
+                this.cuota_inicial = Math.round(cuotaInicialTotal - totalAportes);
+                this.valor_credito = Math.round(baseCredito);
             }
         },
+
         calcularPlanPago() {
             if (!this.planSeleccionado || !this.importeActiva) {
                 this.cuota_inicial = 0;
                 this.valor_credito = 0;
                 return;
             }
+
             const plan = this.planes_pago.find(p => p.id_planes_pago == this.planSeleccionado);
             if (!plan || !plan.descripcion) return;
+
             let pctInicial = 0;
             let pctFinal = 0;
             const match = plan.descripcion.match(/(\d+)\s*%.*?(\d+)\s*%/);
@@ -309,21 +338,26 @@ export default {
                 this.valor_credito = 0;
                 return;
             }
-            const baseInicial = this.importeActiva * (pctInicial / 100);
-            const baseCredito = this.importeActiva * (pctFinal / 100);
-            const totalAportes = (Number(this.cesantias) || 0) + (Number(this.ahorros) || 0);
-            this.cuota_inicial = Math.max(baseInicial - totalAportes, 0);
-            this.valor_credito = baseCredito;
-            console.log("Cálculo plan de pago:", {
-                descripcion: plan.descripcion,
-                pctInicial,
-                pctFinal,
-                baseInicial,
-                baseCredito,
-                totalAportes,
-                cuota_inicial: this.cuota_inicial,
-                valor_credito: this.valor_credito
-            });
+            const baseTotal =
+                this.toNumber(this.importeActiva) +
+                this.toNumber(this.valor_reformas) +
+                this.toNumber(this.valor_acabados) -
+                this.toNumber(this.valor_descuento_adicional);
+
+            const baseInicial = baseTotal * (pctInicial / 100);
+            const baseCredito = baseTotal * (pctFinal / 100);
+            const totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
+
+            this.cuota_inicial = Math.max(Math.round(baseInicial - totalAportes), 0);
+            this.valor_credito = Math.round(baseCredito);
+        },
+        toNumber(value) {
+            if (!value) return 0;
+            return Number(
+                String(value)
+                    .replace(/\./g, '')
+                    .replace(',', '.')
+            ) || 0;
         },
         async handleMessages(event) {
             if (event.data?.type === 'REFRESH_COTIZACION') {
@@ -766,6 +800,11 @@ export default {
 
             this.añoentrega = respa.data[0][0]?.fecha_entrega.match(/\d{4}/)?.[0] || '';
 
+            this.d_tna_antes = respa.data[0][0]?.antes_p_equ;
+            this.d_tna_despues = respa.data[0][0]?.despues_p_equ;
+            this.d_fecha_entrega = respa.data[0][0]?.fecha_escrituracion;
+            this.d_fecha_pe = respa.data[0][0]?.fecha_p_equ;
+
             let añoActual = new Date().getFullYear();
             let añoEntrega = parseInt(this.añoentrega);
 
@@ -1207,7 +1246,181 @@ export default {
             });
             let dato = resp.data[0][0].id_tipo_vis
             this.subsidioActivo = dato != 4;
-        }
+        },
+        onCambioValor() {
+            this.valor_reformas = this.f_valor_reformas;
+            this.valor_acabados = this.f_valor_acabados;
+            this.valor_descuento_adicional = this.f_valor_descuento_adicional;
+            this.calcularFinanciacion();
+        },
+        parseNumberFromString(s) {
+            if (!s && s !== 0) return 0;
+            const cleaned = String(s).replace(/\./g, '').replace(/,/g, '.');
+            const n = Number(cleaned);
+            return isNaN(n) ? 0 : n;
+        },
+        onNumberInput(field) {
+            if (field === 'principalStr') {
+                const cleaned = this.principalStr.replace(/[^0-9.,]/g, '');
+                this.principalStr = cleaned;
+            }
+        },
+        formatCurrency(v) {
+            const dec = this.decimales;
+            return Number(v).toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        },
+        monthsBetween(d1, d2) {
+            const a = new Date(d1);
+            const b = new Date(d2);
+            if (isNaN(a) || isNaN(b)) return 0;
+            return (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+        },
+        addMonths(dateStr, n) {
+            const d = new Date(dateStr);
+            const day = d.getDate();
+            d.setMonth(d.getMonth() + n);
+            if (d.getDate() !== day) {
+                d.setDate(0);
+            }
+            return d.toISOString().slice(0, 10);
+        },
+        simulateBalance(paymentAmount, principalValue, monthsTotal, monthsBefore, tnaAntesPct, tnaDespuesPct) {
+            let bal = principalValue;
+            for (let m = 0; m < monthsTotal; m++) {
+                const rate = ((m < monthsBefore) ? tnaAntesPct : tnaDespuesPct) / 12 / 100;
+                const interest = bal * rate;
+                bal = bal + interest - paymentAmount;
+            }
+            return bal;
+        },
+        calcularMesesMaximos() {
+            if (!this.d_fecha_entrega || !this.d_fecha_cuota) return;
+
+            const entrega = new Date(this.d_fecha_entrega);
+            const cuota = new Date(this.d_fecha_cuota);
+
+            let meses = (entrega.getFullYear() - cuota.getFullYear()) * 12;
+            meses += entrega.getMonth() - cuota.getMonth();
+            meses = Math.max(0, meses - 2);
+
+            if (this.d_meses !== meses) {
+                this.d_meses = meses;
+            }
+
+            this.meses_max = meses;
+        },
+        validarMeses(value) {
+            const num = Number(value);
+            if (num < 1) this.d_meses = 1;
+            if (num > this.meses_max) this.d_meses = this.meses_max;
+        },
+        generarTabla() {
+            if (!this.d_fecha_cuota || !this.d_meses || !this.importeActiva || !this.d_tna_antes || !this.d_tna_despues || !this.d_fecha_pe) {
+                showMessage('Faltan datos requeridos');
+                return;
+            }
+            const limpiarNumero = (valor) => {
+                if (typeof valor === 'string') {
+                    return Number(
+                        valor.replace(/\./g, '')
+                            .replace(',', '.')
+                            .trim()
+                    ) || 0;
+                }
+                return Number(valor) || 0;
+            };
+
+            const redondear0 = (num) => Math.round(num);
+
+            const [anioBase, mesBase, diaBase] = this.d_fecha_cuota.split('-').map(Number);
+            const partesPE = this.d_fecha_pe.split('-');
+            const anioPE = parseInt(partesPE[0]);
+            const mesPE = parseInt(partesPE[1]) - 1;
+            const diaPE = parseInt(partesPE[2]);
+            const fechaPE = new Date(anioPE, mesPE, diaPE);
+
+            const capital = limpiarNumero(this.importeActiva);
+            const tnaAntes = limpiarNumero(this.d_tna_antes);
+            const tnaDespues = limpiarNumero(this.d_tna_despues);
+            const n = limpiarNumero(this.d_meses);
+
+            let saldo = capital;
+            this.tablaPeriodos = [];
+
+            let tnaActual = tnaAntes;
+            const iBase = tnaAntes / 100 / 12;
+
+            let cuotaActual = redondear0(
+                capital * (iBase * Math.pow(1 + iBase, n)) / (Math.pow(1 + iBase, n) - 1)
+            );
+
+            let fechaPeriodo = new Date(anioBase, mesBase - 1, diaBase);
+
+            for (let j = 0; j < n; j++) {
+                if (j > 0) {
+                    fechaPeriodo.setMonth(fechaPeriodo.getMonth() + 1);
+                }
+
+                const fechaFormateada = `${fechaPeriodo.getDate().toString().padStart(2, '0')}/${(fechaPeriodo.getMonth() + 1).toString().padStart(2, '0')}/${fechaPeriodo.getFullYear()}`;
+
+                const tnaPeriodo = fechaPeriodo > fechaPE ? tnaDespues : tnaAntes;
+
+                if (tnaPeriodo !== tnaActual) {
+                    tnaActual = tnaPeriodo;
+                    const iNueva = tnaActual / 100 / 12;
+                    const periodosRestantes = n - j;
+
+                    if (periodosRestantes > 0) {
+                        cuotaActual = redondear0(
+                            saldo * (iNueva * Math.pow(1 + iNueva, periodosRestantes)) / (Math.pow(1 + iNueva, periodosRestantes) - 1)
+                        );
+                    }
+                }
+
+                const iPeriodo = tnaActual / 100 / 12;
+                const saldoInicial = saldo;
+
+                let interesPeriodoExacto = saldoInicial * iPeriodo;
+                let principalPeriodoExacto = cuotaActual - interesPeriodoExacto;
+                let saldoFinalExacto = saldoInicial - principalPeriodoExacto;
+
+                let interesPeriodo = redondear0(interesPeriodoExacto);
+                let principalPeriodo = redondear0(principalPeriodoExacto);
+                let saldoFinal = redondear0(saldoFinalExacto);
+
+                if (j === n - 1) {
+                    saldoFinal = 0;
+                    principalPeriodo = redondear0(saldoInicial - interesPeriodo);
+                    cuotaActual = redondear0(interesPeriodo + principalPeriodo);
+                } else {
+                    principalPeriodo = redondear0(saldoInicial - saldoFinal);
+                    interesPeriodo = redondear0(cuotaActual - principalPeriodo);
+                }
+
+                this.tablaPeriodos.push({
+                    periodo: j + 1,
+                    fecha: fechaFormateada,
+                    saldo_inicial: redondear0(saldoInicial),
+                    tna: tnaActual,
+                    cuota_deseada: 0,
+                    cuota_calculada: cuotaActual,
+                    intereses: interesPeriodo,
+                    principal: principalPeriodo,
+                    saldo_final: saldoFinal
+                });
+
+                saldo = saldoFinal;
+            }
+        },
+        async verAmortizacion(){
+            if(this.d_meses == 0){
+                showMessage("Debe seleccionar Fecha 1ra Cuota.");
+                return;
+            }
+            await this.generarTabla(); 
+            this.tablaAmortizacion = true;
+        },
+        
     },
     computed: {
         tabClasses() {
@@ -1290,6 +1503,18 @@ export default {
 			get() { return this.formatNumber(this.valor_acabados, false); },
 			set(val) { this.valor_acabados = this.cleanNumber(val); }
 		},
+        f_valor_cesantias: {
+			get() { return this.formatNumber(this.cesantias, false); },
+			set(val) { this.cesantias = this.cleanNumber(val); }
+		},
+        f_valor_ahorros: {
+			get() { return this.formatNumber(this.ahorros, false); },
+			set(val) { this.ahorros = this.cleanNumber(val); }
+		},
+        f_ingresos_mensuales: {
+			get() { return this.formatNumber(this.ingresos_mensuales, false); },
+			set(val) { this.ingresos_mensuales = this.cleanNumber(val); }
+		},
     },
     watch: {
         tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
@@ -1298,13 +1523,23 @@ export default {
         ahorros() { this.calcularFinanciacion(); },
         valor_subsidio() { this.calcularFinanciacion(); },
         pagoSeleccionado() { this.calcularFinanciacion(); },
+        f_valor_reformas: 'onCambioValor',
+        f_valor_acabados: 'onCambioValor',
+        f_valor_descuento_adicional: 'onCambioValor',
         visitasFiltradas: {
             handler(val) {
                 this.contarProyectos(val);
             },
             immediate: true,
             deep: true
-        }
+        },
+        d_fecha_cuota() {
+            this.calcularMesesMaximos();
+        },
+        d_fecha_entrega() {
+            this.calcularMesesMaximos();
+        },
+     
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
