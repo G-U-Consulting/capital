@@ -2,9 +2,9 @@
 -- Proceso: Maestros/Del_Color
 -- =============================================
 --START_PARAM
-set @id_color = NULL
+set @id_estado_unidad = NULL
 --END_PARAM
 
-delete from dim_color where id_color = @id_color;
+delete from dim_estado_unidad where id_estado_unidad = @id_estado_unidad;
 
 select 'OK' as result;

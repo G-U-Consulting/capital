@@ -748,7 +748,7 @@ public static class WebBDUt {
         }
         else
         {
-            ClosedXML.Excel.XLWorkbook wp = new ClosedXML.Excel.XLWorkbook();
+            ClosedXML.Excel.XLWorkbook wp = new();
             DataTable dt;
             for (int i = 0; i < ds.Tables.Count; i++)
             {

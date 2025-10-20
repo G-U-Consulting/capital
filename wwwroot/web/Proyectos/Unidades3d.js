@@ -932,6 +932,29 @@
 			let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
 			return !email || regex.test(email);
 		},
+		async downloadAptos() {
+			try {
+				showProgress();
+				let datos = JSON.parse(JSON.stringify(this.getFilteredList('aptos')));
+				datos.forEach(apto => {
+					Object.keys(apto).forEach(k => {
+						if (k.startsWith('created') || k.startsWith('updated') || k.startsWith('is_')
+							|| (k.startsWith('id_') && k !== 'id_agrupacion') || k.endsWith('1'))
+							delete apto[k];
+						else if (k.includes('fecha'))
+							apto[k] &&= this.formatDatetime(apto[k], 'date');
+						else if (k.startsWith('valor') || k.includes('area') || k.includes('observacion'))
+							apto[k] = apto[k].replace(',', '.');
+					});
+				})
+				let archivo = (await httpFunc(`/util/Json2File/csv`, datos)).data;
+				window.open("./docs/" + archivo, "_blank");
+			}
+			catch (e) {
+				console.error(e);
+			}
+			hideProgress();
+		},
 		async downloadTemplate() {
 			try {
 				showProgress();
@@ -1179,6 +1202,31 @@
                 console.error(e);
             }
             hideProgress();
+        },
+		formatDatetime(text, type = 'datetime', _date) {
+            const date = _date || (text ? new Date(text) : new Date());
+            let day = date.getDate().toString().padStart(2, '0'),
+                month = (date.getMonth() + 1).toString().padStart(2, '0'),
+                year = date.getFullYear(),
+                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
+                minutes = date.getMinutes().toString().padStart(2, '0'),
+                seconds = date.getSeconds().toString().padStart(2, '0'),
+                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
+            if (type === 'date')
+                return `${day}/${month}/${year}`;
+            if (type === 'textdate')
+                return `${day} de ${this.nameMonths[date.getMonth()]} de ${year}`;
+            if (type === 'bdate')
+                return `${year}-${month}-${day}`;
+            if (type === 'bdatetime')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
+            if (type === 'bdatetimes')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
+            if (type === 'time')
+                return `${hour}:${minutes} ${meridian}`;
+            if (type === 'vtime')
+                return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
+            return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
         },
 	},
 	computed: {

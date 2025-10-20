@@ -186,10 +186,12 @@ export default {
                 if (day.events.length - (day.isHoliday ? 1 : 0))
                     day.events.forEach(e => e.festivo != '1' && events.push(
                         {
-                            day, e_titulo: e.titulo, e_categorias: e.categorias ? e.categorias.split(',') : [], e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
-                            e_hora: this.formatDatetime(e.fecha, 'time'), color: e.color, event: e
+                            day, e_titulo: e.titulo, e_categorias: e.categorias ? e.categorias.split(',') : [], 
+                            e_tipo: e.id_unidad ? 'Unidad' : e.id_torre ? 'Torre' : e.id_proyecto ? 'Proyecto' : 'Sala',
+                            e_hora: this.formatDatetime(e.fecha, 'time'), color: e.color, event: e, e_descripcion: e.descripcion
                         }));
-                else events.push({ day, e_titulo: day.isHoliday ? 'Festivo' : '-', e_tipo: '-', e_hora: '-', e_categorias: [], color: day.isHoliday ? '#c80000' : null });
+                else events.push({ day, e_titulo: day.isHoliday ? 'Festivo' : '-', e_tipo: '-', e_hora: '-', 
+                    e_descripcion: '-', e_categorias: [], color: day.isHoliday ? '#c80000' : null });
             });
             await Promise.resolve();
             this.tableDays = events;
@@ -463,6 +465,31 @@ export default {
             else if (!e.id_unidad) text = `${e.nombre_pro} - ${e.torre}`;
             else if (e.id_proyecto && e.id_torre && e.id_unidad) text = `${e.nombre_pro} - ${e.torre} - ${e.unidad}`;
             return text;
+        },
+        async exportExcelDays() {
+            let datos = [];
+            try {
+                showProgress();
+                if (this.tableDays && this.tableDays.length) {
+                    this.tableDays.forEach(td => 
+                        datos.push({ 
+                            fecha: this.formatDatetime('', 'date', td.day.date),
+                            hora: td.e_hora,
+                            tipo: td.e_tipo,
+                            titulo: td.e_titulo,
+                            categorias: td.e_categorias.length ? td.e_categorias.join(', ') : '-',
+                            descripcion: td.e_descripcion,
+                        })
+                    );
+                    var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                    var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoCalendario" })).data;
+                    window.open("./docs/" + archivo, "_blank");
+                }
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
         }
     }
 }

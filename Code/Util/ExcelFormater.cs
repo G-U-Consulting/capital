@@ -13,14 +13,16 @@ namespace capital.Code.Util {
             string file = data["file"].Value<string>(), format = data["format"].Value<string>();
             if (format == "FormatoUsuarios")
                 return FormatoUsuarios(file, rootPath);
-            else if(format == "FormatoRoles")
+            else if (format == "FormatoRoles")
                 return FormatoRoles(file, rootPath);
-            else if(format == "FormatoMaestros")
+            else if (format == "FormatoMaestros")
                 return FormatoMaestros(file, rootPath);
-            else if(format == "FormatoBancos")
+            else if (format == "FormatoBancos")
                 return FormatoBancos(file, rootPath);
-            else if(format == "FormatoProgSalas")
+            else if (format == "FormatoProgSalas")
                 return FormatoProgSalas(file, rootPath);
+            else if (format == "FormatoCalendario")
+                return FormatoCalendario(file, rootPath);
             else
                 return null;
         }
@@ -248,13 +250,20 @@ namespace capital.Code.Util {
                             if (ws.Name != "Resumen")
                             {
                                 ws.Column(col).Style.NumberFormat.Format = "\"$\"#,##0";
-                                // Opcional: forzar conversión a número si las celdas vienen como texto
                                 foreach (var cell in ws.Column(col).CellsUsed().Where(c => c.Address.RowNumber > table.RangeAddress.FirstAddress.RowNumber))
                                 {
                                     if (double.TryParse(cell.GetString(), out double v))
                                         cell.Value = v;
                                 }
                             }
+                        }
+                        else if (field.Name == "Divisa")
+                        {
+                            ws.Column(col).Width = 10;
+                            ws.Column(col).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            string name = field.Name;
+                            name = name[..1].ToUpper() + name[1..].ToLower();
+                            field.HeaderCell.Value = name.Replace("_", " ");
                         }
                         else
                         {
@@ -271,7 +280,7 @@ namespace capital.Code.Util {
             workbook.Save();
             return file;
         }
-        
+
         public static string FormatoProgSalas(string file, string rootPath)
         {
             string path = Path.Combine(rootPath, "wwwroot", "docs", file);
@@ -292,7 +301,7 @@ namespace capital.Code.Util {
                 var dia = row.Cell(4);
                 dia.FormulaA1 = $"=TEXT({fecha.Address.ToStringRelative(true)},\"dddd\")";
             }
-                
+
             rangeDate.Style.NumberFormat.Format = "dd/mm/yyyy";
             rangeDate.Style.Fill.BackgroundColor = XLColor.FromHtml("#DAEEF3");
             IXLDataValidation valDate = rangeDate.CreateDataValidation();
@@ -306,7 +315,7 @@ namespace capital.Code.Util {
             valCC.WholeNumber.Between("1000", "999999999999999");
             valCC.ErrorTitle = "Número de identificación incorrecto";
             valCC.ErrorMessage = "Ingrese una cédula válida";
-            
+
             IXLDataValidation valState = rangeState.CreateDataValidation();
             rangeState.Style.Fill.BackgroundColor = XLColor.FromHtml("#DAEEF3");
             valState.List("\"En sala,En casa,Descansa,Licencia,Vacaciones,Incapacidad\"");
@@ -364,7 +373,7 @@ namespace capital.Code.Util {
             IXLDataValidation valReqs = reqFields.CreateDataValidation();
             valReqs.InputTitle = "Campo obligatorio";
             valReqs.InputMessage = "Debe ingresar un valor para importar los datos";
-            
+
             var infoFields = ws.Range("D1:H1");
             IXLDataValidation valInfo = infoFields.CreateDataValidation();
             valInfo.InputTitle = "Campo informativo";
@@ -372,6 +381,36 @@ namespace capital.Code.Util {
             workbook.CalculateMode = XLCalculateMode.Auto;
             workbook.Save();
 
+            return file;
+        }
+
+        public static string FormatoCalendario(string file, string rootPath) {
+            string path = Path.Combine(rootPath, "wwwroot", "docs", file);
+            XLWorkbook workbook = new(path);
+
+            IXLWorksheet ws = workbook.Worksheet(1);
+            ws.ShowGridLines = false;
+            
+            ws.Row(1).InsertRowsAbove(1);
+            ws.Row(1).Height = 30;
+            ws.Column(1).InsertColumnsBefore(1);
+
+            IXLTable table = ws.Table("Table1");
+
+            foreach (var field in table.Fields)
+            {
+                int col = field.Column.ColumnNumber();
+                ws.Column(col).Width = field.Name == "deadline" || field.Name == "alta" || field.Name == "estado" 
+                    || field.Name == "prioridad" || field.Name == "fecha" || field.Name == "hora" || field.Name == "tipo" 
+                    ? 15 : field.Name == "descripcion" ? 60 : 25;
+                string name = field.Name;
+                name = name[..1].ToUpper() + name[1..];
+                field.HeaderCell.Value = name;
+            }
+
+            Common_Formats(ws, table);
+
+            workbook.Save();
             return file;
         }
 

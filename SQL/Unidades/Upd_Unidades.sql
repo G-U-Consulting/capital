@@ -178,21 +178,21 @@ select distinct
         if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta) and tu.id_proyecto = @id_proyecto) as id_tipo,
     t.localizacion as localizacion,
     left(t.observacion_apto, 500) as observacion_apto,
-    convert(t.fecha_fec, date) as fecha_fec,
-    convert(t.fecha_edi, date) as fecha_edi,
-    convert(t.fecha_edi_mostrar, date) as fecha_edi_mostrar,
+    str_to_date(t.fecha_fec, '%d/%m/%Y') as fecha_fec,
+    str_to_date(t.fecha_edi, '%d/%m/%Y') as fecha_edi,
+    str_to_date(t.fecha_edi_mostrar, '%d/%m/%Y') as fecha_edi_mostrar,
     convert(t.inv_terminado, unsigned) as inv_terminado,
     convert(t.num_alcobas, int) as num_alcobas,
     convert(t.num_banos, int) as num_banos,
-    convert(t.area_privada_cub, decimal(20, 2)) as area_privada_cub,
-    convert(t.area_privada_lib, decimal(20, 2)) as area_privada_lib,
-    convert(t.area_total, decimal(20, 2)) as area_total,
-    convert(t.acue, decimal(20, 2)) as acue,
-    convert(t.area_total_mas_acue, decimal(20, 2)) as area_total_mas_acue,
-    convert(t.valor_separacion, decimal(20, 2)) as valor_separacion,
-    convert(t.valor_acabados, decimal(20, 2)) as valor_acabados,
-    convert(t.valor_reformas, decimal(20, 2)) as valor_reformas,
-    convert(t.valor_descuento, decimal(20, 2)) as valor_descuento,
+    convert(replace(t.area_privada_cub, ',', '.'), decimal(20, 2)) as area_privada_cub,
+    convert(replace(t.area_privada_lib, ',', '.'), decimal(20, 2)) as area_privada_lib,
+    convert(replace(t.area_total, ',', '.'), decimal(20, 2)) as area_total,
+    convert(replace(t.acue, ',', '.'), decimal(20, 2)) as acue,
+    convert(replace(t.area_total_mas_acue, ',', '.'), decimal(20, 2)) as area_total_mas_acue,
+    convert(replace(t.valor_separacion, ',', '.'), decimal(20, 2)) as valor_separacion,
+    convert(replace(t.valor_acabados, ',', '.'), decimal(20, 2)) as valor_acabados,
+    convert(replace(t.valor_reformas, ',', '.'), decimal(20, 2)) as valor_reformas,
+    convert(replace(t.valor_descuento, ',', '.'), decimal(20, 2)) as valor_descuento,
     t.pate as pate,
     t.id_cuenta_convenio as id_cuenta_convenio,
     t.asoleacion as asoleacion,
@@ -266,8 +266,8 @@ select
     concat(coalesce(@cod_clase_prq, ''), ' ', t.parqueadero) as nombre_unidad,
     convert(t.parqueadero, int) as numero_apartamento,
     convert(t.parqueadero_ubicacion, int) as piso,
-    convert(t.parqueadero_area, decimal(20, 2)) as area_total,
-    convert(t.valor_parqueadero, decimal(20, 2)) as valor_complemento,
+    convert(replace(t.parqueadero_area, ',', '.'), decimal(20, 2)) as area_total,
+    convert(replace(t.valor_parqueadero, ',', '.'), decimal(20, 2)) as valor_complemento,
     13 as id_clase
 from tmp_unidades t
 where t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0'
@@ -290,8 +290,8 @@ select
     concat(coalesce(@cod_clase_prq, ''), ' ', t.parqueadero2) as nombre_unidad,
     convert(t.parqueadero2, int) as numero_apartamento,
     convert(t.parqueadero2_ubicacion, int) as piso,
-    convert(t.parqueadero2_area, decimal(20, 2)) as area_total,
-    convert(t.valor_parqueadero2, decimal(20, 2)) as valor_complemento,
+    convert(replace(t.parqueadero2_area, ',', '.'), decimal(20, 2)) as area_total,
+    convert(replace(t.valor_parqueadero2, ',', '.'), decimal(20, 2)) as valor_complemento,
     13 as id_clase
 from tmp_unidades t
 where t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0'
@@ -316,8 +316,8 @@ select
     concat(coalesce(@cod_clase_dep, ''), ' ', t.deposito) as nombre_unidad,
     convert(t.deposito, int) as numero_apartamento,
     convert(t.deposito_ubicacion, int) as piso,
-    convert(t.deposito_area, decimal(20, 2)) as area_total,
-    convert(t.valor_deposito, decimal(20, 2)) as valor_complemento,
+    convert(replace(t.deposito_area, ',', '.'), decimal(20, 2)) as area_total,
+    convert(replace(t.valor_deposito, ',', '.'), decimal(20, 2)) as valor_complemento,
     15 as id_clase
 from tmp_unidades t
 where t.deposito is not null and t.deposito != '' and t.deposito != '0'
@@ -382,22 +382,3 @@ where u.id_unidad in (t.id_unidad, t.id_parqueadero, t.id_parqueadero2, t.id_dep
 
 
 select 'OK' as respuesta;
-
-
-
-/*
-select * from dim_agrupacion_unidad;
-select * from fact_unidades where id_proyecto = 5 limit 2000;
-select * from tmp_agrupaciones;
-update fact_unidades set id_agrupacion = null where id_proyecto=3;
-delete from dim_hito_cargo where id_hito in (select h.id_hito from fact_unidades u 
-    join dim_hito_sala h on u.id_torre = h.id_torre where u.id_proyecto = 3 group by h.id_hito);
-delete from dim_hito_sala where id_torre in (select id_torre from fact_torres where id_proyecto = 3);
-delete from dim_agrupacion_unidad where id_proyecto=3;
-delete from dim_lista_tipo_torre where id_torre in (select id_torre from fact_torres where id_proyecto = 3);
-delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 3);
-delete from fact_unidades where id_proyecto = 3;
-delete from fact_torres where id_proyecto = 3;
-update fact_proyectos set id_lista = null where id_proyecto = 3;
-delete from dim_lista_precios where id_proyecto=3;
-*/

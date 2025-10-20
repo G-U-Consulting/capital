@@ -17,12 +17,13 @@ export default {
             tarea: {},
 
             filtros: {
-                tareas: { activa: '1', id_proyecto: '', id_estado: '' }
+                tareas: { activa: '1', id_proyecto: '', id_estado: '', id_prioridad: '' }
             },
 
             editNewRow: false,
             selRow: null,
             enableEdit: false,
+            allDays: true,
             orden: "dead-prio",
 
             //Mi Calendario
@@ -319,18 +320,20 @@ export default {
                                 day,
                                 e_titulo: e.titulo,
                                 e_categorias: e.categorias ? e.categorias.split(',') : [],
-                                e_tipo: e.id_proyecto ? 'Proyecto' : 'Sala',
+                                e_tipo: e.id_unidad ? 'Unidad' : e.id_torre ? 'Torre' : e.id_proyecto ? 'Proyecto' : 'Sala',
                                 e_hora: this.formatDatetime(e.fecha, 'time'),
                                 color: e.color + '50',
-                                event: e
+                                event: e, 
+                                e_descripcion: e.descripcion
                             }));
-                    else events.push({
+                    else if(this.allDays) events.push({
                         day,
                         e_titulo: day.isHoliday ? 'Festivo' : '-',
                         e_tipo: '-',
                         e_hora: '-',
                         e_categorias: [],
-                        color: day.isHoliday ? '#c8000020' : (day.stateColor + '20')
+                        color: day.isHoliday ? '#c8000020' : (day.stateColor + '20'),
+                        e_descripcion: '-', 
                     });
                 });
                 await Promise.resolve();
@@ -341,19 +344,21 @@ export default {
                 days.forEach(day => {
                     if (day.tasks.length)
                         day.tasks.forEach(t => tasks.push({ day, ...t, color: t.color + '50' }));
-                    else if (this.filter_sort == 'dias') tasks.push({
+                    else if(this.allDays) tasks.push({
                         day,
                         proyecto: '-',
                         descripcion: day.isHoliday ? 'Festivo' : '-',
-                        color: day.isHoliday ? '#c8000020' : (day.stateColor + '20')
+                        color: day.isHoliday ? '#c8000020' : (day.stateColor ? (day.stateColor + '20') : '')
                     });
                 });
                 await Promise.resolve();
                 this.tableDays = tasks.sort((a, b) => {
                     if (this.filter_sort == 'deadline')
-                        return new Date(a.deadline + ' 00:00').getTime() - new Date(b.deadline + ' 00:00').getTime();
+                        return !a.deadline ? 1 : !b.deadline ? -1 
+                            : new Date(a.deadline + ' 00:00').getTime() - new Date(b.deadline + ' 00:00').getTime();
                     if (this.filter_sort == 'prioridad')
-                        return parseInt(b.orden_p) - parseInt(a.orden_p);
+                        return !a.orden_p ? 1 : !b.orden_p ? -1 
+                            : parseInt(b.orden_p) - parseInt(a.orden_p);
                 });
             }
         },
@@ -620,6 +625,53 @@ export default {
             }
             hideProgress();
         },
+        async exportExcel(tabla) {
+            try {
+                showProgress();
+                let datos = this.getFilteredList(tabla);
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
+        async exportExcelDays() {
+            let datos = [];
+            try {
+                showProgress();
+                if (this.tableDays && this.tableDays.length) {
+                    this.tableDays.forEach(td => this.showMode === 'event'
+                        ? datos.push({ 
+                            fecha: this.formatDatetime('', 'date', td.day.date),
+                            hora: td.e_hora,
+                            tipo: td.e_tipo,
+                            titulo: td.e_titulo,
+                            categorias: td.e_categorias.length ? td.e_categorias.join(', ') : '-',
+                            descripcion: td.e_descripcion,
+                        })
+                        : datos.push({ 
+                            deadline: this.formatDatetime('', 'date', td.day.date),
+                            alta: td.alta ? this.formatDatetime(td.alta + ' 00:00', 'date') : '-',
+                            proyecto: td.proyecto,
+                            estado: td.estado || '-',
+                            prioridad: td.prioridad || '-',
+                            descripcion: td.descripcion, 
+                        })
+                    );
+                    var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                    var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoCalendario" })).data;
+                    window.open("./docs/" + archivo, "_blank");
+                }
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
+        
     },
     computed: {
         getFilteredList() {

@@ -94,10 +94,7 @@ app.Map("/util/Json2File/{type}", async (HttpRequest request, HttpResponse respo
         using (var stream = new StreamReader(request.Body)) {
             body = await stream.ReadToEndAsync();
         }
-        if (type == "csv")
-            return WebBDUt.SetJsonToFile(body, true).ToString(Newtonsoft.Json.Formatting.None);
-        else
-            return WebBDUt.SetJsonToFile(body, false).ToString(Newtonsoft.Json.Formatting.None);
+        return WebBDUt.SetJsonToFile(body, type == "csv").ToString(Newtonsoft.Json.Formatting.None);
     } catch (Exception ex) {
         Logger.Log("util/Json2File    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;

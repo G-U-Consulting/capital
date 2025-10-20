@@ -46,7 +46,7 @@
 
                 <div class="searchBox">
                     <div class="pure-g">
-                        <div class='pure-u-1-1 pure-u-md-3-4'
+                        <div class='pure-u-1-1 pure-u-md-19-24'
                             style="display: flex; justify-content: space-between; gap: .5rem">
                             <select v-model="filtros.tareas.id_proyecto" class="pure-input-1" @change="cancel">
                                 <option value="">[Todos los proyectos]</option>
@@ -58,6 +58,10 @@
                                 <option value="">[Todos los estados]</option>
                                 <option v-for="estado in estados" :value="estado.id_estado">{{estado.nombre}}</option>
                             </select>
+                            <select v-model="filtros.tareas.id_prioridad" class="pure-input-1" @change="cancel">
+                                <option value="">[Todas las prioridades]</option>
+                                <option v-for="p in prioridades" :value="p.id_prioridad">{{p.nombre}}</option>
+                            </select>
                             <select id="sel-orden" v-model="orden" @change="cancel">
                                 <option value="dead-prio">Deadline - Prioridad</option>
                                 <option value="prio-dead">Prioridad - Deadline</option>
@@ -68,7 +72,7 @@
                                 Mostrar solo tareas activas
                             </label>
                         </div>
-                        <div class='pure-u-1-2 pure-u-md-1-12' style="text-align: center;">
+                        <div class='pure-u-1-2 pure-u-md-1-24'>
                             <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
                                 @click="exportExcel('tareas')" title="Descargar datos a Excel" />
                         </div>
@@ -238,8 +242,9 @@
                                 {{sala.sala_venta}}
                             </option>
                         </select>
-                        <select v-model="filter_sort" @change="setTableDetails(selDate)" v-if="showMode == 'task'">
-                            <option value="dias">Todos los días</option>
+                        <select v-model="filter_sort" @change="setTableDetails(selDate)" 
+                            v-if="showMode == 'task' && (viewMode.class == 's1' || viewMode.class == 'm1')">
+                            <option value="dias">Ordenar por días</option>
                             <option value="deadline">Ordenar por deadline</option>
                             <option value="prioridad">Ordenar por prioridad</option>
                         </select>
@@ -296,70 +301,81 @@
                             </div>
                         </div>
                     </div>
-                    <div class="pure-u-1-1 pure-u-md-2-3 cal-table"
-                        v-if="viewMode.class == 's1' || viewMode.class == 'm1'">
-                        <table class="dataTable" v-if="showMode == 'event'">
-                            <thead>
-                                <tr>
-                                    <th style="width: 16%;">Fecha</th>
-                                    <th style="width: 33%;">Titulo</th>
-                                    <th style="width: 14%;">Tipo</th>
-                                    <th style="width: 21%;">Categorías (#)</th>
-                                    <th style="width: 16%;">Hora</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="day in tableDays" @click="day.day.currentMonth && selDay(day.day)"
-                                    @dblclick="day.day.currentMonth && day.event ? (openModal(2, day.event)) : null"
-                                    :id="`tab-m${day.day.month}-d${day.day.monthDay}`"
-                                    v-bind:class="{'cal-table-selected': day.day.isSelected, 'cal-table-today': day.day.isToday, 
+                    <div class="pure-u-1-1 pure-u-md-2-3" v-if="viewMode.class == 's1' || viewMode.class == 'm1'">
+                        <div style="display: flex; justify-content: space-between; height: 2rem;">
+                            <label class="check" style="min-width: 140px;">
+                                <input type="checkbox" v-model="allDays" @change="setTableDetails(selDate);"/>
+                                <span class="checkmark"></span>
+                                Ver todos los días
+                            </label>
+                            <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                                @click="exportExcelDays()" title="Descargar datos a Excel" />
+                        </div>
+                        <div class="cal-table" style="height: calc(100% - 2rem);">
+                            <table class="dataTable" v-if="showMode == 'event'">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 16%;">Fecha</th>
+                                        <th style="width: 33%;">Titulo</th>
+                                        <th style="width: 14%;">Tipo</th>
+                                        <th style="width: 21%;">Categorías (#)</th>
+                                        <th style="width: 16%;">Hora</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="day in tableDays" @click="day.day.currentMonth && selDay(day.day)"
+                                        @dblclick="day.day.currentMonth && day.event ? (openModal(2, day.event)) : null"
+                                        :id="`tab-m${day.day.month}-d${day.day.monthDay}`"
+                                        v-bind:class="{'cal-table-selected': day.day.isSelected, 'cal-table-today': day.day.isToday, 
                                     'cal-deshabilitada': !day.day.currentMonth, 'cal-row-info': day.e_tipo && day.e_tipo != '-'}"
-                                    :style="day.color ? 'background: ' + day.color + ';' : day.day.isSelected ? 'background: #ddd;' : null">
-                                    <td @mouseenter="tooltipVisible = true; tooltipMsg = day.day.progState || 'Sin asignación'"
-                                        @mousemove="updateCursor" @mouseleave="tooltipVisible = false;">
-                                        {{formatDatetime(null, 'date', day.day.date)}}</td>
-                                    <td>{{day.e_titulo}}</td>
-                                    <td>{{day.e_tipo}}</td>
-                                    <td v-if="!day.e_categorias"></td>
-                                    <td v-else :style="day.e_categorias.length > 1 ? 'padding: 0;' : ''">
-                                        <span v-if="!day.e_categorias.length">-</span>
-                                        <span v-else-if="day.e_categorias.length == 1">{{day.e_categorias[0]}}</span>
-                                        <div v-else style="text-align: center;"
-                                            @mouseenter="tooltipVisible = true; tooltipMsg = day.e_categorias.join(`&lt;br&gt;`)"
-                                            @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
-                                            <span class="cal-event-count">{{day.e_categorias.length}}</span>
-                                        </div>
-                                    </td>
-                                    <td>{{day.e_hora}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="dataTable" v-if="showMode == 'task'">
-                            <thead>
-                                <tr>
-                                    <th style="width: 13%;">Deadline</th>
-                                    <th style="width: 16%;">Proyecto</th>
-                                    <th style="width: 32%;">Descripción</th>
-                                    <th style="width: 13%;">Prioridad</th>
-                                    <th style="width: 13%;">Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="t in tableDays" @click="t.day.currentMonth && selDay(t.day)"
-                                    @dblclick="onDblClickDay(t.day)" :id="`tab-m${t.day.month}-d${t.day.monthDay}`"
-                                    v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday, 
+                                        :style="day.color ? 'background: ' + day.color + ';' : day.day.isSelected ? 'background: #ddd;' : null">
+                                        <td @mouseenter="tooltipVisible = true; tooltipMsg = day.day.progState || 'Sin asignación'"
+                                            @mousemove="updateCursor" @mouseleave="tooltipVisible = false;">
+                                            {{formatDatetime(null, 'date', day.day.date)}}</td>
+                                        <td>{{day.e_titulo}}</td>
+                                        <td>{{day.e_tipo}}</td>
+                                        <td v-if="!day.e_categorias"></td>
+                                        <td v-else :style="day.e_categorias.length > 1 ? 'padding: 0;' : ''">
+                                            <span v-if="!day.e_categorias.length">-</span>
+                                            <span
+                                                v-else-if="day.e_categorias.length == 1">{{day.e_categorias[0]}}</span>
+                                            <div v-else style="text-align: center;"
+                                                @mouseenter="tooltipVisible = true; tooltipMsg = day.e_categorias.join(`&lt;br&gt;`)"
+                                                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
+                                                <span class="cal-event-count">{{day.e_categorias.length}}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{day.e_hora}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="dataTable" v-if="showMode == 'task'">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 13%;">Deadline</th>
+                                        <th style="width: 16%;">Proyecto</th>
+                                        <th style="width: 32%;">Descripción</th>
+                                        <th style="width: 13%;">Prioridad</th>
+                                        <th style="width: 13%;">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="t in tableDays" @click="t.day.currentMonth && selDay(t.day)"
+                                        @dblclick="onDblClickDay(t.day)" :id="`tab-m${t.day.month}-d${t.day.monthDay}`"
+                                        v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday, 
                                     'cal-deshabilitada': !t.day.currentMonth, 'cal-row-info': !!t.prioridad}"
-                                    :style="t.color ? 'background: ' + t.color + ';' : t.day.isSelected ? 'background: #ddd;' : null">
-                                    <td @mouseenter="tooltipVisible = true; tooltipMsg = t.day.progState || 'Sin asignación'"
-                                        @mousemove="updateCursor" @mouseleave="tooltipVisible = false;">
-                                        {{formatDatetime(null, 'date', t.day.date)}}</td>
-                                    <td>{{t.proyecto}}</td>
-                                    <td>{{t.descripcion}}</td>
-                                    <td>{{t.prioridad}}</td>
-                                    <td>{{t.estado}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                        :style="t.color ? 'background: ' + t.color + ';' : t.day.isSelected ? 'background: #ddd;' : null">
+                                        <td @mouseenter="tooltipVisible = true; tooltipMsg = t.day.progState || 'Sin asignación'"
+                                            @mousemove="updateCursor" @mouseleave="tooltipVisible = false;">
+                                            {{formatDatetime(null, 'date', t.day.date)}}</td>
+                                        <td>{{t.proyecto}}</td>
+                                        <td>{{t.descripcion}}</td>
+                                        <td>{{t.prioridad}}</td>
+                                        <td>{{t.estado}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                         <div v-if="tooltipVisible" class="cursor-tooltip" v-html="tooltipMsg"
                             :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
                         </div>
