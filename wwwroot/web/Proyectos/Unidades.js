@@ -670,6 +670,7 @@
 				});
 
 				this.selectedApto = apto;
+				this.id_cliente = GlobalVariables.id_cliente;
 			} catch (error) {
 				showMessage("No se pudieron cargar los datos del apartamento.");
 			}
@@ -684,6 +685,25 @@
 		},
 		setTorre(torre) {
 			this.torre = torre;
+		},
+		calcularValorFinal(apto) {
+			if (!apto) return '';
+
+			let base = 0;
+			if (apto.agrupacion_total && apto.agrupacion_total.trim() !== '') {
+				base = Number(apto.agrupacion_total.replace(',', '.')) || 0;
+			} else {
+				base = Number(apto.valor_unidad.replace(',', '.')) || 0;
+			}
+			const descuento = Number((apto.valor_descuento || '0').replace(',', '.'));
+			const total = base - descuento;
+
+			if (isNaN(total)) return '';
+			return total.toLocaleString('es-CO', {
+				style: 'currency',
+				currency: 'COP',
+				minimumFractionDigits: 0
+			});
 		},
 		async addListaEspera(apto){
 

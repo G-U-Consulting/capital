@@ -204,6 +204,12 @@
                                     <ul class="detail-list">
                                         <li v-if="selectedApto.id_agrupacion != ''"><span class="label">🏘️
                                                 Agrupación:</span> {{ selectedApto.agrupacion_descripcion}}</li>
+                                        <li><span class="label">💰 Descuento:</span> {{ formatoMoneda(selectedApto.valor_descuento) }}
+                                        </li>
+                                        <li>
+                                            <span class="label">💰 Valor Final:</span>
+                                            {{ calcularValorFinal(selectedApto) }}
+                                        </li>
                                         <li><span class="label">📐 Tipo:</span> {{ selectedApto.codigo_planta }}
                                         </li>
                                         <li><span class="label">🏠 ID Unidad:</span> {{ selectedApto.apartamento }}
@@ -257,7 +263,10 @@
                                     class="pure-button pure-button-primary">
                                     Agregar
                                 </button>
-                                <button v-else @click="addListaEspera(selectedApto)"
+                                <div v-else-if="selectedApto.estatus === 'Libre' && selectedApto.id_cliente == id_cliente && activeTab === 'detalle'" class="info-message">
+                                    Esta unidad ya fue agregada por el cliente a la lista de espera.
+                                </div>
+                                <button v-else-if="activeTab === 'detalle'" @click="addListaEspera(selectedApto)"
                                     class="pure-button pure-button-primary">
                                     Ag. Lista de Espera
                                 </button>
