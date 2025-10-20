@@ -1429,7 +1429,18 @@ export default {
             await this.generarTabla(); 
             this.tablaAmortizacion = true;
         },
-        
+        formatoTNA(valor) {
+            const valorLimpio = typeof valor === 'string' ? valor.replace(/%/g, '') : valor;
+            return valorLimpio !== null && valorLimpio !== undefined && valorLimpio !== '' ? `${valorLimpio}%` : '';
+        },
+        actualizarTNA(tipo, valor) {
+            let valorLimpio = valor.toString().replace(/[^0-9,.]/g, '');
+            if (tipo === 'antes') {
+                this.d_tna_antes = valorLimpio;
+            } else if (tipo === 'despues') {
+                this.d_tna_despues = valorLimpio;
+            }
+        },
     },
     computed: {
         tabClasses() {

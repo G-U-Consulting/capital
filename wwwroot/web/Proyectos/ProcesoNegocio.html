@@ -859,13 +859,15 @@
                 <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>TNA antes PE</span>
-                        <input type="text" style="text-align: right;" v-model="d_tna_antes"/>
+                        <input type="text" style="text-align: right;" :value="formatoTNA(d_tna_antes)"
+                            @input="actualizarTNA('antes', $event.target.value)" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>TNA despues PE</span>
-                        <input type="text" style="text-align: right;" v-model="d_tna_despues"/>
+                        <input type="text" style="text-align: right;" :value="formatoTNA(d_tna_despues)"
+                            @input="actualizarTNA('despues', $event.target.value)" />
                     </div>
                 </div>
                  <div class="pure-u-1 pure-u-md-1-6">
