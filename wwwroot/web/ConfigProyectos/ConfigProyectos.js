@@ -419,23 +419,28 @@ export default {
         async exportExcelBanco(tabla) {
             let datos = JSON.parse(JSON.stringify(this.getFilteredList(tabla)));
             if (tabla == 'bancos') {
-                let keys = new Set(this.factores.map(f => f.factor));
-                datos.forEach(d => keys.forEach(k => d[k] = this.has_factor(d.id_banco, k) || "❌"));
+                let fact = new Set(this.factores.map(f => f.factor)),
+                    unds = new Set(this.factores.map(f => f.unidad));
+                datos.forEach(d => fact.forEach(f => d[f] = this.has_factor(d.id_banco, f) || "❌"));
                 datos = { Resumen: datos };
                 datos.Resumen.forEach(b => {
                     let tmp = [];
-                    this.tipos_factor.forEach(tf => {
-                        let obj = { "Fact./ millón": tf.tipo_factor };
-                        this.factores.forEach(f => {
-                            obj[`${f.factor} - ${f.unidad}`] = this.bancos_factores.find(bf =>
-                                bf.id_banco === b.id_banco && bf.id_tipo_factor === tf.id_tipo_factor && bf.id_factor === f.id_factor
-                            )?.valor || 0;
-                        });
-                        tmp.push(obj);
-                    })
+                    unds.forEach(u => {
+                        this.tipos_factor.forEach(tf => {
+                            let obj = { "Fact./ millón": tf.tipo_factor, "Divisa": u };
+                            fact.forEach(f => {
+                                let factor = this.factores.find(fac => fac.factor === f && fac.unidad === u);
+                                if (factor && factor.id_factor) {
+                                    obj[f] = this.bancos_factores.find(bf =>
+                                    bf.id_banco === b.id_banco && bf.id_tipo_factor === tf.id_tipo_factor && bf.id_factor === factor.id_factor
+                                )?.valor || 0;
+                                }
+                            });
+                            tmp.push(obj);
+                        })
+                    });
                     datos[b.banco] = tmp;
                 });
-                console.log(datos);
             }
             try {
                 showProgress();

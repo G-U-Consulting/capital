@@ -160,10 +160,8 @@ export default {
                             tmp.push(obj);
                         })
                     });
-                    
                     datos[b.banco] = tmp;
                 });
-                console.log(datos);
             }
             try {
                 showProgress();

@@ -945,6 +945,14 @@
 							apto[k] &&= this.formatDatetime(apto[k], 'date');
 						else if (k.startsWith('valor') || k.includes('area') || k.includes('observacion'))
 							apto[k] = apto[k].replace(',', '.');
+						else if (k === 'numero_apartamento') {
+							apto.apartamento = apto[k];
+							delete apto[k];
+						}
+						else if (k === 'idtorre') {
+							apto.torre = apto[k];
+							delete apto[k];
+						}
 					});
 				})
 				let archivo = (await httpFunc(`/util/Json2File/csv`, datos)).data;

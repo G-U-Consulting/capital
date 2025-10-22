@@ -23,12 +23,12 @@ select date_format(u.fecha_fec, '%Y-%m-%d %T') as fecha_fec,
         (select p.id_lista from fact_proyectos p where p.id_proyecto = u.id_proyecto), u.id_lista)
     ) as lista,
     tp.tipo_proyecto as clase,
-    u.*, c.*, e.estado_unidad as estatus, u.numero_apartamento as apartamento, t.consecutivo as torre
+    u.*, c.*, e.estado_unidad as estatus, u.numero_apartamento as apartamento, a.nombre as agrupacion
 from fact_unidades u 
 left join dim_estado_unidad e on u.id_estado_unidad = e.id_estado_unidad
 left join dim_cuenta_convenio c on u.id_cuenta_convenio = c.id_cuenta_convenio
 left join dim_tipo_proyecto tp on u.id_clase = tp.id_tipo_proyecto
-left join fact_torres t on u.id_torre = t.id_torre
+left join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
 where u.id_proyecto = @id_proyecto
 order by u.numero_apartamento;
 
@@ -52,7 +52,7 @@ group by tp.id_tipo_proyecto;
 
 /*
 select * from dim_agrupacion_unidad;
-select * from fact_unidades where id_proyecto = 5 limit 2000;
+select * from fact_unidades where id_proyecto = 2 limit 2000;
 select * from tmp_agrupaciones;
 update fact_unidades set id_agrupacion = null where id_proyecto=5;
 delete from dim_hito_cargo where id_hito in (select h.id_hito from fact_unidades u 

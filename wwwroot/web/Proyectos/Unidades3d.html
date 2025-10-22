@@ -324,13 +324,17 @@
                         <span style="font-size: 1.5em;">Unidades {{filters2text}}</span>
                         <div style="display: flex; gap: .5rem">
                             <div style="min-width: 150px;">
-                                <button @click="downloadAptos">Descargar CSV</button>
+                                <button @click="downloadAptos"
+                                    @mouseenter="tooltipVisible = true; tooltipMsg = 'Formato válido solo en Zona Asesores 2.0';"
+                                    @mouseleave="tooltipVisible = false;" @mousemove="updateCursorRight">
+                                    Descargar CSV
+                                </button>
                             </div>
-                            <div style="min-width: 150px;">
+                            <!-- <div style="min-width: 150px;">
                                 <label for="up-csv" class="file">Actualizar con CSV</label>
                                 <input id="up-csv" type="file" @input="handleChangeFile($event, true)"
                                     style="display: none;" accept=".csv" />
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                     <div class="pure-u-1-1">
