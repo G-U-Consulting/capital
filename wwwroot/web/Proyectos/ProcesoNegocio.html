@@ -547,7 +547,7 @@
                                 <th class="col-1-6">Cotización</th>
                                 <th class="col-1-6">Fecha</th>
                                 <th class="col-3-6">Descripción</th>
-                                <th class="col-1-6">Importe</th>
+                                <th class="col-1-6" title="Importe Menos Descuento Base.">Importe Menos Descuento Base</th>
                                 <th class="col-1-6">Eliminar</th>
                             </tr>
                         </thead>
@@ -589,7 +589,7 @@
                                 <th style="width: 15%;">Fecha</th>
                                 <th style="width: 35%;">Observación</th>
                                 <th style="width: 15%;">Importe</th>
-                                <th style="width: 15%;">Descuento</th>
+                                <th style="width: 15%;">Descuento Base</th>
                                 <th style="width: 10%;">Lista</th>
                                 <th style="width: 5%;">UT</th>
                                 <th style="width: 8%;">Eliminar</th>
@@ -654,12 +654,14 @@
             <!-- <div class='pure-u-1-1'>
                 <samp class="resaltado">{{ ObjCliente.nombres + " " + ObjCliente.apellido1 + " " +  ObjCliente.apellido2 }}</samp>
             </div> -->
-            <div class='pure-u-1-1 formDivision' style="display: flex; justify-content: space-between;">
-                <div class="pure-u-1 pure-u-md-6-8" style="display: flex;gap: .5rem;">
+            <div class="pure-u-1-1 formDivision"
+                style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+                <div class="pure-u-1 pure-u-md-1-2" style="display: flex; align-items: center; gap: .5rem;">
                     <span style="font-size: 1.2em;">Opcionar:</span>
                     <samp class="resaltado">{{ textoCotizacion }}</samp>
                 </div>
-                <div class="pure-u-1 pure-u-md-3-8" style="display: flex;gap: .5rem;">
+                <div class="pure-u-1 pure-u-md-1-2"
+                    style="display: flex; align-items: center; justify-content: flex-end; gap: .5rem; padding-right: .5rem;">
                     <span style="font-size: 1.2em;">Importe:</span>
                     <samp class="resaltado">{{ formatoMoneda(importeActiva) }}</samp>
                 </div>
@@ -793,7 +795,7 @@
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-1">
-                    <div class="pure-u-1 pure-u-md-1-8" style="margin-top: 1.5em">
+                    <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;" v-show="pagoSeleccionado === 'financiado'">
                                 <input type="checkbox" v-model="subsidioActivo" />
@@ -809,7 +811,7 @@
                                 @keyup="validarFormato" :disabled="!subsidioActivo || pagoSeleccionado === 'contado'" />
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-12">
+                    <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Año Entrega</span>
                             <select v-model="seleccionAnioEntrega" @change="calcularSubsidio" style="width: 100%;"
@@ -828,13 +830,13 @@
                                 :disabled="pagoSeleccionado === 'contado'" />
                         </div>
                     </div>
-                    <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                    <!-- <div class="pure-u-1-1 pure-u-md-1-24"></div> -->
                     <div class="pure-u-1-1 pure-u-md-1-6" style="margin-top: 1.5em">
                         <div class="formInputStandard">
-                            <span style="margin-top: .4em;">Caja de compensación:</span>
+                            <span style="margin-top: 0.4em;text-align: center;">Caja de compensación:</span>
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-4" style="margin-top: 1.5em">
+                    <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <select v-model="caja_compensacion" style="width: 100%;"
                                 :disabled="!subsidioActivo || pagoSeleccionado === 'contado'">
@@ -847,12 +849,20 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1-1 formDivision" style="font-size: 1.2em;">
+            <div class="pure-u-1-1 formDivision" style="font-size: 1.2em; display: flex;">
                 <div class="pure-u-1 pure-u-md-1-3">
-                    <span >Importe Financiable: <span class="resaltado">{{ formatoMoneda(valor_credito) }}</span></span>
+                    <span style="display: flex; justify-content: space-between; width: 100%;">
+                        <span>Importe Financiable:</span>
+                        <span class="resaltado">{{ formatoMoneda(valor_credito) }}</span>
+                    </span>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-2">
-                    <span >Cuota Inicial después de subsidio, cesantías y/o ahorros: <span class="resaltado">{{ formatoMoneda(cuota_inicial) }}</span></span>
+                <div class="pure-u-1 pure-u-md-1-12">
+                </div>
+                <div class="pure-u-1 pure-u-md-1-1">
+                    <span style="display: flex; justify-content: space-between; width: 100%;padding-right: .5rem">
+                        <span>Cuota Inicial después de subsidio, reformas, acabados, cesantías y/o ahorros:</span>
+                        <span class="resaltado">{{ formatoMoneda(cuota_inicial) }}</span>
+                    </span>
                 </div>
             </div>
             <div class="pure-u-1-1 pure-u-md-1-1">
@@ -909,28 +919,34 @@
                             <table class="dataTable">
                                 <thead>
                                     <tr>
-                                        <th>Periodo</th>
-                                        <th>Fecha</th>
-                                        <th>Saldo Inicial Periodo</th>
-                                        <th>TNA</th>
-                                        <th>Cuota deseada</th>
-                                        <th>Cuota Calculada</th>
-                                        <th>Intereses</th>
-                                        <th>Principal</th>
-                                        <th>Saldo Final</th>
+                                        <th style="width: 8%;">Periodo</th>
+                                        <th style="width: 8%;">Fecha</th>
+                                        <th style="width: 12%;">Saldo Inicial Periodo</th>
+                                        <th style="width: 8%;">TNA</th>
+                                        <th style="width: 8%;">Cuota deseada</th>
+                                        <th style="width: 10%;">Cuota Calculada</th>
+                                        <th style="width: 8%;">Intereses</th>
+                                        <th style="width: 8%;">Principal</th>
+                                        <th style="width: 8%;">Saldo Final</th>
+                                        <th style="width: 22%;">Nota</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(fila, index) in tablaPeriodos" :key="index">
                                         <td>{{ fila.periodo }}</td>
                                         <td>{{ fila.fecha }}</td>
-                                        <td>{{ formatoMoneda(fila.saldo_inicial) }}</td>
+                                        <td style="text-align: right;">{{ formatoMoneda(fila.saldo_inicial) }}</td>
                                         <td>{{ fila.tna }}</td>
-                                        <td>{{ formatoMoneda(fila.cuota_deseada) }}</td>
-                                        <td>{{ formatoMoneda(fila.cuota_calculada) }}</td>
-                                        <td>{{ formatoMoneda(fila.intereses) }}</td>
-                                        <td>{{ formatoMoneda(fila.principal) }}</td>
-                                        <td>{{ formatoMoneda(fila.saldo_final) }}</td>
+                                        <td>
+                                            <input type="text" v-model="fila.cuota_deseada" @input="recalcularFila(index)" class="input-cuota"
+                                                :class="{'input-modificado': fila.cuota_deseada && Number(fila.cuota_deseada.toString().replace(/\D/g, '')) > 0}"
+                                                @keyup="validar(index)" />
+                                        </td>
+                                        <td style="text-align: right;">{{ formatoMoneda(fila.cuota_calculada) }}</td>
+                                        <td style="text-align: right;">{{ formatoMoneda(fila.intereses) }}</td>
+                                        <td style="text-align: right;">{{ formatoMoneda(fila.principal) }}</td>
+                                        <td style="text-align: right;">{{ formatoMoneda(fila.saldo_final) }}</td>
+                                        <td><input type="text" class="input-cuota"></td>
                                     </tr>
                                 </tbody>
                             </table>
