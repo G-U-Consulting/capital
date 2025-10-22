@@ -24,5 +24,3 @@ from dim_banco_factor g left join dim_banco_factor c
 on g.id_banco = c.id_banco and g.id_factor = c.id_factor and g.id_tipo_factor = c.id_tipo_factor and c.id_proyecto = @id_proyecto
 where g.id_proyecto is null and g.id_banco in 
 (select bf.id_banco_financiador from fact_banco_financiador bf where id_proyecto = @id_proyecto);
-
-select * from fact_unidades where id_unidad = 131319;

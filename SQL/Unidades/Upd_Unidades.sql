@@ -7,7 +7,7 @@ set @id_proyecto = NULL,
     @Usuario = '';
 --END_PARAM
 drop table if exists tmp_unidades;
-create table tmp_unidades as(
+create temporary table tmp_unidades as(
     select *, convert(null, int) as id_torre, convert(null, int) as id_cuenta_convenio, convert(null, int) as id_unidad, 
     convert(null, int) as id_parqueadero, convert(null, int) as id_parqueadero2, convert(null, int) as id_deposito
     from json_table(@unidades, '$[*].pisos[*].unidades[*]' columns( 
@@ -276,16 +276,7 @@ set a.id_unidad = b.id_unidad;
 select if(not exists (select 1 from tmp_unidades where agrupacion is not null), 0, 1) into @new_format;
 
 if @new_format = 1 then
-    /* insert ignore into dim_agrupacion_unidad (id_proyecto, nombre, descripcion)
-    select distinct @id_proyecto, trim(t.agrupacion), 
-        (select group_concat(concat(tp.codigo, ' ', tmp.apartamento)
-            order by tp.codigo, convert(tmp.apartamento as unsigned) separator ', ')
-         from tmp_unidades tmp
-         left join dim_tipo_proyecto tp on tmp.clase = tp.tipo_proyecto 
-         where tmp.agrupacion = t.agrupacion
-         group by tmp.agrupacion) as descripcion
-    from tmp_unidades t
-    where t.agrupacion is not null and trim(t.agrupacion) <> ''; */
+
     INSERT IGNORE INTO dim_agrupacion_unidad (id_proyecto, nombre, descripcion)
     SELECT
     @id_proyecto AS id_proyecto,
@@ -408,7 +399,7 @@ else
 
 
     drop table if exists tmp_agrupaciones;
-    create table tmp_agrupaciones as (
+    create temporary table tmp_agrupaciones as (
     select (select concat(tp.codigo, ' ', u.numero_apartamento, ' - T', ft.consecutivo) from fact_unidades u 
             join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad) as grupo, 
         id_unidad, id_parqueadero, id_parqueadero2, id_deposito 
