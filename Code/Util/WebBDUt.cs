@@ -648,7 +648,7 @@ public static class WebBDUt {
         return dataSet;
     }
 
-    public static JObject SetJsonToFile(string json, bool isCsv) {
+    public static JObject SetJsonToFile(string json, bool isCsv, string filename) {
         DataSet ds = new();
         JToken jt = JToken.Parse(json);
         if (jt is JArray)
@@ -669,8 +669,8 @@ public static class WebBDUt {
             }
         }
         if (isCsv)
-                return SetToFile(ds, true, true);
-        return SetToFile(ds, false);
+                return SetToFile(ds, true, true, filename);
+        return SetToFile(ds, false, filename);
     }
     public static string ExcelToJson(string path)
     {
@@ -712,11 +712,11 @@ public static class WebBDUt {
         }
         return json;
     }
-    public static JObject SetToFile(DataSet ds, bool isTxt)
+    public static JObject SetToFile(DataSet ds, bool isTxt, string? filename)
     {
-        return SetToFile(ds, isTxt, false);
+        return SetToFile(ds, isTxt, false, filename);
     }
-    public static JObject SetToFile(DataSet ds, bool isTxt, bool isCsv)
+    public static JObject SetToFile(DataSet ds, bool isTxt, bool isCsv, string? filename)
     {
         JObject ret = [];
         string message = null;
@@ -736,9 +736,9 @@ public static class WebBDUt {
             message = ds.Tables[0].Rows[0][0].ToString();
         else if (isTxt)
         {
-            string url = Guid.NewGuid().ToString() + (isCsv ? ".csv" : ".txt");
+            string url = (filename == "" || filename == null ? Guid.NewGuid().ToString() : filename) + (isCsv ? ".csv" : ".txt");
             string fileUri = Path.Combine(RootPath, "wwwroot", "docs", url);
-            using (StreamWriter file = new StreamWriter(fileUri, false, Encoding.UTF8))
+            using (StreamWriter file = new(fileUri, false, Encoding.UTF8))
             {
                 DataTable dt = ds.Tables[0];
                 String Data = ToCsv(dt);
@@ -757,7 +757,7 @@ public static class WebBDUt {
                     dt.TableName = "Hoja" + (i + 1);
                 wp.AddWorksheet(dt);
             }
-            string url = Guid.NewGuid().ToString() + ".xlsx";
+            string url = (filename == "" || filename == null ? Guid.NewGuid().ToString() : filename) + ".xlsx";
             wp.SaveAs(Path.Combine(RootPath, "wwwroot", "docs", url));
             retUrl = url;
         }

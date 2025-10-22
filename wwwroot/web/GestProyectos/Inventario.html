@@ -34,24 +34,24 @@
                 <select v-model="selSala" @change="selPro = {}; selTorre = {}; unidades = []">
                     <option :value="{}">[Salas]</option>
                     <option v-for="s in salas
-                            .filter(i => (!selSede.id_sede || i.id_sede === selSede.id_sede)
-                                && (!selZona.id_zona_proyecto || i.id_zona_proyecto === selZona.id_zona_proyecto)
-                                && (!selCiu.id_ciudadela || i.id_ciudadela === selCiu.id_ciudadela))" :value="s">
+                            .filter(i => (!selSede.id || i.id_sede === selSede.id)
+                                && (!selZona.id || i.id_zona_proyecto === selZona.id)
+                                && (!selCiu.id || i.id_ciudadela === selCiu.id))" :value="s">
                         {{s.sala_venta}}
                     </option>
                 </select>
                 <select v-model="selPro" @change="loadTorres(selPro)">
                     <option :value="{}">[Proyectos]</option>
                     <option v-for="p in proyectos
-                            .filter(i => (!selSede.id_sede || i.id_sede === selSede.id_sede)
-                                && (!selZona.id_zona_proyecto || i.id_zona_proyecto === selZona.id_zona_proyecto)
-                                && (!selCiu.id_ciudadela || i.id_ciudadela === selCiu.id_ciudadela)
-                                && (!selSala.id_sala_venta || selSala.ids_proyectos.includes(i.id_proyecto)))"
+                            .filter(i => (!selSede.id || i.id_sede === selSede.id)
+                                && (!selZona.id || i.id_zona_proyecto === selZona.id)
+                                && (!selCiu.id || i.id_ciudadela === selCiu.id)
+                                && (!selSala.ids_proyectos || selSala.ids_proyectos.includes(i.id_proyecto)))"
                         :value="p">
                         {{p.nombre}}
                     </option>
                 </select>
-                <select v-model="selTorre" @change="loadUnidades(selTorre)">
+                <select v-model="selTorre" @change="filtros.unidades.id_torre = selTorre.id_torre;">
                     <option :value="{}">[Torres]</option>
                     <option v-for="t in selPro.torres" :value="t">
                         {{t.consecutivo}}

@@ -7,7 +7,7 @@ set @id_proyecto = NULL,
     @Usuario = '';
 --END_PARAM
 drop table if exists tmp_unidades;
-create temporary table tmp_unidades as(
+create table tmp_unidades as(
     select *, convert(null, int) as id_torre, convert(null, int) as id_cuenta_convenio, convert(null, int) as id_unidad, 
     convert(null, int) as id_parqueadero, convert(null, int) as id_parqueadero2, convert(null, int) as id_deposito
     from json_table(@unidades, '$[*].pisos[*].unidades[*]' columns( 
@@ -166,7 +166,7 @@ select coalesce(codigo, 'APT') into @cod_apt from dim_tipo_proyecto where id_tip
 insert into fact_unidades(
     id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
-    valor_separacion, valor_acabados, valor_reformas, valor_descuento, pate, id_cuenta_convenio, asoleacion, altura, id_clase, id_lista, cerca_porteria, 
+    valor_separacion, valor_acabados, valor_reformas, valor_descuento, valor_complemento, pate, id_cuenta_convenio, asoleacion, altura, id_clase, id_lista, cerca_porteria, 
     cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, id_agrupacion, created_by 
 ) 
 select distinct
@@ -202,6 +202,7 @@ select distinct
     convert(replace(t.valor_acabados, ',', '.'), decimal(20, 2)) as valor_acabados,
     convert(replace(t.valor_reformas, ',', '.'), decimal(20, 2)) as valor_reformas,
     convert(replace(t.valor_descuento, ',', '.'), decimal(20, 2)) as valor_descuento,
+    convert(replace(t.valor_complemento, ',', '.'), decimal(20, 2)) as valor_complemento,
     t.pate as pate,
     t.id_cuenta_convenio as id_cuenta_convenio,
     t.asoleacion as asoleacion,
@@ -246,6 +247,7 @@ on duplicate key update
     valor_acabados = values(valor_acabados),
     valor_reformas = values(valor_reformas),
     valor_descuento = values(valor_descuento),
+    valor_complemento = values(valor_complemento),
     pate = values(pate),
     id_cuenta_convenio = values(id_cuenta_convenio),
     asoleacion = values(asoleacion),
@@ -265,7 +267,9 @@ on duplicate key update
     updated_on = current_timestamp;
 
 update tmp_unidades a
-    join fact_unidades b on a.id_torre = b.id_torre and a.apartamento = b.numero_apartamento and b.id_proyecto = @id_proyecto
+left join dim_tipo_proyecto tp on trim(a.clase) = tp.tipo_proyecto
+join fact_unidades b on a.id_torre = b.id_torre and a.apartamento = b.numero_apartamento 
+    and b.id_proyecto = @id_proyecto and tp.id_tipo_proyecto = b.id_clase
 set a.id_unidad = b.id_unidad;
 
 
@@ -286,7 +290,7 @@ if @new_format = 1 then
     SELECT
     @id_proyecto AS id_proyecto,
     TRIM(t.agrupacion) AS nombre,
-    GROUP_CONCAT(CONCAT(COALESCE(tp.codigo, ''), ' ', t.apartamento)
+    GROUP_CONCAT(CONCAT(COALESCE(tp.codigo, ''), ': ', t.apartamento)
                 ORDER BY COALESCE(tp.codigo, ''), CAST(t.apartamento AS UNSIGNED)
                 SEPARATOR ', ') AS descripcion
     FROM tmp_unidades t
@@ -295,7 +299,6 @@ if @new_format = 1 then
     WHERE t.agrupacion IS NOT NULL
     AND TRIM(t.agrupacion) <> ''
     GROUP BY TRIM(t.agrupacion);
-
 
     update fact_unidades u
     join tmp_unidades t on t.id_unidad = u.id_unidad
@@ -405,7 +408,7 @@ else
 
 
     drop table if exists tmp_agrupaciones;
-    create temporary table tmp_agrupaciones as (
+    create table tmp_agrupaciones as (
     select (select concat(tp.codigo, ' ', u.numero_apartamento, ' - T', ft.consecutivo) from fact_unidades u 
             join fact_torres ft on u.id_torre = ft.id_torre where u.id_unidad = t.id_unidad) as grupo, 
         id_unidad, id_parqueadero, id_parqueadero2, id_deposito 
@@ -414,8 +417,7 @@ else
     where (t.parqueadero is not null and t.parqueadero != '' and t.parqueadero != '0')
         or (t.parqueadero2 is not null and t.parqueadero2 != '' and t.parqueadero2 != '0')
         or (t.deposito is not null and t.deposito != '' and t.deposito != '0')
-    ); 
-;
+    );
 
     update fact_unidades u
     join tmp_agrupaciones t on u.id_unidad in (t.id_unidad, t.id_parqueadero, t.id_parqueadero2, t.id_deposito)

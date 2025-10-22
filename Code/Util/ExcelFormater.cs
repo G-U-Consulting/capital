@@ -273,8 +273,16 @@ namespace capital.Code.Util {
                             field.HeaderCell.Value = name.Replace("_", " ");
                         }
                     }
-                Common_Formats(ws, table);
+                    Common_Formats(ws, table);
                 }
+                IXLRange titleRange = ws.Range("B1:I1");
+                titleRange.Merge();
+                titleRange.Value = ws.Name;
+                titleRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                titleRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                titleRange.Style.Font.FontSize = 14;
+                titleRange.Style.Font.Bold = true;
+
             }
 
             workbook.Save();

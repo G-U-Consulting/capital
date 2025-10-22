@@ -87,14 +87,14 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
-app.Map("/util/Json2File/{type}", async (HttpRequest request, HttpResponse response, string type) => {
+app.Map("/util/Json2File/{type}/{filename?}", async (HttpRequest request, HttpResponse response, string type, string? filename) => {
     string body = "";
     try {
         response.ContentType = "application/json";
         using (var stream = new StreamReader(request.Body)) {
             body = await stream.ReadToEndAsync();
         }
-        return WebBDUt.SetJsonToFile(body, type == "csv").ToString(Newtonsoft.Json.Formatting.None);
+        return WebBDUt.SetJsonToFile(body, type == "csv", filename).ToString(Newtonsoft.Json.Formatting.None);
     } catch (Exception ex) {
         Logger.Log("util/Json2File    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;

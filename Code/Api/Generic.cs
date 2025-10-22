@@ -28,7 +28,7 @@ namespace orca.Code.Api {
                 if (op != null && (op.StartsWith("generic") || op == "exportData" || op == "exportDataSP" || op == "executeSP") && data != null) {
                     if (connectionString != null) {
                         if (op == "exportData") {
-                            return WebBDUt.SetToFile(await WebBDUt.ExecuteLocalSQL<DataSet>(sp, data, connectionString), sp.ToLower().Contains("txt"));
+                            return WebBDUt.SetToFile(await WebBDUt.ExecuteLocalSQL<DataSet>(sp, data, connectionString), sp.ToLower().Contains("txt"), null);
                         } else if (op == "exportDataSP") {
                             string fileType = "", delimiter = ",";
                             if (data.ContainsKey("fileType"))
@@ -38,7 +38,7 @@ namespace orca.Code.Api {
                             if (fileType == "csv")
                                 return await WebBDUt.ExecuteSpToCSV(sp, data, delimiter, true, false, null, connectionString);
                             else
-                                return WebBDUt.SetToFile(await WebBDUt.ExecuteLocalSQL<DataSet>(sp, data, connectionString), sp.ToLower().Contains("txt"));
+                                return WebBDUt.SetToFile(await WebBDUt.ExecuteLocalSQL<DataSet>(sp, data, connectionString), sp.ToLower().Contains("txt"), null);
 
                         } else if (op == "executeSP") {
                             return WebBDUt.setToJObject(await WebBDUt.ExecuteSP<DataSet>(sp, data, connectionString));
@@ -64,7 +64,7 @@ namespace orca.Code.Api {
                     else*/
                         await WebBDUt.LoadTableFromText(fileName, data["table"].Value<string>(), true, data["header"].Value<bool>(), data["separator"].Value<string>(), connectionString);
                     File.Delete(fileName);
-                    return WebBDUt.SetToFile(await WebBDUt.ExecuteSP<DataSet>(sp, data, connectionString), sp.ToLower().Contains("txt")).ToString(Newtonsoft.Json.Formatting.None);
+                    return WebBDUt.SetToFile(await WebBDUt.ExecuteSP<DataSet>(sp, data, connectionString), sp.ToLower().Contains("txt"), null).ToString(Newtonsoft.Json.Formatting.None);
                 }/* else if (op == "getLoginData") {
                     JObject ret = new JObject();
                     ret["user"] = HttpContext.Current.User.Identity.Name;

@@ -33,7 +33,7 @@ export default {
             optVisible: false,
             filMode: 'week',
             filtros: {
-                unidades: { gestionado_por: '' }
+                unidades: { gestionado_por: '', id_torre: '' }
             },
             filFecha1: this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7)),
             filFecha2: this.formatDatetime('', 'bdate', new Date()),
@@ -79,13 +79,15 @@ export default {
             if (pro && pro.id_proyecto) {
                 showProgress();
                 delete this.filtros.unidades.id_tipo;
-                [pro.torres, this.tipos] = (await httpFunc("/generic/genericDS/Gestion:Get_Torres", { id_proyecto: pro.id_proyecto })).data;
+                [pro.torres, this.tipos, this.unidades] = (await httpFunc("/generic/genericDS/Gestion:Get_Torres", { id_proyecto: pro.id_proyecto })).data;
                 this.selTorre = {};
-                this.unidades = [];
+                this.filtros.unidades.id_torre = '';
+                pro.torres.forEach(t => t.unidades = this.unidades.filter(u => u.id_torre === t.id_torre));
                 hideProgress();
             }
         },
-        async loadUnidades(torre) {
+        /* async loadUnidades(torre) {
+            this.filtros.unidades.id_torre = torre.id_torre;
             if (torre && torre.id_torre) {
                 if (torre.unidades && torre.unidades.length)
                     this.unidades = torre.unidades;
@@ -96,7 +98,7 @@ export default {
                     hideProgress();
                 }
             }
-        },
+        }, */
         async onSelect(und) {
             this.unidad = {};
             if (!und.logs)

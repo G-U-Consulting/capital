@@ -153,8 +153,8 @@ export default {
                                 let factor = this.factores.find(fac => fac.factor === f && fac.unidad === u);
                                 if (factor && factor.id_factor) {
                                     obj[f] = this.bancos_factores.find(bf =>
-                                    bf.id_banco === b.id_banco && bf.id_tipo_factor === tf.id_tipo_factor && bf.id_factor === factor.id_factor
-                                )?.valor || 0;
+                                        bf.id_banco === b.id_banco && bf.id_tipo_factor === tf.id_tipo_factor && bf.id_factor === factor.id_factor
+                                    )?.valor || 0;
                                 }
                             });
                             tmp.push(obj);
@@ -165,7 +165,7 @@ export default {
             }
             try {
                 showProgress();
-                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var archivo = (await httpFunc(`/util/Json2File/excel/bancos_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
                 var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoBancos" })).data;
                 window.open("./docs/" + archivo, "_blank");
             }
