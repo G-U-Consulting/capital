@@ -31,7 +31,7 @@ async function httpFunc(path, data, getID = false) {
             if (operacion.includes('Upd') || operacion.includes('Ins') || operacion.includes('Del')){
                 registro = {
                     operacion,
-                    datos: JSON.stringify(data),
+                    datos: operacion === 'Unidades:Upd_Unidades' ? JSON.stringify(data).substr(0, 255) : JSON.stringify(data),
                     username: GlobalVariables.username
                 };
                 if(resp.data.isError || !resp.data.data.startsWith('OK')) {

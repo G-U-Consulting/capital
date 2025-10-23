@@ -38,6 +38,7 @@
 			viewList: null,
 			selTipo: null,
 			listFromCSV: false,
+			dataUpdate: false,
 			loading: true,
 			loadingImg: true,
 			playIndex: null,
@@ -301,6 +302,7 @@
 				t_torres.forEach(item => item.pisos.sort((a, b) => a.idpiso - b.idpiso));
 				this.tabmode = -1;
 				this.mode = 1;
+				this.dataUpdate = update;
 				if (update) return t_torres;
 				else this.torres = t_torres;
 			} catch (error) {
@@ -315,7 +317,8 @@
 				res = await (httpFunc(`/generic/genericST/Unidades:Upd_Unidades`, {
 					id_proyecto: GlobalVariables.id_proyecto,
 					unidades: JSON.stringify(data),
-					Usuario: GlobalVariables.username
+					Usuario: GlobalVariables.username,
+					is_create: this.dataUpdate ? '0' : '1'
 				}));
 				if (res.isError || res.data !== 'OK') throw res;
 				await this.loadUnidades(true);
@@ -662,10 +665,16 @@
 			}
 			if (this.agrupaciones.length) {
 				let id = this.getFilteredList('agrupaciones')[i].id_agrupacion + '';
-				this.selectedAptos = this.aptos.filter(a => a.id_agrupacion === id).sort((a, b) => {
-					if (a.clase == b.clase) return Number(a.numero_apartamento) - Number(b.numero_apartamento);
-					else return a.clase.localeCompare(b.clase);
-				});
+				this.selectedAptos = this.aptos
+					.filter(a => a.id_agrupacion === id)
+					.sort((a, b) => {
+						const claseCompare = a.clase.localeCompare(b.clase);
+						if (claseCompare !== 0) return claseCompare;
+						const numA = parseInt(a.numero_apartamento, 10);
+						const numB = parseInt(b.numero_apartamento, 10);
+						if (numA !== numB) return numA - numB;
+						return a.numero_apartamento.localeCompare(b.numero_apartamento);
+					});
 				this.selRow3 = i;
 				this.groupedAptos = this.aptos.filter(a => !a.id_agrupacion || a.id_agrupacion === id);
 			}
@@ -956,8 +965,8 @@
 					});
 				})
 				let archivo = (await httpFunc(`/util/Json2File/csv/unidades_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
-				console.log(archivo);
 				window.open("./docs/" + archivo, "_blank");
+				showMessage('Formato válido solo en Zona Asesores 2.0');
 			}
 			catch (e) {
 				console.error(e);

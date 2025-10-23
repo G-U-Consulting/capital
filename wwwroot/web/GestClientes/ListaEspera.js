@@ -67,7 +67,13 @@ export default {
             });
             this.pisos = pisos.sort((a, b) => Number(a) - Number(b));
             this.torres = this.torres.sort((a, b) => Number(a.consecutivo) - Number(b.consecutivo));
-            this.aptos = this.aptos.sort((a, b) => Number(a.numero_apartamento) - Number(b.numero_apartamento));
+            this.aptos = this.aptos.sort((a, b) => {
+                const numA = parseInt(a.numero_apartamento, 10);
+                const numB = parseInt(b.numero_apartamento, 10);
+                if (numA !== numB)
+                    return numA - numB;
+                return a.numero_apartamento.localeCompare(b.numero_apartamento);
+            });
             this.tipos = this.tipos.sort((a, b) => a.tipo.localeCompare(b.tipo));
             this.localizaciones = localizaciones;
             hideProgress();

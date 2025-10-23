@@ -30,7 +30,7 @@ left join dim_cuenta_convenio c on u.id_cuenta_convenio = c.id_cuenta_convenio
 left join dim_tipo_proyecto tp on u.id_clase = tp.id_tipo_proyecto
 left join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
 where u.id_proyecto = @id_proyecto
-order by u.numero_apartamento;
+order by cast(u.numero_apartamento as unsigned), u.numero_apartamento;
 
 select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente
 from dim_estado_unidad

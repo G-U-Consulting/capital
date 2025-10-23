@@ -26,7 +26,7 @@ join fact_proyectos p on t.id_proyecto = p.id_proyecto
 join dim_sala_proyecto sp on p.id_proyecto = sp.id_proyecto
 left join dim_tipo_proyecto tp on un.id_clase = tp.id_tipo_proyecto
 where sp.id_sala_venta = @id_sala_venta and p.is_active = 1
-order by p.id_proyecto, t.consecutivo, coalesce(tp.codigo, ''), un.numero_apartamento;
+order by p.id_proyecto, t.consecutivo, coalesce(tp.codigo, ''), cast(un.numero_apartamento as unsigned), un.numero_apartamento;
 
 select id_cargo, cargo, `Descripcion` as descripcion 
 from dim_cargo

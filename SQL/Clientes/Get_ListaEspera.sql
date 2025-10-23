@@ -29,7 +29,7 @@ left join dim_estado_unidad e on u.id_estado_unidad = e.id_estado_unidad
 left join dim_cuenta_convenio c on u.id_cuenta_convenio = c.id_cuenta_convenio
 left join dim_tipo_proyecto tp on u.id_clase = tp.id_tipo_proyecto
 where u.id_proyecto = @id_proyecto
-order by u.numero_apartamento;
+order by cast(u.numero_apartamento as unsigned), u.numero_apartamento;
 
 select tp.id_tipo_proyecto as id_clase, tp.tipo_proyecto as clase
 from fact_unidades u 

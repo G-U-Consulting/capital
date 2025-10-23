@@ -74,13 +74,15 @@ if @idcuenta is null then
 end if;
 
 update fact_unidades 
-set fecha_fec = @fecha_fec, 
-    fecha_edi = @fecha_edi, 
-    fecha_edi_mostrar = @fecha_edi_mostrar,
+set fecha_fec = if(@fecha_fec = '', NULL, @fecha_fec), 
+    fecha_edi = if(@fecha_edi = '', NULL, @fecha_edi), 
+    fecha_edi_mostrar = if(@fecha_edi_mostrar = '', NULL, @fecha_edi_mostrar),
     id_proyecto = @id_proyecto, 
     id_torre = @torreid, 
     id_estado_unidad = @id_estado_unidad,
-    nombre_unidad = concat('Apto ', @apartamento),
+    nombre_unidad = concat(
+        (select coalesce(tp.codigo, '') from dim_tipo_proyecto tp 
+            where tp.id_tipo_proyecto = id_clase), ' ', @apartamento),
     numero_apartamento = @apartamento, 
     piso = @piso,
     tipo = (select tu.tipo from dim_tipo_unidad tu where tu.id_tipo = @id_tipo), 

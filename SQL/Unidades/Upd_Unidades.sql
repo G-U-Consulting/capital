@@ -4,7 +4,8 @@
 --START_PARAM
 set @id_proyecto = NULL,
     @unidades = '',
-    @Usuario = '';
+    @Usuario = '',
+    @is_create = NULL;
 --END_PARAM
 drop table if exists tmp_unidades;
 create temporary table tmp_unidades as(
@@ -103,25 +104,24 @@ LEFT JOIN fact_torres b
     ON b.id_proyecto = @id_proyecto AND datos.torre = b.consecutivo
 WHERE b.id_torre IS NULL;
 
-
-UPDATE fact_torres a
-JOIN (
-    SELECT torre, MAX(aptos_por_piso) AS max_aptos
-    FROM (
-        SELECT t.torre, t.piso, COUNT(*) AS aptos_por_piso
-        FROM tmp_unidades t
-        left join dim_tipo_proyecto tp on t.clase = tp.tipo_proyecto
-        where tp.id_tipo_proyecto = 8
-        GROUP BY t.torre, t.piso
-    ) AS pisos
-    GROUP BY torre
-) AS resumen ON a.consecutivo = resumen.torre
-SET a.aptos_piso = resumen.max_aptos,
-    a.orden_salida = a.consecutivo
-WHERE a.id_proyecto = @id_proyecto;
-
-
-update fact_torres set aptos_fila = aptos_piso where id_proyecto = @id_proyecto;
+if @is_create = '1' then
+    UPDATE fact_torres a
+    JOIN (
+        SELECT torre, MAX(aptos_por_piso) AS max_aptos
+        FROM (
+            SELECT t.torre, t.piso, COUNT(*) AS aptos_por_piso
+            FROM tmp_unidades t
+            left join dim_tipo_proyecto tp on t.clase = tp.tipo_proyecto
+            where tp.id_tipo_proyecto = 8
+            GROUP BY t.torre, t.piso
+        ) AS pisos
+        GROUP BY torre
+    ) AS resumen ON a.consecutivo = resumen.torre
+    SET a.aptos_piso = resumen.max_aptos,
+        a.orden_salida = a.consecutivo
+    WHERE a.id_proyecto = @id_proyecto;
+    update fact_torres set aptos_fila = aptos_piso where id_proyecto = @id_proyecto;
+end if;
 
 update tmp_unidades a join fact_torres b on a.torre = b.consecutivo
 set a.id_torre = b.id_torre
@@ -179,7 +179,7 @@ select distinct
         (select coalesce(tp.codigo, @cod_apt) 
             from dim_tipo_proyecto tp 
             where tp.tipo_proyecto = t.clase), @cod_apt), ' ', t.apartamento) as nombre_unidad,
-    convert(t.apartamento, int) as numero_apartamento,
+    t.apartamento as numero_apartamento,
     convert(t.piso, int) as piso,
     t.tipo as tipo,
     if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta) as codigo_planta,
@@ -187,9 +187,9 @@ select distinct
         if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta) and tu.id_proyecto = @id_proyecto) as id_tipo,
     t.localizacion as localizacion,
     left(t.observacion_apto, 500) as observacion_apto,
-    str_to_date(t.fecha_fec, '%d/%m/%Y') as fecha_fec,
-    str_to_date(t.fecha_edi, '%d/%m/%Y') as fecha_edi,
-    str_to_date(t.fecha_edi_mostrar, '%d/%m/%Y') as fecha_edi_mostrar,
+    str_to_date(if(t.fecha_fec = '', null, t.fecha_fec), '%d/%m/%Y') as fecha_fec,
+    str_to_date(if(t.fecha_edi = '', null, t.fecha_edi), '%d/%m/%Y') as fecha_edi,
+    str_to_date(if(t.fecha_edi_mostrar = '', null, t.fecha_edi_mostrar), '%d/%m/%Y') as fecha_edi_mostrar,
     convert(t.inv_terminado, unsigned) as inv_terminado,
     convert(t.num_alcobas, int) as num_alcobas,
     convert(t.num_banos, int) as num_banos,
@@ -306,7 +306,7 @@ else
         @id_proyecto as id_proyecto,
         t.id_torre as id_torre,
         concat(coalesce(@cod_clase_prq, ''), ' ', t.parqueadero) as nombre_unidad,
-        convert(t.parqueadero, int) as numero_apartamento,
+        t.parqueadero as numero_apartamento,
         convert(t.parqueadero_ubicacion, int) as piso,
         convert(replace(t.parqueadero_area, ',', '.'), decimal(20, 2)) as area_total,
         convert(replace(t.valor_parqueadero, ',', '.'), decimal(20, 2)) as valor_complemento,
@@ -329,7 +329,7 @@ else
         @id_proyecto as id_proyecto,
         t.id_torre as id_torre,
         concat(coalesce(@cod_clase_prq, ''), ' ', t.parqueadero2) as nombre_unidad,
-        convert(t.parqueadero2, int) as numero_apartamento,
+        t.parqueadero2 as numero_apartamento,
         convert(t.parqueadero2_ubicacion, int) as piso,
         convert(replace(t.parqueadero2_area, ',', '.'), decimal(20, 2)) as area_total,
         convert(replace(t.valor_parqueadero2, ',', '.'), decimal(20, 2)) as valor_complemento,
@@ -354,7 +354,7 @@ else
         @id_proyecto as id_proyecto,
         t.id_torre as id_torre,
         concat(coalesce(@cod_clase_dep, ''), ' ', t.deposito) as nombre_unidad,
-        convert(t.deposito, int) as numero_apartamento,
+        t.deposito as numero_apartamento,
         convert(t.deposito_ubicacion, int) as piso,
         convert(replace(t.deposito_area, ',', '.'), decimal(20, 2)) as area_total,
         convert(replace(t.valor_deposito, ',', '.'), decimal(20, 2)) as valor_complemento,

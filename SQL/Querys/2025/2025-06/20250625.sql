@@ -100,7 +100,7 @@ create table fact_unidades(
 	id_estado_unidad int,
 	constraint fk_id_estado_unidad_fact_unidades foreign key(id_estado_unidad) references dim_estado_unidad(id_estado_unidad),
 	nombre_unidad varchar(50),
-	numero_apartamento int,
+	numero_apartamento varchar(10),
 	piso int,
 	id_tipo int references dim_tipo_unidad(id_tipo),
 	codigo_planta varchar(50),
@@ -144,7 +144,7 @@ create table fact_unidades(
 	updated_on datetime default current_timestamp,
 	updated_by varchar(200),
 	id_agrupacion int references dim_agrupacion_unidad(id_agrupacion),
-	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto, clase)
+	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto, id_clase)
 );
 alter table fact_unidades add column id_clase int references dim_tipo_proyecto(id_tipo_proyecto);
 create table dim_precio_unidad(
