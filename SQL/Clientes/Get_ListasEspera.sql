@@ -5,7 +5,7 @@
 
 --END_PARAM
 
-select date_format(l.created_on, '%d/%m/%Y') as created_on, l.*, coalesce(c.email1, email2) as email, 
+select date_format(l.created_on, '%Y-%m-%d') as created_on, l.*, coalesce(c.email1, email2) as email, 
     coalesce(c.telefono1, c.telefono2) as telefono, c.numero_documento,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
     c.nombres, c.apellido1, c.apellido2, u.nombres as nombre_asesor, p.nombre as proyecto 

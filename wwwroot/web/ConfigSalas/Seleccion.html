@@ -216,18 +216,20 @@
                     </option>
                 </select>
             </div>
-            <div class="formInputStandard pure-u-1-2 pure-u-md-1-4" v-if="mode == 2">
+            <div class="formInputStandard pure-u-1-2 pure-u-md-1-5" v-if="mode == 2">
                 <button style="margin-top: 1.5rem;" @click="addProjects">Asignar</button>
             </div>
-            <div class="pure-u-1-2 pure-u-md-1-6">
-                <label class="check" for="pro_futuros" style="margin-top: 1.8rem;" 
+            <div style="width: calc(100% * 4 / 15); display: flex; justify-content: space-evenly; align-items: center; padding: 1.5rem .5rem 0; gap: 20%;">
+                <label class="check" for="pro_futuros" 
                     :style="mode == 1 ? 'margin: .5rem;': ''">
                     <input type='checkbox' value='0' id='pro_futuros' @change="onChangePF" :checked="sala_venta.pro_futuros == '1'"/>
                     <span class="checkmark"></span>
                     Incluir proyectos presentes y futuros
                 </label>
+                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                        @click="exportExcel('pro_sala')" title="Descargar datos a Excel" />
             </div>
-            <div class="formInputStandard pure-u-1-2 pure-u-md-1-4" v-if="mode == 2" style="text-align: right;">
+            <div class="formInputStandard pure-u-1-2 pure-u-md-1-5" v-if="mode == 2" style="text-align: right;">
                 <button style="margin-top: 1.5rem;" @click="loadChecked">Configurar sala</button>
             </div>
             <div class="pure-u-1-1 pure-u-md-1-1"

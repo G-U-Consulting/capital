@@ -325,7 +325,7 @@ export default {
         },
         onSelEdit() {
             if (this.selRow != null) {
-                this.programacion = {...this.getFilteredList('programaciones')[this.selRow]};
+                this.programacion = { ...this.getFilteredList('programaciones')[this.selRow] };
                 this.editRow = !this.editRow
             }
         },
@@ -451,8 +451,11 @@ export default {
                         }
                     ));
                 var archivo = (await httpFunc(`/util/Json2File/${type}`, datos)).data;
-                type === 'excel' && await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoProgSalas" });
-                window.open("./docs/" + archivo, "_blank");
+                if (archivo && archivo.length) {
+                    type === 'excel' && await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoProgSalas" });
+                    window.open("./docs/" + archivo, "_blank");
+                }
+                else showMessage('No se encontraron asignaciones');
             }
             catch (e) {
                 console.error(e);

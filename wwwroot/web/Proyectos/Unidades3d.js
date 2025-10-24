@@ -70,8 +70,8 @@
 			projectList: '',
 			projectAlert: '',
 			tmpListas: [],
-            selLista: {},
-            currentList: {},
+			selLista: {},
+			currentList: {},
 
 			filtros: {
 				aptos: {
@@ -978,8 +978,11 @@
 				showProgress();
 				let datos = (await httpFunc('/generic/genericDT/Unidades:Get_ExportPrecios',
 					{ id_proyecto: GlobalVariables.id_proyecto })).data;
-				let archivo = (await httpFunc(`/util/Json2File/csv/precios_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
-				window.open("./docs/" + archivo, "_blank");
+				if (datos && datos.length) {
+					let archivo = (await httpFunc(`/util/Json2File/csv/precios_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
+					window.open("./docs/" + archivo, "_blank");
+				}
+				else showMessage('No se encontraron precios asociados')
 			}
 			catch (e) {
 				console.error(e);
@@ -1152,30 +1155,30 @@
 		},
 		async openUnlockModal(apto) {
 			showProgress();
-            let tmpListas = (await httpFunc("/generic/genericDT/Gestion:Get_Listas", 
-                { id_unidad: apto.id_unidad })).data;
+			let tmpListas = (await httpFunc("/generic/genericDT/Gestion:Get_Listas",
+				{ id_unidad: apto.id_unidad })).data;
 			this.tmpListas = tmpListas.map(l => ({ ...l, precio: l.precio.replace(',', '.') }));
 			let $modal = document.getElementById('modalOverlayUnlock');
 			$modal && ($modal.style.display = 'flex');
 			this.tmpApto = apto;
 			this.selLista = this.tmpListas.find(l => l.id_lista === apto.id_lista) || {};
-            this.currentList = { ...this.selLista };
-            hideProgress();
+			this.currentList = { ...this.selLista };
+			hideProgress();
 		},
 		closeUnlockModal(e) {
 			if (e && e.target.matches('#modalOverlayUnlock')) {
 				e.target.style.display = 'none';
 				this.textLog = '';
 				this.selLista = {};
-                this.currentList = {};
-                this.tmpListas = [];
+				this.currentList = {};
+				this.tmpListas = [];
 			}
 			if (!e || e.target.matches('.closeListModal')) {
 				document.getElementById('modalOverlayUnlock').style.display = 'none';
 				this.textLog = '';
 				this.selLista = {};
-                this.currentList = {};
-                this.tmpListas = [];
+				this.currentList = {};
+				this.tmpListas = [];
 			}
 		},
 		reqUnlockApto(apto) {
@@ -1192,60 +1195,60 @@
 			apto.id_lista = this.selLista.id_lista;
 			apto.lista = this.selLista.lista;
 			apto.valor_unidad = this.selLista.precio;
-            try {
+			try {
 				let res = await (httpFunc('/generic/genericST/Gestion:Upd_EstadoLog', {
 					id_unidad: apto.id_unidad,
-                    id_estado_unidad: apto.id_estado_unidad,
-                    texto: this.textLog,
-                    id_lista: apto.id_lista,
+					id_estado_unidad: apto.id_estado_unidad,
+					texto: this.textLog,
+					id_lista: apto.id_lista,
 					Usuario: GlobalVariables.username
 				}));
 				if (res.isError || res.data !== 'OK') throw res;
-                this.closeUnlockModal();
+				this.closeUnlockModal();
 			} catch (e) {
 				console.error(e);
 				showMessage('Error: ' + e.errorMessage || e.data);
 			}
-            hideProgress();
+			hideProgress();
 		},
 		async exportExcel(tabla) {
-            try {
-                showProgress();
-                let datos = this.getFilteredList(tabla);
-                var archivo = (await httpFunc(`/util/Json2File/excel/${tabla}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
-                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
-                window.open("./docs/" + archivo, "_blank");
-            }
-            catch (e) {
-                console.error(e);
-            }
-            hideProgress();
-        },
+			try {
+				showProgress();
+				let datos = this.getFilteredList(tabla);
+				var archivo = (await httpFunc(`/util/Json2File/excel/${tabla}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
+				var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+				window.open("./docs/" + archivo, "_blank");
+			}
+			catch (e) {
+				console.error(e);
+			}
+			hideProgress();
+		},
 		formatDatetime(text, type = 'datetime', _date) {
-            const date = _date || (text ? new Date(text) : new Date());
-            let day = date.getDate().toString().padStart(2, '0'),
-                month = (date.getMonth() + 1).toString().padStart(2, '0'),
-                year = date.getFullYear(),
-                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
-                minutes = date.getMinutes().toString().padStart(2, '0'),
-                seconds = date.getSeconds().toString().padStart(2, '0'),
-                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
-            if (type === 'date')
-                return `${day}/${month}/${year}`;
-            if (type === 'textdate')
-                return `${day} de ${this.nameMonths[date.getMonth()]} de ${year}`;
-            if (type === 'bdate')
-                return `${year}-${month}-${day}`;
-            if (type === 'bdatetime')
-                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
-            if (type === 'bdatetimes')
-                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
-            if (type === 'time')
-                return `${hour}:${minutes} ${meridian}`;
-            if (type === 'vtime')
-                return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
-            return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
-        },
+			const date = _date || (text ? new Date(text) : new Date());
+			let day = date.getDate().toString().padStart(2, '0'),
+				month = (date.getMonth() + 1).toString().padStart(2, '0'),
+				year = date.getFullYear(),
+				hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
+				minutes = date.getMinutes().toString().padStart(2, '0'),
+				seconds = date.getSeconds().toString().padStart(2, '0'),
+				meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
+			if (type === 'date')
+				return `${day}/${month}/${year}`;
+			if (type === 'textdate')
+				return `${day} de ${this.nameMonths[date.getMonth()]} de ${year}`;
+			if (type === 'bdate')
+				return `${year}-${month}-${day}`;
+			if (type === 'bdatetime')
+				return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
+			if (type === 'bdatetimes')
+				return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
+			if (type === 'time')
+				return `${hour}:${minutes} ${meridian}`;
+			if (type === 'vtime')
+				return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
+			return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
+		},
 	},
 	computed: {
 		f_tasa_base: {

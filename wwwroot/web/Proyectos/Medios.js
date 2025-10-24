@@ -4,8 +4,8 @@
             mode: -1,
             submode: 0,
             mediaTabs: [
-                "Secuencia",
-                "Principal",
+                "Sec Carrusel",
+                "Img Principales",
                 "Imágenes",
                 "Videos",
                 "Recorridos Virt",

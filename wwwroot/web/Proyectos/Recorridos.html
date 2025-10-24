@@ -44,7 +44,7 @@
                 </div>
                 <div class="cont-rotafolio" id="cont-rotafolio" @mousemove="setShowBar" @mousedown="setShowBar">
                     <div class="player-rotafolio" v-if="!loading && files.length">
-                        <iframe @load="initApp" id="v-player" :src="`${files[playIndex].link}`" :key="'v' + playIndex"
+                        <iframe id="v-player" :src="`${files[playIndex].link}`" :key="'v' + playIndex"
                             frameborder="0" allowfullscreen allow="xr-spatial-tracking" @mousemove="setShowBar"
                             @mousedown="setShowBar">
                         </iframe>
