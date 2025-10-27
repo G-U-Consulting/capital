@@ -401,6 +401,12 @@ export default {
                     title: { display: true, text: 'Total Unidades' }
                 }
             };
+            config.options.plugins = {
+                title: {
+                    display: true,
+                    text: `Periodo ${this.filFecha1} - ${this.filFecha2}`
+                }
+            }
         },
         getDiffStates() {
             let selChanges = [], data = [], proCount = {}, numUnd = 0,

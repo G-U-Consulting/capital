@@ -98,7 +98,9 @@
                 <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal($event, true)"
                     class="modal-cerrar">
                 <h2 style="text-align: center; margin-bottom: .5rem;">
-                    Periodo {{filtros.trazabilidad.created_on1}} - {{filtros.trazabilidad.created_on2}}
+                    <span v-if="chartMode == 'acciones_asesor'">Informe trazabilidad acciones por asesor</span>
+                    <span v-if="chartMode == 'temporal_asesor'">Informe temporal acciones por asesor</span>
+                    <span v-if="chartMode == 'temporal_unidad'">Informe temporal acciones por unidad</span>
                 </h2>
 
                 <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">

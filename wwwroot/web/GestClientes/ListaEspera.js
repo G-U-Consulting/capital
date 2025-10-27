@@ -122,15 +122,15 @@ export default {
                 this.modal.style.display = 'none';
         },
         async onNotify() {
-            let lists = this.items.filter(it => it.notify)
-                .map(it => ({ id_lista: it.id_lista, is_active: '0' }));
-            // Pendiente notificar
+            let emails = this.items.filter(it => it.is_waiting == '0' && it.is_active == '1' && it.notify);
+            console.log(emails);
             showProgress();
             let res = null;
             try {
+                res = await httpFunc('/util/SendMail/ListaEspera', { subject: "Confirmación de Lista de Espera", emails });
                 /* res = await httpFunc('/generic/genericST/Clientes:Upd_ListasAlerta', { data: JSON.stringify(lists) });
-                if (res.isError || res.data !== 'OK') throw res; */
-                await this.setMode(0);
+                if (res.isError || res.data !== 'OK') throw res; 
+                await this.setMode(0); */
                 this.closeModal({}, true);
             } catch (e) {
                 console.error(e);

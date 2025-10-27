@@ -187,6 +187,31 @@ app.Map("/util/ImportFiles/{op}/{sp}/{pars}", async (HttpContext context, HttpRe
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
 }).WithName("ImportFiles");
+app.Map("/util/SendMail/{template}", async (HttpRequest request, HttpResponse response, string template) => {
+    string body = "";
+    try {
+        response.ContentType = "application/json";
+        using (var stream = new StreamReader(request.Body))
+        {
+            body = await stream.ReadToEndAsync();
+        }
+        JObject obj = JObject.Parse(body);
+        JArray? emails = (JArray?)obj["emails"];
+        string? subject = (string?)obj["subject"];
+        foreach (JObject data in emails.Cast<JObject>())
+        {
+            string? email = data["email"]?.ToString();
+            if (email != null)
+                SendMail.Send(email, subject ?? "", template, data, rootPath);
+        }
+        return "OK";
+    } catch (Exception ex) {
+        Logger.Log("util/SendMail/" + template + "    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+
+}).WithName("SendMail");
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";
     try {

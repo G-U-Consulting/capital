@@ -8,3 +8,4 @@
 /wwwroot/docs/
 /wwwroot/cache/
 /wwwroot/upload/
+.env

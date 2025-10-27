@@ -154,6 +154,12 @@ export default {
                     responsive: true,
                     animation: false,
                     maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Periodo ${this.filtros.trazabilidad.created_on1} - ${this.filtros.trazabilidad.created_on2}`
+                        }
+                    }
                 }
             };
 
