@@ -134,6 +134,8 @@ export default {
             ahorros: 0,
             seleccionPlan: 0,
             valor_descuento_adicional: 0,
+            valor_escrituras: 0,
+            valor_separacion: 0,
 
             tipoFinanciacionSeleccionada: '',
 
@@ -297,7 +299,9 @@ export default {
                 baseInicial +
                 this.toNumber(this.valor_reformas) +
                 this.toNumber(this.valor_acabados) -
-                this.toNumber(this.valor_descuento_adicional);
+                this.toNumber(this.valor_descuento_adicional) -
+                this.toNumber(this.valor_separacion) -
+                this.toNumber(this.valor_escrituras);
 
             let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
             if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
@@ -342,7 +346,9 @@ export default {
                 this.toNumber(this.importeActiva) +
                 this.toNumber(this.valor_reformas) +
                 this.toNumber(this.valor_acabados) -
-                this.toNumber(this.valor_descuento_adicional);
+                this.toNumber(this.valor_descuento_adicional) -
+                this.toNumber(this.valor_escrituras) -
+                this.toNumber(this.valor_separacion);
 
             const baseInicial = baseTotal * (pctInicial / 100);
             const baseCredito = baseTotal * (pctFinal / 100);
@@ -650,9 +656,16 @@ export default {
             }
 
             if (index == 3) {
+                let img = await fetch('../../img/ico/svg/logo-capital.svg');
+                img = await img.text();
+                await this.$nextTick();
+                const container = document.getElementById('logo-capital');
+                if (container) container.innerHTML = img;
+
                 const updatePromises = this.unidades.map(unidad => {
                     let payload = unidad;
                     return httpFunc('/generic/genericST/ProcesoNegocio:Upd_Unidades', payload);
+
                 });
                 try {
                     let results = await Promise.all(updatePromises);
@@ -810,6 +823,7 @@ export default {
 
             this.valor_reformas = respa.data[0][0]?.valor_reformas || 0;
             this.valor_acabados = respa.data[0][0]?.valor_acabados || 0;
+            this.valor_separacion = respa.data[0][0]?.valor_separacion || 0;
           
 
             if (añoEntrega && añoEntrega >= añoActual) {
@@ -1226,8 +1240,42 @@ export default {
 
             this.unidadesDisponibles = [...new Set(this.factoresBanco.filter(f => f.valor != 0).map(f => f.unidad))];
         },
+        nombreBanco(id) {
+            if (!this.banco_financiador || !Array.isArray(this.banco_financiador)) return '';
+            const banco = this.banco_financiador.find(b => b.id_bancos_financiador === id);
+            return banco ? banco.banco : '';
+        },
+        nombrePlan(planSeleccionado, tipoFinanciacionSeleccionada) {
+            if ((!this.planes_pago || !Array.isArray(this.planes_pago)) &&
+                (!this.tipo_financiacion || !Array.isArray(this.tipo_financiacion))) {
+                return '';
+            }
+
+            // Si hay planSeleccionado → buscar en planes_pago
+            if (planSeleccionado) {
+                const plan = this.planes_pago.find(p =>
+                    p.id_planes_pago === planSeleccionado || p.plan === planSeleccionado
+                );
+                return plan ? (plan.plan || plan.nombre || plan.descripcion) : '';
+            }
+
+            // Si hay tipoFinanciacionSeleccionada → buscar en tipo_financiacion
+            if (tipoFinanciacionSeleccionada) {
+                const tipo = this.tipo_financiacion.find(t =>
+                    t.tipo_financiacion === tipoFinanciacionSeleccionada
+                );
+                return tipo ? tipo.tipo_financiacion : '';
+            }
+
+            return '';
+        },
+        nombreCaja(id) {
+            if (!this.cajas_compensacion || !Array.isArray(this.cajas_compensacion)) return '';
+            const caja = this.cajas_compensacion.find(c => c.id_caja === id);
+            return caja ? (caja.nombre || caja.caja) : '';
+        },
         cargarAnios() {
-            if (!this.unidadSeleccionada) {
+            if (!this.unidadSeleccionada) {a
                 this.listaAnios = [];
                 return;
             }
@@ -1251,6 +1299,8 @@ export default {
             this.valor_reformas = this.f_valor_reformas;
             this.valor_acabados = this.f_valor_acabados;
             this.valor_descuento_adicional = this.f_valor_descuento_adicional;
+            this.valor_escrituras = this.f_valor_escrituras;
+            this.valor_separacion = this.f_valor_separacion;
             this.calcularFinanciacion();
         },
         parseNumberFromString(s) {
@@ -1319,6 +1369,7 @@ export default {
                 showMessage('Faltan datos requeridos');
                 return;
             }
+            this.tablaAmortizacion = true;
             const limpiarNumero = (valor) => {
                 if (typeof valor === 'string') {
                     return Number(
@@ -1547,7 +1598,6 @@ export default {
                 return;
             }
             await this.generarTabla(); 
-            this.tablaAmortizacion = true;
         },
         formatoTNA(valor) {
             const valorLimpio = typeof valor === 'string' ? valor.replace(/%/g, '') : valor;
@@ -1560,6 +1610,53 @@ export default {
             } else if (tipo === 'despues') {
                 this.d_tna_despues = valorLimpio;
             }
+        },
+        printPDF(id) {
+            // this.currenTime = this.formatDatetime(null, 'bdatetimes');
+          
+                this.$nextTick(() => {
+                    const content = document.getElementById(id);
+                    html2pdf().set({
+                        margin: 0,
+                        letterRendering: true,
+                        filename: 'tabla.pdf',
+                        image: { type: 'jpeg', quality: 1 },
+                        html2canvas: { scale: 5 },
+                        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                    }).from(content).outputPdf('bloburl').then((pdfUrl) => {
+                        window.open(pdfUrl, '_blank');
+                    });
+                });
+         
+        },
+        guardarYGenerarPDF() {
+            this.tablaPeriodos.forEach((fila, i) => this.recalcularFila(i));
+            this.printPDF('template-formato-dev');
+        },
+        formatDatetime(text, type = 'datetime', _date) {
+            const date = _date || (text ? new Date(text) : new Date());
+            let day = date.getDate().toString().padStart(2, '0'),
+                month = (date.getMonth() + 1).toString().padStart(2, '0'),
+                year = date.getFullYear(),
+                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
+                minutes = date.getMinutes().toString().padStart(2, '0'),
+                seconds = date.getSeconds().toString().padStart(2, '0'),
+                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
+            if (type === 'date')
+                return `${day}/${month}/${year}`;
+            if (type === 'textdate')
+                return `${day} de ${this.nameMonths[date.getMonth()]} de ${year}`;
+            if (type === 'bdate')
+                return `${year}-${month}-${day}`;
+            if (type === 'bdatetime')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
+            if (type === 'bdatetimes')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
+            if (type === 'time')
+                return `${hour}:${minutes} ${meridian}`;
+            if (type === 'vtime')
+                return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
+            return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
         },
     },
     computed: {
@@ -1635,6 +1732,14 @@ export default {
 			get() { return this.formatNumber(this.valor_descuento_adicional, false); },
 			set(val) { this.valor_descuento_adicional = this.cleanNumber(val); }
 		},
+        f_valor_escrituras: {
+			get() { return this.formatNumber(this.valor_escrituras, false); },
+			set(val) { this.valor_escrituras = this.cleanNumber(val); }
+		},
+        f_valor_separacion: {
+            get() { return this.formatNumber(this.valor_separacion, false); },
+			set(val) { this.valor_separacion = this.cleanNumber(val); }
+        },
         f_valor_reformas: {
 			get() { return this.formatNumber(this.valor_reformas, false); },
 			set(val) { this.valor_reformas = this.cleanNumber(val); }
@@ -1666,6 +1771,8 @@ export default {
         f_valor_reformas: 'onCambioValor',
         f_valor_acabados: 'onCambioValor',
         f_valor_descuento_adicional: 'onCambioValor',
+        f_valor_escrituras: 'onCambioValor',
+        f_valor_separacion: 'onCambioValor',
         visitasFiltradas: {
             handler(val) {
                 this.contarProyectos(val);

@@ -16,6 +16,7 @@ set @id_cliente = '2',
     @valor_unidad = '249820000,00',
     @valor_acabados = '',
     @valor_reformas = '',
+    @valor_separacion = '',
     @lista = '1',
     @id_unidad = '0',
     @numero_apartamento = 'Apto 410',
@@ -41,7 +42,8 @@ insert into fact_negocios_unidades (
     lista,
     numero_apartamento,
     id_unidad,
-    fecha_entrega
+    fecha_entrega,
+    valor_separacion
 )
 select
     @id_cliente,
@@ -62,7 +64,8 @@ select
     @lista,
     @numero_apartamento,
     @id_unidad,
-    @fecha_entrega
+    @fecha_entrega,
+    @valor_separacion
 from fact_torres t
 where t.consecutivo = convert(@torre using utf8mb4) collate utf8mb4_unicode_ci
 limit 1;

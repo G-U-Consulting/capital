@@ -450,6 +450,7 @@
 				valor_reformas: apto.valor_reformas,
 				lista: apto.lista,
 				numero_apartamento: apto.nombre_unidad,
+				valor_separacion: apto.valor_separacion,
 				id_unidad: apto.id_unidad,
 				fecha_entrega: this.toMySQLDateTime(apto.fecha_escrituracion),
 			};

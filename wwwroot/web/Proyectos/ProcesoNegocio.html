@@ -666,7 +666,7 @@
                     <samp class="resaltado">{{ formatoMoneda(importeActiva) }}</samp>
                 </div>
             </div>
-            <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: 1rem;">
+            <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: .2rem;">
                 Reformas, Acabados, Descuento
             </div>
             <div class="pure-u-1 pure-u-md-1-1">
@@ -689,10 +689,35 @@
                     </div>
                 </div>
             </div>
-            <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: 1rem;">
+             <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: .2rem;">
+                Separación, Escrituración
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6">
+                <div class="formInputStandard">
+                    <span class="info-container">
+                        Valor Separación
+                        <i class="info-icon">ℹ️</i>
+                        <div class="tooltip-opc">
+                            (*) El valor de la separación no hace parte del pago del inmueble si este es de característica VIS,
+                            acepto y entiendo que estos recursos entregados a Constructora Capital o la Fiducia corresponden
+                            al pago que realizará la constructora por los diferentes conceptos requeridos para poder escriturar
+                            el inmueble, entre los que se encuentran Avalúos, Estudios de Títulos, Trámites de Subsidio,
+                            Gastos Administrativos, Gastos de Notariado y Registro, entre otros y no es negociable por las partes.
+                        </div>
+                    </span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_separacion" @keyup="validarFormato" />
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6">
+                <div class="formInputStandard">
+                    <span>Valor Escrituración</span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_escrituras" @keyup="validarFormato" />
+                </div>
+            </div>
+            <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: .5rem;">
                 Modo de Pago
             </div>
-            <div class="pure-g" style="margin-top: 1em;">
+            <div class="pure-g" style="margin-top: 0.5em;">
                 <div class="pure-u-1 pure-u-md-3-8" style="margin-bottom: .5em;">
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'contado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
@@ -702,7 +727,7 @@
                                 Contado
                             </label>
                         </div>
-                        <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1.7rem;">
+                        <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1.2rem;">
                             <span class="pure-u-1 pure-u-md-1-4">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-3-4">
                                 <select class="pure-input-1" v-model="planSeleccionado" @change="calcularPlanPago" :disabled="pagoSeleccionado !== 'contado'">
@@ -746,7 +771,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1rem;">
+                        <div class="pure-u-1 pure-u-md-1-1" style="padding-top: .5rem;">
                             <div class="pure-u-1 pure-u-md-1-6"></div>
                             <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
@@ -773,7 +798,7 @@
                     </fieldset>
                 </div>
             </div>
-            <div class='pure-u-1-1 formDivision' style="font-size: 1.2em; margin-top: 1rem;">
+            <div class='pure-u-1-1 formDivision' style="font-size: 1.2em; margin-top: .5rem;">
                 Descuentos, subsidios, aportes, reformas y acabados.
             </div>
             <div class="pure-g">
@@ -849,18 +874,61 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1-1 formDivision" style="font-size: 1.2em; display: flex;">
-                <div class="pure-u-1 pure-u-md-1-3">
-                    <span style="display: flex; justify-content: space-between; width: 100%;">
-                        <span>Importe Financiable:</span>
+            <div class="pure-u-1-1 formDivision" style="font-size: 1.2em; display: flex; margin-top: 1.5rem;">
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <span style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <span class="info-container">
+                            Importe Financiación
+                            <i class="info-icon">ℹ️</i>
+                            <div class="tooltip-opc tooltip-wide tooltip-top">
+                                (*) Financiar tu inmueble en pesos, también conocido como <b>TASA FIJA</b>, te permite garantizar el
+                                valor mensual
+                                de la cuota de tu crédito que pagarás en el tiempo. No te costará más, pero tampoco menos; sabrás
+                                exactamente cuál es tu exposición y flujo de caja mensual.
+                                Este modelo de financiamiento tiende a ser más costoso toda vez que las entidades financieras cobran una
+                                mayor tasa
+                                en el momento del desembolso para cubrir posibles alzas.<br><br>
+                
+                                Otra opción es financiar tu inmueble en <b>UVR (Unidades de Valor Real)</b>, también conocido como
+                                <b>TASA VARIABLE</b>.
+                                Este tipo de financiamiento tiene como ventaja que te permite acceder a un crédito con un menor valor de
+                                cuota mes a mes
+                                y/o contar con un mayor valor total del crédito sobre tu inmueble. Este crédito se alinea con la
+                                inflación (factor UVR),
+                                al que los bancos suman puntos según el riesgo de cada cliente. La desventaja es que si la inflación
+                                sube, el costo del crédito también lo hace,
+                                aunque con límites y salvaguardas del Banco de la República.<br><br>
+                
+                                Por <b>LEY</b>, puedes solicitar a tu entidad el cambio de modalidad o trasladar tu hipoteca a otro
+                                banco en cualquier momento sin penalidades,
+                                siempre que cumplas con el perfil de riesgo.<br><br>
+                
+                                Finalmente, el cliente o cesionario de la cotización es responsable del pago íntegro del inmueble y de
+                                obtener la financiación.
+                                Si para la fecha de aprobación del crédito o escritura el comprador tiene <b>70 años o más</b>, podría
+                                no obtener aprobación
+                                por políticas financieras externas a la constructora. En tal caso, acepta asumir la responsabilidad y
+                                consecuencias contractuales
+                                según los plazos establecidos.
+                            </div>
+                        </span>
+                
                         <span class="resaltado">{{ formatoMoneda(valor_credito) }}</span>
                     </span>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-12">
                 </div>
                 <div class="pure-u-1 pure-u-md-1-1">
-                    <span style="display: flex; justify-content: space-between; width: 100%;padding-right: .5rem">
-                        <span>Cuota Inicial después de subsidio, reformas, acabados, cesantías y/o ahorros:</span>
+                    <span
+                        style="display: flex; justify-content: space-between; width: 100%; padding-right: .5rem; align-items: center;">
+                        <span class="info-container">
+                            Cuota Inicial después de subsidio, reformas, acabados, cesantías y/o ahorros:
+                            <i class="info-icon">ℹ️</i>
+                            <div class="tooltip-opc tooltip-top">
+                                (*) Valor aproximado de cuota mensual. Verificar al momento de cerrar el negocio con tu asesor.
+                            </div>
+                        </span>
+                
                         <span class="resaltado">{{ formatoMoneda(cuota_inicial) }}</span>
                     </span>
                 </div>
@@ -956,6 +1024,272 @@
             </div>
         </div>
     </div>
+    <div style="display: none;" v-if="mode == 3">
+        <div id="template-formato-dev" class="pdf-template">
+            <div
+                style="padding: 2.2rem; padding-bottom: .5rem; padding-top: 1.8rem; display: flex; justify-content: space-between; line-height: 1.08;">
+                <div style="width: 23%;" id="logo-capital">
+                </div>
+                <div style="height: 100%; display: flex; align-items: center; width: 15%;">
+                    <h4 style="color: #009AB9; font-weight: bold;">Cotización</h4>
+                </div>
+                <div style="height: 100%; display: flex; flex-direction: column; width: 33%; font-size: 12.5px;">
+                    <div><span style="font-weight: bold;">Numero Cotizacion #: </span>{{cotizacionSeleccionada}}</div>
+                    <div><span style="font-weight: bold;">Fecha Creado: </span>{{unidades[0].fecha_formateada}}</div>
+                </div>
+            </div>
+            <div style="padding: .4rem 2.2rem;">
+                <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Datos Personales</span>
+        
+                <table class="pdf-table spaceRows tabla1">
+                    <thead>
+                        <tr>
+                            <th style="border-left: #777 solid 1px;">Nombres</th>
+                            <th>Apellido 1</th>
+                            <th>Apellido 2</th>
+                            <th>Dirección</th>
+                            <th>Ciudad</th>
+                            <th>Departamento</th>
+                            <th>País</th>
+                            <th>Email 1</th>
+                            <th>Email 2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border-left: #777 solid 1px;">{{ ObjCliente.nombres }}</td>
+                            <td>{{ ObjCliente.apellido1 }}</td>
+                            <td>{{ ObjCliente.apellido2 }}</td>
+                            <td>{{ ObjCliente.direccion }}</td>
+                            <td>{{ ObjCliente.ciudad }}</td>
+                            <td>{{ ObjCliente.departamento }}</td>
+                            <td>{{ ObjCliente.pais }}</td>
+                            <td>{{ ObjCliente.email1 }}</td>
+                            <td>{{ ObjCliente.email2 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="pdf-table spaceRows tabla2">
+                    <thead>
+                        <tr>
+                            <th style="border-left: #777 solid 1px;">Teléfono 1</th>
+                            <th>Teléfono 2</th>
+                            <th>Tipo Documento</th>
+                            <th>Número Documento</th>
+                            <th>País Expedición</th>
+                            <th>Depto. Expedición</th>
+                            <th>Ciudad Expedición</th>
+                            <th>Fecha Expedición</th>
+                            <th>Fecha Nacimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border-left: #777 solid 1px;">{{ ObjCliente.telefono1 }}</td>
+                            <td>{{ ObjCliente.telefono2 }}</td>
+                            <td>{{ ObjCliente.tipoDocumento }}</td>
+                            <td>{{ ObjCliente.numeroDocumento }}</td>
+                            <td>{{ ObjCliente.paisExpedicion }}</td>
+                            <td>{{ ObjCliente.departamentoExpedicion }}</td>
+                            <td>{{ ObjCliente.ciudadExpedicion }}</td>
+                            <td>{{ ObjCliente.fechaExpedicion }}</td>
+                            <td>{{ ObjCliente.fechaNacimiento }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding: .4rem 2.2rem;">
+                <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
+                    Información General
+                    <span v-if="isTitular == 1">En representación de: ({{ ObjCliente.nombreEmpresa }} Nit: {{ ObjCliente.nit }})</span>
+                    <span v-else>Persona Natural</span>
+                </span>
+                <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th colspan="4" style="border-left: #777 solid 1px;">Resumen de Unidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-left: #777 solid 1px;">
+                            <td>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <b>Importe:</b>
+                                    <span>{{ formatoMoneda(unidades[0].valor_unidad) }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <b>Descuento Base:</b>
+                                    <span>{{ formatoMoneda(unidades[0].valor_descuento) }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <b>Imp. - Desc. Base:</b>
+                                    <span>{{ formatoMoneda(importeActiva) }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <b>Tipo Unidad:</b>
+                                    <span>{{ unidades[0].tipo }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr style="border-left: #777 solid 1px;">
+                            <td colspan="4">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <b>Opción Seleccionada:</b>
+                                    <span>{{ textoCotizacion }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th colspan="2" style="border-left: #777 solid 1px;">Separación y Escrituración</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-left: #777 solid 1px;">
+                            <td>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <b>Valor Separación:</b>
+                                    <span>{{ formatoMoneda(f_valor_separacion) }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <b>Valor Escrituración:</b>
+                                    <span>{{ formatoMoneda(f_valor_escrituras) }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="pdf-table resumen-opcion">
+                    <thead>
+                        <tr>
+                            <th colspan="4" style="border-left: #777 solid 1px;">Modo de Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-left: #777 solid 1px;">
+                            <td>
+                                <b>Tipo:</b> 
+                                 <span style="float: right;">{{ pagoSeleccionado === 'contado' ? 'Contado' : 'Financiado' }}</span>
+                            </td>
+                            <td>
+                                <b>Entidad:</b>
+                                <span style="float: right;">{{ nombreBanco(bancoSeleccionado) }}</span> 
+                            </td>
+                            <td>
+                                <b>Modalidad:</b> 
+                                <span style="float: right;">{{ nombrePlan(planSeleccionado, tipoFinanciacionSeleccionada) }}</span>
+                            </td>
+                            <td>
+                                <b>Años:</b>
+                                <span style="float: right;">{{ anioSeleccionado }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="pdf-table resumen-opcion">
+                    <thead>
+                        <tr>
+                            <th colspan="5" style="border-left: #777 solid 1px;">Descuentos, subsidios y aportes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-left: #777 solid 1px;">
+                            <td>
+                                <b>Cesantías:</b>
+                                <span style="float: right;">{{ formatoMoneda(f_valor_cesantias) }}</span>
+                            </td>
+                            <td>
+                                <b>Ahorros:</b>
+                                <span style="float: right;">{{ formatoMoneda(f_valor_ahorros) }}</span>
+                            </td>
+                            <td>
+                                <b>Subsidio:</b>
+                                <span style="float: right;">{{ subsidioActivo ? formatoMoneda(valor_subsidio) : '$0' }}</span>
+                            </td>
+                            <td>
+                                <b>Caja:</b>
+                                <span style="float: right;">{{ nombreCaja(caja_compensacion) }}</span>
+                            </td>
+                            <td>
+                                <b>Año Subidio:</b> 
+                                <span style="float: right;">{{ seleccionAnioEntrega }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="pdf-table resumen-opcion">
+                    <thead>
+                        <tr>
+                            <th colspan="4" style="border-left: #777 solid 1px;">Financiación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-left: #777 solid 1px;">
+                            <td>
+                                <b>Imp. Financiado:</b>
+                                <span style="float: right;">{{ formatoMoneda(valor_credito) }}</span>
+                            </td>
+                            <td>
+                                <b>Cuota Inicial:</b>
+                                <span style="float: right;">{{ formatoMoneda(cuota_inicial) }}</span>
+                            </td>
+                            <td>
+                                <b>TNA Antes PE:</b>
+                                <span style="float: right;">{{ formatoTNA(d_tna_antes) }}</span>
+                            </td>
+                            <td>
+                                <b>TNA Después PE:</b>
+                                <span style="float: right;">{{ formatoTNA(d_tna_despues) }}</span>
+                            </td>
+                        </tr>
+                        <tr style="border-left: #777 solid 1px;">
+                            <td>
+                                <b>Fecha PE:</b>
+                                <span style="float: right;">{{ d_fecha_pe }}</span>
+                            </td>
+                            <td>
+                                <b>Fecha Entrega:</b>
+                                <span style="float: right;">{{ d_fecha_entrega }}</span>
+                            </td>
+                            <td>
+                                <b>1ra Cuota:</b>
+                                <span style="float: right;">{{ d_fecha_cuota }}</span>
+                            </td>
+                            <td>
+                                <b>Meses:</b>
+                                <span style="float: right;">{{ d_meses }}</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+         
+        
+            <div v-else style="padding: .4rem 2.2rem;">
+                <span style="color: #999; font-weight: bold; font-size: 15px;">Pendiente certificación cuenta(s) para
+                    consignación de recursos</span>
+                <p style="text-align: justify; font-size: 12px; margin: 0; line-height: 1.1;">
+                    El saldo resultante a favor del cliente luego de aplicar los descuentos y penalidades correspondientes
+                    será depositado en la cuenta o
+                    encargo fiduciario del proyecto, cuando éste no pueda ser girado directamente al cliente por falta de
+                    certificación bancaria. Dichos recursos
+                    permanecerán en la cuenta mencionada hasta que el cliente aporte la certificación bancaria para proceder
+                    con la devolución de recursos
+                </p>
+            </div>
+        </div>
+    </div>
     <!-- ------------------------------------------------------------ -->
     <!-- ----------------------------- Global------------------------- -->
     <!-- ------------------------------------------------------------ -->
@@ -974,7 +1308,7 @@
                 <button class="pure-button button-fixed" @click="guardarCotizacion">Guardar</button>
             </div>
              <div v-if="mode == 3" class="pure-u-auto">
-                <button class="pure-button button-fixed" >Guardar</button>
+                <button class="pure-button button-fixed" @click="guardarYGenerarPDF">Opcionar</button>
             </div>
             <!-- <div v-if="mode != 5 && ObjCliente.Nombres != ''" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>

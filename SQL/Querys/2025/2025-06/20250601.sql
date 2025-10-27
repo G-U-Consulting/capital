@@ -156,12 +156,14 @@ create table fact_negocios_unidades (
     valor_unidad decimal(20,2),
     valor_acabados  decimal(20, 2),
 	valor_reformas  decimal(20, 2),
+    valor_separacion decimal(20, 2),
     lista varchar(100),
     fecha_entrega datetime,
     is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
 );
+
 
 
 /*

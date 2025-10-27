@@ -2470,7 +2470,7 @@ var Vue = (function (exports) {
       const info = ErrorTypeStrings$1[type];
       if (contextVNode) {
         pushWarningContext(contextVNode);
-      }
+      }     
       warn$1(`Unhandled error${info ? ` during execution of ${info}` : ``}`);
       if (contextVNode) {
         popWarningContext();
