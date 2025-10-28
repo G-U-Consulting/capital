@@ -12,8 +12,8 @@ public static class SendMail
 
     private static string LoadBodyTemplate(string template, string rootPath)
     {
-        string body = "<h1>Hello</h1><p>This is a test</p>";
         string path = Path.Combine(rootPath, "wwwroot", "templates", $"{template}.html");
+        string body;
         if (File.Exists(path))
             body = File.ReadAllText(path);
         else
@@ -35,8 +35,7 @@ public static class SendMail
     {
         string body = LoadBodyTemplate(template, rootPath);
         body = ReplaceData(body, data);
-        Console.WriteLine(body);
-        /* using var smtp = new SmtpClient();
+        using var smtp = new SmtpClient();
         var credential = new NetworkCredential
         {
             UserName = Environment.GetEnvironmentVariable("SMTP_USERNAME"),
@@ -55,6 +54,6 @@ public static class SendMail
         message.Body = body;
         message.IsBodyHtml = true;
 
-        smtp.Send(message); */
+        smtp.Send(message);
     }
 }

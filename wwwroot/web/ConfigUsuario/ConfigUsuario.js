@@ -28,7 +28,11 @@ export default {
             previews: [],
             message: "",
             duracion: "3",
-            intervalTime: 3000
+            intervalTime: 3000,
+
+            filtros: {
+                cargos: { cargo: '' }
+            }
         }
     }, 
     async mounted() {
@@ -295,6 +299,34 @@ export default {
             if (this.mainmode == 3) path.text = "Fondo Pantalla";
             path.action = () => this.setMode(0);
             return path;
+        },
+        onClear(table) {
+            let item = this.filtros[table];
+            item = Object.keys(item).forEach((key) => item[key] = '');
+        },
+        async exportExcel(tabla) {
+            try {
+                showProgress();
+                let datos = this.getFilteredList(tabla);
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
+    },
+    computed: {
+        getFilteredList() {
+            return (tabla) => {
+                return this[tabla] ? this[tabla].filter(item =>
+                    this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key =>
+                        this.filtros[tabla][key] === '' || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())
+                    ) : []
+                ) : [];
+            };
         }
-    }
+    },
 }

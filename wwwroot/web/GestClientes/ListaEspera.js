@@ -58,7 +58,6 @@ export default {
                 httpFunc('/generic/genericDS/Clientes:Get_ListaEspera',
                     { id_proyecto: this.currentProject, id_usuario: this.item.id_usuario })).data;
             this.usuario = this.usuarios.find(u => u.id_usuario === this.item.id_usuario) || {};
-            console.log(this.usuarios, this.item.id_usuario, this.usuario);
             let pisos = [], localizaciones = [];
             this.aptos.forEach(a => {
                 if (!pisos.includes(a.piso)) pisos.push(a.piso);
@@ -122,15 +121,22 @@ export default {
                 this.modal.style.display = 'none';
         },
         async onNotify() {
-            let emails = this.items.filter(it => it.is_waiting == '0' && it.is_active == '1' && it.notify);
+            let hide = ['apellido1','apellido2','nombres','notify','numero_documento','seguimiento','telefono'];
+            let emails = JSON.parse(JSON.stringify(
+                this.items.filter(it => it.is_waiting == '0' && it.is_active == '1' && it.notify && this.isEmail(it.email))
+            ));
+            emails.forEach(it => Object.keys(it).forEach(k => {
+                if (k.startsWith('id_') || k.startsWith('is_') || k.includes('created') || hide.includes(k)) 
+                    delete it[k];
+                else if (k.startsWith('cerca_') || k.startsWith('tiene_'))
+                    it[k] = it[k] === '1' ? 'Sí' : '';
+                else if (!it[k]) it[k] = '(Sin especificar)';
+            }));
             console.log(emails);
             showProgress();
             let res = null;
             try {
                 res = await httpFunc('/util/SendMail/ListaEspera', { subject: "Confirmación de Lista de Espera", emails });
-                /* res = await httpFunc('/generic/genericST/Clientes:Upd_ListasAlerta', { data: JSON.stringify(lists) });
-                if (res.isError || res.data !== 'OK') throw res; 
-                await this.setMode(0); */
                 this.closeModal({}, true);
             } catch (e) {
                 console.error(e);
@@ -153,6 +159,10 @@ export default {
                 console.error(e);
             }
             hideProgress();
+        },
+        isEmail(email) {
+            let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
+            return !email || regex.test(email);
         },
     },
     computed: {

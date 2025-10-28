@@ -28,15 +28,18 @@
                     <h2>Categorias Adm</h2>
                     <div class="searchBox">
                         <div class="pure-g">
-                            <div class="pure-u-1-1 pure-u-md-16-24">
-                                <input type="text" placeholder="Categoria" v-model="seachCargo" @keyup.enter="seachCargos" />
+                            <div class="pure-u-1-1 pure-u-md-15-24">
+                                <input type="text" placeholder="Categoria" v-model="filtros.cargos.cargo" />
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24">
-                                <div class="imgGraybutton">
-                                    <img src="./img/ico/svg/search.svg" @click="seachCargos" />
+                                <div class="imgGraybutton" @click="onClear('cargos')">
+                                    <img src="./img/ico/eraser.png" />
                                 </div>
                             </div>
-                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-1-12" style="text-align: center;">
+                                <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                                    @click="exportExcel('cargos')" title="Descargar datos a Excel" />
+                            </div>
                             <div class="pure-u-1-1 pure-u-md-5-24" style="text-align: right;">
                                 <button v-on:click="startNewUser()">Nueva Categoria</button>
                             </div>
@@ -52,7 +55,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(item, index) in cargos" :key="item.id_cargo" @click.stop="selectUser(item)">
+                                <tr v-for="(item, index) in getFilteredList('cargos')" :key="item.id_cargo" @click.stop="selectUser(item)">
                                     <td style="width: 15rem;">
                                         {{ item.cargo }}
                                     </td>
