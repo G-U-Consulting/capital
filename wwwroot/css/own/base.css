@@ -4311,3 +4311,43 @@ tr.cal-row-info > td {
 }
 
 
+.boton-accion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    color: #0099b0;
+    font-weight: 600;
+    font-size: 12px;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.boton-accion img {
+    width: 30px;
+    height: 30px;
+    /* margin-bottom: 6px; */
+    object-fit: contain;
+}
+
+.boton-accion:hover {
+    transform: translateY(-2px);
+    color: #007a8c;
+}
+
+.pdf-table {
+  page-break-inside: auto;
+}
+
+.pdf-table tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
+}
+
+.pdf-table thead {
+  display: table-header-group;
+}
+
+.pdf-table tfoot {
+  display: table-footer-group;
+}
+

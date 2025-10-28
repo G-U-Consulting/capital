@@ -75,6 +75,7 @@ export default {
             contadorProyectos: {},
             cotizaciones: [],
             unidades: [],
+            tipoProyecto: null,
             tipo_factor: [],
             pagoSeleccionado: '',
             registroCompras: [
@@ -163,7 +164,8 @@ export default {
             d_meses: 0,
             meses_max: 0,
             fechaAnterior: null,
-            tablaPeriodos: []
+            tablaPeriodos: [],
+            f_cotizacion: ''
 
         };
     },
@@ -491,7 +493,7 @@ export default {
             this.acceptPolicy(true);
         },
         async limpiarObj() {
-            if (this.mode == 0) {
+            if (this.mode == 0 || this.mode == 3) {
                 this.ObjCliente = {
                     nombres: '',
                     apellido1: '',
@@ -656,11 +658,32 @@ export default {
             }
 
             if (index == 3) {
+                if (this.unidades[0]?.id_unidad && GlobalVariables.id_proyecto) {
+                   try {
+                        const res = await httpFunc("/generic/genericDT/ProcesoNegocio:Get_Tipos", {
+                            tipo: "imagenes",
+                            id_proyecto: GlobalVariables.id_proyecto,
+                            id_unidad: this.unidades[0].id_unidad
+                        });
+
+                       if (res.data?.length) {
+                           this.tipoProyecto = `/file/S3get/${res.data[0].llave}`;
+                       } else {
+                           this.tipoProyecto = null;
+                       } 
+
+                    } catch (error) {
+                        console.error("Error al cargar/inyectar la imagen del apartamento:", error);
+                    }
+                }
+
                 let img = await fetch('../../img/ico/svg/logo-capital.svg');
                 img = await img.text();
                 await this.$nextTick();
                 const container = document.getElementById('logo-capital');
                 if (container) container.innerHTML = img;
+
+
 
                 const updatePromises = this.unidades.map(unidad => {
                     let payload = unidad;
@@ -812,7 +835,7 @@ export default {
             });
 
             this.añoentrega = respa.data[0][0]?.fecha_entrega.match(/\d{4}/)?.[0] || '';
-
+            this.f_cotizacion = respa.data[0][0]?.created_on || '';
             this.d_tna_antes = respa.data[0][0]?.antes_p_equ;
             this.d_tna_despues = respa.data[0][0]?.despues_p_equ;
             this.d_fecha_entrega = respa.data[0][0]?.fecha_escrituracion;
@@ -824,7 +847,6 @@ export default {
             this.valor_reformas = respa.data[0][0]?.valor_reformas || 0;
             this.valor_acabados = respa.data[0][0]?.valor_acabados || 0;
             this.valor_separacion = respa.data[0][0]?.valor_separacion || 0;
-          
 
             if (añoEntrega && añoEntrega >= añoActual) {
                 this.listaAniosEntrega = Array.from(
@@ -834,7 +856,6 @@ export default {
             } else {
                 this.listaAniosEntrega = [añoActual];
             }
-
 
             const parseNumber = str =>
                 typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;
@@ -1471,6 +1492,7 @@ export default {
 
                 saldo = saldoFinal;
             }
+            //this.tablaPeriodos = periodos;
         },
         limpiarNumero(valor) {
             if (typeof valor === 'string') {
@@ -1612,52 +1634,32 @@ export default {
             }
         },
         printPDF(id) {
-            // this.currenTime = this.formatDatetime(null, 'bdatetimes');
-          
-                this.$nextTick(() => {
-                    const content = document.getElementById(id);
-                    html2pdf().set({
-                        margin: 0,
-                        letterRendering: true,
-                        filename: 'tabla.pdf',
-                        image: { type: 'jpeg', quality: 1 },
-                        html2canvas: { scale: 5 },
-                        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                    }).from(content).outputPdf('bloburl').then((pdfUrl) => {
-                        window.open(pdfUrl, '_blank');
-                    });
+            this.$nextTick(() => {
+                const content = document.getElementById(id);
+                html2pdf().set({
+                    margin: 0,
+                    letterRendering: false,
+                    filename: 'tabla.pdf',
+                    image: { type: 'jpeg', quality: 0.8 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                }).from(content).outputPdf('bloburl').then((pdfUrl) => {
+                    window.open(pdfUrl, '_blank');
                 });
-         
+            });
         },
         guardarYGenerarPDF() {
             this.tablaPeriodos.forEach((fila, i) => this.recalcularFila(i));
-            this.printPDF('template-formato-dev');
+            this.printPDF('contenedor-pdf-completo');
         },
-        formatDatetime(text, type = 'datetime', _date) {
-            const date = _date || (text ? new Date(text) : new Date());
-            let day = date.getDate().toString().padStart(2, '0'),
-                month = (date.getMonth() + 1).toString().padStart(2, '0'),
-                year = date.getFullYear(),
-                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
-                minutes = date.getMinutes().toString().padStart(2, '0'),
-                seconds = date.getSeconds().toString().padStart(2, '0'),
-                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
-            if (type === 'date')
-                return `${day}/${month}/${year}`;
-            if (type === 'textdate')
-                return `${day} de ${this.nameMonths[date.getMonth()]} de ${year}`;
-            if (type === 'bdate')
-                return `${year}-${month}-${day}`;
-            if (type === 'bdatetime')
-                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
-            if (type === 'bdatetimes')
-                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
-            if (type === 'time')
-                return `${hour}:${minutes} ${meridian}`;
-            if (type === 'vtime')
-                return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
-            return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
-        },
+        async enviarYOpcionar(){
+            
+            await this.limpiarObj();
+            await this.limpiarNumero()
+            showMessage("Opción creada correctamente")
+            this.mode = 0;
+        }
+ 
     },
     computed: {
         tabClasses() {

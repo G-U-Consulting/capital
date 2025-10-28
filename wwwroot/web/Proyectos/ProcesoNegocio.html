@@ -1025,261 +1025,442 @@
         </div>
     </div>
     <div style="display: none;" v-if="mode == 3">
-        <div id="template-formato-dev" class="pdf-template">
+        <div id="contenedor-pdf-completo">
+            <div id="template-formato-dev" class="pdf-template">
+                <div
+                    style="padding: 2.2rem; padding-bottom: .5rem; padding-top: 1.8rem; display: flex; justify-content: space-between; line-height: 1.08;">
+                    <div style="width: 23%;" id="logo-capital">
+                    </div>
+                    <div style="height: 100%; display: flex; align-items: center; width: 15%;">
+                        <h4 style="color: #009AB9; font-weight: bold;">Cotización</h4>
+                    </div>
+                    <div style="height: 50%; display: flex; flex-direction: column; width: 33%; font-size: 12.5px;">
+                        <div><span style="font-weight: bold;">Numero Cotizacion #: </span>{{cotizacionSeleccionada}}</div>
+                        <div><span style="font-weight: bold;">Fecha Creado: </span>{{f_cotizacion}}</div>
+                    </div>
+                </div>
+                <div style="padding: .4rem 2.2rem;">
+                    <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Datos Personales</span>
+                    <table class="pdf-table datos-personales"
+                        style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #777;">
+                        <thead>
+                            <tr>
+                                <th colspan="4" style="border-left: #777 solid 1px;">Cliente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Nombres:</b>
+                                        <span>{{ ObjCliente.nombres }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Apellido 1:</b>
+                                        <span>{{ ObjCliente.apellido1 }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Apellido 2:</b>
+                                        <span>{{ ObjCliente.apellido2 }}</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 5px 10px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>País:</b>
+                                        <span>{{ ObjCliente.pais }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
+                                <td colspan="2" style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Dirección:</b>
+                                        <span>{{ ObjCliente.direccion }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Ciudad:</b>
+                                        <span>{{ ObjCliente.ciudad }}</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 5px 10px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Departamento:</b>
+                                        <span>{{ ObjCliente.departamento }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
+                                <td colspan="2" style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Email 1:</b>
+                                        <span>{{ ObjCliente.email1 }}</span>
+                                    </div>
+                                </td>
+                                <td colspan="2" style="padding: 5px 10px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Email 2:</b>
+                                        <span>{{ ObjCliente.email2 }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Teléfono 1:</b>
+                                        <span>{{ ObjCliente.telefono1 }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Teléfono 2:</b>
+                                        <span>{{ ObjCliente.telefono2 }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>F. Nacimiento:</b>
+                                        <span>{{ ObjCliente.fechaNacimiento }}</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 5px 10px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Tipo Doc.:</b>
+                                        <span>{{ ObjCliente.tipoDocumento }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Núm. Doc.:</b>
+                                        <span>{{ ObjCliente.numeroDocumento }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>País Exp.:</b>
+                                        <span>{{ ObjCliente.paisExpedicion }}</span>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #777;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Ciudad Exp.:</b>
+                                        <span>{{ ObjCliente.ciudadExpedicion }}</span>
+                                    </div>
+                                </td>
+                                <td style="padding: 5px 10px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>Fecha Exp.:</b>
+                                        <span>{{ ObjCliente.fechaExpedicion }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+    
+                        </tbody>
+                    </table>
+                </div>
+                <div style="padding: .4rem 2.2rem;">
+                    <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
+                        Información General
+                        <span v-if="isTitular == 1">En representación de: ({{ ObjCliente.nombreEmpresa }} Nit: {{
+                            ObjCliente.nit
+                            }})</span>
+                        <span v-else>Persona Natural</span>
+                    </span>
+                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th colspan="4" style="border-left: #777 solid 1px;">Resumen de Unidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <b>Importe:</b>
+                                        <span>{{ formatoMoneda(unidades[0].valor_unidad) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <b>Descuento Base:</b>
+                                        <span>{{ formatoMoneda(unidades[0].valor_descuento) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <b>Imp. - Desc. Base:</b>
+                                        <span>{{ formatoMoneda(importeActiva) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <b>Tipo Unidad:</b>
+                                        <span>{{ unidades[0].tipo }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="4">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <b>Opción Seleccionada:</b>
+                                        <span>{{ textoCotizacion }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th colspan="2" style="border-left: #777 solid 1px;">Separación y Escrituración</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <b>Valor Separación:</b>
+                                        <span>{{ formatoMoneda(f_valor_separacion) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <b>Valor Escrituración:</b>
+                                        <span>{{ formatoMoneda(f_valor_escrituras) }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="pdf-table resumen-opcion">
+                        <thead>
+                            <tr>
+                                <th colspan="4" style="border-left: #777 solid 1px;">Modo de Pago</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <b>Tipo:</b>
+                                    <span style="float: right;">{{ pagoSeleccionado === 'contado' ? 'Contado' : 'Financiado'
+                                        }}</span>
+                                </td>
+                                <td>
+                                    <b>Entidad:</b>
+                                    <span style="float: right;">{{ nombreBanco(bancoSeleccionado) }}</span>
+                                </td>
+                                <td>
+                                    <b>Modalidad:</b>
+                                    <span style="float: right;">{{ nombrePlan(planSeleccionado,
+                                        tipoFinanciacionSeleccionada)
+                                        }}</span>
+                                </td>
+                                <td>
+                                    <b>Años:</b>
+                                    <span style="float: right;">{{ anioSeleccionado }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="pdf-table resumen-opcion">
+                        <thead>
+                            <tr>
+                                <th colspan="5" style="border-left: #777 solid 1px;">Descuentos, subsidios y aportes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <b>Cesantías:</b>
+                                    <span style="float: right;">{{ formatoMoneda(f_valor_cesantias) }}</span>
+                                </td>
+                                <td>
+                                    <b>Ahorros:</b>
+                                    <span style="float: right;">{{ formatoMoneda(f_valor_ahorros) }}</span>
+                                </td>
+                                <td>
+                                    <b>Subsidio:</b>
+                                    <span style="float: right;">{{ subsidioActivo ? formatoMoneda(valor_subsidio) : '$0'
+                                        }}</span>
+                                </td>
+                                <td>
+                                    <b>Caja:</b>
+                                    <span style="float: right;">{{ nombreCaja(caja_compensacion) }}</span>
+                                </td>
+                                <td>
+                                    <b>Año Subidio:</b>
+                                    <span style="float: right;">{{ seleccionAnioEntrega }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="pdf-table resumen-opcion">
+                        <thead>
+                            <tr>
+                                <th colspan="4" style="border-left: #777 solid 1px;">Financiación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <b>Imp. Financiado:</b>
+                                    <span style="float: right;">{{ formatoMoneda(valor_credito) }}</span>
+                                </td>
+                                <td>
+                                    <b>Cuota Inicial:</b>
+                                    <span style="float: right;">{{ formatoMoneda(cuota_inicial) }}</span>
+                                </td>
+                                <td>
+                                    <b>TNA Antes PE:</b>
+                                    <span style="float: right;">{{ formatoTNA(d_tna_antes) }}</span>
+                                </td>
+                                <td>
+                                    <b>TNA Después PE:</b>
+                                    <span style="float: right;">{{ formatoTNA(d_tna_despues) }}</span>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <b>Fecha PE:</b>
+                                    <span style="float: right;">{{ d_fecha_pe }}</span>
+                                </td>
+                                <td>
+                                    <b>Fecha Entrega:</b>
+                                    <span style="float: right;">{{ d_fecha_entrega }}</span>
+                                </td>
+                                <td>
+                                    <b>1ra Cuota:</b>
+                                    <span style="float: right;">{{ d_fecha_cuota }}</span>
+                                </td>
+                                <td>
+                                    <b>Meses:</b>
+                                    <span style="float: right;">{{ d_meses }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="padding: .4rem 2.2rem;">
+                    <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
+                        Img Unidad:
+                        <samp style="font-size: 1rem;">
+                            {{unidades[0].tipo}}
+                        </samp>
+                    </span>
+                    <div v-if="tipoProyecto" style="padding: .4rem 2.2rem;">
+                        <p style="text-align: center; font-size: 12px; margin: 0; line-height: 1;">
+                            <img :src="tipoProyecto" alt="Imagen de Apartamento"
+                                style="max-width: 80%; max-height: 80vh; object-fit: contain; border-radius: 6px; display: inline-block;">
+                        </p>
+                    </div>
+                    <div v-else style="font-size: 12px; text-align: center; color: #666;">
+                        No hay imagen disponible
+                    </div>
+                </div>
+            </div>
+            <div v-if="tablaPeriodos != ''" style="padding: 0 0.5rem;margin-top: 2rem;">
+                <div style="text-align: center;">
+                    <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
+                        Tabla Amortización
+                    </span>
+                </div>
+                <table class="pdf-table tabla-amortizacion-detalle"
+                    style="width: 100%; border-collapse: collapse; font-size: 10px; border: 2px solid #ccc;">
+                    <thead>
+                        <tr style="background: #f3f3f3; text-align: center;">
+                            <th style="width: 6%; padding: 4px;">Periodo</th>
+                            <th style="width: 7%; padding: 4px;">Fecha</th>
+                            <th style="width: 11%; padding: 4px;">Saldo Inicial</th>
+                            <th style="width: 4%; padding: 4px;">TNA</th>
+                            <th style="width: 10%; padding: 4px;">Cuota deseada</th>
+                            <th style="width: 10%; padding: 4px;">Cuota calculada</th>
+                            <th style="width: 10%; padding: 4px;">Intereses</th>
+                            <th style="width: 10%; padding: 4px;">Principal</th>
+                            <th style="width: 10%; padding: 4px;">Saldo Final</th>
+                            <th style="width: 12%; padding: 4px;">Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(fila, index) in tablaPeriodos" :key="index" style="border-top: 1px solid #ddd;">
+                            <td style="text-align: center; padding: 3px;">{{ fila.periodo }}</td>
+                            <td style="text-align: center; padding: 3px;">{{ fila.fecha }}</td>
+                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.saldo_inicial)
+                                }}</td>
+                            <td style="text-align: center; padding: 3px;">{{ fila.tna }}</td>
+                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.cuota_deseada)
+                                }}</td>
+                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.cuota_calculada)
+                                }}</td>
+                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.intereses) }}
+                            </td>
+                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.principal) }}
+                            </td>
+                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.saldo_final) }}
+                            </td>
+                            <td style="padding: 3px; text-align: left;">{{ fila.nota }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div
-                style="padding: 2.2rem; padding-bottom: .5rem; padding-top: 1.8rem; display: flex; justify-content: space-between; line-height: 1.08;">
-                <div style="width: 23%;" id="logo-capital">
-                </div>
-                <div style="height: 100%; display: flex; align-items: center; width: 15%;">
-                    <h4 style="color: #009AB9; font-weight: bold;">Cotización</h4>
-                </div>
-                <div style="height: 100%; display: flex; flex-direction: column; width: 33%; font-size: 12.5px;">
-                    <div><span style="font-weight: bold;">Numero Cotizacion #: </span>{{cotizacionSeleccionada}}</div>
-                    <div><span style="font-weight: bold;">Fecha Creado: </span>{{unidades[0].fecha_formateada}}</div>
-                </div>
-            </div>
-            <div style="padding: .4rem 2.2rem;">
-                <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Datos Personales</span>
-        
-                <table class="pdf-table spaceRows tabla1">
-                    <thead>
-                        <tr>
-                            <th style="border-left: #777 solid 1px;">Nombres</th>
-                            <th>Apellido 1</th>
-                            <th>Apellido 2</th>
-                            <th>Dirección</th>
-                            <th>Ciudad</th>
-                            <th>Departamento</th>
-                            <th>País</th>
-                            <th>Email 1</th>
-                            <th>Email 2</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="border-left: #777 solid 1px;">{{ ObjCliente.nombres }}</td>
-                            <td>{{ ObjCliente.apellido1 }}</td>
-                            <td>{{ ObjCliente.apellido2 }}</td>
-                            <td>{{ ObjCliente.direccion }}</td>
-                            <td>{{ ObjCliente.ciudad }}</td>
-                            <td>{{ ObjCliente.departamento }}</td>
-                            <td>{{ ObjCliente.pais }}</td>
-                            <td>{{ ObjCliente.email1 }}</td>
-                            <td>{{ ObjCliente.email2 }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="pdf-table spaceRows tabla2">
-                    <thead>
-                        <tr>
-                            <th style="border-left: #777 solid 1px;">Teléfono 1</th>
-                            <th>Teléfono 2</th>
-                            <th>Tipo Documento</th>
-                            <th>Número Documento</th>
-                            <th>País Expedición</th>
-                            <th>Depto. Expedición</th>
-                            <th>Ciudad Expedición</th>
-                            <th>Fecha Expedición</th>
-                            <th>Fecha Nacimiento</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="border-left: #777 solid 1px;">{{ ObjCliente.telefono1 }}</td>
-                            <td>{{ ObjCliente.telefono2 }}</td>
-                            <td>{{ ObjCliente.tipoDocumento }}</td>
-                            <td>{{ ObjCliente.numeroDocumento }}</td>
-                            <td>{{ ObjCliente.paisExpedicion }}</td>
-                            <td>{{ ObjCliente.departamentoExpedicion }}</td>
-                            <td>{{ ObjCliente.ciudadExpedicion }}</td>
-                            <td>{{ ObjCliente.fechaExpedicion }}</td>
-                            <td>{{ ObjCliente.fechaNacimiento }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div style="padding: .4rem 2.2rem;">
-                <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
-                    Información General
-                    <span v-if="isTitular == 1">En representación de: ({{ ObjCliente.nombreEmpresa }} Nit: {{ ObjCliente.nit }})</span>
-                    <span v-else>Persona Natural</span>
-                </span>
-                <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th colspan="4" style="border-left: #777 solid 1px;">Resumen de Unidad</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-left: #777 solid 1px;">
-                            <td>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <b>Importe:</b>
-                                    <span>{{ formatoMoneda(unidades[0].valor_unidad) }}</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <b>Descuento Base:</b>
-                                    <span>{{ formatoMoneda(unidades[0].valor_descuento) }}</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <b>Imp. - Desc. Base:</b>
-                                    <span>{{ formatoMoneda(importeActiva) }}</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <b>Tipo Unidad:</b>
-                                    <span>{{ unidades[0].tipo }}</span>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr style="border-left: #777 solid 1px;">
-                            <td colspan="4">
-                                <div style="display: flex; justify-content: space-between;">
-                                    <b>Opción Seleccionada:</b>
-                                    <span>{{ textoCotizacion }}</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th colspan="2" style="border-left: #777 solid 1px;">Separación y Escrituración</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-left: #777 solid 1px;">
-                            <td>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <b>Valor Separación:</b>
-                                    <span>{{ formatoMoneda(f_valor_separacion) }}</span>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <b>Valor Escrituración:</b>
-                                    <span>{{ formatoMoneda(f_valor_escrituras) }}</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="pdf-table resumen-opcion">
-                    <thead>
-                        <tr>
-                            <th colspan="4" style="border-left: #777 solid 1px;">Modo de Pago</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-left: #777 solid 1px;">
-                            <td>
-                                <b>Tipo:</b> 
-                                 <span style="float: right;">{{ pagoSeleccionado === 'contado' ? 'Contado' : 'Financiado' }}</span>
-                            </td>
-                            <td>
-                                <b>Entidad:</b>
-                                <span style="float: right;">{{ nombreBanco(bancoSeleccionado) }}</span> 
-                            </td>
-                            <td>
-                                <b>Modalidad:</b> 
-                                <span style="float: right;">{{ nombrePlan(planSeleccionado, tipoFinanciacionSeleccionada) }}</span>
-                            </td>
-                            <td>
-                                <b>Años:</b>
-                                <span style="float: right;">{{ anioSeleccionado }}</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="pdf-table resumen-opcion">
-                    <thead>
-                        <tr>
-                            <th colspan="5" style="border-left: #777 solid 1px;">Descuentos, subsidios y aportes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-left: #777 solid 1px;">
-                            <td>
-                                <b>Cesantías:</b>
-                                <span style="float: right;">{{ formatoMoneda(f_valor_cesantias) }}</span>
-                            </td>
-                            <td>
-                                <b>Ahorros:</b>
-                                <span style="float: right;">{{ formatoMoneda(f_valor_ahorros) }}</span>
-                            </td>
-                            <td>
-                                <b>Subsidio:</b>
-                                <span style="float: right;">{{ subsidioActivo ? formatoMoneda(valor_subsidio) : '$0' }}</span>
-                            </td>
-                            <td>
-                                <b>Caja:</b>
-                                <span style="float: right;">{{ nombreCaja(caja_compensacion) }}</span>
-                            </td>
-                            <td>
-                                <b>Año Subidio:</b> 
-                                <span style="float: right;">{{ seleccionAnioEntrega }}</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <table class="pdf-table resumen-opcion">
-                    <thead>
-                        <tr>
-                            <th colspan="4" style="border-left: #777 solid 1px;">Financiación</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr style="border-left: #777 solid 1px;">
-                            <td>
-                                <b>Imp. Financiado:</b>
-                                <span style="float: right;">{{ formatoMoneda(valor_credito) }}</span>
-                            </td>
-                            <td>
-                                <b>Cuota Inicial:</b>
-                                <span style="float: right;">{{ formatoMoneda(cuota_inicial) }}</span>
-                            </td>
-                            <td>
-                                <b>TNA Antes PE:</b>
-                                <span style="float: right;">{{ formatoTNA(d_tna_antes) }}</span>
-                            </td>
-                            <td>
-                                <b>TNA Después PE:</b>
-                                <span style="float: right;">{{ formatoTNA(d_tna_despues) }}</span>
-                            </td>
-                        </tr>
-                        <tr style="border-left: #777 solid 1px;">
-                            <td>
-                                <b>Fecha PE:</b>
-                                <span style="float: right;">{{ d_fecha_pe }}</span>
-                            </td>
-                            <td>
-                                <b>Fecha Entrega:</b>
-                                <span style="float: right;">{{ d_fecha_entrega }}</span>
-                            </td>
-                            <td>
-                                <b>1ra Cuota:</b>
-                                <span style="float: right;">{{ d_fecha_cuota }}</span>
-                            </td>
-                            <td>
-                                <b>Meses:</b>
-                                <span style="float: right;">{{ d_meses }}</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-         
-        
-            <div v-else style="padding: .4rem 2.2rem;">
-                <span style="color: #999; font-weight: bold; font-size: 15px;"></span>
-                <p style="text-align: justify; font-size: 12px; margin: 0; line-height: 1.1;">
+                style="padding: 1rem 2.2rem; font-size: 12px; color: #444; line-height: 1.35; border-top: 1px solid #ccc; margin-top: 1rem;">
+                <h3 style="font-size: 14px; font-weight: 700; color: #007a8c; margin-bottom: .5rem; text-align: center;">
+                    Información Legal y Financiera
+                </h3>
+                <p style="text-align: justify; margin: .4rem 0;">
+                    <strong>CONSTRUCTORA CAPITAL MEDELLÍN S.A.S.</strong> y <strong>CONSTRUCTORA CAPITAL BOGOTÁ S.A.S.</strong>
+                    dejan constancia en que la visita realizada el día de hoy nos autorizó para recolectar y tratar sus datos
+                    personales.
+                    La política de tratamiento de datos se encuentra disponible en
+                    <a href="https://www.constructoracapital.com" target="_blank"
+                        style="color: #007a8c; text-decoration: none;">www.constructoracapital.com</a>.
+                    Los datos personales suministrados serán tratados de manera segura y confidencial con fines informativos,
+                    comerciales y de análisis,
+                    conforme a la Ley 1581 de 2012.
+                </p>
+            
+                <p style="text-align: justify; margin: .4rem 0;">
+                    Para consultas o reclamaciones sobre el tratamiento de sus datos personales, puede comunicarse al correo
+                    <a href="mailto:protecciondedatos@constructoracapital.com" style="color: #007a8c; text-decoration: none;">
+                        protecciondedatos@constructoracapital.com
+                    </a>
+                    o a las líneas telefónicas (604) 4487440 en Medellín y (601) 4430700 en Bogotá.
+                </p>
 
+                <div style="border-top: 1px dashed #bbb; margin: .8rem 0;"></div>
+ 
+                <p style="text-align: justify; margin: .4rem 0;">
+                    <strong>(*) Financiar tu inmueble en pesos</strong>, también conocido como <strong>TASA FIJA</strong>, te
+                    permite garantizar el valor mensual de la cuota de tu crédito sin variaciones a lo largo del tiempo.
+                    También puedes financiarlo en <strong>UVR (Unidades de Valor Real)</strong>, o <strong>TASA VARIABLE</strong>,
+                    que te permite acceder a cuotas iniciales más bajas,
+                    pero sujetas al comportamiento de la inflación.
+                </p>
+            
+                <p style="text-align: justify; margin: .4rem 0;">
+                    Recuerda que por ley puedes solicitar el cambio de modalidad o trasladar tu hipoteca entre bancos sin penalidad,
+                    siempre que cumplas con el perfil de riesgo requerido por la entidad financiera.
+                    El único responsable del pago del inmueble y de la obtención de la financiación es el comprador o cesionario.
+                    En caso de tener 70 años o más, la aprobación del crédito puede estar sujeta a condiciones especiales.
+                </p>
+            
+                <div style="border-top: 1px dashed #bbb; margin: .8rem 0;"></div>
+            
+                <p style="text-align: justify; margin: .4rem 0;">
+                    <strong>(*) El valor de la separación</strong> no hace parte del pago del inmueble si este es de característica
+                    <strong>VIS</strong>.
+                    Estos recursos entregados a Constructora Capital o a la Fiducia corresponden al pago por los diferentes
+                    conceptos requeridos para poder escriturar el inmueble,
+                    entre los que se incluyen <em>avalúos, estudios de títulos, trámites de subsidio, gastos administrativos,
+                        notariado y registro</em>,
+                    entre otros, y no son negociables por las partes.
                 </p>
             </div>
         </div>
@@ -1301,8 +1482,28 @@
             <div v-if="mode == 2" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="guardarCotizacion">Guardar</button>
             </div>
-             <div v-if="mode == 3" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="guardarYGenerarPDF">Opcionar</button>
+            <div v-if="mode == 3"
+                style="display: flex; align-items: center; justify-content: space-between; width: 90%; gap: 1rem">
+                <div style="flex: 1;"></div>
+                <!-- <div style="flex: 1; text-align: center;">
+                    <button class="pure-button button-fixed">
+                        Opcionar
+                    </button>
+                </div> -->
+                <div style="flex: 1; display: flex; justify-content: flex-end; gap: 2rem; text-align: center;">
+                    <div class="boton-accion" @click="guardarYGenerarPDF">
+                        <img src="../../img/ico/printer.png" alt="Imprimir">
+                        <span>Sólo Imprimir</span>
+                    </div>
+                    <div class="boton-accion" @click="enviarMail">
+                        <img src="../../img/ico/mail.png" alt="Mail">
+                        <span>Sólo Enviar al Mail</span>
+                    </div>
+                    <div class="boton-accion" @click="enviarYOpcionar">
+                        <img src="../../img/ico/achievement.png" alt="Opcionar">
+                        <span>Enviar y Opcionar</span>
+                    </div>
+                </div>
             </div>
             <!-- <div v-if="mode != 5 && ObjCliente.Nombres != ''" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>
