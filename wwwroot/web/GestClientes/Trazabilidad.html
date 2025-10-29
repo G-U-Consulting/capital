@@ -101,6 +101,7 @@
                     <span v-if="chartMode == 'acciones_asesor'">Informe trazabilidad acciones por asesor</span>
                     <span v-if="chartMode == 'temporal_asesor'">Informe temporal acciones por asesor</span>
                     <span v-if="chartMode == 'temporal_unidad'">Informe temporal acciones por unidad</span>
+                    <span v-if="chartMode == 'total_acciones'">Informe efectividad acciones</span>
                 </h2>
 
                 <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
@@ -108,6 +109,7 @@
                         <option value="acciones_asesor">Acciones por Asesor</option>
                         <option value="temporal_asesor">Temporal Asesor</option>
                         <option value="temporal_unidad">Temporal Unidad</option>
+                        <option value="total_acciones">Efectividad Acciones</option>
                     </select>
                     <select v-if="chartMode == 'acciones_asesor' || chartMode == 'temporal_asesor'" 
                         style="width: 10rem;" v-model="filIdSala" @change="resetChart">

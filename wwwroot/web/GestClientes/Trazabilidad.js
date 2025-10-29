@@ -140,10 +140,11 @@ export default {
                 this.selTodosAs = true;
                 this.onSelTodosAs();
             }
-            if (this.chartMode == 'temporal_asesor' || this.chartMode == 'temporal_unidad') {
+            else if (this.chartMode == 'temporal_asesor' || this.chartMode == 'temporal_unidad') {
                 this.selTodosAcc = true;
                 this.onSelTodosAcc();
             }
+            else this.initChart();
         },
         async initChart() {
             if (this.chart) this.chart.destroy();
@@ -163,12 +164,15 @@ export default {
                 }
             };
 
+            console.log(this.chartMode);
             if (this.chartMode === 'acciones_asesor')
                 this.dataAccionesAsesor(config);
             if (this.chartMode === 'temporal_asesor')
                 this.dataTemporalAsesor(config);
             if (this.chartMode === 'temporal_unidad')
                 this.dataTemporalUnidad(config);
+            if (this.chartMode === 'total_acciones')
+                this.dataTotalAcciones(config);
             if (ctx) this.chart = new Chart(ctx, config);
         },
         exportChart() {
@@ -271,7 +275,7 @@ export default {
                 data: fechas.map(fecha =>
                     this.getFilteredList('trazabilidad').filter(
                         t => ((group === 'sede' && t.id_sede === id) || (group === 'zona' && t.id_zona_proyecto === id)
-                            || (group === 'ciudadela' && t.id_ciudadela === id) || (group === 'proyecto' && t.id_proyecto === id)) 
+                            || (group === 'ciudadela' && t.id_ciudadela === id) || (group === 'proyecto' && t.id_proyecto === id))
                             && t.created_on === fecha && acciones.includes(t.obj)
                     ).length
                 ),
@@ -292,6 +296,19 @@ export default {
                 }
             };
         },
+        dataTotalAcciones(config) {
+            let labels = [`${this.filtros.trazabilidad.created_on1} - ${this.filtros.trazabilidad.created_on2}`];
+            const data = {
+                labels: labels,
+                datasets: this.acciones.map((a, i) => ({
+                    label: a.obj,
+                    data: [this.getFilteredList('trazabilidad').filter(t => t.obj === a.obj).length],
+                    backgroundColor: this.getColor(i, this.acciones.length)
+                }))
+            };
+            console.log(data);
+            config.data = data;
+        },
         async exportExcel(tabla) {
             try {
                 showProgress();
@@ -305,6 +322,7 @@ export default {
             }
             hideProgress();
         },
+
     },
     computed: {
         getFilteredList() {

@@ -16,6 +16,7 @@ set @id_torre = NULL,
     @cod_proyecto_fid = NULL, 
     @nit_fid_doc_cliente = NULL, 
     @id_instructivo = NULL, 
+    @id_banco_constructor = NULL,
     @propuesta_pago = NULL;
 --END_PARAM
 
@@ -33,6 +34,7 @@ set en_venta = if(@en_venta = '1', 1, 0),
     cod_proyecto_fid = @cod_proyecto_fid,
     nit_fid_doc_cliente = @nit_fid_doc_cliente,
     id_instructivo = @id_instructivo,
+    id_banco_constructor = @id_banco_constructor,
     propuesta_pago = if(@propuesta_pago = '1', 1, 0)
 where id_torre = @id_torre;
 

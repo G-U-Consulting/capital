@@ -31,6 +31,7 @@ create table fact_torres(
 	nit_fid_doc_cliente varchar(50),
 	id_instructivo int references dim_instructivo(id_instructivo),
 	is_active bit default 1,
+	id_banco_constructor int references dim_banco_constructor(id_banco),
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	check (aptos_fila <= aptos_piso)

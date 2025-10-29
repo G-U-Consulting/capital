@@ -22,6 +22,7 @@
 			instructivos: [],
 			clases: [],
 			tipos: [],
+			bancos: [],
 			localizaciones: [],
 			agrupaciones: [],
 			groupedAptos: [],
@@ -171,12 +172,13 @@
 		},
 		async loadUnidades(compute) {
 			showProgress();
-			let [torres, aptos, estados, fiduciarias, instructivos, clases] = (await
+			let [torres, aptos, estados, fiduciarias, instructivos, clases, bancos] = (await
 				httpFunc('/generic/genericDS/Unidades:Get_Unidades', { id_proyecto: GlobalVariables.id_proyecto })).data;
 			this.estados = estados;
 			this.fiduciarias = fiduciarias;
 			this.instructivos = instructivos;
 			this.clases = clases;
+			this.bancos = bancos;
 			let pisos = new Set(), localizaciones = new Set();
 			if (torres.length && aptos.length) {
 				let a_num_fields = ['valor_separacion', 'valor_reformas', 'valor_descuento', 'valor_acabados', 'valor_unidad', 'valor_complemento', 'area_total', 'area_privada_cub', 'area_privada_lib', 'acue', 'area_total_mas_acue'],
@@ -951,7 +953,7 @@
 							|| (k.startsWith('id_') && k !== 'id_agrupacion') || k.endsWith('1'))
 							delete apto[k];
 						else if (k.includes('fecha'))
-							apto[k] &&= this.formatDatetime(apto[k], 'date');
+							apto[k] &&= this.formatDatetime(apto[k], 'bdate');
 						else if (k.startsWith('valor') || k.includes('area') || k.includes('observacion'))
 							apto[k] = apto[k].replace(',', '.');
 						else if (k === 'numero_apartamento') {
