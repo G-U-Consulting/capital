@@ -105,7 +105,7 @@
                 </h2>
 
                 <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
-                    <select v-model="chartMode" style="width: 10rem;" @change="resetChart">
+                    <select v-model="chartMode" style="width: 10rem;" @change="setGroupMode();resetChart()">
                         <option value="acciones_asesor">Acciones por Asesor</option>
                         <option value="temporal_asesor">Temporal Asesor</option>
                         <option value="temporal_unidad">Temporal Unidad</option>
@@ -122,6 +122,11 @@
                         <option value="zona">Zona</option>
                         <option value="ciudadela">Ciudadela</option>
                         <option value="proyecto">Proyecto</option>
+                    </select>
+                    <select v-if="chartMode == 'total_acciones'" v-model="groupMode" style="width: 10rem;"
+                        @change="resetChart">
+                        <option value="total">Totales</option>
+                        <option value="porc_visitas">Porcentaje sobre visitas</option>
                     </select>
                     <button @click="exportChart">Exportar</button>
                     <label v-if="chartMode == 'temporal_asesor'" @click="verBarras = !verBarras; resetChart();"

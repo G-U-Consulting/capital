@@ -135,6 +135,9 @@ export default {
             else this.selTodosAcc = false;
             this.initChart();
         },
+        setGroupMode() {
+            this.groupMode = this.chartMode == 'total_acciones' ? 'total' : 'sede';
+        },
         resetChart() {
             if (this.chartMode == 'acciones_asesor') {
                 this.selTodosAs = true;
@@ -164,7 +167,6 @@ export default {
                 }
             };
 
-            console.log(this.chartMode);
             if (this.chartMode === 'acciones_asesor')
                 this.dataAccionesAsesor(config);
             if (this.chartMode === 'temporal_asesor')
@@ -297,16 +299,41 @@ export default {
             };
         },
         dataTotalAcciones(config) {
-            let labels = [`${this.filtros.trazabilidad.created_on1} - ${this.filtros.trazabilidad.created_on2}`];
+            let labels = [`${this.filtros.trazabilidad.created_on1} - ${this.filtros.trazabilidad.created_on2}`],
+                todos = this.groupMode === 'total',
+                num_visitas = !todos ? this.getFilteredList('trazabilidad').filter(t => t.obj === 'Visita').length : 0;
             const data = {
                 labels: labels,
-                datasets: this.acciones.map((a, i) => ({
+                datasets: this.acciones.filter(a => a.obj !== 'Desistimiento' && (todos || a.obj !== 'Visita'))
+                    .map((a, i) => ({
                     label: a.obj,
-                    data: [this.getFilteredList('trazabilidad').filter(t => t.obj === a.obj).length],
+                    data: todos
+                        ? [this.getFilteredList('trazabilidad').filter(t => t.obj === a.obj).length]
+                        : [this.getFilteredList('trazabilidad').filter(t => t.obj === a.obj).length / num_visitas * 100],
                     backgroundColor: this.getColor(i, this.acciones.length)
                 }))
             };
-            console.log(data);
+            config.options.scales = {
+                y: {
+                    min: !todos ? 0 : undefined,
+                    max: !todos ? 100 : undefined,
+                    ticks: {
+                        callback: function(value) {
+                        return !todos ? value + '%' : value;
+                        }
+                    }
+                }
+            }
+            config.options.plugins = {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.parsed.y;
+                            return !todos ? value.toFixed(2) + '%' : value;
+                        }
+                    }
+                }
+            }
             config.data = data;
         },
         async exportExcel(tabla) {

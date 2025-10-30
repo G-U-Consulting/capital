@@ -7,8 +7,13 @@ export default {
             vetos: [],
             directores: [],
 
+            filMode: 'week',
             filtros: {
-                vetos: { nombre_id: '', vigente: '' }
+                vetos: { 
+                    nombre_id: '', vigente: '',
+                    fechaI: this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7)),
+                    fechaF: this.formatDatetime('', 'bdate', new Date())
+                }
             },
 
             searchCli: null,
@@ -181,12 +186,54 @@ export default {
             }
             hideProgress();
         },
+        updateFilMode(mode) {
+            this.filMode = mode;
+            if (mode === 'week') {
+                this.filtros.vetos.fechaI = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7));
+                this.filtros.vetos.fechaF = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
+            }
+            if (mode === 'month') {
+                this.filtros.vetos.fechaI = this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 30));
+                this.filtros.vetos.fechaF = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
+            }
+        },
+        formatDatetime(text, type = 'datetime', _date) {
+            const date = _date || (text ? new Date(text) : new Date());
+            let day = date.getDate().toString().padStart(2, '0'),
+                month = (date.getMonth() + 1).toString().padStart(2, '0'),
+                year = date.getFullYear(),
+                hour = (date.getHours() % 12 || 12).toString().padStart(2, '0'),
+                minutes = date.getMinutes().toString().padStart(2, '0'),
+                seconds = date.getSeconds().toString().padStart(2, '0'),
+                meridian = date.getHours() >= 12 ? 'p. m.' : 'a. m.';
+            if (type === 'date')
+                return `${day}/${month}/${year}`;
+            if (type === 'textdate')
+                return `${day} de ${this.nameMonths[date.getMonth()]} de ${year}`;
+            if (type === 'bdate')
+                return `${year}-${month}-${day}`;
+            if (type === 'bdatetime')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
+            if (type === 'bdatetimes')
+                return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
+            if (type === 'time')
+                return `${hour}:${minutes} ${meridian}`;
+            if (type === 'vtime')
+                return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
+            return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
+        },
     },
     computed: {
         getFilteredList() {
             return (tabla) => {
                 return this[tabla] ? this[tabla].filter(item =>
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
+                        if (tabla == 'vetos' && key == 'fechaI')
+                            return !this.filtros[tabla][key] ||
+                                (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() <= (new Date(item.fecha.split(' ')[0] + ' 00:00').getTime());
+                        if (tabla == 'vetos' && key == 'fechaF')
+                            return !this.filtros[tabla][key] ||
+                                (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() >= (new Date(item.fecha.split(' ')[0] + ' 00:00').getTime());
                         if (tabla == 'vetos' && key == 'nombre_id')
                             return this.filtros[tabla][key] === ''
                                 || String(item['nombre']).toLowerCase().includes(this.filtros[tabla][key].toLowerCase())

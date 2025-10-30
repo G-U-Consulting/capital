@@ -860,10 +860,5 @@ export default {
                 return this.proyectos.filter(pro => !filProject || pro.nombre.toLowerCase().includes(filProject.toLowerCase()));
             }
         },
-        getOptApprove() {
-            return () => {
-
-            }
-        }
     }
 }
