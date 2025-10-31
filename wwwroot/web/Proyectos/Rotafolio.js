@@ -400,7 +400,7 @@ export default {
         handleWheel(e) {
             let relX = e.offsetX / e.target.getBoundingClientRect().width * 100;
             let relY = e.offsetY / e.target.getBoundingClientRect().height * 100;
-            let factor = [1, 1.25, 1.5, 1.75, 2];
+            let factor = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3];
             e.deltaY > 0
                 ? this.c_zoomFactor = factor.reverse().find(f => f < this.c_zoomFactor) || Math.min(...factor)
                 : this.c_zoomFactor = factor.find(f => f > this.c_zoomFactor) || Math.max(...factor);

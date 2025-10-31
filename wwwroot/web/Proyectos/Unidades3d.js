@@ -1358,7 +1358,7 @@
 				let b = false;
 				for (let piso of torre.pisos) {
 					for (let unidad of piso.unidades) {
-						if (unidad.id_estado_unidad != '1') {
+						if (unidad.id_estado_unidad != '1' && unidad.id_estado_unidad != '') {
 							b = true;
 							break;
 						}

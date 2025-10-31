@@ -325,7 +325,7 @@ create table dim_desistimiento(
 );
 create table dim_cuenta_desistimiento(
     id_cuenta int primary key auto_increment,
-    id_desistimiento int not null references dim_desistimiento(id_desistimiento),
+    id_desistimiento int references dim_desistimiento(id_desistimiento),
     id_cliente int references fact_clientes(id_cliente),
     nombre_cliente varchar(200),
     numero_documento varchar(50),
