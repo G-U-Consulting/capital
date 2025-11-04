@@ -73,8 +73,6 @@ delete from dim_cuenta_desistimiento where id_desistimiento in (
 );
 delete from dim_desistimiento
    where id_venta in (select v.id_venta from fact_ventas v join fact_unidades u on v.id_unidad = u.id_unidad where id_proyecto = 13);
-delete from dim_venta_cliente
-   where id_venta in (select v.id_venta from fact_ventas v join fact_unidades u on v.id_unidad = u.id_unidad where id_proyecto = 13);
 delete from fact_ventas where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 13);
 delete from fact_lista_espera where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 13);
 delete from fact_unidades where id_proyecto = 13;

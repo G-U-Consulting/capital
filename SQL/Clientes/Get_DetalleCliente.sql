@@ -43,12 +43,14 @@ select v.id_venta, date_format(v.created_on, '%Y-%m-%d') as fecha,
     coalesce(a.nombre, concat(coalesce(tp.tipo_proyecto, ''), ' ', un.numero_apartamento)) as unidad,
     us.nombres as asesor, t.consecutivo as torre, p.nombre as proyecto, sv.sala_venta
 from fact_ventas v
-join dim_venta_cliente vc on v.id_venta = vc.id_venta
-join fact_unidades un on v.id_unidad = un.id_unidad
+join fact_opcion o on v.id_opcion = o.id_opcion
+join fact_cotizacion_cliente cc on o.id_cotizacion = cc.id_cotizacion
+join fact_negocios_unidades cu on o.id_cotizacion = cu.id_cotizacion
+join fact_unidades un on cu.id_unidad = un.id_unidad
 left join dim_agrupacion_unidad a on un.id_agrupacion = a.id_agrupacion
 join dim_tipo_proyecto tp on un.id_clase = tp.id_tipo_proyecto
 join fact_torres t on un.id_torre = t.id_torre
 join fact_proyectos p on un.id_proyecto = p.id_proyecto
 join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
 join fact_usuarios us on v.created_by = us.usuario collate utf8mb4_general_ci
-where vc.id_cliente = @id_cliente;
+where cc.id_cliente = @id_cliente;

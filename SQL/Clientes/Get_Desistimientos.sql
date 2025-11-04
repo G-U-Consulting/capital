@@ -22,8 +22,11 @@ select date_format(d.ultima_fecha, '%Y-%m-%d %T') as ultima_fecha,
 from dim_desistimiento d
 join dim_estado_desistimiento e on d.id_estado = e.id_estado
 join fact_ventas v on d.id_venta = v.id_venta
-join fact_clientes c on v.id_cliente = c.id_cliente
-join fact_unidades u on v.id_unidad = u.id_unidad
+join fact_opcion o on v.id_opcion = o.id_opcion
+join fact_cotizaciones fc on o.id_cotizacion = fc.id_cotizacion
+join fact_clientes c on fc.id_cliente = c.id_cliente
+join fact_negocios_unidades cu on fc.id_cotizacion = cu.id_cotizacion
+join fact_unidades u on cu.id_unidad = u.id_unidad
 join fact_torres t on u.id_torre = t.id_torre
 join fact_proyectos p on u.id_proyecto = p.id_proyecto
 left join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
@@ -51,8 +54,11 @@ select v.id_venta, d.radicado, p.id_proyecto, p.nombre as proyecto, t.id_torre, 
     c.id_cliente, c.numero_documento, c.nombres, c.apellido1, c.apellido2, date_format(v.created_on, '%Y-%m-%d %T') as created_on,
     coalesce(f1.id_fiduciaria, f2.id_fiduciaria) as id_fiduciaria
 from fact_ventas v
-join fact_clientes c on v.id_cliente = c.id_cliente
-join fact_unidades u on v.id_unidad = u.id_unidad
+join fact_opcion o on v.id_opcion = o.id_opcion
+join fact_cotizaciones fc on o.id_cotizacion = fc.id_cotizacion
+join fact_clientes c on fc.id_cliente = c.id_cliente
+join fact_negocios_unidades cu on fc.id_cotizacion = cu.id_cotizacion
+join fact_unidades u on cu.id_unidad = u.id_unidad
 join fact_torres t on u.id_torre = t.id_torre
 join fact_proyectos p on u.id_proyecto = p.id_proyecto
 left join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion

@@ -255,21 +255,27 @@ begin
 end;
 
 
-create table fact_ventas(
-    id_venta int primary key auto_increment,
-    id_unidad int not null references fact_unidades(id_unidad),
-    id_cliente int not null references fact_clientes(id_cliente), -- Cliente principal
-    id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+create table fact_cotizacion_cliente(
+    id_cotizacion_cliente int primary key auto_increment,
+    id_cliente int not null references fact_clientes(id_cliente),
+    id_cotizacion int not null references fact_cotizaciones(id_cotizacion),
+    constraint uk_cliente_cotizacion unique (id_cliente, id_cotizacion)
+);
+
+create table fact_opcion(
+    id_opcion int primary key auto_increment,
+    id_cotizacion int not null references fact_cotizaciones(id_cotizacion),
+    fecha_entrega date not null,
     created_on datetime default current_timestamp,
     created_by varchar(50) not null
 );
 
--- Multiples clientes por venta
-create table dim_venta_cliente(
-    id_cliente_venta int primary key auto_increment,
-    id_cliente int not null references fact_clientes(id_cliente),
-    id_venta int not null references fact_ventas(id_venta),
-    constraint uk_cliente_venta unique (id_cliente, id_venta)
+create table fact_ventas(
+    id_venta int primary key auto_increment,
+    id_opcion int not null references fact_opcion(id_opcion),
+    id_sala_venta int not null references dim_sala_venta(id_sala_venta),
+    created_on datetime default current_timestamp,
+    created_by varchar(50) not null
 );
 
 create table dim_estado_desistimiento(
@@ -323,9 +329,9 @@ create table dim_desistimiento(
     created_by varchar(50) not null,
     updated_by varchar(50) not null
 );
-create table dim_cuenta_desistimiento(
+create table dim_cuenta_opcion(
     id_cuenta int primary key auto_increment,
-    id_desistimiento int references dim_desistimiento(id_desistimiento),
+    id_opcion int references fact_opcion(id_opcion),
     id_cliente int references fact_clientes(id_cliente),
     nombre_cliente varchar(200),
     numero_documento varchar(50),

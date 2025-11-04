@@ -3,7 +3,7 @@
 -- =============================================
 --START_PARAM
 set @id_cuenta = NULL,
-    @id_desistimiento = NULL,
+    @id_opcion = NULL, -- pendiente js
     @id_cliente = NULL,
     @nombre_cliente = NULL,
     @numero_documento = NULL,
@@ -14,8 +14,8 @@ set @id_cuenta = NULL,
     @tipo_giro = NULL;
 --END_PARAM
 
-update dim_cuenta_desistimiento
-set id_desistimiento = @id_desistimiento,
+update dim_cuenta_opcion
+set id_opcion = @id_opcion,
     id_cliente = @id_cliente,
     nombre_cliente = @nombre_cliente,
     numero_documento = @numero_documento,

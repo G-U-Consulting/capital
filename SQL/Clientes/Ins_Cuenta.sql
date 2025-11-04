@@ -3,7 +3,7 @@
 -- =============================================
 --START_PARAM
 set @id_cuenta = NULL,
-    @id_desistimiento = NULL,
+    @id_opcion = NULL, -- pendiente js
     @id_cliente = NULL,
     @nombre_cliente = NULL,
     @numero_documento = NULL,
@@ -14,10 +14,10 @@ set @id_cuenta = NULL,
     @tipo_giro = NULL;
 --END_PARAM
 
-insert into dim_cuenta_desistimiento(
-    id_desistimiento, id_cliente, nombre_cliente, numero_documento, entidad, tipo_cuenta, numero_cuenta, porcentaje, tipo_giro
+insert into dim_cuenta_opcion(
+    id_opcion, id_cliente, nombre_cliente, numero_documento, entidad, tipo_cuenta, numero_cuenta, porcentaje, tipo_giro
 ) values (
-    @id_desistimiento, @id_cliente, @nombre_cliente, @numero_documento, @entidad, @tipo_cuenta, @numero_cuenta, @porcentaje, @tipo_giro
+    @id_opcion, @id_cliente, @nombre_cliente, @numero_documento, @entidad, @tipo_cuenta, @numero_cuenta, @porcentaje, @tipo_giro
 );
 
 select concat('OK-id_cuenta:', last_insert_id()) as result;
