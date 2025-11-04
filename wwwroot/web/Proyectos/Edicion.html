@@ -109,7 +109,7 @@
                 <div class='formInputStandard'>
                     <div class='pure-g'>
                         <div v-for='item in salas_venta' class='pure-u-1-4'>
-                            <label class="check">   
+                            <label class="check">
                                 <input type="checkbox" value='1' v-model="item.checked" @change="syncChecks('salas_venta')" />
                                 <span class="checkmark"></span>
                                 {{ item.sala_venta }}
@@ -148,7 +148,7 @@
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1'> </div>
-        </div>                    
+        </div>
         <!--Tipología y financiación-->
         <div class="pure-g" v-show="submode == 1">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
@@ -182,7 +182,7 @@
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Banco Financiador
+                Banco Financiador (Aliado)
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1'>
                 <div class='formInputStandard'>
@@ -216,7 +216,7 @@
             </div>
             <!--TODO Excluir Torre Tipo-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Unidades (Torre/Tipo;) a excluir de subsidios VIS
+                 Unidades (Torre/Tipo) a excluir de subsidios VIS
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
@@ -288,7 +288,7 @@
                     </div>
                 </div>
             </div>
-        </div>                    
+        </div>
         <!--Datos de pago-->
         <div class="pure-g" v-show="submode == 2">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
@@ -377,6 +377,39 @@
                     </select>
                 </div>
             </div>
+            <div style="margin-top: 1rem;">
+                <div style="text-align: center;">
+                    <span>Tabla</span>
+                </div>
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Banco Constructor / Contado</th>
+                            <th>Banco Aliado</th>
+                            <th>FNA - Carta de compromiso del Cliente - Otros</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>Fecha última cuota a Fecha de escritura</b></td>
+                            <td><input style="text-align: right;" type="text" v-model="B_C_CCF"></td>
+                            <td><input style="text-align: right;" type="text" v-model="B_A_CCF"></td>
+                            <td><input style="text-align: right;" type="text" v-model="B_O_CCF"></td>
+                        </tr>
+                        <tr>
+                            <td><b>Fecha de escritura a Fecha de entrega</b></td>
+                            <td><input style="text-align: right;" type="text" v-model="B_C_FEC"></td>
+                            <td><input style="text-align: right;" type="text" v-model="B_A_FEC"></td>
+                            <td><input style="text-align: right;" type="text" v-model="B_O_FEC"></td>
+                        </tr>
+                </table>
+                <div style="text-align: right; margin-top: 1rem;">
+                    <button class="pure-button pure-button-primary" @click="guardarPlazos">
+                        Guardar Plazos
+                    </button>
+                </div>
+            </div>
         </div>
         <!--C. de costos y fiduciaria-->
         <div class="pure-g" v-show="submode == 3">
@@ -435,7 +468,7 @@
                         <div class="pure-u-1-1">
                             <div class="toggle-switch" :class="{ inactive: editObjProyecto.lanzamiento === '1' }">
                                 <input id="lanzamiento-toggle" type="checkbox" class="toggle-input"
-                                    :checked="editObjProyecto.lanzamiento === '0'" 
+                                    :checked="editObjProyecto.lanzamiento === '0'"
                                 @change="editObjProyecto.lanzamiento = $event.target.checked ? '0' : '1'" />
                                 <label class="toggle-label" for="lanzamiento-toggle"></label>
                             </div>
@@ -575,7 +608,7 @@
                     <input type='text' v-model='editObjProyecto.link_especifico_onelink' maxlen='100' />
                 </div>
             </div>
-        
+
             <!--Links de especificaciones y Cartilla Negocios-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
                 Link Especificaciones Técnicas y Cartilla de Negocio
@@ -588,10 +621,10 @@
                         <div class='pure-g switch-box'>
                             <div class='pure-u-1-1'>
                                 <div class="toggle-switch"
-                                    :class="{'inactive': Number(editObjProyecto.incluir_especificaciones_tecnicias) === 0}">
+                                    :class="{'inactive': Number(editObjProyecto.incluir_especificaciones_tecnicias) === '0'}">
                                     <input id="incluir_especificaciones_tecnicias-toggle" type="checkbox"
-                                        :checked="Number(editObjProyecto.incluir_especificaciones_tecnicias) === 1"
-                                        @click="editObjProyecto.incluir_especificaciones_tecnicias = Number(editObjProyecto.incluir_especificaciones_tecnicias) === 0 ? 1 : 0"
+                                        :checked="Number(editObjProyecto.incluir_especificaciones_tecnicias) === '1'"
+                                        @click="editObjProyecto.incluir_especificaciones_tecnicias = Number(editObjProyecto.incluir_especificaciones_tecnicias) === '0' ? '1': '0'"
                                         class="toggle-input">
                                     <label class="toggle-label" for="incluir_especificaciones_tecnicias-toggle"></label>
                                 </div>
@@ -607,7 +640,7 @@
                 </div>
                 <!--Links de Cartilla Negocios-->
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
-                    <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                    <!-- <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                         <span>Cotización</span>
                         <div class="pure-g switch-box">
                             <div class='pure-u-1-1'>
@@ -621,30 +654,52 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                        <span>Opción</span>
+                        <span>Incluir</span>
                         <div class='pure-g switch-box'>
                             <div class='pure-u-1-1'>
                                 <div class="toggle-switch"
-                                    :class="{'inactive': Number(editObjProyecto.incluir_cartilla_negocios_opcion) === 0}">
+                                    :class="{'inactive': Number(editObjProyecto.incluir_cartilla_negocios_opcion) === '0'}">
                                     <input id="incluir_opcion-toggle" type="checkbox"
-                                        :checked="Number(editObjProyecto.incluir_cartilla_negocios_opcion) === 1"
-                                        @click="editObjProyecto.incluir_cartilla_negocios_opcion = Number(editObjProyecto.incluir_cartilla_negocios_opcion) === 0 ? 1 : 0"
+                                        :checked="Number(editObjProyecto.incluir_cartilla_negocios_opcion) === '1'"
+                                        @click="editObjProyecto.incluir_cartilla_negocios_opcion = Number(editObjProyecto.incluir_cartilla_negocios_opcion) === '0' ? '1' : '0'"
                                         class="toggle-input">
                                     <label class="toggle-label" for="incluir_opcion-toggle"></label>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-2-3'>
+                    <div class='pure-u-1-1 pure-u-md-5-6'>
                         <div class='formInputStandard'>
                             <span>Link a Cartilla de Negocios Fiduciarios</span>
-                            <input type='text' v-model='editObjProyecto.link_cartilla_negocios' maxlen='100' 
+                            <input type='text' v-model='editObjProyecto.link_cartilla_negocios' maxlen='100'
                                     title="Link a Cartilla de Negocios Fiduciarios en emails de cotización y Opción" />
                         </div>
                     </div>
                 </div>
+                <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+                <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                    <span>Incluir</span>
+                    <div class='pure-g switch-box'>
+                        <div class='pure-u-1-1'>
+                            <div class="toggle-switch" :class="{'inactive': Number(editObjProyecto.incluir_brochure) === '0'}">
+                                <input id="incluir_brochure-toggle" type="checkbox"
+                                    :checked="Number(editObjProyecto.incluir_brochure) === '1'"
+                                    @click="editObjProyecto.incluir_brochure = Number(editObjProyecto.incluir_brochure) === '0' ? '1' : '0'"
+                                    class="toggle-input">
+                                <label class="toggle-label" for="incluir_brochure-toggle"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-5-6'>
+                    <div class='formInputStandard'>
+                        <span>Link a brochure PDF web</span>
+                        <input type='text' v-model='editObjProyecto.link_brochure' maxlen='100' />
+                    </div>
+                </div>
+            </div>
             </div>
             <!--Otros Links-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
@@ -653,7 +708,7 @@
             <!--Seguimiento Leads-->
             <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                    <span>Leads</span>
+                    <span>Incluir</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch" :class="{'inactive': Number(editObjProyecto.frame_seguimiento_visible) === 0}">
@@ -676,7 +731,7 @@
             <!--Evaluación de Conocimientos-->
             <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                    <span>Evaluación</span>
+                    <span>Incluir</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch"
@@ -700,7 +755,7 @@
             <!--Avance externo obra-->
             <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                    <span>Avance</span>
+                    <span>Incluir</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch" :class="{'inactive': Number(editObjProyecto.avance_obra_visible) === 0}">
@@ -721,9 +776,9 @@
                 </div>
             </div>
             <!--Brochure PDF-->
-            <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+            <!-- <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                    <span>Brochure</span>
+                    <span>Incluir</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch" :class="{'inactive': Number(editObjProyecto.incluir_brochure) === 0}">
@@ -742,11 +797,11 @@
                         <input type='text' v-model='editObjProyecto.link_brochure' maxlen='100' />
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- <div class="pure-u-1-1" style="text-align:right;padding-top: 1em;">
                 <button>Guardar</button>
             </div> -->
-        </div>                    
+        </div>
         <!--Unidades-->
         <div class="pure-g" v-show="submode == 6">
             <h1>Unidades</h1>

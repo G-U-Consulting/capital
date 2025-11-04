@@ -524,7 +524,7 @@
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Banco Financiador
+                Banco Financiador (Aliado)
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1'>
                 <div class='formInputStandard'>
@@ -948,7 +948,7 @@
                 </div>
                 <!--Links de Cartilla Negocios-->
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
-                    <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                    <!-- <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                         <span>Cotización</span>
                         <div class="pure-g switch-box">
                             <div class='pure-u-1-1'>
@@ -962,9 +962,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                        <span>Opción</span>
+                        <span>Incluir</span>
                         <div class='pure-g switch-box'>
                             <div class='pure-u-1-1'>
                                 <div class="toggle-switch"
@@ -978,7 +978,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class='pure-u-1-1 pure-u-md-2-3'>
+                    <div class='pure-u-1-1 pure-u-md-5-6'>
                         <div class='formInputStandard'>
                             <span>Link a Cartilla de Negocios Fiduciarios</span>
                             <input type='text' v-model='objProyecto.link_cartilla_negocios' maxlen='100' 
@@ -986,6 +986,28 @@
                         </div>
                     </div>
                 </div>
+                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+                <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
+                    <span>Incluir</span>
+                    <div class='pure-g switch-box'>
+                        <div class='pure-u-1-1'>
+                            <div class="toggle-switch" :class="{'inactive': Number(objProyecto.incluir_brochure) === 0}">
+                                <input id="incluir_brochure-toggle" type="checkbox"
+                                    :checked="Number(objProyecto.incluir_brochure) === 1"
+                                    @click="objProyecto.incluir_brochure = Number(objProyecto.incluir_brochure) === 0 ? 1 : 0"
+                                    class="toggle-input">
+                                <label class="toggle-label" for="incluir_brochure-toggle"></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-5-6'>
+                    <div class='formInputStandard'>
+                        <span>Link a brochure PDF web</span>
+                        <input type='text' v-model='objProyecto.link_brochure' maxlen='100' v-bind:class="{errorInput:casoValidator.link_brochure != null}"/>
+                    </div>
+                </div>
+            </div>
             </div>
             <!--Otros Links-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
@@ -994,7 +1016,7 @@
             <!--Seguimiento Leads-->
             <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                    <span>Leads</span>
+                    <span>Incluir</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch" :class="{'inactive': Number(objProyecto.frame_seguimiento_visible) === 0}">
@@ -1017,7 +1039,7 @@
             <!--Evaluación de Conocimientos-->
             <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                    <span>Evaluación</span>
+                    <span>Incluir</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch"
@@ -1041,7 +1063,7 @@
             <!--Avance externo obra-->
             <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                    <span>Avance</span>
+                    <span>Incluir</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch" :class="{'inactive': Number(objProyecto.avance_obra_visible) === 0}">
@@ -1062,9 +1084,9 @@
                 </div>
             </div>
             <!--Brochure PDF-->
-            <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
+            <!-- <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                    <span>Brochure</span>
+                    <span>Incluir</span>
                     <div class='pure-g switch-box'>
                         <div class='pure-u-1-1'>
                             <div class="toggle-switch" :class="{'inactive': Number(objProyecto.incluir_brochure) === 0}">
@@ -1083,7 +1105,7 @@
                         <input type='text' v-model='objProyecto.link_brochure' maxlen='100' v-bind:class="{errorInput:casoValidator.link_brochure != null}"/>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <!-- <div class="pure-u-1-1" style="text-align:right;padding-top: 1em;">
                 <button>Guardar</button>
             </div> -->

@@ -140,11 +140,11 @@ export default {
                 } else if (!this.tabsIncomplete.includes(index)) {
                     return 'wizarTabCompleted';
                 } else {
-                    return 'wizarTabIncomplete';
+                    // return 'wizarTabIncomplete';
+                    return 'wizarTabCompleted';
                 }
             });
         },
-
         getFilteredList() {
             return (tabla) => {
                 if (!this[tabla]) return [];

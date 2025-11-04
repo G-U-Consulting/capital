@@ -710,7 +710,7 @@
             </div>
             <div class="pure-u-1 pure-u-md-1-6">
                 <div class="formInputStandard">
-                    <span>Valor Escrituración</span>
+                    <span>Escrituración y notaría:</span>
                     <input type="text" style="text-align: right;" v-model="f_valor_escrituras" @keyup="validarFormato" />
                 </div>
             </div>
@@ -831,7 +831,7 @@
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span>Ingresos Mensuales</span>
+                            <span>Ingreso del grupo familiar</span>
                             <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
                                 @keyup="validarFormato" :disabled="!subsidioActivo || pagoSeleccionado === 'contado'" />
                         </div>
@@ -856,13 +856,20 @@
                         </div>
                     </div>
                     <!-- <div class="pure-u-1-1 pure-u-md-1-24"></div> -->
-                    <div class="pure-u-1-1 pure-u-md-1-6" style="margin-top: 1.5em">
+                    <!-- <div class="pure-u-1-1 pure-u-md-1-6" style="margin-top: 1.5em">
                         <div class="formInputStandard">
-                            <span style="margin-top: 0.4em;text-align: center;">Caja de compensación:</span>
+                    
+                        </div>
+                    </div> -->
+                    <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Impor. Max. Financiable</span>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(valor_subsidio)">
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.5em">
+                    <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
+                            <span>Caja de compensación:</span>
                             <select v-model="caja_compensacion" style="width: 100%;"
                                 :disabled="!subsidioActivo || pagoSeleccionado === 'contado'">
                                 <option value="">Seleccione</option>
@@ -934,39 +941,51 @@
                 </div>
             </div>
             <div class="pure-u-1-1 pure-u-md-1-1">
-                <div class="pure-u-1 pure-u-md-1-8">
+                <div class="pure-u-1 pure-u-md-1-12">
                     <div class="formInputStandard">
                         <span>TNA antes PE</span>
                         <input type="text" style="text-align: right;" :value="formatoTNA(d_tna_antes)"
-                            @input="actualizarTNA('antes', $event.target.value)" />
+                            @input="actualizarTNA('antes', $event.target.value)" disabled/>
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-12">
+                    <div class="formInputStandard">
+                        <span>TNA desp. PE</span>
+                        <input type="text" style="text-align: right;" :value="formatoTNA(d_tna_despues)"
+                            @input="actualizarTNA('despues', $event.target.value)" disabled/>
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-8">
-                    <div class="formInputStandard">
-                        <span>TNA despues PE</span>
-                        <input type="text" style="text-align: right;" :value="formatoTNA(d_tna_despues)"
-                            @input="actualizarTNA('despues', $event.target.value)" />
-                    </div>
-                </div>
-                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Fecha PE</span>
                         <input type="date" style="text-align: right;" v-model="d_fecha_pe" />
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-6">
+                <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>Fecha Entrega</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_entrega" @change="calcularMesesMaximos"/>
+                        <input type="date" style="text-align: right;" v-model="d_fecha_escrituracion" @change="calcularMesesMaximos" disabled/>
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-6">
+                <div class="pure-u-1 pure-u-md-1-8">
+                    <div class="formInputStandard">
+                        <span>Fecha Escrituración</span>
+                        <input type="date" style="text-align: right;" v-model="d_fecha_escrituracion" @change="calcularMesesMaximos" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>Fecha 1ra Cuota</span>
                         <input type="date" style="text-align: right;" v-model="d_fecha_cuota" @change="calcularMesesMaximos" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-8">
+                    <div class="formInputStandard">
+                        <span>Fecha Ultima Cuota</span>
+                        <input type="date" style="text-align: right;" v-model="d_fecha_cuota" @change="calcularMesesMaximos" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-12">
                     <div class="formInputStandard">
                         <span>Meses</span>
                         <input type="text" style="text-align: right;" v-model="d_meses" @input="validarMeses(d_meses)" />
@@ -1050,33 +1069,29 @@
                         </thead>
                         <tbody>
                             <tr style="border-left: #777 solid 1px;">
-                                <td style="border-right: 1px solid #777;">
+                                <td colspan="4" style="border-right: 1px solid #777; border-bottom: 1px solid #777;">
                                     <div style="display: flex; justify-content: space-between; font-size: 14px;">
                                         <b>Nombres:</b>
                                         <span>{{ ObjCliente.nombres }}</span>
                                     </div>
                                 </td>
-                                <td style="border-right: 1px solid #777;">
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="2" style="border-right: 1px solid #777;">
                                     <div style="display: flex; justify-content: space-between; font-size: 14px;">
                                         <b>Apellido 1:</b>
                                         <span>{{ ObjCliente.apellido1 }}</span>
                                     </div>
                                 </td>
-                                <td style="border-right: 1px solid #777;">
+                                <td colspan="2" style="border-right: 1px solid #777;">
                                     <div style="display: flex; justify-content: space-between; font-size: 14px;">
                                         <b>Apellido 2:</b>
                                         <span>{{ ObjCliente.apellido2 }}</span>
                                     </div>
                                 </td>
-                                <td style="padding: 5px 10px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>País:</b>
-                                        <span>{{ ObjCliente.pais }}</span>
-                                    </div>
-                                </td>
                             </tr>
                             <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                <td colspan="2" style="border-right: 1px solid #777;">
+                                <td style="border-right: 1px solid #777;">
                                     <div style="display: flex; justify-content: space-between; font-size: 14px;">
                                         <b>Dirección:</b>
                                         <span>{{ ObjCliente.direccion }}</span>
@@ -1092,6 +1107,12 @@
                                     <div style="display: flex; justify-content: space-between; font-size: 14px;">
                                         <b>Departamento:</b>
                                         <span>{{ ObjCliente.departamento }}</span>
+                                    </div>
+                                </td>
+                                 <td style="padding: 5px 10px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                        <b>País:</b>
+                                        <span>{{ ObjCliente.pais }}</span>
                                     </div>
                                 </td>
                             </tr>
@@ -1161,7 +1182,6 @@
                                     </div>
                                 </td>
                             </tr>
-    
                         </tbody>
                     </table>
                 </div>
@@ -1232,7 +1252,7 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; justify-content: space-between;">
-                                        <b>Valor Escrituración:</b>
+                                        <b>Escrituración y notaría:</b>
                                         <span>{{ formatoMoneda(f_valor_escrituras) }}</span>
                                     </div>
                                 </td>
@@ -1332,7 +1352,7 @@
                                     <span style="float: right;">{{ d_fecha_pe }}</span>
                                 </td>
                                 <td>
-                                    <b>Fecha Entrega:</b>
+                                    <b>Fecha Entrega Aprox:</b>
                                     <span style="float: right;">{{ d_fecha_entrega }}</span>
                                 </td>
                                 <td>
@@ -1346,42 +1366,88 @@
                             </tr>
                         </tbody>
                     </table>
+                    <table class="pdf-table resumen-opcion">
+                        <thead>
+                            <tr>
+                                <th colspan="4" style="border-left: #777 solid 1px;">Datos Unidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <b>Proyecto:</b>
+                                    <span style="float: right;">{{ unidadOpcion.nombre }}</span>
+                                </td>
+                                <td>
+                                    <b>Piso:</b>
+                                    <span style="float: right;">{{ unidadOpcion.piso }}</span>
+                                </td>
+                                <td>
+                                    <b># Alcobas:</b>
+                                    <span style="float: right;">{{ unidadOpcion.num_alcobas}}</span>
+                                </td>
+                                <td>
+                                    <b># Baños:</b>
+                                    <span style="float: right;">{{ unidadOpcion.num_banos}}</span>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <b>Asoleacción :</b>
+                                    <span style="float: right;"> {{ unidadOpcion.asoleacion == 'PM' ? 'Sol de mañana' : 'Sol de tarde' }}</span>
+                                </td>
+                                <td>
+                                    <b>Altura:</b>
+                                    <span style="float: right;">{{ 'PISO ' + unidadOpcion.altura }}</span>
+                                </td>
+                                <td>
+                                    <b>Cerca de Portería:</b>
+                                    <span style="float: right;">{{ unidadOpcion.cerca_porteria == '0' ? 'NO' : 'SI' }}</span>
+                                </td>
+                                <td>
+                                    <b>Meses:</b>
+                                    <span style="float: right;">{{ d_meses }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div style="padding: .4rem 2.2rem;">
                     <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
                         Img Unidad:
                         <samp style="font-size: 1rem;">
-                            {{unidades[0].tipo}}
+                            {{ unidades[0].tipo }}
                         </samp>
                     </span>
-                    <div v-if="tipoProyecto" style="padding: .4rem 2.2rem;">
-                        <p style="text-align: center; font-size: 12px; margin: 0; line-height: 1;">
-                            <img :src="tipoProyecto" alt="Imagen de Apartamento"
-                                style="max-width: 80%; max-height: 80vh; object-fit: contain; border-radius: 6px; display: inline-block;">
-                        </p>
+                    <div v-if="tipoProyecto"
+                        style="display: flex; justify-content: center; align-items: center; gap: 1rem; padding: .8rem 0;">
+                        <img :src="tipoProyecto" alt="Imagen de Apartamento"
+                            style="max-width: 45%; max-height: 60vh; object-fit: contain; border-radius: 6px;">
+                        <img :src="tipoPlanta" alt="Imagen de Apartamento"
+                            style="max-width: 45%; max-height: 60vh; object-fit: contain; border-radius: 6px;">
                     </div>
                     <div v-else style="font-size: 12px; text-align: center; color: #666;">
                         No hay imagen disponible
                     </div>
                 </div>
             </div>
-            <div v-if="tablaPeriodos != ''" style="padding: 0 0.5rem;margin-top: 2rem;">
+            <div v-if="tablaPeriodos != ''" style="padding: 0.4rem 2.2rem;margin-top: 2rem;">
                 <div style="text-align: center;">
                     <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
                         Tabla Amortización
                     </span>
                 </div>
-                <table class="pdf-table tabla-amortizacion-detalle"
+                <table class="pdf-table"
                     style="width: 100%; border-collapse: collapse; font-size: 10px; border: 2px solid #ccc;">
                     <thead>
                         <tr style="background: #f3f3f3; text-align: center;">
                             <th style="width: 6%; padding: 4px;">Periodo</th>
-                            <th style="width: 7%; padding: 4px;">Fecha</th>
+                            <th style="width: 8%; padding: 4px;">Fecha</th>
                             <th style="width: 11%; padding: 4px;">Saldo Inicial</th>
                             <th style="width: 4%; padding: 4px;">TNA</th>
                             <th style="width: 10%; padding: 4px;">Cuota deseada</th>
                             <th style="width: 10%; padding: 4px;">Cuota calculada</th>
-                            <th style="width: 10%; padding: 4px;">Intereses</th>
+                            <th style="width: 9%; padding: 4px;">Intereses</th>
                             <th style="width: 10%; padding: 4px;">Principal</th>
                             <th style="width: 10%; padding: 4px;">Saldo Final</th>
                             <th style="width: 12%; padding: 4px;">Nota</th>
@@ -1462,6 +1528,11 @@
                         notariado y registro</em>,
                     entre otros, y no son negociables por las partes.
                 </p>
+            </div>
+            <div style="text-align: center; font-size: 14px; line-height: 1.4; margin-top: 2.5rem;">
+                <div style="border-top: 1px solid #000; width: 30%; margin: 0 auto 0.4rem;"></div>
+                <div>Asesor: <span style="font-weight: bold;">{{ asesor }}</span></div>
+                <div>Fecha: <span style="font-weight: bold;">{{ f_cotizacion }}</span></div>
             </div>
         </div>
     </div>

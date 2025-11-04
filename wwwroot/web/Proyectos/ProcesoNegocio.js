@@ -54,6 +54,7 @@ export default {
                 descripcion: '',
                 id_cliente: '',
                 id_tipo_tramite: '',
+                usuario: '',
             },
             modo_atencion: [],
             tipo_registro: [],
@@ -158,6 +159,7 @@ export default {
 
             d_tna_antes: 0,
             d_tna_despues: 0,
+            d_fecha_escrituracion: '',
             d_fecha_entrega: '',
             d_fecha_pe: '',
             d_fecha_cuota: null,
@@ -165,7 +167,8 @@ export default {
             meses_max: 0,
             fechaAnterior: null,
             tablaPeriodos: [],
-            f_cotizacion: ''
+            f_cotizacion: '',
+            unidadOpcion: '',
 
         };
     },
@@ -409,6 +412,11 @@ export default {
             }
 
             if (this.mode === 2 && nextIndex === 3) {
+
+                var  id_unidad  = this.unidades[0]?.id_unidad;
+                let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
+                this.unidadOpcion = await resp.data[0][0];
+
                 if (!this.cotizacionSeleccionada) {
                     return showMessage("No hay cotización seleccionada.");
                 }
@@ -535,6 +543,7 @@ export default {
                     descripcion: '',
                     id_presupuesto_vivienda: '',
                     id_tipo_tramite: '',
+                    usuario: '',
                 }
                 if (Array.isArray(this.tipo_registro)) {
                     this.tipo_registro.forEach(item => item.checked = false);
@@ -658,22 +667,44 @@ export default {
             }
 
             if (index == 3) {
+                this.asesor = GlobalVariables.username;
                 if (this.unidades[0]?.id_unidad && GlobalVariables.id_proyecto) {
-                   try {
-                        const res = await httpFunc("/generic/genericDT/ProcesoNegocio:Get_Tipos", {
-                            tipo: "imagenes",
-                            id_proyecto: GlobalVariables.id_proyecto,
-                            id_unidad: this.unidades[0].id_unidad
-                        });
+                    try {
+                        var  id_proyecto  = GlobalVariables.id_proyecto;
+                        var  id_unidad  = this.unidades[0]?.id_unidad;
+                     
+                        const consultas = [
+                            {
+                                prop: "tipoProyecto",
+                                url: "/generic/genericDT/ProcesoNegocio:Get_Tipos",
+                                params: { tipo: "imagenes", id_proyecto, id_unidad },
+                                formatter: (data) => data?.[0] ? `/file/S3get/${data[0].llave}` : null
+                            },
+                            {
+                                prop: "tipoPlanta",
+                                url: "/generic/genericDT/Maestros:Get_Archivos",
+                                params: { tipo: "planta", id_proyecto },
+                                formatter: (data) => data?.[0] ? `/file/S3get/${data[0].llave}` : null
+                            }
+                        ];
+                   
+                        const [resProyecto, resPlanta] = await Promise.all(
+                            consultas.map((q) => httpFunc(q.url, q.params))
+                        );
 
-                       if (res.data?.length) {
-                           this.tipoProyecto = `/file/S3get/${res.data[0].llave}`;
-                       } else {
-                           this.tipoProyecto = null;
-                       } 
+                        this.tipoProyecto = resProyecto.data?.length
+                            ? consultas[0].formatter(resProyecto.data)
+                            : null;
+
+                        this.tipoPlanta = resPlanta.data?.length
+                            ? consultas[1].formatter(resPlanta.data)
+                            : null;
+
+                        this.selectedApto = apto;
+                        this.id_cliente = GlobalVariables.id_cliente;
 
                     } catch (error) {
-                        console.error("Error al cargar/inyectar la imagen del apartamento:", error);
+                        console.error("Error al cargar las imágenes del apartamento:", error);
                     }
                 }
 
@@ -683,7 +714,9 @@ export default {
                 const container = document.getElementById('logo-capital');
                 if (container) container.innerHTML = img;
 
+                let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
 
+                this.unidadOpcion = await resp.data[0][0];
 
                 const updatePromises = this.unidades.map(unidad => {
                     let payload = unidad;
@@ -715,6 +748,7 @@ export default {
         async nuevaVisita() {
    
             this.ObjVisita.id_proyecto = GlobalVariables.id_proyecto;
+            this.ObjVisita.usuario = GlobalVariables.username;
             this.ObjVisita.id_cliente = this.id_cliente;
             const tipo = this.tipo_registro
                 .filter(item => item.checked)
@@ -812,7 +846,7 @@ export default {
                 });
 
                 this.cotizaciones = resp.data[0] || [];
-                this.nombre = resp.data[0][0]?.nombre || '';
+                this.nombre = await resp.data[0][0]?.nombre || '';
 
                 this.cotizaciones.forEach(async (item, index) => {
                     const { unidades, totalFinal } = await this.cargarCotizacion(item.cotizacion);
@@ -835,11 +869,38 @@ export default {
             });
 
             this.añoentrega = respa.data[0][0]?.fecha_entrega.match(/\d{4}/)?.[0] || '';
-            this.f_cotizacion = respa.data[0][0]?.created_on || '';
+            this.d_fecha_entrega = respa.data[0][0]?.fecha_entrega;
+            this.f_cotizacion = (respa.data[0][0]?.created_on || '').split('T')[0].split(' ')[0];
             this.d_tna_antes = respa.data[0][0]?.antes_p_equ;
             this.d_tna_despues = respa.data[0][0]?.despues_p_equ;
-            this.d_fecha_entrega = respa.data[0][0]?.fecha_escrituracion;
+            this.d_fecha_escrituracion = respa.data[0][0]?.fecha_escrituracion;
+            this.f_creacion = respa.data[0][0]?.created_on;
             this.d_fecha_pe = respa.data[0][0]?.fecha_p_equ;
+
+            function parseFecha(fechaStr) {
+                if (!fechaStr) return null;
+                const [fechaPart, horaPart, meridiano] = fechaStr.split(' ');
+                const [dia, mes, anio] = fechaPart.split('/').map(Number);
+                let [hora, minuto, segundo] = horaPart ? horaPart.split(':').map(Number) : [0, 0, 0];
+                if (meridiano && meridiano.toLowerCase().includes('p') && hora < 12) hora += 12;
+                if (meridiano && meridiano.toLowerCase().includes('a') && hora === 12) hora = 0;
+
+                return new Date(anio, mes - 1, dia, hora, minuto, segundo);
+            }
+            function getPrimerDiaHabilSiguienteMes(fechaStr) {
+                const fecha = parseFecha(fechaStr);
+                if (!fecha || isNaN(fecha)) return null;
+
+                let siguienteMes = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1);
+
+                let dia = siguienteMes.getDay();
+                if (dia === 0) siguienteMes.setDate(siguienteMes.getDate() + 1);
+                else if (dia === 6) siguienteMes.setDate(siguienteMes.getDate() + 2);
+
+                return siguienteMes.toISOString().split('T')[0];
+            }
+
+            this.d_fecha_cuota = getPrimerDiaHabilSiguienteMes(this.f_creacion);
 
             let añoActual = new Date().getFullYear();
             let añoEntrega = parseInt(this.añoentrega);
@@ -1272,15 +1333,13 @@ export default {
                 return '';
             }
 
-            // Si hay planSeleccionado → buscar en planes_pago
             if (planSeleccionado) {
                 const plan = this.planes_pago.find(p =>
                     p.id_planes_pago === planSeleccionado || p.plan === planSeleccionado
                 );
                 return plan ? (plan.plan || plan.nombre || plan.descripcion) : '';
             }
-
-            // Si hay tipoFinanciacionSeleccionada → buscar en tipo_financiacion
+            
             if (tipoFinanciacionSeleccionada) {
                 const tipo = this.tipo_financiacion.find(t =>
                     t.tipo_financiacion === tipoFinanciacionSeleccionada
@@ -1365,9 +1424,9 @@ export default {
             return bal;
         },
         calcularMesesMaximos() {
-            if (!this.d_fecha_entrega || !this.d_fecha_cuota) return;
+            if (!this.d_fecha_escrituracion|| !this.d_fecha_cuota) return;
 
-            const entrega = new Date(this.d_fecha_entrega);
+            const entrega = new Date(this.d_fecha_escrituracion);
             const cuota = new Date(this.d_fecha_cuota);
 
             let meses = (entrega.getFullYear() - cuota.getFullYear()) * 12;
@@ -1785,7 +1844,7 @@ export default {
         d_fecha_cuota() {
             this.calcularMesesMaximos();
         },
-        d_fecha_entrega() {
+        d_fecha_escrituracion() {
             this.calcularMesesMaximos();
         },
      

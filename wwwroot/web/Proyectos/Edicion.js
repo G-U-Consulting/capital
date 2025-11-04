@@ -53,7 +53,7 @@
 
                 link_general_onelink: "",
                 link_especifico_onelink: "",
-                incluir_especificaciones_tecnicias: 0,
+                incluir_especificaciones_tecnicias: 1,
                 link_especificaciones_tecnicias: "",
                 incluir_cartilla_negocios_cotizacion: 0,
                 incluir_cartilla_negocios_opcion: 0,
@@ -64,7 +64,7 @@
                 link_evaluacion_conocimiento: "",
                 avance_obra_visible: 0,
                 link_avance_obra: "",
-                incluir_brochure: 0,
+                incluir_brochure: 1,
                 link_brochure: ""
             },
             editObjProyecto: {
@@ -117,7 +117,7 @@
 
                 link_general_onelink: "",
                 link_especifico_onelink: "",
-                incluir_especificaciones_tecnicias: 0,
+                incluir_especificaciones_tecnicias: 1,
                 link_especificaciones_tecnicias: "",
                 incluir_cartilla_negocios_cotizacion: 0,
                 incluir_cartilla_negocios_opcion: 0,
@@ -128,7 +128,7 @@
                 link_evaluacion_conocimiento: "",
                 avance_obra_visible: 0,
                 link_avance_obra: "",
-                incluir_brochure: 0,
+                incluir_brochure: 1,
                 link_brochure: "",
             },
             tieneCambiosPendientes: false,
@@ -280,6 +280,31 @@
             this.ciudadela = resp[7];
             this.pie_legal = resp[8];
             this.fiduciaria = resp[9];
+
+            
+            const res = await httpFunc("/generic/genericDS/ProcesoNegocio:Get_Plazos", {});
+
+            const data = res.data[0];
+
+            if (!Array.isArray(data)) {
+                throw new Error("Formato de datos de plazos inesperado.");
+            }
+
+            const ultimaCuota = data.find(x => x.descripcion === 'Fecha última cuota a Fecha de escritura');
+            const escrituraEntrega = data.find(x => x.descripcion === 'Fecha de escritura a Fecha de entrega');
+
+            if (ultimaCuota) {
+                this.B_C_CCF = ultimaCuota.dias_banco_constructor_escrituracion;
+                this.B_A_CCF = ultimaCuota.dias_banco_aliado_escrituracion;
+                this.B_O_CCF = ultimaCuota.dias_fna_otros_escrituracion;
+            }
+
+            if (escrituraEntrega) {
+                this.B_C_FEC = escrituraEntrega.dias_banco_constructor_entrega;
+                this.B_A_FEC = escrituraEntrega.dias_banco_aliado_entrega;
+                this.B_O_FEC = escrituraEntrega.dias_fna_otros_entrega;
+            }
+
 
             this.banco_constructor = resp[10]
                 .filter(item => item.banco !== "Carta de compromiso del Cliente")
@@ -675,6 +700,40 @@
                 this.setMainMode();
             } catch (error) {
                 console.error("Error al insertar el proyecto:", error);
+            }
+        },
+        async guardarPlazos() {
+            try {
+                showProgress(true, "Guardando plazos...");
+                const plazos = [
+                    {
+                        descripcion: "Fecha última cuota a Fecha de escritura",
+                        datos: {
+                            dias_banco_constructor_escrituracion: this.B_C_CCF,
+                            dias_banco_aliado_escrituracion: this.B_A_CCF,
+                            dias_fna_otros_escrituracion: this.B_O_CCF
+                        }
+                    },
+                    {
+                        descripcion: "Fecha de escritura a Fecha de entrega",
+                        datos: {
+                            dias_banco_constructor_entrega: this.B_C_FEC,
+                            dias_banco_aliado_entrega: this.B_A_FEC,
+                            dias_fna_otros_entrega: this.B_O_FEC
+                        }
+                    }
+                ];
+                for (const { descripcion, datos } of plazos) {
+                    const payload = { descripcion, ...datos };
+                    await httpFunc("/generic/genericST/ProcesoNegocio:Ins_Plazos", payload);
+                }
+
+                showProgress(false);
+                showMessage("Plazos guardados correctamente");
+            } catch (err) {
+                showProgress(false);
+                console.error(err);
+                showMessage("Error al guardar los plazos");
             }
         },
         async updateProject() {

@@ -16,3 +16,19 @@ insert into dim_planes_pago (descripcion, porcentaje_cuotas, porcentaje_final) v
 ('80% en cuotas iguales - 20% en cuota al final', 80, 20),
 ('1 cuota única del 100%', 100, 0);
 
+create table fact_plazos (
+    id_plazos int auto_increment primary key,
+    descripcion varchar(100),
+    dias_banco_constructor_escrituracion int default null,
+    dias_banco_aliado_escrituracion int default null,
+    dias_fna_otros_escrituracion int default null,
+    dias_banco_constructor_entrega int default null,
+    dias_banco_aliado_entrega int default null,
+    dias_fna_otros_entrega int default null,
+    is_active bit default 1,
+    created_on datetime default current_timestamp,
+    created_by varchar(200) default current_user,
+    unique key idx_fact_plazos_descripcion (descripcion)
+);
+
+
