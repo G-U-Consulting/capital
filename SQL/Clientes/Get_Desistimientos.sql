@@ -2,7 +2,7 @@
 -- Proceso: Clientes/Get_Desistimientos
 -- =============================================
 --START_PARAM
-set @usuario = NULL;
+set @usuario = 'prueba';
 --END_PARAM
 
 select date_format(d.ultima_fecha, '%Y-%m-%d %T') as ultima_fecha, 
@@ -25,8 +25,7 @@ join fact_ventas v on d.id_venta = v.id_venta
 join fact_opcion o on v.id_opcion = o.id_opcion
 join fact_cotizaciones fc on o.id_cotizacion = fc.id_cotizacion
 join fact_clientes c on fc.id_cliente = c.id_cliente
-join fact_negocios_unidades cu on fc.id_cotizacion = cu.id_cotizacion
-join fact_unidades u on cu.id_unidad = u.id_unidad
+join fact_unidades u on d.id_unidad = u.id_unidad
 join fact_torres t on u.id_torre = t.id_torre
 join fact_proyectos p on u.id_proyecto = p.id_proyecto
 left join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
@@ -48,8 +47,8 @@ select id_fiduciaria, fiduciaria
 from dim_fiduciaria
 where is_active = 1;
 
-select v.id_venta, d.radicado, p.id_proyecto, p.nombre as proyecto, t.id_torre, t.consecutivo as torre, 
-    d.id_desistimiento, e.nombre as estado, coalesce(a.nombre, u.nombre_unidad) as unidad, us.nombres as asesor,
+select v.id_venta, d.radicado, p.id_proyecto, p.nombre as proyecto, t.id_torre, t.consecutivo as torre, u.id_unidad,
+    d.id_desistimiento, e.nombre as estado, coalesce(a.nombre, u.nombre_unidad) as unidad, us.nombres as asesor, v.id_opcion,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
     c.id_cliente, c.numero_documento, c.nombres, c.apellido1, c.apellido2, date_format(v.created_on, '%Y-%m-%d %T') as created_on,
     coalesce(f1.id_fiduciaria, f2.id_fiduciaria) as id_fiduciaria
@@ -63,7 +62,7 @@ join fact_torres t on u.id_torre = t.id_torre
 join fact_proyectos p on u.id_proyecto = p.id_proyecto
 left join dim_agrupacion_unidad a on u.id_agrupacion = a.id_agrupacion
 join fact_usuarios us on v.created_by = us.usuario collate utf8mb4_general_ci
-left join dim_desistimiento d on v.id_venta = d.id_venta
+left join dim_desistimiento d on v.id_venta = d.id_venta and u.id_unidad = d.id_unidad
 left join dim_estado_desistimiento e on d.id_estado = e.id_estado
 left join dim_fiduciaria f1 on t.id_fiduciaria = f1.id_fiduciaria
 left join dim_fiduciaria f2 on p.id_fiduciaria = f2.id_fiduciaria;

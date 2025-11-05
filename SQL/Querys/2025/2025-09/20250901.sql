@@ -313,6 +313,7 @@ create table dim_desistimiento(
     id_fiduciaria int not null references dim_fiduciaria(id_fiduciaria),
     etapa not null varchar(20),
     id_penalidad int not null references dim_penalidad_desistimiento(id_penalidad),
+    id_unidad int not null references fact_unidades(id_unidad),
     observacion text,
     fecha_resolucion date,
     fecha_fpc date,
@@ -331,16 +332,14 @@ create table dim_desistimiento(
 );
 create table dim_cuenta_opcion(
     id_cuenta int primary key auto_increment,
-    id_opcion int references fact_opcion(id_opcion),
-    id_cliente int references fact_clientes(id_cliente),
-    nombre_cliente varchar(200),
-    numero_documento varchar(50),
-    entidad varchar(100) not null,
-    tipo_cuenta varchar(100) not null,
-    numero_cuenta varchar(100) not null,
+    id_opcion int not null references fact_opcion(id_opcion),
+    id_cliente int not null references fact_clientes(id_cliente),
+    entidad varchar(100),
+    tipo_cuenta varchar(100),
+    numero_cuenta varchar(100),
     porcentaje decimal(5, 2) not null,
     constraint chk_valor_entre_1_y_100 check (porcentaje between 1 and 100),
-    tipo_giro varchar(50) not null
+    tipo_giro varchar(50)
 );
 
 create trigger tr_insert_estado_desistimiento after insert on dim_desistimiento for each row
@@ -349,7 +348,7 @@ begin
     select coalesce(u2.id_unidad, u1.id_unidad) as id_unidad, u.id_usuario, 'Nuevo desistimiento', 
         concat('Se ha creado un nuevo desistimiento con <b># radicado ', new.radicado, '</b>.')
     from fact_ventas v 
-    join fact_unidades u1 on v.id_unidad = u1.id_unidad
+    join fact_unidades u1 on new.id_unidad = u1.id_unidad
     left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
     join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
     where v.id_venta = new.id_venta;
@@ -359,7 +358,7 @@ begin
         select coalesce(u2.id_unidad, u1.id_unidad) as id_unidad, u.id_usuario, 'Desistimiento solicitado', 
             concat('El desistimiento con <b># radicado ', new.radicado, '</b> ha sido solicitado.')
         from fact_ventas v 
-        join fact_unidades u1 on v.id_unidad = u1.id_unidad
+        join fact_unidades u1 on new.id_unidad = u1.id_unidad
         left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
         join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
         where v.id_venta = new.id_venta;
@@ -369,7 +368,7 @@ begin
         select current_date, date_add(current_date, interval 1 week), un.id_proyecto, 
             concat('Pendiente Aprobación (Coordinación) de desisitimiento # radicado ', new.radicado), 2, 1, sv.id_cordinador
         from fact_ventas v
-        join fact_unidades un on v.id_unidad = un.id_unidad
+        join fact_unidades un on new.id_unidad = un.id_unidad
         join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
         where v.id_venta = new.id_venta;
     end if;
@@ -401,7 +400,7 @@ begin
         insert into dim_log_unidades (id_unidad, id_usuario, titulo, texto)
         select coalesce(u2.id_unidad, u1.id_unidad) as id_unidad, u.id_usuario, @title, @desc
         from fact_ventas v 
-        join fact_unidades u1 on v.id_unidad = u1.id_unidad
+        join fact_unidades u1 on new.id_unidad = u1.id_unidad
         left join fact_unidades u2 on u1.id_agrupacion = u2.id_agrupacion
         join fact_usuarios u on new.created_by = u.usuario collate utf8mb4_general_ci 
         where v.id_venta = new.id_venta;
@@ -412,7 +411,7 @@ begin
             select current_date, date_add(current_date, interval 1 week), un.id_proyecto, 
                 concat('Pendiente Aprobación (Coordinación) de desisitimiento # radicado ', new.radicado), 2, 1, sv.id_cordinador
             from fact_ventas v
-            join fact_unidades un on v.id_unidad = un.id_unidad
+            join fact_unidades un on new.id_unidad = un.id_unidad
             join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
             where v.id_venta = new.id_venta;
         end if;
@@ -423,11 +422,10 @@ begin
             select current_date, date_add(current_date, interval 1 week), un.id_proyecto, 
                 concat('Pendiente Aprobación (Gerencia) de desisitimiento # radicado ', new.radicado), 2, 1, s.id_gerente
             from fact_ventas v
-            join fact_unidades un on v.id_unidad = un.id_unidad
+            join fact_unidades un on new.id_unidad = un.id_unidad
             join dim_sala_venta sv on v.id_sala_venta = sv.id_sala_venta
             join dim_sede s on sv.id_sede = s.id_sede
             where v.id_venta = new.id_venta;
         end if;
-
     end if;
 end;

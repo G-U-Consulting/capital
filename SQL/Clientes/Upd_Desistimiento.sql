@@ -3,6 +3,7 @@
 -- =============================================
 --START_PARAM
 set @id_desistimiento = NULL,
+    @id_unidad = NULL,
     @id_venta = NULL,
     @id_estado = NULL,
     @radicado = NULL,
@@ -41,6 +42,7 @@ set @id_desistimiento = NULL,
 
 update dim_desistimiento
 set id_venta = @id_venta,
+    id_unidad = @id_unidad,
     id_estado = @id_estado,
     radicado = @radicado,
     ultima_fecha = str_to_date(@ultima_fecha, '%d/%m/%Y %T'),

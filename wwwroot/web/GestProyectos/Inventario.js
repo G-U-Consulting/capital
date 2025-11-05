@@ -80,18 +80,6 @@ export default {
                 hideProgress();
             }
         },
-        /* async loadUnidades(torre) {
-            if (torre && torre.id_torre) {
-                if (torre.unidades && torre.unidades.length)
-                    this.unidades = torre.unidades;
-                else {
-                    showProgress();
-                    torre.unidades = (await httpFunc("/generic/genericDT/Gestion:Get_Unidades", { id_torre: torre.id_torre })).data;
-                    this.unidades = torre.unidades;
-                    hideProgress();
-                }
-            }
-        }, */
         async onSelect(und) {
             this.unidad = {};
             if (!und.logs)
@@ -200,7 +188,6 @@ export default {
         },
         exportChart() {
             if (this.chart) {
-                console.log(this.chart);
                 const link = document.createElement('a');
                 link.href = this.chart.toBase64Image();
                 link.download = `${this.chartMode}_${this.chartMode == 'estados_unidad' 
@@ -220,7 +207,6 @@ export default {
             if (this.idProChart)
                 this.statsPro = (await httpFunc("/generic/genericDT/Gestion:Get_StatsProyecto", { id_proyecto: this.idProChart })).data;
             else this.statsPro = [];
-            console.log(this.statsPro);
             hideProgress();
             this.resetChart();
         },

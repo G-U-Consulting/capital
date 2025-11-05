@@ -3,10 +3,8 @@
 -- =============================================
 --START_PARAM
 set @id_cuenta = NULL,
-    @id_opcion = NULL, -- pendiente js
+    @id_opcion = NULL,
     @id_cliente = NULL,
-    @nombre_cliente = NULL,
-    @numero_documento = NULL,
     @entidad = NULL,
     @tipo_cuenta = NULL,
     @numero_cuenta = NULL,
@@ -17,8 +15,6 @@ set @id_cuenta = NULL,
 update dim_cuenta_opcion
 set id_opcion = @id_opcion,
     id_cliente = @id_cliente,
-    nombre_cliente = @nombre_cliente,
-    numero_documento = @numero_documento,
     entidad = @entidad,
     tipo_cuenta = @tipo_cuenta,
     numero_cuenta = @numero_cuenta,

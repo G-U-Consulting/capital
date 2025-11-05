@@ -281,6 +281,7 @@ export default {
                 id_fiduciaria: venta.id_fiduciaria,
                 id_venta: venta.id_venta,
                 unidad: venta.unidad,
+                id_unidad: venta.id_unidad,
                 gasto: this.smmlv2,
                 devolver_reforma: '1',
                 carta_cong: '0',
@@ -305,7 +306,7 @@ export default {
                 res = await httpFunc(`/generic/genericST/Clientes:${this.isNew ? 'Ins' : 'Upd'}_Desistimiento`, this.desistimiento);
                 if (res.isError || res.data !== 'OK') throw res;
                 await this.loadData();
-                !hold && await this.setMode(0);
+                hold ? (this.isNew = false) : await this.setMode(0);
             } catch (e) {
                 console.error(e);
                 showMessage('Error: ' + e.errorMessage || e.data);
@@ -583,7 +584,7 @@ export default {
                 Object.keys(this.cuenta).forEach(k => !this.cuenta[k] && delete this.cuenta[k]);
                 this.cuenta = {
                     ...this.cuenta,
-                    id_desistimiento: this.desistimiento.id_desistimiento,
+                    id_opcion: this.venta.id_opcion,
                     id_cliente: this.selCliente.id_cliente,
                     nombre_cliente: this.selCliente.nombre_cliente,
                     numero_documento: this.selCliente.numero_documento
@@ -624,7 +625,7 @@ export default {
             let res = null;
             try {
                 res = await httpFunc(`/generic/genericST/Clientes:Upd_LiberarUnidad`,
-                    { id_venta: this.desistimiento.id_venta, usuario: GlobalVariables.username });
+                    { id_unidad: this.desistimiento.id_unidad, usuario: GlobalVariables.username });
                 if (res.isError || res.data !== 'OK') throw res;
                 return true;
             } catch (e) {

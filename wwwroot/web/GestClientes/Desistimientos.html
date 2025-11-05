@@ -8,7 +8,7 @@
                 <button @click="setMode(1)">Nuevo Desistimiento</button>
             </div>
         </div>
-        <div class="searchBox" style="padding: .5rem 0;">
+        <div class="searchBox" style="padding: .5rem 0 0;">
             <div class="pure-g">
                 
                 <div style="display: flex; align-items: center; gap: .5rem; width: 100%; margin: 0 .5rem;">
@@ -89,7 +89,7 @@
                 </div>
             </div>
         </div>
-        <div class="main-content" style="height: calc(100vh - 19rem);">
+        <div class="main-content" style="height: calc(100vh - 18rem);">
             <table class="dataTable" style="font-size: 15px;">
                 <thead>
                     <tr>
@@ -192,7 +192,7 @@
 
         <div v-if="cliente && cliente.id_cliente">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em; margin-bottom: 4px;">
-                Ventas
+                Ventas/Unidad
             </div>
             <div style="height: calc(100vh - 25rem); overflow-y: auto;">
                 <table class="dataTable" style="table-layout: auto; font-size: 15px;">
@@ -491,7 +491,7 @@
                 <span class="arrow" v-bind:class="{'expanded': showDocs}">&lt;</span>
             </div>
             <div v-show="showDocs" style="padding: .5rem;">
-                <div class="pure-u-1 small-files" @mousemove="updateCursor" @mouseleave="tooltipVisibleL = false"
+                <div v-if="!isNew" class="pure-u-1 small-files" @mousemove="updateCursor" @mouseleave="tooltipVisibleL = false"
                     style="position: relative; padding: .5rem;">
                     <label for="file-input" class="preview-container"
                         style="height: 8rem; cursor: pointer; max-height: 100%;" @dragover.prevent="handleDragOver"

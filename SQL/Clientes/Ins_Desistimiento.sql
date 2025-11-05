@@ -3,6 +3,7 @@
 -- =============================================
 --START_PARAM
 set @id_venta = NULL,
+    @id_unidad = NULL,
     @id_estado = NULL,
     @ultima_fecha = NULL,
     @radicado = NULL,
@@ -32,12 +33,12 @@ set @id_venta = NULL,
 --END_PARAM
 
 insert into dim_desistimiento(
-    id_venta, id_estado, ultima_fecha, cant_incumplida, interes, gasto, descuento, radicado,
+    id_venta, id_unidad, id_estado, ultima_fecha, cant_incumplida, interes, gasto, descuento, radicado,
     id_categoria, id_fiduciaria, etapa, id_penalidad, observacion, fecha_resolucion, fecha_fpc, fecha_program,
     pnl_monto, v_venta_neto, a_capital, a_intereses, condonacion, imp_reformas, pnl_pcv, pnl_aplicada_ptg, 
     devolver_reforma, carta_cong, created_by, updated_by
 ) values (
-    @id_venta, @id_estado, if(@ultima_fecha = '' or @ultima_fecha is null, null, str_to_date(@ultima_fecha, '%d/%m/%Y %T')), 
+    @id_venta, @id_unidad, @id_estado, if(@ultima_fecha = '' or @ultima_fecha is null, null, str_to_date(@ultima_fecha, '%d/%m/%Y %T')), 
     @cant_incumplida, @interes, @gasto, @descuento, @radicado, @id_categoria, @id_fiduciaria, @etapa, @id_penalidad, @observacion,
     if(@fecha_resolucion = '', null, @fecha_resolucion),
     if(@fecha_fpc = '', null, @fecha_fpc),

@@ -86,19 +86,6 @@ export default {
                 hideProgress();
             }
         },
-        /* async loadUnidades(torre) {
-            this.filtros.unidades.id_torre = torre.id_torre;
-            if (torre && torre.id_torre) {
-                if (torre.unidades && torre.unidades.length)
-                    this.unidades = torre.unidades;
-                else {
-                    showProgress();
-                    torre.unidades = (await httpFunc("/generic/genericDT/Gestion:Get_Unidades", { id_torre: torre.id_torre })).data;
-                    this.unidades = torre.unidades;
-                    hideProgress();
-                }
-            }
-        }, */
         async onSelect(und) {
             this.unidad = {};
             if (!und.logs)

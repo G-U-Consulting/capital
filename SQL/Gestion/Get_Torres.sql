@@ -2,7 +2,7 @@
 -- Proceso: Gestion/Get_Torres
 -- =============================================
 --START_PARAM
-set @id_proyecto = NULL;
+set @id_proyecto = 13;
 --END_PARAM
 
 select t.id_torre, t.consecutivo, t.id_sinco, f.fiduciaria, t.en_venta
@@ -23,6 +23,8 @@ from fact_unidades u
 left join dim_tipo_proyecto tp on u.id_clase = tp.id_tipo_proyecto
 left join dim_estado_unidad e on u.id_estado_unidad = e.id_estado_unidad
 left join dim_tipo_unidad t on u.id_tipo = t.id_tipo
-left join fact_ventas v on u.id_unidad = v.id_unidad
+left join fact_negocios_unidades nu on nu.id_unidad = u.id_unidad
+left join fact_opcion o on nu.id_cotizacion = o.id_cotizacion
+left join fact_ventas v on o.id_opcion = v.id_opcion
 where u.id_proyecto = @id_proyecto
-order by u.piso, cast(u.numero_apartamento as unsigned), u.numero_apartamento;
+order by v.id_venta, u.piso, cast(u.numero_apartamento as unsigned), u.numero_apartamento;
