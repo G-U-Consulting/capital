@@ -10,7 +10,7 @@
         </div>
         <div class="searchBox" style="padding: .5rem 0 0;">
             <div class="pure-g">
-                
+
                 <div style="display: flex; align-items: center; gap: .5rem; width: 100%; margin: 0 .5rem;">
                     <div class="radio-group cal-opc">
                         <label for="view-s" style="text-align: center; width: 8rem;">
@@ -203,7 +203,7 @@
                             <th style="width: 14%;">Proyecto</th>
                             <th style="width: 8%;">Torre</th>
                             <th style="width: 12%;">Agrupación/Und</th>
-                            <th style="width: 12%;">Estado</th>
+                            <th style="width: 12%;">Estado Desis.</th>
                             <th style="width: 12%;">Fecha</th>
                             <th style="width: 14%;">Asesor</th>
                         </tr>
@@ -241,43 +241,40 @@
                 <input type="text" :value="desistimiento.id_venta" readonly>
             </div>
             <div class="pure-u-1-4 formInputStandard">
-                <label>Número Documento</label>
+                <label>Número Doc. (Principal)</label>
                 <input type="text" :value="cliente.numero_documento" readonly>
             </div>
 
             <div class='formDivision deployable' @click="showClient = !showClient">
-                <span>Información del Cliente</span>
+                <span>Información de Clientes</span>
                 <span class="arrow" v-bind:class="{'expanded': showClient}">&lt;</span>
             </div>
             <div v-show="showClient" style="padding: .5rem;">
-                <div class="pure-u-1-2 pure-u-md-1-5">
-                    <div class="formInputStandard">
-                        <label>Nombre</label>
-                        <input type="text" :value="cliente.nombres" readonly>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-5">
-                    <div class="formInputStandard">
-                        <label>Apellido 1</label>
-                        <input type="text" :value="cliente.apellido1" readonly>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-5">
-                    <div class="formInputStandard">
-                        <label>Apellido 2</label>
-                        <input type="text" :value="cliente.apellido2" readonly>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-5">
-                    <div class="formInputStandard">
-                        <label>Número Documento</label>
-                        <input type="text" :value="cliente.numero_documento" readonly>
-                    </div>
-                </div>
-                <div class="pure-u-1-2 pure-u-md-1-5" v-if="cliente && cliente.id_cliente" style="text-align: right;">
-                    <button @click="redirect2Customer(cliente.id_cliente)" style="margin-top: 1.7rem;">
-                        Ver Cliente
-                    </button>
+                <div style="max-height: 8rem; overflow-y: auto;">
+                    <table class="dataTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 14%;">Número Doc.</th>
+                                <th>Nombre</th>
+                                <th>Apellido 1</th>
+                                <th>Apellido 2</th>
+                                <th style="width: 70px;">%</th>
+                                <th style="width: 100px;">Ver Cliente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="c in cuentas">
+                                <td>{{c.numero_documento}}</td>
+                                <td>{{c.nombres}}</td>
+                                <td>{{c.apellido1}}</td>
+                                <td>{{c.apellido2}}</td>
+                                <td style="text-align: center;">{{c.porcentaje}}</td>
+                                <td style="text-align: center;" @click="redirect2Customer(c.id_cliente)">
+                                    <span>🔎</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -491,8 +488,8 @@
                 <span class="arrow" v-bind:class="{'expanded': showDocs}">&lt;</span>
             </div>
             <div v-show="showDocs" style="padding: .5rem;">
-                <div v-if="!isNew" class="pure-u-1 small-files" @mousemove="updateCursor" @mouseleave="tooltipVisibleL = false"
-                    style="position: relative; padding: .5rem;">
+                <div v-if="!isNew" class="pure-u-1 small-files" @mousemove="updateCursor"
+                    @mouseleave="tooltipVisibleL = false" style="position: relative; padding: .5rem;">
                     <label for="file-input" class="preview-container"
                         style="height: 8rem; cursor: pointer; max-height: 100%;" @dragover.prevent="handleDragOver"
                         @drop.prevent="handleDrop"

@@ -132,7 +132,6 @@ export default {
                 this.selApprover = this.optApprove[0];
                 this.ruta = [this.ruta[0], this.ruta[1], { text: 'Aprobación', action: () => this.setMode(3) }];
                 this.setRuta();
-                await this.loadAccounts();
 
                 let img = await fetch('../../img/ico/svg/logo-capital.svg');
                 img = await img.text();
@@ -140,6 +139,8 @@ export default {
                 const container = document.getElementById('logo-capital');
                 if (container) container.innerHTML = img;
             }
+            if (mode > 0 && this.venta.id_venta)
+                await this.loadAccounts();
         },
         async loadData() {
             showProgress();
@@ -162,9 +163,10 @@ export default {
         async loadAccounts() {
             showProgress();
             [this.cuentas, this.compradores] = (await httpFunc("/generic/genericDS/Clientes:Get_Cuentas",
-                { id_desistimiento: this.desistimiento.id_desistimiento })).data;
+                { id_venta: this.venta.id_venta })).data;
             this.cuentas.forEach(c => c.porcentaje = c.porcentaje.replace(',', '.'));
             hideProgress();
+            console.log(this.venta, this.cuentas, this.compradores);
         },
         validarNumero(e, int) {
             let val = e.target.value;
