@@ -9,6 +9,7 @@ using orca.Code.Auth;
 using orca.Code.Logger;
 using System.Data;
 using Microsoft.AspNetCore.DataProtection;
+using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -87,6 +88,25 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
+app.Map("/util/reports/{report}", async (HttpRequest request, HttpResponse response, string report) => {
+    try {
+        string url = report == "test"
+            ? "https://app.powerbi.com/view?r=eyJrIjoiNTU0OWQwY2ItMzJjNC00Y2E1LWI2MTAtMjA4Y2RmZTI2ZTJkIiwidCI6IjM2MmEzYTFiLTZhNWItNGFhMS04ZTc0LTJlZGI5MGM2MzYzYSIsImMiOjR9"
+            : "";
+        response.ContentType = "text/html";
+        string html = await WebUt.WebRequest(url, HttpMethod.Get, null, "text/html", null);
+        string baseUrl = "https://app.powerbi.com/";
+        string pattern = @"(src|href)\s*=\s*[""'](?!https?:\/\/|\/)([^""']+)[""']";
+        string replacement = "$1=\"" + baseUrl + "$2\"";
+        string updatedHtml = Regex.Replace(html, pattern, replacement);
+        return updatedHtml;
+    } catch (Exception ex) {
+        Logger.Log("generic/reports/" + report + "    " + ex.Message + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+
+}).WithName("Reports").RequireAuthorization();
 app.Map("/util/Json2File/{type}/{filename?}", async (HttpRequest request, HttpResponse response, string type, string? filename) => {
     string body = "";
     try {
