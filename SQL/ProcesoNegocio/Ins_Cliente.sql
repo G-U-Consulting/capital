@@ -44,8 +44,6 @@ values (
         1
     )
 on duplicate key update
-    nombres = values(nombres),
-    email1 = values(email1),
     numero_documento = values(numero_documento),
     is_atencion_rapida = values(is_atencion_rapida);
 

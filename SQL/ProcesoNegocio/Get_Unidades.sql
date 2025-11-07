@@ -8,8 +8,9 @@ set @id_proyecto = 3;
 select id_torre, id_proyecto, consecutivo, orden_salida, en_venta, aptos_piso, aptos_fila, id_sinco, 
     date_format(fecha_p_equ,'%Y-%m-%d') as fecha_p_equ, date_format(fecha_inicio_obra,'%Y-%m-%d') as fecha_inicio_obra, 
     date_format(fecha_escrituracion,'%Y-%m-%d') as fecha_escrituracion, tasa_base, antes_p_equ, despues_p_equ, 
-    id_fiduciaria, cod_proyecto_fid, nit_fid_doc_cliente, id_instructivo, propuesta_pago, consecutivo as idtorre
-from fact_torres
+    id_fiduciaria, cod_proyecto_fid, nit_fid_doc_cliente, id_instructivo, propuesta_pago, consecutivo as idtorre, banco
+from fact_torres a 
+ join dim_banco_constructor b on a.id_banco_constructor = b.id_banco
 where id_proyecto = @id_proyecto;
 
 select

@@ -40,6 +40,7 @@ export default {
                 nombreEmpresa: '',
                 nit: '',
                 fechaNacimiento: '',
+                porsentaje: '',
             },
             ObjVisita: {
                 id_proyecto: '',
@@ -116,7 +117,7 @@ export default {
             registro: false,
 
             bancoSeleccionado: 0,
-            unidadSeleccionada: "",
+            unidadSeleccionada: 0,
             anioSeleccionado: "",
             unidadesDisponibles: [],
             listaAnios: [],
@@ -161,6 +162,7 @@ export default {
             d_tna_despues: 0,
             d_fecha_escrituracion: '',
             d_fecha_entrega: '',
+            d_fecha_ulti_cuota: '',
             d_fecha_pe: '',
             d_fecha_cuota: null,
             d_meses: 0,
@@ -169,6 +171,9 @@ export default {
             tablaPeriodos: [],
             f_cotizacion: '',
             unidadOpcion: '',
+
+            clientes: [],
+            ObjClienteOriginal: null,
 
         };
     },
@@ -322,7 +327,6 @@ export default {
                 this.valor_credito = Math.round(baseCredito);
             }
         },
-
         calcularPlanPago() {
             if (!this.planSeleccionado || !this.importeActiva) {
                 this.cuota_inicial = 0;
@@ -399,7 +403,11 @@ export default {
                     showMessage("Debe aceptar la política para continuar.");
                     return;
                 }
-                 await this.nuevoCliente();
+                if (this.clientes.length > 1) {
+                    await this.guardarClientes();
+                } else {
+                    await this.nuevoCliente();
+                }
             }
 
             if (this.mode === 1 && nextIndex === 2) {
@@ -474,12 +482,19 @@ export default {
 
             if (!this.validarCampos(this.ObjCliente, this.camposObligatorios)) return;
 
-            const { is_atencion_rapida, ...edit } = this.ObjCliente;
-            const { is_atencion_rapida: _, ...orig } = this.ObjClienteOriginal;
+            const { is_atencion_rapida, ...edit } = this.ObjCliente || {};
+            const { is_atencion_rapida: _, ...orig } = this.ObjClienteOriginal || {};
+
             const huboCambio = JSON.stringify(edit) !== JSON.stringify(orig);
 
-            let cliente = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
-            cliente = cliente.data;
+
+            let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
+            let cliente = resp.data;
+
+            if (resp?.errorMessage?.includes("Duplicate")) {
+                showMessage("Cliente ya existe.");
+                return;
+            }
 
             if (cliente[0].result.includes("OK")) {
                 if (cliente[0].result.includes('Insert')) {
@@ -491,6 +506,7 @@ export default {
             } else {
                 this.limpiarObj();
                 showMessage("Error al crear el cliente.");
+                return;
             }
          
             this.isboton = true;
@@ -499,6 +515,93 @@ export default {
             this.policyAccepted = false;
             this.iscliente = !israpida;
             this.acceptPolicy(true);
+        },
+        seleccionarCliente(c) {
+            this.ObjCliente = JSON.parse(JSON.stringify(c));
+            this.isTitular = !!c.is_titular;
+            this.iscliente = true;
+        },
+        async guardarClientes() {
+            if (!this.policyAccepted) {
+                showMessage("Debe aceptar la política para continuar.");
+                return;
+            }
+
+            if (!this.clientes || this.clientes.length === 0) {
+                showMessage("Debe agregar al menos un cliente antes de guardar.");
+                return;
+            }
+
+            showProgress(true);
+            let guardados = 0;
+            let errores = 0;
+            const batchSize = 5;
+
+            try {
+                for (let i = 0; i < this.clientes.length; i += batchSize) {
+                    const lote = this.clientes.slice(i, i + batchSize);
+
+                    try {
+                        const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_ClientesAgrupado', {
+                            clientes_json: JSON.stringify(lote)
+                        });
+
+                        if (resp.data[0][0].result.includes("OK")) {
+                            guardados += lote.length;
+                        } else {
+                            errores += lote.length;
+                            console.warn("Error al guardar lote:", lote, result);
+                        }
+                    } catch (error) {
+                        errores += lote.length;
+                        console.error("Error al guardar lote:", lote, error);
+                    }
+                }
+
+                if (guardados > 0 && errores === 0) {
+                    showMessage(`Clientes guardados correctamente (${guardados}).`);
+                    this.isboton = true;
+                    this.mode = 1;
+                    this.israpida = false;
+                    this.policyAccepted = false;
+                    this.acceptPolicy(true);
+                } else if (guardados > 0 && errores > 0) {
+                    showMessage(`Se guardaron ${guardados} clientes, pero ${errores} tuvieron errores.`);
+                } else {
+                    showMessage("Error al guardar los clientes.");
+                }
+            } catch (error) {
+                console.error("Error general:", error);
+                showMessage("Error general al guardar los clientes.");
+            } finally {
+                showProgress(false);
+            }
+        },
+        async agregarCliente() {
+            if (!this.validarCampos(this.ObjCliente, this.camposObligatorios)) return;
+           
+            const existe = this.clientes.some(
+                c => c.numeroDocumento === this.ObjCliente.numeroDocumento
+            );
+            if (existe) {
+                showMessage("Ya agregaste un cliente con este número de documento.");
+                return;
+            }
+
+            const nuevo = JSON.parse(JSON.stringify(this.ObjCliente));
+            this.clientes.push(nuevo);
+
+            await this.limpiarObj();
+            this.verificarPorcentajes();
+            showMessage("Cliente agregado a la lista.");
+
+        },
+        eliminarCliente(index) {
+            this.clientes.splice(index, 1);
+        },
+        async limpiarObjClient() {
+            this.limpiarObj();
+            this.clientes = [];
         },
         async limpiarObj() {
             if (this.mode == 0 || this.mode == 3) {
@@ -561,10 +664,12 @@ export default {
                 username: GlobalVariables.username,
                 cliente: this.cliente,
             };
+            this.clientes = [];
             await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_SaveCliente', obj);
             cliente = cliente.data;
 
             if (cliente && cliente[0] && cliente[0][0]) {
+                const datos = cliente[0][0];
                 this.ObjCliente.nombres = cliente[0][0].nombres;
                 this.ObjCliente.apellido1 = cliente[0][0].apellido1;
                 this.ObjCliente.apellido2 = cliente[0][0].apellido2;
@@ -591,10 +696,23 @@ export default {
                 this.ObjCliente.nit = cliente[0][0].nit;
                 this.ObjCliente.nombreEmpresa = cliente[0][0].nombre_empresa;
 
+                
                 if (this.ObjCliente.isPoliticaAceptada == 1) {
                     this.policyAccepted = true;
                 } else {
                     this.policyAccepted = false;
+                }
+
+                const existe = this.clientes.some(c => c.numeroDocumento === datos.numero_documento);
+                if (!existe) {
+                    this.clientes.push({
+                        nombres: datos.nombres,
+                        apellido1: datos.apellido1,
+                        apellido2: datos.apellido2,
+                        numeroDocumento: datos.numero_documento,
+                        id_cliente: datos.id_cliente,
+                        porcentaje: this.clientes.length === 0 ? 100 : 0
+                    });
                 }
 
                 this.ObjClienteOriginal = { ...this.ObjCliente };
@@ -630,6 +748,22 @@ export default {
                 this.limpiarObj();
             }
 
+        },
+        verificarPorcentajes() {
+           
+            if (this.ObjCliente.porcentaje < 0) this.ObjCliente.porcentaje = 0;
+            if (this.ObjCliente.porcentaje > 100) this.ObjCliente.porcentaje = 100;
+ 
+            const total = this.clientes.reduce((suma, c) => suma + Number(c.porcentaje || 0), 0);
+
+            if (total > 100) {
+                const igual = 100 / this.clientes.length;
+                this.clientes.forEach(c => c.porcentaje = igual);
+            } else if (this.clientes.length > 1 && total < 100) {
+                const restante = 100 - total;
+                const igual = restante / this.clientes.length;
+                this.clientes.forEach(c => c.porcentaje = Number((c.porcentaje || 0) + igual).toFixed(2));
+            }
         },
         async setSubmode(index) {
             this.campoObligatorio();
@@ -867,56 +1001,86 @@ export default {
                 id_proyecto: GlobalVariables.id_proyecto,
                 cotizacion: cotizacionId
             });
-
+          
             this.añoentrega = respa.data[0][0]?.fecha_entrega.match(/\d{4}/)?.[0] || '';
-            this.d_fecha_entrega = respa.data[0][0]?.fecha_entrega;
+            this.d_fecha_entrega = respa.data[0][0]?.fecha_entrega_f || '';
             this.f_cotizacion = (respa.data[0][0]?.created_on || '').split('T')[0].split(' ')[0];
             this.d_tna_antes = respa.data[0][0]?.antes_p_equ;
             this.d_tna_despues = respa.data[0][0]?.despues_p_equ;
             this.d_fecha_escrituracion = respa.data[0][0]?.fecha_escrituracion;
             this.f_creacion = respa.data[0][0]?.created_on;
             this.d_fecha_pe = respa.data[0][0]?.fecha_p_equ;
+            this.consecutivo = respa.data[0][0]?.consecutivo;
 
-            function parseFecha(fechaStr) {
-                if (!fechaStr) return null;
-                const [fechaPart, horaPart, meridiano] = fechaStr.split(' ');
-                const [dia, mes, anio] = fechaPart.split('/').map(Number);
-                let [hora, minuto, segundo] = horaPart ? horaPart.split(':').map(Number) : [0, 0, 0];
-                if (meridiano && meridiano.toLowerCase().includes('p') && hora < 12) hora += 12;
-                if (meridiano && meridiano.toLowerCase().includes('a') && hora === 12) hora = 0;
+            // if (this.d_fecha_escrituracion) {
+            //     const fecha = new Date(this.d_fecha_escrituracion);
+            //     const mes = fecha.getMonth() + 1;
+            //     const dia = fecha.getDate();
 
-                return new Date(anio, mes - 1, dia, hora, minuto, segundo);
-            }
-            function getPrimerDiaHabilSiguienteMes(fechaStr) {
-                const fecha = parseFecha(fechaStr);
-                if (!fecha || isNaN(fecha)) return null;
+            //     let nuevaFecha;
 
-                let siguienteMes = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1);
+            //     if ((mes === 1) || (mes === 2 && dia <= 14)) {
+            //         nuevaFecha = new Date(fecha.getFullYear() - 1, 11, 31);
+            //     } else {
+            //         nuevaFecha = fecha;
+            //     }
+               
+            //     const yyyy = nuevaFecha.getFullYear();
+            //     const mm = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
+            //     const dd = String(nuevaFecha.getDate()).padStart(2, '0');
 
-                let dia = siguienteMes.getDay();
-                if (dia === 0) siguienteMes.setDate(siguienteMes.getDate() + 1);
-                else if (dia === 6) siguienteMes.setDate(siguienteMes.getDate() + 2);
+            //     this.d_fecha_escrituracion = `${yyyy}-${mm}-${dd}`;
+            // }
 
-                return siguienteMes.toISOString().split('T')[0];
-            }
+            // if (this.d_fecha_escrituracion) {
+            //     const fecha = new Date(this.d_fecha_escrituracion);
+            //     fecha.setMonth(fecha.getMonth() - 1);
+            //     fecha.setDate(1);
+            //     this.d_fecha_ulti_cuota = fecha.toISOString().split('T')[0];
+            // }
 
-            this.d_fecha_cuota = getPrimerDiaHabilSiguienteMes(this.f_creacion);
 
-            let añoActual = new Date().getFullYear();
-            let añoEntrega = parseInt(this.añoentrega);
+            // function parseFecha(fechaStr) {
+            //     if (!fechaStr) return null;
+            //     const [fechaPart, horaPart, meridiano] = fechaStr.split(' ');
+            //     const [dia, mes, anio] = fechaPart.split('/').map(Number);
+            //     let [hora, minuto, segundo] = horaPart ? horaPart.split(':').map(Number) : [0, 0, 0];
+            //     if (meridiano && meridiano.toLowerCase().includes('p') && hora < 12) hora += 12;
+            //     if (meridiano && meridiano.toLowerCase().includes('a') && hora === 12) hora = 0;
+
+            //     return new Date(anio, mes - 1, dia, hora, minuto, segundo);
+            // }
+            // function getPrimerDiaHabilSiguienteMes(fechaStr) {
+            //     const fecha = parseFecha(fechaStr);
+            //     if (!fecha || isNaN(fecha)) return null;
+
+            //     let siguienteMes = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1);
+
+            //     let dia = siguienteMes.getDay();
+            //     if (dia === 0) siguienteMes.setDate(siguienteMes.getDate() + 1);
+            //     else if (dia === 6) siguienteMes.setDate(siguienteMes.getDate() + 2);
+
+            //     return siguienteMes.toISOString().split('T')[0];
+            // }
+
+            // this.d_fecha_cuota = getPrimerDiaHabilSiguienteMes(this.f_creacion);
+
+            // let añoActual = new Date().getFullYear();
+            // let añoActual = "";
+            // let añoEntrega = parseInt(this.añoentrega);
 
             this.valor_reformas = respa.data[0][0]?.valor_reformas || 0;
             this.valor_acabados = respa.data[0][0]?.valor_acabados || 0;
             this.valor_separacion = respa.data[0][0]?.valor_separacion || 0;
 
-            if (añoEntrega && añoEntrega >= añoActual) {
-                this.listaAniosEntrega = Array.from(
-                    { length: añoEntrega - añoActual + 1 },
-                    (_, i) => añoActual + i
-                );
-            } else {
-                this.listaAniosEntrega = [añoActual];
-            }
+            // if (añoEntrega && añoEntrega >= añoActual) {
+            //     this.listaAniosEntrega = Array.from(
+            //         { length: añoEntrega - añoActual + 1 },
+            //         (_, i) => añoActual + i
+            //     );
+            // } else {
+            //     this.listaAniosEntrega = [añoActual];
+            // }
 
             const parseNumber = str =>
                 typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;
@@ -1303,10 +1467,10 @@ export default {
             this.factorSeleccionado = null;
             this.anioSeleccionado = "";
             this.listaAnios = [];
-            this.unidadSeleccionada = "";
+            this.unidadSeleccionada = 0;
 
             if (!this.bancoSeleccionado || this.bancoSeleccionado === 0) {
-                this.unidadSeleccionada = "";
+                this.unidadSeleccionada = 0;
                 this.anioSeleccionado = "";
                 this.unidadesDisponibles = [];
                 return;
@@ -1321,6 +1485,58 @@ export default {
             this.factoresBanco = resp.data[0];
 
             this.unidadesDisponibles = [...new Set(this.factoresBanco.filter(f => f.valor != 0).map(f => f.unidad))];
+
+            const res = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_BancoPlazos', {
+                id_proyecto: GlobalVariables.id_proyecto,
+                consecutivo: this.consecutivo,
+                id_banco: this.bancoSeleccionado
+            });
+
+            if (res.data && res.data[0] && res.data[0].length > 0) {
+                const bancoPlazo = res.data[0][0];
+                const diasEscrituracion = Number(bancoPlazo.dias_escrituracion) || 0;
+                const ultimaCuota = Number(bancoPlazo.ultima_cuota) || 0;
+
+                if (this.d_fecha_entrega) {
+                    let fechaEntrega = new Date(this.d_fecha_entrega);
+                    const mes = fechaEntrega.getMonth() + 1;
+                    const dia = fechaEntrega.getDate();
+
+                    let fechaBaseEscr = new Date(fechaEntrega);
+
+                    if ((mes === 1) || (mes === 2 && dia <= 15)) {
+                        fechaBaseEscr = new Date(fechaEntrega.getFullYear(), 1, 15);
+                    }
+                
+                    const fechaEscrituracion = new Date(fechaBaseEscr);
+                    fechaEscrituracion.setDate(fechaEscrituracion.getDate() - diasEscrituracion);
+
+                    const yyyyE = fechaEscrituracion.getFullYear();
+                    const mmE = String(fechaEscrituracion.getMonth() + 1).padStart(2, '0');
+                    const ddE = String(fechaEscrituracion.getDate()).padStart(2, '0');
+                    this.d_fecha_escrituracion = `${yyyyE}-${mmE}-${ddE}`;
+
+                    const fechaUltimaCuota = new Date(fechaEscrituracion);
+                    fechaUltimaCuota.setDate(fechaUltimaCuota.getDate() - ultimaCuota);
+
+                    const yyyyU = fechaUltimaCuota.getFullYear();
+                    const mmU = String(fechaUltimaCuota.getMonth() + 1).padStart(2, '0');
+                    const ddU = String(fechaUltimaCuota.getDate()).padStart(2, '0');
+                    this.d_fecha_ulti_cuota = `${yyyyU}-${mmU}-${ddU}`;
+
+                    let fechaHoy = new Date();
+                    let fechaPrimeraCuota = new Date(fechaHoy.getFullYear(), fechaHoy.getMonth() + 1, 1);
+
+                    let diaSemana = fechaPrimeraCuota.getDay();
+                    if (diaSemana === 0) fechaPrimeraCuota.setDate(2);
+                    if (diaSemana === 6) fechaPrimeraCuota.setDate(3);
+
+                    const yyyyC = fechaPrimeraCuota.getFullYear();
+                    const mmC = String(fechaPrimeraCuota.getMonth() + 1).padStart(2, '0');
+                    const ddC = String(fechaPrimeraCuota.getDate()).padStart(2, '0');
+                    this.d_fecha_cuota = `${yyyyC}-${mmC}-${ddC}`;
+                }
+            }
         },
         nombreBanco(id) {
             if (!this.banco_financiador || !Array.isArray(this.banco_financiador)) return '';

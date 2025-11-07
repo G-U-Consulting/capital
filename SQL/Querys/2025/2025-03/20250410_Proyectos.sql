@@ -104,7 +104,7 @@ create table dim_ciudadela (
 		references dim_zona_proyecto(id_zona_proyecto)
 );
 create table dim_banco_constructor(
-	id_banco int not null auto_increment,
+	id_banco int not null,
 	banco varchar(200) not null unique,
     is_active bit default 1,
 	created_on datetime default current_timestamp,
@@ -404,21 +404,26 @@ insert into dim_tipo_proyecto (id_tipo_proyecto, tipo_proyecto, codigo) values
 (15, 'Deposito', 'DEP');
 alter table dim_tipo_proyecto auto_increment = 16;
 
-insert into dim_banco_constructor (banco) values
-('Davivienda'),
-('Bancolombia'),
-('Banco de Bogotá'),
-('Banco Popular'),
-('BBVA Colombia'),
-('Banco de Occidente'),
-('Banco AV Villas'),
-('Scotiabank Colpatria'),
-('Banco Itaú'),
-('Banco Caja Social'),
-('Banco GNB Sudameris'),
-('Banco Pichincha'),
-('Bancoomeva'),
-('Banco Finandina');
+insert into dim_banco_constructor (id_banco, banco) values
+(1, 'Davivienda'),
+(2, 'Bancolombia'),
+(3, 'Banco de Bogotá'),
+(4, 'Banco Popular'),
+(5, 'BBVA Colombia'),
+(6, 'Banco de Occidente'),
+(7, 'Banco AV Villas'),
+(8, 'Scotiabank Colpatria'),
+(9, 'Banco Itaú'),
+(10, 'Banco Caja Social'),
+(11, 'Banco GNB Sudameris'),
+(12, 'Banco Pichincha'),
+(14, 'Banco Finandina'),
+(35, 'Carta de compromiso del Cliente'),
+(51, 'Acercasa'),
+(54, 'Citybank'),
+(55, 'Credifamilia'),
+(56, 'FNA'),
+(57, 'La Hipotecaria');
 
 insert into dim_email_receptor (email) values
 (NULL),

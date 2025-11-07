@@ -21,11 +21,11 @@
         <!-- ----------------------------------------------------------------- -->
         <div class="pure-g" v-if="mode == 0">
             <div class='pure-u-1-1 pure-u-md-1-1'>
-                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.3em;">
                     Bienvenida a Cliente
                     <div v-if="isClienteVetado" class="btn-vetado" @click="modalveto">Situación administrativa</div>
                 </div>
-                <div class="pure-g" style="align-items: center; justify-content: space-between; margin: 1em 0;">
+                <div class="pure-g" style="align-items: center; justify-content: space-between; margin: .5em 0;">
                     <div class="pure-u-md-8-24" style="display: flex; align-items: center;">
                         <input type="text" v-model="cliente" maxlength="100" placeholder="Número de Documento (C.C, NIT, etc. Sin puntos ni espacios)"
                             class="pure-u-md-22-24"  @keyup.enter="busquedaCliente" />
@@ -48,12 +48,43 @@
                     </div>
                 
                     <div class="pure-u-md-4-24" style="text-align: right;">
-                        <button @click="limpiarObj">Nuevo Cliente</button>
+                        <button @click="limpiarObjClient">Nuevo Cliente</button>
                     </div>
                 </div>
                 <div v-if="iscliente">
                     <div>
-                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                        <div style="height: 5.5rem; overflow-y: auto; margin-top: 0.1em;">
+                            <table class="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>Nombres</th>
+                                        <th>Apellido 1</th>
+                                        <th>Apellido 2</th>
+                                        <th style="width: 12%;">% de copropiedad</th>
+                                        <th style="width: 15%;">Número Documento</th>
+                                        <th style="width: 5%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(c, index) in clientes" :key="index" @dblclick="seleccionarCliente(c)">
+                                        <td>{{ c.nombres }}</td>
+                                        <td>{{ c.apellido1 }}</td>
+                                        <td>{{ c.apellido2 }}</td>
+                                        <td>
+                                            <div style="text-align: right;">{{c.porcentaje}}</div>
+                                        </td>
+                                        <td>{{ c.numeroDocumento }}</td>
+                                        <td style="text-align: center;">
+                                            <div @click="eliminarCliente(index)" class="delete">✖</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pure-u-md-1-1" style="text-align: right;margin-top: .2rem;">
+                            <button @click="agregarCliente">Agregar</button>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.3em;">
                             Información Básica
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-3'>
@@ -75,12 +106,16 @@
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
-                    
-                        </div>
-                        <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
                                 <span>Fecha Nacimiento</span>
                                 <input type='date' v-model='ObjCliente.fechaNacimiento' maxlength='100' placeholder="Seleccione" />
+                            </div>
+                        </div>
+                        <div class='pure-u-1-1 pure-u-md-1-6'>
+                            <div class='formInputStandard'>
+                                <span>Porcentaje de copropiedad</span>
+                                <input type='number' v-model.number='ObjCliente.porcentaje' @input="verificarPorcentajes" min='0' max='100'
+                                    placeholder="0" />
                             </div>
                         </div>
                         <div class='formInputStandard'>
@@ -165,7 +200,7 @@
                             </div>
                         </div>
                         <div v-if="iscliente">
-                            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.5em;">
+                            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.3em;">
                                 Documento de Identificación
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
@@ -764,7 +799,7 @@
                             <div class="pure-u-1 pure-u-md-1-4">
                                 <select class="pure-input-1" v-model="unidadSeleccionada" @change="cargarAnios"
                                     :disabled="pagoSeleccionado !== 'financiado'">
-                                    <option value="">Seleccione unidad</option>
+                                    <option value="0">Seleccione unidad</option>
                                     <option v-for="unidad in unidadesDisponibles" :key="unidad" :value="unidad">
                                         {{ unidad }}
                                     </option>
@@ -919,7 +954,6 @@
                                 según los plazos establecidos.
                             </div>
                         </span>
-                
                         <span class="resaltado">{{ formatoMoneda(valor_credito) }}</span>
                     </span>
                 </div>
@@ -964,13 +998,13 @@
                 <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>Fecha Entrega</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_escrituracion" @change="calcularMesesMaximos" disabled/>
+                        <input type="date" style="text-align: right;" v-model="d_fecha_entrega" @change="calcularMesesMaximos" disabled/>
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>Fecha Escrituración</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_escrituracion" @change="calcularMesesMaximos" />
+                        <input type="date" style="text-align: right;" v-model="d_fecha_escrituracion" @change="calcularMesesMaximos" disabled/>
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-8">
@@ -982,7 +1016,7 @@
                 <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>Fecha Ultima Cuota</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_cuota" @change="calcularMesesMaximos" />
+                        <input type="date" style="text-align: right;" v-model="d_fecha_ulti_cuota" @change="calcularMesesMaximos" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-12">
@@ -1545,7 +1579,8 @@
                 <button class="pure-button button-fixed" @click="handleNext(mode - 1)">Volver</button>
             </div> -->
             <div v-if="mode == 0" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="nuevoCliente">Guardar</button>
+                <button class="pure-button button-fixed" @click="guardarClientes" v-if="clientes.length > 1">Guardar todos</button>
+                <button class="pure-button button-fixed" @click="nuevoCliente" v-else >Guardar</button>
             </div>
             <div v-if="mode == 1" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="nuevaVisita">Guardar</button>
