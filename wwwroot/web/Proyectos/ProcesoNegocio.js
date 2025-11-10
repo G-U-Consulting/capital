@@ -996,6 +996,7 @@ export default {
             }
         },
         async cargarCotizacion(cotizacionId) {
+            this.cotizacionId = cotizacionId
             const respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                 id_cliente: this.id_cliente,
                 id_proyecto: GlobalVariables.id_proyecto,
@@ -1012,75 +1013,9 @@ export default {
             this.d_fecha_pe = respa.data[0][0]?.fecha_p_equ;
             this.consecutivo = respa.data[0][0]?.consecutivo;
 
-            // if (this.d_fecha_escrituracion) {
-            //     const fecha = new Date(this.d_fecha_escrituracion);
-            //     const mes = fecha.getMonth() + 1;
-            //     const dia = fecha.getDate();
-
-            //     let nuevaFecha;
-
-            //     if ((mes === 1) || (mes === 2 && dia <= 14)) {
-            //         nuevaFecha = new Date(fecha.getFullYear() - 1, 11, 31);
-            //     } else {
-            //         nuevaFecha = fecha;
-            //     }
-               
-            //     const yyyy = nuevaFecha.getFullYear();
-            //     const mm = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
-            //     const dd = String(nuevaFecha.getDate()).padStart(2, '0');
-
-            //     this.d_fecha_escrituracion = `${yyyy}-${mm}-${dd}`;
-            // }
-
-            // if (this.d_fecha_escrituracion) {
-            //     const fecha = new Date(this.d_fecha_escrituracion);
-            //     fecha.setMonth(fecha.getMonth() - 1);
-            //     fecha.setDate(1);
-            //     this.d_fecha_ulti_cuota = fecha.toISOString().split('T')[0];
-            // }
-
-
-            // function parseFecha(fechaStr) {
-            //     if (!fechaStr) return null;
-            //     const [fechaPart, horaPart, meridiano] = fechaStr.split(' ');
-            //     const [dia, mes, anio] = fechaPart.split('/').map(Number);
-            //     let [hora, minuto, segundo] = horaPart ? horaPart.split(':').map(Number) : [0, 0, 0];
-            //     if (meridiano && meridiano.toLowerCase().includes('p') && hora < 12) hora += 12;
-            //     if (meridiano && meridiano.toLowerCase().includes('a') && hora === 12) hora = 0;
-
-            //     return new Date(anio, mes - 1, dia, hora, minuto, segundo);
-            // }
-            // function getPrimerDiaHabilSiguienteMes(fechaStr) {
-            //     const fecha = parseFecha(fechaStr);
-            //     if (!fecha || isNaN(fecha)) return null;
-
-            //     let siguienteMes = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 1);
-
-            //     let dia = siguienteMes.getDay();
-            //     if (dia === 0) siguienteMes.setDate(siguienteMes.getDate() + 1);
-            //     else if (dia === 6) siguienteMes.setDate(siguienteMes.getDate() + 2);
-
-            //     return siguienteMes.toISOString().split('T')[0];
-            // }
-
-            // this.d_fecha_cuota = getPrimerDiaHabilSiguienteMes(this.f_creacion);
-
-            // let añoActual = new Date().getFullYear();
-            // let añoActual = "";
-            // let añoEntrega = parseInt(this.añoentrega);
-
             this.valor_reformas = respa.data[0][0]?.valor_reformas || 0;
             this.valor_acabados = respa.data[0][0]?.valor_acabados || 0;
             this.valor_separacion = respa.data[0][0]?.valor_separacion || 0;
-
-            // if (añoEntrega && añoEntrega >= añoActual) {
-            //     this.listaAniosEntrega = Array.from(
-            //         { length: añoEntrega - añoActual + 1 },
-            //         (_, i) => añoActual + i
-            //     );
-            // } else {
-            //     this.listaAniosEntrega = [añoActual];
-            // }
 
             const parseNumber = str =>
                 typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;
@@ -1538,6 +1473,46 @@ export default {
                 }
             }
         },
+        async onSeleccionContado() {
+             const respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
+                id_cliente: this.id_cliente,
+                id_proyecto: GlobalVariables.id_proyecto,
+                cotizacion: this.cotizacionId
+            });
+          
+            this.añoentrega = respa.data[0][0]?.fecha_entrega.match(/\d{4}/)?.[0] || '';
+            this.d_fecha_entrega = respa.data[0][0]?.fecha_entrega_f || '';
+            this.f_cotizacion = (respa.data[0][0]?.created_on || '').split('T')[0].split(' ')[0];
+            this.d_tna_antes = respa.data[0][0]?.antes_p_equ;
+            this.d_tna_despues = respa.data[0][0]?.despues_p_equ;
+            this.d_fecha_escrituracion = respa.data[0][0]?.fecha_escrituracion;
+            this.f_creacion = respa.data[0][0]?.created_on;
+            this.d_fecha_pe = respa.data[0][0]?.fecha_p_equ;
+            this.consecutivo = respa.data[0][0]?.consecutivo;
+            if (!this.d_fecha_escrituracion) return;
+ 
+            let fechaEscrit = new Date(this.d_fecha_escrituracion);
+
+            let fechaCuota = new Date(fechaEscrit);
+            fechaCuota.setDate(fechaCuota.getDate() - 30);
+     
+            while (true) {
+                const day = fechaCuota.getDay();
+
+                if (day === 0 || day === 6) {
+                    fechaCuota.setDate(fechaCuota.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+
+            const yyyy = fechaCuota.getFullYear();
+            const mm = String(fechaCuota.getMonth() + 1).padStart(2, "0");
+            const dd = String(fechaCuota.getDate()).padStart(2, "0");
+
+            this.d_fecha_ulti_cuota = `${yyyy}-${mm}-${dd}`;
+
+        },
         nombreBanco(id) {
             if (!this.banco_financiador || !Array.isArray(this.banco_financiador)) return '';
             const banco = this.banco_financiador.find(b => b.id_bancos_financiador === id);
@@ -1575,6 +1550,7 @@ export default {
                 this.listaAnios = [];
                 return;
             }
+            this.tipo_financiacion;
             this.listaAnios = [
                 ...new Set(
                     this.factoresBanco
@@ -1583,13 +1559,36 @@ export default {
                         .map(f => f.factor)
                 )
             ].sort((a, b) => parseInt(a) - parseInt(b));
+
+            const seleccionada = this.unidadSeleccionada;
+            let tiposFiltrados = this.tipo_financiacion;
+
+            if (seleccionada === 'COP' || seleccionada === 'UVR') {
+                tiposFiltrados = this.tipo_financiacion.filter(
+                    tipo => !tipo.tipo_financiacion.includes('Leasing')
+                );
+            }
+            else if (seleccionada.includes('LEASING')) {
+                tiposFiltrados = this.tipo_financiacion.filter(
+                    tipo => !tipo.tipo_financiacion.includes('Crédito')
+                );
+            }
+            else {
+                tiposFiltrados = this.tipo_financiacion;
+            }
+
+            this.tipo_financiacion = tiposFiltrados;
         },
         async isSubsidio() {
             let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Poyecto', {
                 id_proyecto: GlobalVariables.id_proyecto
             });
             let dato = resp.data[0][0].id_tipo_vis
+            let estado = resp.data[0][0].estado_publicacion_final
+
+
             this.subsidioActivo = dato != 4;
+            this.tipo_factor = dato == 4 ? 'NO VIS' + " + " + estado : 'VIS' + " + " + estado ;
         },
         onCambioValor() {
             this.valor_reformas = this.f_valor_reformas;
@@ -1933,8 +1932,23 @@ export default {
             await this.limpiarNumero()
             showMessage("Opción creada correctamente")
             this.mode = 0;
+        },
+        async onChangeAnio() {
+            if (!this.anioSeleccionado || !this.bancoSeleccionado) return;
+            try {
+
+                let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_FactorMillon', {
+                    id_banco: this.bancoSeleccionado,
+                    unidadSeleccionada: this.unidadSeleccionada,
+                    anioSeleccionado: this.anioSeleccionado,
+                    tipo_factor: this.tipo_factor
+                });
+                this.factorBanco = resp.data[0][0].valor;
+
+            } catch (err) {
+                console.error("Error al obtener factor por banco:", err);
+            }
         }
- 
     },
     computed: {
         tabClasses() {
@@ -1949,6 +1963,37 @@ export default {
                     return 'wizarTabCompleted';
                 }
             });
+        },
+        cuotaMaxima() {
+            console.log(this.f_ingresos_mensuales);
+            const ingreso = parseInt(this.f_ingresos_mensuales.toString().replace(/\D/g, '')) || 0;
+            return ingreso * 0.4;
+        },
+        valorCreditoMillon() {
+            let valor = (this.valor_credito * this.factorBanco) / 1000000;
+            valor = Math.floor(valor);
+            return valor;
+        },
+        minimoFamiliar() {
+            if (!this.valorCreditoMillon) return 0;
+            return Math.floor(this.valorCreditoMillon / 0.40);
+        },
+        valorCreditoMillonFormateado() {
+            if (!this.valorCreditoMillon) return 0;
+            return this.valorCreditoMillon;
+        },
+        valor_maxfinanciable() {
+            const ingresos = parseInt(this.f_ingresos_mensuales.toString().replace(/\D/g, '')) || 0;
+            const factor = this.factorBanco || 0;
+            const valorCredito = this.valor_credito || 0;
+
+            if (factor === 0 || ingresos === 0) return 0;
+
+            const factorEnMillones = factor / 1_000_000;
+            const maxPorIngresos = (ingresos * 0.40) / factorEnMillones;
+
+            // Limita el valor_credito al máximo permitido
+            return Math.min(valorCredito, Math.floor(maxPorIngresos));
         },
         proyectosUnicos() {
             const proyectos = this.visitas.map(v => v.proyecto);

@@ -783,7 +783,7 @@
                                 <span class="checkmark"></span>
                                 Financiado
                             </label>
-                            <span class="pure-u-1 pure-u-md-1-6">Entidad:</span>
+                            <span class="pure-u-1 pure-u-md-1-6">1. Entidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
                                 <select class="pure-input-1" v-model="bancoSeleccionado" @change="cargarFactor"
                                     :disabled="pagoSeleccionado !== 'financiado'">
@@ -795,8 +795,8 @@
                                 </select>
                             </div>
                             <div class="pure-u-1 pure-u-md-1-24"></div>
-                            <span class="pure-u-1 pure-u-md-1-12">Tipo:</span>
-                            <div class="pure-u-1 pure-u-md-1-4">
+                            <span class="pure-u-1 pure-u-md-1-6">2. Tipo:</span>
+                            <div class="pure-u-1 pure-u-md-1-5">
                                 <select class="pure-input-1" v-model="unidadSeleccionada" @change="cargarAnios"
                                     :disabled="pagoSeleccionado !== 'financiado'">
                                     <option value="0">Seleccione unidad</option>
@@ -808,24 +808,24 @@
                         </div>
                         <div class="pure-u-1 pure-u-md-1-1" style="padding-top: .5rem;">
                             <div class="pure-u-1 pure-u-md-1-6"></div>
-                            <span class="pure-u-1 pure-u-md-1-6">Modalidad:</span>
+                            <span class="pure-u-1 pure-u-md-1-6">3. Años:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
+                                   <select class="pure-input-1" v-model="anioSeleccionado"
+                                    :disabled="pagoSeleccionado !== 'financiado'" @change="onChangeAnio">
+                                    <option value="">Seleccione años</option>
+                                    <option v-for="anio in listaAnios" :key="anio" :value="anio">
+                                        {{ anio }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-24"></div>
+                            <span class="pure-u-1 pure-u-md-1-6">4. Modalidad:</span>
+                            <div class="pure-u-1 pure-u-md-1-5">
                                 <select class="pure-input-1" v-model="tipoFinanciacionSeleccionada" :disabled="pagoSeleccionado !== 'financiado'"
                                     @change="calcularFinanciacion">
                                     <option value="">Seleccione</option>
                                     <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion" :value="tipo.tipo_financiacion">
                                         {{ tipo.tipo_financiacion }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-24"></div>
-                            <span class="pure-u-1 pure-u-md-1-12">Años:</span>
-                            <div class="pure-u-1 pure-u-md-1-4">
-                                <select class="pure-input-1" v-model="anioSeleccionado"
-                                    :disabled="pagoSeleccionado !== 'financiado'">
-                                    <option value="">Seleccione años</option>
-                                    <option v-for="anio in listaAnios" :key="anio" :value="anio">
-                                        {{ anio }}
                                     </option>
                                 </select>
                             </div>
@@ -838,20 +838,48 @@
             </div>
             <div class="pure-g">
                 <div class="pure-u-1 pure-u-md-1-1">
-                    <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="pure-u-1 pure-u-md-1-8">
                         <div class="formInputStandard">
                             <span>Cesantías</span>
                             <input type="text" style="text-align: right;" v-model="f_valor_cesantias" @keyup="validarFormato"/>
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="pure-u-1 pure-u-md-1-8">
                         <div class="formInputStandard">
                             <span>Ahorros</span>
                             <input type="text" style="text-align: right;" v-model="f_valor_ahorros" @keyup="validarFormato" />
                         </div>
                     </div>
+                     <div class="pure-u-1 pure-u-md-1-8">
+                        <div class="formInputStandard">
+                            <span>Ingresos Familiares</span>
+                            <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
+                                @keyup="validarFormato" :disabled="!subsidioActivo || pagoSeleccionado === 'contado'" />
+                        </div>
+                    </div>
+                     <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Impor. Max. Financiable</span>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(valor_maxfinanciable)" disabled>
+                        </div>
+                    </div>
                     <div class="pure-u-1 pure-u-md-1-6">
-
+                        <div class="formInputStandard">
+                            <span>Cuota máxima (40% Ingresos)</span>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(cuotaMaxima)" disabled />
+                        </div>
+                    </div>
+                    <div class="pure-u-1 pure-u-md-1-6">
+                        <div class="formInputStandard">
+                            <span>Cuota modalidad (70%)</span>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(valorCreditoMillonFormateado)" disabled>
+                        </div>
+                    </div>
+                    <div class="pure-u-1 pure-u-md-1-8">
+                        <div class="formInputStandard">
+                            <span>Mínimo Familiar</span>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(minimoFamiliar)" disabled>
+                        </div>
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-1">
@@ -862,13 +890,6 @@
                                 <span class="checkmark"></span>
                                 Subsidio
                             </label>
-                        </div>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-6">
-                        <div class="formInputStandard">
-                            <span>Ingreso del grupo familiar</span>
-                            <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
-                                @keyup="validarFormato" :disabled="!subsidioActivo || pagoSeleccionado === 'contado'" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
@@ -896,12 +917,6 @@
                     
                         </div>
                     </div> -->
-                    <div class="pure-u-1 pure-u-md-1-6">
-                        <div class="formInputStandard">
-                            <span>Impor. Max. Financiable</span>
-                            <input style="text-align: right;" type="text" :value="formatoMoneda(valor_subsidio)">
-                        </div>
-                    </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Caja de compensación:</span>
