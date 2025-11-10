@@ -166,7 +166,6 @@ export default {
                 { id_venta: this.venta.id_venta })).data;
             this.cuentas.forEach(c => c.porcentaje = c.porcentaje.replace(',', '.'));
             hideProgress();
-            console.log(this.venta, this.cuentas, this.compradores);
         },
         validarNumero(e, int) {
             let val = e.target.value;
