@@ -53,37 +53,6 @@
                 </div>
                 <div v-if="iscliente">
                     <div>
-                        <div style="height: 5.5rem; overflow-y: auto; margin-top: 0.1em;">
-                            <table class="dataTable">
-                                <thead>
-                                    <tr>
-                                        <th>Nombres</th>
-                                        <th>Apellido 1</th>
-                                        <th>Apellido 2</th>
-                                        <th style="width: 12%;">% de copropiedad</th>
-                                        <th style="width: 15%;">Número Documento</th>
-                                        <th style="width: 5%;"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(c, index) in clientes" :key="index" @dblclick="seleccionarCliente(c)">
-                                        <td>{{ c.nombres }}</td>
-                                        <td>{{ c.apellido1 }}</td>
-                                        <td>{{ c.apellido2 }}</td>
-                                        <td>
-                                            <div style="text-align: right;">{{c.porcentaje}}</div>
-                                        </td>
-                                        <td>{{ c.numeroDocumento }}</td>
-                                        <td style="text-align: center;">
-                                            <div @click="eliminarCliente(index)" class="delete">✖</div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="pure-u-md-1-1" style="text-align: right;margin-top: .2rem;">
-                            <button @click="agregarCliente">Agregar</button>
-                        </div>
                         <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.3em;">
                             Información Básica
                         </div>
@@ -276,6 +245,37 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div style="height: 5.5rem; overflow-y: auto; margin-top: 0.1em;">
+                <table class="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Nombres</th>
+                            <th>Apellido 1</th>
+                            <th>Apellido 2</th>
+                            <th style="width: 12%;">% de copropiedad</th>
+                            <th style="width: 15%;">Número Documento</th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(c, index) in clientes" :key="index" @dblclick="seleccionarCliente(c)">
+                            <td>{{ c.nombres }}</td>
+                            <td>{{ c.apellido1 }}</td>
+                            <td>{{ c.apellido2 }}</td>
+                            <td>
+                                <div style="text-align: right;">{{c.porcentaje}}</div>
+                            </td>
+                            <td>{{ c.numeroDocumento }}</td>
+                            <td style="text-align: center;">
+                                <div @click="eliminarCliente(index)" class="delete">✖</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pure-u-md-1-1" style="text-align: right;margin-top: .2rem;">
+                <button @click="agregarCliente">Agregar a tabla</button>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1' v-if="iscliente">
                 <div class='formInputStandard'>

@@ -601,7 +601,6 @@ export default {
         },
         async limpiarObjClient() {
             this.limpiarObj();
-            this.clientes = [];
         },
         async limpiarObj() {
             if (this.mode == 0 || this.mode == 3) {
@@ -703,17 +702,17 @@ export default {
                     this.policyAccepted = false;
                 }
 
-                const existe = this.clientes.some(c => c.numeroDocumento === datos.numero_documento);
-                if (!existe) {
-                    this.clientes.push({
-                        nombres: datos.nombres,
-                        apellido1: datos.apellido1,
-                        apellido2: datos.apellido2,
-                        numeroDocumento: datos.numero_documento,
-                        id_cliente: datos.id_cliente,
-                        porcentaje: this.clientes.length === 0 ? 100 : 0
-                    });
-                }
+                // const existe = this.clientes.some(c => c.numeroDocumento === datos.numero_documento);
+                // if (!existe) {
+                //     this.clientes.push({
+                //         nombres: datos.nombres,
+                //         apellido1: datos.apellido1,
+                //         apellido2: datos.apellido2,
+                //         numeroDocumento: datos.numero_documento,
+                //         id_cliente: datos.id_cliente,
+                //         porcentaje: this.clientes.length === 0 ? 100 : 0
+                //     });
+                // }
 
                 this.ObjClienteOriginal = { ...this.ObjCliente };
 
@@ -1992,7 +1991,6 @@ export default {
             const factorEnMillones = factor / 1_000_000;
             const maxPorIngresos = (ingresos * 0.40) / factorEnMillones;
 
-            // Limita el valor_credito al máximo permitido
             return Math.min(valorCredito, Math.floor(maxPorIngresos));
         },
         proyectosUnicos() {
