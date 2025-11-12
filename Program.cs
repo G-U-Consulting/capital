@@ -88,20 +88,25 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
-app.Map("/util/reports/{report}", async (HttpRequest request, HttpResponse response, string report) => {
+app.Map("/util/reports/{sp}/{type}/{filename?}", async (HttpRequest request, HttpResponse response, string sp, string type, string? filename) => {
+    string body = "";
     try {
-        string url = report == "test"
-            ? "https://app.powerbi.com/view?r=eyJrIjoiNTU0OWQwY2ItMzJjNC00Y2E1LWI2MTAtMjA4Y2RmZTI2ZTJkIiwidCI6IjM2MmEzYTFiLTZhNWItNGFhMS04ZTc0LTJlZGI5MGM2MzYzYSIsImMiOjR9"
-            : "";
-        response.ContentType = "text/html";
-        string html = await WebUt.WebRequest(url, HttpMethod.Get, null, "text/html", null);
-        string baseUrl = "https://app.powerbi.com/";
-        string pattern = @"(src|href)\s*=\s*[""'](?!https?:\/\/|\/)([^""']+)[""']";
-        string replacement = "$1=\"" + baseUrl + "$2\"";
-        string updatedHtml = Regex.Replace(html, pattern, replacement);
-        return updatedHtml;
+        response.ContentType = "application/json";
+        using (var stream = new StreamReader(request.Body))
+        {
+            body = await stream.ReadToEndAsync();
+        }
+        JObject obj = JObject.Parse(body);
+        string json;
+        sp = sp.Replace(':', '/');
+        string res = (await Generic.ProcessRequest(request, response, "genericDT", sp, body, rootPath)).ToString(Newtonsoft.Json.Formatting.None);
+        JObject jres = JObject.Parse(res);
+        if (jres["isError"] != null && (bool)jres["isError"])
+            throw new Exception(jres["errorMessage"]?.ToString() ?? jres["data"]?.ToString());
+        else json = jres["data"]?.ToString() ?? "[]";
+        return WebBDUt.SetJsonToFile(json, type == "csv", filename).ToString(Newtonsoft.Json.Formatting.None);
     } catch (Exception ex) {
-        Logger.Log("generic/reports/" + report + "    " + ex.Message + Environment.NewLine + ex.StackTrace);
+        Logger.Log("generic/reports/" + sp + "    " + ex.Message + Environment.NewLine + body + ex.StackTrace);
         response.StatusCode = 500;
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }
