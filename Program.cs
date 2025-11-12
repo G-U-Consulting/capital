@@ -88,10 +88,11 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
-app.Map("/util/reports/{sp}/{type}/{filename?}", async (HttpRequest request, HttpResponse response, string sp, string type, string? filename) => {
+app.Map("/util/reports/{sp}/{type?}", async (HttpRequest request, HttpResponse response, string sp, string? type) => {
     string body = "";
+    bool isCsv = type == "csv";
     try {
-        response.ContentType = "application/json";
+        response.ContentType = isCsv ? "text/csv" : "application/json";
         using (var stream = new StreamReader(request.Body))
         {
             body = await stream.ReadToEndAsync();
@@ -104,7 +105,12 @@ app.Map("/util/reports/{sp}/{type}/{filename?}", async (HttpRequest request, Htt
         if (jres["isError"] != null && (bool)jres["isError"])
             throw new Exception(jres["errorMessage"]?.ToString() ?? jres["data"]?.ToString());
         else json = jres["data"]?.ToString() ?? "[]";
-        return WebBDUt.SetJsonToFile(json, type == "csv", filename).ToString(Newtonsoft.Json.Formatting.None);
+        if (isCsv)
+        {
+            DataTable? dt = Newtonsoft.Json.JsonConvert.DeserializeObject<DataTable>(json);
+            return WebBDUt.ToCsv(dt);
+        }
+        else return json;
     } catch (Exception ex) {
         Logger.Log("generic/reports/" + sp + "    " + ex.Message + Environment.NewLine + body + ex.StackTrace);
         response.StatusCode = 500;

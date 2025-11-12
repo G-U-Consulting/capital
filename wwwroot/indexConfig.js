@@ -186,6 +186,11 @@
         jsUrl: "./web/GestProyectos/ResumenTipo.js",
         allow: ["*"]
     },
+    "DUnidades": {
+        templateUrl: "./web/Dashboards/Unidades.html",
+        jsUrl: "./web/Dashboards/Unidades.js",
+        allow: ["*"]
+    },
     "DAtencion": {
         templateUrl: "./web/Dashboards/Atencion.html",
         jsUrl: "./web/Dashboards/Atencion.js",
@@ -200,7 +205,7 @@
         templateUrl: "./web/Dashboards/Pqrs.html",
         jsUrl: "./web/Dashboards/Pqrs.js",
         allow: ["*"]
-    },
+    },/* 
     "Informes": {
         templateUrl: "./web/Informes/Informes.html",
         jsUrl: "./web/Informes/Informes.js",
@@ -220,7 +225,7 @@
         zone: "ZI",
         category: "INFORMES",
         allow: ["*"]
-    },
+    }, */
     "ConfigUsuarios": {
         templateUrl: "./web/ConfigUsuario/ConfigUsuario.html",
         jsUrl: "./web/ConfigUsuario/ConfigUsuario.js",

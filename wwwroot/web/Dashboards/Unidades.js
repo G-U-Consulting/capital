@@ -31,6 +31,19 @@ export default {
         async loadData() {
 
         },
+        async getReport() {
+            let csv = await httpFunc(`/util/reports/Dashboard:Get_InfUnidades/csv`, {});
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "DataUnidades.csv");
+            link.style.display = "none";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
     },
     computed: {
 

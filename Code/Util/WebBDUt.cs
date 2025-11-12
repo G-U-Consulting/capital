@@ -741,8 +741,8 @@ public static class WebBDUt {
             using (StreamWriter file = new(fileUri, false, Encoding.UTF8))
             {
                 DataTable dt = ds.Tables[0];
-                String Data = ToCsv(dt);
-                file.Write(Data);
+                string data = ToCsv(dt);
+                file.Write(data);
             }
             retUrl = url;
         }

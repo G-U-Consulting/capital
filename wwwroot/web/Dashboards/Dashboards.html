@@ -14,6 +14,11 @@
                 <div class="lateralMenuItem noSelect group" style="padding-left: 8px;">
                     Dashboards
                 </div>
+                <div v-on:click="setMainMode('DUnidades');" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'DUnidades'}">
+                    <img src="./img/ico/svg/sidebar/Clientes.svg" />
+                    Unidades
+                </div>
                 <div v-on:click="setMainMode('DAtencion');" class="lateralMenuItem noSelect"
                     v-bind:class="{'lateralMenuItemSelected': mainmode == 'DAtencion'}">
                     <img src="./img/ico/svg/sidebar/Clientes.svg" />
