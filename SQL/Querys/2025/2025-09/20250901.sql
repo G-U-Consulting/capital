@@ -429,3 +429,9 @@ begin
         end if;
     end if;
 end;
+
+
+create table dim_whitelist_views(
+    name varchar(50) primary key
+);
+insert into dim_whitelist_views(name) values('dash_unidades');

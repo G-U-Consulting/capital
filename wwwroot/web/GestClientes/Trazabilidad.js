@@ -16,6 +16,7 @@ export default {
 
             filMode: 'week',
             filIdSala: '',
+            filIdProyecto: '',
             filtros: {
                 trazabilidad: {
                     created_on1: this.formatDatetime('', 'bdate', new Date(new Date().getTime() - 1000 * 3600 * 24 * 7)),
@@ -299,17 +300,19 @@ export default {
             };
         },
         dataTotalAcciones(config) {
+            console.log(this.acciones);
             let labels = [`${this.filtros.trazabilidad.created_on1} - ${this.filtros.trazabilidad.created_on2}`],
                 todos = this.groupMode === 'total',
-                num_visitas = !todos ? this.getFilteredList('trazabilidad').filter(t => t.obj === 'Visita').length : 0;
+                trazabilidad = this.getFilteredList('trazabilidad').filter(t => !this.filIdProyecto || this.filIdProyecto === t.id_proyecto),
+                num_visitas = !todos ? trazabilidad.filter(t => t.obj === 'Visita').length : 0;
             const data = {
                 labels: labels,
                 datasets: this.acciones.filter(a => a.obj !== 'Desistimiento' && (todos || a.obj !== 'Visita'))
                     .map((a, i) => ({
                     label: a.obj,
                     data: todos
-                        ? [this.getFilteredList('trazabilidad').filter(t => t.obj === a.obj).length]
-                        : [this.getFilteredList('trazabilidad').filter(t => t.obj === a.obj).length / num_visitas * 100],
+                        ? [trazabilidad.filter(t => t.obj === a.obj).length]
+                        : [trazabilidad.filter(t => t.obj === a.obj).length / num_visitas * 100],
                     backgroundColor: this.getColor(i, this.acciones.length)
                 }))
             };

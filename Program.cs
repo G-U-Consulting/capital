@@ -88,19 +88,15 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
     }
 
 }).WithName("Generic").RequireAuthorization();
-app.Map("/util/reports/{sp}/{type?}", async (HttpRequest request, HttpResponse response, string sp, string? type) => {
-    string body = "";
+app.Map("/util/reports/{view}/{type?}", async (HttpRequest request, HttpResponse response, string view, string? type) => {
     bool isCsv = type == "csv";
     try {
         response.ContentType = isCsv ? "text/csv" : "application/json";
-        using (var stream = new StreamReader(request.Body))
-        {
-            body = await stream.ReadToEndAsync();
-        }
-        JObject obj = JObject.Parse(body);
+        JObject obj = [];
+        obj.Add("view", view);
+        string pars = obj.ToString();
         string json;
-        sp = sp.Replace(':', '/');
-        string res = (await Generic.ProcessRequest(request, response, "genericDT", sp, body, rootPath)).ToString(Newtonsoft.Json.Formatting.None);
+        string res = (await Generic.ProcessRequest(request, response, "genericDT", "Dashboard/Get_Dashboard", pars, rootPath)).ToString(Newtonsoft.Json.Formatting.None);
         JObject jres = JObject.Parse(res);
         if (jres["isError"] != null && (bool)jres["isError"])
             throw new Exception(jres["errorMessage"]?.ToString() ?? jres["data"]?.ToString());
@@ -112,7 +108,7 @@ app.Map("/util/reports/{sp}/{type?}", async (HttpRequest request, HttpResponse r
         }
         else return json;
     } catch (Exception ex) {
-        Logger.Log("generic/reports/" + sp + "    " + ex.Message + Environment.NewLine + body + ex.StackTrace);
+        Logger.Log("generic/reports/Dashboard/Get_Dashboard" + "    " + ex.Message + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;
         return ex.Message + Environment.NewLine + ex.StackTrace;
     }

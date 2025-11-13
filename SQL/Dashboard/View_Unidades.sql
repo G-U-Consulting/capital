@@ -1,10 +1,10 @@
 -- =============================================
--- Proceso: Dashboard/Get_InfUnidades
+-- Proceso: Dashboard/View_Unidades
 -- =============================================
 --START_PARAM
-set @id_proyecto = NULL;
 --END_PARAM
 
+create view vw_dash_unidades as
 select u.altura, u.numero_apartamento as apartamento, cast(u.area_total as char) as area_total, u.asoleacion, 
     u.cerca_juegos_infantiles, u.cerca_piscina, u.cerca_porteria, tp.tipo_proyecto as clase, u.codigo_planta, 
     e.estado_unidad as estatus, date_format(u.fecha_fec, '%Y-%m-%d') as fecha_fec, date_format(fecha_edi, '%Y-%m-%d') as fecha_edi, 
@@ -22,5 +22,4 @@ left join dim_precio_unidad pu on l.id_lista = pu.id_lista and u.id_unidad = pu.
 left join dim_ciudadela c on p.id_ciudadela = c.id_ciudadela
 left join dim_zona_proyecto z on p.id_zona_proyecto = z.id_zona_proyecto
 left join dim_sede s on p.id_sede = s.id_sede
-where @id_proyecto is null or u.id_proyecto = @id_proyecto
 order by p.nombre, t.consecutivo, tp.tipo_proyecto, cast(u.numero_apartamento as unsigned);

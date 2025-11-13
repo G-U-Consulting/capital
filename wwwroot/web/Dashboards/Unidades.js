@@ -32,7 +32,7 @@ export default {
 
         },
         async getReport() {
-            let csv = await httpFunc(`/util/reports/Dashboard:Get_InfUnidades/csv`, {});
+            let csv = await httpFunc(`/util/reports/dash_unidades/csv`, {});
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
             const link = document.createElement("a");
             const url = URL.createObjectURL(blob);
