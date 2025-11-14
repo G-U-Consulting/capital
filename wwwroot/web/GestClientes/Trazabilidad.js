@@ -300,7 +300,6 @@ export default {
             };
         },
         dataTotalAcciones(config) {
-            console.log(this.acciones);
             let labels = [`${this.filtros.trazabilidad.created_on1} - ${this.filtros.trazabilidad.created_on2}`],
                 todos = this.groupMode === 'total',
                 trazabilidad = this.getFilteredList('trazabilidad').filter(t => !this.filIdProyecto || this.filIdProyecto === t.id_proyecto),

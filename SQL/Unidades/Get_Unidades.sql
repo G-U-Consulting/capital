@@ -57,26 +57,26 @@ where bc.id_proyecto = @id_proyecto;
 
 /*
 select * from dim_agrupacion_unidad;
-select * from fact_unidades where id_proyecto = 13 limit 2000;
+select * from fact_unidades where id_proyecto = 2 limit 2000;
 select * from tmp_agrupaciones;
-update fact_unidades set id_agrupacion = null where id_proyecto=13;
+update fact_unidades set id_agrupacion = null where id_proyecto=2;
 delete from dim_hito_cargo where id_hito in (select h.id_hito from fact_unidades u 
-    join dim_hito_sala h on u.id_torre = h.id_torre where u.id_proyecto = 13 group by h.id_hito);
-delete from dim_hito_sala where id_torre in (select id_torre from fact_torres where id_proyecto = 13);
-delete from dim_agrupacion_unidad where id_proyecto=13;
-delete from dim_lista_tipo_torre where id_torre in (select id_torre from fact_torres where id_proyecto = 13);
-delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 13);
-delete from dim_log_unidades where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 13);
-delete from dim_cuenta_desistimiento where id_desistimiento in (
+    join dim_hito_sala h on u.id_torre = h.id_torre where u.id_proyecto = 2 group by h.id_hito);
+delete from dim_hito_sala where id_torre in (select id_torre from fact_torres where id_proyecto = 2);
+delete from dim_agrupacion_unidad where id_proyecto=2;
+delete from dim_lista_tipo_torre where id_torre in (select id_torre from fact_torres where id_proyecto = 2);
+delete from dim_precio_unidad where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 2);
+delete from dim_log_unidades where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 2);
+delete from dim_cuenta_opcion where id_opcion in (
     select d.id_desistimiento from dim_desistimiento d join fact_ventas v on d.id_venta = v.id_venta
-     join fact_unidades u on v.id_unidad = u.id_unidad where id_proyecto = 13
+     join fact_unidades u on v.id_unidad = u.id_unidad where id_proyecto = 2
 );
 delete from dim_desistimiento
-   where id_venta in (select v.id_venta from fact_ventas v join fact_unidades u on v.id_unidad = u.id_unidad where id_proyecto = 13);
-delete from fact_ventas where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 13);
-delete from fact_lista_espera where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 13);
-delete from fact_unidades where id_proyecto = 13;
-delete from fact_torres where id_proyecto = 13;
-update fact_proyectos set id_lista = null where id_proyecto = 13;
-delete from dim_lista_precios where id_proyecto=13;
+   where id_venta in (select v.id_venta from fact_ventas v join fact_unidades u on v.id_unidad = u.id_unidad where id_proyecto = 2);
+delete from fact_ventas where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 2);
+delete from fact_lista_espera where id_unidad in (select id_unidad from fact_unidades where id_proyecto = 2);
+delete from fact_unidades where id_proyecto = 2;
+delete from fact_torres where id_proyecto = 2;
+update fact_proyectos set id_lista = null where id_proyecto = 2;
+delete from dim_lista_precios where id_proyecto=2;
 */

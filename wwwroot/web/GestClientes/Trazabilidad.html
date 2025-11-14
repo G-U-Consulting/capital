@@ -101,7 +101,7 @@
                     <span v-if="chartMode == 'acciones_asesor'">Informe trazabilidad acciones por asesor</span>
                     <span v-if="chartMode == 'temporal_asesor'">Informe temporal acciones por asesor</span>
                     <span v-if="chartMode == 'temporal_unidad'">Informe temporal acciones por unidad</span>
-                    <span v-if="chartMode == 'total_acciones'">Informe efectividad acciones</span>
+                    <span v-if="chartMode == 'total_acciones'">Informe efectividad acciones {{groupMode == 'porc_visitas' ? ' - sobre visitas' : ''}}</span>
                 </h2>
 
                 <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">

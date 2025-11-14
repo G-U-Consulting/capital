@@ -96,8 +96,7 @@ app.Map("/util/reports/{view}/{type?}", async (HttpRequest request, HttpResponse
         obj.Add("view", view);
         string pars = obj.ToString();
         string json;
-        string res = (await Generic.ProcessRequest(request, response, "genericDT", "Dashboard/Get_Dashboard", pars, rootPath)).ToString(Newtonsoft.Json.Formatting.None);
-        JObject jres = JObject.Parse(res);
+        JObject jres = (JObject) await Generic.ProcessRequest(request, response, "genericDT", "Dashboard/Get_Dashboard", pars, rootPath);
         if (jres["isError"] != null && (bool)jres["isError"])
             throw new Exception(jres["errorMessage"]?.ToString() ?? jres["data"]?.ToString());
         else json = jres["data"]?.ToString() ?? "[]";

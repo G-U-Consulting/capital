@@ -574,7 +574,7 @@
 			}
 		},
 		onSelectApto(apto) {
-			console.log(apto);
+			//console.log(apto);
 			this.apto = { ...apto };
 			this.mode = 5;
 			this.ruta = [this.ruta[0], this.ruta[1], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
