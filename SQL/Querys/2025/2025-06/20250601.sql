@@ -29,6 +29,7 @@ create table fact_clientes (
     fecha_nacimiento datetime,
     
     fecha_expedicion datetime,
+    porcentaje_copropiedad int,
     is_politica_aceptada bit default 0,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,

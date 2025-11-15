@@ -29,7 +29,8 @@ create temporary table tmp_clientes (
     is_titular tinyint,
     nombreEmpresa varchar(150),
     nit varchar(100),
-    fechaNacimiento date
+    fechaNacimiento date,
+    porcentaje_copropiedad int
 );
 
 insert into tmp_clientes
@@ -57,7 +58,8 @@ select
     cast(JSON_UNQUOTE(JSON_EXTRACT(j.value, '$.is_titular')) as signed),
     JSON_UNQUOTE(JSON_EXTRACT(j.value, '$.nombreEmpresa')),
     JSON_UNQUOTE(JSON_EXTRACT(j.value, '$.nit')),
-    JSON_UNQUOTE(JSON_EXTRACT(j.value, '$.fechaNacimiento'))
+    JSON_UNQUOTE(JSON_EXTRACT(j.value, '$.fechaNacimiento')),
+    cast(JSON_UNQUOTE(JSON_EXTRACT(j.value, '$.porcentaje_copropiedad')) as signed)
 from JSON_TABLE(@clientes_json, '$[*]' columns (value json path '$')) j;
 
 
@@ -85,7 +87,8 @@ insert into fact_clientes (
     is_titular,
     nombre_empresa,
     nit,
-    fecha_nacimiento
+    fecha_nacimiento,
+    porcentaje_copropiedad
 )
 select
     t.nombres,
@@ -111,7 +114,8 @@ select
     t.is_titular,
     t.nombreEmpresa,
     t.nit,
-    t.fechaNacimiento
+    t.fechaNacimiento,
+    t.porcentaje_copropiedad
 from tmp_clientes t
 on duplicate key update
     nombres = values(nombres),
@@ -136,7 +140,8 @@ on duplicate key update
     is_titular = values(is_titular),
     nombre_empresa = values(nombre_empresa),
     nit = values(nit),
-    fecha_nacimiento = values(fecha_nacimiento);
+    fecha_nacimiento = values(fecha_nacimiento),
+    porcentaje_copropiedad = values(porcentaje_copropiedad);
 
 drop temporary table if exists tmp_clientes;
 

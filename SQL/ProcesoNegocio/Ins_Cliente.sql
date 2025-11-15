@@ -25,7 +25,8 @@ set @nombres = '',
     @is_titular = 0,
     @nombreEmpresa = '',
     @nit = '',
-    @fechaNacimiento = '';
+    @fechaNacimiento = '',
+    @porcentaje_copropiedad;
 --END_PARAM
 
 
@@ -79,7 +80,8 @@ else
             is_titular = @is_titular,
             nombre_empresa = @nombreEmpresa,
             nit = @nit,
-            fecha_nacimiento = @fechaNacimiento
+            fecha_nacimiento = @fechaNacimiento,
+            porcentaje_copropiedad = @porcentaje_copropiedad
         where numero_documento = @numeroDocumento;
 
         select concat('OK-Registro actualizado:', @numeroDocumento, ' ', 'Update') as result;
@@ -108,7 +110,8 @@ else
             is_titular,
             nombre_empresa,
             nit,
-            fecha_nacimiento
+            fecha_nacimiento,
+            porcentaje_copropiedad
         ) values (
             @nombres,
             @apellido1,
@@ -133,7 +136,8 @@ else
             @is_titular,
             @nombreEmpresa,
             @nit,
-            @fechaNacimiento
+            @fechaNacimiento,
+            @porcentaje_copropiedad
         );
 
         select concat('OK-id_cliente:', last_insert_id(), ' ', 'Insert') as result;

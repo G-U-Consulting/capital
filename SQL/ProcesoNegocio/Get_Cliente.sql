@@ -30,7 +30,8 @@ select
     DATE_FORMAT(a.fecha_nacimiento, '%Y-%m-%d') as fecha_nacimiento,
     a.nit,
     a.is_titular,
-    a.nombre_empresa
+    a.nombre_empresa,
+    a.porcentaje_copropiedad
 from fact_clientes a
 where a.is_active = 1
   and @cliente != ''

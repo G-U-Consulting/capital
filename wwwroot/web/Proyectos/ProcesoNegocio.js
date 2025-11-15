@@ -40,7 +40,7 @@ export default {
                 nombreEmpresa: '',
                 nit: '',
                 fechaNacimiento: '',
-                porsentaje: '',
+                porcentaje_copropiedad: '',
             },
             ObjVisita: {
                 id_proyecto: '',
@@ -174,6 +174,10 @@ export default {
 
             clientes: [],
             ObjClienteOriginal: null,
+            mostrarCliente: true,
+            editandoIngresos: false,
+            valor_credito_max: 0,
+            reformaActivo: false,
 
         };
     },
@@ -275,13 +279,13 @@ export default {
             } else {
                 this.valor_subsidio = 0;
             }
-            console.log("Año:", this.seleccionAnioEntrega,
-                "Ingresos:", this.ingresos_mensuales,
-                "SMMLV:", smmlv,
-                "Subsidio:", this.valor_subsidio);
+        },
+        recalcularSubsidio() {
+            const limpiar = (v) => Number(String(v).replace(/[\.,]/g, ''));
+            this.cuota_inicial = limpiar(this.cuota_inicial) - limpiar(this.valor_subsidio);
         },
         calcularFinanciacion() {
-            if (!this.tipoFinanciacionSeleccionada || !this.importeActiva) {
+            if (!this.tipoFinanciacionSeleccionada || !this.importeOriginal) {
                 this.cuota_inicial = 0;
                 this.valor_credito = 0;
                 return;
@@ -301,15 +305,13 @@ export default {
 
             const [_, pctInicial, pctCredito] = match.map(Number);
 
-            const baseCredito = this.toNumber(this.importeActiva) * (pctCredito / 100);
+            const baseCredito = this.toNumber(this.importeOriginal - this.toNumber(this.valor_descuento_adicional)) * (pctCredito / 100);
 
-            const baseInicial = this.toNumber(this.importeActiva) * (pctInicial / 100);
+            const baseInicial = this.toNumber(this.importeOriginal) * (pctInicial / 100);
 
             const cuotaInicialTotal =
-                baseInicial +
-                this.toNumber(this.valor_reformas) +
-                this.toNumber(this.valor_acabados) -
-                this.toNumber(this.valor_descuento_adicional) -
+                this.toNumber(this.importeActiva) -
+                this.toNumber(baseCredito) -
                 this.toNumber(this.valor_separacion) -
                 this.toNumber(this.valor_escrituras);
 
@@ -321,50 +323,37 @@ export default {
             if (totalAportes >= cuotaInicialTotal) {
                 const excedente = totalAportes - cuotaInicialTotal;
                 this.cuota_inicial = 0;
-                this.valor_credito = Math.max(Math.round(baseCredito - excedente), 0);
+                this.valor_credito = Math.max(Math.round(baseCredito), 0);
             } else {
-                this.cuota_inicial = Math.round(cuotaInicialTotal - totalAportes);
+                this.cuota_inicial = Math.round(cuotaInicialTotal);
                 this.valor_credito = Math.round(baseCredito);
             }
+            this.cuota_inicial_base = this.cuota_inicial;
+            this.valor_credito_base = this.valor_credito;
+
         },
         calcularPlanPago() {
-            if (!this.planSeleccionado || !this.importeActiva) {
+            if (!this.planSeleccionado || !this.importeOriginal) {
                 this.cuota_inicial = 0;
                 this.valor_credito = 0;
                 return;
             }
 
-            const plan = this.planes_pago.find(p => p.id_planes_pago == this.planSeleccionado);
-            if (!plan || !plan.descripcion) return;
+            let fechaHoy = new Date();
+            let fechaPrimeraCuota = new Date(fechaHoy.getFullYear(), fechaHoy.getMonth() + 1, 1);
 
-            let pctInicial = 0;
-            let pctFinal = 0;
-            const match = plan.descripcion.match(/(\d+)\s*%.*?(\d+)\s*%/);
-            if (match) {
-                pctInicial = Number(match[1]);
-                pctFinal = Number(match[2]);
-            } else if (/100\s*%/.test(plan.descripcion)) {
-                pctInicial = 100;
-                pctFinal = 0;
-            } else {
-                this.cuota_inicial = 0;
-                this.valor_credito = 0;
-                return;
-            }
-            const baseTotal =
-                this.toNumber(this.importeActiva) +
-                this.toNumber(this.valor_reformas) +
-                this.toNumber(this.valor_acabados) -
-                this.toNumber(this.valor_descuento_adicional) -
-                this.toNumber(this.valor_escrituras) -
-                this.toNumber(this.valor_separacion);
+            let diaSemana = fechaPrimeraCuota.getDay();
+            if (diaSemana === 0) fechaPrimeraCuota.setDate(2);
+            if (diaSemana === 6) fechaPrimeraCuota.setDate(3);
 
-            const baseInicial = baseTotal * (pctInicial / 100);
-            const baseCredito = baseTotal * (pctFinal / 100);
-            const totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
+            const yyyyC = fechaPrimeraCuota.getFullYear();
+            const mmC = String(fechaPrimeraCuota.getMonth() + 1).padStart(2, '0');
+            const ddC = String(fechaPrimeraCuota.getDate()).padStart(2, '0');
+            this.d_fecha_cuota = `${yyyyC}-${mmC}-${ddC}`;
 
-            this.cuota_inicial = Math.max(Math.round(baseInicial - totalAportes), 0);
-            this.valor_credito = Math.round(baseCredito);
+            this.cuota_inicial = this.importeOriginal;
+            this.valor_credito = 0;
+
         },
         toNumber(value) {
             if (!value) return 0;
@@ -403,6 +392,7 @@ export default {
                     showMessage("Debe aceptar la política para continuar.");
                     return;
                 }
+
                 if (this.clientes.length > 1) {
                     await this.guardarClientes();
                 } else {
@@ -477,7 +467,7 @@ export default {
                 showMessage("Debe aceptar la política para continuar.");
                 return;
             }
-
+            
             this.ObjCliente.is_atencion_rapida = israpida;
 
             if (!this.validarCampos(this.ObjCliente, this.camposObligatorios)) return;
@@ -532,6 +522,16 @@ export default {
                 return;
             }
 
+            const totalPorcentaje = this.clientes.reduce((sum, c) => {
+                const valor = parseFloat(c.porcentaje_copropiedad) || 0;
+                return sum + valor;
+            }, 0);
+
+            if (totalPorcentaje > 100) {
+                showMessage("No se debe pasar el 100% del porcentaje.");
+                return;
+            }
+
             showProgress(true);
             let guardados = 0;
             let errores = 0;
@@ -540,7 +540,6 @@ export default {
             try {
                 for (let i = 0; i < this.clientes.length; i += batchSize) {
                     const lote = this.clientes.slice(i, i + batchSize);
-
                     try {
                         const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_ClientesAgrupado', {
                             clientes_json: JSON.stringify(lote)
@@ -591,8 +590,6 @@ export default {
             const nuevo = JSON.parse(JSON.stringify(this.ObjCliente));
             this.clientes.push(nuevo);
 
-            await this.limpiarObj();
-            this.verificarPorcentajes();
             showMessage("Cliente agregado a la lista.");
 
         },
@@ -663,7 +660,6 @@ export default {
                 username: GlobalVariables.username,
                 cliente: this.cliente,
             };
-            this.clientes = [];
             await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_SaveCliente', obj);
             cliente = cliente.data;
 
@@ -694,25 +690,13 @@ export default {
                 this.ObjCliente.fechaNacimiento = cliente[0][0].fecha_nacimiento;
                 this.ObjCliente.nit = cliente[0][0].nit;
                 this.ObjCliente.nombreEmpresa = cliente[0][0].nombre_empresa;
-
+                this.ObjCliente.porcentaje_copropiedad = cliente[0][0].porcentaje_copropiedad;
                 
                 if (this.ObjCliente.isPoliticaAceptada == 1) {
                     this.policyAccepted = true;
                 } else {
                     this.policyAccepted = false;
                 }
-
-                // const existe = this.clientes.some(c => c.numeroDocumento === datos.numero_documento);
-                // if (!existe) {
-                //     this.clientes.push({
-                //         nombres: datos.nombres,
-                //         apellido1: datos.apellido1,
-                //         apellido2: datos.apellido2,
-                //         numeroDocumento: datos.numero_documento,
-                //         id_cliente: datos.id_cliente,
-                //         porcentaje: this.clientes.length === 0 ? 100 : 0
-                //     });
-                // }
 
                 this.ObjClienteOriginal = { ...this.ObjCliente };
 
@@ -745,23 +729,6 @@ export default {
                 this.iscliente = false;
                 showMessage("No se encontró el cliente.");
                 this.limpiarObj();
-            }
-
-        },
-        verificarPorcentajes() {
-           
-            if (this.ObjCliente.porcentaje < 0) this.ObjCliente.porcentaje = 0;
-            if (this.ObjCliente.porcentaje > 100) this.ObjCliente.porcentaje = 100;
- 
-            const total = this.clientes.reduce((suma, c) => suma + Number(c.porcentaje || 0), 0);
-
-            if (total > 100) {
-                const igual = 100 / this.clientes.length;
-                this.clientes.forEach(c => c.porcentaje = igual);
-            } else if (this.clientes.length > 1 && total < 100) {
-                const restante = 100 - total;
-                const igual = restante / this.clientes.length;
-                this.clientes.forEach(c => c.porcentaje = Number((c.porcentaje || 0) + igual).toFixed(2));
             }
         },
         async setSubmode(index) {
@@ -1012,9 +979,21 @@ export default {
             this.d_fecha_pe = respa.data[0][0]?.fecha_p_equ;
             this.consecutivo = respa.data[0][0]?.consecutivo;
 
+            let añoActual = new Date().getFullYear();
+            let añoEntrega = parseInt(this.añoentrega);
+
             this.valor_reformas = respa.data[0][0]?.valor_reformas || 0;
             this.valor_acabados = respa.data[0][0]?.valor_acabados || 0;
             this.valor_separacion = respa.data[0][0]?.valor_separacion || 0;
+
+             if (añoEntrega && añoEntrega >= añoActual) {
+                this.listaAniosEntrega = Array.from(
+                    { length: añoEntrega - añoActual + 1 },
+                    (_, i) => añoActual + i
+                );
+            } else {
+                this.listaAniosEntrega = [añoActual];
+            }
 
             const parseNumber = str =>
                 typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;
@@ -1040,6 +1019,7 @@ export default {
 
             this.cotizacionActiva = cotizacionId;
             this.importeActiva = totalFinal;
+            this.importeOriginal = totalFinal;
 
             return { unidades, totalFinal };
         },
@@ -1082,11 +1062,7 @@ export default {
                 });
 
                 id_cotizacion = resp.data[0][0].id_cotizacion;
-
-                //if (id_cotizacion == '-1') {
-                //    showMessage("Ya existe una cotización activa para este cliente en el día de hoy.");
-                //    return;
-                //}
+       
             }
             this.cotizaciones.push({
                 cotizacion: siguienteId,
@@ -1947,7 +1923,29 @@ export default {
             } catch (err) {
                 console.error("Error al obtener factor por banco:", err);
             }
-        }
+        },
+        onBlurIngresos() {
+            this.editandoIngresos = true;
+
+            this.$nextTick(() => {
+                const nuevoMax = this.valor_maxfinanciable;
+                this.valor_credito = this.valor_credito_base;
+                this.cuota_inicial = this.cuota_inicial_base;
+
+                const creditoActual = this.valor_credito || 0;
+
+                if (creditoActual > nuevoMax) {
+                    const restante = creditoActual - nuevoMax;
+
+                    this.valor_credito_max = nuevoMax;
+                    this.cuota_inicial += restante;
+             
+                } else {
+                    this.valor_credito_max = creditoActual;
+                }
+                this.editandoIngresos = false;
+            });
+        },
     },
     computed: {
         tabClasses() {
@@ -1964,7 +1962,6 @@ export default {
             });
         },
         cuotaMaxima() {
-            console.log(this.f_ingresos_mensuales);
             const ingreso = parseInt(this.f_ingresos_mensuales.toString().replace(/\D/g, '')) || 0;
             return ingreso * 0.4;
         },
@@ -2084,13 +2081,13 @@ export default {
     watch: {
         tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
         importeActiva() { this.calcularFinanciacion(); },
-        cesantias() { this.calcularFinanciacion(); },
-        ahorros() { this.calcularFinanciacion(); },
-        valor_subsidio() { this.calcularFinanciacion(); },
+        // cesantias() { this.calcularFinanciacion(); },
+        // ahorros() { this.calcularFinanciacion(); },
+        // valor_subsidio() { this.recalcularSubsidio(); },
         pagoSeleccionado() { this.calcularFinanciacion(); },
         f_valor_reformas: 'onCambioValor',
-        f_valor_acabados: 'onCambioValor',
-        f_valor_descuento_adicional: 'onCambioValor',
+        // f_valor_acabados: 'onCambioValor',
+        // f_valor_descuento_adicional: 'onCambioValor',
         f_valor_escrituras: 'onCambioValor',
         f_valor_separacion: 'onCambioValor',
         visitasFiltradas: {
@@ -2106,7 +2103,46 @@ export default {
         d_fecha_escrituracion() {
             this.calcularMesesMaximos();
         },
-     
+        reformaActivo(nuevoValor) {
+            const total = this.toNumber(this.valor_reformas);
+
+            if (nuevoValor) {
+                this.importeActiva += total;
+            } else {
+                this.importeActiva -= total;
+            }
+        },
+        f_valor_acabados(newVal, oldVal) {
+            const nuevo = this.toNumber(newVal);
+            const viejo = this.toNumber(oldVal);
+            const diferencia = nuevo - viejo;
+            this.importeActiva += diferencia;
+        },
+        f_valor_descuento_adicional(newVal, oldVal) {
+            const nuevo = this.toNumber(newVal);
+            const viejo = this.toNumber(oldVal);
+            const diferencia = nuevo - viejo;
+            this.importeActiva -= diferencia;
+        },
+        valor_subsidio(newVal, oldVal) {
+            const nuevo = this.toNumber(newVal);
+            const viejo = this.toNumber(oldVal);
+            const diferencia = nuevo - viejo;
+            this.cuota_inicial -= diferencia;
+        },
+        f_valor_cesantias(newVal, oldVal) {
+            const nuevo = this.toNumber(newVal);
+            const viejo = this.toNumber(oldVal);
+            const diferencia = nuevo - viejo;
+            this.cuota_inicial -= diferencia;
+        },
+        f_valor_ahorros(newVal, oldVal) {
+            const nuevo = this.toNumber(newVal);
+            const viejo = this.toNumber(oldVal);
+            const diferencia = nuevo - viejo;
+            this.cuota_inicial -= diferencia;
+        }
+
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
