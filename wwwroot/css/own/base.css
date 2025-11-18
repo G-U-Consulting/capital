@@ -2948,7 +2948,7 @@ tr.cal-row-info > td {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100dvh;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -2961,7 +2961,7 @@ tr.cal-row-info > td {
   border-radius: 10px;
   padding: 0;
   width: 90%;
-  max-height: 100dvh;
+  height: 80vh;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
   position: relative;
   font-size: 1em;
@@ -4302,23 +4302,32 @@ tr.cal-row-info > td {
 }
 
 .tooltip-opc.izq {
+  position: absolute;
   visibility: hidden;
   opacity: 0;
-  position: absolute;
-  background: #fff;
-  color: #333;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8px 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-  font-size: 0.78rem;
-  line-height: 1.3;
   z-index: 100;
-  width: 580px;
-  transition: opacity 0.2s, transform 0.2s;
+  max-width: 1300px;
+  background: #ffffff;
+  color: #333;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  font-size: 0.8rem;
+  line-height: 1.4;
   white-space: normal;
-  transform: translateX(-360px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateX(-100%); 
+  left: -12px;
+  width: 1000px;
 }
+
+.info-container:hover .tooltip-opc.izq {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-100%) translateY(-4px);
+}
+
 .tip-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -4327,13 +4336,15 @@ tr.cal-row-info > td {
 }
 
 .infoCalculos {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 20px;
-        line-height: 1.4;
-        font-size: 14px;
-    }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+  line-height: 1.4;
+  font-size: 14px;
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
 
     .infoCalculos b {
         font-size: 15px;
@@ -4346,6 +4357,8 @@ tr.cal-row-info > td {
         border: 1px solid #ddd;
         padding: 12px 15px;
         border-radius: 6px;
+        display: flex;
+          flex-direction: column;
     }
 
 .tip-section {
@@ -4455,4 +4468,119 @@ tr.cal-row-info > td {
 .dataTable td input.inputInline:focus {
     background-color: #f8f8f8;
     border-bottom: 1px solid #ccc;
+}
+.detalle-label {
+    font-weight: 500;
+    color: #1f2937;
+    margin-right: 4px;
+    font-size: 0.95rem;
+}
+
+.modern-info {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+
+.info-dot {
+    font-size: 0.85rem;
+    color: #00839C;
+    padding: 2px 6px;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+.info-dot:hover {
+    background: #cbd5e1;
+}
+
+.grid-detalles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.2rem;
+    padding: 1rem;
+}
+
+.grid-detalles.elegante .card-detalle {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 1.2rem;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    transition: transform .15s ease, box-shadow .2s ease;
+}
+
+.grid-detalles.elegante .card-detalle:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: .7rem;
+}
+
+.icon {
+    font-size: 1.4rem;
+    margin-right: .5rem;
+}
+
+.card-detalle h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2a2a2a;
+}
+
+.card-detalle ul {
+    padding-left: 1.1rem;
+    margin: 0;
+}
+
+.card-detalle li {
+    font-size: .9rem;
+    margin-bottom: 4px;
+    color: #505050;
+}
+.valor-badge {
+    background: #eef5ff;
+    border: 1px solid #d0e2ff;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #1e5bb8;
+}
+
+.add-chip-modern {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f5f7fb;
+    padding: 8px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #00839C;
+    border: 1px solid #dbe5ff;
+    transition: all 0.25s ease;
+    user-select: none;
+}
+
+.add-chip-modern svg {
+    stroke: #00839C;
+    transition: transform .25s ease, stroke .25s ease;
+}
+
+.add-chip-modern:hover {
+    background: #00839C;
+    color: white;
+    border-color: #00839C;
+    box-shadow: 0 4px 12px rgba(68, 127, 247, 0.25);
+}
+
+.add-chip-modern:hover svg {
+    stroke: white;
+    transform: rotate(90deg);
 }

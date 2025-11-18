@@ -2,7 +2,9 @@
 -- Proceso: Medios/Ins_Archivos
 -- =============================================
 --START_PARAM
-set @nombres = '',
+set 
+    @id_cliente = '',
+    @nombres = '',
     @apellido1 = '',
     @apellido2 = '',
     @direccion = '',
@@ -84,7 +86,7 @@ else
             porcentaje_copropiedad = @porcentaje_copropiedad
         where numero_documento = @numeroDocumento;
 
-        select concat('OK-Registro actualizado:', @numeroDocumento, ' ', 'Update') as result;
+        select concat('OK-Registro actualizado:', @id_cliente, ' ', 'Update') as result;
     else
         insert into fact_clientes (
             nombres,
@@ -140,7 +142,7 @@ else
             @porcentaje_copropiedad
         );
 
-        select concat('OK-id_cliente:', last_insert_id(), ' ', 'Insert') as result;
+        select concat('OK-id_cliente:', last_insert_id(), ' ', 'Insert' ) as result;
     end if;
 
 end if;

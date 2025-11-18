@@ -178,6 +178,10 @@ export default {
             editandoIngresos: false,
             valor_credito_max: 0,
             reformaActivo: false,
+            valor_credito_final: 0,
+            cuota_inicial_final: 0,
+
+            mostrarModalCliente: false,
 
         };
     },
@@ -280,10 +284,6 @@ export default {
                 this.valor_subsidio = 0;
             }
         },
-        recalcularSubsidio() {
-            const limpiar = (v) => Number(String(v).replace(/[\.,]/g, ''));
-            this.cuota_inicial = limpiar(this.cuota_inicial) - limpiar(this.valor_subsidio);
-        },
         calcularFinanciacion() {
             if (!this.tipoFinanciacionSeleccionada || !this.importeOriginal) {
                 this.cuota_inicial = 0;
@@ -311,9 +311,8 @@ export default {
 
             const cuotaInicialTotal =
                 this.toNumber(this.importeActiva) -
-                this.toNumber(baseCredito) -
-                this.toNumber(this.valor_separacion) -
-                this.toNumber(this.valor_escrituras);
+                this.toNumber(baseCredito)
+   
 
             let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
             if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
@@ -480,6 +479,8 @@ export default {
 
             let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
             let cliente = resp.data;
+
+
 
             if (resp?.errorMessage?.includes("Duplicate")) {
                 showMessage("Cliente ya existe.");
@@ -684,6 +685,7 @@ export default {
                 this.ObjCliente.ciudadExpedicion = cliente[0][0].ciudad_expedicion;
                 this.ObjCliente.fechaExpedicion = cliente[0][0].fecha_expedicion;
                 this.id_cliente = cliente[0][0].id_cliente;
+                this.ObjCliente.id_cliente = cliente[0][0].id_cliente;
                 this.ObjCliente.isPoliticaAceptada = cliente[0][0].is_politica_aceptada;
                 this.isClienteVetado = cliente[0][0].is_vetado == "1";
                 this.ObjCliente.isTitular = cliente[0][0].is_titular;
@@ -1487,6 +1489,8 @@ export default {
 
             this.d_fecha_ulti_cuota = `${yyyy}-${mm}-${dd}`;
 
+            this.cuota_inicial_final = this.toNumber(this.importeActiva) - this.toNumber(this.cuota_escritura_final);
+
         },
         nombreBanco(id) {
             if (!this.banco_financiador || !Array.isArray(this.banco_financiador)) return '';
@@ -1943,9 +1947,44 @@ export default {
                 } else {
                     this.valor_credito_max = creditoActual;
                 }
+
+                let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
+                if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
+                    totalAportes += this.toNumber(this.valor_subsidio);
+                }
+
+                this.valor_credito_final = this.valor_credito_max || 0;
+                this.cuota_inicial_final = this.toNumber(this.cuota_inicial) - totalAportes - this.toNumber(this.cuota_escritura_final);
+
                 this.editandoIngresos = false;
             });
         },
+        abrirModalCliente() {
+            this.mostrarModalCliente = true;
+            this.limpiarObjClient();
+        },
+        async addCliente() {
+ 
+            let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
+
+            let texto = resp.data[0].result;
+            let datoid = Number(texto.match(/\d+/)[0]);
+
+            let clientes = [datoid];
+
+            if (this.id_cliente && this.id_cliente > 0) {
+                clientes.push(this.id_cliente);
+            }
+
+            for (let id of clientes) {
+                await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cotizacion_Cliente', {
+                    id_cliente: id,
+                    id_cotizacion: this.idcotizacion
+                });
+            }
+            this.mostrarModalCliente = false;
+        },
+        
     },
     computed: {
         tabClasses() {
@@ -2081,15 +2120,8 @@ export default {
     watch: {
         tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
         importeActiva() { this.calcularFinanciacion(); },
-        // cesantias() { this.calcularFinanciacion(); },
-        // ahorros() { this.calcularFinanciacion(); },
-        // valor_subsidio() { this.recalcularSubsidio(); },
         pagoSeleccionado() { this.calcularFinanciacion(); },
         f_valor_reformas: 'onCambioValor',
-        // f_valor_acabados: 'onCambioValor',
-        // f_valor_descuento_adicional: 'onCambioValor',
-        f_valor_escrituras: 'onCambioValor',
-        f_valor_separacion: 'onCambioValor',
         visitasFiltradas: {
             handler(val) {
                 this.contarProyectos(val);
@@ -2125,24 +2157,29 @@ export default {
             this.importeActiva -= diferencia;
         },
         valor_subsidio(newVal, oldVal) {
-            const nuevo = this.toNumber(newVal);
-            const viejo = this.toNumber(oldVal);
-            const diferencia = nuevo - viejo;
-            this.cuota_inicial -= diferencia;
+           const nuevo = this.toNumber(newVal);
+           const viejo = this.toNumber(oldVal);
+           const diferencia = nuevo - viejo;
+           this.cuota_inicial_final -= diferencia;
         },
         f_valor_cesantias(newVal, oldVal) {
             const nuevo = this.toNumber(newVal);
             const viejo = this.toNumber(oldVal);
             const diferencia = nuevo - viejo;
-            this.cuota_inicial -= diferencia;
+            this.cuota_inicial_final -= diferencia;
         },
         f_valor_ahorros(newVal, oldVal) {
             const nuevo = this.toNumber(newVal);
             const viejo = this.toNumber(oldVal);
             const diferencia = nuevo - viejo;
-            this.cuota_inicial -= diferencia;
+            this.cuota_inicial_final -= diferencia;
+        },
+        f_valor_escrituras(newVal) {
+            const sep = Math.max(0, this.toNumber(this.valor_separacion));
+            const esc = Math.max(0, this.toNumber(newVal));
+            const diferencia = sep - esc;
+            this.cuota_escritura_final = diferencia;
         }
-
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);

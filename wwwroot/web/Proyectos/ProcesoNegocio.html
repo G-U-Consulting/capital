@@ -81,15 +81,7 @@
                                 <input type='date' v-model='ObjCliente.fechaNacimiento' maxlength='100' placeholder="Seleccione" />
                             </div>
                         </div>
-                        <!-- <div class='pure-u-1-1 pure-u-md-1-6'>
-                            <div class='formInputStandard'>
-                                <span>Porcentaje de copropiedad</span>
-                                <input type='number' v-model.number='ObjCliente.porcentaje' @input="verificarPorcentajes" min='0' max='100'
-                                    placeholder="0" />
-                            </div>
-                        </div> -->
                     </div>
-              
                     <div v-show="mostrarCliente" class="contenidoOculto">
                         <div style="height: 45vh; overflow-y: auto;">
                             <div class='formInputStandard'>
@@ -242,37 +234,6 @@
                     </div>
                 </div>
             </div>
-            <!-- <div style="height: 5.5rem; overflow-y: auto; margin-top: 0.1em;" v-if="iscliente"> 
-                <table class="dataTable">
-                    <thead>
-                        <tr>
-                            <th>Nombres</th>
-                            <th>Apellido 1</th>
-                            <th>Apellido 2</th>
-                            <th style="width: 12%;">% de copropiedad</th>
-                            <th style="width: 15%;">Número Documento</th>
-                            <th style="width: 5%;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(c, index) in clientes" :key="index" @dblclick="seleccionarCliente(c)">
-                            <td>{{ c.nombres }}</td>
-                            <td>{{ c.apellido1 }}</td>
-                            <td>{{ c.apellido2 }}</td>
-                            <td>
-                                <input type="text" v-model="c.porcentaje_copropiedad" class="inputInline" />
-                            </td>
-                            <td>{{ c.numeroDocumento }}</td>
-                            <td style="text-align: center;">
-                                <div @click="eliminarCliente(index)" class="delete">✖</div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="pure-u-md-1-1" style="text-align: right;margin-top: .2rem;" v-if="iscliente">
-                <button @click="agregarCliente">Agregar a tabla</button>
-            </div> -->
             <div class='pure-u-1-1 pure-u-md-1-1' v-if="iscliente">
                 <div class='formInputStandard'>
                     <div class='pure-g'>
@@ -682,9 +643,6 @@
         <!-- ----------------------------- Opción ---------------------------- -->
         <!-- ----------------------------------------------------------------- -->
         <div v-if="mode == 3">
-            <!-- <div class='pure-u-1-1'>
-                <samp class="resaltado">{{ ObjCliente.nombres + " " + ObjCliente.apellido1 + " " +  ObjCliente.apellido2 }}</samp>
-            </div> -->
             <div class="pure-u-1-1 formDivision"
                 style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
                 <div class="pure-u-1 pure-u-md-1-2" style="display: flex; align-items: center; gap: .5rem;">
@@ -712,7 +670,8 @@
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Reformas</span>
-                        <input type="text" style="text-align: right;" v-model="f_valor_reformas" @keyup="validarFormato" disabled/>
+                        <input type="text" style="text-align: right;" v-model="f_valor_reformas" @keyup="validarFormato"
+                            disabled />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
@@ -724,24 +683,41 @@
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Descuento Adicional</span>
-                        <input type="text" style="text-align: right;" v-model="f_valor_descuento_adicional" @keyup="validarFormato" />
+                        <input type="text" style="text-align: right;" v-model="f_valor_descuento_adicional"
+                            @keyup="validarFormato" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6"></div>
+                <div class="pure-u-1 pure-u-md-1-6"></div>
+                <div class="pure-u-1 pure-u-md-1-8">
+                    <div class="formInputStandard">
+                        <div class="add-chip-modern" @click="abrirModalCliente">
+                            <span>Agregar Cliente</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
-             <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: .2rem;">
+            <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: .2rem;">
                 Separación, Escrituración
             </div>
             <div class="pure-u-1 pure-u-md-1-6">
                 <div class="formInputStandard">
                     <span class="info-container">
                         Valor Separación
-                        <i class="info-icon">ℹ️</i>
+                        <i class="info-icon">ⓘ</i>
                         <div class="tooltip-opc">
                             (*) El valor de la separación no hace parte del pago del inmueble si este es de característica VIS,
                             acepto y entiendo que estos recursos entregados a Constructora Capital o la Fiducia corresponden
                             al pago que realizará la constructora por los diferentes conceptos requeridos para poder escriturar
                             el inmueble, entre los que se encuentran Avalúos, Estudios de Títulos, Trámites de Subsidio,
-                            Gastos Administrativos, Gastos de Notariado y Registro, entre otros y no es negociable por las partes.
+                            Gastos Administrativos, Gastos de Notariado y Registro, entre otros y no es negociable por las
+                            partes.
                         </div>
                     </span>
                     <input type="text" style="text-align: right;" v-model="f_valor_separacion" @keyup="validarFormato" />
@@ -761,7 +737,7 @@
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'contado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1-6" @click="onSeleccionContado">
-                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado"/>
+                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado" />
                                 <span class="checkmark"></span>
                                 Contado
                             </label>
@@ -769,7 +745,8 @@
                         <div class="pure-u-1 pure-u-md-1-1" style="padding-top: 1.2rem;">
                             <span class="pure-u-1 pure-u-md-1-4">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-3-4">
-                                <select class="pure-input-1" v-model="planSeleccionado" @change="calcularPlanPago" :disabled="pagoSeleccionado !== 'contado'">
+                                <select class="pure-input-1" v-model="planSeleccionado" @change="calcularPlanPago"
+                                    :disabled="pagoSeleccionado !== 'contado'">
                                     <option value="">Seleccione</option>
                                     <option v-for="plan in planes_pago" :key="plan.id_planes_pago" :value="plan.id_planes_pago">
                                         {{ plan.descripcion }}
@@ -802,7 +779,7 @@
                             <span class="pure-u-1 pure-u-md-1-6">2. Tipo:</span>
                             <div class="pure-u-1 pure-u-md-1-5">
                                 <select class="pure-input-1" v-model="unidadSeleccionada" @change="cargarAnios"
-                                    :disabled="pagoSeleccionado !== 'financiado'">
+                                    :disabled="pagoSeleccionado !== 'financiado' || bancoSeleccionado == 0">
                                     <option value="0">Seleccione unidad</option>
                                     <option v-for="unidad in unidadesDisponibles" :key="unidad" :value="unidad">
                                         {{ unidad }}
@@ -814,8 +791,9 @@
                             <div class="pure-u-1 pure-u-md-1-6"></div>
                             <span class="pure-u-1 pure-u-md-1-6">3. Años:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
-                                   <select class="pure-input-1" v-model="anioSeleccionado"
-                                    :disabled="pagoSeleccionado !== 'financiado'" @change="onChangeAnio">
+                                <select class="pure-input-1" v-model="anioSeleccionado"
+                                    :disabled="pagoSeleccionado !== 'financiado' || unidadSeleccionada == 0"
+                                    @change="onChangeAnio">
                                     <option value="">Seleccione años</option>
                                     <option v-for="anio in listaAnios" :key="anio" :value="anio">
                                         {{ anio }}
@@ -825,10 +803,12 @@
                             <div class="pure-u-1 pure-u-md-1-24"></div>
                             <span class="pure-u-1 pure-u-md-1-6">4. Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-1-5">
-                                <select class="pure-input-1" v-model="tipoFinanciacionSeleccionada" :disabled="pagoSeleccionado !== 'financiado'"
+                                <select class="pure-input-1" v-model="tipoFinanciacionSeleccionada"
+                                    :disabled="pagoSeleccionado !== 'financiado' || anioSeleccionado == 0"
                                     @change="calcularFinanciacion">
-                                    <option value="">Seleccione</option>
-                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion" :value="tipo.tipo_financiacion">
+                                    <option value="">Seleccione Modalidad:</option>
+                                    <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion"
+                                        :value="tipo.tipo_financiacion">
                                         {{ tipo.tipo_financiacion }}
                                     </option>
                                 </select>
@@ -844,24 +824,27 @@
                 <div class="pure-u-1 pure-u-md-1-1">
                     <div class="pure-u-1 pure-u-md-1-8">
                         <div class="formInputStandard">
+                            <span>Ingresos Familiares</span>
+                            <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
+                                @keyup="validarFormato" @blur="onBlurIngresos"
+                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado' || !tipoFinanciacionSeleccionada" />
+                        </div>
+                    </div>
+                    <div class="pure-u-1 pure-u-md-1-8">
+                        <div class="formInputStandard">
                             <span>Cesantías</span>
-                            <input type="text" style="text-align: right;" v-model="f_valor_cesantias" @keyup="validarFormato"/>
+                            <input type="text" style="text-align: right;" v-model="f_valor_cesantias" @keyup="validarFormato"
+                                :disabled="!subsidioActivo || f_ingresos_mensuales == 0" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-8">
                         <div class="formInputStandard">
                             <span>Ahorros</span>
-                            <input type="text" style="text-align: right;" v-model="f_valor_ahorros" @keyup="validarFormato" />
+                            <input type="text" style="text-align: right;" v-model="f_valor_ahorros" @keyup="validarFormato"
+                                :disabled="!subsidioActivo || f_ingresos_mensuales == 0" />
                         </div>
                     </div>
-                     <div class="pure-u-1 pure-u-md-1-8">
-                        <div class="formInputStandard">
-                            <span>Ingresos Familiares</span>
-                            <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
-                                @keyup="validarFormato" @blur="onBlurIngresos" :disabled="!subsidioActivo || pagoSeleccionado === 'contado'" />
-                        </div>
-                    </div>
-                     <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Impor. Max. Financiable</span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(valor_maxfinanciable)" disabled>
@@ -876,7 +859,8 @@
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Cuota modalidad (70%)</span>
-                            <input style="text-align: right;" type="text" :value="formatoMoneda(valorCreditoMillonFormateado)" disabled>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(valorCreditoMillonFormateado)"
+                                disabled>
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-8">
@@ -889,7 +873,8 @@
                 <div class="pure-u-1 pure-u-md-1-1">
                     <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.5em">
                         <div class="formInputStandard">
-                            <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;" v-show="pagoSeleccionado === 'financiado'">
+                            <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;"
+                                v-show="pagoSeleccionado === 'financiado'">
                                 <input type="checkbox" v-model="subsidioActivo" />
                                 <span class="checkmark"></span>
                                 Subsidio
@@ -930,109 +915,177 @@
                     <div class="pure-u-1 pure-u-md-1-6"></div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span class="info-container" style="margin-top: 1.5rem;">
-                                <i class="info-icon" style="font-size: 1.2em;">ℹ️</i>
-                                <div class="tooltip-opc izq tooltip-wide tooltip-top" style="max-height:420px; overflow-y:auto;">
-                                    <div class="tip-grid">
-                                        <div>
-                                            <div class="tip-section">
-                                                <div class="tip-title">Separación y escrituración</div>
-                                                <div class="tip-line">• Valor separación: $6.600.000</div>
-                                                <div class="tip-line">• Escrituración y notaría: $0</div>
+                            <span class="detalle-label" style="margin: 1.5rem;"></span>
+                            <span class="info-container modern-info">
+                                <span class="info-dot">Ver Detalles ⓘ</span>
+                                <div class="tooltip-opc izq tooltip-wide tooltip-top"
+                                    style="max-height:420px; overflow-y:auto;">
+                                    <div class="grid-detalles elegante">
+                                        <div class="card-detalle">
+                                            <div class="card-header">
+                                                <i class="icon">💼</i>
+                                                <h3>Separación y escrituración</h3>
                                             </div>
-                        
-                                            <div class="tip-section">
-                                                <div class="tip-title">Ingresos y aportes iniciales</div>
-                                                <div class="tip-line">• Cesantías: $2.000.000</div>
-                                                <div class="tip-line">• Ahorros: $2.000.000</div>
-                                                <div class="tip-line">• Ingresos familiares: $2.300.000</div>
-                                                <div class="tip-line">• Cuota máx. 40% ingresos: $920.000</div>
-                                                <div class="tip-line">• Cuota máx. modalidad (70%): $1.738.422</div>
-                                                <div class="tip-line">• Mínimo familiar: $4.346.055</div>
-                                            </div>
-                        
-                                            <div class="tip-section">
-                                                <div class="tip-title">Subsidio</div>
-                                                <div class="tip-line">• Año de entrega: 2027</div>
-                                                <div class="tip-line">• Valor subsidio: $48.436.011</div>
-                                                <div class="tip-line">• Caja: Cafam</div>
-                                            </div>
-                        
+                                            <ul>
+                                                <li>Valor separación:
+                                                    <span class="valor-badge">{{formatoMoneda(f_valor_separacion)}}</span>
+                                                </li>
+                                                <li>Escrituración y notaría:
+                                                    <span class="valor-badge">{{formatoMoneda(f_valor_escrituras)}}</span>
+                                                </li>
+                                            </ul>
                                         </div>
-              
-                                        <div>
-                                            <div class="tip-section">
-                                                <div class="tip-title">Modalidad de pago</div>
-                                                <div class="tip-line">• Tipo: Financiado</div>
-                                                <div class="tip-line">• Entidad: Davivienda</div>
-                                                <div class="tip-line">• Tipo de crédito: COP (tasa fija)</div>
-                                                <div class="tip-line">• Plazo: 20 años</div>
-                                                <div class="tip-line">• Modalidad: Crédito 30-70</div>
+        
+                                        <div class="card-detalle">
+                                            <div class="card-header">
+                                                <i class="icon">💰</i>
+                                                <h3>Ingresos y aportes iniciales</h3>
                                             </div>
-                        
-                                            <div class="tip-section">
-                                                <div class="tip-title">Importes</div>
-                                                <div class="tip-line">• Importe financiado: $92.546.021</div>
-                                                <div class="tip-line">• Cuota inicial neta: $15.909.989</div>
+                                            <ul>
+                                                <li>Cesantías:
+                                                    <span class="valor-badge">{{formatoMoneda(f_valor_cesantias)}}</span>
+                                                </li>
+                                                <li>Ahorros:
+                                                    <span class="valor-badge">{{formatoMoneda(f_valor_ahorros)}}</span>
+                                                </li>
+                                                <li>Ingresos familiares:
+                                                    <span class="valor-badge">{{formatoMoneda(f_ingresos_mensuales)}}</span>
+                                                </li>
+                                                <li>Cuota máx. modal (40%):
+                                                    <span class="valor-badge">{{formatoMoneda(cuotaMaxima)}}</span>
+                                                </li>
+                                                <li>Cuota máx. modal (70%):
+                                                    <span
+                                                        class="valor-badge">{{formatoMoneda(valorCreditoMillonFormateado)}}</span>
+                                                </li>
+                                                <li>Mínimo familiar:
+                                                    <span class="valor-badge">{{formatoMoneda(minimoFamiliar)}}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+        
+                                        <div class="card-detalle">
+                                            <div class="card-header">
+                                                <i class="icon">🎁</i>
+                                                <h3>Subsidio</h3>
                                             </div>
-                        
-                                            <div class="tip-section">
-                                                <div class="tip-title">Fechas estimadas</div>
-                                                <div class="tip-line">• Fecha PE: 01/05/2026</div>
-                                                <div class="tip-line">• Entrega: 17/05/2030</div>
-                                                <div class="tip-line">• Escrituración: 16/04/2030</div>
-                                                <div class="tip-line">• 1ra cuota: 01/12/2025</div>
-                                                <div class="tip-line">• Última cuota: 17/03/2030</div>
-                                                <div class="tip-line">• Meses: 51</div>
+                                            <ul>
+                                                <li>Año: <span class="valor-badge">{{seleccionAnioEntrega}}</span></li>
+                                                <li>Valor: <span class="valor-badge">{{formatoMoneda(valor_subsidio)}}</span>
+                                                </li>
+                                                <li>Caja: <span class="valor-badge">{{nombreCaja(caja_compensacion)}}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+        
+                                        <div class="card-detalle">
+                                            <div class="card-header">
+                                                <i class="icon">📄</i>
+                                                <h3>Modalidad de pago</h3>
                                             </div>
-                        
+                                            <ul>
+                                                <li>Tipo: <span class="valor-badge">{{pagoSeleccionado}}</span></li>
+                                                <li>Entidad: <span class="valor-badge">{{nombreBanco(bancoSeleccionado)
+                                                        }}</span></li>
+                                                <li>Crédito: <span class="valor-badge">{{unidadSeleccionada}}</span></li>
+                                                <li>Plazo: <span class="valor-badge">{{anioSeleccionado}}</span></li>
+                                                <li>Modalidad: <span class="valor-badge">{{tipoFinanciacionSeleccionada}}</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+        
+                                        <div class="card-detalle">
+                                            <div class="card-header">
+                                                <i class="icon">📊</i>
+                                                <h3>Importes</h3>
+                                            </div>
+                                            <ul>
+                                                <li>Financiado: <span
+                                                        class="valor-badge">{{formatoMoneda(valor_credito_final)}}</span></li>
+                                                <li>Cuota inicial neta: <span
+                                                        class="valor-badge">{{formatoMoneda(cuota_inicial_final)}}</span></li>
+                                            </ul>
+                                        </div>
+        
+                                        <div class="card-detalle">
+                                            <div class="card-header">
+                                                <i class="icon">📅</i>
+                                                <h3>Fechas estimadas</h3>
+                                            </div>
+                                            <ul>
+                                                <li>Entrega: <span class="valor-badge">{{d_fecha_entrega}}</span></li>
+                                                <li>Escrituración: <span class="valor-badge">{{d_fecha_escrituracion}}</span>
+                                                </li>
+                                                <li>1ra cuota: <span class="valor-badge">{{d_fecha_cuota}}</span></li>
+                                                <li>Última cuota: <span class="valor-badge">{{d_fecha_ulti_cuota}}</span></li>
+                                                <li>Meses: <span class="valor-badge">{{d_meses}}</span></li>
+                                            </ul>
                                         </div>
                                     </div>
-                                    <hr>
+        
                                     <div class="infoCalculos">
-                        
+        
                                         <div class="infoItem">
-                                            <b>Importe apto</b>
-                                            Es el valor del inmueble que sirve como base para todos los cálculos financieros.
-                                            A partir de este valor se determina el monto a financiar y la cuota inicial.
+                                            <b>Importe apto (Importe Total)</b>
+                                            Es el valor total del inmueble incluyendo acabados y reformas,
+                                            menos descuentos adicionales. Este valor sirve como base para
+                                            todos los cálculos financieros posteriores.
                                         </div>
-                        
-                        
+        
+                                        <div class="infoItem">
+                                            <b>Máximo financiable (70%)</b>
+                                            Corresponde al monto máximo que el banco permite financiar,
+                                            calculado como el 70% del importe total del inmueble.
+                                            Esta regla aplica según la ciudad del proyecto y sus restricciones.
+                                        </div>
+        
+                                        <div class="infoItem">
+                                            <b>Cuota inicial preliminar</b>
+                                            Es la diferencia entre el importe total del inmueble y el máximo
+                                            financiable. Representa el dinero que la familia debe aportar
+                                            con recursos propios.
+                                        </div>
+        
                                         <div class="infoItem">
                                             <b>Factor por millón</b>
-                                            Es un indicador bancario que permite estimar la cuota mensual según la tasa y el plazo.
-                                            Indica cuánto se paga por cada millón financiado.
+                                            Es un indicador bancario que define cuánto se paga por cada
+                                            millón financiado según la tasa y el plazo del crédito.
+                                            Permite estimar la cuota mensual.
                                         </div>
-                        
+        
                                         <div class="infoItem">
                                             <b>Cuota modalidad (70%)</b>
-                                            Es el valor aproximado de la cuota mensual correspondiente al monto financiado.
-                                            Se obtiene aplicando el factor por millón sobre el valor que financia el comprador.
+                                            Es la cuota mensual estimada del crédito hipotecario, calculada
+                                            multiplicando el valor financiado por el factor por millón.
                                         </div>
-                        
+        
                                         <div class="infoItem">
                                             <b>Ingreso real familia</b>
-                                            Corresponde al ingreso total comprobado del hogar.
-                                            Se usa para evaluar la capacidad de pago frente al crédito solicitado.
+                                            Es la suma del ingreso total de los miembros del hogar.
+                                            Se utiliza para evaluar si la familia cuenta con capacidad
+                                            de pago suficiente para el monto solicitado.
                                         </div>
-                        
+        
                                         <div class="infoItem">
                                             <b>Cuota máxima (40% de ingresos)</b>
-                                            Es el límite máximo de cuota mensual permitido por el banco.
-                                            La cuota no puede superar el 40% del ingreso mensual familiar.
+                                            Es el valor máximo de cuota mensual permitido por la entidad
+                                            financiera. No debe superar el 40% del ingreso familiar mensual.
                                         </div>
-                        
+        
                                         <div class="infoItem">
                                             <b>Ingreso mínimo familia</b>
-                                            Es el ingreso requerido para poder asumir la cuota proyectada sin exceder el 40%.
-                                            Permite verificar si el hogar cumple con la capacidad mínima de pago.
+                                            Es el ingreso que el hogar debe tener para poder asumir la cuota
+                                            proyectada sin exceder el 40% permitido por los bancos.
                                         </div>
-                        
+        
                                         <div class="infoItem">
-                                            <b>Máximo financiable</b>
-                                            Es el valor máximo de crédito que el hogar podría recibir.
-                                            Depende del ingreso familiar, la cuota máxima permitida y el factor por millón.
+                                            <b>Máximo financiable (según ingresos)</b>
+                                            Es el valor máximo de crédito que la familia puede obtener según
+                                            su nivel de ingresos, la cuota máxima permitida y el factor por millón.
+                                            Permite identificar si los ingresos son suficientes para financiar
+                                            el 70% del inmueble.
                                         </div>
+        
                                     </div>
                                 </div>
                             </span>
@@ -1045,41 +1098,51 @@
                     <span style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <span class="info-container">
                             Importe Financiación
-                            <i class="info-icon">ℹ️</i>
+                            <i class="info-icon">ⓘ</i>
                             <div class="tooltip-opc tooltip-wide tooltip-top">
-                                (*) Financiar tu inmueble en pesos, también conocido como <b>TASA FIJA</b>, te permite garantizar el
+                                (*) Financiar tu inmueble en pesos, también conocido como <b>TASA FIJA</b>, te permite
+                                garantizar el
                                 valor mensual
-                                de la cuota de tu crédito que pagarás en el tiempo. No te costará más, pero tampoco menos; sabrás
+                                de la cuota de tu crédito que pagarás en el tiempo. No te costará más, pero tampoco menos;
+                                sabrás
                                 exactamente cuál es tu exposición y flujo de caja mensual.
-                                Este modelo de financiamiento tiende a ser más costoso toda vez que las entidades financieras cobran una
+                                Este modelo de financiamiento tiende a ser más costoso toda vez que las entidades financieras
+                                cobran una
                                 mayor tasa
                                 en el momento del desembolso para cubrir posibles alzas.<br><br>
-                
-                                Otra opción es financiar tu inmueble en <b>UVR (Unidades de Valor Real)</b>, también conocido como
+        
+                                Otra opción es financiar tu inmueble en <b>UVR (Unidades de Valor Real)</b>, también conocido
+                                como
                                 <b>TASA VARIABLE</b>.
-                                Este tipo de financiamiento tiene como ventaja que te permite acceder a un crédito con un menor valor de
+                                Este tipo de financiamiento tiene como ventaja que te permite acceder a un crédito con un menor
+                                valor de
                                 cuota mes a mes
                                 y/o contar con un mayor valor total del crédito sobre tu inmueble. Este crédito se alinea con la
                                 inflación (factor UVR),
-                                al que los bancos suman puntos según el riesgo de cada cliente. La desventaja es que si la inflación
+                                al que los bancos suman puntos según el riesgo de cada cliente. La desventaja es que si la
+                                inflación
                                 sube, el costo del crédito también lo hace,
                                 aunque con límites y salvaguardas del Banco de la República.<br><br>
-                
-                                Por <b>LEY</b>, puedes solicitar a tu entidad el cambio de modalidad o trasladar tu hipoteca a otro
+        
+                                Por <b>LEY</b>, puedes solicitar a tu entidad el cambio de modalidad o trasladar tu hipoteca a
+                                otro
                                 banco en cualquier momento sin penalidades,
                                 siempre que cumplas con el perfil de riesgo.<br><br>
-                
-                                Finalmente, el cliente o cesionario de la cotización es responsable del pago íntegro del inmueble y de
+        
+                                Finalmente, el cliente o cesionario de la cotización es responsable del pago íntegro del
+                                inmueble y de
                                 obtener la financiación.
-                                Si para la fecha de aprobación del crédito o escritura el comprador tiene <b>70 años o más</b>, podría
+                                Si para la fecha de aprobación del crédito o escritura el comprador tiene <b>70 años o más</b>,
+                                podría
                                 no obtener aprobación
-                                por políticas financieras externas a la constructora. En tal caso, acepta asumir la responsabilidad y
+                                por políticas financieras externas a la constructora. En tal caso, acepta asumir la
+                                responsabilidad y
                                 consecuencias contractuales
                                 según los plazos establecidos.
                             </div>
                         </span>
                         <span class="resaltado">
-                            {{ formatoMoneda(valor_credito) }}
+                            {{ formatoMoneda(valor_credito_final) }}
                         </span>
                     </span>
                 </div>
@@ -1090,48 +1153,29 @@
                         style="display: flex; justify-content: space-between; width: 100%; padding-right: .5rem; align-items: center;">
                         <span class="info-container">
                             Cuota Inicial después de subsidio, reformas, acabados, cesantías y/o ahorros:
-                            <i class="info-icon">ℹ️</i>
+                            <i class="info-icon">ⓘ</i>
                             <div class="tooltip-opc tooltip-top">
                                 (*) Valor aproximado de cuota mensual. Verificar al momento de cerrar el negocio con tu asesor.
                             </div>
                         </span>
-                
-                        <span class="resaltado">{{ formatoMoneda(cuota_inicial) }}</span>
+        
+                        <span class="resaltado">{{ formatoMoneda(cuota_inicial_final) }}</span>
                     </span>
                 </div>
             </div>
             <div class="pure-u-1-1 pure-u-md-1-1">
-                <!-- <div class="pure-u-1 pure-u-md-1-12">
-                    <div class="formInputStandard">
-                        <span>TNA antes PE</span>
-                        <input type="text" style="text-align: right;" :value="formatoTNA(d_tna_antes)"
-                            @input="actualizarTNA('antes', $event.target.value)" disabled/>
-                    </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-12">
-                    <div class="formInputStandard">
-                        <span>TNA desp. PE</span>
-                        <input type="text" style="text-align: right;" :value="formatoTNA(d_tna_despues)"
-                            @input="actualizarTNA('despues', $event.target.value)" disabled/>
-                    </div>
-                </div> -->
-               
-                <!-- <div class="pure-u-1 pure-u-md-1-8">
-                    <div class="formInputStandard">
-                        <span>Fecha PE</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_pe" />
-                    </div>
-                </div> -->
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Fecha Entrega</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_entrega" @change="calcularMesesMaximos" disabled/>
+                        <input type="date" style="text-align: right;" v-model="d_fecha_entrega" @change="calcularMesesMaximos"
+                            disabled />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Fecha Escrituración</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_escrituracion" @change="calcularMesesMaximos" disabled/>
+                        <input type="date" style="text-align: right;" v-model="d_fecha_escrituracion"
+                            @change="calcularMesesMaximos" disabled />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
@@ -1143,7 +1187,8 @@
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Fecha Ultima Cuota</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_ulti_cuota" @change="calcularMesesMaximos" />
+                        <input type="date" style="text-align: right;" v-model="d_fecha_ulti_cuota"
+                            @change="calcularMesesMaximos" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
@@ -1153,7 +1198,7 @@
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard" style="margin-top: 1.5rem;">
+                    <div class="formInputStandard" style="margin-top: 1.5rem;text-align: center;">
                         <button @click="verAmortizacion">Ver Tabla</button>
                     </div>
                 </div>
@@ -1170,11 +1215,8 @@
                                         <th style="width: 8%;">Periodo</th>
                                         <th style="width: 8%;">Fecha</th>
                                         <th style="width: 12%;">Saldo Inicial Periodo</th>
-                                        <!-- <th style="width: 8%;">TNA</th> -->
                                         <th style="width: 8%;">Cuota deseada</th>
                                         <th style="width: 10%;">Cuota Calculada</th>
-                                        <!-- <th style="width: 8%;">Intereses</th>
-                                        <th style="width: 8%;">Principal</th> -->
                                         <th style="width: 8%;">Saldo Final</th>
                                         <th style="width: 22%;">Nota</th>
                                     </tr>
@@ -1184,15 +1226,13 @@
                                         <td>{{ fila.periodo }}</td>
                                         <td>{{ fila.fecha }}</td>
                                         <td style="text-align: right;">{{ formatoMoneda(fila.saldo_inicial) }}</td>
-                                        <!-- <td>{{ fila.tna }}</td> -->
                                         <td>
-                                            <input type="text" v-model="fila.cuota_deseada" @input="recalcularFila(index)" class="input-cuota"
+                                            <input type="text" v-model="fila.cuota_deseada" @input="recalcularFila(index)"
+                                                class="input-cuota"
                                                 :class="{'input-modificado': fila.cuota_deseada && Number(fila.cuota_deseada.toString().replace(/\D/g, '')) > 0}"
                                                 @keyup="validar(index)" />
                                         </td>
                                         <td style="text-align: right;">{{ formatoMoneda(fila.cuota_calculada) }}</td>
-                                        <!-- <td style="text-align: right;">{{ formatoMoneda(fila.intereses) }}</td>
-                                        <td style="text-align: right;">{{ formatoMoneda(fila.principal) }}</td> -->
                                         <td style="text-align: right;">{{ formatoMoneda(fila.saldo_final) }}</td>
                                         <td><input type="text" class="input-cuota"></td>
                                     </tr>
@@ -1694,6 +1734,200 @@
                 <div style="border-top: 1px solid #000; width: 30%; margin: 0 auto 0.4rem;"></div>
                 <div>Asesor: <span style="font-weight: bold;">{{ asesor }}</span></div>
                 <div>Fecha: <span style="font-weight: bold;">{{ f_cotizacion }}</span></div>
+            </div>
+        </div>
+    </div>
+    <div class="pure-u-1 pure-u-md-1-1">
+        <div v-if="mostrarModalCliente" class="tabla-modal-overlay">
+            <div class="tabla-modal-box">
+                <span class="asunto-modal-close" @click="mostrarModalCliente = false">×</span>
+                <h3>Agregar Cliente</h3>
+                <div class="tabla-scroll-content">
+                    <div v-if="iscliente">
+                        <div>
+                            <div class="toggleSection" @click="mostrarCliente = !mostrarCliente" style="margin-top: 1rem;">
+                                <span> Información Básica</span>
+                                <span :class="{'arrow-up': mostrarCliente, 'arrow-down': !mostrarCliente}">▼</span>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-3'>
+                                <div class='formInputStandard'>
+                                    <span>Nombres</span>
+                                    <input type='text' v-model='ObjCliente.nombres' maxlen='100' placeholder="Seleccione" />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Apellido 1</span>
+                                    <input type='text' v-model='ObjCliente.apellido1' maxlen='100'
+                                        placeholder="Seleccione" />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Apellido 2</span>
+                                    <input type='text' v-model='ObjCliente.apellido2' maxlen='100'
+                                        placeholder="Seleccione" />
+                                </div>
+                            </div>
+                            <div class='pure-u-1-1 pure-u-md-1-6'>
+                                <div class='formInputStandard'>
+                                    <span>Fecha Nacimiento</span>
+                                    <input type='date' v-model='ObjCliente.fechaNacimiento' maxlength='100'
+                                        placeholder="Seleccione" />
+                                </div>
+                            </div>
+                        </div>
+                        <div v-show="mostrarCliente" class="contenidoOculto">
+                            <div style="height: 45vh; overflow-y: auto;">
+                                <div class='formInputStandard'>
+                                    <label class="check" style="display: flex; align-items: center; gap: 0.4em;">
+                                        <input type="checkbox" value="1" v-model="isTitular" />
+                                        <span class="checkmark"></span>
+                                        <span style="font-size: 1.1em;">En representación de:</span>
+                                    </label>
+                                </div>
+                                <div v-if="isTitular">
+                                    <div class='pure-u-1-1 pure-u-md-1-3'>
+                                        <div class='formInputStandard'>
+                                            <span>Nombre empresa / Representado</span>
+                                            <input type='text' v-model='ObjCliente.nombreEmpresa' maxlen='100'
+                                                placeholder="Seleccione" />
+                                        </div>
+                                    </div>
+                                    <div class='pure-u-1-1 pure-u-md-1-6'>
+                                        <div class='formInputStandard'>
+                                            <span>Cédula / NIT</span>
+                                            <input type='text' v-model='ObjCliente.nit' maxlen='100'
+                                                placeholder="Seleccione" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class='pure-u-4-5'>
+                                    <div class='formInputStandard'>
+                                        <span>Dirección</span>
+                                        <input type='text' v-model='ObjCliente.direccion' maxlength='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-3'>
+                                    <div class='formInputStandard'>
+                                        <span>Ciudad</span>
+                                        <input type='text' v-model='ObjCliente.ciudad' maxlen='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-3'>
+                                    <div class='formInputStandard'>
+                                        <span>Barrio</span>
+                                        <input type='text' v-model='ObjCliente.barrio' maxlen='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Departamento</span>
+                                        <input type='text' v-model='ObjCliente.departamento' maxlen='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Pais</span>
+                                        <input type='text' v-model='ObjCliente.pais' maxlen='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-3'>
+                                    <div class='formInputStandard'>
+                                        <span>Email 1</span>
+                                        <input type='text' v-model='ObjCliente.email1' maxlen='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-3'>
+                                    <div class='formInputStandard'>
+                                        <span>Email 2</span>
+                                        <input type='text' v-model='ObjCliente.email2' maxlen='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Telefono 1 / Indicativo</span>
+                                        <input type='text' v-model='ObjCliente.telefono1' maxlen='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Telefono 2 / Indicativo</span>
+                                        <input type='text' v-model='ObjCliente.telefono2' maxlen='100'
+                                            placeholder="Seleccione" />
+                                    </div>
+                                </div>
+                                <div v-if="iscliente">
+                                    <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.3em;">
+                                        Documento de Identificación
+                                    </div>
+                                    <div class='pure-u-1-1 pure-u-md-1-6'>
+                                        <div class='formInputStandard'>
+                                            <span>Tipo Documento</span>
+                                            <select v-model='ObjCliente.tipoDocumento'>
+                                                <option value='' selected>Seleccione</option>
+                                                <option value='CC'>Cédula de Ciudadanía</option>
+                                                <option value='TI'>Tarjeta de Identidad</option>
+                                                <option value='CE'>Cédula de Extranjería</option>
+                                                <option value='PAS'>Pasaporte</option>
+                                                <option value='NIT'>NIT</option>
+                                                <option value='RC'>Registro Civil</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class='pure-u-1-1 pure-u-md-1-6'>
+                                        <div class='formInputStandard'>
+                                            <span>Número Documento</span>
+                                            <input type='text' v-model='ObjCliente.numeroDocumento' maxlen='100'
+                                                placeholder="Seleccione" />
+                                        </div>
+                                    </div>
+                                    <div class='pure-u-1-1 pure-u-md-1-6'>
+                                        <div class='formInputStandard'>
+                                            <span>País Expedición</span>
+                                            <input type='text' v-model='ObjCliente.paisExpedicion' maxlen='100'
+                                                placeholder="Seleccione" />
+                                        </div>
+                                    </div>
+                                    <div class='pure-u-1-1 pure-u-md-1-6'>
+                                        <div class='formInputStandard'>
+                                            <span>Depart. Expedición</span>
+                                            <input type='text' v-model='ObjCliente.departamentoExpedicion' maxlen='100'
+                                                placeholder="Seleccione" />
+                                        </div>
+                                    </div>
+                                    <div class='pure-u-1-1 pure-u-md-1-6'>
+                                        <div class='formInputStandard'>
+                                            <span>Ciudad Expedición</span>
+                                            <input type='text' v-model='ObjCliente.ciudadExpedicion' maxlen='100'
+                                                placeholder="Seleccione" />
+                                        </div>
+                                    </div>
+                                    <div class='pure-u-1-1 pure-u-md-1-6'>
+                                        <div class='formInputStandard'>
+                                            <span>Fecha Expedición</span>
+                                            <input type='date' v-model='ObjCliente.fechaExpedicion' maxlen='100'
+                                                placeholder="Seleccione" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
+                        <div lass="pure-u-auto">
+                            <button class="pure-button button-fixed" @click="addCliente" >Guardar</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
