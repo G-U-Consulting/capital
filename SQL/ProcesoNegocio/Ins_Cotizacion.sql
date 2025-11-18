@@ -21,6 +21,9 @@ update fact_cotizaciones
     select @id_cliente, now(), @descripcion, @cotizacion, @importeTotal, @id_proyecto, @usuario
     where row_count() = 0;
 
+insert into cola_tareas_rpa(tipo, datos) 
+values('sf_cotizacion', concat('{id_cotizacion:', @id_cotizacion, '}'));
+
     select if(row_count() > 0, last_insert_id(), @id_cotizacion) + 0 as id_cotizacion;
 
 -- if exists (

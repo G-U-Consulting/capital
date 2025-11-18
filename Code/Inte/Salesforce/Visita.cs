@@ -1,11 +1,13 @@
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
-public partial class Cliente
+namespace capital.Code.Inte.Salesforce;
+
+public class Visita
 {
-    public Cliente(JObject Jobj)
+    public Visita(JObject Jobj)
     {
-        typeof(Cliente).GetProperties().ToList().ForEach(prop =>
+        typeof(Visita).GetProperties().ToList().ForEach(prop =>
         {
             var value = Jobj[prop.Name];
             if (value != null)
@@ -13,19 +15,22 @@ public partial class Cliente
         });
     }
 
-    public string? firstName { get; set; }
-    public string? lastName { get; set; }
     private long? _document;
     private string? _typeDoc;
+    private string? _cityLead;
     private string? _expeditionDate;
     private string? _email;
     private int? _mobilePhone;
     private DateOnly? _birthDate;
     private string? _registerType;
+    private string? _disposeToInvest;
     private string? _attentionReason;
     private string? _reasonPurchase;
     private DateOnly? _visitedDate;
 
+    public string? firstName { get; set; }
+    public string? lastName { get; set; }
+    public string? company { get; set; }
     public long? document
     {
         get => _document;
@@ -47,6 +52,17 @@ public partial class Cliente
             _typeDoc = value;
         }
     }
+    public string? cityLead
+    {
+        get => _cityLead;
+        set
+        {
+            string[] allowed = ["Bogotá", "Medellín" ];
+            if (value != null && !allowed.Contains(value))
+                throw new ArgumentException("Ciudad (lead) inválida");
+            _cityLead = value;
+        }
+    }
     public string? countryExpedition { get; set; }
     public string? departmentExpedition { get; set; }
     public string? cityExpedition { get; set; }
@@ -55,7 +71,7 @@ public partial class Cliente
         get => _expeditionDate;
         set
         {
-            if (!string.IsNullOrEmpty(value))
+            if (!string.IsNullOrWhiteSpace(value))
             {
                 DateOnly date = DateOnly.Parse(value);
                 if (date > DateOnly.FromDateTime(DateTime.Now) || date < DateOnly.Parse("1900-01-01"))
@@ -64,17 +80,17 @@ public partial class Cliente
             _expeditionDate = value;
         }
     }
-    public string? indicative { get; set; }
     public string? email
     {
         get => _email;
         set
         {
-            if (!string.IsNullOrEmpty(value) && !EmailRegex().IsMatch(value))
+            if (!string.IsNullOrWhiteSpace(value) && !EmailRegex().IsMatch(value))
                 throw new ArgumentException("Correo electrónico inválido");
             _email = value;
         }
     }
+    public string? indicative { get; set; }
     public int? mobilePhone
     {
         get => _mobilePhone;
@@ -99,12 +115,23 @@ public partial class Cliente
             _birthDate = value;
         }
     }
-    public string? cityResidence { get; set; }
+    public string? cityOrigin { get; set; }
     public string? department { get; set; }
     public string? direction { get; set; }
     public string? countryResidence { get; set; }
     public bool? AuthorizeData { get; set; }
-    public string? disposeToInvest { get; set; }
+    public string? disposeToInvest 
+    {
+        get => _disposeToInvest;
+        set
+        {
+            string[] allowed = ["Menos de $2.400.000", "$2.400.001 a $4.800.000", "$4.800.001 a $7.200.000",
+            "$7.200.001 a $10.400.000", "$10.400.001 a $12.000.000", "Más de $12.000.000" ];
+            if (value != null && !allowed.Contains(value))
+                throw new ArgumentException("Disposición a invertir inválida");
+            _disposeToInvest = value;
+        }
+    }
     public string? registerType
     {
         get => _registerType;
@@ -121,7 +148,7 @@ public partial class Cliente
         get => _attentionReason;
         set
         {
-            string[] allowed = ["Atención rápida", "Info Comercial de Proyecto", "Cierre de negocio", "trámites"];
+            string[] allowed = ["Atención rápida", "Info Comercial de Proyecto", "Cierre de negocio", "Trámites"];
             if (value != null && !allowed.Contains(value))
                 throw new ArgumentException("Motivo de atención inválido");
             _attentionReason = value;
@@ -152,6 +179,11 @@ public partial class Cliente
         }
     }
 
-    [GeneratedRegex(@"[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})", RegexOptions.IgnoreCase)]
-    private static partial Regex EmailRegex();
+    private static Regex? _EmailRegex = null;
+    private static Regex EmailRegex()
+    {
+        if (_EmailRegex == null)
+            return new(@"[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})", RegexOptions.IgnoreCase);
+        else return _EmailRegex;
+    }
 }

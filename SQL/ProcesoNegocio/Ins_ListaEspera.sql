@@ -79,4 +79,8 @@ select
 	@tiene_deposito,
 	@tiene_acabados;
 
-select concat('ok-id_archivo:', last_insert_id(), ' ', 'insert') as result;
+set @id_lista = last_insert_id();
+insert into cola_tareas_rpa(tipo, datos) 
+values('sf_lista_espera', concat('{id_lista:', @id_lista, '}'));
+
+select concat('OK-id_lista:', @id_lista) as result;
