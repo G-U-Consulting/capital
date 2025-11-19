@@ -2,7 +2,7 @@
 -- Proceso: Unidades/Get_Unidades
 -- =============================================
 --START_PARAM
-set @id_proyecto = NULL;
+set @id_proyecto = 1;
 
 --END_PARAM
 select id_torre, id_proyecto, consecutivo, orden_salida, en_venta, aptos_piso, aptos_fila, id_sinco, id_banco_constructor,
