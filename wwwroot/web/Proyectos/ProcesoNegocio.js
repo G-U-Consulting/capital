@@ -183,6 +183,12 @@ export default {
 
             mostrarModalCliente: false,
 
+            valor_notariales: 0,
+            valor_beneficiencia: 0,
+            valor_registro: 0,
+
+            detalle: false,
+
         };
     },
     async mounted() {
@@ -1575,6 +1581,9 @@ export default {
             this.valor_descuento_adicional = this.f_valor_descuento_adicional;
             this.valor_escrituras = this.f_valor_escrituras;
             this.valor_separacion = this.f_valor_separacion;
+            this.valor_notariales = this.f_valor_notariales;
+            this.valor_beneficiencia = this.f_valor_beneficiencia;
+            this.valor_registro = this.f_valor_registro;
             this.calcularFinanciacion();
         },
         parseNumberFromString(s) {
@@ -1984,6 +1993,12 @@ export default {
             }
             this.mostrarModalCliente = false;
         },
+        calcularEscrituras() {
+            const not = this.toNumber(this.valor_notariales);
+            const ben = this.toNumber(this.valor_beneficiencia);
+            const reg = this.toNumber(this.valor_registro);
+            this.valor_escrituras = not + ben + reg;
+        }
         
     },
     computed: {
@@ -2092,6 +2107,18 @@ export default {
 			get() { return this.formatNumber(this.valor_escrituras, false); },
 			set(val) { this.valor_escrituras = this.cleanNumber(val); }
 		},
+        f_valor_notariales: {
+			get() { return this.formatNumber(this.valor_notariales, false); },
+			set(val) { this.valor_notariales = this.cleanNumber(val); }
+		},
+        f_valor_beneficiencia: {
+			get() { return this.formatNumber(this.valor_beneficiencia, false); },
+			set(val) { this.valor_beneficiencia = this.cleanNumber(val); }
+		},
+        f_valor_registro: {
+			get() { return this.formatNumber(this.valor_registro, false); },
+			set(val) { this.valor_registro = this.cleanNumber(val); }
+		},
         f_valor_separacion: {
             get() { return this.formatNumber(this.valor_separacion, false); },
 			set(val) { this.valor_separacion = this.cleanNumber(val); }
@@ -2115,7 +2142,7 @@ export default {
         f_ingresos_mensuales: {
 			get() { return this.formatNumber(this.ingresos_mensuales, false); },
 			set(val) { this.ingresos_mensuales = this.cleanNumber(val); }
-		},
+		}
     },
     watch: {
         tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
@@ -2179,7 +2206,10 @@ export default {
             const esc = Math.max(0, this.toNumber(newVal));
             const diferencia = sep - esc;
             this.cuota_escritura_final = diferencia;
-        }
+        },
+        f_valor_notariales() { this.calcularEscrituras(); },
+        f_valor_beneficiencia() { this.calcularEscrituras(); },
+        f_valor_registro() { this.calcularEscrituras(); }
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);

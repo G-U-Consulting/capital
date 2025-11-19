@@ -659,28 +659,31 @@
                 Reformas, Acabados, Descuento
             </div>
             <div class="pure-u-1 pure-u-md-1-1">
-                <div class="pure-u-1 pure-u-md-1-24" style="margin-top: 1.5em">
+                <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
-                        <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: 1.2em;">
-                            <input type="checkbox" v-model="reformaActivo" />
-                            <span class="checkmark"></span>
-                        </label>
+                        <span>¿Con acabados y Reformas?</span>
+                        <div class="checkbox-center">
+                            <label class="check">
+                                <input type="checkbox" v-model="reformaActivo" />
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-6">
+                <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>Reformas</span>
                         <input type="text" style="text-align: right;" v-model="f_valor_reformas" @keyup="validarFormato"
                             disabled />
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-6">
+                <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>Acabados</span>
                         <input type="text" style="text-align: right;" v-model="f_valor_acabados" @keyup="validarFormato" disabled/>
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-6">
+                <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
                         <span>Descuento Adicional</span>
                         <input type="text" style="text-align: right;" v-model="f_valor_descuento_adicional"
@@ -720,13 +723,39 @@
                             partes.
                         </div>
                     </span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_separacion" @keyup="validarFormato" />
+                    <input type="text" style="text-align: right;" v-model="f_valor_separacion" @keyup="validarFormato" disabled/>
                 </div>
             </div>
             <div class="pure-u-1 pure-u-md-1-6">
                 <div class="formInputStandard">
-                    <span>Escrituración y notaría:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_escrituras" @keyup="validarFormato" />
+                     <span class="info-container">
+                        Gastos de Escritura
+                        <i class="info-icon">ⓘ</i>
+                        <div class="tooltip-opc">
+                            Nota: (1) Este valor de gastos notariales es aproximado. El valor final podría variar dependiendo de los anexos que
+                            lleve la escritura, las autenticaciones y biometrias de la misma. (2) Si el cliente quiere afectar el inmueble como
+                            vivienda familiar el valor se debe incrementar en $200.000.
+                        </div>
+                    </span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_escrituras" @keyup="validarFormato" disabled/>
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6">
+                <div class="formInputStandard">
+                    <span>Notariales:</span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_notariales" @keyup="validarFormato" />
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6">
+                <div class="formInputStandard">
+                    <span>Beneficiencia:</span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" />
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6">
+                <div class="formInputStandard">
+                    <span>Registro:</span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" />
                 </div>
             </div>
             <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: .5rem;">
@@ -917,179 +946,189 @@
                         <div class="formInputStandard">
                             <span class="detalle-label" style="margin: 1.5rem;"></span>
                             <span class="info-container modern-info">
-                                <span class="info-dot">Ver Detalles ⓘ</span>
-                                <div class="tooltip-opc izq tooltip-wide tooltip-top"
-                                    style="max-height:420px; overflow-y:auto;">
-                                    <div class="grid-detalles elegante">
-                                        <div class="card-detalle">
-                                            <div class="card-header">
-                                                <i class="icon">💼</i>
-                                                <h3>Separación y escrituración</h3>
+                                <span class="info-dot" @click="detalle = true">Ver Detalles ⓘ</span>
+                                <div v-if="detalle" class="modal-overlay" @click.self="detalle = false">
+                                    <div class="modal-card-large">
+                                        <div class="modal-header">
+                                            <h2>Detalles del cálculo</h2>
+                                            <div class="close-btn" @click="detalle = false">✖</div>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="grid-detalles elegante">
+                                                <div class="card-detalle">
+                                                    <div class="card-header">
+                                                        <i class="icon">💼</i>
+                                                        <h3>Separación y escrituración</h3>
+                                                    </div>
+                                                    <ul>
+                                                        <li>Valor separación:
+                                                            <span class="valor-badge">{{formatoMoneda(f_valor_separacion)}}</span>
+                                                        </li>
+                                                        <li>Escrituración y notaría:
+                                                            <span class="valor-badge">{{formatoMoneda(f_valor_escrituras)}}</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                        
+                                                <div class="card-detalle">
+                                                    <div class="card-header">
+                                                        <i class="icon">💰</i>
+                                                        <h3>Ingresos y aportes iniciales</h3>
+                                                    </div>
+                                                    <ul>
+                                                        <li>Cesantías:
+                                                            <span class="valor-badge">{{formatoMoneda(f_valor_cesantias)}}</span>
+                                                        </li>
+                                                        <li>Ahorros:
+                                                            <span class="valor-badge">{{formatoMoneda(f_valor_ahorros)}}</span>
+                                                        </li>
+                                                        <li>Ingresos familiares:
+                                                            <span class="valor-badge">{{formatoMoneda(f_ingresos_mensuales)}}</span>
+                                                        </li>
+                                                        <li>Cuota máx. modal (40%):
+                                                            <span class="valor-badge">{{formatoMoneda(cuotaMaxima)}}</span>
+                                                        </li>
+                                                        <li>Cuota máx. modal (70%):
+                                                            <span class="valor-badge">{{formatoMoneda(valorCreditoMillonFormateado)}}</span>
+                                                        </li>
+                                                        <li>Mínimo familiar:
+                                                            <span class="valor-badge">{{formatoMoneda(minimoFamiliar)}}</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                        
+                                                <div class="card-detalle">
+                                                    <div class="card-header">
+                                                        <i class="icon">🎁</i>
+                                                        <h3>Subsidio</h3>
+                                                    </div>
+                                                    <ul>
+                                                        <li>Año: <span class="valor-badge">{{ seleccionAnioEntrega ? seleccionAnioEntrega : 'N/A' }}</span>
+                                                        </li>
+                                                        <li>Valor: <span class="valor-badge">{{formatoMoneda(valor_subsidio)}}</span>
+                                                        </li>
+                                                        <li>Caja: <span class="valor-badge">{{ nombreCaja(caja_compensacion) || 'N/A' }}</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                        
+                                                <div class="card-detalle">
+                                                    <div class="card-header">
+                                                        <i class="icon">📄</i>
+                                                        <h3>Modalidad de pago</h3>
+                                                    </div>
+                                                    <ul>
+                                                        <li>Tipo:<span class="valor-badge">{{ pagoSeleccionado || 'N/A' }}</span>
+                                                        </li>
+                                                        <li>Entidad: 
+                                                             <span class="valor-badge">{{ nombreBanco(bancoSeleccionado) || 'N/A' }}</span>
+                                                        </li>
+                                                        <li>Crédito: <span class="valor-badge">{{unidadSeleccionada}}</span></li>
+                                                        <li>Plazo: <span class="valor-badge">{{ anioSeleccionado || 'N/A' }}</span>
+                                                        </li>
+                                                        <li>Modalidad: <span class="valor-badge">{{ tipoFinanciacionSeleccionada || 'N/A' }}</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                        
+                                                <div class="card-detalle">
+                                                    <div class="card-header">
+                                                        <i class="icon">📊</i>
+                                                        <h3>Importes</h3>
+                                                    </div>
+                                                    <ul>
+                                                        <li>Financiado: <span class="valor-badge">{{formatoMoneda(valor_credito_final)}}</span></li>
+                                                        <li>Cuota inicial neta: <span class="valor-badge">{{formatoMoneda(cuota_inicial_final)}}</span></li>
+                                                    </ul>
+                                                </div>
+                                        
+                                                <div class="card-detalle">
+                                                    <div class="card-header">
+                                                        <i class="icon">📅</i>
+                                                        <h3>Fechas estimadas</h3>
+                                                    </div>
+                                                    <ul>
+                                                        <li>Entrega: <span class="valor-badge">{{ d_fecha_entrega || 'N/A' }}</span>
+                                                        </li>
+                                                        <li>Escrituración: <span class="valor-badge">{{ d_fecha_escrituracion || 'N/A' }}</span>
+                                                        </li>
+                                                        <li>1ra cuota: <span class="valor-badge">{{ d_fecha_cuota || 'N/A' }}</span>
+                                                        </li>
+                                                        <li>Última cuota: <span class="valor-badge">{{ d_fecha_ulti_cuota || 'N/A' }}</span>
+                                                        </li>
+                                                        <li>Meses: <span class="valor-badge">{{ d_meses || 'N/A' }}</span></li>
+                                                    </ul>
+                                                </div>
                                             </div>
-                                            <ul>
-                                                <li>Valor separación:
-                                                    <span class="valor-badge">{{formatoMoneda(f_valor_separacion)}}</span>
-                                                </li>
-                                                <li>Escrituración y notaría:
-                                                    <span class="valor-badge">{{formatoMoneda(f_valor_escrituras)}}</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-        
-                                        <div class="card-detalle">
-                                            <div class="card-header">
-                                                <i class="icon">💰</i>
-                                                <h3>Ingresos y aportes iniciales</h3>
+                                            <div class="infoCalculos">
+                                        
+                                                <div class="infoItem">
+                                                    <b>Importe apto (Importe Total)</b>
+                                                    Es el valor total del inmueble incluyendo acabados y reformas,
+                                                    menos descuentos adicionales. Este valor sirve como base para
+                                                    todos los cálculos financieros posteriores.
+                                                </div>
+                                        
+                                                <div class="infoItem">
+                                                    <b>Máximo financiable (70%)</b>
+                                                    Corresponde al monto máximo que el banco permite financiar,
+                                                    calculado como el 70% del importe total del inmueble.
+                                                    Esta regla aplica según la ciudad del proyecto y sus restricciones.
+                                                </div>
+                                        
+                                                <div class="infoItem">
+                                                    <b>Cuota inicial preliminar</b>
+                                                    Es la diferencia entre el importe total del inmueble y el máximo
+                                                    financiable. Representa el dinero que la familia debe aportar
+                                                    con recursos propios.
+                                                </div>
+                                        
+                                                <div class="infoItem">
+                                                    <b>Factor por millón</b>
+                                                    Es un indicador bancario que define cuánto se paga por cada
+                                                    millón financiado según la tasa y el plazo del crédito.
+                                                    Permite estimar la cuota mensual.
+                                                </div>
+                                        
+                                                <div class="infoItem">
+                                                    <b>Cuota modalidad (70%)</b>
+                                                    Es la cuota mensual estimada del crédito hipotecario, calculada
+                                                    multiplicando el valor financiado por el factor por millón.
+                                                </div>
+                                        
+                                                <div class="infoItem">
+                                                    <b>Ingreso real familia</b>
+                                                    Es la suma del ingreso total de los miembros del hogar.
+                                                    Se utiliza para evaluar si la familia cuenta con capacidad
+                                                    de pago suficiente para el monto solicitado.
+                                                </div>
+                                        
+                                                <div class="infoItem">
+                                                    <b>Cuota máxima (40% de ingresos)</b>
+                                                    Es el valor máximo de cuota mensual permitido por la entidad
+                                                    financiera. No debe superar el 40% del ingreso familiar mensual.
+                                                </div>
+                                        
+                                                <div class="infoItem">
+                                                    <b>Ingreso mínimo familia</b>
+                                                    Es el ingreso que el hogar debe tener para poder asumir la cuota
+                                                    proyectada sin exceder el 40% permitido por los bancos.
+                                                </div>
+                                        
+                                                <div class="infoItem">
+                                                    <b>Máximo financiable (según ingresos)</b>
+                                                    Es el valor máximo de crédito que la familia puede obtener según
+                                                    su nivel de ingresos, la cuota máxima permitida y el factor por millón.
+                                                    Permite identificar si los ingresos son suficientes para financiar
+                                                    el 70% del inmueble.
+                                                </div>
+                                        
                                             </div>
-                                            <ul>
-                                                <li>Cesantías:
-                                                    <span class="valor-badge">{{formatoMoneda(f_valor_cesantias)}}</span>
-                                                </li>
-                                                <li>Ahorros:
-                                                    <span class="valor-badge">{{formatoMoneda(f_valor_ahorros)}}</span>
-                                                </li>
-                                                <li>Ingresos familiares:
-                                                    <span class="valor-badge">{{formatoMoneda(f_ingresos_mensuales)}}</span>
-                                                </li>
-                                                <li>Cuota máx. modal (40%):
-                                                    <span class="valor-badge">{{formatoMoneda(cuotaMaxima)}}</span>
-                                                </li>
-                                                <li>Cuota máx. modal (70%):
-                                                    <span
-                                                        class="valor-badge">{{formatoMoneda(valorCreditoMillonFormateado)}}</span>
-                                                </li>
-                                                <li>Mínimo familiar:
-                                                    <span class="valor-badge">{{formatoMoneda(minimoFamiliar)}}</span>
-                                                </li>
-                                            </ul>
                                         </div>
-        
-                                        <div class="card-detalle">
-                                            <div class="card-header">
-                                                <i class="icon">🎁</i>
-                                                <h3>Subsidio</h3>
-                                            </div>
-                                            <ul>
-                                                <li>Año: <span class="valor-badge">{{seleccionAnioEntrega}}</span></li>
-                                                <li>Valor: <span class="valor-badge">{{formatoMoneda(valor_subsidio)}}</span>
-                                                </li>
-                                                <li>Caja: <span class="valor-badge">{{nombreCaja(caja_compensacion)}}</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-        
-                                        <div class="card-detalle">
-                                            <div class="card-header">
-                                                <i class="icon">📄</i>
-                                                <h3>Modalidad de pago</h3>
-                                            </div>
-                                            <ul>
-                                                <li>Tipo: <span class="valor-badge">{{pagoSeleccionado}}</span></li>
-                                                <li>Entidad: <span class="valor-badge">{{nombreBanco(bancoSeleccionado)
-                                                        }}</span></li>
-                                                <li>Crédito: <span class="valor-badge">{{unidadSeleccionada}}</span></li>
-                                                <li>Plazo: <span class="valor-badge">{{anioSeleccionado}}</span></li>
-                                                <li>Modalidad: <span class="valor-badge">{{tipoFinanciacionSeleccionada}}</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-        
-                                        <div class="card-detalle">
-                                            <div class="card-header">
-                                                <i class="icon">📊</i>
-                                                <h3>Importes</h3>
-                                            </div>
-                                            <ul>
-                                                <li>Financiado: <span
-                                                        class="valor-badge">{{formatoMoneda(valor_credito_final)}}</span></li>
-                                                <li>Cuota inicial neta: <span
-                                                        class="valor-badge">{{formatoMoneda(cuota_inicial_final)}}</span></li>
-                                            </ul>
-                                        </div>
-        
-                                        <div class="card-detalle">
-                                            <div class="card-header">
-                                                <i class="icon">📅</i>
-                                                <h3>Fechas estimadas</h3>
-                                            </div>
-                                            <ul>
-                                                <li>Entrega: <span class="valor-badge">{{d_fecha_entrega}}</span></li>
-                                                <li>Escrituración: <span class="valor-badge">{{d_fecha_escrituracion}}</span>
-                                                </li>
-                                                <li>1ra cuota: <span class="valor-badge">{{d_fecha_cuota}}</span></li>
-                                                <li>Última cuota: <span class="valor-badge">{{d_fecha_ulti_cuota}}</span></li>
-                                                <li>Meses: <span class="valor-badge">{{d_meses}}</span></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-        
-                                    <div class="infoCalculos">
-        
-                                        <div class="infoItem">
-                                            <b>Importe apto (Importe Total)</b>
-                                            Es el valor total del inmueble incluyendo acabados y reformas,
-                                            menos descuentos adicionales. Este valor sirve como base para
-                                            todos los cálculos financieros posteriores.
-                                        </div>
-        
-                                        <div class="infoItem">
-                                            <b>Máximo financiable (70%)</b>
-                                            Corresponde al monto máximo que el banco permite financiar,
-                                            calculado como el 70% del importe total del inmueble.
-                                            Esta regla aplica según la ciudad del proyecto y sus restricciones.
-                                        </div>
-        
-                                        <div class="infoItem">
-                                            <b>Cuota inicial preliminar</b>
-                                            Es la diferencia entre el importe total del inmueble y el máximo
-                                            financiable. Representa el dinero que la familia debe aportar
-                                            con recursos propios.
-                                        </div>
-        
-                                        <div class="infoItem">
-                                            <b>Factor por millón</b>
-                                            Es un indicador bancario que define cuánto se paga por cada
-                                            millón financiado según la tasa y el plazo del crédito.
-                                            Permite estimar la cuota mensual.
-                                        </div>
-        
-                                        <div class="infoItem">
-                                            <b>Cuota modalidad (70%)</b>
-                                            Es la cuota mensual estimada del crédito hipotecario, calculada
-                                            multiplicando el valor financiado por el factor por millón.
-                                        </div>
-        
-                                        <div class="infoItem">
-                                            <b>Ingreso real familia</b>
-                                            Es la suma del ingreso total de los miembros del hogar.
-                                            Se utiliza para evaluar si la familia cuenta con capacidad
-                                            de pago suficiente para el monto solicitado.
-                                        </div>
-        
-                                        <div class="infoItem">
-                                            <b>Cuota máxima (40% de ingresos)</b>
-                                            Es el valor máximo de cuota mensual permitido por la entidad
-                                            financiera. No debe superar el 40% del ingreso familiar mensual.
-                                        </div>
-        
-                                        <div class="infoItem">
-                                            <b>Ingreso mínimo familia</b>
-                                            Es el ingreso que el hogar debe tener para poder asumir la cuota
-                                            proyectada sin exceder el 40% permitido por los bancos.
-                                        </div>
-        
-                                        <div class="infoItem">
-                                            <b>Máximo financiable (según ingresos)</b>
-                                            Es el valor máximo de crédito que la familia puede obtener según
-                                            su nivel de ingresos, la cuota máxima permitida y el factor por millón.
-                                            Permite identificar si los ingresos son suficientes para financiar
-                                            el 70% del inmueble.
-                                        </div>
-        
                                     </div>
                                 </div>
                             </span>
-                        </div>
+                        </div> 
                     </div>
                 </div>
             </div>
@@ -1743,6 +1782,37 @@
                 <span class="asunto-modal-close" @click="mostrarModalCliente = false">×</span>
                 <h3>Agregar Cliente</h3>
                 <div class="tabla-scroll-content">
+                    <div style="height: 5.5rem; overflow-y: auto; margin-top: 0.1em;">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Nombres</th>
+                                    <th>Apellido 1</th>
+                                    <th>Apellido 2</th>
+                                    <th style="width: 15%;">Número Documento</th>
+                                    <th style="width: 12%;">% de copropiedad</th>
+                                    <th style="width: 5%;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(c, index) in clientes" :key="index" @dblclick="seleccionarCliente(c)">
+                                    <td>{{ c.nombres }}</td>
+                                    <td>{{ c.apellido1 }}</td>
+                                    <td>{{ c.apellido2 }}</td>
+                                    <td>{{ c.numeroDocumento }}</td>
+                                    <td>
+                                         <input type="text" v-model="c.porcentaje_copropiedad" class="inputInline" />
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <div @click="eliminarCliente(index)" class="delete">✖</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pure-u-md-1-1" style="text-align: right;margin-top: .2rem;">
+                        <button @click="agregarCliente">Agregar</button>
+                    </div>
                     <div v-if="iscliente">
                         <div>
                             <div class="toggleSection" @click="mostrarCliente = !mostrarCliente" style="margin-top: 1rem;">
