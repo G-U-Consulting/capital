@@ -71,8 +71,7 @@ insert into fact_visitas (id_cliente, id_categoria_medio, id_medio, id_motivo_co
         end while;
     end if;
 
-insert into cola_tareas_rpa(tipo, datos) 
-values('sf_visita', concat('{id_visita:', @id_visita, ',id_cliente:', @id_cliente, '}'));
+insert into cola_tareas_rpa(tipo, llave) 
+values('fact_visitas', @id_visita);
 
 select concat('OK-id_visita:', @id_visita) as result;
-        

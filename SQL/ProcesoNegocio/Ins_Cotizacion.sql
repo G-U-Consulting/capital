@@ -4,7 +4,6 @@
 --START_PARAM
 set @id_cliente = 0,
     @cotizacion = 0,
-    @id_cotizacion = 0,
     @fecha = '',
     @descripcion = '',
     @importeTotal = 0,
@@ -12,37 +11,11 @@ set @id_cliente = 0,
     @id_proyecto = 0; 
 --END_PARAM
 
-update fact_cotizaciones
-    set descripcion = @descripcion,
-        importe = @importeTotal
-    where id_cotizacion = @id_cotizacion;
+insert into fact_cotizaciones (id_cliente, fecha, descripcion, cotizacion, importe, id_proyecto, created_by)
+select @id_cliente, now(), @descripcion, @cotizacion, @importeTotal, @id_proyecto, @usuario
+where row_count() = 0;
+set @inserted = last_insert_id();
+insert into cola_tareas_rpa(tipo, llave) 
+values('fact_cotizaciones', @inserted);
 
-    insert into fact_cotizaciones (id_cliente, fecha, descripcion, cotizacion, importe, id_proyecto, created_by)
-    select @id_cliente, now(), @descripcion, @cotizacion, @importeTotal, @id_proyecto, @usuario
-    where row_count() = 0;
-
-insert into cola_tareas_rpa(tipo, datos) 
-values('sf_cotizacion', concat('{id_cotizacion:', @id_cotizacion, '}'));
-
-    select if(row_count() > 0, last_insert_id(), @id_cotizacion) + 0 as id_cotizacion;
-
--- if exists (
---     select 1
---     from fact_cotizaciones fc
---     where fc.id_cliente = @id_cliente
---       and fc.id_proyecto = @id_proyecto
---       and date(fc.fecha) = curdate()
--- ) then
---     select -1 as id_cotizacion;
--- else
---     update fact_cotizaciones
---     set descripcion = @descripcion,
---         importe = @importeTotal
---     where id_cotizacion = @id_cotizacion;
-
---     insert into fact_cotizaciones (id_cliente, fecha, descripcion, cotizacion, importe, id_proyecto, created_by)
---     select @id_cliente, now(), @descripcion, @cotizacion, @importeTotal, @id_proyecto, @usuario
---     where row_count() = 0;
-
---     select if(row_count() > 0, last_insert_id(), @id_cotizacion) + 0 as id_cotizacion;
--- end if;
+select concat('OK-id_cotizacion:', @inserted) as id_cotizacion;

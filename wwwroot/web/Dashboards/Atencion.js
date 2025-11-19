@@ -31,6 +31,10 @@ export default {
         async loadData() {
 
         },
+        async getReport() {
+            let res = await httpFunc(`/util/inte/fact_visitas/integraciones:Get_VisitaSF`, { id_visita: 256 });
+            console.log(res);
+        }
     },
     computed: {
 

@@ -1,20 +1,16 @@
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using orca.Code.Api;
 
 namespace capital.Code.Inte.Salesforce;
 
-public class Visita
+public class Visita : Salesforce<Visita>
 {
-    public Visita(JObject Jobj)
+    public Visita(string tipo, string subtipo, string datos) : base(tipo, subtipo, datos)
     {
-        typeof(Visita).GetProperties().ToList().ForEach(prop =>
-        {
-            var value = Jobj[prop.Name];
-            if (value != null)
-                prop.SetValue(this, value.ToObject(prop.PropertyType));
-        });
+        route = "/services/apexrest/v1/Capital/CustomersAndProjects/customer";
     }
-
     private long? _document;
     private string? _typeDoc;
     private string? _cityLead;
@@ -46,8 +42,8 @@ public class Visita
         get => _typeDoc;
         set
         {
-            string[] allowed = ["Cedula de Ciudadania", "Cedula de Extranjeria", "Pasaporte" ];
-            if (value != null && !allowed.Contains(value))
+            string[] allowed = ["cédula de ciudadanía", "cédula de extranjería", "pasaporte" ];
+            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
                 throw new ArgumentException("Tipo de documento inválido");
             _typeDoc = value;
         }
@@ -57,8 +53,8 @@ public class Visita
         get => _cityLead;
         set
         {
-            string[] allowed = ["Bogotá", "Medellín" ];
-            if (value != null && !allowed.Contains(value))
+            string[] allowed = ["bogotá", "medellín" ];
+            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
                 throw new ArgumentException("Ciudad (lead) inválida");
             _cityLead = value;
         }
@@ -119,15 +115,21 @@ public class Visita
     public string? department { get; set; }
     public string? direction { get; set; }
     public string? countryResidence { get; set; }
+    public string? _AuthorizeData
+    {
+        set
+        {
+            AuthorizeData = value == "1";
+        }
+    }
     public bool? AuthorizeData { get; set; }
     public string? disposeToInvest 
     {
-        get => _disposeToInvest;
         set
         {
-            string[] allowed = ["Menos de $2.400.000", "$2.400.001 a $4.800.000", "$4.800.001 a $7.200.000",
-            "$7.200.001 a $10.400.000", "$10.400.001 a $12.000.000", "Más de $12.000.000" ];
-            if (value != null && !allowed.Contains(value))
+            string[] allowed = ["menos de $ 2.400.000", "$ 2.400.001 a $ 4.800.000", "$ 4.800.001 a $ 7.200.000",
+            "$ 7.200.001 a $ 10.400.000", "$ 10.400.001 a $ 12.000.000", "más de $ 12.000.000" ];
+            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
                 throw new ArgumentException("Disposición a invertir inválida");
             _disposeToInvest = value;
         }
@@ -137,8 +139,8 @@ public class Visita
         get => _registerType;
         set
         {
-            string[] allowed = ["Presencial", "Telefónico", "Whatsapp", "Email", "Videollamada"];
-            if (value != null && !allowed.Contains(value))
+            string[] allowed = ["presencial", "telefónico", "whatsapp", "email", "videollamada"];
+            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
                 throw new ArgumentException("Tipo de registro inválido");
             _registerType = value;
         }
@@ -148,8 +150,8 @@ public class Visita
         get => _attentionReason;
         set
         {
-            string[] allowed = ["Atención rápida", "Info Comercial de Proyecto", "Cierre de negocio", "Trámites"];
-            if (value != null && !allowed.Contains(value))
+            string[] allowed = ["atención rápida", "info Comercial de Proyecto", "cierre de negocio", "trámites"];
+            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
                 throw new ArgumentException("Motivo de atención inválido");
             _attentionReason = value;
         }
@@ -160,10 +162,18 @@ public class Visita
         get => _reasonPurchase;
         set
         {
-            string[] allowed = ["Primera vivienda", "Segunda vivienda", "Cierre de negocio", "Inversión"];
-            if (value != null && !allowed.Contains(value))
+            string[] allowed = ["primera vivienda", "segunda vivienda", "cierre de negocio", "inversión"];
+            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
                 throw new ArgumentException("Motivo de compra inválido");
             _reasonPurchase = value;
+        }
+    }
+
+    public string? _visitedSalesRoom
+    {
+        set
+        {
+            visitedSalesRoom = value == "1";
         }
     }
     public bool? visitedSalesRoom { get; set; }
@@ -186,4 +196,5 @@ public class Visita
             return new(@"[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})", RegexOptions.IgnoreCase);
         else return _EmailRegex;
     }
+
 }
