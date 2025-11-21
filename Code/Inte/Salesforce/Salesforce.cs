@@ -38,9 +38,8 @@ public abstract class Salesforce<T> where T : Salesforce<T>
             await inst.LoadData(request, response, datos, rootPath);
             return inst;
         }
-        catch(Exception ex)
+        catch (Exception)
         {
-            Console.WriteLine(ex);
             throw;
         }
     }
@@ -48,17 +47,26 @@ public abstract class Salesforce<T> where T : Salesforce<T>
     {
         try
         {
-            JData = (JObject?)(await Generic.ProcessRequest(request, response, "genericDT", subtipo, body, rootPath))["data"]?[0];
-            if (JData != null)
+            var resData = await Generic.ProcessRequest(request, response, "genericDT", subtipo, body, rootPath);
+            if (resData != null)
             {
-                Console.WriteLine(JData.ToString());
+                var content = resData["data"];
+                if (content is JArray arr && arr.Count > 0)
+                    JData = arr[0] as JObject;
+                else if (content is JObject obj)
+                    JData = obj;
+                else
+                    JData = null;
+            }
+            if (JData == null) throw new Exception("No se encontró el registro");
+            else
+            {
                 if (this is not T target) throw new InvalidOperationException("La instancia actual no es del tipo genérico");
                 JsonConvert.PopulateObject(JData.ToString(), target);
             }
         }
-        catch(Exception ex)
+        catch(Exception)
         {
-            Console.WriteLine(ex);
             throw;
         }
     }
@@ -76,11 +84,10 @@ public abstract class Salesforce<T> where T : Salesforce<T>
         };
         FormUrlEncodedContent body = new(pars);
 
-        Console.WriteLine("body: \t" + body);
         if (url == null) throw new Exception("No se configuró la conexión con Salesforce");
         HttpResponseMessage response = await client.PostAsync(url, body);
         string res = await response.Content.ReadAsStringAsync();
-        Console.WriteLine("res: \t" + res);
+        Console.WriteLine("\nauth: \t" + res);
         JObject? obj = JsonConvert.DeserializeObject<JObject>(res);
         if (obj == null) throw new Exception("No se completó la autenticación en Salesforce");
         else
@@ -89,15 +96,22 @@ public abstract class Salesforce<T> where T : Salesforce<T>
             token = obj["access_token"]?.ToString();
         }
     }
-    public async Task Request()
+    public async Task<JToken?> Request()
     {
         if (instance_url == null || token == null)
             await GetAccess();
         Dictionary<string, string> headers = [];
         headers.Add("Authorization", $"Bearer {token}");
         string data = JsonConvert.SerializeObject(this);
-        string url = $"{instance_url}{route}";
-        string res = await WebUt.WebRequest(url, HttpMethod.Post, data, "application/json", headers);
-        Console.WriteLine("sf res: \t" + res);
+        data = System.Text.RegularExpressions.Regex.Replace(data, @"""_[^""]*"":""?[^,""]*""?,?", "");
+        Console.WriteLine("\ndata: \t" + data);
+        string res = await WebUt.WebRequest(instance_url + route, HttpMethod.Post, data, "application/json", headers);
+        Console.WriteLine("\nsalesforce res: \t" + res);
+        return JsonConvert.DeserializeObject<JToken>(res);
+    }
+    public static void resetSession()
+    {
+        instance_url = null;
+        token = null;
     }
 }

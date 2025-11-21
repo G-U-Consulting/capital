@@ -234,6 +234,10 @@ export default {
             ultimaCuotaResultado: 0,
             ultimaCuotaDigitada: 0,
 
+            tel1: null,
+            tel2: null,
+            iti1: null,
+            iti2: null,
         };
     },
     async mounted() {
@@ -578,6 +582,7 @@ export default {
              
             this.isTitular = !!c.is_titular;
             this.iscliente = true;
+            this.initIntlTel(this.ObjClienteOpcional);
         },
         // async guardarClientes() {
         //     if (!this.policyAccepted) {
@@ -718,6 +723,8 @@ export default {
                     id_presupuesto_vivienda: '',
                     id_tipo_tramite: '',
                     usuario: '',
+                    id_tipo_registro: '',
+                    id_modo_atencion: ''
                 }
                 if (Array.isArray(this.tipo_registro)) {
                     this.tipo_registro.forEach(item => item.checked = false);
@@ -801,36 +808,44 @@ export default {
             ];
 
             this.activeTabs(this.cliente);
-            this.initIntlTel();
+            this.initIntlTel(ids ? this.ObjCliente : this.ObjClienteOpcional);
             this.iscliente = true;
             this.isboton = false;
             this.israpida = false;
         },
-        async initIntlTel() {
+        async initIntlTel(cliente) {
             await Promise.resolve();
-            let tel1 = document.getElementById('telefono1'), tel2 = document.getElementById('telefono2');
-            if (tel1) {
-                let iti1 = intlTelInput(tel1, {
-                    initialCountry: this.ObjCliente.pais_tel1 || "co",
-                    separateDialCode: true,
-                });
-                tel1.addEventListener("countrychange", () => {
-                    const countryData = iti1.getSelectedCountryData();
-                    this.ObjCliente.pais_tel1 = countryData.iso2;
-                    this.ObjCliente.codigo_tel1 = '+' + countryData.dialCode;
-                });
-            };
-            if (tel2) {
-                let iti2 = intlTelInput(tel2, {
-                    initialCountry: this.ObjCliente.pais_tel2 || "co",
-                    separateDialCode: true,
-                });
-                tel2.addEventListener("countrychange", () => {
-                    const countryData = iti2.getSelectedCountryData();
-                    this.ObjCliente.pais_tel2 = countryData.iso2;
-                    this.ObjCliente.codigo_tel2 = '+' + countryData.dialCode;
-                });
-            };
+            let tmptel1 = document.getElementById('telefono1'), tmptel2 = document.getElementById('telefono2');
+            if (!this.iti1 || (![...tmptel1.parentElement.classList].includes('iti'))) {
+                this.tel1 = tmptel1;
+                if (this.tel1) {
+                    this.iti1 = intlTelInput(this.tel1, {
+                        initialCountry: cliente.pais_tel1 || "co",
+                        separateDialCode: true,
+                    });
+                    this.tel1.addEventListener("countrychange", () => {
+                        const countryData = this.iti1.getSelectedCountryData();
+                        cliente.pais_tel1 = countryData.iso2;
+                        cliente.codigo_tel1 = '+' + countryData.dialCode;
+                    });
+                }
+            }
+            else this.iti1.setCountry(cliente.pais_tel1 || "co");
+            if (!this.iti2 || (![...tmptel2.parentElement.classList].includes('iti'))) {
+                this.tel2 = tmptel2;
+                if (this.tel2) {
+                    this.iti2 = intlTelInput(this.tel2, {
+                        initialCountry: cliente.pais_tel2 || "co",
+                        separateDialCode: true,
+                    });
+                    this.tel2.addEventListener("countrychange", () => {
+                        const countryData = this.iti2.getSelectedCountryData();
+                        cliente.pais_tel2 = countryData.iso2;
+                        cliente.codigo_tel2 = '+' + countryData.dialCode;
+                    });
+                }
+            }
+            else this.iti2.setCountry(cliente.pais_tel2 || "co");
         },
         async setSubmode(index) {
             this.campoObligatorio();
@@ -997,6 +1012,8 @@ export default {
             this.ObjVisita.descripcion = resp.data[0][0].descripcion;
             this.ObjVisita.id_presupuesto_vivienda = resp.data[0][0].id_presupuesto_vivienda;
             this.ObjVisita.id_tipo_tramite = resp.data[0][0].id_tipo_tramite;
+            this.ObjVisita.id_tipo_registro = resp.data[0][0].id_tipo_registro;
+            this.ObjVisita.id_modo_atencion = resp.data[0][0].id_modo_atencion;
 
             var tFSeleccionada = resp.data[0][0].tipo_registro;
             this.tipo_registro.forEach(item => {
@@ -2147,6 +2164,7 @@ export default {
             //});
 
             this.mostrarModalCliente = true;
+            this.initIntlTel(this.ObjClienteOpcional);
             // this.limpiarObjClient();
         },
 

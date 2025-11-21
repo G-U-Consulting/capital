@@ -22,7 +22,7 @@ public class Visita : Salesforce<Visita>
             var len = value.Length;
             if (len < 4 || len > 16)
                 throw new ArgumentException("Número documento inválido");
-            mobilePhone = long.Parse(value);
+            document = long.Parse(value);
         }
     }
     public long document { get; set; }

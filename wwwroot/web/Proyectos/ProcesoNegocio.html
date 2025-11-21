@@ -5,7 +5,7 @@
         <div class="pure-g steps">
             <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-4">
                 <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]"
-                    @click="handleNext(index), setSubmode(index)">
+                    @click="handleNext(index), setSubmode(index); ObjCliente.id_cliente && index === 0 && initIntlTel(ObjCliente);">
                     {{ tab }}
                 </div>
             </div>
@@ -395,7 +395,7 @@
                                     <input type="checkbox" :value='item.id_tipo_registro' :true-value="item.id_tipo_registro"
                                         v-model="ObjVisita.id_tipo_registro" :disabled="camposBloqueados" />
                                     <span class="checkmark"></span>
-                                    {{ item.tipo_registro }}
+                                    {{ item.tipo_registro }} - {{ item.id_tipo_registro }} - {{ ObjVisita.id_tipo_registro }}
                                 </label>
                             </div>
                         </div>
@@ -2108,14 +2108,14 @@
                                     <div class='formInputStandard'>
                                         <span>Telefono 1 / Indicativo</span>
                                         <input type='text' v-model='ObjClienteOpcional.telefono1' maxlen='100'
-                                            placeholder="Seleccione" />
+                                            placeholder="Seleccione" id="telefono1" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Telefono 2 / Indicativo</span>
                                         <input type='text' v-model='ObjClienteOpcional.telefono2' maxlen='100'
-                                            placeholder="Seleccione" />
+                                            placeholder="Seleccione" id="telefono2" />
                                     </div>
                                 </div>
                                 <div v-if="iscliente">

@@ -152,7 +152,7 @@ app.Map("/util/ImportFiles/{op}/{sp}/{pars}", async (HttpContext context, HttpRe
             if (string.IsNullOrEmpty(json))
             {
                 response.StatusCode = 500;
-                return WebBDUt.NewBasicResponse(true, "Error processing file: " + obj.GetValue("fileName")?.ToString()).ToString(Newtonsoft.Json.Formatting.None);
+                return WebBDUt.NewBasicResponse(true, "Error processing file: " + obj.GetValue("fileName")?.ToString()).ToString(Formatting.None);
             }
             else
             {
@@ -423,10 +423,22 @@ app.Map("/util/inte/{tipo}/{subtipo}", async (HttpRequest request, HttpResponse 
         StreamReader stream = new(request.Body);
         body = await stream.ReadToEndAsync();
         subtipo = subtipo.Replace(':', '/');
-        Console.Write("body: \t" + body);
         Visita v = await Salesforce<Visita>.CreateAsync(tipo, subtipo, body, request, response, rootPath);
-        await v.Request();
-        return JsonConvert.SerializeObject(v);
+        JToken? res = await v.Request();
+        if (res != null && res is JArray)
+        {
+            JToken? jt = res[0];
+            if (jt is JObject obj)
+            {
+                if (obj["errorCode"]?.ToString() == "INVALID_SESSION_ID")
+                {
+                    Salesforce<Visita>.resetSession();
+                    res = await v.Request();
+                }
+            }
+        }
+
+        return JsonConvert.SerializeObject(res);
     } catch (Exception ex) {
         Logger.Log("util/inte    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;

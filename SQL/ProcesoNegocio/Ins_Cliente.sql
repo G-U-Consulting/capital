@@ -111,6 +111,10 @@ else
         nit = values(nit),
         fecha_nacimiento = values(fecha_nacimiento),
         porcentaje_copropiedad = values(porcentaje_copropiedad),
+        pais_tel1 = values(pais_tel1),
+        codigo_tel1 = values(codigo_tel1),
+        pais_tel2 = values(pais_tel2),
+        codigo_tel2 = values(codigo_tel2),
         id_cliente = last_insert_id(id_cliente);
 
     if @old_id = 0 then 

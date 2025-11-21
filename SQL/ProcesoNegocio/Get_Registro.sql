@@ -21,9 +21,9 @@ select a.id_visita,
       a.id_presupuesto_vivienda,
       a.id_tipo_tramite,
       a.is_active,
-      t.id_tipo_registro as tipo_registro,
+      t.id_tipo_registro as id_tipo_registro,
       t.tipo_registro as nombre_tipo_registro,
-      ma.id_modo_atencion as modo_atencion,
+      ma.id_modo_atencion as id_modo_atencion,
       ma.modo_atencion as nombre_modo_atencion
       /* (
         select group_concat(id_tipo_registro)
