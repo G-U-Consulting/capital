@@ -51,6 +51,7 @@ public abstract class Salesforce<T> where T : Salesforce<T>
             JData = (JObject?)(await Generic.ProcessRequest(request, response, "genericDT", subtipo, body, rootPath))["data"]?[0];
             if (JData != null)
             {
+                Console.WriteLine(JData.ToString());
                 if (this is not T target) throw new InvalidOperationException("La instancia actual no es del tipo genérico");
                 JsonConvert.PopulateObject(JData.ToString(), target);
             }

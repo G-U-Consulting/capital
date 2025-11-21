@@ -1,7 +1,4 @@
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using orca.Code.Api;
 
 namespace capital.Code.Inte.Salesforce;
 
@@ -11,57 +8,30 @@ public class Visita : Salesforce<Visita>
     {
         route = "/services/apexrest/v1/Capital/CustomersAndProjects/customer";
     }
-    private long? _document;
-    private string? _typeDoc;
-    private string? _cityLead;
-    private string? _expeditionDate;
     private string? _email;
-    private int? _mobilePhone;
     private DateOnly? _birthDate;
-    private string? _registerType;
-    private string? _disposeToInvest;
-    private string? _attentionReason;
-    private string? _reasonPurchase;
     private DateOnly? _visitedDate;
 
     public string? firstName { get; set; }
     public string? lastName { get; set; }
     public string? company { get; set; }
-    public long? document
+    public string _document
     {
-        get => _document;
         set
         {
-            if (value != null && value < 0)
+            var len = value.Length;
+            if (len < 4 || len > 16)
                 throw new ArgumentException("Número documento inválido");
-            _document = value;
+            mobilePhone = long.Parse(value);
         }
     }
-    public string? typeDoc
-    {
-        get => _typeDoc;
-        set
-        {
-            string[] allowed = ["cédula de ciudadanía", "cédula de extranjería", "pasaporte" ];
-            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
-                throw new ArgumentException("Tipo de documento inválido");
-            _typeDoc = value;
-        }
-    }
-    public string? cityLead
-    {
-        get => _cityLead;
-        set
-        {
-            string[] allowed = ["bogotá", "medellín" ];
-            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
-                throw new ArgumentException("Ciudad (lead) inválida");
-            _cityLead = value;
-        }
-    }
+    public long document { get; set; }
+    public string? typeDoc { get; set; }
+    public string? cityLead { get; set; }
     public string? countryExpedition { get; set; }
     public string? departmentExpedition { get; set; }
     public string? cityExpedition { get; set; }
+    private string? _expeditionDate;
     public string? expeditionDate
     {
         get => _expeditionDate;
@@ -87,20 +57,21 @@ public class Visita : Salesforce<Visita>
         }
     }
     public string? indicative { get; set; }
-    public int? mobilePhone
+    public string? _mobilePhone
     {
-        get => _mobilePhone;
         set
         {
             if (value != null)
             {
-                var len = value.Value.ToString().Length;
+                var len = value.Length;
                 if (len < 7 || len > 10)
                     throw new ArgumentException("Número de teléfono móvil inválido");
+                mobilePhone = long.Parse(value);
             }
-            _mobilePhone = value;
+            else mobilePhone = null;
         }
     }
+    public long? mobilePhone { get; set; }
     public DateOnly? birthDate
     {
         get => _birthDate;
@@ -123,51 +94,11 @@ public class Visita : Salesforce<Visita>
         }
     }
     public bool? AuthorizeData { get; set; }
-    public string? disposeToInvest 
-    {
-        set
-        {
-            string[] allowed = ["menos de $ 2.400.000", "$ 2.400.001 a $ 4.800.000", "$ 4.800.001 a $ 7.200.000",
-            "$ 7.200.001 a $ 10.400.000", "$ 10.400.001 a $ 12.000.000", "más de $ 12.000.000" ];
-            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
-                throw new ArgumentException("Disposición a invertir inválida");
-            _disposeToInvest = value;
-        }
-    }
-    public string? registerType
-    {
-        get => _registerType;
-        set
-        {
-            string[] allowed = ["presencial", "telefónico", "whatsapp", "email", "videollamada"];
-            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
-                throw new ArgumentException("Tipo de registro inválido");
-            _registerType = value;
-        }
-    }
-    public string? attentionReason
-    {
-        get => _attentionReason;
-        set
-        {
-            string[] allowed = ["atención rápida", "info Comercial de Proyecto", "cierre de negocio", "trámites"];
-            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
-                throw new ArgumentException("Motivo de atención inválido");
-            _attentionReason = value;
-        }
-    }
+    public string? disposeToInvest { get; set; }
+    public string? registerType { get; set; }
+    public string? attentionReason { get; set; }
     public string? IdClient { get; set; }
-    public string? reasonPurchase
-    {
-        get => _reasonPurchase;
-        set
-        {
-            string[] allowed = ["primera vivienda", "segunda vivienda", "cierre de negocio", "inversión"];
-            if (!string.IsNullOrWhiteSpace(value) && !allowed.Contains(value.ToLower()))
-                throw new ArgumentException("Motivo de compra inválido");
-            _reasonPurchase = value;
-        }
-    }
+    public string? reasonPurchase { get; set; }
 
     public string? _visitedSalesRoom
     {

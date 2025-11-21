@@ -14,15 +14,16 @@ set @id_cliente = '',
     @descripcion = '',
     @id_presupuesto_vivienda = '',
     @usuario = '',
-    @id_tipo_tramite = '';  
+    @id_tipo_tramite = '',
+    @id_sala_venta = NULL,
+    @id_modo_atencion = NULL,
+    @id_tipo_registro = NULL;  
 --END_PARAM
 
-insert into fact_visitas (id_cliente, id_categoria_medio, id_medio, id_motivo_compra, id_referencia, otro_texto ,id_proyecto, descripcion, id_presupuesto_vivienda,id_tipo_tramite, created_by)
-    values (@id_cliente, @id_categoria, @id_medio, @id_motivo_compra, @id_referencia, @otro_texto, @id_proyecto, @descripcion, @id_presupuesto_vivienda,@id_tipo_tramite, @usuario);
-
-
-    set @id_visita = last_insert_id();
-    
+insert into fact_visitas (id_cliente, id_categoria_medio, id_medio, id_motivo_compra, id_referencia, otro_texto ,id_proyecto, descripcion, id_presupuesto_vivienda,id_tipo_tramite, created_by, id_sala_venta, id_modo_atencion, id_tipo_registro)
+    values (@id_cliente, @id_categoria, @id_medio, @id_motivo_compra, @id_referencia, @otro_texto, @id_proyecto, @descripcion, @id_presupuesto_vivienda,@id_tipo_tramite, @usuario, @id_sala_venta, @id_modo_atencion, @id_tipo_registro);
+set @id_visita = last_insert_id();
+/*     
     set @datos = @tipo_registro;
     set @tabla = 'fact_tipo_registro';
     set @campo = 'id_tipo_registro';
@@ -70,7 +71,7 @@ insert into fact_visitas (id_cliente, id_categoria_medio, id_medio, id_motivo_co
             set @i = @i + 1;
         end while;
     end if;
-
+ */
 insert into cola_tareas_rpa(tipo, llave) 
 values('fact_visitas', @id_visita);
 

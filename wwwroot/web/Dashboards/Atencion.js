@@ -32,7 +32,7 @@ export default {
 
         },
         async getReport() {
-            let res = await httpFunc(`/util/inte/fact_visitas/integraciones:Get_VisitaSF`, { id_visita: 256 });
+            let res = await httpFunc(`/util/inte/fact_visitas/integraciones:Get_VisitaSF`, { id_visita: 306 });
             console.log(res);
         }
     },

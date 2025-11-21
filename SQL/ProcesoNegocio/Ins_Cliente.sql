@@ -28,9 +28,12 @@ set
     @nombreEmpresa = '',
     @nit = '',
     @fechaNacimiento = '',
-    @porcentaje_copropiedad;
+    @porcentaje_copropiedad,
+    @pais_tel1 = NULL,
+    @codigo_tel1 = NULL,
+    @pais_tel2 = NULL,
+    @codigo_tel2 = NULL;
 --END_PARAM
-
 
 if (@is_atencion_rapida = 1) then
 insert into
@@ -71,18 +74,22 @@ else
             email1 = @email1,
             email2 = @email2,
             telefono1 = @telefono1,
+            pais_tel1 = @pais_tel1,
+            codigo_tel1 = @codigo_tel1,
             telefono2 = @telefono2,
+            pais_tel2 = @pais_tel2,
+            codigo_tel2 = @codigo_tel2,
             tipo_documento = @tipoDocumento,
             pais_expedicion = @paisExpedicion,
             departamento_expedicion = @departamentoExpedicion,
             ciudad_expedicion = @ciudadExpedicion,
-            fecha_expedicion = @fechaExpedicion,
+            fecha_expedicion = if(@fechaExpedicion = '', null, @fechaExpedicion),
             is_politica_aceptada = @isPoliticaAceptada,
             is_atencion_rapida = @is_atencion_rapida,
             is_titular = @is_titular,
             nombre_empresa = @nombreEmpresa,
             nit = @nit,
-            fecha_nacimiento = @fechaNacimiento,
+            fecha_nacimiento = if(@fechaNacimiento = '', null, @fechaNacimiento),
             porcentaje_copropiedad = @porcentaje_copropiedad
         where numero_documento = @numeroDocumento;
 
@@ -100,7 +107,11 @@ else
             email1,
             email2,
             telefono1,
+            pais_tel1,
+            codigo_tel1,
             telefono2,
+            pais_tel2,
+            codigo_tel2,
             tipo_documento,
             numero_documento,
             pais_expedicion,
@@ -126,19 +137,23 @@ else
             @email1,
             @email2,
             @telefono1,
+            @pais_tel1,
+            @codigo_tel1,
             @telefono2,
+            @pais_tel2,
+            @codigo_tel2,
             @tipoDocumento,
             @numeroDocumento,
             @paisExpedicion,
             @departamentoExpedicion,
             @ciudadExpedicion,
-            @fechaExpedicion,
+            if(@fechaExpedicion = '', null, @fechaExpedicion),
             @isPoliticaAceptada,
             @is_atencion_rapida,
             @is_titular,
             @nombreEmpresa,
             @nit,
-            @fechaNacimiento,
+            if(@fechaNacimiento = '', null, @fechaNacimiento),
             @porcentaje_copropiedad
         );
 
