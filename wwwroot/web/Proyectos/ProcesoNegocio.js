@@ -223,6 +223,9 @@ export default {
 
             detalle: false,
 
+            ultimaCuotaResultado: 0,
+            ultimaCuotaDigitada: 0,
+
         };
     },
     async mounted() {
@@ -330,6 +333,15 @@ export default {
                 this.valor_credito = 0;
                 return;
             }
+
+            if (this.pagoSeleccionado === 'contado') {
+                this.ingresos_mensuales = '$ 0';
+                this.seleccionAnioEntrega = '';
+                this.caja_compensacion = '';
+                this.valor_subsidio = '0';
+                this.onBlurIngresos();
+            }
+           
 
             const plan = this.tipo_financiacion.find(
                 p => p.tipo_financiacion === this.tipoFinanciacionSeleccionada
@@ -1692,6 +1704,11 @@ export default {
                 return;
             }
             this.tablaAmortizacion = true;
+
+            if(this.ultimaCuotaDigitada !== 0){
+                return;
+            }
+
             const limpiarNumero = (valor) => {
                 if (typeof valor === 'string') {
                     return Number(
@@ -1712,7 +1729,7 @@ export default {
             const diaPE = parseInt(partesPE[2]);
             const fechaPE = new Date(anioPE, mesPE, diaPE);
 
-            const capital = limpiarNumero(this.cuota_inicial);
+            const capital = limpiarNumero(this.cuota_inicial_final);
             const tnaAntes = limpiarNumero(this.d_tna_antes);
             const tnaDespues = limpiarNumero(this.d_tna_despues);
             const n = limpiarNumero(this.d_meses);
@@ -1793,7 +1810,7 @@ export default {
 
                 saldo = saldoFinal;
             }
-            //this.tablaPeriodos = periodos;
+     
         },
         limpiarNumero(valor) {
             if (typeof valor === 'string') {
@@ -1879,16 +1896,46 @@ export default {
 
                 saldoTemp = saldoFinalSig;
             }
-            const ultima = this.tablaPeriodos[this.tablaPeriodos.length - 1];
-            if (ultima && ultima.saldo_final < 1 && ultima.saldo_final > -1) {
-                ultima.saldo_final = 0;
-            } else if (ultima && ultima.saldo_final !== 0 && ultima.saldo_inicial > 0) {
-                const saldoAnterior = ultima.saldo_inicial;
-                const interesUltimo = ultima.intereses;
-                ultima.principal = redondear0(saldoAnterior);
-                ultima.cuota_calculada = redondear0(saldoAnterior + interesUltimo);
-                ultima.saldo_final = 0;
+            if (this.pagoSeleccionado === 'financiado') {
+                const ultima = this.tablaPeriodos[this.tablaPeriodos.length - 1];
+
+                if (ultima) {
+                    const cuotaDeseada = limpiarNumero(ultima.cuota_deseada);
+                    const cuotaCalculada = limpiarNumero(ultima.cuota_calculada);
+                    this.ultimaCuotaDigitada = cuotaDeseada;
+
+                    if (cuotaDeseada > cuotaCalculada) {
+                        const diferencia = cuotaDeseada - cuotaCalculada;
+
+                        ultima.cuota_calculada = -diferencia;
+                        ultima.principal = -diferencia;
+                        ultima.saldo_final = -diferencia;
+                    }
+                }
             }
+            const ultima = this.tablaPeriodos[this.tablaPeriodos.length - 1];
+
+            if (ultima) {
+                if (ultima.saldo_final < 0 && this.pagoSeleccionado === 'financiado') {
+                    this.ultimaCuotaResultado = ultima.saldo_final;
+                    return;
+                }
+
+                if (ultima.saldo_final < 1 && ultima.saldo_final > -1) {
+                    ultima.saldo_final = 0;
+                    this.ultimaCuotaResultado = 0;
+                }
+         
+                else if (ultima.saldo_final !== 0 && ultima.saldo_inicial > 0) {
+                    const saldoAnterior = ultima.saldo_inicial;
+                    const interesUltimo = ultima.intereses;
+                    ultima.principal = redondear0(saldoAnterior);
+                    ultima.cuota_calculada = redondear0(saldoAnterior + interesUltimo);
+                    ultima.saldo_final = 0;
+                    this.ultimaCuotaResultado = 0;
+                }
+            }
+
         },
         formatearMoneda(valor) {
             if (valor === null || valor === undefined || valor === '') {
@@ -1979,6 +2026,7 @@ export default {
         },
         onBlurIngresos() {
             this.editandoIngresos = true;
+            this.ultimaCuotaDigitada = 0;
 
             this.$nextTick(() => {
                 const nuevoMax = this.valor_maxfinanciable;
@@ -2026,7 +2074,7 @@ export default {
                     apellido2: this.ObjCliente.apellido2,
                     numeroDocumento: this.ObjCliente.numeroDocumento,
                     id_cliente: this.ObjCliente.id_cliente,
-                    porcentaje: 0
+                    porcentaje: this.ObjCliente.porcentaje_copropiedad
                 });
             } else {
                 const idx = this.clientes.findIndex(c => c.id_cliente === this.ObjClienteOpcional.id_cliente);
@@ -2046,14 +2094,14 @@ export default {
                         apellido2: item.apellido2,
                         numeroDocumento: item.numero_documento,
                         id_cliente: item.id_cliente,
-                        porcentaje: 0
+                        porcentaje: item.porcentaje_copropiedad
                     });
                 }
             }
 
-            this.clientes.forEach((c, index) => {
-                c.porcentaje = (index === 0) ? 100 : 0;
-            });
+            //this.clientes.forEach((c, index) => {
+            //    c.porcentaje = (index === 0) ? 100 : 0;
+            //});
 
             this.mostrarModalCliente = true;
             // this.limpiarObjClient();
@@ -2289,7 +2337,7 @@ export default {
     watch: {
         tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
         importeActiva() { this.calcularFinanciacion(); },
-        pagoSeleccionado() { this.calcularFinanciacion(); },
+        pagoSeleccionado() { this.calcularFinanciacion();},
         f_valor_reformas: 'onCambioValor',
         visitasFiltradas: {
             handler(val) {
