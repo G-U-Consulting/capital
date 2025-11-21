@@ -775,7 +775,6 @@ export default {
 
             if (ids) {
                 for (const key in data) {
-                    console.log(key, ': ', data[key]);
                     const target = map[key] || key;
                     if (target in this.ObjCliente) {
                         this.ObjCliente[target] = data[key];
@@ -810,7 +809,6 @@ export default {
         async initIntlTel() {
             await Promise.resolve();
             let tel1 = document.getElementById('telefono1'), tel2 = document.getElementById('telefono2');
-            console.log(this.ObjCliente);
             if (tel1) {
                 let iti1 = intlTelInput(tel1, {
                     initialCountry: this.ObjCliente.pais_tel1 || "co",
@@ -820,7 +818,6 @@ export default {
                     const countryData = iti1.getSelectedCountryData();
                     this.ObjCliente.pais_tel1 = countryData.iso2;
                     this.ObjCliente.codigo_tel1 = '+' + countryData.dialCode;
-                    console.log(this.ObjCliente);
                 });
             };
             if (tel2) {
@@ -832,7 +829,6 @@ export default {
                     const countryData = iti2.getSelectedCountryData();
                     this.ObjCliente.pais_tel2 = countryData.iso2;
                     this.ObjCliente.codigo_tel2 = '+' + countryData.dialCode;
-                    console.log(this.ObjCliente);
                 });
             };
         },
