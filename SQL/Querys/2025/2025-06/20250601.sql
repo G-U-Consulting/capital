@@ -37,7 +37,7 @@ create table fact_clientes (
 );
 
 alter table fact_clientes add unique key uk_doc (numero_documento);
-alter table fact_clientes add unique key uk_mail (email1);
+
 
 create table dim_tipo_registro (
     id_tipo_registro int auto_increment primary key,

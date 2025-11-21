@@ -28,10 +28,10 @@
                 <div class="pure-g" style="align-items: center; justify-content: space-between; margin: .5em 0;">
                     <div class="pure-u-md-8-24" style="display: flex; align-items: center;">
                         <input type="text" v-model="cliente" maxlength="100" placeholder="Número de Documento (C.C, NIT, etc. Sin puntos ni espacios)"
-                            class="pure-u-md-22-24"  @keyup.enter="busquedaCliente" />
+                            class="pure-u-md-22-24"  @keyup.enter="busquedaCliente(true)" />
                 
                         <div class="imgGraybutton" style="cursor: pointer;">
-                            <img src="./img/ico/svg/search.svg" @click="busquedaCliente" />
+                            <img src="./img/ico/svg/search.svg" @click="busquedaCliente(true)" />
                         </div>
                     </div>
 
@@ -583,7 +583,7 @@
                                 <th style="width: 15%;">Importe</th>
                                 <th style="width: 15%;">Descuento Base</th>
                                 <th style="width: 10%;">Lista</th>
-                                <th style="width: 5%;">UT</th>
+                                <th style="width: 5%;" title="Inventario terminado">IT</th>
                                 <th style="width: 8%;">Eliminar</th>
                             </tr>
                         </thead>
@@ -599,7 +599,7 @@
                                     {{ formatoMoneda(item.valor_descuento) }}
                                 </td>
                                 <td>{{ item.lista }}</td>
-                                <td style="text-align: center;">{{ item.inv_terminado }}</td>
+                                <td style="text-align: center;">{{ item.inv_terminado == '1' ? 'SI' : 'NO' }}</td>
                                  <td style="text-align: center;">
                                     <span class="delete"
                                         @click.stop.prevent="reqOperation(`Desea eliminar el item? <b></b>.`, dropitem, null, item)"> ✖
@@ -664,7 +664,7 @@
                         <span>¿Con acabados y Reformas?</span>
                         <div class="checkbox-center">
                             <label class="check">
-                                <input type="checkbox" v-model="reformaActivo" />
+                                <input type="checkbox" v-model="reformaActivo" :disabled="reformaAct" />
                                 <span class="checkmark"></span>
                             </label>
                         </div>
@@ -859,14 +859,14 @@
                                 :disabled="!subsidioActivo || pagoSeleccionado === 'contado' || !tipoFinanciacionSeleccionada" />
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-8">
+                    <div class="pure-u-1 pure-u-md-1-12">
                         <div class="formInputStandard">
                             <span>Cesantías</span>
                             <input type="text" style="text-align: right;" v-model="f_valor_cesantias" @keyup="validarFormato"
                                 :disabled="!subsidioActivo || f_ingresos_mensuales == 0" />
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-8">
+                    <div class="pure-u-1 pure-u-md-1-12">
                         <div class="formInputStandard">
                             <span>Ahorros</span>
                             <input type="text" style="text-align: right;" v-model="f_valor_ahorros" @keyup="validarFormato"
@@ -875,32 +875,32 @@
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span>Impor. Max. Financiable</span>
-                            <input style="text-align: right;" type="text" :value="formatoMoneda(valor_maxfinanciable)" disabled>
+                            <span>Financiación máx. permisible</span>
+                            <input style="text-align: right;" type="text" :value="formatoMoneda(valor_maxfinanciable)" disabled title="Financiación máx. permisible ingresos">
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span>Cuota máxima (40% Ingresos)</span>
+                            <span>Cuota mensual permisible</span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(cuotaMaxima)" disabled />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span>Cuota modalidad (70%)</span>
+                            <span>Cuota mes Máx. financiable</span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(valorCreditoMillonFormateado)"
                                 disabled>
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-8">
+                    <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span>Mínimo Familiar</span>
+                            <span>Ingr. Reqs. máx. financiable</span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(minimoFamiliar)" disabled>
                         </div>
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-1">
-                    <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.5em">
+                    <div class="pure-u-1 pure-u-md-1-8" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;"
                                 v-show="pagoSeleccionado === 'financiado'">
@@ -957,95 +957,219 @@
                                             <div class="grid-detalles elegante">
                                                 <div class="card-detalle">
                                                     <div class="card-header">
-                                                        <i class="icon">💼</i>
-                                                        <h3>Separación y escrituración</h3>
+                                                        <h3>IMPORTE TOTAL DE LA OPERACIÓN</h3>
                                                     </div>
                                                     <ul>
-                                                        <li>Valor separación:
-                                                            <span class="valor-badge">{{formatoMoneda(f_valor_separacion)}}</span>
+                                                        <li>
+                                                            <div>
+                                                                Importe Unidades <strong>(A):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(importeOriginal)}}</span>
+                                                            </div>
+                                                        </li>   
+                                                        <li>
+                                                            <div>
+                                                                Acabados <strong>(B):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{ reformaActivo ? formatoMoneda(f_valor_acabados) : '$ 0' }}</span>
+                                                            </div>
                                                         </li>
-                                                        <li>Escrituración y notaría:
-                                                            <span class="valor-badge">{{formatoMoneda(f_valor_escrituras)}}</span>
+                                                        <li>
+                                                            <div>
+                                                                Reformas <strong>(C):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{ reformaActivo ? formatoMoneda(f_valor_reformas) : '$ 0' }}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                Descuento Adicional <strong>(D):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(f_valor_descuento_adicional)}}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                Importe Total <strong>(E):</strong>
+                                                                <div class="formula-pequena">
+                                                                    ((A)+(B)+(C)-(D))
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(importeActiva)}}</span>
+                                                            </div>
                                                         </li>
                                                     </ul>
                                                 </div>
-                                        
+
                                                 <div class="card-detalle">
                                                     <div class="card-header">
-                                                        <i class="icon">💰</i>
-                                                        <h3>Ingresos y aportes iniciales</h3>
+                                                        <h3>IMPORTE MÁXIMO FINANCIABLE Y CUOTA MENSUAL HIPOTECA</h3>
                                                     </div>
                                                     <ul>
-                                                        <li>Cesantías:
-                                                            <span class="valor-badge">{{formatoMoneda(f_valor_cesantias)}}</span>
+                                                        <li>
+                                                            <div>
+                                                                Modalidad Financiación:
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{ tipoFinanciacionSeleccionada || 'N/A' }}</span>
+                                                            </div>
                                                         </li>
-                                                        <li>Ahorros:
-                                                            <span class="valor-badge">{{formatoMoneda(f_valor_ahorros)}}</span>
+                                                        <li>Años Financiación:
+                                                            <span class="valor-badge">{{ anioSeleccionado || 'N/A' }}</span>
                                                         </li>
-                                                        <li>Ingresos familiares:
-                                                            <span class="valor-badge">{{formatoMoneda(f_ingresos_mensuales)}}</span>
+                                                        <li>
+                                                            <div>
+                                                                Factor/millón <strong>(F):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{ factorBanco || 'N/A' }}</span>
+                                                            </div>
                                                         </li>
-                                                        <li>Cuota máx. modal (40%):
+                                                        <li>
+                                                            <div>
+                                                                Máximo Financiable <strong>(G):</strong>
+                                                                <div class="formula-pequena">
+                                                                    70%(A-D)
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(valor_credito_base)}}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li> 
+                                                            <div>
+                                                                Cuota mes Máx. financiable <strong>(H):</strong>
+                                                            
+                                                                <div class="formula-pequena">
+                                                                    (G)x(F) / 1e6
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(valorCreditoMillonFormateado)}}</span>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
+                                                <div class="card-detalle">
+                                                    <div class="card-header">
+                                                        <h3>IMPORTE PERMISIBLE POR INGRESOS DE LA UNIDAD FAMILIAR (UF)</h3>
+                                                    </div>
+                                                    <ul>
+                                                        <li>
+                                                            <div>
+                                                                Ingresos de la Unidad Familiar <strong>(I):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{ formatoMoneda(f_ingresos_mensuales) }}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                Cuota máx. permisible UF <strong style="font-weight: bold;">(J):</strong>
+                                                                <div class="formula-pequena">
+                                                                    40% (I)
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{ formatoMoneda(cuotaMaxima) }}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                Ingresos Reqs. para máx. financiable <strong>(K):</strong>
+                                                                <div class="formula-pequena">
+                                                                    (H) / 40%
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{ formatoMoneda(minimoFamiliar) }}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                Financiación máx. permisible por ingresos UF:
+                                                                <div class="formula-pequena">
+                                                                    Max. permisible (Cuota menor al 40% Ingre. grupo familiar)
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(valor_maxfinanciable)}}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li> Cuota mensual permisible:
                                                             <span class="valor-badge">{{formatoMoneda(cuotaMaxima)}}</span>
                                                         </li>
-                                                        <li>Cuota máx. modal (70%):
-                                                            <span class="valor-badge">{{formatoMoneda(valorCreditoMillonFormateado)}}</span>
-                                                        </li>
-                                                        <li>Mínimo familiar:
-                                                            <span class="valor-badge">{{formatoMoneda(minimoFamiliar)}}</span>
-                                                        </li>
                                                     </ul>
                                                 </div>
-                                        
+
+
                                                 <div class="card-detalle">
                                                     <div class="card-header">
-                                                        <i class="icon">🎁</i>
-                                                        <h3>Subsidio</h3>
+                                                        <h3>SEPARACIÓN Y GASTOS DE ESCRITURA</h3>
                                                     </div>
                                                     <ul>
-                                                        <li>Año: <span class="valor-badge">{{ seleccionAnioEntrega ? seleccionAnioEntrega : 'N/A' }}</span>
+                                                        <li>
+                                                            <div>
+                                                                Separación <strong>(L):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(f_valor_separacion)}}</span>
+                                                            </div>
                                                         </li>
-                                                        <li>Valor: <span class="valor-badge">{{formatoMoneda(valor_subsidio)}}</span>
-                                                        </li>
-                                                        <li>Caja: <span class="valor-badge">{{ nombreCaja(caja_compensacion) || 'N/A' }}</span>
+                                                        <li>
+                                                            <div>
+                                                                Gastos de Escritura <strong>(M):</strong>
+                                                                <div class="formula-pequena">
+                                                                    (M1) + (M2) + (M3)
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(f_valor_escrituras)}}</span>
+                                                            </div>
                                                         </li>
                                                     </ul>
                                                 </div>
                                         
                                                 <div class="card-detalle">
                                                     <div class="card-header">
-                                                        <i class="icon">📄</i>
-                                                        <h3>Modalidad de pago</h3>
+                                                        <h3>SUBSIDIOS, CESANTIAS Y AHORROS</h3>
                                                     </div>
                                                     <ul>
-                                                        <li>Tipo:<span class="valor-badge">{{ pagoSeleccionado || 'N/A' }}</span>
+                                                        <li>
+                                                            <div>
+                                                                Subsidio <strong>(N):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(valor_subsidio)}}</span>
+                                                            </div>
                                                         </li>
-                                                        <li>Entidad: 
-                                                             <span class="valor-badge">{{ nombreBanco(bancoSeleccionado) || 'N/A' }}</span>
+                                                        <li>
+                                                            <div>
+                                                                Cesantias <strong>(O):</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(f_valor_cesantias)}}</span>
+                                                            </div>
                                                         </li>
-                                                        <li>Crédito: <span class="valor-badge">{{unidadSeleccionada}}</span></li>
-                                                        <li>Plazo: <span class="valor-badge">{{ anioSeleccionado || 'N/A' }}</span>
-                                                        </li>
-                                                        <li>Modalidad: <span class="valor-badge">{{ tipoFinanciacionSeleccionada || 'N/A' }}</span>
+                                                        <li>
+                                                            <div>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(f_valor_ahorros)}}</span>
+                                                            </div>
                                                         </li>
                                                     </ul>
                                                 </div>
                                         
                                                 <div class="card-detalle">
                                                     <div class="card-header">
-                                                        <i class="icon">📊</i>
-                                                        <h3>Importes</h3>
-                                                    </div>
-                                                    <ul>
-                                                        <li>Financiado: <span class="valor-badge">{{formatoMoneda(valor_credito_final)}}</span></li>
-                                                        <li>Cuota inicial neta: <span class="valor-badge">{{formatoMoneda(cuota_inicial_final)}}</span></li>
-                                                    </ul>
-                                                </div>
-                                        
-                                                <div class="card-detalle">
-                                                    <div class="card-header">
-                                                        <i class="icon">📅</i>
-                                                        <h3>Fechas estimadas</h3>
+                                                        <h3>FECHAS ESTIMADAS</h3>
                                                     </div>
                                                     <ul>
                                                         <li>Entrega: <span class="valor-badge">{{ d_fecha_entrega || 'N/A' }}</span>
@@ -1070,7 +1194,7 @@
                                                 </div>
                                         
                                                 <div class="infoItem">
-                                                    <b>Máximo financiable (70%)</b>
+                                                    <b>Financiación máx. permisible ingr.</b>
                                                     Corresponde al monto máximo que el banco permite financiar,
                                                     calculado como el 70% del importe total del inmueble.
                                                     Esta regla aplica según la ciudad del proyecto y sus restricciones.
@@ -1091,7 +1215,7 @@
                                                 </div>
                                         
                                                 <div class="infoItem">
-                                                    <b>Cuota modalidad (70%)</b>
+                                                    <b>Cuota mes Máx. financiable</b>
                                                     Es la cuota mensual estimada del crédito hipotecario, calculada
                                                     multiplicando el valor financiado por el factor por millón.
                                                 </div>
@@ -1104,13 +1228,13 @@
                                                 </div>
                                         
                                                 <div class="infoItem">
-                                                    <b>Cuota máxima (40% de ingresos)</b>
+                                                    <b>Cuota mensual permisible</b>
                                                     Es el valor máximo de cuota mensual permitido por la entidad
                                                     financiera. No debe superar el 40% del ingreso familiar mensual.
                                                 </div>
                                         
                                                 <div class="infoItem">
-                                                    <b>Ingreso mínimo familia</b>
+                                                    <b>Ingr. Reqs. máx. financiable</b>
                                                     Es el ingreso que el hogar debe tener para poder asumir la cuota
                                                     proyectada sin exceder el 40% permitido por los bancos.
                                                 </div>
@@ -1782,7 +1906,7 @@
                 <span class="asunto-modal-close" @click="mostrarModalCliente = false">×</span>
                 <h3>Agregar Cliente</h3>
                 <div class="tabla-scroll-content">
-                    <div style="height: 5.5rem; overflow-y: auto; margin-top: 0.1em;">
+                    <div style="height: 9rem; overflow-y: auto; margin-top: 0.1em;">
                         <table class="dataTable">
                             <thead>
                                 <tr>
@@ -1795,13 +1919,13 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(c, index) in clientes" :key="index" @dblclick="seleccionarCliente(c)">
+                                <tr v-for="(c, index) in clientes" :key="index" @dblclick="seleccionarCliente(c, true)">
                                     <td>{{ c.nombres }}</td>
                                     <td>{{ c.apellido1 }}</td>
                                     <td>{{ c.apellido2 }}</td>
                                     <td>{{ c.numeroDocumento }}</td>
                                     <td>
-                                         <input type="text" v-model="c.porcentaje_copropiedad" class="inputInline" />
+                                        <input type="text" v-model="c.porcentaje" class="inputInline" @blur="guardarPorcentaje(c)" />
                                     </td>
                                     <td style="text-align: center;">
                                         <div @click="eliminarCliente(index)" class="delete">✖</div>
@@ -1810,7 +1934,17 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="pure-u-md-1-1" style="text-align: right;margin-top: .2rem;">
+                    <div class='pure-u-1-1 pure-u-md-1-2'>
+                        <div class="pure-u-md-8-24" style="display: flex; align-items: center;">
+                            <input type="text" v-model="clienteOpcional" maxlength="100"
+                                placeholder="Número de Documento (C.C, NIT, etc. Sin puntos ni espacios)" class="pure-u-md-22-24"
+                                @keyup.enter="busquedaCliente(false)" />
+                            <div class="imgGraybutton" style="cursor: pointer;">
+                                <img src="./img/ico/svg/search.svg" @click="busquedaCliente(false)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class='pure-u-1-1 pure-u-md-1-2' style="text-align: right;margin-top: .2rem;">
                         <button @click="agregarCliente">Agregar</button>
                     </div>
                     <div v-if="iscliente">
@@ -1822,27 +1956,27 @@
                             <div class='pure-u-1-1 pure-u-md-1-3'>
                                 <div class='formInputStandard'>
                                     <span>Nombres</span>
-                                    <input type='text' v-model='ObjCliente.nombres' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjClienteOpcional.nombres' maxlen='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Apellido 1</span>
-                                    <input type='text' v-model='ObjCliente.apellido1' maxlen='100'
+                                    <input type='text' v-model='ObjClienteOpcional.apellido1' maxlen='100'
                                         placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Apellido 2</span>
-                                    <input type='text' v-model='ObjCliente.apellido2' maxlen='100'
+                                    <input type='text' v-model='ObjClienteOpcional.apellido2' maxlen='100'
                                         placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Fecha Nacimiento</span>
-                                    <input type='date' v-model='ObjCliente.fechaNacimiento' maxlength='100'
+                                    <input type='date' v-model='ObjClienteOpcional.fechaNacimiento' maxlength='100'
                                         placeholder="Seleccione" />
                                 </div>
                             </div>
@@ -1860,14 +1994,14 @@
                                     <div class='pure-u-1-1 pure-u-md-1-3'>
                                         <div class='formInputStandard'>
                                             <span>Nombre empresa / Representado</span>
-                                            <input type='text' v-model='ObjCliente.nombreEmpresa' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.nombreEmpresa' maxlen='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Cédula / NIT</span>
-                                            <input type='text' v-model='ObjCliente.nit' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.nit' maxlen='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
@@ -1875,63 +2009,63 @@
                                 <div class='pure-u-4-5'>
                                     <div class='formInputStandard'>
                                         <span>Dirección</span>
-                                        <input type='text' v-model='ObjCliente.direccion' maxlength='100'
+                                        <input type='text' v-model='ObjClienteOpcional.direccion' maxlength='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-3'>
                                     <div class='formInputStandard'>
                                         <span>Ciudad</span>
-                                        <input type='text' v-model='ObjCliente.ciudad' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.ciudad' maxlen='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-3'>
                                     <div class='formInputStandard'>
                                         <span>Barrio</span>
-                                        <input type='text' v-model='ObjCliente.barrio' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.barrio' maxlen='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Departamento</span>
-                                        <input type='text' v-model='ObjCliente.departamento' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.departamento' maxlen='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Pais</span>
-                                        <input type='text' v-model='ObjCliente.pais' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.pais' maxlen='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-3'>
                                     <div class='formInputStandard'>
                                         <span>Email 1</span>
-                                        <input type='text' v-model='ObjCliente.email1' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.email1' maxlen='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-3'>
                                     <div class='formInputStandard'>
                                         <span>Email 2</span>
-                                        <input type='text' v-model='ObjCliente.email2' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.email2' maxlen='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Telefono 1 / Indicativo</span>
-                                        <input type='text' v-model='ObjCliente.telefono1' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.telefono1' maxlen='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Telefono 2 / Indicativo</span>
-                                        <input type='text' v-model='ObjCliente.telefono2' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.telefono2' maxlen='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
@@ -1942,7 +2076,7 @@
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Tipo Documento</span>
-                                            <select v-model='ObjCliente.tipoDocumento'>
+                                            <select v-model='ObjClienteOpcional.tipoDocumento'>
                                                 <option value='' selected>Seleccione</option>
                                                 <option value='CC'>Cédula de Ciudadanía</option>
                                                 <option value='TI'>Tarjeta de Identidad</option>
@@ -1956,35 +2090,35 @@
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Número Documento</span>
-                                            <input type='text' v-model='ObjCliente.numeroDocumento' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.numeroDocumento' maxlen='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>País Expedición</span>
-                                            <input type='text' v-model='ObjCliente.paisExpedicion' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.paisExpedicion' maxlen='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Depart. Expedición</span>
-                                            <input type='text' v-model='ObjCliente.departamentoExpedicion' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.departamentoExpedicion' maxlen='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Ciudad Expedición</span>
-                                            <input type='text' v-model='ObjCliente.ciudadExpedicion' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.ciudadExpedicion' maxlen='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Fecha Expedición</span>
-                                            <input type='date' v-model='ObjCliente.fechaExpedicion' maxlen='100'
+                                            <input type='date' v-model='ObjClienteOpcional.fechaExpedicion' maxlen='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
@@ -1992,11 +2126,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
+                    <!-- <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
                         <div lass="pure-u-auto">
                             <button class="pure-button button-fixed" @click="addCliente" >Guardar</button>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -2010,7 +2144,7 @@
                 <button class="pure-button button-fixed" @click="handleNext(mode - 1)">Volver</button>
             </div> -->
             <div v-if="mode == 0" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="nuevoCliente" v-else >Guardar</button>
+                <button class="pure-button button-fixed" @click="nuevoCliente(0)" v-else >Guardar</button>
             </div>
             <div v-if="mode == 1" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="nuevaVisita">Guardar</button>
