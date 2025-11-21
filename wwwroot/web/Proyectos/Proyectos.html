@@ -1,10 +1,12 @@
 <div class="pure-g">
     <div v-if="lateralMenu" style="position:relative">
-        <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}" :style="{right: (showList?'-20.3vw':'-2.3vw') }">
+        <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}"
+            :style="{right: (showList?'-20.3vw':'-2.3vw') }">
             <img src="../../img/ico/deploy.png">
         </div>
     </div>
-    <div v-if="lateralMenu" class="pure-u-1-1 pure-u-md-1-5" :style="{display:showList?'block':'none'}" :class="['lateralMenuContainer', { open: showList }]">
+    <div v-if="lateralMenu" class="pure-u-1-1 pure-u-md-1-5" :style="{display:showList?'block':'none'}"
+        :class="['lateralMenuContainer', { open: showList }]">
         <div class="lateralMenu">
             <div class="lateralMenuHeader">
             </div>
@@ -14,27 +16,27 @@
                         Administración de Proyectos
                     </div>
                     <div v-on:click="setMainMode('EdicionProyectos')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'EdicionProyectos'}" id="MenuItemEdicion">
+                        v-bind:class="{'lateralMenuItemSelected': mainmode == 'EdicionProyectos'}" id="MenuItemEdicion">
                         <img src="./img/ico/svg/sidebar/Información Básica.svg" />
                         Información Básica
                     </div>
                     <div v-on:click="setMainMode('Medios')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Medios'}">
+                        v-bind:class="{'lateralMenuItemSelected': mainmode == 'Medios'}">
                         <img src="./img/ico/svg/media.svg" />
                         Imágenes y Vídeos
                     </div>
                     <div v-on:click="setMainMode('Unidades')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Unidades'}">
+                        v-bind:class="{'lateralMenuItemSelected': mainmode == 'Unidades'}">
                         <img src="./img/ico/svg/sidebar/Torres y Unidades.svg" />
                         Torres y Unidades
                     </div>
                     <div v-on:click="setMainMode('Documentacion')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Documentacion'}">
+                        v-bind:class="{'lateralMenuItemSelected': mainmode == 'Documentacion'}">
                         <img src="./img/ico/svg/sidebar/Documentación.svg" />
                         Documentación
                     </div>
                     <div v-on:click="setMainMode('Bancos')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Bancos'}">
+                        v-bind:class="{'lateralMenuItemSelected': mainmode == 'Bancos'}">
                         <img src="./img/ico/svg/Maestro/Bancos.svg" />
                         Administrar Bancos
                     </div>
@@ -44,17 +46,17 @@
                         Gestión Comercial
                     </div>
                     <div v-on:click="setMainMode('Recorridos')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Recorridos'}">
+                        v-bind:class="{'lateralMenuItemSelected': mainmode == 'Recorridos'}">
                         <img src="./img/ico/tour.jpg" />
                         Recorridos Virtuales
                     </div>
                     <div v-on:click="setMainMode('Rotafolio')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'Rotafolio'}">
+                        v-bind:class="{'lateralMenuItemSelected': mainmode == 'Rotafolio'}">
                         <img src="./img/ico/svg/sidebar/Rotafolio.svg" />
                         Rotafolio de Proyectos
                     </div>
-                    <div v-on:click="setMainMode('ProcesoNegocio')" class="lateralMenuItem noSelect"
-                         v-bind:class="{'lateralMenuItemSelected': mainmode == 'ProcesoNegocio'}">
+                    <div v-on:click="selSalaVenta" class="lateralMenuItem noSelect"
+                        v-bind:class="{'lateralMenuItemSelected': mainmode == 'ProcesoNegocio'}">
                         <img src="./img/ico/svg/sidebar/Proceso de negocio.svg" />
                         Proceso de negocio
                     </div>
@@ -95,6 +97,24 @@
             </div>
         </div>
         <div id="projectsMainContent"></div>
+
+        <div class="cal-modal-overlay" id="modalOverlaySala">
+            <div class="modal-container" style="min-width: 450px; max-width: 450px;">
+                <h2 style="text-align: center; margin-bottom: .5rem;">Selección Sala de Ventas</h2>
+                <div class="pure-g" style="height: 85px; align-content: center;">
+                    <div class="pure-u-1-2 formInputStandard">
+                        <select v-model="sala">
+                            <option :value="{}">[Sala de Venta]</option>
+                            <option v-for="s in salas" :value="s">{{s.sala_venta}}</option>
+                        </select>
+                    </div>
+                    <div class="pure-u-1-2 formInputStandard" style="text-align: center;">
+                        <button @click="setSalaSesion" class="pure-button pure-button-primary">Aceptar</button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
 
     </div>
 </div>

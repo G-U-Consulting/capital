@@ -1,71 +1,37 @@
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 
 namespace capital.Code.Inte.Salesforce;
 
-public class Visita
+public class Visita : Salesforce<Visita>
 {
-    public Visita(JObject Jobj)
+    public Visita(string tipo, string subtipo, string datos) : base(tipo, subtipo, datos)
     {
-        typeof(Visita).GetProperties().ToList().ForEach(prop =>
-        {
-            var value = Jobj[prop.Name];
-            if (value != null)
-                prop.SetValue(this, value.ToObject(prop.PropertyType));
-        });
+        route = "/services/apexrest/v1/Capital/CustomersAndProjects/customer";
     }
-
-    private long? _document;
-    private string? _typeDoc;
-    private string? _cityLead;
-    private string? _expeditionDate;
     private string? _email;
-    private int? _mobilePhone;
     private DateOnly? _birthDate;
-    private string? _registerType;
-    private string? _disposeToInvest;
-    private string? _attentionReason;
-    private string? _reasonPurchase;
     private DateOnly? _visitedDate;
 
     public string? firstName { get; set; }
     public string? lastName { get; set; }
     public string? company { get; set; }
-    public long? document
+    public string _document
     {
-        get => _document;
         set
         {
-            if (value != null && value < 0)
+            var len = value.Length;
+            if (len < 4 || len > 16)
                 throw new ArgumentException("Número documento inválido");
-            _document = value;
+            mobilePhone = long.Parse(value);
         }
     }
-    public string? typeDoc
-    {
-        get => _typeDoc;
-        set
-        {
-            string[] allowed = ["Cedula de Ciudadania", "Cedula de Extranjeria", "Pasaporte" ];
-            if (value != null && !allowed.Contains(value))
-                throw new ArgumentException("Tipo de documento inválido");
-            _typeDoc = value;
-        }
-    }
-    public string? cityLead
-    {
-        get => _cityLead;
-        set
-        {
-            string[] allowed = ["Bogotá", "Medellín" ];
-            if (value != null && !allowed.Contains(value))
-                throw new ArgumentException("Ciudad (lead) inválida");
-            _cityLead = value;
-        }
-    }
+    public long document { get; set; }
+    public string? typeDoc { get; set; }
+    public string? cityLead { get; set; }
     public string? countryExpedition { get; set; }
     public string? departmentExpedition { get; set; }
     public string? cityExpedition { get; set; }
+    private string? _expeditionDate;
     public string? expeditionDate
     {
         get => _expeditionDate;
@@ -91,20 +57,21 @@ public class Visita
         }
     }
     public string? indicative { get; set; }
-    public int? mobilePhone
+    public string? _mobilePhone
     {
-        get => _mobilePhone;
         set
         {
             if (value != null)
             {
-                var len = value.Value.ToString().Length;
+                var len = value.Length;
                 if (len < 7 || len > 10)
                     throw new ArgumentException("Número de teléfono móvil inválido");
+                mobilePhone = long.Parse(value);
             }
-            _mobilePhone = value;
+            else mobilePhone = null;
         }
     }
+    public long? mobilePhone { get; set; }
     public DateOnly? birthDate
     {
         get => _birthDate;
@@ -119,51 +86,25 @@ public class Visita
     public string? department { get; set; }
     public string? direction { get; set; }
     public string? countryResidence { get; set; }
+    public string? _AuthorizeData
+    {
+        set
+        {
+            AuthorizeData = value == "1";
+        }
+    }
     public bool? AuthorizeData { get; set; }
-    public string? disposeToInvest 
-    {
-        get => _disposeToInvest;
-        set
-        {
-            string[] allowed = ["Menos de $2.400.000", "$2.400.001 a $4.800.000", "$4.800.001 a $7.200.000",
-            "$7.200.001 a $10.400.000", "$10.400.001 a $12.000.000", "Más de $12.000.000" ];
-            if (value != null && !allowed.Contains(value))
-                throw new ArgumentException("Disposición a invertir inválida");
-            _disposeToInvest = value;
-        }
-    }
-    public string? registerType
-    {
-        get => _registerType;
-        set
-        {
-            string[] allowed = ["Presencial", "Telefónico", "Whatsapp", "Email", "Videollamada"];
-            if (value != null && !allowed.Contains(value))
-                throw new ArgumentException("Tipo de registro inválido");
-            _registerType = value;
-        }
-    }
-    public string? attentionReason
-    {
-        get => _attentionReason;
-        set
-        {
-            string[] allowed = ["Atención rápida", "Info Comercial de Proyecto", "Cierre de negocio", "Trámites"];
-            if (value != null && !allowed.Contains(value))
-                throw new ArgumentException("Motivo de atención inválido");
-            _attentionReason = value;
-        }
-    }
+    public string? disposeToInvest { get; set; }
+    public string? registerType { get; set; }
+    public string? attentionReason { get; set; }
     public string? IdClient { get; set; }
-    public string? reasonPurchase
+    public string? reasonPurchase { get; set; }
+
+    public string? _visitedSalesRoom
     {
-        get => _reasonPurchase;
         set
         {
-            string[] allowed = ["Primera vivienda", "Segunda vivienda", "Cierre de negocio", "Inversión"];
-            if (value != null && !allowed.Contains(value))
-                throw new ArgumentException("Motivo de compra inválido");
-            _reasonPurchase = value;
+            visitedSalesRoom = value == "1";
         }
     }
     public bool? visitedSalesRoom { get; set; }
@@ -186,4 +127,5 @@ public class Visita
             return new(@"[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})", RegexOptions.IgnoreCase);
         else return _EmailRegex;
     }
+
 }

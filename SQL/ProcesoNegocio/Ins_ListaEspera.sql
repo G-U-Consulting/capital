@@ -80,7 +80,7 @@ select
 	@tiene_acabados;
 
 set @id_lista = last_insert_id();
-insert into cola_tareas_rpa(tipo, datos) 
-values('sf_lista_espera', concat('{id_lista:', @id_lista, '}'));
+insert into cola_tareas_rpa(tipo, llave) 
+values('fact_lista_espera', @id_lista);
 
 select concat('OK-id_lista:', @id_lista) as result;

@@ -21,7 +21,11 @@ select a.id_visita,
       a.id_presupuesto_vivienda,
       a.id_tipo_tramite,
       a.is_active,
-      (
+      t.id_tipo_registro as tipo_registro,
+      t.tipo_registro as nombre_tipo_registro,
+      ma.id_modo_atencion as modo_atencion,
+      ma.modo_atencion as nombre_modo_atencion
+      /* (
         select group_concat(id_tipo_registro)
         from fact_tipo_registro
         where id_visita = a.id_visita
@@ -42,12 +46,14 @@ select a.id_visita,
         from fact_modo_atencion b
         join dim_modo_atencion d on b.id_modo_atencion = d.id_modo_atencion
         where b.id_visita = a.id_visita
-      ) as nombre_modo_atencion
+      ) as nombre_modo_atencion */
 from fact_visitas a
 left join fact_clientes b on a.id_cliente = b.id_cliente
 left join dim_motivo_compra e on a.id_motivo_compra = e.id_motivo_compra
 left join dim_referencias f on a.id_referencia = f.id_referencia
 left join fact_proyectos g on a.id_proyecto = g.id_proyecto
+join dim_modo_atencion ma on a.id_modo_atencion = ma.id_modo_atencion
+join dim_tipo_registro t on a.id_tipo_registro = t.id_tipo_registro
 where (
   b.numero_documento = @cliente
   or a.id_visita = @id_visita

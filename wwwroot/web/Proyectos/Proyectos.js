@@ -3,6 +3,8 @@ export default {
         return {
             mainmode: 0,
             ruta: [],
+            salas: [],
+            sala: {},
             proyecto: null,
             fileSelected: null,
             lateralMenu: false,
@@ -55,7 +57,7 @@ export default {
             }, ...subpath];
         },
 
-        async setProyecto(id,subLoc) {
+        async setProyecto(id, subLoc) {
             var resp = await httpFunc("/generic/genericDT/Proyectos:Get_Proyecto", { "id_proyecto": id });
             this.proyecto = resp.data[0];
             this.setMainMode(subLoc);
@@ -64,6 +66,35 @@ export default {
             GlobalVariables.id_cliente = this.id_cliente;
             GlobalVariables.id_cotizacion = this.id_cotizacion;
             GlobalVariables.cotizacion = this.cotizacion;
+        },
+
+        async selSalaVenta() {
+            if (!GlobalVariables.sala) {
+                showProgress();
+                if (!this.salas || !this.salas.length)
+                    this.salas = (await httpFunc("/generic/genericDT/Proyectos:Get_Salas", { "id_proyecto": this.proyecto.id_proyecto })).data;
+                if (this.salas.length === 0)
+                    showMessage("Debe asignar este proyecto a una sala de ventas");
+                if (this.salas.length === 1) {
+                    GlobalVariables.sala = this.salas[0];
+                    this.setMainMode('ProcesoNegocio');
+                }
+                if (this.salas.length > 1) {
+                    let $modal = document.getElementById('modalOverlaySala');
+                    $modal && ($modal.style.display = 'flex');
+                }
+                hideProgress();
+            }
+            else this.setMainMode('ProcesoNegocio');
+        },
+        setSalaSesion() {
+            if (this.sala && this.sala.id_sala_venta) {
+                GlobalVariables.sala = this.sala;
+                let $modal = document.getElementById('modalOverlaySala');
+                $modal && ($modal.style.display = 'none');
+                this.setMainMode('ProcesoNegocio');
+            }
+            else showMessage('Seleccione una sala de ventas');
         },
 
         async setMainMode(mode, sel = false) {
@@ -80,7 +111,7 @@ export default {
 
             let ruta = [];
             if (mode !== 'InicioProyecto' || sel) {
-                ruta.push({ text: this.getPathName(mode), action: () => {} });
+                ruta.push({ text: this.getPathName(mode), action: () => { } });
             }
             this.setRuta(ruta);
         },

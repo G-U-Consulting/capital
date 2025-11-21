@@ -10,6 +10,9 @@ using orca.Code.Logger;
 using System.Data;
 using Microsoft.AspNetCore.DataProtection;
 using System.Text.RegularExpressions;
+using capital.Code.Inte.Salesforce;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -90,13 +93,14 @@ app.Map("/generic/{op}/{sp}", async (HttpRequest request, HttpResponse response,
 }).WithName("Generic").RequireAuthorization();
 app.Map("/util/reports/{view}/{type?}", async (HttpRequest request, HttpResponse response, string view, string? type) => {
     bool isCsv = type == "csv";
-    try {
+    try
+    {
         response.ContentType = isCsv ? "text/csv" : "application/json";
         JObject obj = [];
         obj.Add("view", view);
         string pars = obj.ToString();
         string json;
-        JObject jres = (JObject) await Generic.ProcessRequest(request, response, "genericDT", "Dashboard/Get_Dashboard", pars, rootPath);
+        JObject jres = (JObject)await Generic.ProcessRequest(request, response, "genericDT", "Dashboard/Get_Dashboard", pars, rootPath);
         if (jres["isError"] != null && (bool)jres["isError"])
             throw new Exception(jres["errorMessage"]?.ToString() ?? jres["data"]?.ToString());
         else json = jres["data"]?.ToString() ?? "[]";
@@ -106,7 +110,9 @@ app.Map("/util/reports/{view}/{type?}", async (HttpRequest request, HttpResponse
             return WebBDUt.ToCsv(dt);
         }
         else return json;
-    } catch (Exception ex) {
+    }
+    catch (Exception ex)
+    {
         Logger.Log("generic/reports/Dashboard/Get_Dashboard" + "    " + ex.Message + Environment.NewLine + ex.StackTrace);
         response.StatusCode = 500;
         return ex.Message + Environment.NewLine + ex.StackTrace;
@@ -410,4 +416,21 @@ app.Map("/api/uploaddocs/{**folder}", async (string folder, HttpContext context,
     }
     return Results.Ok(new { message = "✅ ¡Archivos actualizados!", data });
 }).DisableAntiforgery();
+app.Map("/util/inte/{tipo}/{subtipo}", async (HttpRequest request, HttpResponse response, string tipo, string subtipo) => {
+    string body = "";
+    try {
+        response.ContentType = "application/json";
+        StreamReader stream = new(request.Body);
+        body = await stream.ReadToEndAsync();
+        subtipo = subtipo.Replace(':', '/');
+        Console.Write("body: \t" + body);
+        Visita v = await Salesforce<Visita>.CreateAsync(tipo, subtipo, body, request, response, rootPath);
+        await v.Request();
+        return JsonConvert.SerializeObject(v);
+    } catch (Exception ex) {
+        Logger.Log("util/inte    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
+        response.StatusCode = 500;
+        return ex.Message + Environment.NewLine + ex.StackTrace;
+    }
+}).WithName("util");
 app.Run();
