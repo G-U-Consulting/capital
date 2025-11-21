@@ -2,7 +2,7 @@
 -- Proceso: Clientes/Get_Cuentas
 -- =============================================
 --START_PARAM
-set @id_venta = NULL;
+set @id_venta = 15;
 --END_PARAM
 
 select co.*, c.numero_documento, c.nombres, c.apellido1, c.apellido2,

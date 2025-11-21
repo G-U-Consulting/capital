@@ -42,6 +42,10 @@ export default {
                 nit: '',
                 fechaNacimiento: '',
                 porcentaje_copropiedad: '',
+                pais_tel1: 'co',
+                pais_tel2: 'co',
+                codigo_tel1: '+57',
+                codigo_tel2: '+57'
             },
             ObjClienteOpcional: {
                 id_cliente: '',
@@ -72,6 +76,10 @@ export default {
                 nit: '',
                 fechaNacimiento: '',
                 porcentaje_copropiedad: '',
+                pais_tel1: 'co',
+                pais_tel2: 'co',
+                codigo_tel1: '+57',
+                codigo_tel2: '+57'
             },
             ObjVisita: {
                 id_proyecto: '',
@@ -690,6 +698,10 @@ export default {
                     nombreEmpresa: '',
                     nit: '',
                     fechaNacimiento: '',
+                    pais_tel1: 'co',
+                    pais_tel2: 'co',
+                    codigo_tel1: '+57',
+                    codigo_tel2: '+57'
                 }
             }
             if (this.mode == 1) {
@@ -763,6 +775,7 @@ export default {
 
             if (ids) {
                 for (const key in data) {
+                    console.log(key, ': ', data[key]);
                     const target = map[key] || key;
                     if (target in this.ObjCliente) {
                         this.ObjCliente[target] = data[key];
