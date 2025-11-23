@@ -467,10 +467,10 @@
                 }
             });
 
-            var tFSeleccionada = proyecto.id_tipo_financiacion;
-            this.tiposFinanciacion.forEach(item => {
-                item.checked = tFSeleccionada ? (item.id_tipo_financiacion == tFSeleccionada) : false;
-            });
+            // var tFSeleccionada = proyecto.id_tipo_financiacion;
+            // this.tiposFinanciacion.forEach(item => {
+            //     item.checked = tFSeleccionada ? (item.id_tipo_financiacion == tFSeleccionada) : false;
+            // });
 
             var oVSeleccionada = proyecto.id_opcion_visual;
             this.opcionesVisuales.forEach(item => {
@@ -483,6 +483,14 @@
             this.estado_publicacion.forEach(item => {
                 const id = parseInt(item.id_estado_publicacion);
                 item.checked = estadopublicacion.includes(id);
+            });
+
+            const listaTiposFinanciacion = (proyecto.tipos_financiacion || '')
+                .split(',')
+                .map(id => parseInt(id));
+            this.tiposFinanciacion.forEach(item => {
+                const id = parseInt(item.id_tipo_financiacion);
+                item.checked = listaTiposFinanciacion.includes(id);
             });
 
             const listaContructor = (proyecto.banco_constructor || '')
@@ -517,6 +525,7 @@
                 estado_publicacion: this.estado_publicacion.filter(x => x.checked).map(x => x.id_estado_publicacion),
                 banco_constructor: this.banco_constructor.filter(x => x.checked).map(x => x.id_banco_constructor),
                 bancos_financiador: this.bancos_financiador.filter(x => x.checked).map(x => x.id_bancos_financiador),
+                
                 salas_venta: this.salas_venta.filter(x => x.checked).map(x => x.id_sala_venta),
 
             };
@@ -651,9 +660,14 @@
             if (oVs != null)
                 this.objProyecto.id_opcion_visual = oVs.id_opcion_visual;
 
-            var tFn = this.tiposFinanciacion.find(item => { return item.checked });
-            if (tFn != null)
-                this.objProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
+            // var tFn = this.tiposFinanciacion.find(item => { return item.checked });
+            // if (tFn != null)
+            //     this.objProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
+
+            const tipoFinanciacion = this.tiposFinanciacion.find(item => item.checked);
+            if (tipoFinanciacion) {
+                this.objProyecto.id_tipo_financiacion = tipoFinanciacion.id_tipo_financiacion;
+            }
 
             const bancoConstructor = this.banco_constructor.find(item => item.checked);
             if (bancoConstructor) {
@@ -676,10 +690,14 @@
                 .map(item => item.id_estado_publicacion);
             this.objProyecto.estado_publicacion = estadopublicacion.join(',');
 
+             const tiposFinanciacion = this.tiposFinanciacion
+                .filter(item => item.checked)
+                .map(item => item.id_tipo_financiacion);
+            this.objProyecto.tiposFinanciacion = tiposFinanciacion.join(',');
+
             const bancosconstructor = this.banco_constructor
                 .filter(item => item.checked)
                 .map(item => item.id_banco_constructor);
-
             this.objProyecto.banco_constructor = bancosconstructor.join(',');
 
             const bancosSeleccionados = this.bancos_financiador
@@ -814,10 +832,11 @@
             if (oVs != null)
                 this.editObjProyecto.id_opcion_visual = oVs.id_opcion_visual;
 
-            var tFn = this.tiposFinanciacion.find(item => { return item.checked });
-            if (tFn != null)
-                this.editObjProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
+            // var tFn = this.tiposFinanciacion.find(item => { return item.checked });
+            // if (tFn != null)
+            //     this.editObjProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
 
+           
             const tipo = this.tipo
                 .filter(item => item.checked)
                 .map(item => item.id_tipo_proyecto);
@@ -828,7 +847,12 @@
                 .filter(item => item.checked)
                 .map(item => item.id_estado_publicacion);
             this.editObjProyecto.estado_publicacion = estadopublicacion.join(',');
-            
+
+            const tipoFinanciacion = this.tiposFinanciacion.find(item => item.checked);
+            if (tipoFinanciacion) {
+                this.objProyecto.id_tipo_financiacion = tipoFinanciacion.id_tipo_financiacion;
+            }
+
             const bancoConstructor = this.banco_constructor.find(item => item.checked);
             if (bancoConstructor) {
                 this.objProyecto.id_banco_constructor = bancoConstructor.id_banco_constructor;
@@ -839,6 +863,10 @@
                 this.objProyecto.id_bancos_financiadores = bancoFinanciador.id_bancos_financiador;
             }
 
+            const tiposFinanciacion = this.tiposFinanciacion
+                .filter(item => item.checked)
+                .map(item => item.id_tipo_financiacion);
+            this.editObjProyecto.tiposFinanciacion = tiposFinanciacion.join(',');
 
             const bancosconstructor = this.banco_constructor
                 .filter(item => item.checked)

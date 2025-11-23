@@ -76,3 +76,8 @@ from fact_unidades u
 join dim_tipo_proyecto tp on u.id_clase = tp.id_tipo_proyecto
 where u.id_proyecto = @id_proyecto
 group by tp.id_tipo_proyecto;
+
+select b.id_tipo_financiacion , tipo_financiacion
+from fact_tipos_financiacion a
+join dim_tipo_financiacion b on a.id_tipo_financiacion = b.id_tipo_financiacion
+where id_proyecto = @id_proyecto;
