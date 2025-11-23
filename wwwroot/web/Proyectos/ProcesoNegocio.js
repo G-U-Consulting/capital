@@ -255,6 +255,7 @@ export default {
         this.tipo_tramite = resp.data[7];
         this.planes_pago = resp.data[8];
         this.tipo_financiacion = respa.data[6];
+        this.meses = respa.data[7][0].meses_ci;
         this.banco_financiador = resp.data[10];
         this.tipo_factor = resp.data[11];
         this.cajas_compensacion = resp.data[12];
@@ -340,13 +341,15 @@ export default {
                 this.valor_subsidio = 0;
             }
         },
-        calcularFinanciacion() {
+        async calcularFinanciacion() {
 
             if (!this.tipoFinanciacionSeleccionada || !this.importeOriginal) {
-                this.cuota_inicial = 0;
-                this.valor_credito = 0;
+                this.ingresos_mensuales = 0;
+                this.valor_credito_final = 0;
+                this.cuota_inicial_final = 0;
                 return;
             }
+
 
             if (this.pagoSeleccionado === 'contado') {
                 this.ingresos_mensuales = '$ 0';
@@ -355,20 +358,7 @@ export default {
                 this.valor_subsidio = '0';
                 this.onBlurIngresos();
             }
-
-            if (this._ultimoTipoFinanciacion !== this.tipoFinanciacionSeleccionada) {
-                this.ingresos_mensuales = 0;
-                this.valor_credito_final = 0;
-                this.cuota_inicial_final = 0;
-
-
-
-                this.$nextTick(() => {
-                    if (this.$refs.inputIngresos) this.$refs.inputIngresos.blur();
-                });
-
-                this._ultimoTipoFinanciacion = this.tipoFinanciacionSeleccionada;
-            }
+          
 
             const plan = this.tipo_financiacion.find(
                 (p) => p.tipo_financiacion === this.tipoFinanciacionSeleccionada
@@ -418,6 +408,9 @@ export default {
 
             this.cuota_inicial_base = this.cuota_inicial;
             this.valor_credito_base = this.valor_credito;
+            if (this.ingresos_mensuales) {
+                this.onBlurIngresos();
+            }
         },
 
         calcularPlanPago() {
@@ -1456,13 +1449,29 @@ export default {
             this.anioSeleccionado = "";
             this.listaAnios = [];
             this.unidadSeleccionada = 0;
+            this.tipoFinanciacionSeleccionada = '';
 
             if (!this.bancoSeleccionado || this.bancoSeleccionado === 0) {
                 this.unidadSeleccionada = 0;
                 this.anioSeleccionado = "";
                 this.unidadesDisponibles = [];
+                this.tipoFinanciacionSeleccionada = '';
                 return;
             }
+
+            if (this._ultimoTipoFinanciacion !== this.bancoSeleccionado) {
+                this.ingresos_mensuales = 0;
+                this.valor_credito_final = 0;
+                this.cuota_inicial_final = 0;
+
+                this.$nextTick(() => {
+                    if (this.$refs.inputIngresos) this.$refs.inputIngresos.blur();
+                });
+
+                this._ultimoTipoFinanciacion = this.bancoSeleccionado;
+            }
+
+            
 
             if (!this.bancoSeleccionado) return;
 
@@ -1689,11 +1698,11 @@ export default {
             meses += entrega.getMonth() - cuota.getMonth();
             meses = Math.max(0, meses - 2);
 
-            if (this.d_meses !== meses) {
-                this.d_meses = meses;
+            if (meses > this.meses) {
+                meses = this.meses;
             }
 
-            this.meses_max = meses;
+            this.d_meses = meses;
         },
         validarMeses(value) {
             const num = Number(value);
@@ -2246,10 +2255,6 @@ export default {
             if (!this.valorCreditoMillon) return 0;
             return this.valorCreditoMillon;
         },
-        f_ingresos_mensuales() {
-            if (!this.valorCreditoMillon) return 0;
-            return this.ingresos_mensuales;
-        },
         valor_maxfinanciable() {
             const ingresos = parseInt(this.f_ingresos_mensuales.toString().replace(/\D/g, '')) || 0;
             const factor = this.factorBanco || 0;
@@ -2367,7 +2372,7 @@ export default {
         }
     },
     watch: {
-        tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
+        // tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
         importeActiva() { this.calcularFinanciacion(); },
         pagoSeleccionado() { this.calcularFinanciacion();},
         f_valor_reformas: 'onCambioValor',

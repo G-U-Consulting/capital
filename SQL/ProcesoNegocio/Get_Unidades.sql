@@ -2,7 +2,7 @@
 -- Proceso: ProcesoNegocio/Get_Unidades
 -- =============================================
 --START_PARAM
-set @id_proyecto = 1;
+set @id_proyecto = 3;
 
 --END_PARAM
 select id_torre, id_proyecto, consecutivo, orden_salida, en_venta, aptos_piso, aptos_fila, id_sinco, 
@@ -80,4 +80,8 @@ group by tp.id_tipo_proyecto;
 select b.id_tipo_financiacion , tipo_financiacion
 from fact_tipos_financiacion a
 join dim_tipo_financiacion b on a.id_tipo_financiacion = b.id_tipo_financiacion
+where id_proyecto = @id_proyecto;
+
+select meses_ci
+from fact_proyectos
 where id_proyecto = @id_proyecto;

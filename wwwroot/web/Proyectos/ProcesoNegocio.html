@@ -859,7 +859,7 @@
                         <div class="formInputStandard">
                             <span>Ingresos Familiares</span>
                             <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
-                                @keyup="validarFormato" @blur="onBlurIngresos"
+                                @keyup="validarFormato" @blur="onBlurIngresos" @keyup="validarFormato"
                                 :disabled="!subsidioActivo || pagoSeleccionado === 'contado' || !tipoFinanciacionSeleccionada" />
                         </div>
                     </div>
@@ -1406,7 +1406,7 @@
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Meses</span>
-                        <input type="text" style="text-align: right;" v-model="d_meses" @input="validarMeses(d_meses)" />
+                        <input type="text" style="text-align: right;" v-model="d_meses" @input="validarMeses($event.target.value)" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
@@ -1441,11 +1441,15 @@
                                         <td>
                                             <input type="text" v-model="fila.cuota_deseada" @input="recalcularFila(index)"
                                                 class="input-cuota"
-                                                :class="{'input-modificado': fila.cuota_deseada && Number(fila.cuota_deseada.toString().replace(/\D/g, '')) > 0}"
+                                                :class="{'input-modificado': (fila.cuota_deseada !== null &&fila.cuota_deseada !== '' &&!isNaN(Number(fila.cuota_deseada.toString().replace(/\D/g, ''))))}"
                                                 @keyup="validar(index)" />
                                         </td>
                                         <td style="text-align: right;">{{ formatoMoneda(fila.cuota_calculada) }}</td>
-                                        <td style="text-align: right;">{{ formatoMoneda(fila.saldo_final) }}</td>
+                                        <td :class="{
+                                            'texto-negativo': Number(fila.saldo_final.toString().replace(/[^0-9.-]/g, '')) < 0
+                                          }" style="text-align: right;">
+                                            {{ formatoMoneda(fila.saldo_final) }}
+                                        </td>
                                         <td><input type="text" class="input-cuota"></td>
                                     </tr>
                                 </tbody>
