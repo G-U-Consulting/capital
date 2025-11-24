@@ -2,7 +2,7 @@
 -- Proceso: Integraciones/Get_VisitaSF
 -- =============================================
 --START_PARAM
-set @id_visita = 360;
+set @id_visita = NULL;
 --END_PARAM
 
 select c.nombres as `firstName`, concat(coalesce(c.apellido1, ''), ' ', concat(coalesce(c.apellido2, ''))) as `lastName`, null as `company`,

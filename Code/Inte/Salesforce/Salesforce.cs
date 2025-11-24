@@ -7,47 +7,32 @@ using orca.Code.Api;
 
 namespace capital.Code.Inte.Salesforce;
 
-public abstract class Salesforce<T> where T : Salesforce<T>
+public abstract class Salesforce<T>(string? subtipo, string? datos) where T : Salesforce<T>
 {
-    protected Salesforce(string tipo, string subtipo, string datos)
-    {
-        this.tipo = tipo;
-        this.subtipo = subtipo;
-        this.datos = datos;
-    }
     static Salesforce()
     {
         DotEnv.Load();
     }
     protected static string? instance_url { get; set; }
     protected static string? token { get; set; }
-    protected string? tipo { get; set; }
-    protected string? subtipo { get; set; }
-    protected string? datos { get; set; }
+    protected string? subtipo { get; set; } = subtipo;
+    protected string? datos { get; set; } = datos;
     private JObject? JData { get; set; }
     protected string? route { get; set; }
 
 
-    public static async Task<T> CreateAsync(string tipo, string subtipo, string datos,
-        HttpRequest request, HttpResponse response, string rootPath)
+    public static T CreateAsync(string subtipo, string datos)
     {
-        try
-        {
-            var inst = Activator.CreateInstance(typeof(T), tipo, subtipo, datos) as T
-                ?? throw new InvalidOperationException($"Could not create instance of type {typeof(T).FullName}");
-            await inst.LoadData(request, response, datos, rootPath);
-            return inst;
-        }
-        catch (Exception)
-        {
-            throw;
-        }
+        return Activator.CreateInstance(typeof(T), subtipo, datos) as T
+            ?? throw new InvalidOperationException($"Could not create instance of type {typeof(T).FullName}");
+        //await inst.LoadData(datos, rootPath);
+        //return await inst.Build();
     }
-    private async Task LoadData(HttpRequest request, HttpResponse response, string body, string rootPath)
+    public async Task<T> LoadData(string rootPath)
     {
         try
         {
-            var resData = await Generic.ProcessRequest(request, response, "genericDT", subtipo, body, rootPath);
+            JToken resData = await Generic.ProcessRequest(null, null, "genericDT", subtipo, datos, rootPath);
             if (resData != null)
             {
                 var content = resData["data"];
@@ -61,9 +46,11 @@ public abstract class Salesforce<T> where T : Salesforce<T>
             if (JData == null) throw new Exception("No se encontró el registro");
             else
             {
+                Console.WriteLine("JsonData: \n" + JData.ToString());
                 if (this is not T target) throw new InvalidOperationException("La instancia actual no es del tipo genérico");
                 JsonConvert.PopulateObject(JData.ToString(), target);
             }
+            return (T)this;
         }
         catch(Exception)
         {
@@ -96,7 +83,7 @@ public abstract class Salesforce<T> where T : Salesforce<T>
             token = obj["access_token"]?.ToString();
         }
     }
-    public async Task<JToken?> Request()
+    private async Task<JToken?> Request()
     {
         if (instance_url == null || token == null)
             await GetAccess();
@@ -114,4 +101,23 @@ public abstract class Salesforce<T> where T : Salesforce<T>
         instance_url = null;
         token = null;
     }
+
+    public async Task<JToken?> Send()
+    {
+        JToken? res = await Request();
+        if (res != null && res is JArray)
+        {
+            JToken? jt = res[0];
+            if (jt is JObject obj)
+            {
+                if (obj["errorCode"]?.ToString() == "INVALID_SESSION_ID")
+                {
+                    resetSession();
+                    res = await Request();
+                }
+            }
+        }
+        return res;
+    }
+
 }

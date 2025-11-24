@@ -11,6 +11,7 @@ using System.Data;
 using Microsoft.AspNetCore.DataProtection;
 using System.Text.RegularExpressions;
 using capital.Code.Inte.Salesforce;
+using capital.code.Util;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
@@ -30,6 +31,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddDataProtection()
         .PersistKeysToDbContext<AuthDBContext>()
         .SetApplicationName("Capital");
+//builder.Services.AddSingleton(sp => new WorkerTareas(builder.Environment.ContentRootPath));
+//builder.Services.AddHostedService(sp => sp.GetRequiredService<WorkerTareas>());
+
 var app = builder.Build();
 /*
  * Add-Migration AddDataProtectionKeysTable
@@ -416,33 +420,5 @@ app.Map("/api/uploaddocs/{**folder}", async (string folder, HttpContext context,
     }
     return Results.Ok(new { message = "✅ ¡Archivos actualizados!", data });
 }).DisableAntiforgery();
-app.Map("/util/inte/{tipo}/{subtipo}", async (HttpRequest request, HttpResponse response, string tipo, string subtipo) => {
-    string body = "";
-    try {
-        response.ContentType = "application/json";
-        StreamReader stream = new(request.Body);
-        body = await stream.ReadToEndAsync();
-        subtipo = subtipo.Replace(':', '/');
-        Visita v = await Salesforce<Visita>.CreateAsync(tipo, subtipo, body, request, response, rootPath);
-        JToken? res = await v.Request();
-        if (res != null && res is JArray)
-        {
-            JToken? jt = res[0];
-            if (jt is JObject obj)
-            {
-                if (obj["errorCode"]?.ToString() == "INVALID_SESSION_ID")
-                {
-                    Salesforce<Visita>.resetSession();
-                    res = await v.Request();
-                }
-            }
-        }
 
-        return JsonConvert.SerializeObject(res);
-    } catch (Exception ex) {
-        Logger.Log("util/inte    " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
-        response.StatusCode = 500;
-        return ex.Message + Environment.NewLine + ex.StackTrace;
-    }
-}).WithName("util");
 app.Run();

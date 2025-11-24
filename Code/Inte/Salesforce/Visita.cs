@@ -4,7 +4,7 @@ namespace capital.Code.Inte.Salesforce;
 
 public class Visita : Salesforce<Visita>
 {
-    public Visita(string tipo, string subtipo, string datos) : base(tipo, subtipo, datos)
+    public Visita(string subtipo, string datos) : base(subtipo, datos)
     {
         route = "/services/apexrest/v1/Capital/CustomersAndProjects/customer";
     }

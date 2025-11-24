@@ -3,23 +3,14 @@ using System.Text.RegularExpressions;
 
 namespace capital.Code.Inte.Salesforce;
 
-public class ListaEspera
+public class ListaEspera : Salesforce<ListaEspera>
 {
-    public ListaEspera(JObject Jobj)
+    public ListaEspera(string subtipo, string datos) : base(subtipo, datos)
     {
-        typeof(ListaEspera).GetProperties().ToList().ForEach(prop =>
-        {
-            var value = Jobj[prop.Name];
-            if (value != null)
-                prop.SetValue(this, value.ToObject(prop.PropertyType));
-        });
-        Validate();
+        route = "/services/apexrest/v1/Capital/CustomersAndProjects/waitingList";
     }
 
     private string? _clientSalesforceId;
-    /// <summary>
-    /// Obligatorio si docPotentialClient es null.
-    /// </summary>
     public string? clientSalesforceId
     {
         get => _clientSalesforceId;
@@ -33,9 +24,6 @@ public class ListaEspera
     }
 
     private string? _docPotentialClient;
-    /// <summary>
-    /// Obligatorio si clientSalesforceId es null. Debe ser numérico.
-    /// </summary>
     public string? docPotentialClient
     {
         get => _docPotentialClient;
@@ -56,9 +44,6 @@ public class ListaEspera
     }
 
     private string? _idInterestedProyect;
-    /// <summary>
-    /// Id del proyecto interesado (Obligatorio).
-    /// </summary>
     public string? idInterestedProyect
     {
         get => _idInterestedProyect;
@@ -71,9 +56,6 @@ public class ListaEspera
     }
 
     private string? _idApartment;
-    /// <summary>
-    /// Id del apartamento (opcional).
-    /// </summary>
     public string? idApartment
     {
         get => _idApartment;
@@ -87,9 +69,6 @@ public class ListaEspera
     }
 
     private DateOnly? _dateInterested;
-    /// <summary>
-    /// Fecha de interés (opcional). Si se provee debe ser posterior a 2000-01-01.
-    /// </summary>
     public DateOnly? dateInterested
     {
         get => _dateInterested;
@@ -105,9 +84,6 @@ public class ListaEspera
     {
         if (string.IsNullOrWhiteSpace(clientSalesforceId) && string.IsNullOrWhiteSpace(docPotentialClient))
             throw new ArgumentException("Debe proveerse clientSalesforceId o docPotentialClient.");
-
-        if (string.IsNullOrWhiteSpace(idInterestedProyect))
-            throw new ArgumentException("idInterestedProyect es obligatorio.");
     }
     private static Regex? _DocRegex = null;
     private static Regex DocRegex()

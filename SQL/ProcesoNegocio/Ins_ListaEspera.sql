@@ -79,8 +79,8 @@ select
 	@tiene_deposito,
 	@tiene_acabados;
 
-set @id_lista = last_insert_id();
-insert into cola_tareas_rpa(tipo, llave) 
-values('fact_lista_espera', @id_lista);
+set @listid = last_insert_id();
+insert into cola_tareas_rpa(tipo, sub_tipo, datos) 
+values('salesforce', 'ListaEsperaSF', concat('{"id_lista":', @listid, '}'));
 
-select concat('OK-id_lista:', @id_lista) as result;
+select concat('OK-id_lista:', @listid) as result;

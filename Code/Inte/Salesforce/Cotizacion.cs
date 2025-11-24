@@ -2,16 +2,11 @@ using Newtonsoft.Json.Linq;
 
 namespace capital.Code.Inte.Salesforce;
 
-public class Cotizacion
+public class Cotizacion : Salesforce<Cotizacion>
 {
-    public Cotizacion(JObject Jobj)
+    public Cotizacion(string subtipo, string datos) : base(subtipo, datos)
     {
-        typeof(Cotizacion).GetProperties().ToList().ForEach(prop =>
-        {
-            var value = Jobj[prop.Name];
-            if (value != null)
-                prop.SetValue(this, value.ToObject(prop.PropertyType));
-        });
+        route = "/services/apexrest/v1/Capital/CustomersAndProjects/quoteApartment";
     }
 
     private static readonly string[] AllowedQuoteStates = ["Cotizado", "Opcionado", "Consignado", "Desistimiento", "Cierre"];
@@ -58,50 +53,46 @@ public class Cotizacion
         }
     }
     public string? view { get; set; }
-    private decimal _grossPrice;
-    public decimal grossPrice
+    public string? _grossPrice
     {
-        get => _grossPrice;
         set
         {
-            if (value <= 0)
-                throw new ArgumentException("grossPrice es obligatorio y debe ser mayor que 0.");
-            _grossPrice = value;
+            if (!string.IsNullOrWhiteSpace(value))
+                grossPrice = long.Parse(value);
+            else throw new ArgumentException("Precio Bruto inválido");
         }
     }
-    private decimal _netPrice;
-    public decimal netPrice
+    public long grossPrice { get; set; }
+    public string _netPrice
     {
-        get => _netPrice;
         set
         {
-            if (value <= 0)
-                throw new ArgumentException("netPrice es obligatorio y debe ser mayor que 0.");
-            _netPrice = value;
+            if (!string.IsNullOrWhiteSpace(value))
+                netPrice = long.Parse(value);
+            else throw new ArgumentException("Precio Neto inválido");
         }
     }
-    private double? _discount;
-    public double? discount
+    public long netPrice { get; set; }
+    public string? _discount
     {
-        get => _discount;
         set
         {
-            if (value.HasValue && value < 0)
-                throw new ArgumentException("discount no puede ser negativo.");
-            _discount = value;
+            if (!string.IsNullOrWhiteSpace(value))
+                discount = double.Parse(value);
+            else discount = null;
         }
     }
-    private decimal? _m2Value;
-    public decimal? m2Value
+    public double? discount { get; set; }
+    public string? _m2Value
     {
-        get => _m2Value;
         set
         {
-            if (value.HasValue && value <= 0)
-                throw new ArgumentException("m2Value debe ser mayor que 0 si se provee.");
-            _m2Value = value;
+            if (!string.IsNullOrWhiteSpace(value))
+                m2Value = long.Parse(value);
+            else m2Value = null;
         }
     }
+    public long? m2Value { get; set; }
 
     public string? listPrice { get; set; }
     public string? financialBank { get; set; }

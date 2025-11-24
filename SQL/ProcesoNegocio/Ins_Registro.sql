@@ -72,7 +72,7 @@ set @id_visita = last_insert_id();
         end while;
     end if;
  */
-insert into cola_tareas_rpa(tipo, llave) 
-values('fact_visitas', @id_visita);
+insert into cola_tareas_rpa(tipo, sub_tipo, datos) 
+values('salesforce', 'VisitaSF', concat('{"id_visita":', @id_visita, '}'));
 
 select concat('OK-id_visita:', @id_visita) as result;

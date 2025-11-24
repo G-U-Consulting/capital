@@ -70,6 +70,15 @@ from fact_torres t
 where t.consecutivo = convert(@torre using utf8mb4) collate utf8mb4_unicode_ci
 limit 1;
 
+set @inserted = last_insert_id();
 
-select concat('ok-id_archivo:', last_insert_id(), ' ', 'insert') as result;
+select id_clase into @id_clase from fact_unidades where id_unidad = @id_unidad;
+
+if @id_clase = 8 then
+    insert into cola_tareas_rpa(tipo, sub_tipo, datos) 
+    values('salesforce', 'CotizacionSF', 
+        concat('{"id_cotizacion":', @id_cotizacion, ',"id_unidad":', @id_unidad, '}'));
+end if;
+
+select concat('OK-id_negocios_unidades:', @inserted) as result;
 

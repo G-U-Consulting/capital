@@ -4,13 +4,13 @@ using System.Data;
 namespace orca.Code.Api {
     public static class Generic {
         private static int Version = -1;
-        public static async Task<JToken> ProcessRequest(HttpRequest request, HttpResponse response, string op, string sp, string body, string rootPath) {
+        public static async Task<JToken> ProcessRequest(HttpRequest? request, HttpResponse? response, string op, string sp, string body, string rootPath) {
             if (Version == -1)
                 Version = int.Parse(ConfigurationManager.AppSetting["Version"]);
             string ver = null;
             string fileName = null;
             if (ver != null && int.Parse(ver) < Version) {
-                response.StatusCode = 205;
+                if (response != null) response.StatusCode = 205;
                 return new JObject();
             }
             try {
