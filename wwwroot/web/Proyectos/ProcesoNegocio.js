@@ -244,6 +244,7 @@ export default {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
         let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {});
+        let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {id_proyecto: GlobalVariables.id_proyecto});
         this.categoria = resp.data[0];
         this.medio = resp.data[1];
         this.motivo_compra = resp.data[2];
@@ -253,7 +254,8 @@ export default {
         this.presupuesto_vivienda = resp.data[6];
         this.tipo_tramite = resp.data[7];
         this.planes_pago = resp.data[8];
-        this.tipo_financiacion = resp.data[9];
+        this.tipo_financiacion = respa.data[6];
+        this.meses = respa.data[7][0].meses_ci;
         this.banco_financiador = resp.data[10];
         this.tipo_factor = resp.data[11];
         this.cajas_compensacion = resp.data[12];
@@ -339,12 +341,15 @@ export default {
                 this.valor_subsidio = 0;
             }
         },
-        calcularFinanciacion() {
+        async calcularFinanciacion() {
+
             if (!this.tipoFinanciacionSeleccionada || !this.importeOriginal) {
-                this.cuota_inicial = 0;
-                this.valor_credito = 0;
+                this.ingresos_mensuales = 0;
+                this.valor_credito_final = 0;
+                this.cuota_inicial_final = 0;
                 return;
             }
+
 
             if (this.pagoSeleccionado === 'contado') {
                 this.ingresos_mensuales = '$ 0';
@@ -353,12 +358,17 @@ export default {
                 this.valor_subsidio = '0';
                 this.onBlurIngresos();
             }
-           
+          
 
             const plan = this.tipo_financiacion.find(
-                p => p.tipo_financiacion === this.tipoFinanciacionSeleccionada
+                (p) => p.tipo_financiacion === this.tipoFinanciacionSeleccionada
             );
-            if (!plan || !plan.tipo_financiacion) return;
+
+            if (!plan || !plan.tipo_financiacion) {
+                this.cuota_inicial = 0;
+                this.valor_credito = 0;
+                return;
+            }
 
             const match = plan.tipo_financiacion.match(/(\d+)[^\d]+(\d+)/);
             if (!match) {
@@ -367,35 +377,42 @@ export default {
                 return;
             }
 
-            const [_, pctInicial, pctCredito] = match.map(Number);
+            const pctInicial = Number(match[1]);
+            const pctCredito = Number(match[2]);
 
-            const baseCredito = this.toNumber(this.importeOriginal - this.toNumber(this.valor_descuento_adicional)) * (pctCredito / 100);
+            const importeOriginalNumber = this.toNumber(this.importeOriginal);
+            const descuentoAdicionalNumber = this.toNumber(this.valor_descuento_adicional);
 
-            const baseInicial = this.toNumber(this.importeOriginal) * (pctInicial / 100);
+            const baseCredito =
+                (importeOriginalNumber - descuentoAdicionalNumber) * (pctCredito / 100);
+
+            const baseInicial = importeOriginalNumber * (pctInicial / 100);
 
             const cuotaInicialTotal =
-                this.toNumber(this.importeActiva) -
-                this.toNumber(baseCredito)
+                this.toNumber(this.importeActiva) - baseCredito;
 
+            let totalAportes =
+                this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
 
-            let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
-            if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
+            if (String(this.pagoSeleccionado).toLowerCase() === "financiado") {
                 totalAportes += this.toNumber(this.valor_subsidio);
             }
 
             if (totalAportes >= cuotaInicialTotal) {
-                const excedente = totalAportes - cuotaInicialTotal;
                 this.cuota_inicial = 0;
                 this.valor_credito = Math.max(Math.round(baseCredito), 0);
             } else {
                 this.cuota_inicial = Math.round(cuotaInicialTotal);
                 this.valor_credito = Math.round(baseCredito);
             }
+
             this.cuota_inicial_base = this.cuota_inicial;
             this.valor_credito_base = this.valor_credito;
-
-
+            if (this.ingresos_mensuales) {
+                this.onBlurIngresos();
+            }
         },
+
         calcularPlanPago() {
             if (!this.planSeleccionado || !this.importeOriginal) {
                 this.cuota_inicial = 0;
@@ -472,7 +489,7 @@ export default {
 
             if (this.mode === 2 && nextIndex === 3) {
                 this.reformaAct = false;
-                if (this.unidades[0].inv_terminado == 1) {
+                if (this.unidades[0]?.inv_terminado == 1) {
                     this.reformaAct = true;
                     this.reformaActivo = true;
                 }
@@ -584,71 +601,6 @@ export default {
             this.iscliente = true;
             this.initIntlTel(this.ObjClienteOpcional);
         },
-        // async guardarClientes() {
-        //     if (!this.policyAccepted) {
-        //         showMessage("Debe aceptar la política para continuar.");
-        //         return;
-        //     }
-
-        //     if (!this.clientes || this.clientes.length === 0) {
-        //         showMessage("Debe agregar al menos un cliente antes de guardar.");
-        //         return;
-        //     }
-
-        //     const totalPorcentaje = this.clientes.reduce((sum, c) => {
-        //         const valor = parseFloat(c.porcentaje_copropiedad) || 0;
-        //         return sum + valor;
-        //     }, 0);
-
-        //     if (totalPorcentaje > 100) {
-        //         showMessage("No se debe pasar el 100% del porcentaje.");
-        //         return;
-        //     }
-
-        //     showProgress(true);
-        //     let guardados = 0;
-        //     let errores = 0;
-        //     const batchSize = 5;
-
-        //     try {
-        //         for (let i = 0; i < this.clientes.length; i += batchSize) {
-        //             const lote = this.clientes.slice(i, i + batchSize);
-        //             try {
-        //                 const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_ClientesAgrupado', {
-        //                     clientes_json: JSON.stringify(lote)
-        //                 });
-
-        //                 if (resp.data[0][0].result.includes("OK")) {
-        //                     guardados += lote.length;
-        //                 } else {
-        //                     errores += lote.length;
-        //                     console.warn("Error al guardar lote:", lote, result);
-        //                 }
-        //             } catch (error) {
-        //                 errores += lote.length;
-        //                 console.error("Error al guardar lote:", lote, error);
-        //             }
-        //         }
-
-        //         if (guardados > 0 && errores === 0) {
-        //             showMessage(`Clientes guardados correctamente (${guardados}).`);
-        //             this.isboton = true;
-        //             this.mode = 1;
-        //             this.israpida = false;
-        //             this.policyAccepted = false;
-        //             this.acceptPolicy(true);
-        //         } else if (guardados > 0 && errores > 0) {
-        //             showMessage(`Se guardaron ${guardados} clientes, pero ${errores} tuvieron errores.`);
-        //         } else {
-        //             showMessage("Error al guardar los clientes.");
-        //         }
-        //     } catch (error) {
-        //         console.error("Error general:", error);
-        //         showMessage("Error general al guardar los clientes.");
-        //     } finally {
-        //         showProgress(false);
-        //     }
-        // },
         async agregarCliente() {
             if (!this.validarCampos(this.ObjClienteOpcional, this.camposObligatorios)) return;
 
@@ -903,6 +855,7 @@ export default {
                                 formatter: (data) => data?.[0] ? `/file/S3get/${data[0].llave}` : null
                             }
                         ];
+
 
                         const [resProyecto, resPlanta] = await Promise.all(
                             consultas.map((q) => httpFunc(q.url, q.params))
@@ -1496,13 +1449,29 @@ export default {
             this.anioSeleccionado = "";
             this.listaAnios = [];
             this.unidadSeleccionada = 0;
+            this.tipoFinanciacionSeleccionada = '';
 
             if (!this.bancoSeleccionado || this.bancoSeleccionado === 0) {
                 this.unidadSeleccionada = 0;
                 this.anioSeleccionado = "";
                 this.unidadesDisponibles = [];
+                this.tipoFinanciacionSeleccionada = '';
                 return;
             }
+
+            if (this._ultimoTipoFinanciacion !== this.bancoSeleccionado) {
+                this.ingresos_mensuales = 0;
+                this.valor_credito_final = 0;
+                this.cuota_inicial_final = 0;
+
+                this.$nextTick(() => {
+                    if (this.$refs.inputIngresos) this.$refs.inputIngresos.blur();
+                });
+
+                this._ultimoTipoFinanciacion = this.bancoSeleccionado;
+            }
+
+            
 
             if (!this.bancoSeleccionado) return;
 
@@ -1642,39 +1611,21 @@ export default {
         },
         cargarAnios() {
             if (!this.unidadSeleccionada) {
-                a
                 this.listaAnios = [];
                 return;
             }
-            this.tipo_financiacion;
-            this.listaAnios = [
-                ...new Set(
-                    this.factoresBanco
-                        .filter(f => f.unidad === this.unidadSeleccionada)
-                        .filter(f => f.valor != 0)
-                        .map(f => f.factor)
-                )
-            ].sort((a, b) => parseInt(a) - parseInt(b));
 
-            const seleccionada = this.unidadSeleccionada;
-            let tiposFiltrados = this.tipo_financiacion;
+            const factores = this.factoresBanco.filter(f =>
+                f.unidad === this.unidadSeleccionada && f.valor != 0
+            );
 
-            if (seleccionada === 'COP' || seleccionada === 'UVR') {
-                tiposFiltrados = this.tipo_financiacion.filter(
-                    tipo => !tipo.tipo_financiacion.includes('Leasing')
-                );
-            }
-            else if (seleccionada.includes('LEASING')) {
-                tiposFiltrados = this.tipo_financiacion.filter(
-                    tipo => !tipo.tipo_financiacion.includes('Crédito')
-                );
-            }
-            else {
-                tiposFiltrados = this.tipo_financiacion;
-            }
+            this.listaAnios = [...new Set(
+                factores.map(f => parseInt(String(f.factor).replace(/\D/g, ''), 10))
+            )].sort((a, b) => a - b);
 
-            this.tipo_financiacion = tiposFiltrados;
+
         },
+
         async isSubsidio() {
             let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Poyecto', {
                 id_proyecto: GlobalVariables.id_proyecto
@@ -1747,11 +1698,11 @@ export default {
             meses += entrega.getMonth() - cuota.getMonth();
             meses = Math.max(0, meses - 2);
 
-            if (this.d_meses !== meses) {
-                this.d_meses = meses;
+            if (meses > this.meses) {
+                meses = this.meses;
             }
 
-            this.meses_max = meses;
+            this.d_meses = meses;
         },
         validarMeses(value) {
             const num = Number(value);
@@ -1882,6 +1833,7 @@ export default {
         },
         recalcularFila(index) {
             const limpiarNumero = this.limpiarNumero;
+            this.ultimaCuotaResultado = 0;
 
             const redondear0 = (num) => Math.round(num);
 
@@ -1978,6 +1930,8 @@ export default {
             if (ultima) {
                 if (ultima.saldo_final < 0 && this.pagoSeleccionado === 'financiado') {
                     this.ultimaCuotaResultado = ultima.saldo_final;
+                    this.valorCreditoBase = limpiarNumero(this.valor_credito_final);
+                    // this.valor_credito_final = this.valorCreditoBase + limpiarNumero(this.ultimaCuotaResultado);
                     return;
                 }
 
@@ -2074,7 +2028,7 @@ export default {
                 let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_FactorMillon', {
                     id_banco: this.bancoSeleccionado,
                     unidadSeleccionada: this.unidadSeleccionada,
-                    anioSeleccionado: this.anioSeleccionado,
+                    anioSeleccionado: this.anioSeleccionado + ' años',
                     tipo_factor: this.tipo_factor
                 });
                 this.factorBanco = resp.data[0][0].valor;
@@ -2174,19 +2128,37 @@ export default {
                 return;
             }
 
+            const valor = Number(c.porcentaje);
+
+            if (isNaN(valor) || valor < 0) {
+                showMessage("El porcentaje no es válido.", 2);
+                c.porcentaje = '';
+                return;
+            }
+
+            const suma = this.clientes
+                .filter(x => x !== c)
+                .reduce((acc, x) => acc + Number(x.porcentaje || 0), 0);
+
+            const total = suma + valor;
+
+            if (total > 100) {
+                showMessage("La suma total de porcentajes no puede superar el 100%.", 2);
+                c.porcentaje = ''; 
+            }
+        
             try {
                 const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Upd_Cotizacion_Cliente',
                     {
                         id_cliente: c.id_cliente,
-                        porcentaje: c.porcentaje
+                        porcentaje: valor
                     }
                 );
-                
+
             } catch (e) {
                 console.error("Error guardando porcentaje", e);
             }
         },
-
 
         async addCliente() {
             const consulta = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cliente', {
@@ -2393,10 +2365,14 @@ export default {
         f_ingresos_mensuales: {
             get() { return this.formatNumber(this.ingresos_mensuales, false); },
             set(val) { this.ingresos_mensuales = this.cleanNumber(val); }
+        },
+        f_factorBanco:{
+            get() { return this.formatNumber(this.factorBanco, false); },
+            set(val) { this.factorBanco = this.cleanNumber(val); }
         }
     },
     watch: {
-        tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
+        // tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
         importeActiva() { this.calcularFinanciacion(); },
         pagoSeleccionado() { this.calcularFinanciacion();},
         f_valor_reformas: 'onCambioValor',

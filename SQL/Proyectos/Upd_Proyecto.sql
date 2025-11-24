@@ -3,7 +3,7 @@
 -- =============================================
 --START_PARAM
 set 
-    @id_proyecto = 0,
+    @id_proyecto = 3,
 
     @nombre = '',
     @direccion = '',
@@ -16,7 +16,7 @@ set
     @otra_info = '',
     @id_bancos_financiador = 0,
     @id_banco_constructor = 0,
-   
+    @id_banco_financiador = 0,
 
 
     @subsidios_vis = '',
@@ -29,7 +29,6 @@ set
     @meta_ventas = '',
     @email_coordinacion_sala = '',
     @id_pie_legal = 0,
-    @id_tipo_financiacion = 0,
     @id_tipo_vis = 0,
 
     @centro_costos = '',
@@ -70,7 +69,8 @@ set
     @bancos_financiadores = '',
     @banco_constructor = '',
     @estado_publicacion = '',
-    @tipo_proyecto = '';
+    @tipo_proyecto = '',
+    @tiposFinanciacion= '';
 --END_PARAM
 
 update fact_proyectos
@@ -93,7 +93,6 @@ set
     email_cotizaciones = @email_cotizaciones,
     meta_ventas = @meta_ventas,
     id_pie_legal = nullif(@id_pie_legal, 0),
-    id_tipo_financiacion = nullif(@id_tipo_financiacion, 0),
     id_tipo_vis = nullif(@id_tipo_vis, 0),
     id_banco_constructor = nullif(@id_banco_constructor, 0),
     id_bancos_financiador = nullif(@id_bancos_financiador, 0),
@@ -220,6 +219,30 @@ set
         execute stmt;
         deallocate prepare stmt;
 
+        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
+        while @i <= @n do
+            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
+            if @item <> '' then
+                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
+                prepare stmt from @sql;
+                execute stmt;
+                deallocate prepare stmt;
+            end if;
+            set @i = @i + 1;
+        end while;
+    end if;
+
+    set @datos = @tiposFinanciacion;
+    set @tabla = 'fact_tipos_financiacion';
+    set @campo = 'id_tipo_financiacion';
+    set @i = 1;
+    
+    if trim(@datos) <> '' then
+        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
+        prepare stmt from @sql;
+        execute stmt;
+        deallocate prepare stmt;
+    
         set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
         while @i <= @n do
             set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));

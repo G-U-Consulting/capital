@@ -92,7 +92,12 @@ select
         select group_concat(id_sala_venta)
         from fact_sala_venta
         where id_proyecto = a.id_proyecto
-    ) as salas_venta
+    ) as salas_venta,
+    (
+        select group_concat(id_tipo_financiacion)
+        from fact_tipos_financiacion
+        where id_proyecto = a.id_proyecto
+    ) as tipos_financiacion
 
 from fact_proyectos a
 join dim_tipo_proyecto b on a.id_tipo_proyecto = b.id_tipo_proyecto

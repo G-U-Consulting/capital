@@ -135,6 +135,16 @@ create table fact_banco_constructor (
         references dim_banco_constructor(id_banco)
 );
 
+create table fact_tipos_financiacion( 
+    id_proyecto int not null,
+    id_tipo_financiacion int not null,
+    primary key (id_proyecto, id_tipo_financiacion),
+    constraint fk_ftf_proyecto foreign key (id_proyecto) 
+        references fact_proyectos(id_proyecto),
+    constraint fk_ftf_fing foreign key (id_tipo_financiacion) 
+        references dim_tipo_financiacion(id_tipo_financiacion)
+);
+
 create table fact_banco_financiador (
     id_proyecto int not null,
     id_banco_financiador int not null,
