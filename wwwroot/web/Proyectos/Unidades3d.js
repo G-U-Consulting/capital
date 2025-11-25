@@ -960,6 +960,10 @@
 							apto.apartamento = apto[k];
 							delete apto[k];
 						}
+						else if (k === 'za1_id') {
+							apto['ID_apartamento'] = apto[k];
+							delete apto[k];
+						}
 						else if (k === 'idtorre') {
 							apto.torre = apto[k];
 							delete apto[k];

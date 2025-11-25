@@ -1133,6 +1133,8 @@ export default {
                 });
 
                 id_cotizacion = resp.data[0][0].id_cotizacion;
+                if (id_cotizacion && id_cotizacion.includes(':'))
+                    id_cotizacion = id_cotizacion.split(':')[1];
 
             }
             this.cotizaciones.push({

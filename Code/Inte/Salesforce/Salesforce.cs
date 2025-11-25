@@ -4,10 +4,11 @@ using dotenv.net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using orca.Code.Api;
+using orca.Code.Logger;
 
 namespace capital.Code.Inte.Salesforce;
 
-public abstract class Salesforce<T>(string? subtipo, string? datos) where T : Salesforce<T>
+public abstract class Salesforce<T>(string subtipo, string datos, string rootPath) where T : Salesforce<T>
 {
     static Salesforce()
     {
@@ -17,18 +18,17 @@ public abstract class Salesforce<T>(string? subtipo, string? datos) where T : Sa
     protected static string? token { get; set; }
     protected string? subtipo { get; set; } = subtipo;
     protected string? datos { get; set; } = datos;
+    protected string? rootPath { get; set; } = rootPath;
     private JObject? JData { get; set; }
     protected string? route { get; set; }
 
 
-    public static T CreateAsync(string subtipo, string datos)
+    public static T CreateAsync(string subtipo, string datos, string rootPath)
     {
-        return Activator.CreateInstance(typeof(T), subtipo, datos) as T
+        return Activator.CreateInstance(typeof(T), subtipo, datos, rootPath) as T
             ?? throw new InvalidOperationException($"Could not create instance of type {typeof(T).FullName}");
-        //await inst.LoadData(datos, rootPath);
-        //return await inst.Build();
     }
-    public async Task<T> LoadData(string rootPath)
+    public async Task<T> LoadData()
     {
         try
         {
@@ -52,8 +52,9 @@ public abstract class Salesforce<T>(string? subtipo, string? datos) where T : Sa
             }
             return (T)this;
         }
-        catch(Exception)
+        catch(Exception ex)
         {
+            Logger.Log("Inte.Salesforce.LoadData" + "   "+ subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
             throw;
         }
     }
@@ -72,7 +73,8 @@ public abstract class Salesforce<T>(string? subtipo, string? datos) where T : Sa
         FormUrlEncodedContent body = new(pars);
 
         if (url == null) throw new Exception("No se configuró la conexión con Salesforce");
-        HttpResponseMessage response = await client.PostAsync(url, body);
+        using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
+        HttpResponseMessage response = await client.PostAsync(url, body, cts.Token);
         string res = await response.Content.ReadAsStringAsync();
         Console.WriteLine("\nauth: \t" + res);
         JObject? obj = JsonConvert.DeserializeObject<JObject>(res);
@@ -92,9 +94,12 @@ public abstract class Salesforce<T>(string? subtipo, string? datos) where T : Sa
         string data = JsonConvert.SerializeObject(this);
         data = System.Text.RegularExpressions.Regex.Replace(data, @"""_[^""]*"":""?[^,""]*""?,?", "");
         Console.WriteLine("\ndata: \t" + data);
-        string res = await WebUt.WebRequest(instance_url + route, HttpMethod.Post, data, "application/json", headers);
+        using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
+        string res = await WebUt.WebRequest(instance_url + route, HttpMethod.Post, data, "application/json", cts.Token, headers);
         Console.WriteLine("\nsalesforce res: \t" + res);
-        return JsonConvert.DeserializeObject<JToken>(res);
+        JToken? jRes = JsonConvert.DeserializeObject<JToken>(res);
+        await UpdateData(jRes);
+        return jRes;
     }
     public static void resetSession()
     {
@@ -105,19 +110,28 @@ public abstract class Salesforce<T>(string? subtipo, string? datos) where T : Sa
     public async Task<JToken?> Send()
     {
         JToken? res = await Request();
-        if (res != null && res is JArray)
-        {
-            JToken? jt = res[0];
-            if (jt is JObject obj)
+        try {
+            if (res != null && res is JArray)
             {
-                if (obj["errorCode"]?.ToString() == "INVALID_SESSION_ID")
+                JToken? jt = res[0];
+                if (jt is JObject obj)
                 {
-                    resetSession();
-                    res = await Request();
+                    if (obj["errorCode"]?.ToString() == "INVALID_SESSION_ID")
+                    {
+                        resetSession();
+                        res = await Request();
+                    }
                 }
             }
         }
+        catch(Exception ex)
+        {
+            Logger.Log("Inte.Salesforce.Send" + "   "+ subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
+            throw;
+        }
         return res;
     }
+
+    protected abstract Task UpdateData(JToken? jRes);
 
 }

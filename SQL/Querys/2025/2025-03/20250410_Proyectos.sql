@@ -249,6 +249,8 @@ create table fact_proyectos(
 	incluir_cartilla_negocios_cotizacion int,
 	incluir_cartilla_negocios_opcion int,
 	link_cartilla_negocios varchar(200),
+	salesforce_id varchar(50),
+	za1_id varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,

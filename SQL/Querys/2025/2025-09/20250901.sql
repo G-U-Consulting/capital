@@ -72,6 +72,7 @@ create table fact_lista_espera(
 	tiene_deposito bit default 0,
 	tiene_acabados bit default 0,
     seguimiento text,
+    salesforce_id varchar(50),
     is_waiting bit default 1,
     is_active bit default 1,
     created_on datetime default current_timestamp

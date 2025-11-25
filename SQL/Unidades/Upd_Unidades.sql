@@ -12,6 +12,8 @@ create temporary table tmp_unidades as(
     select *, convert(null, int) as id_torre, convert(null, int) as id_cuenta_convenio, convert(null, int) as id_unidad, 
     convert(null, int) as id_parqueadero, convert(null, int) as id_parqueadero2, convert(null, int) as id_deposito
     from json_table(@unidades, '$[*].pisos[*].unidades[*]' columns( 
+        za1_id varchar(50) path '$."ID_apartamento"',
+        salesforce_id varchar(50) path '$."salesforce_id"',
         apartamento varchar(50) path '$."apartamento"',
         torre varchar(50) path '$."torre"',
         piso varchar(50) path '$."piso"',
@@ -164,7 +166,7 @@ where ft.id_proyecto = @id_proyecto and tu.id_proyecto = @id_proyecto;
 
 select coalesce(codigo, 'APT') into @cod_apt from dim_tipo_proyecto where id_tipo_proyecto = 8;
 insert into fact_unidades(
-    id_proyecto, id_torre, id_estado_unidad, nombre_unidad, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
+    id_proyecto, id_torre, id_estado_unidad, nombre_unidad, za1_id, salesforce_id, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
     valor_separacion, valor_acabados, valor_reformas, valor_descuento, valor_complemento, pate, id_cuenta_convenio, asoleacion, altura, id_clase, id_lista, cerca_porteria, 
     cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, id_agrupacion, created_by 
@@ -179,6 +181,8 @@ select distinct
         (select coalesce(tp.codigo, @cod_apt) 
             from dim_tipo_proyecto tp 
             where tp.tipo_proyecto = t.clase), @cod_apt), ' ', t.apartamento) as nombre_unidad,
+    t.za1_id as za1_id,
+    t.salesforce_id as salesforce_id,
     t.apartamento as numero_apartamento,
     convert(t.piso, int) as piso,
     t.tipo as tipo,
@@ -226,6 +230,8 @@ from tmp_unidades t
 on duplicate key update
     id_estado_unidad = values(id_estado_unidad),
     nombre_unidad = values(nombre_unidad),
+    za1_id = values(za1_id),
+    salesforce_id = values(salesforce_id),
     piso = values(piso),
     tipo = values(tipo),
     codigo_planta = values(codigo_planta),

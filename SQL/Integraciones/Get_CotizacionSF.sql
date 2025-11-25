@@ -2,8 +2,8 @@
 -- Proceso: Integraciones/Get_CotizacionSF
 -- =============================================
 --START_PARAM
-set @id_cotizacion = 325,
-    @id_unidad = 174837;
+set @id_cotizacion = 333,
+    @id_unidad = 174869;
 --END_PARAM
 
 select (
@@ -31,7 +31,7 @@ left join dim_categoria_desistimiento cd on d.id_categoria = cd.id_categoria
 where u.id_unidad = @id_unidad
 order by coalesce(d.fec_com_gerencia, 0) desc, v.created_on desc, o.created_on desc limit 1;
 
-select co.id_cotizacion, @quotestate as `quoteState`, u.id_unidad as `apartmentZAId`, null as `apartmentSLId`, u.nombre_unidad as `apartment`, 
+select co.id_cotizacion, @quotestate as `quoteState`, u.id_unidad as `apartmentZAId`, u.salesforce_id as `apartmentSLId`, u.nombre_unidad as `apartment`, 
     t.consecutivo as `tower`, cast(u.area_total as char) as `areas`, a.nombre as `agrupation`, date_format(u.fecha_edi, '%Y-%m-%d') as `deliveryDate`, 
     u.localizacion as `view`, round(coalesce(pu.precio, 0)) as `_grossPrice`,
     round(coalesce(pu.precio, 0) + coalesce(u.valor_reformas, 0) + coalesce(u.valor_acabados, 0)) as `_netPrice`, 
@@ -40,7 +40,7 @@ select co.id_cotizacion, @quotestate as `quoteState`, u.id_unidad as `apartmentZ
     l.lista as `listPrice`, b.banco as `financialBank`, date_format(@optiondate, '%Y-%m-%d') as `optionDate`, 
     date_format(co.created_on, '%Y-%m-%d') as `vinculationDate`, f.fiduciaria as `trusteeship`,
     date_format(@closedate, '%Y-%m-%d') as `closeDate`, date_format(@dismissdate, '%Y-%m-%d') as `dismissDate`,
-    @dismisscause as `dismissCause`, 'a0QVm00000JyYtWMAV' as `projectId`, '00Qdm000009VAU9EAO' as `clientSalesforceId`
+    @dismisscause as `dismissCause`, p.za1_id as `projectId`, cl.salesforce_id as `clientSalesforceId`
 from fact_cotizaciones co
 left join fact_negocios_unidades n on co.id_cotizacion = n.id_cotizacion
 left join fact_unidades u on n.id_unidad = u.id_unidad
@@ -52,4 +52,4 @@ left join dim_lista_precios l on u.id_lista = l.id_lista
 left join dim_banco_constructor b on t.id_banco_constructor = b.id_banco
 left join dim_fiduciaria f on t.id_fiduciaria = f.id_fiduciaria
 left join dim_precio_unidad pu on u.id_unidad = pu.id_unidad and l.id_lista = pu.id_lista
-where co.id_cotizacion = co.id_cotizacion and u.id_unidad = u.id_unidad;
+where co.id_cotizacion = @id_cotizacion and u.id_unidad = @id_unidad;

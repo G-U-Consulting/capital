@@ -4,7 +4,7 @@ namespace capital.Code.Inte.Salesforce;
 
 public class Cotizacion : Salesforce<Cotizacion>
 {
-    public Cotizacion(string subtipo, string datos) : base(subtipo, datos)
+    public Cotizacion(string subtipo, string datos, string rootPath) : base(subtipo, datos, rootPath)
     {
         route = "/services/apexrest/v1/Capital/CustomersAndProjects/quoteApartment";
     }
@@ -36,8 +36,17 @@ public class Cotizacion : Salesforce<Cotizacion>
             _apartmentZAId = value;
         }
     }
+    private string? _apartmentSLId;
+    public string? apartmentSLId
+    {
+        get => _apartmentSLId;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                _apartmentSLId = null;
+        }
+    }
 
-    public string? apartmentSLId { get; set; }
     public string? apartment { get; set; }
     public int? tower { get; set; }
     public string? areas { get; set; }
@@ -148,7 +157,7 @@ public class Cotizacion : Salesforce<Cotizacion>
         {
             if (quoteState == "Desistimiento" && string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("dismissCause es obligatorio cuando quoteState es 'Desistimiento'.");
-            _dismissCause = value;
+            _dismissCause = string.IsNullOrWhiteSpace(value) ? null : value;
         }
     }
     private string? _projectId;
@@ -163,4 +172,9 @@ public class Cotizacion : Salesforce<Cotizacion>
         }
     }
     public string? clientSalesforceId { get; set; }
+
+    protected override async Task UpdateData(JToken? jRes)
+    {
+        
+    }
 }

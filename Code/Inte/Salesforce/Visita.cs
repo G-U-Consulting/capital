@@ -1,10 +1,14 @@
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using orca.Code.Api;
+using orca.Code.Logger;
 
 namespace capital.Code.Inte.Salesforce;
 
 public class Visita : Salesforce<Visita>
 {
-    public Visita(string subtipo, string datos) : base(subtipo, datos)
+    public Visita(string subtipo, string datos, string rootPath) : base(subtipo, datos, rootPath)
     {
         route = "/services/apexrest/v1/Capital/CustomersAndProjects/customer";
     }
@@ -128,4 +132,23 @@ public class Visita : Salesforce<Visita>
         else return _EmailRegex;
     }
 
+    protected override async Task UpdateData(JToken? jRes)
+    {
+        if (jRes != null && jRes is JObject res)
+        {
+            string? id_salesforce = res["dataResponse"]?["idSalesforce"]?.ToString();
+            if (string.IsNullOrWhiteSpace(id_salesforce))
+                throw new Exception(res.ToString());
+            JObject upd = [];
+            upd["id_cliente"] = IdClient;
+            upd["salesforce_id"] = id_salesforce;
+            try {
+                await Generic.ProcessRequest(null, null, "genericST", "integraciones/Upd_Cliente", JsonConvert.SerializeObject(upd), rootPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Inte.Salesforce.LoadData" + "   "+ subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
+            }
+        }
+    }
 }

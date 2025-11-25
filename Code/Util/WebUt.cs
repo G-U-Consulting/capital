@@ -13,7 +13,11 @@ using System.Web;
 public static class WebUt {
     private static string[] proxySites = {  };
     private static HttpClient client = new HttpClient();
-    public static async Task<string> WebRequest(string url, HttpMethod method, string body, string contentType, Dictionary<string, string> headers = null, X509Certificate2 cert = null) {
+    public static async Task<string> WebRequest(string url, HttpMethod method, string body, string contentType, Dictionary<string, string> headers = null, X509Certificate2 cert = null)
+    {
+        return await WebRequest(url, method, body, contentType, null, headers, cert);
+    }
+    public static async Task<string> WebRequest(string url, HttpMethod method, string body, string contentType, CancellationToken? ct, Dictionary<string, string> headers = null, X509Certificate2 cert = null) {
         HttpRequestMessage request = new HttpRequestMessage(method, url);
         //if (cert != null) request.ClientCertificates.Add(cert);   
         if (headers != null)
@@ -25,8 +29,11 @@ public static class WebUt {
             if (contentType != null)
                 request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
         }
-
-        HttpResponseMessage response = await client.SendAsync(request);
+        HttpResponseMessage response;
+        if (ct != null)
+            response = await client.SendAsync(request, (CancellationToken)ct);
+        else
+            response = await client.SendAsync(request);
         
         return await response.Content.ReadAsStringAsync();
     }

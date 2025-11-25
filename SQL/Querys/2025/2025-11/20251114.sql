@@ -11,6 +11,6 @@ create table cola_tareas_rpa (
   fecha_programada datetime not null default current_timestamp,
   requested_on datetime,
   requested_times int not null default 0,
-  resultado varchar(50),
+  resultado varchar(255),
   updated_on datetime default null on update current_timestamp
 );

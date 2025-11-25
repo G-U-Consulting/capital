@@ -139,6 +139,8 @@ create table fact_unidades(
 	tiene_parq_doble bit default 0,
 	tiene_deposito bit default 0,
 	tiene_acabados bit default 0,
+	za1_id int,
+	salesforce_id varchar(50)
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,

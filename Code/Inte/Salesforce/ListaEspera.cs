@@ -5,7 +5,7 @@ namespace capital.Code.Inte.Salesforce;
 
 public class ListaEspera : Salesforce<ListaEspera>
 {
-    public ListaEspera(string subtipo, string datos) : base(subtipo, datos)
+    public ListaEspera(string subtipo, string datos, string rootPath) : base(subtipo, datos, rootPath)
     {
         route = "/services/apexrest/v1/Capital/CustomersAndProjects/waitingList";
     }
@@ -91,5 +91,10 @@ public class ListaEspera : Salesforce<ListaEspera>
         if (_DocRegex == null)
             return new(@"^\d{5,20}$");
         else return _DocRegex;
+    }
+
+    protected override async Task UpdateData(JToken? jRes)
+    {
+        
     }
 }
