@@ -668,7 +668,7 @@
                         <span>¿Con acabados y Reformas?</span>
                         <div class="checkbox-center">
                             <label class="check">
-                                <input type="checkbox" v-model="reformaActivo" :disabled="reformaAct" />
+                                <input type="checkbox" v-model="reformaActivo" :disabled="reformaAct"/>
                                 <span class="checkmark"></span>
                             </label>
                         </div>
@@ -769,7 +769,7 @@
                 <div class="pure-u-1 pure-u-md-3-8" style="margin-bottom: .5em;">
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'contado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
-                            <label class="check pure-u-1-6" @click="onSeleccionContado">
+                            <label class="check pure-u-1-6">
                                 <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado" />
                                 <span class="checkmark"></span>
                                 Contado
@@ -793,7 +793,7 @@
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'financiado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1 pure-u-md-1-6" @click="pagoSeleccionado = 'financiado'">
-                                <input type="radio" name="pago" value="financiado" v-model="pagoSeleccionado" />
+                                <input type="radio" name="pago" value="financiado" v-model="pagoSeleccionado"/>
                                 <span class="checkmark"></span>
                                 Financiado
                             </label>
@@ -859,39 +859,39 @@
                         <div class="formInputStandard">
                             <span>Ingresos Familiares</span>
                             <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
-                                @keyup="validarFormato" @blur="onBlurIngresos" @keyup="validarFormato"
-                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado' || !tipoFinanciacionSeleccionada" />
+                                @keyup="validarFormato" @blur="onBlurIngresos" @input="onInputIngresos"
+                                :disabled="!tipoFinanciacionSeleccionada" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
                         <div class="formInputStandard">
                             <span>Cesantías</span>
                             <input type="text" style="text-align: right;" v-model="f_valor_cesantias" @keyup="validarFormato"
-                                :disabled="!subsidioActivo || f_ingresos_mensuales == 0" />
+                                :disabled="f_ingresos_mensuales == 0" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
                         <div class="formInputStandard">
                             <span>Ahorros</span>
                             <input type="text" style="text-align: right;" v-model="f_valor_ahorros" @keyup="validarFormato"
-                                :disabled="!subsidioActivo || f_ingresos_mensuales == 0" />
+                                :disabled="f_ingresos_mensuales == 0" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
                         <div class="formInputStandard">
-                            <span title="Financiación máx. permisible ingresos">Financiación máx.</span>
+                            <span title="Financiación máx. permisible ingresos">Fin. máx. permisible <samp class="formula-pequena">(FMP)</samp></span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(valor_maxfinanciable)" disabled>
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
                         <div class="formInputStandard">
-                            <span title="Cuota mensual permisible">Cuota mensual</span>
+                            <span title="Cuota mensual permisible">Cuota permisible <samp class="formula-pequena">(CMP)</samp></span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(cuotaMaxima)" disabled/>
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
                         <div class="formInputStandard">
-                            <span title="Cuota mes Máx. financiable">Cuota mes Máx.</span>
+                            <span title="Cuota mes Máx. financiable">Cuot Máx financiable<samp class="formula-pequena">(CMF)</samp></span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(valorCreditoMillonFormateado)"
                                 disabled title="Cuota mes Máx.">
                         </div>
@@ -908,7 +908,7 @@
                         <div class="formInputStandard">
                             <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;"
                                 v-show="pagoSeleccionado === 'financiado'">
-                                <input type="checkbox" v-model="subsidioActivo" />
+                                <input type="checkbox" v-model="subsidioActivo" disabled/>
                                 <span class="checkmark"></span>
                                 Subsidio
                             </label>
@@ -916,9 +916,12 @@
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
-                            <span>Año Entrega</span>
+                            <span>
+                                Año Entrega
+                                <samp class="formula-pequena" v-if="!dentroRangoSubsidio">(Excede los 4 SMLV)</samp>
+                            </span>
                             <select v-model="seleccionAnioEntrega" @change="calcularSubsidio" style="width: 100%;"
-                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado'">
+                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
                                 <option value="">Seleccione</option>
                                 <option v-for="anio in listaAniosEntrega" :key="anio" :value="anio">
                                     {{ anio }}
@@ -937,7 +940,7 @@
                         <div class="formInputStandard">
                             <span>Caja de compensación:</span>
                             <select v-model="caja_compensacion" style="width: 100%;"
-                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado'">
+                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
                                 <option value="">Seleccione</option>
                                 <option v-for="caja in cajas_compensacion" :key="caja.id_caja" :value="caja.id_caja">
                                     {{ caja.caja }}

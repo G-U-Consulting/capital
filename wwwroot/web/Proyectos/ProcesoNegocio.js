@@ -217,7 +217,6 @@ export default {
             mostrarCliente: true,
             editandoIngresos: false,
             valor_credito_max: 0,
-            reformaActivo: false,
             valor_credito_final: 0,
             cuota_inicial_final: 0,
 
@@ -238,6 +237,10 @@ export default {
             tel2: null,
             iti1: null,
             iti2: null,
+
+            reformaActivo: false,
+            importeBase: 0,
+            cuota_inicial_base: 0,
         };
     },
     async mounted() {
@@ -302,9 +305,13 @@ export default {
             return result;
         },
         cleanNumber(value) {
-            let cleaned = value.replace(/['.]/g, "");
-            cleaned = cleaned.replace(",", ".");
-            return cleaned;
+            return parseFloat(
+                String(value)
+                    .replace(/\$/g, '')
+                    .replace(/\s/g, '')
+                    .replace(/\./g, '')
+                    .replace(',', '.')
+            ) || 0;
         },
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
@@ -320,36 +327,39 @@ export default {
                 this.valor_subsidio = 0;
                 return;
             }
+
             const registro = this.subsidio_vivienda.find(s => s.periodo == this.seleccionAnioEntrega);
             if (!registro) {
                 this.valor_subsidio = 0;
                 return;
             }
+
             const parseNumber = (valor) => {
                 if (!valor) return 0;
-                return parseFloat(valor.replace(/\./g, '').replace(',', '.'));
+                return parseFloat(String(valor).replace(/\$/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.'));
             };
+
+            const ingresosLimpios = parseNumber(this.ingresos_mensuales);
             const smmlv = parseNumber(registro.smmlv);
             const smmlv_0_2 = parseNumber(registro.smmlv_0_2);
             const smmlv_2_4 = parseNumber(registro.smmlv_2_4);
 
-            if (this.ingresos_mensuales <= smmlv * 2) {
+            if (ingresosLimpios <= smmlv * 2) {
                 this.valor_subsidio = smmlv_0_2;
-            } else if (this.ingresos_mensuales <= smmlv * 4) {
+            } else if (ingresosLimpios <= smmlv * 4) {
                 this.valor_subsidio = smmlv_2_4;
             } else {
                 this.valor_subsidio = 0;
+                this.seleccionAnioEntrega = '';
             }
         },
         async calcularFinanciacion() {
-
             if (!this.tipoFinanciacionSeleccionada || !this.importeOriginal) {
                 this.ingresos_mensuales = 0;
                 this.valor_credito_final = 0;
                 this.cuota_inicial_final = 0;
                 return;
             }
-
 
             if (this.pagoSeleccionado === 'contado') {
                 this.ingresos_mensuales = '$ 0';
@@ -358,7 +368,6 @@ export default {
                 this.valor_subsidio = '0';
                 this.onBlurIngresos();
             }
-          
 
             const plan = this.tipo_financiacion.find(
                 (p) => p.tipo_financiacion === this.tipoFinanciacionSeleccionada
@@ -383,16 +392,11 @@ export default {
             const importeOriginalNumber = this.toNumber(this.importeOriginal);
             const descuentoAdicionalNumber = this.toNumber(this.valor_descuento_adicional);
 
-            const baseCredito =
-                (importeOriginalNumber - descuentoAdicionalNumber) * (pctCredito / 100);
-
+            const baseCredito = (importeOriginalNumber - descuentoAdicionalNumber) * (pctCredito / 100);
             const baseInicial = importeOriginalNumber * (pctInicial / 100);
+            const cuotaInicialTotal = this.toNumber(this.importeActiva) - baseCredito;
 
-            const cuotaInicialTotal =
-                this.toNumber(this.importeActiva) - baseCredito;
-
-            let totalAportes =
-                this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
+            let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
 
             if (String(this.pagoSeleccionado).toLowerCase() === "financiado") {
                 totalAportes += this.toNumber(this.valor_subsidio);
@@ -408,11 +412,11 @@ export default {
 
             this.cuota_inicial_base = this.cuota_inicial;
             this.valor_credito_base = this.valor_credito;
+
             if (this.ingresos_mensuales) {
                 this.onBlurIngresos();
             }
         },
-
         calcularPlanPago() {
             if (!this.planSeleccionado || !this.importeOriginal) {
                 this.cuota_inicial = 0;
@@ -475,7 +479,6 @@ export default {
                 }
 
                 await this.nuevoCliente(0);
-
             }
 
             if (this.mode === 1 && nextIndex === 2) {
@@ -488,15 +491,13 @@ export default {
             }
 
             if (this.mode === 2 && nextIndex === 3) {
-                this.reformaAct = false;
-                if (this.unidades[0]?.inv_terminado == 1) {
-                    this.reformaAct = true;
-                    this.reformaActivo = true;
-                }
+                this.importeBase = this.totalFinal;
 
                 var id_unidad = this.unidades[0]?.id_unidad;
                 let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
                 this.unidadOpcion = await resp.data[0][0];
+
+                this.reformaActivo = this.unidadOpcion?.inv_terminado == 1;
 
                 if (!this.cotizacionSeleccionada) {
                     return showMessage("No hay cotización seleccionada.");
@@ -560,11 +561,8 @@ export default {
 
             const huboCambio = JSON.stringify(edit) !== JSON.stringify(orig);
 
-
             let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
             let cliente = resp.data;
-
-
 
             if (resp?.errorMessage?.includes("Duplicate")) {
                 showMessage("Cliente ya existe.");
@@ -1090,7 +1088,7 @@ export default {
             );
 
             this.cotizacionActiva = cotizacionId;
-            this.importeActiva = totalFinal;
+            this.totalFinal = totalFinal;
             this.importeOriginal = totalFinal;
 
             return { unidades, totalFinal };
@@ -1416,33 +1414,33 @@ export default {
         reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
             showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
         },
-        onBlurDescuento(e, item) {
-            const el = e.target;
-            const digits = (el.innerText || "").replace(/[^0-9]/g, "");
-            const num = digits === "" ? 0 : Number(digits);
-            item.valor_descuento = num;
-            item.editValor = null;
-            item.editando = false;
-            this.recalcularImporte();
-            el.innerText = this.formatoMoneda(num);
-        },
+        // onBlurDescuento(e, item) {
+        //     const el = e.target;
+        //     const digits = (el.innerText || "").replace(/[^0-9]/g, "");
+        //     const num = digits === "" ? 0 : Number(digits);
+        //     item.valor_descuento = num;
+        //     item.editValor = null;
+        //     item.editando = false;
+        //     this.recalcularImporte();
+        //     el.innerText = this.formatoMoneda(num);
+        // },
         formatoMoneda(num) {
             return "$ " + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         },
-        recalcularImporte() {
-            const id = this.cotizacionSeleccionada || this.cotizacionActiva;
-            const cot = this.cotizaciones.find(c => Number(c.cotizacion) === Number(id));
-            if (!cot) return;
+        // recalcularImporte() {
+        //     const id = this.cotizacionSeleccionada || this.cotizacionActiva;
+        //     const cot = this.cotizaciones.find(c => Number(c.cotizacion) === Number(id));
+        //     if (!cot) return;
 
-            const totalBruto = cot.unidades.reduce((sum, u) => sum + (u.valor_unidad || 0), 0);
-            const totalDescuentos = cot.unidades.reduce((sum, u) => sum + (u.valor_descuento || 0), 0);
-            const nuevoImporte = totalBruto - totalDescuentos;
+        //     const totalBruto = cot.unidades.reduce((sum, u) => sum + (u.valor_unidad || 0), 0);
+        //     const totalDescuentos = cot.unidades.reduce((sum, u) => sum + (u.valor_descuento || 0), 0);
+        //     const nuevoImporte = totalBruto - totalDescuentos;
 
-            cot.importe = nuevoImporte;
-            if (Number(cot.cotizacion) === Number(this.cotizacionActiva)) {
-                this.importeActiva = nuevoImporte;
-            }
-        },
+        //     cot.importe = nuevoImporte;
+        //     if (Number(cot.cotizacion) === Number(this.cotizacionActiva)) {
+        //         this.importeActiva = nuevoImporte;
+        //     }
+        // },
         //////// mode 3 ////////////
         async cargarFactor() {
             this.factorSeleccionado = null;
@@ -1574,7 +1572,13 @@ export default {
 
             this.d_fecha_ulti_cuota = `${yyyy}-${mm}-${dd}`;
 
-            this.cuota_inicial_final = this.toNumber(this.importeActiva) - this.toNumber(this.cuota_escritura_final);
+            if (this.pagoSeleccionado === 'contado') {
+                this.ingresos_mensuales = '0';
+                this.caja_compensacion = '';
+                this.valor_subsidio = '0';
+                this.cuota_inicial_final = this.importeOriginal;
+                this.valor_credito = 0;
+            }
 
         },
         nombreBanco(id) {
@@ -1633,21 +1637,20 @@ export default {
             let dato = resp.data[0][0].id_tipo_vis
             let estado = resp.data[0][0].estado_publicacion_final
 
-
             this.subsidioActivo = dato != 4;
             this.tipo_factor = dato == 4 ? 'NO VIS' + " + " + estado : 'VIS' + " + " + estado;
         },
-        onCambioValor() {
-            this.valor_reformas = this.f_valor_reformas;
-            this.valor_acabados = this.f_valor_acabados;
-            this.valor_descuento_adicional = this.f_valor_descuento_adicional;
-            this.valor_escrituras = this.f_valor_escrituras;
-            this.valor_separacion = this.f_valor_separacion;
-            this.valor_notariales = this.f_valor_notariales;
-            this.valor_beneficiencia = this.f_valor_beneficiencia;
-            this.valor_registro = this.f_valor_registro;
-            this.calcularFinanciacion();
-        },
+        // onCambioValor() {
+        //     this.valor_reformas = this.f_valor_reformas;
+        //     this.valor_acabados = this.f_valor_acabados;
+        //     this.valor_descuento_adicional = this.f_valor_descuento_adicional;
+        //     this.valor_escrituras = this.f_valor_escrituras;
+        //     this.valor_separacion = this.f_valor_separacion;
+        //     this.valor_notariales = this.f_valor_notariales;
+        //     this.valor_beneficiencia = this.f_valor_beneficiencia;
+        //     this.valor_registro = this.f_valor_registro;
+        //     this.calcularFinanciacion();
+        // },
         parseNumberFromString(s) {
             if (!s && s !== 0) return 0;
             const cleaned = String(s).replace(/\./g, '').replace(/,/g, '.');
@@ -1931,7 +1934,6 @@ export default {
                 if (ultima.saldo_final < 0 && this.pagoSeleccionado === 'financiado') {
                     this.ultimaCuotaResultado = ultima.saldo_final;
                     this.valorCreditoBase = limpiarNumero(this.valor_credito_final);
-                    // this.valor_credito_final = this.valorCreditoBase + limpiarNumero(this.ultimaCuotaResultado);
                     return;
                 }
 
@@ -2038,36 +2040,76 @@ export default {
                 console.error("Error al obtener factor por banco:", err);
             }
         },
+        onInputIngresos() {
+            const nuevoMax = this.valor_maxfinanciable;
+            this.valor_credito = this.valor_credito_base;
+            this.cuota_inicial = this.cuota_inicial_base;
+            const creditoActual = this.valor_credito || 0;
+
+            if (creditoActual > nuevoMax) {
+                const restante = creditoActual - nuevoMax;
+                this.valor_credito_max = nuevoMax;
+                this.cuota_inicial += restante;
+            } else {
+                this.valor_credito_max = creditoActual;
+            }
+
+            this.valor_credito_final = this.valor_credito_max || 0;
+
+            let cuota = this.toNumber(this.cuota_inicial);
+            let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
+
+            if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
+                totalAportes += this.toNumber(this.valor_subsidio);
+            }
+
+            cuota -= totalAportes;
+            cuota -= this.toNumber(this.cuota_escritura_final);
+
+            if (!this.subsidioActivo) {
+                cuota -= this.toNumber(this.valor_separacion);
+            }
+
+            this.cuota_inicial_final = Math.max(0, cuota);
+           
+        },
         onBlurIngresos() {
             this.editandoIngresos = true;
             this.ultimaCuotaDigitada = 0;
-
             this.$nextTick(() => {
                 const nuevoMax = this.valor_maxfinanciable;
                 this.valor_credito = this.valor_credito_base;
                 this.cuota_inicial = this.cuota_inicial_base;
-
                 const creditoActual = this.valor_credito || 0;
 
                 if (creditoActual > nuevoMax) {
                     const restante = creditoActual - nuevoMax;
-
                     this.valor_credito_max = nuevoMax;
                     this.cuota_inicial += restante;
-
                 } else {
                     this.valor_credito_max = creditoActual;
                 }
 
+                this.valor_credito_final = this.valor_credito_max || 0;
+
+                let cuota = this.toNumber(this.cuota_inicial);
                 let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
+
                 if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
                     totalAportes += this.toNumber(this.valor_subsidio);
                 }
 
-                this.valor_credito_final = this.valor_credito_max || 0;
-                this.cuota_inicial_final = this.toNumber(this.cuota_inicial) - totalAportes - this.toNumber(this.cuota_escritura_final);
+                cuota -= totalAportes;
+                cuota -= this.toNumber(this.cuota_escritura_final);
+
+                if (!this.subsidioActivo) {
+                    cuota -= this.toNumber(this.valor_separacion);
+                }
+
+                this.cuota_inicial_final = Math.max(0, cuota);
 
                 this.editandoIngresos = false;
+
             });
         },
         async abrirModalCliente() {
@@ -2207,21 +2249,6 @@ export default {
             const reg = this.toNumber(this.valor_registro);
             this.valor_escrituras = not + ben + reg;
         },
-
-        onReformaChange(e) {
-            if (this.unidades.inv_terminado == '1') return;
-
-            const nuevoValor = e.target.checked;
-            const total = this.toNumber(this.valor_reformas);
-
-            if (nuevoValor) {
-                this.importeActiva += total;
-            } else {
-                this.importeActiva -= total;
-            }
-
-            this.reformaActivo = nuevoValor;
-        }
 
     },
     computed: {
@@ -2369,13 +2396,39 @@ export default {
         f_factorBanco:{
             get() { return this.formatNumber(this.factorBanco, false); },
             set(val) { this.factorBanco = this.cleanNumber(val); }
-        }
+        },
+        importeActiva() {
+            let importe = this.importeBase;
+
+            if (this.reformaActivo) {
+                const reforma = this.cleanNumber(this.valor_reformas) + this.cleanNumber(this.valor_acabados);
+                importe += reforma;
+            }
+            importe -= this.cleanNumber(this.valor_descuento_adicional);
+
+            return Math.max(0, importe);
+        },
+        dentroRangoSubsidio() {
+            if (!this.ingresos_mensuales || !this.subsidio_vivienda.length) return true;
+
+            const parseNumber = (valor) => {
+                if (!valor) return 0;
+                return parseFloat(String(valor).replace(/\$/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.'));
+            };
+
+            const ingresosLimpios = parseNumber(this.ingresos_mensuales);
+
+            const registroActual = this.subsidio_vivienda.find(s => s.periodo == new Date().getFullYear())
+                || this.subsidio_vivienda[0];
+
+            if (!registroActual) return true;
+
+            const smmlv = parseNumber(registroActual.smmlv);
+
+            return ingresosLimpios <= smmlv * 4;
+        },
     },
     watch: {
-        // tipoFinanciacionSeleccionada() { this.calcularFinanciacion(); },
-        importeActiva() { this.calcularFinanciacion(); },
-        pagoSeleccionado() { this.calcularFinanciacion();},
-        f_valor_reformas: 'onCambioValor',
         visitasFiltradas: {
             handler(val) {
                 this.contarProyectos(val);
@@ -2389,54 +2442,72 @@ export default {
         d_fecha_escrituracion() {
             this.calcularMesesMaximos();
         },
-        reformaActivo(nuevoValor) {
-            const total = this.toNumber(this.valor_reformas);
-
-            if (nuevoValor) {
-                this.importeActiva += total;
-            } else {
-                this.importeActiva -= total;
+        importeActiva() {
+            if (this.tipoFinanciacionSeleccionada) {
+                this.calcularFinanciacion();
             }
         },
-        f_valor_acabados(newVal, oldVal) {
-            const nuevo = this.toNumber(newVal);
-            const viejo = this.toNumber(oldVal);
-            const diferencia = nuevo - viejo;
-            this.importeActiva += diferencia;
+        valor_descuento_adicional() {
+            if (this.tipoFinanciacionSeleccionada) {
+                this.calcularFinanciacion();
+            }
         },
-        f_valor_descuento_adicional(newVal, oldVal) {
-            const nuevo = this.toNumber(newVal);
-            const viejo = this.toNumber(oldVal);
-            const diferencia = nuevo - viejo;
-            this.importeActiva -= diferencia;
+        cesantias() {
+            if (this.ingresos_mensuales) {
+                this.onInputIngresos();
+            }
         },
-        valor_subsidio(newVal, oldVal) {
-            const nuevo = this.toNumber(newVal);
-            const viejo = this.toNumber(oldVal);
-            const diferencia = nuevo - viejo;
-            this.cuota_inicial_final -= diferencia;
+        pagoSeleccionado() {
+            if (this.ingresos_mensuales) {
+                this.onSeleccionContado();
+            }
         },
-        f_valor_cesantias(newVal, oldVal) {
-            const nuevo = this.toNumber(newVal);
-            const viejo = this.toNumber(oldVal);
-            const diferencia = nuevo - viejo;
-            this.cuota_inicial_final -= diferencia;
+        ahorros() {
+            if (this.ingresos_mensuales) {
+                this.onInputIngresos();
+            }
         },
-        f_valor_ahorros(newVal, oldVal) {
-            const nuevo = this.toNumber(newVal);
-            const viejo = this.toNumber(oldVal);
-            const diferencia = nuevo - viejo;
-            this.cuota_inicial_final -= diferencia;
+        valor_subsidio() {
+            if (this.ingresos_mensuales) {
+                this.onInputIngresos();
+            }
+        },
+        valor_separacion() {
+            if (this.ingresos_mensuales) {
+                this.onInputIngresos();
+            }
         },
         f_valor_escrituras(newVal) {
             const sep = Math.max(0, this.toNumber(this.valor_separacion));
             const esc = Math.max(0, this.toNumber(newVal));
             const diferencia = sep - esc;
             this.cuota_escritura_final = diferencia;
+            if (this.ingresos_mensuales) {
+                this.onInputIngresos();
+            }
         },
-        f_valor_notariales() { this.calcularEscrituras(); },
-        f_valor_beneficiencia() { this.calcularEscrituras(); },
-        f_valor_registro() { this.calcularEscrituras(); }
+        f_valor_notariales() {
+            this.calcularEscrituras();
+        },
+        f_valor_beneficiencia() {
+            this.calcularEscrituras();
+        },
+        f_valor_registro() {
+            this.calcularEscrituras();
+        },
+        dentroRangoSubsidio(nuevoValor) {
+            if (!nuevoValor) {
+                this.seleccionAnioEntrega = '';
+                this.valor_subsidio = 0;
+                this.caja_compensacion = '';
+            }
+        },
+
+        f_ingresos_mensuales() {
+            if (this.seleccionAnioEntrega) {
+                this.calcularSubsidio();
+            }
+        }
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
