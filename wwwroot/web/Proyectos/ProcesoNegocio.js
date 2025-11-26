@@ -1847,6 +1847,11 @@ export default {
 
             const redondear0 = (num) => Math.round(num);
 
+            
+            if (!this.valor_credito_final_base) {
+                this.valor_credito_final_base = this.valor_credito_final;
+            }
+
             const calcularPMT = (i, n, p) => {
                 if (i === 0) return p / n;
                 const factor = Math.pow(1 + i, n);
@@ -1878,46 +1883,70 @@ export default {
                 cuotaEfectiva = cuotaDeseadaInput;
             }
 
-            const cuotaParaCalculo = Number(cuotaEfectiva) || 0;
+       
+            if (fila.saldo_inicial <= 0) {
+                fila.cuota_calculada = 0;
+                fila.intereses = 0;
+                fila.principal = 0;
+                fila.saldo_final = 0;
+            } else {
+                const cuotaParaCalculo = Number(cuotaEfectiva) || 0;
 
-            const interesPeriodo = redondear0(fila.saldo_inicial * iPeriodo);
-            const principalPeriodo = redondear0(cuotaParaCalculo - interesPeriodo);
-            const saldoFinal = redondear0(fila.saldo_inicial - principalPeriodo);
+                const interesPeriodo = redondear0(fila.saldo_inicial * iPeriodo);
+                const principalPeriodo = redondear0(cuotaParaCalculo - interesPeriodo);
+                const saldoFinal = redondear0(fila.saldo_inicial - principalPeriodo);
 
-            fila.cuota_calculada = cuotaParaCalculo;
-            fila.intereses = interesPeriodo;
-            fila.principal = principalPeriodo;
-            fila.saldo_final = saldoFinal;
+                fila.cuota_calculada = cuotaParaCalculo;
+                fila.intereses = interesPeriodo;
+                fila.principal = principalPeriodo;
+                fila.saldo_final = saldoFinal;
+            }
 
-            let saldoTemp = saldoFinal;
+            let saldoTemp = fila.saldo_final;
             for (let i = index + 1; i < this.tablaPeriodos.length; i++) {
                 const f = this.tablaPeriodos[i];
                 f.saldo_inicial = saldoTemp;
-                const iPeriodoSig = f.tna / 100 / 12;
-                const interesSig = redondear0(saldoTemp * iPeriodoSig);
-                let cuotaSig;
-                const cuotaDeseadaSig = limpiarNumero(f.cuota_deseada);
-                if (cuotaDeseadaSig !== null) {
-                    cuotaSig = cuotaDeseadaSig;
+
+                if (saldoTemp <= 0) {
+                    f.intereses = 0;
+                    f.principal = 0;
+                    f.cuota_calculada = 0;
+                    f.saldo_final = 0;
+                    saldoTemp = 0;
                 } else {
-                    if (f.periodo <= totalPeriodos && saldoTemp > 0) {
+                    const iPeriodoSig = f.tna / 100 / 12;
+                    const interesSig = redondear0(saldoTemp * iPeriodoSig);
+                    let cuotaSig;
+                    const cuotaDeseadaSig = limpiarNumero(f.cuota_deseada);
+                    if (cuotaDeseadaSig !== null) {
+                        cuotaSig = cuotaDeseadaSig;
+                    } else {
                         const periodosRestantesSig = totalPeriodos - f.periodo + 1;
                         cuotaSig = redondear0(
                             calcularPMT(iPeriodoSig, periodosRestantesSig, Math.abs(saldoTemp))
                         );
-                    } else {
-                        cuotaSig = 0;
                     }
-                }
-                const principalSig = redondear0(cuotaSig - interesSig);
-                const saldoFinalSig = redondear0(saldoTemp - principalSig);
-                f.intereses = interesSig;
-                f.principal = principalSig;
-                f.cuota_calculada = cuotaSig;
-                f.saldo_final = saldoFinalSig;
+                    const principalSig = redondear0(cuotaSig - interesSig);
+                    const saldoFinalSig = redondear0(saldoTemp - principalSig);
+                    f.intereses = interesSig;
+                    f.principal = principalSig;
+                    f.cuota_calculada = cuotaSig;
+                    f.saldo_final = saldoFinalSig;
 
-                saldoTemp = saldoFinalSig;
+                    saldoTemp = saldoFinalSig;
+                }
             }
+
+            let totalSaldosNegativos = 0;
+            for (let i = 0; i < this.tablaPeriodos.length; i++) {
+                const fila = this.tablaPeriodos[i];
+                if (fila.saldo_final < 0) {
+                    totalSaldosNegativos += fila.saldo_final;
+                    break;
+                }
+            }
+            this.valor_credito_final = this.valor_credito_final_base + totalSaldosNegativos;
+
             if (this.pagoSeleccionado === 'financiado') {
                 const ultima = this.tablaPeriodos[this.tablaPeriodos.length - 1];
 
@@ -1935,30 +1964,35 @@ export default {
                     }
                 }
             }
+
             const ultima = this.tablaPeriodos[this.tablaPeriodos.length - 1];
 
             if (ultima) {
-                if (ultima.saldo_final < 0 && this.pagoSeleccionado === 'financiado') {
-                    this.ultimaCuotaResultado = ultima.saldo_final;
-                    this.valorCreditoBase = limpiarNumero(this.valor_credito_final);
-                    return;
-                }
+                
+                const haySaldoNegativoAnterior = this.tablaPeriodos.some((f, idx) =>
+                    idx < this.tablaPeriodos.length - 1 && f.saldo_final < 0
+                );
 
-                if (ultima.saldo_final < 1 && ultima.saldo_final > -1) {
-                    ultima.saldo_final = 0;
-                    this.ultimaCuotaResultado = 0;
-                }
-         
-                else if (ultima.saldo_final !== 0 && ultima.saldo_inicial > 0) {
-                    const saldoAnterior = ultima.saldo_inicial;
-                    const interesUltimo = ultima.intereses;
-                    ultima.principal = redondear0(saldoAnterior);
-                    ultima.cuota_calculada = redondear0(saldoAnterior + interesUltimo);
-                    ultima.saldo_final = 0;
-                    this.ultimaCuotaResultado = 0;
+                if (!haySaldoNegativoAnterior) {
+                    if (ultima.saldo_final < 0 && this.pagoSeleccionado === 'financiado') {
+                        this.ultimaCuotaResultado = ultima.saldo_final;
+                        return;
+                    }
+
+                    if (ultima.saldo_final < 1 && ultima.saldo_final > -1) {
+                        ultima.saldo_final = 0;
+                        this.ultimaCuotaResultado = 0;
+                    }
+                    else if (ultima.saldo_final !== 0 && ultima.saldo_inicial > 0) {
+                        const saldoAnterior = ultima.saldo_inicial;
+                        const interesUltimo = ultima.intereses;
+                        ultima.principal = redondear0(saldoAnterior);
+                        ultima.cuota_calculada = redondear0(saldoAnterior + interesUltimo);
+                        ultima.saldo_final = 0;
+                        this.ultimaCuotaResultado = 0;
+                    }
                 }
             }
-
         },
         formatearMoneda(valor) {
             if (valor === null || valor === undefined || valor === '') {
@@ -2061,7 +2095,9 @@ export default {
                 this.valor_credito_max = creditoActual;
             }
 
-            this.valor_credito_final = this.valor_credito_max || 0;
+            if (!this.valor_credito_final_base || this.valor_credito_final === this.valor_credito_final_base) {
+                this.valor_credito_final = this.valor_credito_max || 0;
+            }
 
             let cuota = this.toNumber(this.cuota_inicial);
             let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
@@ -2097,7 +2133,9 @@ export default {
                     this.valor_credito_max = creditoActual;
                 }
 
-                this.valor_credito_final = this.valor_credito_max || 0;
+                if (!this.valor_credito_final_base || this.valor_credito_final === this.valor_credito_final_base) {
+                    this.valor_credito_final = this.valor_credito_max || 0;
+                }
 
                 let cuota = this.toNumber(this.cuota_inicial);
                 let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
@@ -2161,14 +2199,8 @@ export default {
                     });
                 }
             }
-
-            //this.clientes.forEach((c, index) => {
-            //    c.porcentaje = (index === 0) ? 100 : 0;
-            //});
-
             this.mostrarModalCliente = true;
             this.initIntlTel(this.ObjClienteOpcional);
-            // this.limpiarObjClient();
         },
 
         async guardarPorcentaje(c) {
