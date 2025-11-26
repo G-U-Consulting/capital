@@ -869,10 +869,6 @@
                         <div class="formInputStandard">
                             <span class="info-container">
                                 Cesantías
-                                <i class="info-icon">ⓘ</i>
-                                <div class="tooltip-opc">
-                                    Las Cesantias no afecta en el calculo de las cuotas.
-                                </div>
                             </span>
                             <input type="text" style="text-align: right;" v-model="f_valor_cesantias" @keyup="validarFormato"
                                 :disabled="f_ingresos_mensuales == 0" />
@@ -882,10 +878,6 @@
                         <div class="formInputStandard">
                             <span class="info-container">
                                 Ahorros
-                                <i class="info-icon">ⓘ</i>
-                                <div class="tooltip-opc">
-                                    Los Ahorros no afecta en el calculo de las cuotas.
-                                </div>
                             </span>
                             <input type="text" style="text-align: right;" v-model="f_valor_ahorros" @keyup="validarFormato"
                                 :disabled="f_ingresos_mensuales == 0" />
@@ -1486,7 +1478,7 @@
                                         </td>
                                         <td><input type="text" class="input-cuota"></td>
                                     </tr>
-
+<!-- 
                                     <tr>
                                         <td style="text-align: left; padding: 8px; color: #0277bd;">Importe Financiación</td>
                                         <td></td>
@@ -1504,7 +1496,7 @@
                                         <td></td>
                                         <td style="text-align: right; padding: 8px; color: #388e3c;">{{ formatoMoneda(valor_subsidio) }}</td>
                                         <td></td>
-                                    </tr>
+                                    </tr> -->
                                 </tbody>
                             </table>
                         </div>
@@ -1954,7 +1946,7 @@
                             </td>
                             <td style="padding: 3px; text-align: left;">{{ fila.nota }}</td>
                         </tr>
-                       
+<!--                        
                         <tr>
                             <td style="text-align: left; padding: 5px 8px; color: #0277bd;">Importe Financiación</td>
                             <td style="padding: 3px;"></td>
@@ -1972,7 +1964,7 @@
                             <td style="padding: 3px;"></td>
                             <td style="text-align: right; padding: 5px 8px; color: #388e3c;">{{ formatoMoneda(valor_subsidio) }}</td>
                             <td style="padding: 3px;"></td>
-                        </tr>
+                        </tr> -->
                     </tbody>
                 </table>
             </div>

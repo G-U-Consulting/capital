@@ -1,3 +1,8 @@
+const PORCENTAJE_CUOTA_MAXIMA = 0.40;
+const MESES_POR_ANO = 12;
+const PORCENTAJE_A_DECIMAL = 100;
+const MILLONES = 1000000;
+
 export default {
     data() {
         return {
@@ -100,7 +105,6 @@ export default {
             tipo_registro: [],
             tipo_tramite: [],
             planes_pago: [],
-            visitas: [],
             banco_financiador: [],
             planSeleccionado: '',
             iscliente: false,
@@ -115,7 +119,6 @@ export default {
             id_cliente: 0,
             filtroProyecto: '',
             contadorProyectos: {},
-            cotizaciones: [],
             unidades: [],
             tipoProyecto: null,
             tipo_factor: [],
@@ -241,13 +244,43 @@ export default {
             reformaActivo: false,
             importeBase: 0,
             cuota_inicial_base: 0,
+
+            categoria: [],
+            medio: [],
+            motivo_compra: [],
+            referencia: [],
+            presupuesto_vivienda: [],
+            tipo_financiacion: [],
+            ids_unidades: [],
+            tipoPlanta: null,
+            selectedApto: null,
+            cuota_escritura_final: 0,
+            importeOriginal: 0,
+            _ultimoTipoFinanciacion: null,
+            noregistro: false,
+            id_visita: null,
+            nombre: '',
+            asesor: '',
+            proyecto: '',
+            añoentrega: '',
+            consecutivo: '',
+            f_creacion: '',
+            idcotizacion: null,
+            cotizacionId: null,
+            factoresBanco: [],
+            factorSeleccionado: null,
+            camposObligatorios: [],
+            nombreCampos: {},
+            factorBanco: 0,
+            valor_credito_final_base: 0,
+            cuota_inicial_final_anterior: null,
         };
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
         let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {});
-        let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {id_proyecto: GlobalVariables.id_proyecto});
+        let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {id_proyecto: this.id_proyecto});
         this.categoria = resp.data[0];
         this.medio = resp.data[1];
         this.motivo_compra = resp.data[2];
@@ -305,13 +338,18 @@ export default {
             return result;
         },
         cleanNumber(value) {
-            return parseFloat(
-                String(value)
-                    .replace(/\$/g, '')
-                    .replace(/\s/g, '')
-                    .replace(/\./g, '')
-                    .replace(',', '.')
-            ) || 0;
+            if (value === null || value === undefined || value === '') return 0;
+            if (typeof value === 'number') return value;
+
+            const cleaned = String(value)
+                .replace(/\$/g, '')
+                .replace(/\s/g, '')
+                .replace(/\./g, '')
+                .replace(',', '.')
+                .trim();
+
+            if (cleaned === '') return 0;
+            return parseFloat(cleaned) || 0;
         },
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
@@ -389,17 +427,17 @@ export default {
             const pctInicial = Number(match[1]);
             const pctCredito = Number(match[2]);
 
-            const importeOriginalNumber = this.toNumber(this.importeOriginal);
-            const descuentoAdicionalNumber = this.toNumber(this.valor_descuento_adicional);
+            const importeOriginalNumber = this.cleanNumber(this.importeOriginal);
+            const descuentoAdicionalNumber = this.cleanNumber(this.valor_descuento_adicional);
 
             const baseCredito = (importeOriginalNumber - descuentoAdicionalNumber) * (pctCredito / 100);
             const baseInicial = importeOriginalNumber * (pctInicial / 100);
-            const cuotaInicialTotal = this.toNumber(this.importeActiva) - baseCredito;
+            const cuotaInicialTotal = this.cleanNumber(this.importeActiva) - baseCredito;
 
-            let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
+            let totalAportes = this.cleanNumber(this.cesantias) + this.cleanNumber(this.ahorros);
 
-            if (String(this.pagoSeleccionado).toLowerCase() === "financiado") {
-                totalAportes += this.toNumber(this.valor_subsidio);
+            if (this.pagoSeleccionado?.toLowerCase() === "financiado") {
+                totalAportes += this.cleanNumber(this.valor_subsidio);
             }
 
             if (totalAportes >= cuotaInicialTotal) {
@@ -440,14 +478,6 @@ export default {
             this.valor_credito = 0;
 
         },
-        toNumber(value) {
-            if (!value) return 0;
-            return Number(
-                String(value)
-                    .replace(/\./g, '')
-                    .replace(',', '.')
-            ) || 0;
-        },
         async handleMessages(event) {
             if (event.data?.type === 'REFRESH_COTIZACION') {
                 await this.seleccionarCotizacion(event.data.cotizacionId);
@@ -484,8 +514,9 @@ export default {
             }
 
             if (this.mode === 1 && nextIndex === 2) {
+                var resp = null;
                 if (this.registro == false && this.noregistro != true) {
-                    var resp = await this.nuevaVisita();
+                    resp = await this.nuevaVisita();
                 }
                 if (resp?.includes("Error")) {
                     return;
@@ -1023,7 +1054,7 @@ export default {
                 this.cotizaciones = resp.data[0] || [];
                 this.nombre = await resp.data[0][0]?.nombre || '';
 
-                this.cotizaciones.forEach(async (item, index) => {
+                await Promise.all(this.cotizaciones.map(async (item, index) => {
                     const { unidades, totalFinal } = await this.cargarCotizacion(item.cotizacion);
 
                     this.cotizaciones[index] = {
@@ -1031,7 +1062,7 @@ export default {
                         unidades,
                         importe: totalFinal
                     };
-                });
+                }));
             } finally {
                 hideProgress();
             }
@@ -1147,8 +1178,7 @@ export default {
                 importe: 0,
                 id_proyecto: GlobalVariables.id_proyecto,
                 id_cliente: this.id_cliente,
-                id_cotizacion: id_cotizacion ?? 0,
-                cotizacion: siguienteId
+                id_cotizacion: id_cotizacion ?? 0
             });
 
             this.cotizacionActiva = siguienteId;
@@ -1421,33 +1451,14 @@ export default {
         reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
             showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
         },
-        // onBlurDescuento(e, item) {
-        //     const el = e.target;
-        //     const digits = (el.innerText || "").replace(/[^0-9]/g, "");
-        //     const num = digits === "" ? 0 : Number(digits);
-        //     item.valor_descuento = num;
-        //     item.editValor = null;
-        //     item.editando = false;
-        //     this.recalcularImporte();
-        //     el.innerText = this.formatoMoneda(num);
-        // },
         formatoMoneda(num) {
-            return "$ " + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        
+            if (num === null || num === undefined || num === '') {
+                return '';
+            }
+            const numeroLimpio = typeof num === 'number' ? num : this.cleanNumber(num);
+            return "$ " + new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(numeroLimpio);
         },
-        // recalcularImporte() {
-        //     const id = this.cotizacionSeleccionada || this.cotizacionActiva;
-        //     const cot = this.cotizaciones.find(c => Number(c.cotizacion) === Number(id));
-        //     if (!cot) return;
-
-        //     const totalBruto = cot.unidades.reduce((sum, u) => sum + (u.valor_unidad || 0), 0);
-        //     const totalDescuentos = cot.unidades.reduce((sum, u) => sum + (u.valor_descuento || 0), 0);
-        //     const nuevoImporte = totalBruto - totalDescuentos;
-
-        //     cot.importe = nuevoImporte;
-        //     if (Number(cot.cotizacion) === Number(this.cotizacionActiva)) {
-        //         this.importeActiva = nuevoImporte;
-        //     }
-        // },
         //////// mode 3 ////////////
         async cargarFactor() {
             this.factorSeleccionado = null;
@@ -1634,11 +1645,10 @@ export default {
                 factores.map(f => parseInt(String(f.factor).replace(/\D/g, ''), 10))
             )].sort((a, b) => a - b);
 
-
         },
 
         async isSubsidio() {
-            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Poyecto', {
+            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Proyecto', {
                 id_proyecto: GlobalVariables.id_proyecto
             });
             let dato = resp.data[0][0].id_tipo_vis
@@ -1647,17 +1657,6 @@ export default {
             this.subsidioActivo = dato != 4;
             this.tipo_factor = dato == 4 ? 'NO VIS' + " + " + estado : 'VIS' + " + " + estado;
         },
-        // onCambioValor() {
-        //     this.valor_reformas = this.f_valor_reformas;
-        //     this.valor_acabados = this.f_valor_acabados;
-        //     this.valor_descuento_adicional = this.f_valor_descuento_adicional;
-        //     this.valor_escrituras = this.f_valor_escrituras;
-        //     this.valor_separacion = this.f_valor_separacion;
-        //     this.valor_notariales = this.f_valor_notariales;
-        //     this.valor_beneficiencia = this.f_valor_beneficiencia;
-        //     this.valor_registro = this.f_valor_registro;
-        //     this.calcularFinanciacion();
-        // },
         parseNumberFromString(s) {
             if (!s && s !== 0) return 0;
             const cleaned = String(s).replace(/\./g, '').replace(/,/g, '.');
@@ -1730,17 +1729,24 @@ export default {
                 return;
             }
 
-            const limpiarNumero = (valor) => {
-                if (typeof valor === 'string') {
-                    return Number(
-                        valor.replace(/\./g, '')
-                            .replace(',', '.')
-                            .trim()
-                    ) || 0;
-                }
-                return Number(valor) || 0;
-            };
+            const cuotaInicialCambio = this.cuota_inicial_final_anterior !== null &&
+                                       this.cuota_inicial_final_anterior !== this.cuota_inicial_final;
 
+            if (!cuotaInicialCambio) {
+                const tieneCuotasDigitadas = this.tablaPeriodos.some(fila => {
+                    const valor = String(fila.cuota_deseada || '').trim();
+                    return valor !== '';
+                });
+
+                if (tieneCuotasDigitadas) {
+                    // Ya hay valores digitados
+                    return;
+                }
+            }
+
+            this.cuota_inicial_final_anterior = this.cuota_inicial_final;
+
+            const limpiarNumero = this.cleanNumber.bind(this);
             const redondear0 = (num) => Math.round(num);
 
             const [anioBase, mesBase, diaBase] = this.d_fecha_cuota.split('-').map(Number);
@@ -1759,7 +1765,7 @@ export default {
             this.tablaPeriodos = [];
 
             let tnaActual = tnaAntes;
-            const iBase = tnaAntes / 100 / 12;
+            const iBase = tnaAntes / PORCENTAJE_A_DECIMAL / MESES_POR_ANO;
 
             let cuotaActual;
             if (iBase === 0) {
@@ -1783,7 +1789,7 @@ export default {
 
                 if (tnaPeriodo !== tnaActual) {
                     tnaActual = tnaPeriodo;
-                    const iNueva = tnaActual / 100 / 12;
+                    const iNueva = tnaActual / PORCENTAJE_A_DECIMAL / MESES_POR_ANO;
                     const periodosRestantes = n - j;
 
                     if (periodosRestantes > 0) {
@@ -1797,7 +1803,7 @@ export default {
                     }
                 }
 
-                const iPeriodo = tnaActual / 100 / 12;
+                const iPeriodo = tnaActual / PORCENTAJE_A_DECIMAL / MESES_POR_ANO;
                 const saldoInicial = saldo;
 
                 let interesPeriodoExacto = saldoInicial * iPeriodo;
@@ -1831,22 +1837,13 @@ export default {
 
                 saldo = saldoFinal;
             }
-     
-        },
-        limpiarNumero(valor) {
-            if (typeof valor === 'string') {
-                const valorLimpio = valor.replace(/\./g, '').replace(',', '.').trim();
-                if (valorLimpio === '') return null;
-                return Number(valorLimpio);
-            }
-            return Number(valor) || 0;
+
         },
         recalcularFila(index) {
-            const limpiarNumero = this.limpiarNumero;
+            const limpiarNumero = this.cleanNumber.bind(this);
             this.ultimaCuotaResultado = 0;
 
             const redondear0 = (num) => Math.round(num);
-
             
             if (!this.valor_credito_final_base) {
                 this.valor_credito_final_base = this.valor_credito_final;
@@ -1861,12 +1858,14 @@ export default {
             const fila = this.tablaPeriodos[index];
             const totalPeriodos = this.tablaPeriodos.length;
 
-            const cuotaDeseadaInput = limpiarNumero(fila.cuota_deseada);
-            const iPeriodo = fila.tna / 100 / 12;
+            const iPeriodo = fila.tna / PORCENTAJE_A_DECIMAL / MESES_POR_ANO;
 
             let cuotaEfectiva;
 
-            if (cuotaDeseadaInput === null) {
+            const valorActual = String(fila.cuota_deseada || '').trim();
+
+            if (valorActual === '') {
+                
                 fila.cuota_deseada = '';
 
                 const periodosRestantes = totalPeriodos - fila.periodo + 1;
@@ -1880,10 +1879,11 @@ export default {
                 }
 
             } else {
+               
+                const cuotaDeseadaInput = limpiarNumero(fila.cuota_deseada);
                 cuotaEfectiva = cuotaDeseadaInput;
             }
 
-       
             if (fila.saldo_inicial <= 0) {
                 fila.cuota_calculada = 0;
                 fila.intereses = 0;
@@ -1908,33 +1908,41 @@ export default {
                 f.saldo_inicial = saldoTemp;
 
                 if (saldoTemp <= 0) {
-                    f.intereses = 0;
-                    f.principal = 0;
-                    f.cuota_calculada = 0;
-                    f.saldo_final = 0;
-                    saldoTemp = 0;
-                } else {
-                    const iPeriodoSig = f.tna / 100 / 12;
-                    const interesSig = redondear0(saldoTemp * iPeriodoSig);
-                    let cuotaSig;
-                    const cuotaDeseadaSig = limpiarNumero(f.cuota_deseada);
-                    if (cuotaDeseadaSig !== null) {
-                        cuotaSig = cuotaDeseadaSig;
-                    } else {
-                        const periodosRestantesSig = totalPeriodos - f.periodo + 1;
-                        cuotaSig = redondear0(
-                            calcularPMT(iPeriodoSig, periodosRestantesSig, Math.abs(saldoTemp))
-                        );
+                    for (let j = i; j < this.tablaPeriodos.length; j++) {
+                        const fRest = this.tablaPeriodos[j];
+                        fRest.saldo_inicial = 0;
+                        fRest.intereses = 0;
+                        fRest.principal = 0;
+                        fRest.cuota_calculada = 0;
+                        fRest.saldo_final = 0;
                     }
-                    const principalSig = redondear0(cuotaSig - interesSig);
-                    const saldoFinalSig = redondear0(saldoTemp - principalSig);
-                    f.intereses = interesSig;
-                    f.principal = principalSig;
-                    f.cuota_calculada = cuotaSig;
-                    f.saldo_final = saldoFinalSig;
-
-                    saldoTemp = saldoFinalSig;
+                    break;
                 }
+
+                const iPeriodoSig = f.tna / PORCENTAJE_A_DECIMAL / MESES_POR_ANO;
+                const interesSig = redondear0(saldoTemp * iPeriodoSig);
+                let cuotaSig;
+
+             
+                const valorSig = String(f.cuota_deseada || '').trim();
+                if (valorSig !== '') {
+               
+                    cuotaSig = limpiarNumero(f.cuota_deseada);
+                } else {
+                
+                    const periodosRestantesSig = totalPeriodos - f.periodo + 1;
+                    cuotaSig = redondear0(
+                        calcularPMT(iPeriodoSig, periodosRestantesSig, Math.abs(saldoTemp))
+                    );
+                }
+                const principalSig = redondear0(cuotaSig - interesSig);
+                const saldoFinalSig = redondear0(saldoTemp - principalSig);
+                f.intereses = interesSig;
+                f.principal = principalSig;
+                f.cuota_calculada = cuotaSig;
+                f.saldo_final = saldoFinalSig;
+
+                saldoTemp = saldoFinalSig;
             }
 
             let totalSaldosNegativos = 0;
@@ -1998,10 +2006,7 @@ export default {
             if (valor === null || valor === undefined || valor === '') {
                 return '';
             }
-            const numeroLimpio = this.limpiarNumero(valor);
-            if (numeroLimpio === null) {
-                return '';
-            }
+            const numeroLimpio = this.cleanNumber(valor);
             return new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(numeroLimpio);
         },
         validar(index) {
@@ -2009,14 +2014,12 @@ export default {
             const originalValue = fila.cuota_deseada;
 
             this.$nextTick(() => {
-                const numeroParaFormato = this.limpiarNumero(originalValue);
-                if (numeroParaFormato === null && originalValue.trim() === '') {
+                if (!originalValue || originalValue.trim() === '') {
                     fila.cuota_deseada = '';
                     return;
                 }
-                if (numeroParaFormato !== null) {
-                    fila.cuota_deseada = this.formatearMoneda(numeroParaFormato);
-                }
+                const numeroParaFormato = this.cleanNumber(originalValue);
+                fila.cuota_deseada = this.formatearMoneda(numeroParaFormato);
             });
         },
         async verAmortizacion() {
@@ -2060,7 +2063,6 @@ export default {
         async enviarYOpcionar() {
 
             await this.limpiarObj();
-            await this.limpiarNumero()
             showMessage("Opción creada correctamente")
             this.mode = 0;
         },
@@ -2081,7 +2083,7 @@ export default {
                 console.error("Error al obtener factor por banco:", err);
             }
         },
-        onInputIngresos() {
+        calcularCuotaInicialFinal() {
             const nuevoMax = this.valor_maxfinanciable;
             this.valor_credito = this.valor_credito_base;
             this.cuota_inicial = this.cuota_inicial_base;
@@ -2099,62 +2101,31 @@ export default {
                 this.valor_credito_final = this.valor_credito_max || 0;
             }
 
-            let cuota = this.toNumber(this.cuota_inicial);
-            let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
+            let cuota = this.cleanNumber(this.cuota_inicial);
+            let totalAportes = this.cleanNumber(this.cesantias) + this.cleanNumber(this.ahorros);
 
-            if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
-                totalAportes += this.toNumber(this.valor_subsidio);
+            if (this.pagoSeleccionado?.toLowerCase() === 'financiado') {
+                totalAportes += this.cleanNumber(this.valor_subsidio);
             }
 
             cuota -= totalAportes;
-            cuota -= this.toNumber(this.cuota_escritura_final);
+            cuota -= this.cleanNumber(this.cuota_escritura_final);
 
             if (!this.subsidioActivo) {
-                cuota -= this.toNumber(this.valor_separacion);
+                cuota -= this.cleanNumber(this.valor_separacion);
             }
 
             this.cuota_inicial_final = Math.max(0, cuota);
-           
+        },
+        onInputIngresos() {
+            this.calcularCuotaInicialFinal();
         },
         onBlurIngresos() {
             this.editandoIngresos = true;
             this.ultimaCuotaDigitada = 0;
             this.$nextTick(() => {
-                const nuevoMax = this.valor_maxfinanciable;
-                this.valor_credito = this.valor_credito_base;
-                this.cuota_inicial = this.cuota_inicial_base;
-                const creditoActual = this.valor_credito || 0;
-
-                if (creditoActual > nuevoMax) {
-                    const restante = creditoActual - nuevoMax;
-                    this.valor_credito_max = nuevoMax;
-                    this.cuota_inicial += restante;
-                } else {
-                    this.valor_credito_max = creditoActual;
-                }
-
-                if (!this.valor_credito_final_base || this.valor_credito_final === this.valor_credito_final_base) {
-                    this.valor_credito_final = this.valor_credito_max || 0;
-                }
-
-                let cuota = this.toNumber(this.cuota_inicial);
-                let totalAportes = this.toNumber(this.cesantias) + this.toNumber(this.ahorros);
-
-                if (String(this.pagoSeleccionado).toLowerCase() === 'financiado') {
-                    totalAportes += this.toNumber(this.valor_subsidio);
-                }
-
-                cuota -= totalAportes;
-                cuota -= this.toNumber(this.cuota_escritura_final);
-
-                if (!this.subsidioActivo) {
-                    cuota -= this.toNumber(this.valor_separacion);
-                }
-
-                this.cuota_inicial_final = Math.max(0, cuota);
-
+                this.calcularCuotaInicialFinal();
                 this.editandoIngresos = false;
-
             });
         },
         async abrirModalCliente() {
@@ -2284,9 +2255,9 @@ export default {
         },
 
         calcularEscrituras() {
-            const not = this.toNumber(this.valor_notariales);
-            const ben = this.toNumber(this.valor_beneficiencia);
-            const reg = this.toNumber(this.valor_registro);
+            const not = this.cleanNumber(this.valor_notariales);
+            const ben = this.cleanNumber(this.valor_beneficiencia);
+            const reg = this.cleanNumber(this.valor_registro);
             this.valor_escrituras = not + ben + reg;
         },
         validarNumero(e) {
@@ -2298,6 +2269,9 @@ export default {
 
     },
     computed: {
+        id_proyecto() {
+            return GlobalVariables.id_proyecto;
+        },
         tabClasses() {
             return this.tabs.map((_, index) => {
                 if (this.isTabBlocked(index)) {
@@ -2313,10 +2287,10 @@ export default {
         },
         cuotaMaxima() {
             const ingreso = parseInt(this.f_ingresos_mensuales.toString().replace(/\D/g, '')) || 0;
-            return ingreso * 0.4;
+            return ingreso * PORCENTAJE_CUOTA_MAXIMA;
         },
         valorCreditoMillon() {
-            let valor = (this.valor_credito * this.factorBanco) / 1000000;
+            let valor = (this.valor_credito * this.factorBanco) / MILLONES;
             valor = Math.floor(valor);
             return valor;
         },
@@ -2335,8 +2309,8 @@ export default {
 
             if (factor === 0 || ingresos === 0) return 0;
 
-            const factorEnMillones = factor / 1_000_000;
-            const maxPorIngresos = (ingresos * 0.40) / factorEnMillones;
+            const factorEnMillones = factor / MILLONES;
+            const maxPorIngresos = (ingresos * PORCENTAJE_CUOTA_MAXIMA) / factorEnMillones;
 
             return Math.min(valorCredito, Math.floor(maxPorIngresos));
         },
@@ -2524,8 +2498,8 @@ export default {
             }
         },
         f_valor_escrituras(newVal) {
-            const sep = Math.max(0, this.toNumber(this.valor_separacion));
-            const esc = Math.max(0, this.toNumber(newVal));
+            const sep = Math.max(0, this.cleanNumber(this.valor_separacion));
+            const esc = Math.max(0, this.cleanNumber(newVal));
             const diferencia = sep - esc;
             this.cuota_escritura_final = diferencia;
             if (this.ingresos_mensuales) {
