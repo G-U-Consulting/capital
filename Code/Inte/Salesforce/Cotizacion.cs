@@ -1,4 +1,7 @@
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using orca.Code.Api;
+using orca.Code.Logger;
 
 namespace capital.Code.Inte.Salesforce;
 
@@ -71,7 +74,7 @@ public class Cotizacion : Salesforce<Cotizacion>
             else throw new ArgumentException("Precio Bruto inválido");
         }
     }
-    public long grossPrice { get; set; }
+    public long grossPrice { get; private set; }
     public string _netPrice
     {
         set
@@ -81,7 +84,7 @@ public class Cotizacion : Salesforce<Cotizacion>
             else throw new ArgumentException("Precio Neto inválido");
         }
     }
-    public long netPrice { get; set; }
+    public long netPrice { get; private set; }
     public string? _discount
     {
         set
@@ -91,7 +94,7 @@ public class Cotizacion : Salesforce<Cotizacion>
             else discount = null;
         }
     }
-    public double? discount { get; set; }
+    public double? discount { get; private set; }
     public string? _m2Value
     {
         set
@@ -101,7 +104,7 @@ public class Cotizacion : Salesforce<Cotizacion>
             else m2Value = null;
         }
     }
-    public long? m2Value { get; set; }
+    public long? m2Value { get; private set; }
 
     public string? listPrice { get; set; }
     public string? financialBank { get; set; }
@@ -172,9 +175,41 @@ public class Cotizacion : Salesforce<Cotizacion>
         }
     }
     public string? clientSalesforceId { get; set; }
+    private string? _id_unidad;
+    public string id_unidad {
+        set
+        {
+            _id_unidad = value;
+        }
+    }
+    private string? _id_negocios_unidades;
+    public string id_negocios_unidades {
+        set
+        {
+            _id_negocios_unidades = value;
+        }
+    }
 
     protected override async Task UpdateData(JToken? jRes)
     {
-        
+        if (jRes != null && jRes is JObject res)
+        {
+            string? opportunity_id = res["dataResponse"]?["SFopportunityId"]?.ToString(),
+                apartment_id = res["dataResponse"]?["SFApartmentId"]?.ToString();
+            if (string.IsNullOrWhiteSpace(opportunity_id) || string.IsNullOrWhiteSpace(apartment_id))
+                throw new Exception(res.ToString());
+            JObject upd = [];
+            upd["id_unidad"] = _id_unidad;
+            upd["apartment_id"] = apartment_id;
+            upd["id_negocios_unidades"] = _id_negocios_unidades;
+            upd["opportunity_id"] = opportunity_id;
+            try {
+                await Generic.ProcessRequest(null, null, "genericST", "integraciones/Upd_Cotizacion", JsonConvert.SerializeObject(upd), rootPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Inte.Salesforce.UpdateData" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
+            }
+        }
     }
 }

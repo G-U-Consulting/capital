@@ -464,6 +464,8 @@ export default {
                     { campo: "ciudad", label: "Ciudad" },
                     { campo: "barrio", label: "Barrio" },
                     { campo: "departamento", label: "Departamento" },
+                    { campo: "tipoDocumento", label: "Tipo de Documento" },
+                    { campo: "numeroDocumento", label: "Número de Documento" },
                 ];
 
                 const faltante = camposObligatorios.find(c => !this.ObjCliente[c.campo] || this.ObjCliente[c.campo].trim() === "");
@@ -561,7 +563,9 @@ export default {
 
             const huboCambio = JSON.stringify(edit) !== JSON.stringify(orig);
 
-            let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjCliente);
+            let obj = {};
+            Object.keys(this.ObjCliente).forEach(k => (this.ObjCliente[k] || this.ObjCliente[k] === 0) && (obj[k] = this.ObjCliente[k]))
+            let resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', obj);
             let cliente = resp.data;
 
             if (resp?.errorMessage?.includes("Duplicate")) {
@@ -581,7 +585,8 @@ export default {
                 showMessage("Error al crear el cliente.");
                 return;
             }
-
+            
+            this.id_cliente = Number(cliente[0].result.match(/\d+/)?.[0] || 0);
             this.isboton = true;
             this.mode = 1;
             this.israpida = false;
@@ -1174,7 +1179,7 @@ export default {
 
                 let resp = await httpFunc(
                     '/generic/genericDT/ProcesoNegocio:Ins_Cotizacion',
-                    cotizacion
+                    { ...cotizacion, id_cliente: this.id_cliente }
                 );
 
                 resp = resp.data;
@@ -2219,8 +2224,9 @@ export default {
 
                 return;
             }
-
-            const resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', this.ObjClienteOpcional);
+            let obj = {};
+            Object.keys(this.ObjClienteOpcional).forEach(k => (this.ObjClienteOpcional[k] || this.ObjClienteOpcional[k] === 0) && (obj[k] = this.ObjClienteOpcional[k]))
+            const resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cliente', obj);
 
             const texto = resp?.data?.[0]?.result || "";
             const nuevoId = Number(texto.match(/\d+/)?.[0] || 0);
@@ -2251,6 +2257,12 @@ export default {
             const reg = this.toNumber(this.valor_registro);
             this.valor_escrituras = not + ben + reg;
         },
+        validarNumero(e) {
+            e.target.value = e.target.value.replaceAll(/[^0-9\.]/g, '');
+        },
+        validarTexto(e) {
+            e.target.value = e.target.value.replaceAll(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        }
 
     },
     computed: {

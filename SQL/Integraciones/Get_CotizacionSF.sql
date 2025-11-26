@@ -31,7 +31,7 @@ left join dim_categoria_desistimiento cd on d.id_categoria = cd.id_categoria
 where u.id_unidad = @id_unidad
 order by coalesce(d.fec_com_gerencia, 0) desc, v.created_on desc, o.created_on desc limit 1;
 
-select co.id_cotizacion, @quotestate as `quoteState`, u.id_unidad as `apartmentZAId`, u.salesforce_id as `apartmentSLId`, u.nombre_unidad as `apartment`, 
+select co.id_cotizacion, @quotestate as `quoteState`, u.za1_id as `apartmentZAId`, u.salesforce_id as `apartmentSLId`, u.nombre_unidad as `apartment`, 
     t.consecutivo as `tower`, cast(u.area_total as char) as `areas`, a.nombre as `agrupation`, date_format(u.fecha_edi, '%Y-%m-%d') as `deliveryDate`, 
     u.localizacion as `view`, round(coalesce(pu.precio, 0)) as `_grossPrice`,
     round(coalesce(pu.precio, 0) + coalesce(u.valor_reformas, 0) + coalesce(u.valor_acabados, 0)) as `_netPrice`, 
@@ -40,7 +40,7 @@ select co.id_cotizacion, @quotestate as `quoteState`, u.id_unidad as `apartmentZ
     l.lista as `listPrice`, b.banco as `financialBank`, date_format(@optiondate, '%Y-%m-%d') as `optionDate`, 
     date_format(co.created_on, '%Y-%m-%d') as `vinculationDate`, f.fiduciaria as `trusteeship`,
     date_format(@closedate, '%Y-%m-%d') as `closeDate`, date_format(@dismissdate, '%Y-%m-%d') as `dismissDate`,
-    @dismisscause as `dismissCause`, p.za1_id as `projectId`, cl.salesforce_id as `clientSalesforceId`
+    @dismisscause as `dismissCause`, p.za1_id as `projectId`, cl.salesforce_id as `clientSalesforceId`, u.id_unidad, n.id_negocios_unidades
 from fact_cotizaciones co
 left join fact_negocios_unidades n on co.id_cotizacion = n.id_cotizacion
 left join fact_unidades u on n.id_unidad = u.id_unidad

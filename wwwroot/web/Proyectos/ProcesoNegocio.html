@@ -48,7 +48,7 @@
                     </div>
                 
                     <div class="pure-u-md-4-24" style="text-align: right;">
-                        <button @click="limpiarObjClient">Nuevo Cliente</button>
+                        <button @click="limpiarObjClient(); initIntlTel(ObjCliente)">Nuevo Cliente</button>
                     </div>
                 </div>
                 <div v-if="iscliente">
@@ -60,19 +60,19 @@
                         <div class='pure-u-1-1 pure-u-md-1-3'>
                             <div class='formInputStandard'>
                                 <span>Nombres</span>
-                                <input type='text' v-model='ObjCliente.nombres' maxlen='100' placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.nombres' maxlength='100' placeholder="Seleccione" @input="validarTexto"/>
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
                                 <span>Apellido 1</span>
-                                <input type='text' v-model='ObjCliente.apellido1' maxlen='100' placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.apellido1' maxlength='100' placeholder="Seleccione" @input="validarTexto"/>
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
                             <div class='formInputStandard'>
                                 <span>Apellido 2</span>
-                                <input type='text' v-model='ObjCliente.apellido2' maxlen='100' placeholder="Seleccione" />
+                                <input type='text' v-model='ObjCliente.apellido2' maxlength='100' placeholder="Seleccione" @input="validarTexto"/>
                             </div>
                         </div>
                         <div class='pure-u-1-1 pure-u-md-1-6'>
@@ -95,13 +95,13 @@
                             <div class='pure-u-1-1 pure-u-md-1-3'>
                                 <div class='formInputStandard'>
                                     <span>Nombre empresa / Representado</span>
-                                    <input type='text' v-model='ObjCliente.nombreEmpresa' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjCliente.nombreEmpresa' maxlength='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Cédula / NIT</span>
-                                    <input type='text' v-model='ObjCliente.nit' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjCliente.nit' maxlength='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                         </div>
@@ -114,49 +114,51 @@
                             <div class='pure-u-1-1 pure-u-md-1-3'>
                                 <div class='formInputStandard'>
                                     <span>Ciudad</span>
-                                    <input type='text' v-model='ObjCliente.ciudad' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjCliente.ciudad' maxlength='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-3'>
                                 <div class='formInputStandard'>
                                     <span>Barrio</span>
-                                    <input type='text' v-model='ObjCliente.barrio' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjCliente.barrio' maxlength='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Departamento</span>
-                                    <input type='text' v-model='ObjCliente.departamento' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjCliente.departamento' maxlength='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Pais</span>
-                                    <input type='text' v-model='ObjCliente.pais' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjCliente.pais' maxlength='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-3'>
                                 <div class='formInputStandard'>
                                     <span>Email 1</span>
-                                    <input type='text' v-model='ObjCliente.email1' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjCliente.email1' maxlength='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-3'>
                                 <div class='formInputStandard'>
                                     <span>Email 2</span>
-                                    <input type='text' v-model='ObjCliente.email2' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjCliente.email2' maxlength='100' placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Telefono 1 / Indicativo</span>
-                                    <input type='text' id="telefono1" v-model='ObjCliente.telefono1' maxlen='12' placeholder="Seleccione" />
+                                    <input type='text' id="telefono1" v-model='ObjCliente.telefono1' maxlength='12' 
+                                        @input="validarNumero" placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Telefono 2 / Indicativo</span>
-                                    <input type='text' id="telefono2" v-model='ObjCliente.telefono2' maxlen='12' placeholder="Seleccione" />
+                                    <input type='text' id="telefono2" v-model='ObjCliente.telefono2' maxlength='12' 
+                                        @input="validarNumero" placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div v-if="iscliente">
@@ -180,32 +182,32 @@
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Número Documento</span>
-                                        <input type='text' v-model='ObjCliente.numeroDocumento' maxlen='100' placeholder="Seleccione" />
+                                        <input type='text' v-model='ObjCliente.numeroDocumento' maxlength='10' placeholder="Seleccione" @input="validarNumero"/>
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>País Expedición</span>
-                                        <input type='text' v-model='ObjCliente.paisExpedicion' maxlen='100' placeholder="Seleccione" />
+                                        <input type='text' v-model='ObjCliente.paisExpedicion' maxlength='100' placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Depart. Expedición</span>
-                                        <input type='text' v-model='ObjCliente.departamentoExpedicion' maxlen='100'
+                                        <input type='text' v-model='ObjCliente.departamentoExpedicion' maxlength='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Ciudad Expedición</span>
-                                        <input type='text' v-model='ObjCliente.ciudadExpedicion' maxlen='100' placeholder="Seleccione" />
+                                        <input type='text' v-model='ObjCliente.ciudadExpedicion' maxlength='100' placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Fecha Expedición</span>
-                                        <input type='date' v-model='ObjCliente.fechaExpedicion' maxlen='100' placeholder="Seleccione" />
+                                        <input type='date' v-model='ObjCliente.fechaExpedicion' maxlength='100' placeholder="Seleccione" />
                                     </div>
                                 </div>
                             </div>
@@ -264,19 +266,19 @@
                     <div class="pure-u-1 pure-u-md-1-2">
                         <div class="formInputStandard">
                             <span>Nombres</span>
-                            <input type="text" v-model="ObjCliente.nombres" maxlength="100" placeholder="Seleccione" />
+                            <input type="text" v-model="ObjCliente.nombres" maxlength="100" placeholder="Seleccione" @input="validarTexto"/>
                         </div>
                     </div>
                     <div class='pure-u-1-1 pure-u-md-1-2'>
                         <div class='formInputStandard'>
                             <span>Apellido 1</span>
-                            <input type='text' v-model='ObjCliente.apellido1' maxlen='100' placeholder="Seleccione" />
+                            <input type='text' v-model='ObjCliente.apellido1' maxlength='100' placeholder="Seleccione" @input="validarTexto"/>
                         </div>
                     </div>
                     <div class='pure-u-1-1 pure-u-md-1-2'>
                         <div class='formInputStandard'>
                             <span>Apellido 2</span>
-                            <input type='text' v-model='ObjCliente.apellido2' maxlen='100' placeholder="Seleccione" />
+                            <input type='text' v-model='ObjCliente.apellido2' maxlength='100' placeholder="Seleccione" @input="validarTexto"/>
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-2">
@@ -288,7 +290,7 @@
                     <div class='pure-u-1-1 pure-u-md-1-2'>
                         <div class='formInputStandard'>
                             <span>Número Documento</span>
-                            <input type='text' v-model='ObjCliente.numeroDocumento' maxlen='100' placeholder="Seleccione" />
+                            <input type='text' v-model='ObjCliente.numeroDocumento' maxlength='10' placeholder="Seleccione" @input="validarNumero"/>
                         </div>
                     </div>
                 </div>
@@ -514,7 +516,7 @@
                 <div class='pure-u-1-1 pure-u-md-1-1'>
                     <div class='formInputStandard filtro-proyecto-inline'>
                         <span>Descripción</span>
-                        <input type='text' v-model='ObjVisita.descripcion' maxlen='100' placeholder="Seleccione" :disabled="camposBloqueados"/>
+                        <input type='text' v-model='ObjVisita.descripcion' maxlength='100' placeholder="Seleccione" :disabled="camposBloqueados"/>
                     </div>
                 </div>
             </div>
@@ -2012,20 +2014,20 @@
                             <div class='pure-u-1-1 pure-u-md-1-3'>
                                 <div class='formInputStandard'>
                                     <span>Nombres</span>
-                                    <input type='text' v-model='ObjClienteOpcional.nombres' maxlen='100' placeholder="Seleccione" />
+                                    <input type='text' v-model='ObjClienteOpcional.nombres' maxlength='100' placeholder="Seleccione" @input="validarTexto"/>
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Apellido 1</span>
-                                    <input type='text' v-model='ObjClienteOpcional.apellido1' maxlen='100'
+                                    <input type='text' v-model='ObjClienteOpcional.apellido1' maxlength='100' @input="validarTexto"
                                         placeholder="Seleccione" />
                                 </div>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-6'>
                                 <div class='formInputStandard'>
                                     <span>Apellido 2</span>
-                                    <input type='text' v-model='ObjClienteOpcional.apellido2' maxlen='100'
+                                    <input type='text' v-model='ObjClienteOpcional.apellido2' maxlength='100' @input="validarTexto"
                                         placeholder="Seleccione" />
                                 </div>
                             </div>
@@ -2050,14 +2052,14 @@
                                     <div class='pure-u-1-1 pure-u-md-1-3'>
                                         <div class='formInputStandard'>
                                             <span>Nombre empresa / Representado</span>
-                                            <input type='text' v-model='ObjClienteOpcional.nombreEmpresa' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.nombreEmpresa' maxlength='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Cédula / NIT</span>
-                                            <input type='text' v-model='ObjClienteOpcional.nit' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.nit' maxlength='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
@@ -2072,57 +2074,57 @@
                                 <div class='pure-u-1-1 pure-u-md-1-3'>
                                     <div class='formInputStandard'>
                                         <span>Ciudad</span>
-                                        <input type='text' v-model='ObjClienteOpcional.ciudad' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.ciudad' maxlength='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-3'>
                                     <div class='formInputStandard'>
                                         <span>Barrio</span>
-                                        <input type='text' v-model='ObjClienteOpcional.barrio' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.barrio' maxlength='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Departamento</span>
-                                        <input type='text' v-model='ObjClienteOpcional.departamento' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.departamento' maxlength='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Pais</span>
-                                        <input type='text' v-model='ObjClienteOpcional.pais' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.pais' maxlength='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-3'>
                                     <div class='formInputStandard'>
                                         <span>Email 1</span>
-                                        <input type='text' v-model='ObjClienteOpcional.email1' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.email1' maxlength='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-3'>
                                     <div class='formInputStandard'>
                                         <span>Email 2</span>
-                                        <input type='text' v-model='ObjClienteOpcional.email2' maxlen='100'
+                                        <input type='text' v-model='ObjClienteOpcional.email2' maxlength='100'
                                             placeholder="Seleccione" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Telefono 1 / Indicativo</span>
-                                        <input type='text' v-model='ObjClienteOpcional.telefono1' maxlen='100'
-                                            placeholder="Seleccione" id="telefono1" />
+                                        <input type='text' v-model='ObjClienteOpcional.telefono1' maxlength='12'
+                                            @input="validarNumero" placeholder="Seleccione" id="telefono1" />
                                     </div>
                                 </div>
                                 <div class='pure-u-1-1 pure-u-md-1-6'>
                                     <div class='formInputStandard'>
                                         <span>Telefono 2 / Indicativo</span>
-                                        <input type='text' v-model='ObjClienteOpcional.telefono2' maxlen='100'
-                                            placeholder="Seleccione" id="telefono2" />
+                                        <input type='text' v-model='ObjClienteOpcional.telefono2' maxlength='12'
+                                            @input="validarNumero" placeholder="Seleccione" id="telefono2" />
                                     </div>
                                 </div>
                                 <div v-if="iscliente">
@@ -2146,35 +2148,35 @@
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Número Documento</span>
-                                            <input type='text' v-model='ObjClienteOpcional.numeroDocumento' maxlen='100'
-                                                placeholder="Seleccione" />
+                                            <input type='text' v-model='ObjClienteOpcional.numeroDocumento' maxlength='10'
+                                                @input="validarNumero" placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>País Expedición</span>
-                                            <input type='text' v-model='ObjClienteOpcional.paisExpedicion' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.paisExpedicion' maxlength='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Depart. Expedición</span>
-                                            <input type='text' v-model='ObjClienteOpcional.departamentoExpedicion' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.departamentoExpedicion' maxlength='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Ciudad Expedición</span>
-                                            <input type='text' v-model='ObjClienteOpcional.ciudadExpedicion' maxlen='100'
+                                            <input type='text' v-model='ObjClienteOpcional.ciudadExpedicion' maxlength='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>
                                     <div class='pure-u-1-1 pure-u-md-1-6'>
                                         <div class='formInputStandard'>
                                             <span>Fecha Expedición</span>
-                                            <input type='date' v-model='ObjClienteOpcional.fechaExpedicion' maxlen='100'
+                                            <input type='date' v-model='ObjClienteOpcional.fechaExpedicion' maxlength='100'
                                                 placeholder="Seleccione" />
                                         </div>
                                     </div>

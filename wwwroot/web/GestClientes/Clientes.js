@@ -89,6 +89,7 @@ export default {
             this.cliente = { ...cliente };
             await this.loadDetails();
             this.setMode(1);
+            this.initIntlTel(this.cliente);
         },
         toggleAtencion() {
             console.log(this.filtros.clientes);
@@ -156,6 +157,40 @@ export default {
                 console.error(e);
             }
             hideProgress();
+        },
+        async initIntlTel(cliente) {
+            await Promise.resolve();
+            let tmptel1 = document.getElementById('telefono1'), tmptel2 = document.getElementById('telefono2');
+            if (!this.iti1 || (![...tmptel1.parentElement.classList].includes('iti'))) {
+                this.tel1 = tmptel1;
+                if (this.tel1) {
+                    this.iti1 = intlTelInput(this.tel1, {
+                        initialCountry: cliente.pais_tel1 || "co",
+                        separateDialCode: true,
+                    });
+                    this.tel1.addEventListener("countrychange", () => {
+                        const countryData = this.iti1.getSelectedCountryData();
+                        cliente.pais_tel1 = countryData.iso2;
+                        cliente.codigo_tel1 = '+' + countryData.dialCode;
+                    });
+                }
+            }
+            else this.iti1.setCountry(cliente.pais_tel1 || "co");
+            if (!this.iti2 || (![...tmptel2.parentElement.classList].includes('iti'))) {
+                this.tel2 = tmptel2;
+                if (this.tel2) {
+                    this.iti2 = intlTelInput(this.tel2, {
+                        initialCountry: cliente.pais_tel2 || "co",
+                        separateDialCode: true,
+                    });
+                    this.tel2.addEventListener("countrychange", () => {
+                        const countryData = this.iti2.getSelectedCountryData();
+                        cliente.pais_tel2 = countryData.iso2;
+                        cliente.codigo_tel2 = '+' + countryData.dialCode;
+                    });
+                }
+            }
+            else this.iti2.setCountry(cliente.pais_tel2 || "co");
         },
     },
     computed: {

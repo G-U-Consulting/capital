@@ -1,4 +1,7 @@
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using orca.Code.Api;
+using orca.Code.Logger;
 using System.Text.RegularExpressions;
 
 namespace capital.Code.Inte.Salesforce;
@@ -79,6 +82,13 @@ public class ListaEspera : Salesforce<ListaEspera>
             _dateInterested = value;
         }
     }
+    private string? _id_lista;
+    public string id_lista {
+        set
+        {
+            _id_lista = value;
+        }
+    }
 
     private void Validate()
     {
@@ -95,6 +105,21 @@ public class ListaEspera : Salesforce<ListaEspera>
 
     protected override async Task UpdateData(JToken? jRes)
     {
-        
+        if (jRes != null && jRes is JObject res)
+        {
+            string? waiting_list_id = res["dataResponse"]?["waitingListId"]?.ToString();
+            if (string.IsNullOrWhiteSpace(waiting_list_id))
+                throw new Exception(res.ToString());
+            JObject upd = [];
+            upd["id_lista"] = _id_lista;
+            upd["salesforce_id"] = waiting_list_id;
+            try {
+                await Generic.ProcessRequest(null, null, "genericST", "integraciones/Upd_ListaEspera", JsonConvert.SerializeObject(upd), rootPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Inte.Salesforce.LoadData" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
+            }
+        }
     }
 }

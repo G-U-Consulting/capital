@@ -63,7 +63,7 @@ public class WorkerTareas(string rootPath) : BackgroundService
                 obj["fecha_programada"] = reprogramar.ToString("yyyy-MM-dd HH:mm:ss");
             }
             else obj["is_active"] = "0";
-            Console.WriteLine(JsonConvert.SerializeObject(obj));
+            //Console.WriteLine(JsonConvert.SerializeObject(obj));
             await Generic.ProcessRequest(null, null, "genericST", "General/Upd_ColaTareas", JsonConvert.SerializeObject(obj), rootPath);
         }
         catch (Exception ex)

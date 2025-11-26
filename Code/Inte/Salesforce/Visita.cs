@@ -18,23 +18,43 @@ public class Visita : Salesforce<Visita>
 
     public string? firstName { get; set; }
     public string? lastName { get; set; }
-    public string? company { get; set; }
+    private string? _company;
+    public string? company { 
+        get => _company;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                _company = null;
+            else _company = value;
+        }
+    }
     public string _document
     {
         set
         {
             var len = value.Length;
-            if (len < 4 || len > 16)
+            if (len < 4 || len > 10)
                 throw new ArgumentException("Número documento inválido");
+            if (mobilePhone >= Math.Pow(2, 31))
+                throw new ArgumentException("El número debe ser menor a 2147483648");
             document = long.Parse(value);
         }
     }
-    public long document { get; set; }
+    public long document { get; private set; }
     public string? typeDoc { get; set; }
     public string? cityLead { get; set; }
     public string? countryExpedition { get; set; }
     public string? departmentExpedition { get; set; }
-    public string? cityExpedition { get; set; }
+    private string? _cityExpedition;
+    public string? cityExpedition { 
+        get => _cityExpedition;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                _cityExpedition = null;
+            else _cityExpedition = value;
+        }
+    }
     private string? _expeditionDate;
     public string? expeditionDate
     {
@@ -46,8 +66,9 @@ public class Visita : Salesforce<Visita>
                 DateOnly date = DateOnly.Parse(value);
                 if (date > DateOnly.FromDateTime(DateTime.Now) || date < DateOnly.Parse("1900-01-01"))
                     throw new ArgumentException("Fecha de expedición inválida");
+                _expeditionDate = value;
             }
-            _expeditionDate = value;
+            else _expeditionDate = null;
         }
     }
     public string? email
@@ -68,14 +89,14 @@ public class Visita : Salesforce<Visita>
             if (value != null)
             {
                 var len = value.Length;
-                if (len < 7 || len > 10)
+                if (len > 12)
                     throw new ArgumentException("Número de teléfono móvil inválido");
                 mobilePhone = long.Parse(value);
             }
             else mobilePhone = null;
         }
     }
-    public long? mobilePhone { get; set; }
+    public long? mobilePhone { get; private set; }
     public DateOnly? birthDate
     {
         get => _birthDate;
@@ -97,7 +118,7 @@ public class Visita : Salesforce<Visita>
             AuthorizeData = value == "1";
         }
     }
-    public bool? AuthorizeData { get; set; }
+    public bool? AuthorizeData { get; private set; }
     public string? disposeToInvest { get; set; }
     public string? registerType { get; set; }
     public string? attentionReason { get; set; }
@@ -111,7 +132,7 @@ public class Visita : Salesforce<Visita>
             visitedSalesRoom = value == "1";
         }
     }
-    public bool? visitedSalesRoom { get; set; }
+    public bool? visitedSalesRoom { get; private set; }
     public string? salesRoom { get; set; }
     public DateOnly? visitedDate
     {
@@ -147,7 +168,7 @@ public class Visita : Salesforce<Visita>
             }
             catch (Exception ex)
             {
-                Logger.Log("Inte.Salesforce.LoadData" + "   "+ subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
+                Logger.Log("Inte.Salesforce.LoadData" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
             }
         }
     }

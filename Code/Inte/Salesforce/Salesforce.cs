@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json.Serialization;
 using dotenv.net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -46,15 +45,15 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
             if (JData == null) throw new Exception("No se encontró el registro");
             else
             {
-                Console.WriteLine("JsonData: \n" + JData.ToString());
+                //Console.WriteLine("JsonData: \n" + JData.ToString());
                 if (this is not T target) throw new InvalidOperationException("La instancia actual no es del tipo genérico");
                 JsonConvert.PopulateObject(JData.ToString(), target);
+                return target;
             }
-            return (T)this;
         }
         catch(Exception ex)
         {
-            Logger.Log("Inte.Salesforce.LoadData" + "   "+ subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
+            Logger.Log("Inte.Salesforce.LoadData" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
             throw;
         }
     }
@@ -75,9 +74,8 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
         if (url == null) throw new Exception("No se configuró la conexión con Salesforce");
         using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
         HttpResponseMessage response = await client.PostAsync(url, body, cts.Token);
-        string res = await response.Content.ReadAsStringAsync();
-        Console.WriteLine("\nauth: \t" + res);
-        JObject? obj = JsonConvert.DeserializeObject<JObject>(res);
+        string auth = await response.Content.ReadAsStringAsync();
+        JObject? obj = JsonConvert.DeserializeObject<JObject>(auth);
         if (obj == null) throw new Exception("No se completó la autenticación en Salesforce");
         else
         {
@@ -96,7 +94,7 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
         Console.WriteLine("\ndata: \t" + data);
         using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
         string res = await WebUt.WebRequest(instance_url + route, HttpMethod.Post, data, "application/json", cts.Token, headers);
-        Console.WriteLine("\nsalesforce res: \t" + res);
+        //Console.WriteLine("\nsalesforce res: \t" + res);
         JToken? jRes = JsonConvert.DeserializeObject<JToken>(res);
         await UpdateData(jRes);
         return jRes;
@@ -126,7 +124,7 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
         }
         catch(Exception ex)
         {
-            Logger.Log("Inte.Salesforce.Send" + "   "+ subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
+            Logger.Log("Inte.Salesforce.Send" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
             throw;
         }
         return res;
