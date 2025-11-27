@@ -2,8 +2,8 @@
 -- Proceso: Integraciones/Get_CotizacionSF
 -- =============================================
 --START_PARAM
-set @id_cotizacion = 333,
-    @id_unidad = 174869;
+set @id_cotizacion = 336,
+    @id_unidad = 91032;
 --END_PARAM
 
 select (
@@ -53,3 +53,7 @@ left join dim_banco_constructor b on t.id_banco_constructor = b.id_banco
 left join dim_fiduciaria f on t.id_fiduciaria = f.id_fiduciaria
 left join dim_precio_unidad pu on u.id_unidad = pu.id_unidad and l.id_lista = pu.id_lista
 where co.id_cotizacion = @id_cotizacion and u.id_unidad = @id_unidad;
+/* 
+select * from fact_unidades where id_unidad = 91032;
+select * from fact_cotizaciones where id_cotizacion = 336;
+ */

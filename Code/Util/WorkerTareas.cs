@@ -24,12 +24,19 @@ public class WorkerTareas(string rootPath) : BackgroundService
 
                 foreach (JObject obj in resData.Children<JObject>())
                 {
-                    if (obj["tipo"]?.ToString() is string tipo && tipo == "salesforce"
-                        && obj["sub_tipo"]?.ToString() is string subtipo
-                        && obj["datos"]?.ToString() is string datos)
+                    //Console.WriteLine("Execute task " + obj["id_cola_tareas_rpa"]);
+                    string? tipo = obj["tipo"]?.ToString(),
+                        subtipo = obj["sub_tipo"]?.ToString(),
+                        datos = obj["datos"]?.ToString();
+                    if (tipo == "salesforce" && !string.IsNullOrWhiteSpace(subtipo) && !string.IsNullOrWhiteSpace(datos))
                     {
                         await semaphore.WaitAsync(stoppingToken);
-                        tasks.Add(ProcessTaskAsync(obj, subtipo, datos, semaphore));
+                        tasks.Add(ProcessTaskSF(obj, subtipo, datos, semaphore));
+                    }
+                    else if(tipo == "unassign" && !string.IsNullOrWhiteSpace(datos))
+                    {
+                        await semaphore.WaitAsync(stoppingToken);
+                        tasks.Add(ProcessTaskLiberarUnd(obj, datos, semaphore));
                     }
                 }
 
@@ -50,7 +57,7 @@ public class WorkerTareas(string rootPath) : BackgroundService
         }
     }
 
-    private async Task ProcessTaskAsync(JObject obj, string subtipo, string datos, SemaphoreSlim semaphore)
+    private async Task ProcessTaskSF(JObject obj, string subtipo, string datos, SemaphoreSlim semaphore)
     {
         try
         {
@@ -68,7 +75,33 @@ public class WorkerTareas(string rootPath) : BackgroundService
         }
         catch (Exception ex)
         {
-            Logger.Log("Util.WorkerTareas.ProcessTaskAsync" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + ex.StackTrace);
+            Logger.Log("Util.WorkerTareas.ProcessTaskSF" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + ex.StackTrace);
+            consecutiveErrors++;
+        }
+        finally
+        {
+            semaphore.Release();
+        }
+    }
+
+    private async Task ProcessTaskLiberarUnd(JObject obj, string datos, SemaphoreSlim semaphore)
+    {
+        try
+        {
+            int errorsAtStart = consecutiveErrors;
+            obj["resultado"] = await LiberarUnidad(datos);
+            if (errorsAtStart != consecutiveErrors)
+            {
+                DateTime reprogramar = DateTime.UtcNow.AddMinutes(5);
+                obj["is_active"] = "1";
+                obj["fecha_programada"] = reprogramar.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+            else obj["is_active"] = "0";
+            await Generic.ProcessRequest(null, null, "genericST", "General/Upd_ColaTareas", JsonConvert.SerializeObject(obj), rootPath);
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("Util.WorkerTareas.ProcessTaskLiberarUnd - " + ex.Message + Environment.NewLine + ex.StackTrace);
             consecutiveErrors++;
         }
         finally
@@ -108,4 +141,22 @@ public class WorkerTareas(string rootPath) : BackgroundService
         ["ListaEsperaSF"] = async (sql, datos, rp) => 
             await (await ListaEspera.CreateAsync(sql, datos, rp).LoadData()).Send(),
     };
+
+    private async Task<string> LiberarUnidad(string datos)
+    {
+        try {
+            JToken? resData = (await Generic.ProcessRequest(null, null, "genericST", "ProcesoNegocio/Upd_LiberarUnidad", datos, rootPath))["data"];
+            string? res = resData?.ToString();
+            Console.WriteLine(res);
+            if (string.IsNullOrWhiteSpace(res) || !res.StartsWith("OK"))
+                throw new Exception(res);
+            return res;
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("Util.WorkerTareas.LiberarUnidad - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
+            consecutiveErrors++;
+            return ex.Message;
+        }
+    }
 }

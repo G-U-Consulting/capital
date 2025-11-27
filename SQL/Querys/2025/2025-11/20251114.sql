@@ -14,3 +14,9 @@ create table cola_tareas_rpa (
   resultado varchar(255),
   updated_on datetime default null on update current_timestamp
 );
+
+create table dim_log_salesforce(
+  id_log int primary key auto_increment,
+  id_cola_tareas_rpa int not null unique references cola_tareas_rpa(id_cola_tareas_rpa),
+  sincronizada bit not null
+);

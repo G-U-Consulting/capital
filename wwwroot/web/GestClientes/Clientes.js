@@ -96,14 +96,36 @@ export default {
         },
         async onSave() {
             showProgress();
-            let res = null;
-            try {
-                res = await (httpFunc('/generic/genericST/Clientes:Upd_Cliente', this.cliente));
-                if (res.isError || res.data !== 'OK') throw res;
-                this.setMode(0);
-            } catch (e) {
-                console.error(e);
-                showMessage('Error: ' + e.errorMessage || e.data);
+            let a = true;
+            const obligatorios = [
+                { campo: "nombres", label: "Nombres" },
+                { campo: "apellido1", label: "Primer Apellido" },
+                { campo: "apellido2", label: "Segundo Apellido" },
+                { campo: "fecha_nacimiento", label: "Fecha de Nacimiento" },
+                { campo: "direccion", label: "Dirección" },
+                { campo: "ciudad", label: "Ciudad" },
+                { campo: "barrio", label: "Barrio" },
+                { campo: "departamento", label: "Departamento" },
+                { campo: "tipo_documento", label: "Tipo de Documento" },
+                { campo: "numero_documento", label: "Número de Documento" },
+            ];
+            obligatorios.forEach(ob => {
+                if (!this.cliente[ob.campo]) {
+                    showMessage(`Campo obligatorio: ${ob.label}`);
+                    a = false;
+                    return;
+                }
+            })
+            if (a) {
+                let res = null;
+                try {
+                    res = await (httpFunc('/generic/genericST/Clientes:Upd_Cliente', this.cliente));
+                    if (res.isError || res.data !== 'OK') throw res;
+                    this.setMode(0);
+                } catch (e) {
+                    console.error(e);
+                    showMessage('Error: ' + e.errorMessage || e.data);
+                }
             }
             hideProgress();
         },
