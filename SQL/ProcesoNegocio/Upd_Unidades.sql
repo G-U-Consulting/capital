@@ -16,11 +16,12 @@ set @id_cliente = '0',
     @lista = '5',
     @id_unidad = '26324',
     @numero_apartamento = 'Apto 414',
-    @consecutivo = '2';
+    @consecutivo = '2',
+    @id_negocios_unidades = '12345';
 --END_PARAM
 
 update fact_negocios_unidades fnu
-set 
+set
     fnu.id_cliente        = @id_cliente,
     fnu.id_proyecto       = @id_proyecto,
     fnu.usuario           = @usuario,
@@ -35,6 +36,8 @@ set
     fnu.valor_unidad      = @valor_unidad,
     fnu.lista             = @lista,
     fnu.numero_apartamento= @numero_apartamento
-where fnu.id_unidad = @id_unidad;
+where fnu.id_negocios_unidades = @id_negocios_unidades
+  and fnu.id_unidad = @id_unidad
+  and fnu.cotizacion = @cotizacion;
 
-select concat('ok-id_unidad:', @id_unidad, ' ', 'update') as result;
+select concat('ok-id_negocios_unidades:', @id_negocios_unidades, ' ', 'update') as result;

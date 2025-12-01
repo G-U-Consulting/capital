@@ -158,6 +158,7 @@ export default {
             vetoData: '',
             camposBloqueados: false,
             registro: false,
+            id_opcion: null,
 
             bancoSeleccionado: 0,
             unidadSeleccionada: 0,
@@ -214,6 +215,15 @@ export default {
             tablaPeriodos: [],
             f_cotizacion: '',
             unidadOpcion: '',
+
+
+            opcion_fecha_entrega: null,
+            opcion_fecha_escrituracion: null,
+            opcion_fecha_primera_cuota: null,
+            opcion_fecha_ultima_cuota: null,
+            opcion_valor_reformas: null,
+            opcion_valor_acabados: null,
+            opcion_valor_separacion: null,
 
             clientes: [],
             ObjClienteOriginal: null,
@@ -361,6 +371,10 @@ export default {
             i === -1 ? this.ids_unidades.push(apto.id_unidad) : this.ids_unidades.splice(i, 1);
         },
         calcularSubsidio() {
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             if (!this.ingresos_mensuales || !this.seleccionAnioEntrega) {
                 this.valor_subsidio = 0;
                 return;
@@ -392,6 +406,10 @@ export default {
             }
         },
         async calcularFinanciacion() {
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             if (!this.tipoFinanciacionSeleccionada || !this.importeOriginal) {
                 this.ingresos_mensuales = 0;
                 this.valor_credito_final = 0;
@@ -456,6 +474,10 @@ export default {
             }
         },
         calcularPlanPago() {
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             if (!this.planSeleccionado || !this.importeOriginal) {
                 this.cuota_inicial = 0;
                 this.valor_credito = 0;
@@ -483,83 +505,256 @@ export default {
                 await this.seleccionarCotizacion(event.data.cotizacionId);
             }
         },
+
+        validateModeCliente() {
+            const camposObligatorios = [
+                { campo: "nombres", label: "Nombres" },
+                { campo: "apellido1", label: "Primer Apellido" },
+                { campo: "apellido2", label: "Segundo Apellido" },
+                { campo: "fechaNacimiento", label: "Fecha de Nacimiento" },
+                { campo: "direccion", label: "Dirección" },
+                { campo: "ciudad", label: "Ciudad" },
+                { campo: "barrio", label: "Barrio" },
+                { campo: "departamento", label: "Departamento" },
+                { campo: "tipoDocumento", label: "Tipo de Documento" },
+                { campo: "numeroDocumento", label: "Número de Documento" },
+            ];
+
+            const faltante = camposObligatorios.find(c => !this.ObjCliente[c.campo] || this.ObjCliente[c.campo].trim() === "");
+
+            if (faltante) {
+                showMessage(`Debe diligenciar el campo obligatorio: ${faltante.label}`);
+                return false;
+            }
+
+            if (!this.policyAccepted) {
+                showMessage("Debe aceptar la política para continuar.");
+                return false;
+            }
+
+            return true;
+        },
+
+        async validateModeOpcion() {
+   
+            if (!this.cotizacionSeleccionada) {
+                showMessage("No hay cotización seleccionada.");
+                return false;
+            }
+
+            const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
+            if (!cotizacion) {
+                showMessage("No hay cotización seleccionada.");
+                return false;
+            }
+
+            const hoyStr = new Date().toISOString().slice(0, 10);
+            const fechaStr = (cotizacion.fecha instanceof Date)
+                ? cotizacion.fecha.toISOString().slice(0, 10)
+                : this.normalizarFecha(cotizacion.fecha);
+
+            if (fechaStr !== hoyStr) {
+                showMessage("Solo puede opcionar cotizaciones del día de hoy.");
+                return false;
+            }
+
+            if (cotizacion.importe <= 0) {
+                showMessage("La cotización seleccionada no tiene Item.");
+                return false;
+            }
+
+            return true;
+        },
+
+        async prepararDatosOpcion() {
+            this.limpiarDatosOpcion();
+
+            this.importeBase = this.totalFinal;
+
+            const id_unidad = this.unidades[0]?.id_unidad;
+            if (!id_unidad) return;
+
+            const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
+            this.unidadOpcion = resp.data[0][0];
+            this.reformaActivo = this.unidadOpcion?.inv_terminado == 1;
+
+            await this.cargarOpcionExistente();
+        },
+
+        limpiarDatosOpcion() {
+            this.id_opcion = null;
+
+            this.valor_descuento_adicional = 0;
+            this.valor_escrituras = 0;
+            this.notariales = 0;
+            this.beneficiencia = 0;
+            this.registro = 0;
+
+            this.pagoSeleccionado = '';
+
+            this.bancoSeleccionado = 0;
+            this.tipoSeleccionado = null;
+            this.anioSeleccionado = '';
+            this.modalidadSeleccionada = null;
+
+            this.ingresos_mensuales = 0;
+            this.cesantias = 0;
+            this.ahorros = 0;
+            this.valor_subsidio = 0;
+            this.seleccionAnioEntrega = '';
+            this.caja_compensacion = '';
+
+            this.fin_max_permisible = 0;
+            this.cuota_permisible = 0;
+            this.cuota_max_financiable = 0;
+            this.ingr_regs_max = 0;
+            this.d_meses = 0;
+
+            this.valor_credito_final = 0;
+            this.cuota_inicial_final = 0;
+
+            this.opcion_fecha_entrega = null;
+            this.opcion_fecha_escrituracion = null;
+            this.opcion_fecha_primera_cuota = null;
+            this.opcion_fecha_ultima_cuota = null;
+            this.opcion_valor_reformas = null;
+            this.opcion_valor_acabados = null;
+            this.opcion_valor_separacion = null;
+
+            this.unidadOpcion = null;
+            this.importeBase = 0;
+            this.reformaActivo = false;
+        },
+
+        async cargarOpcionExistente() {
+            if (!this.idcotizacion) return;
+
+            try {
+                const respOpcion = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Opcion', {
+                    id_cotizacion: this.idcotizacion,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    id_cliente: this.id_cliente
+                });
+
+                const opcion = respOpcion.data[0]?.[0];
+
+                if (opcion) {
+                   
+                    this.id_opcion = opcion.id_opcion;
+
+                    this.opcion_fecha_entrega = opcion.fecha_entrega ?? null;
+                    this.opcion_fecha_escrituracion = opcion.fecha_escrituracion ?? null;
+                    this.opcion_fecha_primera_cuota = opcion.fecha_primera_cuota ?? null;
+                    this.opcion_fecha_ultima_cuota = opcion.fecha_ultima_cuota ?? null;
+                    this.opcion_valor_reformas = opcion.valor_reformas ?? 0;
+                    this.opcion_valor_acabados = opcion.valor_acabados ?? 0;
+                    this.opcion_valor_separacion = opcion.valor_separacion ?? 0;
+
+                    console.log('Opción cargada - Fechas:', {
+                        entrega: this.opcion_fecha_entrega,
+                        escrituracion: this.opcion_fecha_escrituracion,
+                        primera_cuota: this.opcion_fecha_primera_cuota,
+                        ultima_cuota: this.opcion_fecha_ultima_cuota
+                    });
+
+                    this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
+                    this.valor_separacion = opcion.valor_separacion || 0;
+                    this.valor_escrituras = opcion.valor_escrituras || 0;
+                    this.notariales = opcion.notariales || 0;
+                    this.beneficiencia = opcion.beneficiencia || 0;
+                    this.registro = opcion.registro || 0;
+
+                    if (opcion.pago_financiado) {
+                        this.pagoSeleccionado = 'Financiado'; 
+                    } else if (opcion.pago_contado) {
+                        this.pagoSeleccionado = 'Contado';
+                    }
+
+                    this.tipoSeleccionado = opcion.id_tipo || null;
+  
+                    this.anioSeleccionado = opcion.id_anios ? parseInt(opcion.id_anios) : null;
+                    this.modalidadSeleccionada = opcion.id_modalidad || null;
+
+                    this.ingresos_mensuales = opcion.ingresos_familiares || 0;
+                    this.cesantias = opcion.cesantias || 0;
+                    this.ahorros = opcion.ahorros || 0;
+                    this.valor_subsidio = opcion.valor_subsidio || 0;
+                    this.seleccionAnioEntrega = opcion.anio_entrega || '';
+                    this.caja_compensacion = opcion.id_caja_compensacion || null;
+
+                    this.fin_max_permisible = opcion.fin_max_permisible || 0;
+                    this.cuota_permisible = opcion.cuota_permisible || 0;
+                    this.cuota_max_financiable = opcion.cuota_max_financiable || 0;
+                    this.ingr_regs_max = opcion.ingr_regs_max || 0;
+                    this.d_meses = opcion.meses || 0;
+
+                    this.valor_credito_final = opcion.importe_financiacion || 0;
+                    this.cuota_inicial_final = opcion.cuota_inicial || 0;
+
+                    this.bancoSeleccionado = opcion.id_entidad || null;
+
+                    console.log('Opción cargada exitosamente:', opcion.id_opcion);
+                }
+            } catch (error) {
+                console.error('Error al cargar opción existente:', error);
+            }
+        },
+
+        async handleSave() {
+            const validaciones = {
+                0: () => this.validateModeCliente(),
+                1: () => this.validateModeVisita(),
+                2: () => true
+            };
+
+            const validar = validaciones[this.mode];
+            if (validar && !validar()) {
+                return;
+            }
+
+            const saveActions = {
+                0: () => this.nuevoCliente(0),
+                1: () => this.nuevaVisita(),
+                2: () => this.guardarCotizacion()
+            };
+
+            const action = saveActions[this.mode];
+            if (action) {
+                await action();
+            }
+        },
+
         async handleNext(nextIndex) {
             if (this.mode === 0 && nextIndex === 1) {
-                const camposObligatorios = [
-                    { campo: "nombres", label: "Nombres" },
-                    { campo: "apellido1", label: "Primer Apellido" },
-                    { campo: "apellido2", label: "Segundo Apellido" },
-                    { campo: "fechaNacimiento", label: "Fecha de Nacimiento" },
-                    { campo: "direccion", label: "Dirección" },
-                    { campo: "ciudad", label: "Ciudad" },
-                    { campo: "barrio", label: "Barrio" },
-                    { campo: "departamento", label: "Departamento" },
-                    { campo: "tipoDocumento", label: "Tipo de Documento" },
-                    { campo: "numeroDocumento", label: "Número de Documento" },
-                ];
-
-                const faltante = camposObligatorios.find(c => !this.ObjCliente[c.campo] || this.ObjCliente[c.campo].trim() === "");
-
-                if (faltante) {
-                    showMessage(`Debe diligenciar el campo obligatorio: ${faltante.label}`);
-                    return;
-                }
-
-                if (!this.policyAccepted) {
-                    showMessage("Debe aceptar la política para continuar.");
-                    return;
-                }
-
+                if (!this.validateModeCliente()) return;
                 await this.nuevoCliente(0);
             }
 
             if (this.mode === 1 && nextIndex === 2) {
-                var resp = null;
-                if (this.registro == false && this.noregistro != true) {
-                    resp = await this.nuevaVisita();
-                }
-                if (resp?.includes("Error")) {
-                    return;
+                if (this.registro === false && this.noregistro !== true) {
+                    const resp = await this.nuevaVisita();
+                    if (resp?.includes("Error")) return;
                 }
             }
 
             if (this.mode === 2 && nextIndex === 3) {
-                this.importeBase = this.totalFinal;
+                if (!await this.validateModeOpcion()) return;
+            }
 
-                var id_unidad = this.unidades[0]?.id_unidad;
-                let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
-                this.unidadOpcion = await resp.data[0][0];
-
-                this.reformaActivo = this.unidadOpcion?.inv_terminado == 1;
-
-                if (!this.cotizacionSeleccionada) {
-                    return showMessage("No hay cotización seleccionada.");
-                }
-
-                const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
-                if (!cotizacion) {
-                    return showMessage("No hay cotización seleccionada.");
-                }
-
-                const hoyStr = new Date().toISOString().slice(0, 10);
-                const fechaStr = (cotizacion.fecha instanceof Date)
-                    ? cotizacion.fecha.toISOString().slice(0, 10)
-                    : this.normalizarFecha(cotizacion.fecha);
-
-                if (fechaStr !== hoyStr) {
-                    return showMessage("Solo puede opcionar cotizaciones del día de hoy.");
-                }
-
-                if (cotizacion.importe <= 0) {
-                    return showMessage("La cotización seleccionada no tiene Item.");
-                }
+            if (this.mode === 3 && nextIndex === 2) {
+                this.limpiarDatosOpcion();
             }
 
             if (this.policyAccepted || nextIndex === 0) {
-                if (this.mode === 0 && nextIndex === 2) { return; }
-                if (this.mode === 0 && nextIndex === 3) { return; }
-                if (this.mode === 1 && nextIndex === 3) { return; }
+                if (this.mode === 0 && nextIndex === 2) return;
+                if (this.mode === 0 && nextIndex === 3) return;
+                if (this.mode === 1 && nextIndex === 3) return;
+
                 this.mode = nextIndex;
+
+                if (nextIndex === 3) {
+                    await this.prepararDatosOpcion();
+                }
             }
         },
         async acceptPolicy(isChecked) {
@@ -870,10 +1065,11 @@ export default {
 
             if (index == 3) {
                 this.asesor = GlobalVariables.username;
-                if (this.unidades[0]?.id_unidad && GlobalVariables.id_proyecto) {
+                const id_unidad = this.unidades[0]?.id_unidad;
+
+                if (id_unidad && GlobalVariables.id_proyecto) {
                     try {
                         var id_proyecto = GlobalVariables.id_proyecto;
-                        var id_unidad = this.unidades[0]?.id_unidad;
 
                         const consultas = [
                             {
@@ -917,19 +1113,21 @@ export default {
                 const container = document.getElementById('logo-capital');
                 if (container) container.innerHTML = img;
 
-                let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
+                if (id_unidad) {
+                    let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
+                    this.unidadOpcion = await resp.data[0][0];
+                }
 
-                this.unidadOpcion = await resp.data[0][0];
-
-                const updatePromises = this.unidades.map(unidad => {
-                    let payload = unidad;
-                    return httpFunc('/generic/genericST/ProcesoNegocio:Upd_Unidades', payload);
-
-                });
-                try {
-                    let results = await Promise.all(updatePromises);
-                } catch (error) {
-                    console.error("Error en alguna actualización del batch:", error);
+                if (this.unidades && this.unidades.length > 0) {
+                    const updatePromises = this.unidades.map(unidad => {
+                        let payload = unidad;
+                        return httpFunc('/generic/genericST/ProcesoNegocio:Upd_Unidades', payload);
+                    });
+                    try {
+                        let results = await Promise.all(updatePromises);
+                    } catch (error) {
+                        console.error("Error en alguna actualización del batch:", error);
+                    }
                 }
             }
 
@@ -947,78 +1145,107 @@ export default {
             }
             return false;
         },
-        ///////// mode 1 ////////////
-        async nuevaVisita() {
-
-            this.ObjVisita.id_proyecto = GlobalVariables.id_proyecto;
-            this.ObjVisita.usuario = GlobalVariables.username;
-            this.ObjVisita.id_cliente = this.id_cliente;
-            const tipo = this.tipo_registro
+        ///////// Visitas ////////////
+        prepararDatosVisita() {
+            const tipoRegistro = this.tipo_registro
                 .filter(item => item.checked)
                 .map(item => item.id_tipo_registro);
-            this.ObjVisita.tipo_registro = tipo.join(',');
 
-            const estadopublicacion = this.modo_atencion
+            const modoAtencion = this.modo_atencion
                 .filter(item => item.checked)
                 .map(item => item.id_modo_atencion);
-            this.ObjVisita.modo_atencion = estadopublicacion.join(',');
+
+            return {
+                ...this.ObjVisita,
+                id_proyecto: GlobalVariables.id_proyecto,
+                id_cliente: this.id_cliente,
+                usuario: GlobalVariables.username,
+                id_sala_venta: GlobalVariables.sala.id_sala_venta,
+                tipo_registro: tipoRegistro.join(','),
+                modo_atencion: modoAtencion.join(',')
+            };
+        },
+
+        validateModeVisita() {
             if (this.ObjVisita.id_visita != null) {
                 showMessage("Esta visita no se puede actualizar.");
-                return "Error";
+                return false;
             }
-            if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) return;
+
+            if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) {
+                return false;
+            }
+
             if (!this.ObjVisita.id_tipo_registro || !this.ObjVisita.id_modo_atencion) {
                 showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
+                return false;
+            }
+
+            return true;
+        },
+
+        async nuevaVisita() {
+            if (!this.validateModeVisita()) {
                 return "Error";
             }
+
             showProgress();
             try {
-                let resp = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Registro', 
-                    {...this.ObjVisita, id_sala_venta: GlobalVariables.sala.id_sala_venta });
-                hideProgress();
-                resp = resp.data;
-                if (resp.includes("OK")) {
+                const datosVisita = this.prepararDatosVisita();
+                const resp = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Registro', datosVisita);
+
+                if (resp.data.includes("OK")) {
                     this.registro = true;
                     await this.setSubmode(1);
                     showMessage("Visita creada correctamente.");
                     return "OK";
+                } else {
+                    showMessage("Error al crear la visita.");
+                    return "Error";
                 }
             } catch (error) {
-                hideProgress();
+                console.error('Error al crear visita:', error);
                 showMessage("Error al crear la visita.");
+                return "Error";
+            } finally {
+                hideProgress();
             }
         },
-        async editarVisita(id_visita) {
-            this.ObjVisita.id_visita = id_visita;
-            let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { id_visita: id_visita });
-            this.ObjVisita.id_categoria = resp.data[0][0].id_categoria_medio;
-            this.ObjVisita.id_medio = resp.data[0][0].id_medio;
-            this.ObjVisita.id_motivo_compra = resp.data[0][0].id_motivo_compra;
-            this.ObjVisita.id_referencia = resp.data[0][0].id_referencia;
-            this.ObjVisita.otro_texto = resp.data[0][0].otro_texto;
-            this.ObjVisita.descripcion = resp.data[0][0].descripcion;
-            this.ObjVisita.id_presupuesto_vivienda = resp.data[0][0].id_presupuesto_vivienda;
-            this.ObjVisita.id_tipo_tramite = resp.data[0][0].id_tipo_tramite;
-            this.ObjVisita.id_tipo_registro = resp.data[0][0].id_tipo_registro;
-            this.ObjVisita.id_modo_atencion = resp.data[0][0].id_modo_atencion;
 
-            var tFSeleccionada = resp.data[0][0].tipo_registro;
-            this.tipo_registro.forEach(item => {
-                if (tFSeleccionada) {
-                    item.checked = (item.id_tipo_registro == tFSeleccionada);
-                } else {
-                    item.checked = false;
-                }
+        actualizarCheckboxes(lista, valorSeleccionado, campoId) {
+            lista.forEach(item => {
+                item.checked = valorSeleccionado ? (item[campoId] == valorSeleccionado) : false;
             });
-            var tFSeleccionada = resp.data[0][0].modo_atencion;
-            this.modo_atencion.forEach(item => {
-                if (tFSeleccionada) {
-                    item.checked = (item.id_modo_atencion == tFSeleccionada);
-                } else {
-                    item.checked = false;
-                }
-            });
-            this.camposBloqueados = true;
+        },
+
+        async editarVisita(id_visita) {
+            try {
+                this.ObjVisita.id_visita = id_visita;
+                const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { id_visita });
+
+                const data = resp.data[0][0];
+
+                Object.assign(this.ObjVisita, {
+                    id_categoria: data.id_categoria_medio,
+                    id_medio: data.id_medio,
+                    id_motivo_compra: data.id_motivo_compra,
+                    id_referencia: data.id_referencia,
+                    otro_texto: data.otro_texto,
+                    descripcion: data.descripcion,
+                    id_presupuesto_vivienda: data.id_presupuesto_vivienda,
+                    id_tipo_tramite: data.id_tipo_tramite,
+                    id_tipo_registro: data.id_tipo_registro,
+                    id_modo_atencion: data.id_modo_atencion
+                });
+
+                this.actualizarCheckboxes(this.tipo_registro, data.tipo_registro, 'id_tipo_registro');
+                this.actualizarCheckboxes(this.modo_atencion, data.modo_atencion, 'id_modo_atencion');
+
+                this.camposBloqueados = true;
+            } catch (error) {
+                console.error('Error al editar visita:', error);
+                showMessage('Error al cargar la visita.');
+            }
         },
         contarProyectos(lista) {
             const contador = {};
@@ -1052,136 +1279,164 @@ export default {
                 });
 
                 this.cotizaciones = resp.data[0] || [];
-                this.nombre = await resp.data[0][0]?.nombre || '';
+                this.nombre = resp.data[0]?.[0]?.nombre || '';
 
-                await Promise.all(this.cotizaciones.map(async (item, index) => {
-                    const { unidades, totalFinal } = await this.cargarCotizacion(item.cotizacion);
+                const unidadesPromises = this.cotizaciones.map(item =>
+                    this.cargarUnidadesCotizacion(item.cotizacion)
+                );
 
-                    this.cotizaciones[index] = {
-                        ...this.cotizaciones[index],
-                        unidades,
-                        importe: totalFinal
-                    };
+                const unidadesResults = await Promise.all(unidadesPromises);
+
+                this.cotizaciones = this.cotizaciones.map((item, index) => ({
+                    ...item,
+                    unidades: unidadesResults[index].unidades,
+                    importe: unidadesResults[index].totalFinal
                 }));
+            } catch (error) {
+                console.error('Error al cargar cotizaciones:', error);
+                throw error;
             } finally {
                 hideProgress();
             }
         },
-        async cargarCotizacion(cotizacionId) {
-            this.cotizacionId = cotizacionId
-            const respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
-                id_cliente: this.id_cliente,
-                id_proyecto: GlobalVariables.id_proyecto,
-                cotizacion: cotizacionId
-            });
-
-            this.añoentrega = respa.data[0][0]?.fecha_entrega.match(/\d{4}/)?.[0] || '';
-            this.d_fecha_entrega = respa.data[0][0]?.fecha_entrega_f || '';
-            this.f_cotizacion = (respa.data[0][0]?.created_on || '').split('T')[0].split(' ')[0];
-            this.d_tna_antes = respa.data[0][0]?.antes_p_equ;
-            this.d_tna_despues = respa.data[0][0]?.despues_p_equ;
-            this.d_fecha_escrituracion = respa.data[0][0]?.fecha_escrituracion;
-            this.f_creacion = respa.data[0][0]?.created_on;
-            this.d_fecha_pe = respa.data[0][0]?.fecha_p_equ;
-            this.consecutivo = respa.data[0][0]?.consecutivo;
-
-            let añoActual = new Date().getFullYear();
-            let añoEntrega = parseInt(this.añoentrega);
-
-            this.valor_reformas = respa.data[0][0]?.valor_reformas || 0;
-            this.valor_acabados = respa.data[0][0]?.valor_acabados || 0;
-            this.valor_separacion = respa.data[0][0]?.valor_separacion || 0;
-
-            if (añoEntrega && añoEntrega >= añoActual) {
-                this.listaAniosEntrega = Array.from(
-                    { length: añoEntrega - añoActual + 1 },
-                    (_, i) => añoActual + i
-                );
-            } else {
-                this.listaAniosEntrega = [añoActual];
-            }
-
-            const parseNumber = str =>
-                typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;
-
-            let sumaValores = 0;
-            let sumaDescuentos = 0;
-
-            const unidades = respa.data[0].map(unidad => {
-                const valor_unidad = parseNumber(unidad.valor_unidad);
-                const valor_descuento = parseNumber(unidad.valor_descuento);
-                sumaValores += valor_unidad;
-                sumaDescuentos += valor_descuento;
-                return { ...unidad, valor_unidad, valor_descuento };
-            });
-
-            const totalFinal = sumaValores - sumaDescuentos;
-
-            this.cotizaciones = this.cotizaciones.map(c =>
-                Number(c.cotizacion) === Number(cotizacionId)
-                    ? { ...c, unidades, importe: totalFinal }
-                    : c
-            );
-
-            this.cotizacionActiva = cotizacionId;
-            this.totalFinal = totalFinal;
-            this.importeOriginal = totalFinal;
-
-            return { unidades, totalFinal };
-        },
-        async seleccionarCotizacion(cotizacionId, id) {
-            this.idcotizacion = id || null;
-            this.cotizacionSeleccionada = cotizacionId;
-
-            await this.cargarCotizacion(cotizacionId);
-
-            this.unidades = this.cotizaciones.find(
-                c => Number(c.cotizacion) === Number(cotizacionId)
-            )?.unidades || [];
-        },
-        async addCotizacion() {
-
-            const nuevaFecha = new Date();
-            const pad = num => String(num).padStart(2, '0');
-            const yyyy = nuevaFecha.getFullYear();
-            const MM = pad(nuevaFecha.getMonth() + 1);
-            const dd = pad(nuevaFecha.getDate());
-            const hh = pad(nuevaFecha.getHours());
-            const mm = pad(nuevaFecha.getMinutes());
-            const ss = pad(nuevaFecha.getSeconds());
-            const formatoFecha = `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
-
-            let siguienteId = 1;
-            if (this.cotizaciones.length > 0) {
-                const ids = this.cotizaciones.map(c => parseInt(c.cotizacion) || 0);
-                siguienteId = Math.max(...ids) + 1;
-            }
-            let id_cotizacion = 0;
-
-            if (this.id_cliente != 0) {
-                let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_Cotizacion', {
-                    id_proyecto: GlobalVariables.id_proyecto,
+        async cargarUnidadesCotizacion(cotizacionId) {
+            try {
+                const respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                     id_cliente: this.id_cliente,
-                    cotizacion: siguienteId,
-                    usuario: GlobalVariables.username
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    cotizacion: cotizacionId
                 });
 
-                id_cotizacion = resp.data[0][0].id_cotizacion;
-                if (id_cotizacion && id_cotizacion.includes(':'))
-                    id_cotizacion = id_cotizacion.split(':')[1];
+                const parseNumber = str =>
+                    typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;
 
+                const unidades = (respa.data[0] || []).map(unidad => ({
+                    ...unidad,
+                    valor_unidad: parseNumber(unidad.valor_unidad),
+                    valor_descuento: parseNumber(unidad.valor_descuento)
+                }));
+
+                const totalFinal = unidades.reduce(
+                    (acc, u) => acc + u.valor_unidad - u.valor_descuento,
+                    0
+                );
+
+                return { unidades, totalFinal, rawData: respa.data[0]?.[0] };
+            } catch (error) {
+                console.error(`Error al cargar unidades de cotización ${cotizacionId}:`, error);
+                return { unidades: [], totalFinal: 0, rawData: null };
             }
-            this.cotizaciones.push({
-                cotizacion: siguienteId,
-                fecha: formatoFecha,
-                descripcion: '',
-                importe: 0,
-                id_proyecto: GlobalVariables.id_proyecto,
-                id_cliente: this.id_cliente,
-                id_cotizacion: id_cotizacion ?? 0
-            });
+        },
+        async cargarCotizacion(cotizacionId) {
+            try {
+                this.cotizacionId = cotizacionId;
 
-            this.cotizacionActiva = siguienteId;
+                const { unidades, totalFinal, rawData } = await this.cargarUnidadesCotizacion(cotizacionId);
+
+                if (!rawData) {
+                    console.warn(`No se encontraron datos para la cotización ${cotizacionId}`);
+                    return { unidades, totalFinal };
+                }
+
+                this.añoentrega = rawData.fecha_entrega?.match(/\d{4}/)?.[0] || '';
+                this.d_fecha_entrega = rawData.fecha_entrega_f || '';
+                this.f_cotizacion = rawData.created_on ? rawData.created_on.split('T')[0] : '';
+                this.d_tna_antes = rawData.antes_p_equ;
+                this.d_tna_despues = rawData.despues_p_equ;
+                this.d_fecha_escrituracion = rawData.fecha_escrituracion;
+                this.f_creacion = rawData.created_on;
+                this.d_fecha_pe = rawData.fecha_p_equ;
+                this.consecutivo = rawData.consecutivo;
+                this.valor_reformas = rawData.valor_reformas || 0;
+                this.valor_acabados = rawData.valor_acabados || 0;
+                this.valor_separacion = rawData.valor_separacion || 0;
+                this.id_negocios_unidades = rawData.id_negocios_unidades || 0;
+
+                const añoActual = new Date().getFullYear();
+                const añoEntrega = parseInt(this.añoentrega);
+
+                this.listaAniosEntrega = (añoEntrega && añoEntrega >= añoActual)
+                    ? Array.from({ length: añoEntrega - añoActual + 1 }, (_, i) => añoActual + i)
+                    : [añoActual];
+
+                this.cotizaciones = this.cotizaciones.map(c =>
+                    Number(c.cotizacion) === Number(cotizacionId)
+                        ? { ...c, unidades, importe: totalFinal }
+                        : c
+                );
+
+                this.cotizacionActiva = cotizacionId;
+                this.totalFinal = totalFinal;
+                this.importeOriginal = totalFinal;
+
+                return { unidades, totalFinal };
+            } catch (error) {
+                console.error('Error al cargar cotización:', error);
+                throw error;
+            }
+        },
+        async seleccionarCotizacion(cotizacionId, id) {
+            try {
+                this.idcotizacion = id || null;
+                this.cotizacionSeleccionada = cotizacionId;
+
+                const { unidades } = await this.cargarCotizacion(cotizacionId);
+
+                this.unidades = unidades;
+
+                this.limpiarDatosOpcion();
+
+                if (this.mode === 3) {
+                    await this.prepararDatosOpcion();
+                }
+            } catch (error) {
+                console.error('Error al seleccionar cotización:', error);
+                this.unidades = [];
+                this.limpiarDatosOpcion();
+            }
+        },
+        async addCotizacion() {
+            try {
+                const formatoFecha = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                const siguienteId = this.cotizaciones.length > 0
+                    ? Math.max(...this.cotizaciones.map(c => parseInt(c.cotizacion) || 0)) + 1
+                    : 1;
+
+                let id_cotizacion = 0;
+
+                if (this.id_cliente !== 0) {
+                    const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Ins_Cotizacion', {
+                        id_proyecto: GlobalVariables.id_proyecto,
+                        id_cliente: this.id_cliente,
+                        cotizacion: siguienteId,
+                        usuario: GlobalVariables.username
+                    });
+
+                    const rawId = resp.data?.[0]?.[0]?.id_cotizacion;
+                    id_cotizacion = rawId?.includes(':')
+                        ? rawId.split(':')[1]
+                        : rawId || 0;
+                }
+
+                this.cotizaciones.push({
+                    cotizacion: siguienteId,
+                    fecha: formatoFecha,
+                    descripcion: '',
+                    importe: 0,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    id_cliente: this.id_cliente,
+                    id_cotizacion
+                });
+
+                this.cotizacionActiva = siguienteId;
+
+                return siguienteId;
+
+            } catch (error) {
+                console.error('Error al agregar cotización:', error);
+                throw error;
+            }
         },
         eliminarCotizacionActivaSiVacia(event) {
             if (event.key === 'Escape' && this.cotizacionActiva != null) {
@@ -1366,7 +1621,7 @@ export default {
                     id_proyecto: GlobalVariables.id_proyecto,
                 });
 
-                const unidades = respa.data[0].map(unidad => ({
+                const unidades = (respa.data[0] || []).map(unidad => ({
                     ...unidad,
                     valor_unidad: parseNumber(unidad.valor_unidad),
                     valor_descuento: parseNumber(unidad.valor_descuento)
@@ -1398,26 +1653,52 @@ export default {
 
         },
         async terminarAtencion() {
-            let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
-                terminarAtencion: 1,
-                id_cliente: this.id_cliente,
-                id_proyecto: GlobalVariables.id_proyecto,
-                id_visita: this.id_visita
-            });
-            let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
-                id_cliente: this.id_cliente,
-                id_proyecto: GlobalVariables.id_proyecto,
-            });
-            this.cliente = null;
-            this.ObjCliente = {};
-            this.mode = 0;
-            this.policyAccepted = false;
-            this.unidades = [];
-            this.mostrarModal = false;
+            if (!this.asuntoSeleccionado) {
+                showMessage('Por favor seleccione un tipo de seguimiento');
+                return;
+            }
+            const unidadesAsignadas = this.unidades.filter(u => u.is_asignado == 1);
 
-            GlobalVariables.ventanaUnidades?.close();
-            GlobalVariables.ventanaUnidades = null;
+            if (unidadesAsignadas.length === 0) {
+                showMessage('No hay unidades asignadas para terminar la atención');
+                return;
+            }
 
+            showProgress();
+            try {
+                const promises = unidadesAsignadas.map(unidad =>
+                    httpFunc("/generic/genericST/ProcesoNegocio:Upd_Item", {
+                        id_negocios_unidades: unidad.id_negocios_unidades,
+                        asunto: this.asuntoSeleccionado
+                    })
+                );
+
+                const results = await Promise.all(promises);
+
+                const errores = results.filter(res => res.isError);
+                if (errores.length > 0) {
+                    throw new Error(`Error al actualizar ${errores.length} unidad(es)`);
+                }
+
+                GlobalVariables.ventanaUnidades?.close();
+                GlobalVariables.ventanaUnidades = null;
+
+                showMessage(`Atención finalizada exitosamente.`);
+
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                if (GlobalVariables.proyectosApp) {
+                    GlobalVariables.proyectosApp.lateralMenu = false;
+                    GlobalVariables.proyectosApp.proyecto = null;
+                    GlobalVariables.proyectosApp.setMainMode('InicioProyecto');
+                    GlobalVariables.proyectosApp.setRuta([]);
+                }
+            } catch (error) {
+                console.error('Error al terminar atención:', error);
+                showMessage('Error: ' + (error.message || 'No se pudo terminar la atención'));
+            } finally {
+                hideProgress();
+            }
         },
         async modalveto() {
             this.vetoData = null;
@@ -1487,8 +1768,6 @@ export default {
                 this._ultimoTipoFinanciacion = this.bancoSeleccionado;
             }
 
-            
-
             if (!this.bancoSeleccionado) return;
 
             let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_FactorPorBanco', {
@@ -1509,6 +1788,10 @@ export default {
                 const bancoPlazo = res.data[0][0];
                 const diasEscrituracion = Number(bancoPlazo.dias_escrituracion) || 0;
                 const ultimaCuota = Number(bancoPlazo.ultima_cuota) || 0;
+
+                if (this.esOpcionGuardada) {
+                    return;
+                }
 
                 if (this.d_fecha_entrega) {
                     let fechaEntrega = new Date(this.d_fecha_entrega);
@@ -1552,6 +1835,10 @@ export default {
             }
         },
         async onSeleccionContado() {
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             const respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                 id_cliente: this.id_cliente,
                 id_proyecto: GlobalVariables.id_proyecto,
@@ -1698,6 +1985,10 @@ export default {
             return bal;
         },
         calcularMesesMaximos() {
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             if (!this.d_fecha_escrituracion || !this.d_fecha_cuota) return;
 
             const entrega = new Date(this.d_fecha_escrituracion);
@@ -1729,8 +2020,7 @@ export default {
                 return;
             }
 
-            const cuotaInicialCambio = this.cuota_inicial_final_anterior !== null &&
-                                       this.cuota_inicial_final_anterior !== this.cuota_inicial_final;
+            const cuotaInicialCambio = this.cuota_inicial_final_anterior !== null && this.cuota_inicial_final_anterior !== this.cuota_inicial_final;
 
             if (!cuotaInicialCambio) {
                 const tieneCuotasDigitadas = this.tablaPeriodos.some(fila => {
@@ -1739,7 +2029,6 @@ export default {
                 });
 
                 if (tieneCuotasDigitadas) {
-                    // Ya hay valores digitados
                     return;
                 }
             }
@@ -2061,12 +2350,87 @@ export default {
             this.printPDF('contenedor-pdf-completo');
         },
         async enviarYOpcionar() {
+            if (!this.cotizacionSeleccionada) {
+                showMessage('Debe seleccionar una cotización');
+                return;
+            }
 
-            await this.limpiarObj();
-            showMessage("Opción creada correctamente")
-            this.mode = 0;
+            if (!this.idcotizacion) {
+                showMessage('No se encontró el ID de la cotización');
+                return;
+            }
+
+            showProgress();
+            try {
+                const opcionData = {
+                    fecha_entrega: this.esOpcionGuardada ? this.opcion_fecha_entrega : this.d_fecha_entrega,
+                    valor_reformas: this.cleanNumber(this.esOpcionGuardada ? this.opcion_valor_reformas : this.valor_reformas) || 0,
+                    valor_acabados: this.cleanNumber(this.esOpcionGuardada ? this.opcion_valor_acabados : this.valor_acabados) || 0,
+                    valor_descuento_adicional: this.cleanNumber(this.valor_descuento_adicional) || 0,
+                    valor_separacion: this.cleanNumber(this.esOpcionGuardada ? this.opcion_valor_separacion : this.valor_separacion) || 0,
+                    valor_escrituras: this.cleanNumber(this.valor_escrituras) || 0,
+                    notariales: this.cleanNumber(this.notariales) || 0,
+                    beneficiencia: this.cleanNumber(this.beneficiencia) || 0,
+                    registro: this.cleanNumber(this.registro) || 0,
+                    pago_contado: this.pagoSeleccionado?.toLowerCase() === 'contado' ? 1 : 0,
+                    pago_financiado: this.pagoSeleccionado?.toLowerCase() === 'financiado' ? 1 : 0,
+                    id_entidad: this.bancoSeleccionado || null,
+                    id_tipo: this.tipoSeleccionado || null,
+                    id_anios: this.anioSeleccionado || null,
+                    id_modalidad: this.modalidadSeleccionada || null,
+                    //subsidio_activo: this.subsidioActivo || null,
+                    ingresos_familiares: this.cleanNumber(this.ingresos_mensuales) || 0,
+                    cesantias: this.cleanNumber(this.cesantias) || 0,
+                    ahorros: this.cleanNumber(this.ahorros) || 0,
+                    fin_max_permisible: this.cleanNumber(this.fin_max_permisible) || 0,
+                    cuota_permisible: this.cleanNumber(this.cuota_permisible) || 0,
+                    cuota_max_financiable: this.cleanNumber(this.cuota_max_financiable) || 0,
+                    ingr_regs_max: this.cleanNumber(this.ingr_regs_max) || 0,
+                    anio_entrega: this.seleccionAnioEntrega || null,
+                    valor_subsidio: this.cleanNumber(this.valor_subsidio) || 0,
+                    id_caja_compensacion: this.caja_compensacion || null,
+                    meses: this.d_meses || 0,
+                    importe_financiacion: this.cleanNumber(this.valor_credito_final) || 0,
+                    cuota_inicial: this.cleanNumber(this.cuota_inicial_final) || 0,
+                    fecha_primera_cuota: this.esOpcionGuardada ? this.opcion_fecha_primera_cuota : this.d_fecha_cuota,
+                    fecha_ultima_cuota: this.esOpcionGuardada ? this.opcion_fecha_ultima_cuota : this.d_fecha_ulti_cuota,
+                    fecha_escrituracion: this.esOpcionGuardada ? this.opcion_fecha_escrituracion : this.d_fecha_escrituracion
+                };
+
+                let resp;
+                let mensaje;
+
+                if (this.id_opcion) {
+                    opcionData.id_opcion = this.id_opcion;
+                    resp = await httpFunc('/generic/genericST/ProcesoNegocio:Upd_Opcion', opcionData);
+                    mensaje = 'Opción actualizada correctamente';
+                } else {
+                    opcionData.id_cotizacion = this.idcotizacion;
+                    opcionData.created_by = GlobalVariables.username;
+                    resp = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Opcion', opcionData);
+                    mensaje = 'Opción creada correctamente';
+                }
+
+                if (resp.isError) {
+                    throw new Error(resp.errorMessage || 'Error al guardar la opción');
+                }
+
+                showMessage(mensaje);
+                await this.limpiarObj();
+                this.mode = 0;
+
+            } catch (error) {
+                console.error('Error al enviar y opcionar:', error);
+                showMessage('Error: ' + (error.message || 'No se pudo guardar la opción'));
+            } finally {
+                hideProgress();
+            }
         },
         async onChangeAnio() {
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             if (!this.anioSeleccionado || !this.bancoSeleccionado) return;
             try {
 
@@ -2084,6 +2448,10 @@ export default {
             }
         },
         calcularCuotaInicialFinal() {
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             const nuevoMax = this.valor_maxfinanciable;
             this.valor_credito = this.valor_credito_base;
             this.cuota_inicial = this.cuota_inicial_base;
@@ -2118,9 +2486,18 @@ export default {
             this.cuota_inicial_final = Math.max(0, cuota);
         },
         onInputIngresos() {
+      
+            if (this.esOpcionGuardada) {
+                return;
+            }
             this.calcularCuotaInicialFinal();
         },
         onBlurIngresos() {
+           
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             this.editandoIngresos = true;
             this.ultimaCuotaDigitada = 0;
             this.$nextTick(() => {
@@ -2255,6 +2632,11 @@ export default {
         },
 
         calcularEscrituras() {
+     
+            if (this.esOpcionGuardada) {
+                return;
+            }
+
             const not = this.cleanNumber(this.valor_notariales);
             const ben = this.cleanNumber(this.valor_beneficiencia);
             const reg = this.cleanNumber(this.valor_registro);
@@ -2265,12 +2647,114 @@ export default {
         },
         validarTexto(e) {
             e.target.value = e.target.value.replaceAll(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        },
+        formatearFechaParaInput(fecha) {
+            if (!fecha) return '';
+
+  
+            if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
+                return fecha.split('T')[0];
+            }
+
+
+            if (fecha instanceof Date) {
+                const year = fecha.getFullYear();
+                const month = String(fecha.getMonth() + 1).padStart(2, '0');
+                const day = String(fecha.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+
+            try {
+                const d = new Date(fecha);
+                if (!isNaN(d.getTime())) {
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+            } catch (e) {
+                console.error('Error formateando fecha:', e);
+            }
+
+            return '';
         }
 
     },
     computed: {
         id_proyecto() {
             return GlobalVariables.id_proyecto;
+        },
+        esOpcionGuardada() {
+            return this.id_opcion !== null;
+        },
+ 
+        display_fecha_entrega: {
+            get() {
+                if (this.esOpcionGuardada && this.opcion_fecha_entrega !== null) {
+                    return this.formatearFechaParaInput(this.opcion_fecha_entrega);
+                }
+                return this.formatearFechaParaInput(this.d_fecha_entrega);
+            },
+            set(val) {
+                if (!this.esOpcionGuardada) {
+                    this.d_fecha_entrega = val;
+                }
+            }
+        },
+        display_fecha_escrituracion: {
+            get() {
+                if (this.esOpcionGuardada && this.opcion_fecha_escrituracion !== null) {
+                    return this.formatearFechaParaInput(this.opcion_fecha_escrituracion);
+                }
+                return this.formatearFechaParaInput(this.d_fecha_escrituracion);
+            },
+            set(val) {
+                if (!this.esOpcionGuardada) {
+                    this.d_fecha_escrituracion = val;
+                }
+            }
+        },
+        display_fecha_primera_cuota: {
+            get() {
+                if (this.esOpcionGuardada && this.opcion_fecha_primera_cuota !== null) {
+                    return this.formatearFechaParaInput(this.opcion_fecha_primera_cuota);
+                }
+                return this.formatearFechaParaInput(this.d_fecha_cuota);
+            },
+            set(val) {
+                if (!this.esOpcionGuardada) {
+                    this.d_fecha_cuota = val;
+                }
+            }
+        },
+        display_fecha_ultima_cuota: {
+            get() {
+                if (this.esOpcionGuardada && this.opcion_fecha_ultima_cuota !== null) {
+                    return this.formatearFechaParaInput(this.opcion_fecha_ultima_cuota);
+                }
+                return this.formatearFechaParaInput(this.d_fecha_ulti_cuota);
+            },
+            set(val) {
+                if (!this.esOpcionGuardada) {
+                    this.d_fecha_ulti_cuota = val;
+                }
+            }
+        },
+        display_valor_reformas() {
+            return this.esOpcionGuardada && this.opcion_valor_reformas !== null
+                ? this.opcion_valor_reformas
+                : this.valor_reformas;
+        },
+        display_valor_acabados() {
+            return this.esOpcionGuardada && this.opcion_valor_acabados !== null
+                ? this.opcion_valor_acabados
+                : this.valor_acabados;
+        },
+        display_valor_separacion() {
+            return this.esOpcionGuardada && this.opcion_valor_separacion !== null
+                ? this.opcion_valor_separacion
+                : this.valor_separacion;
         },
         tabClasses() {
             return this.tabs.map((_, index) => {
@@ -2330,37 +2814,27 @@ export default {
         cotizacionesFiltradas() {
             if (this.ishistory) {
                 return this.cotizaciones;
-            } else {
-                const hoy = new Date();
-                const yyyy = hoy.getFullYear();
-                const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-                const dd = String(hoy.getDate()).padStart(2, '0');
-                const hoyStr = `${yyyy}-${mm}-${dd}`;
-                return this.cotizaciones.filter(cot => {
-                    let fecha = cot.fecha;
-                    if (fecha instanceof Date) {
-                        const fyyyy = fecha.getFullYear();
-                        const fmm = String(fecha.getMonth() + 1).padStart(2, '0');
-                        const fdd = String(fecha.getDate()).padStart(2, '0');
-                        return `${fyyyy}-${fmm}-${fdd}` === hoyStr;
-                    }
-
-                    if (fecha.includes('-') && fecha.includes(':')) {
-                        const fechaStr = fecha.split(' ')[0];
-                        return fechaStr === hoyStr;
-                    }
-
-                    if (fecha.includes('/')) {
-                        const partesFecha = fecha.split(' ')[0].split('/');
-                        if (partesFecha.length === 3) {
-                            const [dia, mes, anio] = partesFecha;
-                            const normalizada = `${anio}-${mes}-${dia}`;
-                            return normalizada === hoyStr;
-                        }
-                    }
-                    return false;
-                });
             }
+            const hoyStr = new Date().toISOString().slice(0, 10);
+            return this.cotizaciones.filter(cot => {
+                if (!cot.fecha) return false;
+                try {
+                    let fechaStr;
+                    if (cot.fecha instanceof Date) {
+                        fechaStr = cot.fecha.toISOString().slice(0, 10);
+                    }
+                    else if (typeof cot.fecha === 'string') {
+                        fechaStr = cot.fecha.slice(0, 10);
+                    }
+                    else {
+                        return false;
+                    }
+                    return fechaStr === hoyStr;
+                } catch (error) {
+                    console.warn('Error al procesar fecha:', cot.fecha, error);
+                    return false;
+                }
+            });
         },
         textoCotizacion() {
             if (!this.unidades || this.unidades.length === 0) return "";
@@ -2390,16 +2864,28 @@ export default {
             set(val) { this.valor_registro = this.cleanNumber(val); }
         },
         f_valor_separacion: {
-            get() { return this.formatNumber(this.valor_separacion, false); },
-            set(val) { this.valor_separacion = this.cleanNumber(val); }
+            get() { return this.formatNumber(this.display_valor_separacion, false); },
+            set(val) {
+                if (!this.esOpcionGuardada) {
+                    this.valor_separacion = this.cleanNumber(val);
+                }
+            }
         },
         f_valor_reformas: {
-            get() { return this.formatNumber(this.valor_reformas, false); },
-            set(val) { this.valor_reformas = this.cleanNumber(val); }
+            get() { return this.formatNumber(this.display_valor_reformas, false); },
+            set(val) {
+                if (!this.esOpcionGuardada) {
+                    this.valor_reformas = this.cleanNumber(val);
+                }
+            }
         },
         f_valor_acabados: {
-            get() { return this.formatNumber(this.valor_acabados, false); },
-            set(val) { this.valor_acabados = this.cleanNumber(val); }
+            get() { return this.formatNumber(this.display_valor_acabados, false); },
+            set(val) {
+                if (!this.esOpcionGuardada) {
+                    this.valor_acabados = this.cleanNumber(val);
+                }
+            }
         },
         f_valor_cesantias: {
             get() { return this.formatNumber(this.cesantias, false); },

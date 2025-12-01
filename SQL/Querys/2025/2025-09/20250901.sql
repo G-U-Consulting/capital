@@ -263,12 +263,47 @@ create table fact_cotizacion_cliente(
     constraint uk_cliente_cotizacion unique (id_cliente, id_cotizacion)
 );
 
-create table fact_opcion(
+create table fact_opcion (
     id_opcion int primary key auto_increment,
-    id_cotizacion int not null references fact_cotizaciones(id_cotizacion),
+    id_cotizacion int not null,
     fecha_entrega date not null,
     created_on datetime default current_timestamp,
-    created_by varchar(50) not null
+    created_by varchar(50) not null,
+
+    valor_reformas decimal(20,2) default 0,
+    valor_acabados decimal(20,2) default 0,
+    valor_descuento_adicional decimal(20,2) default 0,
+    valor_separacion decimal(20,2) default 0,
+    valor_escrituras decimal(20,2) default 0,
+    notariales decimal(20,2) default 0,
+    beneficiencia decimal(20,2) default 0,
+    registro decimal(20,2) default 0,
+    pago_contado bit default 0,
+    pago_financiado bit default 0,
+    id_entidad int,
+    id_tipo int,
+    id_anios int,
+    id_modalidad int,
+    subsidio_activo bit default 0,
+    ingresos_familiares decimal(20, 2) default 0,
+    cesantias decimal(20, 2) default 0,
+    ahorros decimal(20, 2) default 0,
+    fin_max_permisible decimal(20, 2) default 0,
+    cuota_permisible decimal(20, 2) default 0,
+    cuota_max_financiable decimal(20, 2) default 0,
+    ingr_regs_max decimal(20, 2) default 0,
+    anio_entrega int,
+    valor_subsidio decimal(20,2) default 0,
+    id_caja_compensacion int,
+    meses int,
+    importe_financiacion decimal(20, 2) default 0,
+    cuota_inicial decimal(20, 2) default 0,
+    fecha_primera_cuota date,
+    fecha_ultima_cuota date,
+    fecha_escrituracion date,
+
+    constraint fk_fact_opcion_cot foreign key (id_cotizacion)
+        references fact_cotizaciones(id_cotizacion)
 );
 
 create table fact_ventas(

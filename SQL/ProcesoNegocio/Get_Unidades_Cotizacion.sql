@@ -14,7 +14,8 @@ select
     DATE_FORMAT(c.fecha_fec, '%Y-%m-%d') as fecha_escrituracion,
     DATE_FORMAT(b.fecha_p_equ, '%Y-%m-%d') as fecha_p_equ,
     DATE_FORMAT(f.created_on, '%Y-%m-%d %H:%i:%s') as fecha_formateada,
-    DATE_FORMAT(c.fecha_edi, '%Y-%m-%d') as fecha_entrega_f
+    DATE_FORMAT(c.fecha_edi, '%Y-%m-%d') as fecha_entrega_f,
+    f.is_asignado
 from fact_negocios_unidades f
 join fact_torres b on f.torre = b.consecutivo 
  join fact_unidades c on f.id_unidad = c.id_unidad

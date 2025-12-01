@@ -15,6 +15,7 @@ export default {
 
     async mounted() {
         GlobalVariables.miniModuleCallback = this.miniModuleCallback;
+        GlobalVariables.proyectosApp = this;
         const params = new URLSearchParams(GlobalVariables.urlParams);
         if (!params.get('SubLoc')) {
             await this.setMainMode('InicioProyecto');
@@ -32,6 +33,7 @@ export default {
 
     unmounted() {
         GlobalVariables.miniModuleCallback = null;
+        GlobalVariables.proyectosApp = null;
     },
 
     methods: {
