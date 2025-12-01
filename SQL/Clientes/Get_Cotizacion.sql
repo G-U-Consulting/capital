@@ -61,5 +61,3 @@ left join (
 ) as at on u.id_agrupacion = at.id_agrupacion
 where d.id_cotizacion = @id_cotizacion
 order by u.numero_apartamento;
-
-select * from fact_negocios_unidades;

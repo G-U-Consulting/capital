@@ -9,3 +9,5 @@
 /wwwroot/cache/
 /wwwroot/upload/
 .env
+
+/llaves/

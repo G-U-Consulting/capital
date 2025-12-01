@@ -78,7 +78,7 @@ set id_venta = @id_venta,
 where id_desistimiento = @id_desistimiento;
 
 if @id_estado = '5' then 
-    select o.id_opcion into @cot_id
+    select o.id_cotizacion into @cot_id
     from fact_ventas v
     join fact_opcion o on v.id_opcion = o.id_opcion
     where v.id_venta = @id_venta;

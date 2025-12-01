@@ -2,8 +2,8 @@
 -- Proceso: Integraciones/Get_CotizacionSF
 -- =============================================
 --START_PARAM
-set @id_cotizacion = 407,
-    @id_unidad = 152642,
+set @id_cotizacion = 417,
+    @id_unidad = 91031,
     @quotestate = NULL;
 --END_PARAM
 set @state = coalesce(@quotestate, 'Cotizado');
@@ -28,7 +28,8 @@ order by coalesce(d.fec_com_gerencia, 0) desc, v.created_on desc, o.created_on d
 
 select @state as `quoteState`, u.za1_id as `apartmentZAId`, u.salesforce_id as `apartmentSLId`, u.nombre_unidad as `apartment`, 
     t.consecutivo as `tower`, cast(u.area_total as char) as `areas`, a.nombre as `agrupation`, date_format(u.fecha_edi, '%Y-%m-%d') as `deliveryDate`, 
-    u.localizacion as `view`, round(coalesce(pu.precio, 0)) as `_grossPrice`,
+    u.localizacion as `view`, 
+    round(coalesce(pu.precio, 0) + coalesce(u.valor_reformas, 0) + coalesce(u.valor_acabados, 0)) as `_grossPrice`,
     round(coalesce(pu.precio, 0) + coalesce(u.valor_reformas, 0) + coalesce(u.valor_acabados, 0)) as `_netPrice`, 
     cast(if(u.valor_descuento = 0, null, u.valor_descuento) as char) as `_discount`, 
     round(if(pu.precio_m2 is not null and pu.precio_m2 != 0, pu.precio_m2, coalesce(pu.precio, 0) / u.area_total)) as `_m2Value`, 
@@ -49,6 +50,6 @@ left join dim_fiduciaria f on t.id_fiduciaria = f.id_fiduciaria
 left join dim_precio_unidad pu on u.id_unidad = pu.id_unidad and l.id_lista = pu.id_lista
 where co.id_cotizacion = @id_cotizacion and u.id_unidad = @id_unidad;
 /* 
-select * from fact_unidades where id_unidad = 91032;
-select * from fact_cotizaciones where id_cotizacion = 336;
+select * from fact_unidades where id_unidad = 91031;
+select * from fact_cotizaciones where id_cotizacion = 417;
  */

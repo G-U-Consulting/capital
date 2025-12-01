@@ -193,9 +193,9 @@ public static class WebBDUt {
                     {
                         ret = cmd.ExecuteScalar().ToString();
                     }
-                    conn.Close();
+                    /* conn.Close();
                     cmd.Dispose();
-                    conn.Dispose();
+                    conn.Dispose(); */
                 }
             }
         }

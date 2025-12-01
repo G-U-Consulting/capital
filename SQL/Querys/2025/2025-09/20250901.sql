@@ -364,7 +364,8 @@ create table dim_desistimiento(
     carta_cong bit default 0,
     created_on datetime default current_timestamp,
     created_by varchar(50) not null,
-    updated_by varchar(50) not null
+    updated_by varchar(50) not null,
+    updated_on datetime default current_timestamp on update current_timestamp
 );
 create table dim_cuenta_opcion(
     id_cuenta int primary key auto_increment,

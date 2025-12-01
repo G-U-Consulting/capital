@@ -14,6 +14,7 @@ using capital.Code.Inte.Salesforce;
 using capital.code.Util;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using capital.Code.Inte.Davivienda;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -420,5 +421,9 @@ app.Map("/api/uploaddocs/{**folder}", async (string folder, HttpContext context,
     }
     return Results.Ok(new { message = "✅ ¡Archivos actualizados!", data });
 }).DisableAntiforgery();
-
+/* app.Map("/davivienda", async (HttpContext context) =>
+{
+    Davivienda d = new("bogota", rootPath);
+    return "OK";
+}); */
 app.Run();
