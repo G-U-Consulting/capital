@@ -169,6 +169,7 @@ create table fact_negocios_unidades (
     salesforce_oportunidad_id varchar(50),
     lista varchar(100),
     fecha_entrega datetime,
+    is_asignado bit default 1,
     is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user
@@ -210,7 +211,7 @@ values
 ('Tramites'),
 ('Otro');
 
-insert into presupuesto_vivienda (rango, minimo, maximo) 
+insert into presupuesto_vivienda (rango, minimo, maximo)
 values
 ('Menos de $2.400.000', null, 2400000),
 ('$2.400.001 a $4.800.000', 2400001, 4800000),

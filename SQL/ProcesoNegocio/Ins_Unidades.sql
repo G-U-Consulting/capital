@@ -72,6 +72,12 @@ limit 1;
 
 set @inserted = last_insert_id();
 
+insert into cola_tareas_rpa(tipo, sub_tipo, datos, llave ,fecha_programada) 
+values('unassign', 'unidad', 
+    concat('{"id_negocios_unidades":', @inserted, '}'),
+    @inserted,
+    utc_timestamp() + interval 30 minute);
+
 select id_clase into @id_clase from fact_unidades where id_unidad = @id_unidad;
 
 if @id_clase = 8 then

@@ -605,10 +605,10 @@
                                     {{ formatoMoneda(item.valor_descuento) }}
                                 </td>
                                 <td>{{ item.lista }}</td>
-                                <td style="text-align: center;">{{ item.inv_terminado == '1' ? 'SI' : 'NO' }}</td>
+                                <td style="text-align: center;">{{ item.inv_terminado == '1' ? 'SI' : 'NO' }} </td>
                                  <td style="text-align: center;">
-                                    <span class="delete"
-                                        @click.stop.prevent="reqOperation(`Desea eliminar el item? <b></b>.`, dropitem, null, item)"> ✖
+                                    <span class="delete" v-if="item.is_asignado == 1"
+                                        @click.stop.prevent="reqOperation(`Desea eliminar el item? <b></b>.`, dropitem, null, item)"> ✖ 
                                     </span>
                                 </td>
                             </tr>
@@ -649,6 +649,17 @@
         <!-- ----------------------------- Opción ---------------------------- -->
         <!-- ----------------------------------------------------------------- -->
         <div v-if="mode == 3">
+            <!-- Banner de solo lectura -->
+            <div v-if="esOpcionGuardada" style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span style="color: #92400e; font-weight: 500;">Esta opción ya ha sido guardada y está en modo de solo visualización. No se pueden realizar modificaciones.</span>
+                </div>
+            </div>
             <div class="pure-u-1-1 formDivision"
                 style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
                 <div class="pure-u-1 pure-u-md-1-2" style="display: flex; align-items: center; gap: .5rem;">
@@ -670,7 +681,7 @@
                         <span>¿Con acabados y Reformas?</span>
                         <div class="checkbox-center">
                             <label class="check">
-                                <input type="checkbox" v-model="reformaActivo" :disabled="reformaAct"/>
+                                <input type="checkbox" v-model="reformaActivo" :disabled="esOpcionGuardada || reformaAct"/>
                                 <span class="checkmark"></span>
                             </label>
                         </div>
@@ -693,14 +704,14 @@
                     <div class="formInputStandard">
                         <span>Descuento Adicional</span>
                         <input type="text" style="text-align: right;" v-model="f_valor_descuento_adicional"
-                            @keyup="validarFormato" />
+                            @keyup="validarFormato" :disabled="esOpcionGuardada" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6"></div>
                 <div class="pure-u-1 pure-u-md-1-6"></div>
                 <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
-                        <div class="add-chip-modern" @click="abrirModalCliente">
+                        <div class="add-chip-modern" @click="!esOpcionGuardada && abrirModalCliente" :style="esOpcionGuardada ? 'opacity: 0.5; cursor: not-allowed;' : ''">
                             <span>Agregar Cliente</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -749,19 +760,19 @@
             <div class="pure-u-1 pure-u-md-1-6">
                 <div class="formInputStandard">
                     <span>Notariales:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_notariales" @keyup="validarFormato" />
+                    <input type="text" style="text-align: right;" v-model="f_valor_notariales" @keyup="validarFormato" :disabled="esOpcionGuardada" />
                 </div>
             </div>
             <div class="pure-u-1 pure-u-md-1-6">
                 <div class="formInputStandard">
                     <span>Beneficiencia:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" />
+                    <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" :disabled="esOpcionGuardada" />
                 </div>
             </div>
             <div class="pure-u-1 pure-u-md-1-6">
                 <div class="formInputStandard">
                     <span>Registro:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" />
+                    <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" :disabled="esOpcionGuardada" />
                 </div>
             </div>
             <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: .5rem;">
@@ -772,7 +783,7 @@
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'contado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1-6">
-                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado" />
+                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado" :disabled="esOpcionGuardada" />
                                 <span class="checkmark"></span>
                                 Contado
                             </label>
@@ -781,7 +792,7 @@
                             <span class="pure-u-1 pure-u-md-1-4">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-3-4">
                                 <select class="pure-input-1" v-model="planSeleccionado" @change="calcularPlanPago"
-                                    :disabled="pagoSeleccionado !== 'contado'">
+                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'contado'">
                                     <option value="">Seleccione</option>
                                     <option v-for="plan in planes_pago" :key="plan.id_planes_pago" :value="plan.id_planes_pago">
                                         {{ plan.descripcion }}
@@ -794,15 +805,15 @@
                 <div class="pure-u-1 pure-u-md-5-8">
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'financiado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
-                            <label class="check pure-u-1 pure-u-md-1-6" @click="pagoSeleccionado = 'financiado'">
-                                <input type="radio" name="pago" value="financiado" v-model="pagoSeleccionado"/>
+                            <label class="check pure-u-1 pure-u-md-1-6" @click="!esOpcionGuardada && (pagoSeleccionado = 'financiado')">
+                                <input type="radio" name="pago" value="financiado" v-model="pagoSeleccionado" :disabled="esOpcionGuardada"/>
                                 <span class="checkmark"></span>
                                 Financiado
                             </label>
                             <span class="pure-u-1 pure-u-md-1-6">1. Entidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
                                 <select class="pure-input-1" v-model="bancoSeleccionado" @change="cargarFactor"
-                                    :disabled="pagoSeleccionado !== 'financiado'">
+                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'financiado'">
                                     <option :value="0">Seleccione banco</option>
                                     <option v-for="b in banco_financiador" :key="b.id_bancos_financiador"
                                         :value="b.id_bancos_financiador">
@@ -814,7 +825,7 @@
                             <span class="pure-u-1 pure-u-md-1-6">2. Tipo:</span>
                             <div class="pure-u-1 pure-u-md-1-5">
                                 <select class="pure-input-1" v-model="unidadSeleccionada" @change="cargarAnios"
-                                    :disabled="pagoSeleccionado !== 'financiado' || bancoSeleccionado == 0">
+                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'financiado' || bancoSeleccionado == 0">
                                     <option value="0">Seleccione unidad</option>
                                     <option v-for="unidad in unidadesDisponibles" :key="unidad" :value="unidad">
                                         {{ unidad }}
@@ -827,7 +838,7 @@
                             <span class="pure-u-1 pure-u-md-1-6">3. Años:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
                                 <select class="pure-input-1" v-model="anioSeleccionado"
-                                    :disabled="pagoSeleccionado !== 'financiado' || unidadSeleccionada == 0"
+                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'financiado' || unidadSeleccionada == 0"
                                     @change="onChangeAnio">
                                     <option value="">Seleccione años</option>
                                     <option v-for="anio in listaAnios" :key="anio" :value="anio">
@@ -839,7 +850,7 @@
                             <span class="pure-u-1 pure-u-md-1-6">4. Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-1-5">
                                 <select class="pure-input-1" v-model="tipoFinanciacionSeleccionada"
-                                    :disabled="pagoSeleccionado !== 'financiado' || anioSeleccionado == 0"
+                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'financiado' || anioSeleccionado == 0"
                                     @change="calcularFinanciacion">
                                     <option value="">Seleccione Modalidad:</option>
                                     <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion"
@@ -862,7 +873,7 @@
                             <span>Ingresos Familiares</span>
                             <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
                                 @keyup="validarFormato" @blur="onBlurIngresos" @input="onInputIngresos"
-                                :disabled="!tipoFinanciacionSeleccionada" />
+                                :disabled="esOpcionGuardada || !tipoFinanciacionSeleccionada" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
@@ -871,7 +882,7 @@
                                 Cesantías
                             </span>
                             <input type="text" style="text-align: right;" v-model="f_valor_cesantias" @keyup="validarFormato"
-                                :disabled="f_ingresos_mensuales == 0" />
+                                :disabled="esOpcionGuardada || f_ingresos_mensuales == 0" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
@@ -880,7 +891,7 @@
                                 Ahorros
                             </span>
                             <input type="text" style="text-align: right;" v-model="f_valor_ahorros" @keyup="validarFormato"
-                                :disabled="f_ingresos_mensuales == 0" />
+                                :disabled="esOpcionGuardada || f_ingresos_mensuales == 0" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
@@ -927,26 +938,26 @@
                                 <samp class="formula-pequena" v-if="!dentroRangoSubsidio">(Excede los 4 SMLV)</samp>
                             </span>
                             <select v-model="seleccionAnioEntrega" @change="calcularSubsidio" style="width: 100%;"
-                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
+                                :disabled="esOpcionGuardada || !subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
                                 <option value="">Seleccione</option>
                                 <option v-for="anio in listaAniosEntrega" :key="anio" :value="anio">
                                     {{ anio }}
                                 </option>
                             </select>
                         </div>
-                    </div>  
+                    </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Valor Subsidio</span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(valor_subsidio)" readonly
-                                :disabled="pagoSeleccionado === 'contado'" />
+                                :disabled="esOpcionGuardada || pagoSeleccionado === 'contado'" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span>Caja de compensación:</span>
                             <select v-model="caja_compensacion" style="width: 100%;"
-                                :disabled="!subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
+                                :disabled="esOpcionGuardada || !subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
                                 <option value="">Seleccione</option>
                                 <option v-for="caja in cajas_compensacion" :key="caja.id_caja" :value="caja.id_caja">
                                     {{ caja.caja }}
@@ -1230,13 +1241,13 @@
                                                         <h3>FECHAS ESTIMADAS</h3>
                                                     </div>
                                                     <ul>
-                                                        <li>Entrega: <span class="valor-badge">{{ d_fecha_entrega || 'N/A' }}</span>
+                                                        <li>Entrega: <span class="valor-badge">{{ display_fecha_entrega || 'N/A' }}</span>
                                                         </li>
-                                                        <li>Escrituración: <span class="valor-badge">{{ d_fecha_escrituracion || 'N/A' }}</span>
+                                                        <li>Escrituración: <span class="valor-badge">{{ display_fecha_escrituracion || 'N/A' }}</span>
                                                         </li>
-                                                        <li>1ra cuota: <span class="valor-badge">{{ d_fecha_cuota || 'N/A' }}</span>
+                                                        <li>1ra cuota: <span class="valor-badge">{{ display_fecha_primera_cuota || 'N/A' }}</span>
                                                         </li>
-                                                        <li>Última cuota: <span class="valor-badge">{{ d_fecha_ulti_cuota || 'N/A' }}</span>
+                                                        <li>Última cuota: <span class="valor-badge">{{ display_fecha_ultima_cuota || 'N/A' }}</span>
                                                         </li>
                                                         <li>Meses: <span class="valor-badge">{{ d_meses || 'N/A' }}</span></li>
                                                     </ul>
@@ -1388,34 +1399,34 @@
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Fecha Entrega</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_entrega" @change="calcularMesesMaximos"
+                        <input type="date" style="text-align: right;" v-model="display_fecha_entrega" @change="calcularMesesMaximos"
                             disabled />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Fecha Escrituración</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_escrituracion"
+                        <input type="date" style="text-align: right;" v-model="display_fecha_escrituracion"
                             @change="calcularMesesMaximos" disabled />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Fecha 1ra Cuota</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_cuota" @change="calcularMesesMaximos" />
+                        <input type="date" style="text-align: right;" v-model="display_fecha_primera_cuota" @change="calcularMesesMaximos" :disabled="esOpcionGuardada" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Fecha Ultima Cuota</span>
-                        <input type="date" style="text-align: right;" v-model="d_fecha_ulti_cuota"
-                            @change="calcularMesesMaximos" />
+                        <input type="date" style="text-align: right;" v-model="display_fecha_ultima_cuota"
+                            @change="calcularMesesMaximos" :disabled="esOpcionGuardada" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard">
                         <span>Meses</span>
-                        <input type="text" style="text-align: right;" v-model="d_meses" @input="validarMeses($event.target.value)" />
+                        <input type="text" style="text-align: right;" v-model="d_meses" @input="validarMeses($event.target.value)" :disabled="esOpcionGuardada" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
@@ -1666,13 +1677,13 @@
                                 <td>
                                     <div style="display: flex; justify-content: space-between;">
                                         <b>Importe:</b>
-                                        <span>{{ formatoMoneda(unidades[0].valor_unidad) }}</span>
+                                        <span>{{ formatoMoneda(unidades[0]?.valor_unidad || 0) }}</span>
                                     </div>
                                 </td>
                                 <td>
                                     <div style="display: flex; justify-content: space-between;">
                                         <b>Descuento Base:</b>
-                                        <span>{{ formatoMoneda(unidades[0].valor_descuento) }}</span>
+                                        <span>{{ formatoMoneda(unidades[0]?.valor_descuento || 0) }}</span>
                                     </div>
                                 </td>
                                 <td>
@@ -1684,7 +1695,7 @@
                                 <td>
                                     <div style="display: flex; justify-content: space-between;">
                                         <b>Tipo Unidad:</b>
-                                        <span>{{ unidades[0].tipo }}</span>
+                                        <span>{{ unidades[0]?.tipo || '-' }}</span>
                                     </div>
                                 </td>
                             </tr>
@@ -1815,11 +1826,11 @@
                                 </td>
                                 <td>
                                     <b>Fecha Entrega Aprox:</b>
-                                    <span style="float: right;">{{ d_fecha_entrega }}</span>
+                                    <span style="float: right;">{{ display_fecha_entrega }}</span>
                                 </td>
                                 <td>
                                     <b>1ra Cuota:</b>
-                                    <span style="float: right;">{{ d_fecha_cuota }}</span>
+                                    <span style="float: right;">{{ display_fecha_primera_cuota }}</span>
                                 </td>
                                 <td>
                                     <b>Meses:</b>
@@ -1838,33 +1849,33 @@
                             <tr style="border-left: #777 solid 1px;">
                                 <td>
                                     <b>Proyecto:</b>
-                                    <span style="float: right;">{{ unidadOpcion.nombre }}</span>
+                                    <span style="float: right;">{{ unidadOpcion?.nombre || '-' }}</span>
                                 </td>
                                 <td>
                                     <b>Piso:</b>
-                                    <span style="float: right;">{{ unidadOpcion.piso }}</span>
+                                    <span style="float: right;">{{ unidadOpcion?.piso || '-' }}</span>
                                 </td>
                                 <td>
                                     <b># Alcobas:</b>
-                                    <span style="float: right;">{{ unidadOpcion.num_alcobas}}</span>
+                                    <span style="float: right;">{{ unidadOpcion?.num_alcobas || '-' }}</span>
                                 </td>
                                 <td>
                                     <b># Baños:</b>
-                                    <span style="float: right;">{{ unidadOpcion.num_banos}}</span>
+                                    <span style="float: right;">{{ unidadOpcion?.num_banos || '-' }}</span>
                                 </td>
                             </tr>
                             <tr style="border-left: #777 solid 1px;">
                                 <td>
                                     <b>Asoleacción :</b>
-                                    <span style="float: right;"> {{ unidadOpcion.asoleacion == 'PM' ? 'Sol de mañana' : 'Sol de tarde' }}</span>
+                                    <span style="float: right;">{{ unidadOpcion?.asoleacion == 'PM' ? 'Sol de mañana' : unidadOpcion?.asoleacion == 'AM' ? 'Sol de tarde' : '-' }}</span>
                                 </td>
                                 <td>
                                     <b>Altura:</b>
-                                    <span style="float: right;">{{ 'PISO ' + unidadOpcion.altura }}</span>
+                                    <span style="float: right;">{{ unidadOpcion?.altura ? 'PISO ' + unidadOpcion.altura : '-' }}</span>
                                 </td>
                                 <td>
                                     <b>Cerca de Portería:</b>
-                                    <span style="float: right;">{{ unidadOpcion.cerca_porteria == '0' ? 'NO' : 'SI' }}</span>
+                                    <span style="float: right;">{{ unidadOpcion?.cerca_porteria == '0' ? 'NO' : unidadOpcion?.cerca_porteria == '1' ? 'SI' : '-' }}</span>
                                 </td>
                                 <td>
                                     <b>Meses:</b>
@@ -1878,7 +1889,7 @@
                     <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
                         Img Unidad:
                         <samp style="font-size: 1rem;">
-                            {{ unidades[0].tipo }}
+                            {{ unidades[0]?.tipo || '-' }}
                         </samp>
                     </span>
                     <div v-if="tipoProyecto"
@@ -2269,26 +2280,13 @@
     <!-- ------------------------------------------------------------ -->
     <div class="pure-u-1-1" style="padding-top: 1em;" v-if="iscliente">
         <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
-            <!-- <div v-if="mode != 0" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="handleNext(mode - 1)">Volver</button>
-            </div> -->
-            <div v-if="mode == 0" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="nuevoCliente(0)" v-else >Guardar</button>
+            <div v-if="mode >= 0 && mode <= 2" class="pure-u-auto">
+                <button class="pure-button button-fixed" @click="handleSave">Guardar</button>
             </div>
-            <div v-if="mode == 1" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="nuevaVisita">Guardar</button>
-            </div>
-            <div v-if="mode == 2" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="guardarCotizacion">Guardar</button>
-            </div>
+
             <div v-if="mode == 3"
                 style="display: flex; align-items: center; justify-content: space-between; width: 90%; gap: 1rem">
                 <div style="flex: 1;"></div>
-                <!-- <div style="flex: 1; text-align: center;">
-                    <button class="pure-button button-fixed">
-                        Opcionar
-                    </button>
-                </div> -->
                 <div style="flex: 1; display: flex; justify-content: flex-end; gap: 2rem; text-align: center;">
                     <div class="boton-accion" @click="guardarYGenerarPDF">
                         <img src="../../img/ico/printer.png" alt="Imprimir">
@@ -2298,15 +2296,12 @@
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
                     </div>
-                    <div class="boton-accion" @click="enviarYOpcionar">
+                    <div v-if="!esOpcionGuardada" class="boton-accion" @click="enviarYOpcionar">
                         <img src="../../img/ico/achievement.png" alt="Opcionar">
                         <span>Enviar y Opcionar</span>
                     </div>
                 </div>
             </div>
-            <!-- <div v-if="mode != 5 && ObjCliente.Nombres != ''" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="handleNext(mode + 1)">Siguiente</button>
-            </div> -->
         </div>
     </div>
     <div class="pure-u-1-1" style="padding-top: 1em;" v-if="israpida">
