@@ -83,7 +83,7 @@ select id_clase into @id_clase from fact_unidades where id_unidad = @id_unidad;
 if @id_clase = 8 then
     insert into cola_tareas_rpa(tipo, sub_tipo, datos) 
     values('salesforce', 'CotizacionSF', 
-        concat('{"id_cotizacion":', @id_cotizacion, ',"id_unidad":', @id_unidad, '}'));
+        concat('{"id_cotizacion":', @id_cotizacion, ',"id_unidad":', @id_unidad, ',"quotestate":"Cotizado"}'));
 end if;
 
 select concat('OK-id_negocios_unidades:', @inserted) as result;

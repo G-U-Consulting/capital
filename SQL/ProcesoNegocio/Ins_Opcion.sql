@@ -110,4 +110,11 @@ insert into fact_opcion (
     @created_by
 );
 
+insert into cola_tareas_rpa(tipo, sub_tipo, datos) 
+select 'salesforce', 'CotizacionSF',
+    concat('{"id_cotizacion":', @id_cotizacion, ',"id_unidad":', u.id_unidad, ',"quotestate":"Opcionado"}')
+from fact_negocios_unidades n
+join fact_unidades u on n.id_unidad = u.id_unidad
+where n.id_cotizacion = @id_cotizacion and u.id_clase = 8;
+
 select concat('ok-id_opcion:', last_insert_id()) as result;

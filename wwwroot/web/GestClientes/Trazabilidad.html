@@ -200,6 +200,10 @@
                                     <span style="font-weight: bold;">Descripcion: </span>
                                     <span>{{infoCotizacion.descripcion}}</span>
                                 </p>
+                                <p>
+                                    <span style="font-weight: bold;">Valor Total: </span>
+                                    <span>{{formatoMoneda(f_total)}}</span>
+                                </p>
                             </div>
                             <div class="infoModal">
                                 <h3>Datos del Cliente</h3>
@@ -240,7 +244,7 @@
                                                 <td>{{a.torre}}</td>
                                                 <td>{{a.fecha}}</td>
                                                 <td>{{a.lista}}</td>
-                                                <td>{{a.valor_descuento}}</td>
+                                                <td>{{formatoMoneda(a.valor_descuento)}}</td>
                                             </tr>
                                         </tbody>
                                     </table>

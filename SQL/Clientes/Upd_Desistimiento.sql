@@ -77,5 +77,16 @@ set id_venta = @id_venta,
     updated_by = @updated_by
 where id_desistimiento = @id_desistimiento;
 
+if @id_estado = '5' then 
+    select o.id_opcion into @cot_id
+    from fact_ventas v
+    join fact_opcion o on v.id_opcion = o.id_opcion
+    where v.id_venta = @id_venta;
+    insert into cola_tareas_rpa(tipo, sub_tipo, datos) 
+    select 'salesforce', 'CotizacionSF',
+        concat('{"id_cotizacion":', @cot_id, ',"id_unidad":', @id_unidad, ',"quotestate":"Desistimiento"}')
+    from fact_unidades u
+    where u.id_unidad = @id_unidad and u.id_clase = 8;
+end if;
 
 select 'OK' as result;

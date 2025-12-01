@@ -2,7 +2,7 @@
 -- Proceso: Clientes/Get_Cotizacion
 -- =============================================
 --START_PARAM
-set @id_cotizacion = 370;
+set @id_cotizacion = 405;
 --END_PARAM
 
 select co.cotizacion, co.descripcion, cl.tipo_documento, cl.numero_documento, p.nombre as proyecto,
@@ -61,3 +61,5 @@ left join (
 ) as at on u.id_agrupacion = at.id_agrupacion
 where d.id_cotizacion = @id_cotizacion
 order by u.numero_apartamento;
+
+select * from fact_negocios_unidades;

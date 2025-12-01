@@ -389,12 +389,10 @@ export default {
             showProgress();
             if (this.modalMode == 'Cotización') {
                 let cotizacion = [];
-                console.log(this.selIdObj);
                 [cotizacion, this.aptos] =
                     (await httpFunc("/generic/genericDS/Clientes:Get_Cotizacion", {id_cotizacion: this.selIdObj})).data;
                 this.infoCotizacion = cotizacion[0] || {};
                 if (this.aptos[0]) await this.selectApto(this.aptos[0]);
-                console.log(cotizacion, this.aptos, this.selectedApto);
                 this.activeTab = 'detalle';
             }
             hideProgress();
@@ -495,5 +493,16 @@ export default {
         filAsesorSala: {
             get() { return this.asesores.filter(a => !this.filIdSala || a.ids_sala_venta.includes(this.filIdSala)) }
         },
+        f_total: {
+            get() {
+                let total = 0;
+                this.aptos.forEach(a => {
+                    if (a.id_agrupacion == '') total += Number(a.valor_unidad.replace(',', '.'));
+                    else total += Number(a.agrupacion_total.replace(',', '.'));
+                });
+                return total;
+            },
+        },
     }
+
 }

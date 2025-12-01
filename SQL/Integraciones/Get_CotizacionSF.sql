@@ -2,23 +2,18 @@
 -- Proceso: Integraciones/Get_CotizacionSF
 -- =============================================
 --START_PARAM
-set @id_cotizacion = 336,
-    @id_unidad = 91032;
+set @id_cotizacion = 407,
+    @id_unidad = 152642,
+    @quotestate = NULL;
 --END_PARAM
-
-select (
-    case 
-        when e.id_estado_unidad = 1 and d.id_desistimiento is null then 'Cotizado'
-        when e.id_estado_unidad = 1 and d.id_desistimiento is not null then 'Desistimiento'
-        when e.id_estado_unidad = 4 then 'Cierre'
-        else e.estado_unidad
-    end
-    ),
-    date_format(o.created_on, '%Y-%m-%d'),
-    date_format(v.created_on, '%Y-%m-%d'),
-    date_format(d.fec_com_gerencia, '%Y-%m-%d'),
-    cd.categoria
-into @quotestate, @optiondate, @closedate, @dismissdate, @dismisscause
+set @state = coalesce(@quotestate, 'Cotizado');
+select 
+    if(@state = 'Cotizado', NULL, date_format(o.created_on, '%Y-%m-%d')),
+    if(@state = 'Cotizado' or @state = 'Opcionado' or @state = 'Consignado', NULL, 
+        date_format(v.created_on, '%Y-%m-%d')),
+    if(@state != 'Desistimiento', NULL, date_format(d.updated_on, '%Y-%m-%d')),
+    if(@state != 'Desistimiento', NULL, cd.categoria)
+into @optiondate, @closedate, @dismissdate, @dismisscause
 from fact_unidades u
 join dim_estado_unidad e on u.id_estado_unidad = e.id_estado_unidad
 left join fact_negocios_unidades n on n.id_unidad = @id_unidad
@@ -31,7 +26,7 @@ left join dim_categoria_desistimiento cd on d.id_categoria = cd.id_categoria
 where u.id_unidad = @id_unidad
 order by coalesce(d.fec_com_gerencia, 0) desc, v.created_on desc, o.created_on desc limit 1;
 
-select co.id_cotizacion, @quotestate as `quoteState`, u.za1_id as `apartmentZAId`, u.salesforce_id as `apartmentSLId`, u.nombre_unidad as `apartment`, 
+select @state as `quoteState`, u.za1_id as `apartmentZAId`, u.salesforce_id as `apartmentSLId`, u.nombre_unidad as `apartment`, 
     t.consecutivo as `tower`, cast(u.area_total as char) as `areas`, a.nombre as `agrupation`, date_format(u.fecha_edi, '%Y-%m-%d') as `deliveryDate`, 
     u.localizacion as `view`, round(coalesce(pu.precio, 0)) as `_grossPrice`,
     round(coalesce(pu.precio, 0) + coalesce(u.valor_reformas, 0) + coalesce(u.valor_acabados, 0)) as `_netPrice`, 
