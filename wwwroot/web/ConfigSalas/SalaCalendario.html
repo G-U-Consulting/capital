@@ -131,7 +131,7 @@
         </div>
     </div>
     <div class="cal-modal-overlay" id="modalOverlay" @click="closeModal($event)">
-        <div class="modal-container pure-g" v-if="mode == 1 || mode == 2">
+        <div class="modal-container pure-g" v-if="mode == 1 || mode == 2" style="max-width: 850px;">
             <div class="modal-scroll">
                 <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal($event, true)"
                     class="modal-cerrar">
@@ -244,7 +244,7 @@
             </div>
         </div>
 
-        <div class="modal-container pure-g" v-if="mode == 3" style="position: relative;">
+        <div class="modal-container pure-g" v-if="mode == 3" style="position: relative; max-width: 850px;">
             <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal($event, true)"
                 class="modal-cerrar events">
             <div class="pure-u-1-1">

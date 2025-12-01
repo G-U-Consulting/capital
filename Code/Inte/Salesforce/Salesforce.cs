@@ -51,9 +51,8 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
                 return target;
             }
         }
-        catch(Exception ex)
+        catch
         {
-            Logger.Log("Inte.Salesforce.LoadData" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
             throw;
         }
     }

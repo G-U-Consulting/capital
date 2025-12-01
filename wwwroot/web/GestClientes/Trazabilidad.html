@@ -5,7 +5,7 @@
             <span style="font-size: 1.5em;">Trazabilidad Acciones Clientes</span>
             <div style="display: flex; gap: 5px; width: 240px;">
                 <button>Enviar Correos</button>
-                <button @click="openModal">Ver Gráfico</button>
+                <button @click="openModal('grafica')">Ver Gráfico</button>
             </div>
         </div>
         <div class="filtros-container" style="padding: .7rem;">
@@ -77,10 +77,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="t in getFilteredList('trazabilidad')">
+                    <tr v-for="t in getFilteredList('trazabilidad')"
+                        @dblclick="['Cotización'].includes(t.obj) && (openModal(t.obj, t.id_obj));">
                         <td>{{t.nombre_cliente}}</td>
                         <td>{{t.proyecto}}</td>
-                        <td>{{t.unidad}}</td>
+                        <td @mouseenter="tooltipVisible = true; tooltipMsg = t.unidad"
+                            @mouseleave="tooltipVisible = false;" @mousemove="updateCursor">
+                            {{t.unidad}}
+                        </td>
                         <td>{{t.created_on}}</td>
                         <td>{{t.nombre_asesor}}</td>
                         <td>{{t.obj}}
@@ -88,7 +92,10 @@
                     </tr>
                 </tbody>
             </table>
-
+            <div v-if="tooltipVisible && tooltipMsg" class="cursor-tooltip"
+                :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
+                {{tooltipMsg}}
+            </div>
         </div>
     </div>
 
@@ -97,78 +104,236 @@
             <div style=" position: relative;">
                 <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal($event, true)"
                     class="modal-cerrar">
-                <h2 style="text-align: center; margin-bottom: .5rem;">
-                    <span v-if="chartMode == 'acciones_asesor'">Informe trazabilidad acciones por asesor</span>
-                    <span v-if="chartMode == 'temporal_asesor'">Informe temporal acciones por asesor</span>
-                    <span v-if="chartMode == 'temporal_unidad'">Informe temporal acciones por unidad</span>
-                    <span v-if="chartMode == 'total_acciones'">Informe efectividad acciones {{groupMode == 'porc_visitas' ? ' - sobre visitas' : ''}}</span>
-                </h2>
 
-                <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
-                    <select v-model="chartMode" style="width: 10rem;" @change="setGroupMode();resetChart()">
-                        <option value="acciones_asesor">Acciones por Asesor</option>
-                        <option value="temporal_asesor">Temporal Asesor</option>
-                        <option value="temporal_unidad">Temporal Unidad</option>
-                        <option value="total_acciones">Efectividad Acciones</option>
-                    </select>
-                    <select v-if="chartMode == 'acciones_asesor' || chartMode == 'temporal_asesor'" 
-                        style="width: 10rem;" v-model="filIdSala" @change="resetChart">
-                        <option value="">[Salas]</option>
-                        <option v-for="s in salas" :value="s.id_sala_venta">{{s.sala_venta}}</option>
-                    </select>
-                    <select v-if="chartMode == 'temporal_unidad'" v-model="groupMode" style="width: 10rem;"
-                        @change="resetChart">
-                        <option value="sede">Sede</option>
-                        <option value="zona">Zona</option>
-                        <option value="ciudadela">Ciudadela</option>
-                        <option value="proyecto">Proyecto</option>
-                    </select>
-                    <select v-if="chartMode == 'total_acciones'" v-model="groupMode" style="width: 10rem;"
-                        @change="resetChart">
-                        <option value="total">Totales</option>
-                        <option value="porc_visitas">Porcentaje sobre visitas</option>
-                    </select>
-                    <select v-if="chartMode == 'total_acciones'" v-model="filIdProyecto" style="width: 10rem;"
-                        @change="resetChart">
-                        <option value="">[Proyectos]</option>
-                        <option v-for="p in proyectos" :value="p.id_proyecto">{{p.proyecto}}</option>
-                    </select>
-                    <button @click="exportChart">Exportar</button>
-                    <label v-if="chartMode == 'temporal_asesor'" @click="verBarras = !verBarras; resetChart();"
-                        style="display: flex; align-items: baseline; padding-top: 5px;">
-                        <input style="pointer-events: none;" type="checkbox" v-model="verBarras">
-                        Barras
-                    </label>
-                </div>
+                <div v-show="modalMode == 'grafica'">
+                    <h2 style="text-align: center; margin-bottom: .5rem;">
+                        <span v-if="chartMode == 'acciones_asesor'">Informe trazabilidad acciones por asesor</span>
+                        <span v-if="chartMode == 'temporal_asesor'">Informe temporal acciones por asesor</span>
+                        <span v-if="chartMode == 'temporal_unidad'">Informe temporal acciones por unidad</span>
+                        <span v-if="chartMode == 'total_acciones'">Informe efectividad acciones {{groupMode ==
+                            'porc_visitas' ? ' - sobre visitas' : ''}}</span>
+                    </h2>
 
-                <div class="unidades-tabla-modal" style="height: 66vh;">
-                    <canvas id="chart-js"></canvas>
-                </div>
-
-                <div style="display: flex; gap: .5rem">
-                    <div v-if="!filtros.trazabilidad.asesor && chartMode === 'acciones_asesor'"
-                        class="checkbox-group horizontal-bar-checks" style="flex: 5;">
-                        <label @click="selTodosAs = !selTodosAs; onSelTodosAs()">
-                            <input style="pointer-events: none;" type="checkbox" v-model="selTodosAs">
-                            Todos
-                        </label>
-                        <label v-for="a in filAsesorSala" @click="toggleAsesor(a)">
-                            <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
-                            {{a.nombres}}
+                    <div style="display: flex; justify-content: center; width: 100%; gap: 2rem;">
+                        <select v-model="chartMode" style="width: 10rem;" @change="setGroupMode();resetChart()">
+                            <option value="acciones_asesor">Acciones por Asesor</option>
+                            <option value="temporal_asesor">Temporal Asesor</option>
+                            <option value="temporal_unidad">Temporal Unidad</option>
+                            <option value="total_acciones">Efectividad Acciones</option>
+                        </select>
+                        <select v-if="chartMode == 'acciones_asesor' || chartMode == 'temporal_asesor'"
+                            style="width: 10rem;" v-model="filIdSala" @change="resetChart">
+                            <option value="">[Salas]</option>
+                            <option v-for="s in salas" :value="s.id_sala_venta">{{s.sala_venta}}</option>
+                        </select>
+                        <select v-if="chartMode == 'temporal_unidad'" v-model="groupMode" style="width: 10rem;"
+                            @change="resetChart">
+                            <option value="sede">Sede</option>
+                            <option value="zona">Zona</option>
+                            <option value="ciudadela">Ciudadela</option>
+                            <option value="proyecto">Proyecto</option>
+                        </select>
+                        <select v-if="chartMode == 'total_acciones'" v-model="groupMode" style="width: 10rem;"
+                            @change="resetChart">
+                            <option value="total">Totales</option>
+                            <option value="porc_visitas">Porcentaje sobre visitas</option>
+                        </select>
+                        <select v-if="chartMode == 'total_acciones'" v-model="filIdProyecto" style="width: 10rem;"
+                            @change="resetChart">
+                            <option value="">[Proyectos]</option>
+                            <option v-for="p in proyectos" :value="p.id_proyecto">{{p.proyecto}}</option>
+                        </select>
+                        <button @click="exportChart">Exportar</button>
+                        <label v-if="chartMode == 'temporal_asesor'" @click="verBarras = !verBarras; resetChart();"
+                            style="display: flex; align-items: baseline; padding-top: 5px;">
+                            <input style="pointer-events: none;" type="checkbox" v-model="verBarras">
+                            Barras
                         </label>
                     </div>
-                    <div class="checkbox-group horizontal-bar-checks" style="flex: 5;"
-                        v-if="!filtros.trazabilidad.obj && (chartMode === 'temporal_asesor' || chartMode === 'temporal_unidad')">
-                        <label @click="selTodosAcc = !selTodosAcc; onSelTodosAcc()">
-                            <input style="pointer-events: none;" type="checkbox" v-model="selTodosAcc">
-                            Todos
-                        </label>
-                        <label v-for="a in acciones" @click="toggleAccion(a)">
-                            <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
-                            {{ a.accion }}
-                        </label>
+
+                    <div class="unidades-tabla-modal" style="height: 66vh;">
+                        <canvas id="chart-js"></canvas>
+                    </div>
+
+                    <div style="display: flex; gap: .5rem">
+                        <div v-if="!filtros.trazabilidad.asesor && chartMode === 'acciones_asesor'"
+                            class="checkbox-group horizontal-bar-checks" style="flex: 5;">
+                            <label @click="selTodosAs = !selTodosAs; onSelTodosAs()">
+                                <input style="pointer-events: none;" type="checkbox" v-model="selTodosAs">
+                                Todos
+                            </label>
+                            <label v-for="a in filAsesorSala" @click="toggleAsesor(a)">
+                                <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
+                                {{a.nombres}}
+                            </label>
+                        </div>
+                        <div class="checkbox-group horizontal-bar-checks" style="flex: 5;"
+                            v-if="!filtros.trazabilidad.obj && (chartMode === 'temporal_asesor' || chartMode === 'temporal_unidad')">
+                            <label @click="selTodosAcc = !selTodosAcc; onSelTodosAcc()">
+                                <input style="pointer-events: none;" type="checkbox" v-model="selTodosAcc">
+                                Todos
+                            </label>
+                            <label v-for="a in acciones" @click="toggleAccion(a)">
+                                <input style="pointer-events: none;" type="checkbox" v-model="a.selected">
+                                {{ a.accion }}
+                            </label>
+                        </div>
                     </div>
                 </div>
+                <div v-show="modalMode == 'Cotización'">
+                    <h2 style="text-align: center; margin-bottom: .5rem;">
+                        Detalles Cotización
+                    </h2>
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="display: flex; flex-direction: column;">
+                            <div class="infoModal">
+                                <h3>Cotización #{{infoCotizacion.cotizacion}}</h3>
+                                <p>
+                                    <span style="font-weight: bold;">Fecha: </span>
+                                    <span>{{infoCotizacion.fecha}}</span>
+                                </p>
+                                <p>
+                                    <span style="font-weight: bold;">Proyecto: </span>
+                                    <span>{{infoCotizacion.proyecto}}</span>
+                                </p>
+                                <p>
+                                    <span style="font-weight: bold;">Descripcion: </span>
+                                    <span>{{infoCotizacion.descripcion}}</span>
+                                </p>
+                            </div>
+                            <div class="infoModal">
+                                <h3>Datos del Cliente</h3>
+                                <p>
+                                    <span style="font-weight: bold;">Nombre: </span>
+                                    <span>{{infoCotizacion.nombre}}</span>
+                                </p>
+                                <p>
+                                    <span style="font-weight: bold;">Documento: </span>
+                                    <span>{{infoCotizacion.tipo_documento}}. {{infoCotizacion.numero_documento}}</span>
+                                </p>
+                                <p>
+                                    <span style="font-weight: bold;">Teléfono: </span>
+                                    <span>{{infoCotizacion.codigo_tel}} {{infoCotizacion.telefono}}</span>
+                                </p>
+                                <p>
+                                    <span style="font-weight: bold;">Email: </span>
+                                    <span>{{infoCotizacion.email}}</span>
+                                </p>
+                            </div>
+                            <div>
+                                <h3>Unidades</h3>
+                                <div style="max-height: 145px; overflow-y: auto;">
+                                    <table class="dataTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Unidad</th>
+                                                <th>Torre</th>
+                                                <th style="width: 150px;">Fecha</th>
+                                                <th>Lista</th>
+                                                <th>Descuento Base</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="a in aptos" @click="selectApto(a)"
+                                                v-bind:class="{'selected': a == selectedApto}">
+                                                <td>{{a.nombre_unidad}}</td>
+                                                <td>{{a.torre}}</td>
+                                                <td>{{a.fecha}}</td>
+                                                <td>{{a.lista}}</td>
+                                                <td>{{a.valor_descuento}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="aptos-detail" v-if="selectedApto">
+                                <div class="tabs-floating">
+                                    <div :class="{ active: activeTab === 'detalle' }" @click="activeTab = 'detalle'">
+                                        📝 Detalle
+                                    </div>
+                                    <div :class="{ active: activeTab === 'imagenes' }" @click="activeTab = 'imagenes'">
+                                        🖼️ Imágenes
+                                    </div>
+                                </div>
+                                <div class="tab-card">
+                                    <div v-if="activeTab === 'detalle'">
+                                        <h3 v-if="selectedApto.id_agrupacion == ''">Valor Unidad: {{
+                                            formatoMoneda(selectedApto.valor_unidad) }}</h3>
+                                        <h3 v-else>Valor Agrupación: {{ formatoMoneda(selectedApto.agrupacion_total) }}
+                                        </h3>
+                                        <ul class="detail-list">
+                                            <li v-if="selectedApto.id_agrupacion != ''"><span class="label">🏘️
+                                                    Agrupación:</span> {{ selectedApto.agrupacion_descripcion}}</li>
+                                            <li><span class="label">💰 Descuento:</span> {{
+                                                formatoMoneda(selectedApto.valor_descuento) }}
+                                            </li>
+                                            <li>
+                                                <span class="label">💰 Valor Final:</span>
+                                                {{ calcularValorFinal(selectedApto) }}
+                                            </li>
+                                            <li><span class="label">📐 Tipo:</span> {{ selectedApto.codigo_planta }}
+                                            </li>
+                                            <li><span class="label">🏠 ID Unidad:</span> {{ selectedApto.apartamento }}
+                                            </li>
+                                            <li><span class="label">📊 Estatus:</span> {{ selectedApto.estatus }}</li>
+                                            <li><span class="label">📍 Localización:</span> {{ selectedApto.localizacion
+                                                }}</li>
+                                            <li><span class="label">🔧 UT:</span> {{ selectedApto.inv_terminado == 1 ?
+                                                'SI' : 'NO' }}</li>
+                                            <li><span class="label">📏 Área Priv. Cubierta:</span>
+                                                <samp class="area-card">{{ selectedApto.area_privada_cub }}</samp>
+                                            </li>
+                                            <li><span class="label">🏗️ Área Total Construida:</span>
+                                                <samp class="area-card">{{ selectedApto.area_total }}</samp>
+                                            </li>
+                                            <li><span class="label">☀️ Asoleación:</span>
+                                                {{ selectedApto.asoleacion == 'PM' ? 'Sol de mañana' : 'Sol de tarde' }}
+                                            </li>
+                                            <li><span class="label">🤝 Asesor</span> {{infoCotizacion.asesor}}</li>
+                                            <li class="observacion-item">
+                                                <span class="label">📝 Observación:</span>
+                                                <div class="observacion-text">{{ selectedApto.observacion_apto }}</div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div v-if="activeTab === 'imagenes'">
+                                        <div class="image-gallery-container">
+                                            <div class="image-gallery">
+                                                <img :src="tipoProyecto" @click="openImgModal(tipoProyecto)" />
+                                            </div>
+                                            <div class="image-gallery">
+                                                <img :src="plantProyecto" @click="openImgModal(plantProyecto)" />
+                                            </div>
+                                            <div class="image-gallery" style="height: 195px;">
+                                                <iframe id="v-player" :src="recorrido"
+                                                    frameborder="0" allowfullscreen allow="xr-spatial-tracking">
+                                                </iframe>
+                                            </div>
+                                        </div>
+
+                                        <div v-if="showModal" class="modal-overlay" @click="closeImgModal" style="z-index: 1000;">
+                                            <div class="modal-content" @click.stop>
+                                                <span class="close" @click="closeImgModal">&times;</span>
+                                                <img :src="modalImage" class="modal-img" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="action-footer">
+                                </div>
+                            </div>
+                            <div v-else class="aptos-detail"></div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- <div v-show="modalMode == 'Opción'">
+                    <h2 style="text-align: center; margin-bottom: .5rem;">
+                        Detalles Opción
+                    </h2>
+                </div> -->
 
             </div>
         </div>

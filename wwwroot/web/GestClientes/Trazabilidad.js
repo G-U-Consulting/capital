@@ -13,6 +13,9 @@ export default {
             trazabilidad: [],
             acciones: [],
             proyectos: [],
+            aptos: [],
+            selectedApto: {},
+            infoCotizacion: {},
 
             filMode: 'week',
             filIdSala: '',
@@ -30,6 +33,19 @@ export default {
             chartMode: 'acciones_asesor',
             groupMode: 'sede',
             verBarras: true,
+            modalMode: 'grafica',
+            selIdObj: null,
+            activeTab: null,
+			showModal: false,
+            modalImage: null,
+            plantProyecto: '',
+            tipoProyecto: '',
+            recorrido: '',
+
+            tooltipVisible: false,
+            tooltipX: 0,
+            tooltipY: 0,
+            expandedVisible: false,
         };
     },
     async mounted() {
@@ -79,7 +95,11 @@ export default {
                 this.filtros.trazabilidad.created_on2 = this.formatDatetime('', 'bdate', new Date(new Date().getTime()));
             }
         },
-        openModal() {
+        async openModal(mode, id_obj) {
+            this.modalMode = mode;
+            if (id_obj) this.selIdObj = id_obj;
+            if (mode == 'Cotización')
+                await this.loadAptos();
             let $modal = document.getElementById('modalOverlay');
             $modal && ($modal.style.display = 'flex');
             $modal && (this.modal = $modal);
@@ -308,20 +328,20 @@ export default {
                 labels: labels,
                 datasets: this.acciones.filter(a => a.obj !== 'Desistimiento' && (todos || a.obj !== 'Visita'))
                     .map((a, i) => ({
-                    label: a.obj,
-                    data: todos
-                        ? [trazabilidad.filter(t => t.obj === a.obj).length]
-                        : [trazabilidad.filter(t => t.obj === a.obj).length / num_visitas * 100],
-                    backgroundColor: this.getColor(i, this.acciones.length)
-                }))
+                        label: a.obj,
+                        data: todos
+                            ? [trazabilidad.filter(t => t.obj === a.obj).length]
+                            : [trazabilidad.filter(t => t.obj === a.obj).length / num_visitas * 100],
+                        backgroundColor: this.getColor(i, this.acciones.length)
+                    }))
             };
             config.options.scales = {
                 y: {
                     min: !todos ? 0 : undefined,
                     max: !todos ? 100 : undefined,
                     ticks: {
-                        callback: function(value) {
-                        return !todos ? value + '%' : value;
+                        callback: function (value) {
+                            return !todos ? value + '%' : value;
                         }
                     }
                 }
@@ -329,7 +349,7 @@ export default {
             config.options.plugins = {
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             const value = context.parsed.y;
                             return !todos ? value.toFixed(2) + '%' : value;
                         }
@@ -351,6 +371,107 @@ export default {
             }
             hideProgress();
         },
+        updateCursor(event) {
+            this.tooltipX = event.clientX + 10;
+            this.tooltipY = event.clientY + 10;
+        },
+
+        
+		openImgModal(img) {
+			this.modalImage = img
+			this.showModal = true
+		},
+		closeImgModal() {
+			this.showModal = false
+			this.modalImage = null
+		},
+        async loadAptos() {
+            showProgress();
+            if (this.modalMode == 'Cotización') {
+                let cotizacion = [];
+                console.log(this.selIdObj);
+                [cotizacion, this.aptos] =
+                    (await httpFunc("/generic/genericDS/Clientes:Get_Cotizacion", {id_cotizacion: this.selIdObj})).data;
+                this.infoCotizacion = cotizacion[0] || {};
+                if (this.aptos[0]) await this.selectApto(this.aptos[0]);
+                console.log(cotizacion, this.aptos, this.selectedApto);
+                this.activeTab = 'detalle';
+            }
+            hideProgress();
+        },
+		formatoMoneda(valor) {
+			if (valor == null || valor === '') return '';
+			let limpio = String(valor)
+				.replace(/[^\d,.-]/g, '')
+				.replace(',', '.');
+			const numero = parseFloat(limpio);
+			if (isNaN(numero)) return '';
+			return new Intl.NumberFormat('es-CO', {
+				style: 'currency',
+				currency: 'COP',
+				minimumFractionDigits: 0
+			}).format(numero);
+		},
+        calcularValorFinal(apto) {
+			if (!apto) return '';
+
+			let base = 0;
+			if (apto.agrupacion_total && apto.agrupacion_total.trim() !== '') {
+				base = Number(apto.agrupacion_total.replace(',', '.')) || 0;
+			} else {
+				base = Number(apto.valor_unidad.replace(',', '.')) || 0;
+			}
+			const descuento = Number((apto.valor_descuento || '0').replace(',', '.'));
+			const total = base - descuento;
+
+			if (isNaN(total)) return '';
+			return total.toLocaleString('es-CO', {
+				style: 'currency',
+				currency: 'COP',
+				minimumFractionDigits: 0
+			});
+		},
+        async selectApto(apto) {
+			try {
+				this.selectedApto = apto;
+                let id_proyecto = apto.id_proyecto, id_unidad = apto.id_unidad;
+				const consultas = [
+					{
+						prop: "tipoProyecto",
+						url: "/generic/genericDT/ProcesoNegocio:Get_Tipos",
+						params: { tipo: "imagenes", id_proyecto, id_unidad },
+						formatter: (data) => `/file/S3get/${data[0].llave}`
+					},
+					{
+						prop: "plantProyecto",
+						url: "/generic/genericDT/Maestros:Get_Archivos",
+						params: { tipo: "planta", id_proyecto },
+						formatter: (data) => `/file/S3get/${data[0].llave}`
+					},
+					{
+						prop: "recorrido",
+						url: "/generic/genericDT/ProcesoNegocio:Get_Tipos",
+						params: { tipo: "recorridos virt", id_proyecto, id_unidad },
+						formatter: (data) => data[0].link
+					}
+				];
+
+				const results = await Promise.all(
+					consultas.map((q) => httpFunc(q.url, q.params))
+				);
+
+				results.forEach((res, i) => {
+					if (res.data?.length) {
+						this[consultas[i].prop] = consultas[i].formatter(res.data);
+					}
+                    else this[consultas[i].prop] = null;
+				});
+
+				this.id_cliente = GlobalVariables.id_cliente;
+			} catch (error) {
+				showMessage("No se pudieron cargar los datos del apartamento.");
+			}
+		},
 
     },
     computed: {

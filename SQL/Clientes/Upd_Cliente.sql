@@ -24,7 +24,6 @@ set @id_cliente = NULL,
     @pais_expedicion = NULL,
     @departamento_expedicion = NULL,
     @ciudad_expedicion = NULL,
-    @fecha_expedicion = NULL,
     @descripcion = NULL;
 --END_PARAM
 
@@ -49,7 +48,6 @@ set nombres = @nombres,
     pais_expedicion = @pais_expedicion,
     departamento_expedicion = @departamento_expedicion,
     ciudad_expedicion = @ciudad_expedicion,
-    fecha_expedicion = @fecha_expedicion,
     numero_documento = @numero_documento,
     descripcion = @descripcion
 where id_cliente = @id_cliente;

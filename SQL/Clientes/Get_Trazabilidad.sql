@@ -18,7 +18,7 @@ left join fact_usuarios us on v.created_by = us.usuario collate utf8mb4_unicode_
 union
 select co.id_cotizacion as id_obj, co.id_cliente, 
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
-    n.id_unidad, coalesce(a.nombre, un.nombre_unidad) as unidad, p.id_proyecto, p.nombre as proyecto,
+    n.id_unidad, group_concat(coalesce(a.nombre, un.nombre_unidad) separator '/') as unidad, p.id_proyecto, p.nombre as proyecto,
     date_format(co.created_on, '%Y-%m-%d') as created_on, co.created_by as asesor, us.nombres as nombre_asesor, 'Cotización' as obj,
     p.id_sede, p.id_zona_proyecto, p.id_ciudadela
 from fact_cotizaciones co
@@ -28,10 +28,11 @@ left join fact_unidades un on n.id_unidad = un.id_unidad
 left join dim_agrupacion_unidad a on un.id_agrupacion = a.id_agrupacion
 left join fact_usuarios us on co.created_by = us.usuario collate utf8mb4_unicode_ci 
 join fact_proyectos p on co.id_proyecto = p.id_proyecto
+group by n.id_cotizacion
 union
 select o.id_opcion as id_obj, co.id_cliente, 
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
-    n.id_unidad, coalesce(a.nombre, un.nombre_unidad) as unidad, p.id_proyecto, p.nombre as proyecto,
+    n.id_unidad, group_concat(coalesce(a.nombre, un.nombre_unidad) separator '/') as unidad, p.id_proyecto, p.nombre as proyecto,
     date_format(o.created_on, '%Y-%m-%d') as created_on, o.created_by as asesor, us.nombres as nombre_asesor, 'Opción' as obj,
     p.id_sede, p.id_zona_proyecto, p.id_ciudadela
 from fact_opcion o
@@ -42,6 +43,7 @@ left join fact_unidades un on n.id_unidad = un.id_unidad
 left join dim_agrupacion_unidad a on un.id_agrupacion = a.id_agrupacion
 left join fact_usuarios us on co.created_by = us.usuario collate utf8mb4_unicode_ci 
 join fact_proyectos p on co.id_proyecto = p.id_proyecto
+group by n.id_cotizacion
 union
 select id_venta as id_obj, co.id_cliente, 
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente, 
