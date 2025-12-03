@@ -2471,7 +2471,7 @@ export default {
             if (num > this.meses_max) this.d_meses = this.meses_max;
         },
         generarTabla() {
-            if (!this.d_fecha_cuota || !this.d_meses || !this.cuota_inicial || !this.d_tna_antes || !this.d_tna_despues || !this.d_fecha_pe) {
+            if (!this.d_fecha_cuota || !this.d_meses || !this.cuota_inicial) {
                 showMessage('Faltan datos requeridos');
                 return;
             }
