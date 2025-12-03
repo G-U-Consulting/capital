@@ -219,3 +219,18 @@ values
 ('$7.200.001 a $10.400.000', 7200001, 10400000),
 ('$10.400.001 a $12.000.000', 10400001, 12000000),
 ('$12.000.000 en adelante', 12000000, null);
+
+
+create table fact_borrador_opcion (
+    id_borrador int auto_increment primary key,
+    id_opcion int not null default 0,
+    id_cotizacion int not null,
+    id_cliente int not null,
+    id_proyecto int not null,
+    datos_json text not null,
+    fecha_creacion datetime,
+    fecha_modificacion datetime,
+    usuario_creacion varchar(100),
+
+    unique key unique_borrador (id_cotizacion, id_cliente, id_proyecto, id_opcion)
+);

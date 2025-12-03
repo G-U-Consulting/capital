@@ -71,21 +71,86 @@ mainVue = {
         GlobalVariables.username = data.user;
         GlobalVariables.loadPermisos = this.loadPermisos;
         GlobalVariables.loadModule = this.loadModule;
+        GlobalVariables._originalLoadModule = GlobalVariables.loadModule;
+
+        GlobalVariables.loadModule = async (name, inputParameter) => {
+            if (window.activeMiniModule?.tieneCambiosPendientes &&
+                (window.activeMiniModule.name !== "ProcesoNegocio" || window.activeMiniModule.mode === 3)) {
+
+                const moduleName = window.activeMiniModule.name || "el módulo";
+                const mensajePersonalizado = moduleName === "ProcesoNegocio"
+                    ? "Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de salir?"
+                    : `Existen cambios sin guardar en ${moduleName}`;
+
+                const botonesPersonalizados = moduleName === "ProcesoNegocio"
+                    ? { textOk: 'Guardar', textCancel: 'Salir sin guardar' }
+                    : { textOk: null, textCancel: null };
+
+                return new Promise((resolve) => {
+                    showConfirm(
+                        mensajePersonalizado,
+                        async () => {
+                            if (moduleName === "ProcesoNegocio") {
+                                await window.activeMiniModule.enviarYOpcionar();
+                            }
+                            window.activeMiniModule.tieneCambiosPendientes = false;
+                            await GlobalVariables._originalLoadModule(name, inputParameter);
+                            resolve();
+                        },
+                        async () => {
+                            window.activeMiniModule.tieneCambiosPendientes = false;
+                            await GlobalVariables._originalLoadModule(name, inputParameter);
+                            resolve();
+                        },
+                        null,
+                        botonesPersonalizados.textOk,
+                        botonesPersonalizados.textCancel
+                    );
+                });
+            }
+
+            return GlobalVariables._originalLoadModule(name, inputParameter);
+        };
+
         GlobalVariables.loadMiniModule = this.loadMiniModule;
         GlobalVariables._originalLoadMiniModule = GlobalVariables.loadMiniModule;
-        GlobalVariables.loadMiniModule = (modName, zone, data) => {
-            if (window.activeMiniModule?.tieneCambiosPendientes) {
-                showConfirm(
-                    "⚠️ Existen cambios sin guardar en Edición Proyecto",
-                    () => {
-                        window.activeMiniModule.tieneCambiosPendientes = false;
-                        GlobalVariables._originalLoadMiniModule(modName, zone, data);
-                    },
-                    null,
-                );
-                return;
+        GlobalVariables.loadMiniModule = async (modName, zone, data) => {
+            if (window.activeMiniModule?.tieneCambiosPendientes &&
+                (window.activeMiniModule.name !== "ProcesoNegocio" || window.activeMiniModule.mode === 3)) {
+
+                const moduleName = window.activeMiniModule.name || "el módulo";
+                const mensajePersonalizado = moduleName === "ProcesoNegocio"
+                    ? "Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de salir?"
+                    : `⚠️ Existen cambios sin guardar en ${moduleName}`;
+
+                const botonesPersonalizados = moduleName === "ProcesoNegocio"
+                    ? { textOk: 'Guardar', textCancel: 'Salir sin guardar' }
+                    : { textOk: null, textCancel: null };
+
+                return new Promise((resolve) => {
+                    showConfirm(
+                        mensajePersonalizado,
+                        async () => {
+                            if (moduleName === "ProcesoNegocio") {
+                                await window.activeMiniModule.enviarYOpcionar();
+                            }
+                            window.activeMiniModule.tieneCambiosPendientes = false;
+                            await GlobalVariables._originalLoadMiniModule(modName, zone, data);
+                            resolve();
+                        },
+                        async () => {
+                            window.activeMiniModule.tieneCambiosPendientes = false;
+                            await GlobalVariables._originalLoadMiniModule(modName, zone, data);
+                            resolve();
+                        },
+                        null,
+                        botonesPersonalizados.textOk,
+                        botonesPersonalizados.textCancel
+                    );
+                });
             }
-            GlobalVariables._originalLoadMiniModule(modName, zone, data);
+
+            return GlobalVariables._originalLoadMiniModule(modName, zone, data);
         };
         GlobalVariables.ruta = localStorage.getItem('ruta');
         GlobalVariables.passwordPolicy = await this.getSeguridad();
@@ -385,8 +450,6 @@ function showConfirm(msg, okCallback, cancelCallback, event, textOk, textCancel)
         document.getElementById("divConfirm").style.display = "none";
     };
     document.getElementById("btXConfirmCancel").onclick = function () {
-        if (cancelCallback != null)
-            cancelCallback(event);
         document.getElementById("divConfirm").style.display = "none";
     };
     confirm.innerText = textOk != null ? textOk : "SI";

@@ -123,7 +123,7 @@ export default {
             files: [],
             imgsPortada: [],
             salas_venta: [],
-            viewMode: 'Tabla',
+            viewMode: null,
             onlyActive: false,
             frontImg: '',
             interval: null,
@@ -317,10 +317,11 @@ export default {
         },
         async setViewMode(mode) {
             let vista = await GlobalVariables.getPreferences('vistaProyecto', true);
-            if (vista) this.viewMode = vista;
-            else {
-                let data = await GlobalVariables.setPreferences('vistaProyecto', mode || 'Tabla', true);
-                if (data == 'OK') await this.setViewMode();
+            if (vista) {
+                this.viewMode = vista;
+            } else {
+                this.viewMode = mode || 'Matriz';
+                await GlobalVariables.setPreferences('vistaProyecto', this.viewMode, true);
             }
         },
         async updateViewMode(mode) {

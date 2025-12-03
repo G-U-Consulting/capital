@@ -55,3 +55,25 @@ where o.id_cotizacion = @id_cotizacion
   and c.is_active = 1
 order by o.created_on desc
 limit 1;
+
+select
+    a.id_amortizacion,
+    a.id_opcion,
+    a.periodo,
+    DATE_FORMAT(a.fecha, '%Y-%m-%d') as fecha,
+    a.saldo_inicial,
+    a.tna,
+    a.cuota_deseada,
+    a.cuota_calculada,
+    a.intereses,
+    a.principal,
+    a.saldo_final
+from fact_amortizacion a
+inner join fact_opcion o on a.id_opcion = o.id_opcion
+inner join fact_cotizaciones c on o.id_cotizacion = c.id_cotizacion
+where o.id_cotizacion = @id_cotizacion
+  and c.id_proyecto = @id_proyecto
+  and c.id_cliente = @id_cliente
+  and c.is_active = 1
+order by o.created_on desc, a.periodo asc
+LIMIT 999;

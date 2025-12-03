@@ -159,6 +159,8 @@ export default {
             camposBloqueados: false,
             registro: false,
             id_opcion: null,
+            tieneCambiosPendientes: false,
+            ventanaUnidadesCheckInterval: null,
 
             bancoSeleccionado: 0,
             unidadSeleccionada: 0,
@@ -224,6 +226,9 @@ export default {
             opcion_valor_reformas: null,
             opcion_valor_acabados: null,
             opcion_valor_separacion: null,
+            opcion_fin_max_permisible: null,
+            opcion_cuota_max_financiable: null,
+            opcion_ingr_regs_max: null,
 
             clientes: [],
             ObjClienteOriginal: null,
@@ -234,6 +239,7 @@ export default {
             cuota_inicial_final: 0,
 
             mostrarModalCliente: false,
+            mostrarTooltipOpcion: false,
 
             valor_notariales: 0,
             valor_beneficiencia: 0,
@@ -284,6 +290,11 @@ export default {
             factorBanco: 0,
             valor_credito_final_base: 0,
             cuota_inicial_final_anterior: null,
+
+            showBorradorModal: false,
+            borradorData: null,
+            guardandoBorrador: false,
+            cargandoBorrador: false,
         };
     },
     async mounted() {
@@ -309,7 +320,11 @@ export default {
         this.campoObligatorio();
         window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
         window.addEventListener('message', this.handleMessages);
-        this.isSubsidio()
+        window.addEventListener('beforeunload', this.handleBeforeUnload);
+        this.isSubsidio();
+
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "ProcesoNegocio";
 
     },
     methods: {
@@ -371,7 +386,7 @@ export default {
             i === -1 ? this.ids_unidades.push(apto.id_unidad) : this.ids_unidades.splice(i, 1);
         },
         calcularSubsidio() {
-            if (this.esOpcionGuardada) {
+            if (this.esOpcionGuardada || this.cargandoBorrador) {
                 return;
             }
 
@@ -406,8 +421,12 @@ export default {
             }
         },
         async calcularFinanciacion() {
-            if (this.esOpcionGuardada) {
+            if (this.esOpcionGuardada || this.cargandoBorrador) {
                 return;
+            }
+
+            if (this.tipoFinanciacionSeleccionada) {
+                this.modalidadSeleccionada = this.tipoFinanciacionSeleccionada;
             }
 
             if (!this.tipoFinanciacionSeleccionada || !this.importeOriginal) {
@@ -506,6 +525,14 @@ export default {
             }
         },
 
+        handleBeforeUnload(event) {
+            if (this.mode === 3 && this.tieneCambiosPendientes && !this.esOpcionGuardada) {
+                event.preventDefault();
+                event.returnValue = '';
+                return '';
+            }
+        },
+
         validateModeCliente() {
             const camposObligatorios = [
                 { campo: "nombres", label: "Nombres" },
@@ -587,6 +614,7 @@ export default {
             this.valor_descuento_adicional = 0;
             this.valor_escrituras = 0;
             this.notariales = 0;
+            this.f_valor_notariales = 0;
             this.beneficiencia = 0;
             this.registro = 0;
 
@@ -620,6 +648,9 @@ export default {
             this.opcion_valor_reformas = null;
             this.opcion_valor_acabados = null;
             this.opcion_valor_separacion = null;
+            this.opcion_fin_max_permisible = null;
+            this.opcion_cuota_max_financiable = null;
+            this.opcion_ingr_regs_max = null;
 
             this.unidadOpcion = null;
             this.importeBase = 0;
@@ -649,14 +680,11 @@ export default {
                     this.opcion_valor_reformas = opcion.valor_reformas ?? 0;
                     this.opcion_valor_acabados = opcion.valor_acabados ?? 0;
                     this.opcion_valor_separacion = opcion.valor_separacion ?? 0;
-
-                    console.log('Opción cargada - Fechas:', {
-                        entrega: this.opcion_fecha_entrega,
-                        escrituracion: this.opcion_fecha_escrituracion,
-                        primera_cuota: this.opcion_fecha_primera_cuota,
-                        ultima_cuota: this.opcion_fecha_ultima_cuota
-                    });
-
+                    this.opcion_fin_max_permisible = this.cleanNumber(opcion.fin_max_permisible);
+                    this.opcion_cuota_max_financiable = this.cleanNumber(opcion.cuota_max_financiable);
+                    this.opcion_ingr_regs_max = this.cleanNumber(opcion.ingr_regs_max);
+                
+               
                     this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
                     this.valor_separacion = opcion.valor_separacion || 0;
                     this.valor_escrituras = opcion.valor_escrituras || 0;
@@ -665,15 +693,37 @@ export default {
                     this.registro = opcion.registro || 0;
 
                     if (opcion.pago_financiado) {
-                        this.pagoSeleccionado = 'Financiado'; 
+                        this.pagoSeleccionado = 'Financiado';
                     } else if (opcion.pago_contado) {
                         this.pagoSeleccionado = 'Contado';
                     }
 
+                    this.bancoSeleccionado = opcion.id_entidad || null;
+
+                    if (this.bancoSeleccionado) {
+                        await this.cargarFactor();
+                    }
+
                     this.tipoSeleccionado = opcion.id_tipo || null;
-  
+                    if (opcion.id_tipo) {
+                        const factor = this.factoresBanco.find(f => f.id_factor == opcion.id_tipo);
+                        this.unidadSeleccionada = factor ? factor.unidad : 0;
+                    } else {
+                        this.unidadSeleccionada = 0;
+                    }
+               
                     this.anioSeleccionado = opcion.id_anios ? parseInt(opcion.id_anios) : null;
+                    if (this.unidadSeleccionada && this.unidadSeleccionada !== 0) {
+                        this.cargarAnios();
+                    }
+
                     this.modalidadSeleccionada = opcion.id_modalidad || null;
+                    if (opcion.id_modalidad) {
+                        const tipoFin = this.tipo_financiacion.find(t => t.id_tipo_financiacion == opcion.id_modalidad);
+                        this.tipoFinanciacionSeleccionada = tipoFin ? tipoFin.tipo_financiacion : '';
+                    } else {
+                        this.tipoFinanciacionSeleccionada = '';
+                    }
 
                     this.ingresos_mensuales = opcion.ingresos_familiares || 0;
                     this.cesantias = opcion.cesantias || 0;
@@ -682,21 +732,48 @@ export default {
                     this.seleccionAnioEntrega = opcion.anio_entrega || '';
                     this.caja_compensacion = opcion.id_caja_compensacion || null;
 
-                    this.fin_max_permisible = opcion.fin_max_permisible || 0;
-                    this.cuota_permisible = opcion.cuota_permisible || 0;
-                    this.cuota_max_financiable = opcion.cuota_max_financiable || 0;
-                    this.ingr_regs_max = opcion.ingr_regs_max || 0;
+                    this.fin_max_permisible = this.cleanNumber(opcion.fin_max_permisible);
+                    this.cuota_permisible = this.cleanNumber(opcion.cuota_permisible);
+                    this.cuota_max_financiable = this.cleanNumber(opcion.cuota_max_financiable);
+                    this.ingr_regs_max = this.cleanNumber(opcion.ingr_regs_max);
                     this.d_meses = opcion.meses || 0;
 
                     this.valor_credito_final = opcion.importe_financiacion || 0;
                     this.cuota_inicial_final = opcion.cuota_inicial || 0;
 
-                    this.bancoSeleccionado = opcion.id_entidad || null;
+                    const tablaAmortizacion = respOpcion.data[1];
+                    if (tablaAmortizacion && tablaAmortizacion.length > 0) {
+                        this.cargarTablaAmortizacion(tablaAmortizacion);
+                    }
 
-                    console.log('Opción cargada exitosamente:', opcion.id_opcion);
+                    this.$nextTick(() => {
+                        this.$forceUpdate();
+                    });
                 }
             } catch (error) {
                 console.error('Error al cargar opción existente:', error);
+            }
+        },
+
+        cargarTablaAmortizacion(datosTabla, abrirTabla = true) {
+            try {
+                this.tablaPeriodos = datosTabla.map(fila => ({
+                    periodo: fila.periodo,
+                    fecha: fila.fecha,
+                    saldo_inicial: fila.saldo_inicial,
+                    tna: fila.tna,
+                    cuota_deseada: fila.cuota_deseada || '',
+                    cuota_calculada: fila.cuota_calculada,
+                    intereses: fila.intereses,
+                    principal: fila.principal,
+                    saldo_final: fila.saldo_final
+                }));
+
+                if (this.tablaPeriodos.length > 0 && abrirTabla) {
+                    this.tablaAmortizacion = true;
+                }
+            } catch (error) {
+                console.error('Error al cargar tabla de amortización:', error);
             }
         },
 
@@ -725,6 +802,32 @@ export default {
         },
 
         async handleNext(nextIndex) {
+            if (this.mode === 3 && nextIndex !== 3 && this.tieneCambiosPendientes && !this.esOpcionGuardada) {
+                return new Promise((resolve) => {
+                    showConfirm(
+                        'Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de salir?',
+                        async () => {
+                            await this.enviarYOpcionar();
+                            this.tieneCambiosPendientes = false;
+                            await this.continuarNavegacion(nextIndex);
+                            resolve();
+                        },
+                        async () => {
+                            this.tieneCambiosPendientes = false;
+                            await this.continuarNavegacion(nextIndex);
+                            resolve();
+                        },
+                        null,
+                        'Guardar',
+                        'Salir sin guardar'
+                    );
+                });
+            }
+
+            await this.continuarNavegacion(nextIndex);
+        },
+
+        async continuarNavegacion(nextIndex) {
             if (this.mode === 0 && nextIndex === 1) {
                 if (!this.validateModeCliente()) return;
                 await this.nuevoCliente(0);
@@ -754,6 +857,12 @@ export default {
 
                 if (nextIndex === 3) {
                     await this.prepararDatosOpcion();
+                    this.tieneCambiosPendientes = false;
+
+                    const borrador = await this.verificarBorradorExistente();
+                    if (borrador) {
+                        await this.mostrarModalBorrador(borrador);
+                    }
                 }
             }
         },
@@ -917,6 +1026,276 @@ export default {
             this.iscliente = true;
             this.israpida = false;
         },
+
+        async verificarBorradorExistente() {
+            try {
+                if (!this.idcotizacion || !this.id_cliente || !this.id_proyecto) {
+                    return null;
+                }
+
+                const resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Get_Borrador_Opcion', {
+                    id_opcion: this.id_opcion || null,
+                    id_cotizacion: this.idcotizacion,
+                    id_cliente: this.id_cliente,
+                    id_proyecto: this.id_proyecto
+                });
+
+                if (resp.data && resp.data.length > 0) {
+                    return resp.data[0];
+                }
+                return null;
+            } catch (error) {
+                console.error('Error al verificar borrador existente:', error);
+                return null;
+            }
+        },
+       
+        async guardarBorrador() {
+            try {
+                if (!this.idcotizacion || !this.id_cliente || !this.id_proyecto) {
+                    showMessage('No se puede guardar el borrador sin cotización, cliente o proyecto');
+                    return;
+                }
+
+                this.guardandoBorrador = true;
+
+                const datosOpcion = {
+                    fecha_entrega: this.esOpcionGuardada ? this.opcion_fecha_entrega : this.d_fecha_entrega,
+                    valor_reformas: this.cleanNumber(this.esOpcionGuardada ? this.opcion_valor_reformas : this.valor_reformas) || 0,
+                    valor_acabados: this.cleanNumber(this.esOpcionGuardada ? this.opcion_valor_acabados : this.valor_acabados) || 0,
+                    valor_descuento_adicional: this.cleanNumber(this.valor_descuento_adicional) || 0,
+                    valor_separacion: this.cleanNumber(this.esOpcionGuardada ? this.opcion_valor_separacion : this.valor_separacion) || 0,
+                    valor_escrituras: this.cleanNumber(this.valor_escrituras) || 0,
+                    notariales: this.cleanNumber(this.notariales) || 0,
+                    beneficiencia: this.cleanNumber(this.beneficiencia) || 0,
+                    registro: this.cleanNumber(this.registro) || 0,
+                    pago_contado: this.pagoSeleccionado?.toLowerCase() === 'contado' ? 1 : 0,
+                    pago_financiado: this.pagoSeleccionado?.toLowerCase() === 'financiado' ? 1 : 0,
+                    id_entidad: this.bancoSeleccionado || null,
+                    id_tipo: this.tipoSeleccionado || null,
+                    id_anios: this.anioSeleccionado || null,
+                    id_modalidad: this.modalidadSeleccionada || null,
+                    unidadSeleccionada: this.unidadSeleccionada || null,
+                    tipoFinanciacionSeleccionada: this.tipoFinanciacionSeleccionada || '',
+                    pagoSeleccionado: this.pagoSeleccionado || '',
+                    planSeleccionado: this.planSeleccionado || null,
+                    reformaActivo: this.reformaActivo || false,
+                    subsidioActivo: this.subsidioActivo || false,
+                    factorBanco: this.factorBanco || 0,
+                    ingresos_familiares: this.cleanNumber(this.ingresos_mensuales) || 0,
+                    cesantias: this.cleanNumber(this.cesantias) || 0,
+                    ahorros: this.cleanNumber(this.ahorros) || 0,
+                    fin_max_permisible: this.cleanNumber(this.fin_max_permisible) || 0,
+                    cuota_permisible: this.cleanNumber(this.cuota_permisible) || 0,
+                    cuota_max_financiable: this.cleanNumber(this.cuota_max_financiable) || 0,
+                    ingr_regs_max: this.cleanNumber(this.ingr_regs_max) || 0,
+                    valor_credito: this.cleanNumber(this.valor_credito) || 0,
+                    valor_credito_max: this.cleanNumber(this.valor_credito_max) || 0,
+                    anio_entrega: this.seleccionAnioEntrega || null,
+                    valor_subsidio: this.cleanNumber(this.valor_subsidio) || 0,
+                    id_caja_compensacion: this.caja_compensacion || null,
+                    meses: this.d_meses || 0,
+                    importe_financiacion: this.cleanNumber(this.valor_credito_final) || 0,
+                    cuota_inicial: this.cleanNumber(this.cuota_inicial_final) || 0,
+                    fecha_primera_cuota: this.esOpcionGuardada ? this.opcion_fecha_primera_cuota : this.d_fecha_cuota,
+                    fecha_ultima_cuota: this.esOpcionGuardada ? this.opcion_fecha_ultima_cuota : this.d_fecha_ulti_cuota,
+                    fecha_escrituracion: this.esOpcionGuardada ? this.opcion_fecha_escrituracion : this.d_fecha_escrituracion,
+                    tablaPeriodos: this.tablaPeriodos || []
+                };
+
+                const resp = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Borrador_Opcion', {
+                    id_opcion: this.id_opcion || null,
+                    id_cotizacion: this.idcotizacion,
+                    id_cliente: this.id_cliente,
+                    id_proyecto: this.id_proyecto,
+                    datos_json: JSON.stringify(datosOpcion),
+                    usuario_creacion: GlobalVariables.username
+                });
+
+                if (!resp.isError) {
+                    showMessage('Borrador guardado correctamente');
+                    this.tieneCambiosPendientes = false;
+                } else {
+                    showMessage('Error al guardar el borrador');
+                }
+            } catch (error) {
+                console.error('Error al guardar borrador:', error);
+                showMessage('Error al guardar el borrador');
+            } finally {
+                this.guardandoBorrador = false;
+            }
+        },
+
+        async cargarBorrador(borrador) {
+            try {
+                this.cargandoBorrador = true;
+
+                const opcion = JSON.parse(borrador.datos_json);
+
+                this.valor_reformas = opcion.valor_reformas || 0;
+                this.valor_acabados = opcion.valor_acabados || 0;
+                this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
+                this.valor_separacion = opcion.valor_separacion || 0;
+                this.valor_escrituras = opcion.valor_escrituras || 0;
+                this.notariales = opcion.notariales || 0;
+                this.beneficiencia = opcion.beneficiencia || 0;
+                this.registro = opcion.registro || 0;
+
+                if (opcion.pagoSeleccionado) {
+                    this.pagoSeleccionado = opcion.pagoSeleccionado;
+                } else if (opcion.pago_financiado) {
+                    this.pagoSeleccionado = 'financiado';
+                } else if (opcion.pago_contado) {
+                    this.pagoSeleccionado = 'contado';
+                } else {
+                    this.pagoSeleccionado = '';
+                }
+
+                this.bancoSeleccionado = opcion.id_entidad || null;
+                if (this.bancoSeleccionado) {
+                    await this.cargarFactor();
+                }
+
+                this.tipoSeleccionado = opcion.id_tipo || null;
+
+                if (opcion.unidadSeleccionada !== undefined && opcion.unidadSeleccionada !== null) {
+                    this.unidadSeleccionada = opcion.unidadSeleccionada;
+                } else if (opcion.id_tipo) {
+                    const factor = this.factoresBanco.find(f => f.id_factor == opcion.id_tipo);
+                    this.unidadSeleccionada = factor ? factor.unidad : 0;
+                } else {
+                    this.unidadSeleccionada = 0;
+                }
+
+                this.anioSeleccionado = opcion.id_anios ? parseInt(opcion.id_anios) : null;
+                if (this.unidadSeleccionada && this.unidadSeleccionada !== 0) {
+                    this.cargarAnios();
+                }
+
+                if (this.anioSeleccionado && this.bancoSeleccionado && !this.esOpcionGuardada) {
+                    await this.onChangeAnio();
+                }
+
+                this.modalidadSeleccionada = opcion.id_modalidad || null;
+
+                if (opcion.tipoFinanciacionSeleccionada) {
+                    this.tipoFinanciacionSeleccionada = opcion.tipoFinanciacionSeleccionada;
+                } else if (opcion.id_modalidad) {
+                    const tipoFin = this.tipo_financiacion.find(t => t.id_tipo_financiacion == opcion.id_modalidad);
+                    this.tipoFinanciacionSeleccionada = tipoFin ? tipoFin.tipo_financiacion : '';
+                } else {
+                    this.tipoFinanciacionSeleccionada = '';
+                }
+
+                this.ingresos_mensuales = opcion.ingresos_familiares || 0;
+                this.cesantias = opcion.cesantias || 0;
+                this.ahorros = opcion.ahorros || 0;
+                this.valor_subsidio = opcion.valor_subsidio || 0;
+                this.seleccionAnioEntrega = opcion.anio_entrega || '';
+                this.caja_compensacion = opcion.id_caja_compensacion || null;
+
+                this.fin_max_permisible = this.cleanNumber(opcion.fin_max_permisible);
+                this.cuota_permisible = this.cleanNumber(opcion.cuota_permisible);
+                this.cuota_max_financiable = this.cleanNumber(opcion.cuota_max_financiable);
+                this.ingr_regs_max = this.cleanNumber(opcion.ingr_regs_max);
+                this.d_meses = opcion.meses || 0;
+
+                if (this.id_opcion) {
+                    this.opcion_fin_max_permisible = this.cleanNumber(opcion.fin_max_permisible);
+                    this.opcion_cuota_max_financiable = this.cleanNumber(opcion.cuota_max_financiable);
+                    this.opcion_ingr_regs_max = this.cleanNumber(opcion.ingr_regs_max);
+                }
+
+                this.planSeleccionado = opcion.planSeleccionado || null;
+                this.reformaActivo = opcion.reformaActivo || false;
+                this.subsidioActivo = opcion.subsidioActivo || false;
+                this.factorBanco = opcion.factorBanco || 0;
+                this.valor_credito = opcion.valor_credito || 0;
+                this.valor_credito_max = opcion.valor_credito_max || 0;
+
+                this.valor_credito_final = opcion.importe_financiacion || 0;
+                this.cuota_inicial_final = opcion.cuota_inicial || 0;
+
+                this.d_fecha_entrega = opcion.fecha_entrega || null;
+                this.d_fecha_cuota = opcion.fecha_primera_cuota || null;
+                this.d_fecha_ulti_cuota = opcion.fecha_ultima_cuota || null;
+                this.d_fecha_escrituracion = opcion.fecha_escrituracion || null;
+
+                if (opcion.tablaPeriodos && opcion.tablaPeriodos.length > 0) {
+                    this.cargarTablaAmortizacion(opcion.tablaPeriodos, false);
+                }
+
+                await this.$nextTick();
+
+                this.cargandoBorrador = false;
+
+                if (!this.esOpcionGuardada) {
+                    if (this.tipoFinanciacionSeleccionada) {
+                        await this.calcularFinanciacion();
+                    }
+               
+                    if (this.ingresos_mensuales) {
+                        this.calcularCuotaInicialFinal();
+                    }
+                }
+
+                this.$forceUpdate();
+                this.tieneCambiosPendientes = false;
+
+                showMessage('Borrador cargado correctamente');
+            } catch (error) {
+                console.error('Error al cargar borrador:', error);
+                showMessage('Error al cargar el borrador');
+                this.cargandoBorrador = false;
+            }
+        },
+
+        async eliminarBorrador() {
+            try {
+                if (!this.idcotizacion || !this.id_cliente || !this.id_proyecto) {
+                    return;
+                }
+
+                await httpFunc('/generic/genericST/ProcesoNegocio:Del_Borrador_Opcion', {
+                    id_opcion: this.id_opcion || null,
+                    id_cotizacion: this.idcotizacion,
+                    id_cliente: this.id_cliente,
+                    id_proyecto: this.id_proyecto
+                });
+            } catch (error) {
+                console.error('Error al eliminar borrador:', error);
+            }
+        },
+    
+        async mostrarModalBorrador(borrador) {
+            this.borradorData = borrador;
+            this.showBorradorModal = true;
+        },
+     
+        async aceptarBorrador() {
+            if (this.borradorData) {
+                await this.cargarBorrador(this.borradorData);
+            }
+            this.showBorradorModal = false;
+            this.borradorData = null;
+        },
+
+        async rechazarBorrador() {
+            if (this.borradorData) {
+                await this.eliminarBorrador();
+            }
+            this.showBorradorModal = false;
+            this.borradorData = null;
+        },
+
+        async guardarBorradorYCerrar() {
+            if (this.mode === 3 && this.tieneCambiosPendientes && !this.esOpcionGuardada) {
+                await this.guardarBorrador();
+            }
+            this.mode = 0;
+            await this.limpiarObj();
+        },
+
         async busquedaCliente(ids) {
 
             var clienteOpcional = "";
@@ -997,7 +1376,8 @@ export default {
         async initIntlTel(cliente) {
             await Promise.resolve();
             let tmptel1 = document.getElementById('telefono1'), tmptel2 = document.getElementById('telefono2');
-            if (!this.iti1 || (![...tmptel1.parentElement.classList].includes('iti'))) {
+
+            if (tmptel1 && (!this.iti1 || (![...tmptel1.parentElement?.classList || []].includes('iti')))) {
                 this.tel1 = tmptel1;
                 if (this.tel1) {
                     this.iti1 = intlTelInput(this.tel1, {
@@ -1011,8 +1391,9 @@ export default {
                     });
                 }
             }
-            else this.iti1.setCountry(cliente.pais_tel1 || "co");
-            if (!this.iti2 || (![...tmptel2.parentElement.classList].includes('iti'))) {
+            else if (this.iti1) this.iti1.setCountry(cliente.pais_tel1 || "co");
+
+            if (tmptel2 && (!this.iti2 || (![...tmptel2.parentElement?.classList || []].includes('iti')))) {
                 this.tel2 = tmptel2;
                 if (this.tel2) {
                     this.iti2 = intlTelInput(this.tel2, {
@@ -1026,14 +1407,38 @@ export default {
                     });
                 }
             }
-            else this.iti2.setCountry(cliente.pais_tel2 || "co");
+            else if (this.iti2) this.iti2.setCountry(cliente.pais_tel2 || "co");
         },
         async setSubmode(index) {
+            if (this.mode === 3 && this.tieneCambiosPendientes) {
+                this.tieneCambiosPendientes = false;
+                return new Promise((resolve) => {
+                    showConfirm(
+                        'Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de continuar?',
+                        async () => {
+                            await this.guardarBorrador();
+                            await this.continuarSetSubmode(index);
+                            resolve();
+                        },
+                        async () => {
+                            await this.continuarSetSubmode(index);
+                            resolve();
+                        },
+                        null,
+                        'Guardar Borrador',
+                        'Continuar sin guardar'
+                    );
+                });
+            }
+
+            await this.continuarSetSubmode(index);
+        },
+
+        async continuarSetSubmode(index) {
             this.campoObligatorio();
 
             if (GlobalVariables.ventanaUnidades && !GlobalVariables.ventanaUnidades.closed) {
-                GlobalVariables.ventanaUnidades.close();
-                GlobalVariables.ventanaUnidades = null;
+                await this.cerrarVentanaUnidadesConValidacion();
             }
 
             if (index == 1) {
@@ -1388,6 +1793,11 @@ export default {
 
                 if (this.mode === 3) {
                     await this.prepararDatosOpcion();
+               
+                    const borrador = await this.verificarBorradorExistente();
+                    if (borrador) {
+                        await this.mostrarModalBorrador(borrador);
+                    }
                 }
             } catch (error) {
                 console.error('Error al seleccionar cotización:', error);
@@ -1605,6 +2015,63 @@ export default {
             ].join(',');
 
             GlobalVariables.ventanaUnidades = window.open(url, 'VentanaModuloUnidades', features);
+
+            this.iniciarMonitoreoVentanaUnidades();
+        },
+
+        iniciarMonitoreoVentanaUnidades() {
+            if (this.ventanaUnidadesCheckInterval) {
+                clearInterval(this.ventanaUnidadesCheckInterval);
+            }
+
+            this.ventanaUnidadesCheckInterval = setInterval(() => {
+                if (GlobalVariables.ventanaUnidades && GlobalVariables.ventanaUnidades.closed) {
+                    clearInterval(this.ventanaUnidadesCheckInterval);
+                    this.ventanaUnidadesCheckInterval = null;
+                    GlobalVariables.ventanaUnidades = null;
+                }
+            }, 500);
+        },
+
+        detenerMonitoreoVentanaUnidades() {
+            if (this.ventanaUnidadesCheckInterval) {
+                clearInterval(this.ventanaUnidadesCheckInterval);
+                this.ventanaUnidadesCheckInterval = null;
+            }
+        },
+
+        async cerrarVentanaUnidadesConValidacion() {
+            if (this.mode === 3 && this.tieneCambiosPendientes && !this.esOpcionGuardada) {
+                return new Promise((resolve) => {
+                    showConfirm(
+                        'Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de cerrar?',
+                        async () => {
+                            await this.enviarYOpcionar();
+                            this.tieneCambiosPendientes = false;
+                            this.cerrarVentanaUnidadesForzado();
+                            resolve();
+                        },
+                        () => {
+                            this.tieneCambiosPendientes = false;
+                            this.cerrarVentanaUnidadesForzado();
+                            resolve();
+                        },
+                        null,
+                        'Guardar',
+                        'Cerrar sin guardar'
+                    );
+                });
+            } else {
+                this.cerrarVentanaUnidadesForzado();
+            }
+        },
+
+        cerrarVentanaUnidadesForzado() {
+            if (GlobalVariables.ventanaUnidades && !GlobalVariables.ventanaUnidades.closed) {
+                GlobalVariables.ventanaUnidades.close();
+                GlobalVariables.ventanaUnidades = null;
+            }
+            this.detenerMonitoreoVentanaUnidades();
         },
         async refrescarImportes() {
             const parseNumber = (str) => {
@@ -1680,8 +2147,7 @@ export default {
                     throw new Error(`Error al actualizar ${errores.length} unidad(es)`);
                 }
 
-                GlobalVariables.ventanaUnidades?.close();
-                GlobalVariables.ventanaUnidades = null;
+                await this.cerrarVentanaUnidadesConValidacion();
 
                 showMessage(`Atención finalizada exitosamente.`);
 
@@ -1742,11 +2208,16 @@ export default {
         },
         //////// mode 3 ////////////
         async cargarFactor() {
+
             this.factorSeleccionado = null;
-            this.anioSeleccionado = "";
-            this.listaAnios = [];
-            this.unidadSeleccionada = 0;
-            this.tipoFinanciacionSeleccionada = '';
+
+
+            if (!this.esOpcionGuardada) {
+                this.anioSeleccionado = "";
+                this.listaAnios = [];
+                this.unidadSeleccionada = 0;
+                this.tipoFinanciacionSeleccionada = '';
+            }
 
             if (!this.bancoSeleccionado || this.bancoSeleccionado === 0) {
                 this.unidadSeleccionada = 0;
@@ -1756,7 +2227,7 @@ export default {
                 return;
             }
 
-            if (this._ultimoTipoFinanciacion !== this.bancoSeleccionado) {
+            if (!this.esOpcionGuardada && this._ultimoTipoFinanciacion !== this.bancoSeleccionado) {
                 this.ingresos_mensuales = 0;
                 this.valor_credito_final = 0;
                 this.cuota_inicial_final = 0;
@@ -1924,6 +2395,8 @@ export default {
                 return;
             }
 
+            this.tipoSeleccionado = this.unidadSeleccionada;
+
             const factores = this.factoresBanco.filter(f =>
                 f.unidad === this.unidadSeleccionada && f.valor != 0
             );
@@ -2002,7 +2475,7 @@ export default {
                 meses = this.meses;
             }
 
-            this.d_meses = meses;
+            this.d_meses = meses;   
         },
         validarMeses(value) {
             const num = Number(value);
@@ -2349,6 +2822,33 @@ export default {
             this.tablaPeriodos.forEach((fila, i) => this.recalcularFila(i));
             this.printPDF('contenedor-pdf-completo');
         },
+        async guardarTablaAmortizacion(idOpcion) {
+            try {
+                // Preparar datos para guardar
+                const tablaParaGuardar = this.tablaPeriodos.map(fila => ({
+                    periodo: fila.periodo,
+                    fecha: fila.fecha,
+                    saldo_inicial: fila.saldo_inicial,
+                    tna: fila.tna,
+                    cuota_deseada: fila.cuota_deseada || null,
+                    cuota_calculada: fila.cuota_calculada,
+                    intereses: fila.intereses,
+                    principal: fila.principal,
+                    saldo_final: fila.saldo_final
+                }));
+
+                const respAmort = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Amortizacion', {
+                    id_opcion: idOpcion,
+                    tabla_json: JSON.stringify(tablaParaGuardar)
+                });
+
+                if (respAmort.isError) {
+                    console.error('Error al guardar tabla de amortización:', respAmort.errorMessage);
+                }
+            } catch (error) {
+                console.error('Error al guardar tabla de amortización:', error);
+            }
+        },
         async enviarYOpcionar() {
             if (!this.cotizacionSeleccionada) {
                 showMessage('Debe seleccionar una cotización');
@@ -2358,6 +2858,44 @@ export default {
             if (!this.idcotizacion) {
                 showMessage('No se encontró el ID de la cotización');
                 return;
+            }
+
+        
+            let id_tipo = null;
+            if (this.unidadSeleccionada && this.unidadSeleccionada !== 0) {
+                const factor = this.factoresBanco.find(f => f.unidad === this.unidadSeleccionada);
+                id_tipo = factor ? factor.id_factor : null;
+                this.tipoSeleccionado = id_tipo;
+            }
+
+   
+            let id_modalidad = null;
+            if (this.tipoFinanciacionSeleccionada) {
+                const tipoFin = this.tipo_financiacion.find(t => t.tipo_financiacion === this.tipoFinanciacionSeleccionada);
+                id_modalidad = tipoFin ? tipoFin.id_tipo_financiacion : null;
+                this.modalidadSeleccionada = id_modalidad;
+            }
+
+         
+            if (!this.esOpcionGuardada) {
+
+                const valorCreditoMillon = (this.valor_credito * this.factorBanco) / 1000000;
+
+                this.cuota_max_financiable = Math.floor(valorCreditoMillon);
+ 
+                this.ingr_regs_max = valorCreditoMillon > 0 ? Math.floor(valorCreditoMillon / 0.40) : 0;
+
+                const ingresos = parseInt(this.f_ingresos_mensuales.toString().replace(/\D/g, '')) || 0;
+                const factor = this.factorBanco || 0;
+                const valorCredito = this.valor_credito || 0;
+
+                if (factor !== 0 && ingresos !== 0) {
+                    const factorEnMillones = factor / 1000000;
+                    const maxPorIngresos = (ingresos * 0.40) / factorEnMillones;
+                    this.fin_max_permisible = Math.min(valorCredito, Math.floor(maxPorIngresos));
+                } else {
+                    this.fin_max_permisible = 0;
+                }
             }
 
             showProgress();
@@ -2415,6 +2953,23 @@ export default {
                     throw new Error(resp.errorMessage || 'Error al guardar la opción');
                 }
 
+                let idOpcionFinal = this.id_opcion;
+                if (!this.id_opcion && resp.data && resp.data.result) {
+                    const match = resp.data.result.match(/ok-id_opcion:(\d+)/);
+                    if (match) {
+                        idOpcionFinal = parseInt(match[1]);
+                        this.id_opcion = idOpcionFinal;
+                    }
+                }
+
+                if (idOpcionFinal && this.tablaPeriodos && this.tablaPeriodos.length > 0) {
+                    await this.guardarTablaAmortizacion(idOpcionFinal);
+                }
+
+                await this.eliminarBorrador();
+
+                this.tieneCambiosPendientes = false;
+
                 showMessage(mensaje);
                 await this.limpiarObj();
                 this.mode = 0;
@@ -2448,7 +3003,7 @@ export default {
             }
         },
         calcularCuotaInicialFinal() {
-            if (this.esOpcionGuardada) {
+            if (this.esOpcionGuardada || this.cargandoBorrador) {
                 return;
             }
 
@@ -2651,11 +3206,19 @@ export default {
         formatearFechaParaInput(fecha) {
             if (!fecha) return '';
 
-  
+
             if (typeof fecha === 'string' && /^\d{4}-\d{2}-\d{2}/.test(fecha)) {
                 return fecha.split('T')[0];
             }
 
+            if (typeof fecha === 'string' && /\d{1,2}\/\d{1,2}\/\d{4}/.test(fecha)) {
+                const partes = fecha.split(' ')[0].split('/');
+                const dia = partes[0].padStart(2, '0');
+                const mes = partes[1].padStart(2, '0');
+                const anio = partes[2];
+                const resultado = `${anio}-${mes}-${dia}`;
+                return resultado;
+            }
 
             if (fecha instanceof Date) {
                 const year = fecha.getFullYear();
@@ -2663,7 +3226,6 @@ export default {
                 const day = String(fecha.getDate()).padStart(2, '0');
                 return `${year}-${month}-${day}`;
             }
-
 
             try {
                 const d = new Date(fecha);
@@ -2779,14 +3341,27 @@ export default {
             return valor;
         },
         minimoFamiliar() {
+            if (this.esOpcionGuardada && this.opcion_ingr_regs_max !== null) {
+                return this.opcion_ingr_regs_max;
+            }
+
             if (!this.valorCreditoMillon) return 0;
-            return Math.floor(this.valorCreditoMillon / 0.40);
+            const calculado = Math.floor(this.valorCreditoMillon / 0.40);
+            return calculado;
         },
         valorCreditoMillonFormateado() {
+            if (this.esOpcionGuardada && this.opcion_cuota_max_financiable !== null) {
+                return this.opcion_cuota_max_financiable;
+            }
+
             if (!this.valorCreditoMillon) return 0;
             return this.valorCreditoMillon;
         },
         valor_maxfinanciable() {
+            if (this.esOpcionGuardada && this.opcion_fin_max_permisible !== null) {
+                return this.opcion_fin_max_permisible;
+            }
+
             const ingresos = parseInt(this.f_ingresos_mensuales.toString().replace(/\D/g, '')) || 0;
             const factor = this.factorBanco || 0;
             const valorCredito = this.valor_credito || 0;
@@ -2796,7 +3371,9 @@ export default {
             const factorEnMillones = factor / MILLONES;
             const maxPorIngresos = (ingresos * PORCENTAJE_CUOTA_MAXIMA) / factorEnMillones;
 
-            return Math.min(valorCredito, Math.floor(maxPorIngresos));
+            const calculado = Math.min(valorCredito, Math.floor(maxPorIngresos));
+
+            return calculado;
         },
         proyectosUnicos() {
             const proyectos = this.visitas.map(v => v.proyecto);
@@ -2942,45 +3519,110 @@ export default {
             immediate: true,
             deep: true
         },
-        d_fecha_cuota() {
-            this.calcularMesesMaximos();
-        },
-        d_fecha_escrituracion() {
-            this.calcularMesesMaximos();
-        },
         importeActiva() {
             if (this.tipoFinanciacionSeleccionada) {
                 this.calcularFinanciacion();
             }
         },
-        valor_descuento_adicional() {
-            if (this.tipoFinanciacionSeleccionada) {
-                this.calcularFinanciacion();
+
+        bancoSeleccionado(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
             }
         },
-        cesantias() {
-            if (this.ingresos_mensuales) {
-                this.onInputIngresos();
+        tipoFinanciacionSeleccionada(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
             }
         },
-        pagoSeleccionado() {
+        ingresos_mensuales(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+        },
+        anioSeleccionado(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+        },
+        pagoSeleccionado(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
             if (this.ingresos_mensuales) {
                 this.onSeleccionContado();
             }
         },
-        ahorros() {
+        ahorros(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
             if (this.ingresos_mensuales) {
                 this.onInputIngresos();
             }
         },
-        valor_subsidio() {
+        cesantias(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
             if (this.ingresos_mensuales) {
                 this.onInputIngresos();
             }
         },
-        valor_separacion() {
+        valor_subsidio(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
             if (this.ingresos_mensuales) {
                 this.onInputIngresos();
+            }
+        },
+        valor_separacion(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+            if (this.ingresos_mensuales) {
+                this.onInputIngresos();
+            }
+        },
+        subsidioActivo(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+        },
+        caja_compensacion(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+        },
+        seleccionAnioEntrega(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+        },
+        d_fecha_entrega(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+        },
+        d_fecha_cuota(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+            this.calcularMesesMaximos();
+        },
+        d_fecha_escrituracion(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+            this.calcularMesesMaximos();
+        },
+        valor_descuento_adicional(val, oldVal) {
+            if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
+                this.tieneCambiosPendientes = true;
+            }
+            if (this.tipoFinanciacionSeleccionada) {
+                this.calcularFinanciacion();
             }
         },
         f_valor_escrituras(newVal) {
@@ -3010,15 +3652,25 @@ export default {
         },
 
         f_ingresos_mensuales() {
-            if (this.seleccionAnioEntrega) {
+            if (this.seleccionAnioEntrega && !this.cargandoBorrador) {
                 this.calcularSubsidio();
             }
         }
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
+        window.removeEventListener('beforeunload', this.handleBeforeUnload);
+        this.detenerMonitoreoVentanaUnidades();
+        if (window.activeMiniModule === this) {
+            window.activeMiniModule = null;
+        }
     },
     beforeUnmount() {
         window.removeEventListener('message', this.handleMessages);
+        window.removeEventListener('beforeunload', this.handleBeforeUnload);
+        this.detenerMonitoreoVentanaUnidades();
+        if (window.activeMiniModule === this) {
+            window.activeMiniModule = null;
+        }
     },
 }

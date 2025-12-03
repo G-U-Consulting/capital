@@ -47,14 +47,17 @@ export default {
         setRuta(subpath) {
             this.ruta = [{
                 text: 'ZA',
-                action: null,
+                action: () =>
+                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
             }, {
                 text: 'Proyectos',
-                action: () => {
-                    this.lateralMenu = false;
+                action: async () => {
                     this.proyecto = null;
-                    this.setMainMode('InicioProyecto');
-                    this.setRuta([]);
+                    this.lateralMenu = false;
+                    await this.setMainMode('InicioProyecto');
+                    if (this.miniModule && this.miniModule.setMode) {
+                        this.miniModule.setMode(0);
+                    }
                 }
             }, ...subpath];
         },
@@ -100,7 +103,6 @@ export default {
         },
 
         async setMainMode(mode, sel = false) {
-
             if (GlobalVariables.ventanaUnidades && !GlobalVariables.ventanaUnidades.closed) {
                 GlobalVariables.ventanaUnidades.close();
                 GlobalVariables.ventanaUnidades = null;

@@ -2,7 +2,7 @@
 <!--LISTA PROYECTOS-->
 <div v-if="mode == 0" style="padding-top: 1em">
     <div class="pure-u-1-24"></div>
-    <div class="pure-u-22-24 menuCard">
+    <div class="pure-u-22-24 menuCard"  style="height: calc(100vh - 11rem); overflow-y: auto;">
         <div class="searchBox" style="padding: 1rem 5px;">
             <div class="pure-g">
                 <div class="pure-u-1-1 pure-u-md-1-8" style="padding-right: 5px;">
@@ -59,7 +59,7 @@
                 </div>
             </div>
         </div>
-        <div>
+        <div v-if="viewMode !== null">
             <div class="main-content matrix-cont" v-if="viewMode == 'Tabla'">
                 <div class="table-wrapper">
                     <table class="dataTable" style="table-layout: auto;margin-top: .75rem;margin-right: .75rem !important;">
