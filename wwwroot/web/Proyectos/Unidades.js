@@ -178,7 +178,6 @@
 			const file = e.target.files[0];
 			Papa.parse(file, {
 				complete: function (results) {
-					//TODO Check for errores
 					self.u_torres = self.previewFile(results.data, update) || [];
 					hideProgress();
 				}
@@ -513,9 +512,20 @@
 			return result;
 		},
 		cleanNumber(value) {
-			let cleaned = value.replace(/['.]/g, "");
-			cleaned = cleaned.replace(",", ".");
-			return cleaned;
+			if (value === null || value === undefined || value === '') return 0;
+			if (typeof value === 'number') return value;
+
+			const str = String(value);
+			const cleaned = str
+				.replace(/\$/g, '')
+				.replace(/\s/g, '')
+				.replace(/\./g, '')
+				.replace(',', '.')
+				.trim();
+
+			if (cleaned === '') return 0;
+			const num = parseFloat(cleaned);
+			return isNaN(num) ? 0 : num;
 		},
 		validarFormato(e) {
 			e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');

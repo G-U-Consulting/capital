@@ -110,6 +110,8 @@ insert into fact_opcion (
     @created_by
 );
 
+set @id_opcion = last_insert_id();
+
 insert into cola_tareas_rpa(tipo, sub_tipo, datos) 
 select 'salesforce', 'CotizacionSF',
     concat('{"id_cotizacion":', @id_cotizacion, ',"id_unidad":', u.id_unidad, ',"quotestate":"Opcionado"}')
@@ -122,6 +124,13 @@ join fact_negocios_unidades n on n.id_unidad = u.id_unidad
 set u.id_estado_unidad = 2, n.is_asignado = 0
 where n.id_cotizacion = @id_cotizacion;
 
-
+insert into dim_cuenta_opcion(id_opcion, id_cliente, porcentaje)
+select
+    @id_opcion,
+    c.id_cliente,
+    coalesce(c.porcentaje_copropiedad, 100) as porcentaje
+from fact_cotizacion_cliente cc
+join fact_clientes c on c.id_cliente = cc.id_cliente
+where cc.id_cotizacion = @id_cotizacion;
 
 select concat('ok-id_opcion:', last_insert_id()) as result;

@@ -294,7 +294,6 @@ export default {
             showBorradorModal: false,
             borradorData: null,
             guardandoBorrador: false,
-            cargandoBorrador: false,
         };
     },
     async mounted() {
@@ -390,12 +389,13 @@ export default {
                 return;
             }
 
-            if (!this.ingresos_mensuales || !this.seleccionAnioEntrega) {
+            if (!this.seleccionAnioEntrega) {
                 this.valor_subsidio = 0;
                 return;
             }
 
             const registro = this.subsidio_vivienda.find(s => s.periodo == this.seleccionAnioEntrega);
+
             if (!registro) {
                 this.valor_subsidio = 0;
                 return;
@@ -411,6 +411,12 @@ export default {
             const smmlv_0_2 = parseNumber(registro.smmlv_0_2);
             const smmlv_2_4 = parseNumber(registro.smmlv_2_4);
 
+
+            if (!ingresosLimpios || ingresosLimpios === 0) {
+                this.valor_subsidio = 0;
+                return;
+            }
+
             if (ingresosLimpios <= smmlv * 2) {
                 this.valor_subsidio = smmlv_0_2;
             } else if (ingresosLimpios <= smmlv * 4) {
@@ -419,9 +425,10 @@ export default {
                 this.valor_subsidio = 0;
                 this.seleccionAnioEntrega = '';
             }
+
         },
         async calcularFinanciacion() {
-            if (this.esOpcionGuardada || this.cargandoBorrador) {
+            if (this.esOpcionGuardada) {
                 return;
             }
 
@@ -755,7 +762,7 @@ export default {
             }
         },
 
-        cargarTablaAmortizacion(datosTabla, abrirTabla = true) {
+        cargarTablaAmortizacion(datosTabla) {
             try {
                 this.tablaPeriodos = datosTabla.map(fila => ({
                     periodo: fila.periodo,
@@ -769,7 +776,7 @@ export default {
                     saldo_final: fila.saldo_final
                 }));
 
-                if (this.tablaPeriodos.length > 0 && abrirTabla) {
+                if (this.tablaPeriodos.length > 0) {
                     this.tablaAmortizacion = true;
                 }
             } catch (error) {
@@ -858,7 +865,6 @@ export default {
                 if (nextIndex === 3) {
                     await this.prepararDatosOpcion();
                     this.tieneCambiosPendientes = false;
-
                     const borrador = await this.verificarBorradorExistente();
                     if (borrador) {
                         await this.mostrarModalBorrador(borrador);
@@ -1128,12 +1134,9 @@ export default {
 
         async cargarBorrador(borrador) {
             try {
-                this.cargandoBorrador = true;
-
                 const opcion = JSON.parse(borrador.datos_json);
+                console.log('Cargando borrador:', opcion);
 
-                this.valor_reformas = opcion.valor_reformas || 0;
-                this.valor_acabados = opcion.valor_acabados || 0;
                 this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
                 this.valor_separacion = opcion.valor_separacion || 0;
                 this.valor_escrituras = opcion.valor_escrituras || 0;
@@ -1141,14 +1144,10 @@ export default {
                 this.beneficiencia = opcion.beneficiencia || 0;
                 this.registro = opcion.registro || 0;
 
-                if (opcion.pagoSeleccionado) {
-                    this.pagoSeleccionado = opcion.pagoSeleccionado;
-                } else if (opcion.pago_financiado) {
-                    this.pagoSeleccionado = 'financiado';
+                if (opcion.pago_financiado) {
+                    this.pagoSeleccionado = 'Financiado';
                 } else if (opcion.pago_contado) {
-                    this.pagoSeleccionado = 'contado';
-                } else {
-                    this.pagoSeleccionado = '';
+                    this.pagoSeleccionado = 'Contado';
                 }
 
                 this.bancoSeleccionado = opcion.id_entidad || null;
@@ -1170,10 +1169,6 @@ export default {
                 this.anioSeleccionado = opcion.id_anios ? parseInt(opcion.id_anios) : null;
                 if (this.unidadSeleccionada && this.unidadSeleccionada !== 0) {
                     this.cargarAnios();
-                }
-
-                if (this.anioSeleccionado && this.bancoSeleccionado && !this.esOpcionGuardada) {
-                    await this.onChangeAnio();
                 }
 
                 this.modalidadSeleccionada = opcion.id_modalidad || null;
@@ -1200,12 +1195,7 @@ export default {
                 this.ingr_regs_max = this.cleanNumber(opcion.ingr_regs_max);
                 this.d_meses = opcion.meses || 0;
 
-                if (this.id_opcion) {
-                    this.opcion_fin_max_permisible = this.cleanNumber(opcion.fin_max_permisible);
-                    this.opcion_cuota_max_financiable = this.cleanNumber(opcion.cuota_max_financiable);
-                    this.opcion_ingr_regs_max = this.cleanNumber(opcion.ingr_regs_max);
-                }
-
+                this.pagoSeleccionado = opcion.pagoSeleccionado || '';
                 this.planSeleccionado = opcion.planSeleccionado || null;
                 this.reformaActivo = opcion.reformaActivo || false;
                 this.subsidioActivo = opcion.subsidioActivo || false;
@@ -1222,31 +1212,26 @@ export default {
                 this.d_fecha_escrituracion = opcion.fecha_escrituracion || null;
 
                 if (opcion.tablaPeriodos && opcion.tablaPeriodos.length > 0) {
-                    this.cargarTablaAmortizacion(opcion.tablaPeriodos, false);
+                    this.cargarTablaAmortizacion(opcion.tablaPeriodos);
                 }
 
-                await this.$nextTick();
+                this.$nextTick(() => {
+                    this.$forceUpdate();
+                });
 
-                this.cargandoBorrador = false;
-
-                if (!this.esOpcionGuardada) {
-                    if (this.tipoFinanciacionSeleccionada) {
-                        await this.calcularFinanciacion();
-                    }
-               
-                    if (this.ingresos_mensuales) {
-                        this.calcularCuotaInicialFinal();
-                    }
-                }
-
-                this.$forceUpdate();
                 this.tieneCambiosPendientes = false;
+
+                console.log('Borrador cargado - Verificación de valores:');
+                console.log('valor_separacion:', this.valor_separacion);
+                console.log('valor_reformas:', this.valor_reformas);
+                console.log('bancoSeleccionado:', this.bancoSeleccionado);
+                console.log('pagoSeleccionado:', this.pagoSeleccionado);
+                console.log('ingresos_mensuales:', this.ingresos_mensuales);
 
                 showMessage('Borrador cargado correctamente');
             } catch (error) {
                 console.error('Error al cargar borrador:', error);
                 showMessage('Error al cargar el borrador');
-                this.cargandoBorrador = false;
             }
         },
 
@@ -1757,12 +1742,15 @@ export default {
                 this.valor_separacion = rawData.valor_separacion || 0;
                 this.id_negocios_unidades = rawData.id_negocios_unidades || 0;
 
-                const añoActual = new Date().getFullYear();
-                const añoEntrega = parseInt(this.añoentrega);
-
-                this.listaAniosEntrega = (añoEntrega && añoEntrega >= añoActual)
-                    ? Array.from({ length: añoEntrega - añoActual + 1 }, (_, i) => añoActual + i)
-                    : [añoActual];
+                if (this.subsidio_vivienda && this.subsidio_vivienda.length > 0) {
+                    this.listaAniosEntrega = this.subsidio_vivienda
+                        .map(s => s.periodo)
+                        .filter(p => p)
+                        .sort((a, b) => a - b);
+                } else {
+                    const añoActual = new Date().getFullYear();
+                    this.listaAniosEntrega = Array.from({ length: 6 }, (_, i) => añoActual + i);
+                }
 
                 this.cotizaciones = this.cotizaciones.map(c =>
                     Number(c.cotizacion) === Number(cotizacionId)
@@ -2824,7 +2812,6 @@ export default {
         },
         async guardarTablaAmortizacion(idOpcion) {
             try {
-                // Preparar datos para guardar
                 const tablaParaGuardar = this.tablaPeriodos.map(fila => ({
                     periodo: fila.periodo,
                     fecha: fila.fecha,
@@ -3003,7 +2990,7 @@ export default {
             }
         },
         calcularCuotaInicialFinal() {
-            if (this.esOpcionGuardada || this.cargandoBorrador) {
+            if (this.esOpcionGuardada) {
                 return;
             }
 
@@ -3599,6 +3586,7 @@ export default {
             if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
                 this.tieneCambiosPendientes = true;
             }
+            this.calcularSubsidio();
         },
         d_fecha_entrega(val, oldVal) {
             if (this.mode === 3 && oldVal !== undefined && !this.esOpcionGuardada) {
@@ -3652,7 +3640,7 @@ export default {
         },
 
         f_ingresos_mensuales() {
-            if (this.seleccionAnioEntrega && !this.cargandoBorrador) {
+            if (this.seleccionAnioEntrega) {
                 this.calcularSubsidio();
             }
         }

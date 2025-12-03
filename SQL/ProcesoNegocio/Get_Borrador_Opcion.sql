@@ -7,7 +7,7 @@ set @id_opcion = null,
     @id_cliente = '2',
     @id_proyecto = '3';
 --END_PARAM
-  
+
 select
     b.id_borrador,
     b.id_opcion,
