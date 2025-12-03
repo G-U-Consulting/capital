@@ -15,7 +15,7 @@
     <div class="pure-u-1-24"></div>
     <div class="pure-u-1-24"></div>
     <div class="pure-u-22-24 menuCard"
-        style="height: calc(100vh - 14rem); overflow-y: auto; padding: 1em 1em 0 1em !important ">
+        :style="'height: calc(100vh - 14rem); overflow-y: auto; padding: 1em 1em 0 1em !important;' + (mode == 3 && esOpcionGuardada ? ' border: 2px solid rgb(245, 158, 11); background-color: rgba(254, 243, 199, 0.05);' : '')">
         <!-- ----------------------------------------------------------------- -->
         <!-- ----------------------------- Bienvenida------------------------- -->
         <!-- ----------------------------------------------------------------- -->
@@ -649,22 +649,38 @@
         <!-- ----------------------------- Opción ---------------------------- -->
         <!-- ----------------------------------------------------------------- -->
         <div v-if="mode == 3">
-            <!-- Banner de solo lectura -->
-            <div v-if="esOpcionGuardada" style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    <span style="color: #92400e; font-weight: 500;">Esta opción ya ha sido guardada y está en modo de solo visualización. No se pueden realizar modificaciones.</span>
-                </div>
-            </div>
             <div class="pure-u-1-1 formDivision"
                 style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;">
                 <div class="pure-u-1 pure-u-md-1-2" style="display: flex; align-items: center; gap: .5rem;">
                     <span style="font-size: 1.2em;">Opcionar:</span>
                     <samp class="resaltado">{{ textoCotizacion }}</samp>
+                    <!-- Tooltip de solo lectura - junto al nombre de la cotización -->
+                    <div v-if="esOpcionGuardada" style="position: relative; display: inline-block; margin-left: 0.5rem;"
+                         @mouseenter="mostrarTooltipOpcion = true"
+                         @mouseleave="mostrarTooltipOpcion = false">
+                        <!-- Ícono de información -->
+                        <div :style="'cursor: pointer; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background-color: #f59e0b; border-radius: 50%; transition: all 0.3s ease; transform: ' + (mostrarTooltipOpcion ? 'scale(1.15)' : 'scale(1)') + '; box-shadow: ' + (mostrarTooltipOpcion ? '0 2px 8px rgba(245, 158, 11, 0.4)' : '0 1px 3px rgba(0,0,0,0.1)')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                        </div>
+                        <!-- Tooltip expandible al hover -->
+                        <div :style="'position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(' + (mostrarTooltipOpcion ? '8px' : '0px') + '); margin-top: 8px; min-width: 320px; max-width: 380px; background-color: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 0.75rem 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s ease; opacity: ' + (mostrarTooltipOpcion ? '1' : '0') + '; visibility: ' + (mostrarTooltipOpcion ? 'visible' : 'hidden') + '; z-index: 1000;'">
+                            <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                </svg>
+                                <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;">Esta opción ya ha sido guardada y está en modo de solo visualización. No se pueden realizar modificaciones.</span>
+                            </div>
+                            <!-- Flecha del tooltip apuntando hacia arriba -->
+                            <div style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #f59e0b;"></div>
+                            <div style="position: absolute; bottom: calc(100% - 2px); left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 7px solid #fef3c7;"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-2"
                     style="display: flex; align-items: center; justify-content: flex-end; gap: .5rem; padding-right: .5rem;">
@@ -711,7 +727,7 @@
                 <div class="pure-u-1 pure-u-md-1-6"></div>
                 <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
-                        <div class="add-chip-modern" @click="!esOpcionGuardada && abrirModalCliente" :style="esOpcionGuardada ? 'opacity: 0.5; cursor: not-allowed;' : ''">
+                        <div class="add-chip-modern" @click="!esOpcionGuardada && abrirModalCliente()" :style="esOpcionGuardada ? 'opacity: 0.5; cursor: not-allowed;' : ''">
                             <span>Agregar Cliente</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1456,7 +1472,7 @@
                                 </thead>
                                 <tbody>
                                     <tr style="border-top: 2px solid #009AB9;">
-                                        <td style="text-align: left; padding: 8px; color: #f57c00;">Separación No.1</td>
+                                        <td style="text-align: left; padding: 8px; color: #f57c00;">Separación</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -1465,7 +1481,7 @@
                                         <td></td>
                                     </tr>
                                     <tr>
-                                        <td style="text-align: left; padding: 8px; color: #e64a19;">Gastos Escritura No.1</td>
+                                        <td style="text-align: left; padding: 8px; color: #e64a19;">Gastos Escritura</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -1926,7 +1942,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="text-align: left; padding: 5px 8px; color: #f57c00;">Separación No.1</td>
+                            <td style="text-align: left; padding: 5px 8px; color: #f57c00;">Separación</td>
                             <td style="padding: 3px;"></td>
                             <td style="padding: 3px;"></td>
                             <td style="padding: 3px;"></td>
@@ -1935,7 +1951,7 @@
                             <td style="padding: 3px;"></td>
                         </tr>
                         <tr style="border-top: 1px solid #ddd;">
-                            <td style="text-align: left; padding: 5px 8px; color: #e64a19;">Gastos Escritura No.1</td>
+                            <td style="text-align: left; padding: 5px 8px; color: #e64a19;">Gastos Escritura</td>
                             <td style="padding: 3px;"></td>
                             <td style="padding: 3px;"></td>
                             <td style="padding: 3px;"></td>
@@ -2292,9 +2308,13 @@
                         <img src="../../img/ico/printer.png" alt="Imprimir">
                         <span>Sólo Imprimir</span>
                     </div>
-                    <div class="boton-accion" @click="enviarMail">
+                    <div class="boton-accion">
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
+                    </div>
+                    <div v-if="!esOpcionGuardada" class="boton-accion" @click="guardarBorrador" :disabled="guardandoBorrador">
+                        <img src="../../img/ico/save.png" alt="Guardar Borrador">
+                        <span>{{ guardandoBorrador ? 'Guardando...' : 'Guardar Borrador' }}</span>
                     </div>
                     <div v-if="!esOpcionGuardada" class="boton-accion" @click="enviarYOpcionar">
                         <img src="../../img/ico/achievement.png" alt="Opcionar">
@@ -2312,3 +2332,35 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Recuperación de Borrador -->
+<div v-if="showBorradorModal" class="asunto-modal-overlay">
+    <div class="asunto-modal-box" style="max-width: 500px;">
+        <span class="asunto-modal-close" @click="rechazarBorrador">×</span>
+        <h3>Borrador Encontrado</h3>
+        <p style="margin: 0 0 1em 0; line-height: 1.6; text-align: center;">
+            Se encontró un borrador guardado el
+            <strong>{{ borradorData?.fecha_formato }}</strong>
+        </p>
+        <p style="margin: 0 0 1.5em 0; color: #666; text-align: center;">
+            ¿Deseas continuar editando este borrador o descartarlo y empezar de nuevo?
+        </p>
+        <div style="display: flex; gap: 1em; justify-content: center;">
+            <button @click="rechazarBorrador" class="pure-button"
+                style="background-color: #e74c3c; color: white;">
+                Descartar
+            </button>
+            <button @click="aceptarBorrador" class="pure-button pure-button-primary">
+                Continuar Editando
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.boton-accion[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+</style>

@@ -116,5 +116,12 @@ select 'salesforce', 'CotizacionSF',
 from fact_negocios_unidades n
 join fact_unidades u on n.id_unidad = u.id_unidad
 where n.id_cotizacion = @id_cotizacion and u.id_clase = 8;
+    
+update fact_unidades u
+join fact_negocios_unidades n on n.id_unidad = u.id_unidad
+set u.id_estado_unidad = 2, n.is_asignado = 0
+where n.id_cotizacion = @id_cotizacion;
+
+
 
 select concat('ok-id_opcion:', last_insert_id()) as result;
