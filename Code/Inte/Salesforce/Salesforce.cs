@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using dotenv.net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -56,19 +57,18 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
             throw;
         }
     }
-    private async Task GetAccess()
+    private static async Task GetAccess()
     {
         using var client = new HttpClient();
         string? url = Environment.GetEnvironmentVariable("SALESFORCE_API_URL");
-        var pars = new[]
-        {
+        FormUrlEncodedContent body = new(
+        [
             new KeyValuePair<string, string>("grant_type", Environment.GetEnvironmentVariable("SALESFORCE_GRANT_TYPE")),
             new KeyValuePair<string, string>("client_id", Environment.GetEnvironmentVariable("SALESFORCE_CLIENT_ID")),
             new KeyValuePair<string, string>("client_secret", Environment.GetEnvironmentVariable("SALESFORCE_CLIENT_SECRET")),
             new KeyValuePair<string, string>("username", Environment.GetEnvironmentVariable("SALESFORCE_USERNAME")),
             new KeyValuePair<string, string>("password", Environment.GetEnvironmentVariable("SALESFORCE_PASSWORD"))
-        };
-        FormUrlEncodedContent body = new(pars);
+        ]);
 
         if (url == null) throw new Exception("No se configuró la conexión con Salesforce");
         using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
@@ -85,11 +85,11 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
     private async Task<JToken?> Request()
     {
         if (instance_url == null || token == null)
-            await GetAccess();
+            await Salesforce<T>.GetAccess();
         Dictionary<string, string> headers = [];
         headers.Add("Authorization", $"Bearer {token}");
         string data = JsonConvert.SerializeObject(this);
-        data = System.Text.RegularExpressions.Regex.Replace(data, @"""_[^""]*"":""?[^,""]*""?,?", "");
+        data = Regex.Replace(data, @"""_[^""]*"":""?[^,""]*""?,?", "");
         Console.WriteLine("\ndata: \t" + data);
         using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
         string res = await WebUt.WebRequest(instance_url + route, HttpMethod.Post, data, "application/json", cts.Token, headers);
@@ -98,7 +98,7 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
         await UpdateData(jRes);
         return jRes;
     }
-    public static void resetSession()
+    public static void ResetSession()
     {
         instance_url = null;
         token = null;
@@ -107,7 +107,8 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
     public async Task<JToken?> Send()
     {
         JToken? res = await Request();
-        try {
+        try
+        {
             if (res != null && res is JArray)
             {
                 JToken? jt = res[0];
@@ -115,13 +116,13 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
                 {
                     if (obj["errorCode"]?.ToString() == "INVALID_SESSION_ID")
                     {
-                        resetSession();
+                        ResetSession();
                         res = await Request();
                     }
                 }
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Logger.Log("Inte.Salesforce.Send" + "   " + subtipo + " - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
             throw;

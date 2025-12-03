@@ -5,12 +5,13 @@ using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 using System.Web;
 
 /// <summary>
 /// Summary description for WebUt
 /// </summary>
-public static class WebUt {
+public static partial class WebUt {
     private static string[] proxySites = {  };
     private static HttpClient client = new HttpClient();
     public static async Task<string> WebRequest(string url, HttpMethod method, string body, string contentType, Dictionary<string, string> headers = null, X509Certificate2 cert = null)
@@ -69,4 +70,12 @@ public static class WebUt {
         }
         return ret;
     }
+    public static string SanitizeXss(string text)
+    {
+        string noTags = XssRegex().Replace(text, string.Empty);
+        return HttpUtility.HtmlEncode(noTags);
+    }
+
+    [GeneratedRegex("<.*?>")]
+    private static partial Regex XssRegex();
 }
