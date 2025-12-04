@@ -4644,3 +4644,16 @@ tr.cal-row-info > td {
     color: red;
     font-weight: bold;
 }
+
+.btn-davivienda {
+  background-color: #E1111C !important; 
+  border-radius: 1rem !important; 
+  font-weight: bold;
+  border: 0 !important;
+  padding: 8px !important;
+  font-size: 17px !important;
+  margin-top: 5px;
+}
+.btn-davivienda:hover {
+  background-color: #FF3A44 !important; 
+}

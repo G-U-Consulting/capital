@@ -65,6 +65,7 @@ select
     a.id_bancos_financiador,
     a.id_lista,
     a.alerta_cambio_lista,
+    a.za1_id,
     id_opcion_visual,
     a.descripcion_comercial,
     c.edge_estado,

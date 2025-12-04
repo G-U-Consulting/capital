@@ -294,6 +294,8 @@ export default {
             showBorradorModal: false,
             borradorData: null,
             guardandoBorrador: false,
+            showDaviviendaModal: false,
+            davivienda: {}
         };
     },
     async mounted() {
@@ -379,6 +381,10 @@ export default {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
             if (e.target.value == '') e.target.value = '0';
             e.target.value = e.target.value.replace(/^0+(\d)/, '$1');
+        },
+        inRange(e, min, max) {
+            const value = this.cleanNumber(e.target.value);
+            e.target.value = Math.min(Math.max(value, min), max);
         },
         toggleApto(apto) {
             let i = this.ids_unidades.indexOf(apto.id_unidad);
@@ -3227,8 +3233,48 @@ export default {
             }
 
             return '';
+        },
+        clearDavivienda() {
+            this.davivienda = {
+                propertyPrice: this.importeActiva || 0,
+                amount: parseInt(this.valor_credito_final.replace(',', '.')) || 0,
+                instalments: 1,
+                customerInformation: {
+                    documentType: null,
+                    documentNumber: null,
+                    names: null,
+                    firstLastname: null,
+                    secondLastName: null,
+                    monthlyIncome: 0,
+                    workActivity: null,
+                    contractType: null,
+                    birthdate: null,
+                    mobileNumber: null,
+                    email: null,
+                    redirectionURL: "https://dev.serlefinpbi.com"
+                },
+                builderInformation: {
+                    deliveryDate: this.display_fecha_entrega.replaceAll('-', '/'),
+                    adviserId: "620",
+                    projectId: GlobalVariables.proyecto.za1_id,
+                    email: "info@constructoracapital.com"
+                }
+            };
+        },
+        async requestDavivienda() {
+            this.davivienda.customerInformation.documentType = this.ObjCliente.tipoDocumento;
+            this.davivienda.customerInformation.documentNumber = this.ObjCliente.numeroDocumento;
+            this.davivienda.customerInformation.names = this.ObjCliente.nombres;
+            this.davivienda.customerInformation.firstLastname = this.ObjCliente.apellido1;
+            this.davivienda.customerInformation.secondLastName = this.ObjCliente.apellido2;
+            this.davivienda.customerInformation.birthdate = this.ObjCliente.fechaNacimiento;
+            this.davivienda.customerInformation.mobileNumber = this.ObjCliente.telefono1 || this.ObjCliente.telefono2;
+            this.davivienda.customerInformation.email = this.ObjCliente.email1 || this.ObjCliente.email2;
+            let ciudad = GlobalVariables.proyecto.sede.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            console.log('Davivienda Request:', this.davivienda);
+            let res = await httpFunc(`/davivienda/${ciudad}`, this.davivienda);
+            console.log('Davivienda Response:', res);
         }
-
     },
     computed: {
         id_proyecto() {
@@ -3496,6 +3542,14 @@ export default {
             const smmlv = parseNumber(registroActual.smmlv);
 
             return ingresosLimpios <= smmlv * 4;
+        },
+        f_instalments: {
+            get() { return this.formatNumber(this.davivienda.instalments, false); },
+            set(val) { this.davivienda.instalments = this.cleanNumber(val); }
+        },
+        f_monthlyIncome: {
+            get() { return this.formatNumber(this.davivienda.customerInformation.monthlyIncome, false); },
+            set(val) { this.davivienda.customerInformation.monthlyIncome = this.cleanNumber(val); }
         },
     },
     watch: {

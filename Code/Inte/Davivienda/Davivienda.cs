@@ -9,6 +9,7 @@ using IniParser.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using orca.Code.Logger;
+using Microsoft.AspNetCore.Http;
 
 namespace capital.Code.Inte.Davivienda;
 
@@ -24,7 +25,7 @@ public class Davivienda
         if (ciudad == "bogota")
         {
             entorno = "aws";
-            conexion = "lab";
+            conexion = "pdn";
         }
         else if (ciudad == "medellin")
         {
@@ -191,6 +192,7 @@ public class Davivienda
             HttpResponseMessage response = await client.PostAsync(endpoint, postfields);
             string content = await response.Content.ReadAsStringAsync();
 
+            Console.WriteLine("Endpoint: \n" + endpoint);
             Console.WriteLine("Content: \n" + content);
 
             if (!response.IsSuccessStatusCode)
@@ -208,7 +210,7 @@ public class Davivienda
         }
     }
 
-    public async Task RequestDavivienda()
+    public async Task<IResult> RequestDavivienda()
     {
         try
         {
@@ -232,23 +234,31 @@ public class Davivienda
             HttpClient client = LoadCertificates();
 
             HttpRequestMessage request = new(HttpMethod.Post, endpoint);
-            request.Content = new ByteArrayContent(contentBytes); // Usamos ByteArrayContent para tener más control
-            request.Content.Headers.ContentLength = contentLength;
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            request.Version = new Version(1, 1);
+            request.Headers.ExpectContinue = false;
+            request.Content = new StringContent(data, Encoding.UTF8, "application/json");
+            //request.Content = new ByteArrayContent(contentBytes); // Usamos ByteArrayContent para tener más control
+            //request.Content.Headers.ContentLength = contentLength;
+            //request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
             Console.WriteLine($"client id: {credentials["clientId"]?.ToString()}");
             Console.WriteLine($"token: {token}");
 
             request.Headers.Add("x-ibm-client-id", credentials["clientId"]?.ToString());
-            request.Headers.Accept.Clear();
+            //request.Headers.Accept.Clear();
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.UserAgent.ParseAdd("MyCustomUserAgent/1.0 (http://www.constructoracapital.com)");
             request.Headers.Authorization = AuthenticationHeaderValue.Parse(token);
 
             HttpResponseMessage response = await client.SendAsync(request);
             string content = await response.Content.ReadAsStringAsync();
+            string contentType = response.Content?.Headers?.ContentType?.ToString() ?? "application/json";
+            int statusCode = (int)response.StatusCode;
+
             Console.WriteLine("Davivienda response: \n" + response);
             Console.WriteLine("Davivienda content: \n" + content);
+
+            return Results.Content(content, contentType, Encoding.UTF8, statusCode);
         }
         catch (Exception ex)
         {

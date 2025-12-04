@@ -8,7 +8,7 @@ set @id_visita = 392;
 select c.nombres as `firstName`, concat(coalesce(c.apellido1, ''), ' ', concat(coalesce(c.apellido2, ''))) as `lastName`, c.nombre_empresa as `company`,
     c.numero_documento as `_document`, 
     (CASE 
-        WHEN c.tipo_documento = 'PAS' THEN 'Pasaporte'
+        WHEN c.tipo_documento = 'PA' THEN 'Pasaporte'
         WHEN c.tipo_documento = 'CE' THEN 'Cédula de Extranjería'
         WHEN c.tipo_documento = 'NIT' THEN 'NIT'
         ELSE 'Cédula de Ciudadanía'

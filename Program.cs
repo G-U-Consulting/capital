@@ -421,14 +421,14 @@ app.Map("/api/uploaddocs/{**folder}", async (string folder, HttpContext context,
     }
     return Results.Ok(new { message = "✅ ¡Archivos actualizados!", data });
 }).DisableAntiforgery();
-/* app.Map("/davivienda/{ciudad}", async (HttpContext context, string ciudad) =>
+app.Map("/davivienda/{ciudad}", async (HttpContext context, string ciudad) =>
 {
     string body;
     using (var stream = new StreamReader(context.Request.Body)) {
         body = await stream.ReadToEndAsync();
     }
     Davivienda d = new(ciudad, rootPath, body);
-    await d.RequestDavivienda();
-    return "OK";
-}); */
+    IResult res = await d.RequestDavivienda();
+    return res;
+});
 app.Run();

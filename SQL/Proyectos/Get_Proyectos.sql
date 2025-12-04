@@ -63,6 +63,7 @@ select
     a.id_zona_proyecto,
     a.id_lista,
     a.alerta_cambio_lista,
+    a.za1_id,
     case when j.tipo_vis = 'No VIS' then 'No VIS' else 'VIS' end as tipo_vis,
     k.edge_estado,
     o.total_torres,
