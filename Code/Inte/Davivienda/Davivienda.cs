@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using DocumentFormat.OpenXml.InkML;
+using System.Runtime.InteropServices;
 using IniParser;
 using IniParser.Model;
 using Newtonsoft.Json;
@@ -24,7 +24,7 @@ public class Davivienda
         if (ciudad == "bogota")
         {
             entorno = "aws";
-            conexion = "pdn";
+            conexion = "lab";
         }
         else if (ciudad == "medellin")
         {
@@ -36,7 +36,6 @@ public class Davivienda
         GetApiCredentials();
 
         GenerateKey(credentials["clientId"]?.ToString());
-        Console.WriteLine("Key:\t" + key);
     }
     public string ciudad;      // ['bogota', 'medellin']
     public string entorno;    // ['aws', 'local']
@@ -51,15 +50,15 @@ public class Davivienda
     {
         string pathBase = Path.Combine(rootPath, "llaves", "Davivienda", ciudad),
             p_ini = Path.Combine(pathBase, $"{conexion}.ini");
-
         FileIniDataParser parser = new();
         IniData data = parser.ReadFile(p_ini);
 
-        credentials["url"] = data[$"--------{conexion.ToUpper()}"]["davivienda_url"];
-        credentials["clientId"] = data[$"--------{conexion.ToUpper()}"]["davivienda_client_id"];
-        credentials["clientSecret"] = data[$"--------{conexion.ToUpper()}"]["davivienda_client_secret"];
+        credentials["url"] = data[$"--------{conexion.ToUpper()}"]["davivienda_url"].Replace("_", "").Replace("-", "").Replace("'", "").Replace(" ", "");
+        credentials["clientId"] = data[$"--------{conexion.ToUpper()}"]["davivienda_client_id"].Replace("_", "").Replace("-", "").Replace("'", "").Replace(" ", "");
+        credentials["clientSecret"] = data[$"--------{conexion.ToUpper()}"]["davivienda_client_secret"].Replace("_", "").Replace("-", "").Replace("'", "").Replace(" ", "");
         credentials["pfxPath"] = Path.Combine(pathBase, $"{conexion}.pfx");
-        //credentials["pemPath"] = Path.Combine(pathBase, $"{conexion}.pem");
+        credentials["crtPath"] = Path.Combine(pathBase, $"{conexion}.crt");
+        credentials["pemPath"] = Path.Combine(pathBase, $"{conexion}.pem");
         if (!tokens.TryGetValue(ciudad, out Dictionary<string, object?>? current) || current == null)
         {
             Dictionary<string, object?> temp = new()
@@ -70,15 +69,13 @@ public class Davivienda
             tokens.Add(ciudad, temp);
         }
 
-        Console.WriteLine(credentials.ToString());
-
     }
 
     public void GenerateKey(string clientId)
     {
-        clientId = clientId.Replace("_", "").Replace("-", "").Replace("'", "").Replace(" ", "");
-        while (clientId.Length < 46)
-            clientId = "0" + clientId;
+        // str_pad( $client_id, 46, '0', STR_PAD_LEFT )
+        if (clientId.Length <= 45)
+            clientId = clientId.PadLeft(46, '0');
         // 1. decodificar base64
         byte[] keyEncode = Convert.FromBase64String(clientId);
         // 2. convertir a hex y tomar primeros 64 caracteres
@@ -134,23 +131,53 @@ public class Davivienda
         return decrypted.Trim(trimChars);
     }
 
+    private HttpClient LoadCertificates()
+    {
+        string? pfxPath = credentials["pfxPath"]?.ToString();
+        string crtPath = credentials["crtPath"]?.ToString() ?? throw new ArgumentException("crtPath no configurado");
+        string pemPath = credentials["pemPath"]?.ToString() ?? throw new ArgumentException("pemPath no configurado");
+        X509Certificate2 cert;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)){
+                Console.WriteLine("Linux/IOS");
+                cert = X509Certificate2.CreateFromPemFile(crtPath, pemPath);
+            }
+            else
+            {
+                Console.WriteLine("Windows");
+                cert = X509CertificateLoader.LoadPkcs12FromFile(
+                    pfxPath,
+                    $"{conexion}pfx",
+                    X509KeyStorageFlags.Exportable
+                );
+            }
+            HttpClientHandler handler = new()
+            {
+                AllowAutoRedirect = false,
+                AutomaticDecompression = System.Net.DecompressionMethods.None
+            };
+            handler.ClientCertificates.Add(cert);
+            //handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+            HttpClient client = new(handler);
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+            return client;
+    }
+
     private async Task<string> GetAccess()
     {
         var tokenData = tokens.GetValueOrDefault(ciudad) ?? throw new Exception($"Llaves no inicializadas para {ciudad}");
         object? token = tokenData.GetValueOrDefault("token");
         object? validUntil = tokenData.GetValueOrDefault("validUntil");
-        if (token is string accessToken && validUntil is long timestamp && DateTimeOffset.Now.ToUnixTimeSeconds() < timestamp - 100)
+        if (token is string accessToken && validUntil is long timestamp && DateTimeOffset.Now.ToUnixTimeSeconds() < timestamp - 60)
             return accessToken;
         else
         {
-            string url = credentials["url"]?.ToString().Trim('\'') ?? throw new ArgumentException("url no configurado");
+            string url = credentials["url"]?.ToString() ?? throw new ArgumentException("url no configurado");
             string clientId = credentials["clientId"]?.ToString() ?? throw new ArgumentException("clientId no configurado");
             string clientSecret = credentials["clientSecret"]?.ToString() ?? throw new ArgumentException("clientSecret no configurado");
-            string pfxPath = credentials["pfxPath"]?.ToString() ?? throw new ArgumentException("pfxPath no configurado");
-            //string pemPath = credentials["pemPath"]?.ToString() ?? throw new ArgumentException("pemPath no configurado");
             
             string endpoint = string.Concat(url, "oauth2Provider/type1/v1/token");
-            Console.WriteLine("endpoint: \t" + endpoint);
 
             FormUrlEncodedContent postfields = new(
             [
@@ -159,41 +186,25 @@ public class Davivienda
                 new KeyValuePair<string, string>("client_secret", clientSecret),
                 new KeyValuePair<string, string>("scope", "initMortgage")
             ]);
-
-            // Certificado
-            var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-            store.Open(OpenFlags.ReadOnly);
-
-            var certs = store.Certificates.Find(
-                X509FindType.FindByThumbprint,
-                "",
-                validOnly: false);
-
-            if (certs.Count == 0)
-                throw new Exception("Certificado no encontrado");
-
-            var cert = certs[0];
-            Console.WriteLine($"Clave privada: {cert.HasPrivateKey}"); 
-
-            var handler = new HttpClientHandler();
-            handler.ClientCertificates.Add(cert);
-            handler.ServerCertificateCustomValidationCallback =
-                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-
-            using var client = new HttpClient(handler);
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-
+            HttpClient client = LoadCertificates();
+            
             HttpResponseMessage response = await client.PostAsync(endpoint, postfields);
-
-            Console.WriteLine("Response: \n" + response.ToString());
             string content = await response.Content.ReadAsStringAsync();
+
             Console.WriteLine("Content: \n" + content);
 
             if (!response.IsSuccessStatusCode)
                 throw new Exception($"Error en la petición: {response.StatusCode}");
-            return await response.Content.ReadAsStringAsync();
-
+            JObject res = JsonConvert.DeserializeObject<JObject>(content) ?? [];
+            string tokenType = res["token_type"]?.ToString() ?? throw new Exception($"No se obtuvo el token_type davivienda \n{content}");
+            string access_token = res["access_token"]?.ToString() ?? throw new Exception($"No se obtuvo el token davivienda \n{content}");
+            if ((long)res["expires_in"] is long expiresIn && expiresIn > 0)
+            {
+                tokens[ciudad]["token"] = $"{tokenType} {access_token}";
+                tokens[ciudad]["validUntil"] = DateTimeOffset.Now.ToUnixTimeSeconds() + expiresIn;
+            }
+            else throw new Exception($"No se obtuvo expires_in davivienda \n{content}");
+            return $"{tokenType} {access_token}";
         }
     }
 
@@ -205,10 +216,39 @@ public class Davivienda
             if (string.IsNullOrEmpty(token))
                 throw new InvalidOperationException("No se pudo obtener token válido");
             Console.WriteLine(token);
-            //InfoRequest? info = JsonConvert.DeserializeObject<InfoRequest>(body) ?? throw new InvalidOperationException("Body JSON inválido");
-            //info.customerInformation?.SetUtil(this);
-            //info.builderInformation?.SetUtil(this);
-            // TODO: Enviar POST
+            Console.WriteLine($"Current timestamp: {DateTimeOffset.Now.ToUnixTimeSeconds()}\nValid until: {tokens[ciudad]["validUntil"]}");
+            InfoRequest? info = JsonConvert.DeserializeObject<InfoRequest>(body) ?? throw new InvalidOperationException("Body JSON inválido");
+            info.customerInformation?.SetUtil(this);
+            info.builderInformation?.SetUtil(this);
+
+            string data = JsonConvert.SerializeObject(info, Formatting.None);
+            var contentBytes = Encoding.UTF8.GetBytes(data);
+            int contentLength = contentBytes.Length; // Longitud exacta en bytes
+            Console.WriteLine(data);
+
+            string url = credentials["url"]?.ToString() ?? throw new ArgumentException("url no configurado");
+            string endpoint = string.Concat(url, "mortgage/v1/initBuilderRequest");
+            
+            HttpClient client = LoadCertificates();
+
+            HttpRequestMessage request = new(HttpMethod.Post, endpoint);
+            request.Content = new ByteArrayContent(contentBytes); // Usamos ByteArrayContent para tener más control
+            request.Content.Headers.ContentLength = contentLength;
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            Console.WriteLine($"client id: {credentials["clientId"]?.ToString()}");
+            Console.WriteLine($"token: {token}");
+
+            request.Headers.Add("x-ibm-client-id", credentials["clientId"]?.ToString());
+            request.Headers.Accept.Clear();
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Headers.UserAgent.ParseAdd("MyCustomUserAgent/1.0 (http://www.constructoracapital.com)");
+            request.Headers.Authorization = AuthenticationHeaderValue.Parse(token);
+
+            HttpResponseMessage response = await client.SendAsync(request);
+            string content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Davivienda response: \n" + response);
+            Console.WriteLine("Davivienda content: \n" + content);
         }
         catch (Exception ex)
         {
