@@ -654,11 +654,9 @@
                 <div class="pure-u-1 pure-u-md-1-2" style="display: flex; align-items: center; gap: .5rem;">
                     <span style="font-size: 1.2em;">Opcionar:</span>
                     <samp class="resaltado">{{ textoCotizacion }}</samp>
-                    <!-- Tooltip de solo lectura - junto al nombre de la cotización -->
-                    <div v-if="esOpcionGuardada" style="position: relative; display: inline-block; margin-left: 0.5rem;"
+                    <div v-if="esOpcionGuardada || modoSoloLectura" style="position: relative; display: inline-block; margin-left: 0.5rem;"
                          @mouseenter="mostrarTooltipOpcion = true"
                          @mouseleave="mostrarTooltipOpcion = false">
-                        <!-- Ícono de información -->
                         <div :style="'cursor: pointer; display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; background-color: #f59e0b; border-radius: 50%; transition: all 0.3s ease; transform: ' + (mostrarTooltipOpcion ? 'scale(1.15)' : 'scale(1)') + '; box-shadow: ' + (mostrarTooltipOpcion ? '0 2px 8px rgba(245, 158, 11, 0.4)' : '0 1px 3px rgba(0,0,0,0.1)')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -666,7 +664,6 @@
                                 <line x1="12" y1="8" x2="12.01" y2="8"></line>
                             </svg>
                         </div>
-                        <!-- Tooltip expandible al hover -->
                         <div :style="'position: absolute; top: 100%; left: 50%; transform: translateX(-50%) translateY(' + (mostrarTooltipOpcion ? '8px' : '0px') + '); margin-top: 8px; min-width: 320px; max-width: 380px; background-color: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 0.75rem 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s ease; opacity: ' + (mostrarTooltipOpcion ? '1' : '0') + '; visibility: ' + (mostrarTooltipOpcion ? 'visible' : 'hidden') + '; z-index: 1000;'">
                             <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
@@ -674,9 +671,11 @@
                                     <line x1="12" y1="16" x2="12" y2="12"></line>
                                     <line x1="12" y1="8" x2="12.01" y2="8"></line>
                                 </svg>
-                                <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;">Esta opción ya ha sido guardada y está en modo de solo visualización. No se pueden realizar modificaciones.</span>
+                                <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;" v-if="esOpcionGuardada && !modoSoloLectura">Esta opción ya ha sido guardada y está en modo de solo visualización. No se pueden realizar modificaciones.</span>
+                                <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;" v-if="esCotizacionAntigua">Esta es una cotización antigua (no del día de hoy) y está en modo de solo visualización. No se pueden realizar modificaciones.</span>
+                                <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;" v-if="unidadesNoDisponibles">Las unidades de esta cotización ya fueron opcionadas. Los datos se muestran en modo de solo visualización. No se pueden realizar modificaciones.</span>
                             </div>
-                            <!-- Flecha del tooltip apuntando hacia arriba -->
+
                             <div style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #f59e0b;"></div>
                             <div style="position: absolute; bottom: calc(100% - 2px); left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 7px solid #fef3c7;"></div>
                         </div>
@@ -2296,8 +2295,11 @@
     <!-- ------------------------------------------------------------ -->
     <div class="pure-u-1-1" style="padding-top: 1em;" v-if="iscliente">
         <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
-            <div v-if="mode >= 0 && mode <= 2" class="pure-u-auto">
+            <div v-if="mode >= 0 && mode <= 1" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleSave">Guardar</button>
+            </div>
+            <div v-if="mode == 2" class="pure-u-auto">
+                <button class="pure-button button-fixed" @click="handleNext(3)">Siguiente</button>
             </div>
 
             <div v-if="mode == 3"
@@ -2312,11 +2314,11 @@
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
                     </div>
-                    <div v-if="!esOpcionGuardada" class="boton-accion" @click="guardarBorrador" :disabled="guardandoBorrador">
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="guardarBorrador" :disabled="guardandoBorrador">
                         <img src="../../img/ico/save.png" alt="Guardar Borrador">
                         <span>{{ guardandoBorrador ? 'Guardando...' : 'Guardar Borrador' }}</span>
                     </div>
-                    <div v-if="!esOpcionGuardada" class="boton-accion" @click="enviarYOpcionar">
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="enviarYOpcionar">
                         <img src="../../img/ico/achievement.png" alt="Opcionar">
                         <span>Enviar y Opcionar</span>
                     </div>
@@ -2333,7 +2335,6 @@
     </div>
 </div>
 
-<!-- Modal de Recuperación de Borrador -->
 <div v-if="showBorradorModal" class="asunto-modal-overlay">
     <div class="asunto-modal-box" style="max-width: 500px;">
         <span class="asunto-modal-close" @click="rechazarBorrador">×</span>
