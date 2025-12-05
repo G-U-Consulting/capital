@@ -546,6 +546,7 @@
                                 <th class="col-1-6">Fecha</th>
                                 <th class="col-3-6">Descripción</th>
                                 <th class="col-1-6" title="Importe Menos Descuento Base.">Importe Menos Descuento Base</th>
+                                <th class="col-1-6">Status</th>
                                 <th class="col-1-6">Eliminar</th>
                             </tr>
                         </thead>
@@ -560,6 +561,14 @@
                                 </td>
                                 <td class="col-1-6" style="text-align: right;">
                                     {{ item.importe ? formatoMoneda(item.importe - (item.valor_descuento || 0)) : '' }}
+                                </td>
+                                <td class="col-1-6" style="text-align: center;">
+                                    <span :style="{
+                                        color: item.status === 'Opcionada' ? '#27ae60' : item.status === 'Borrador' ? '#f39c12' : '#95a5a6',
+                                        fontWeight: item.status === 'Opcionada' ? 'bold' : 'normal'
+                                    }">
+                                        {{ item.status || 'Pendiente' }}
+                                    </span>
                                 </td>
                                 <td v-if="!item.importe" style="text-align: center;">
                                 <span class="delete"
@@ -2403,11 +2412,3 @@
         </div>
     </div>
 </div>
-
-<style>
-.boton-accion[disabled] {
-    opacity: 0.6;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-</style>

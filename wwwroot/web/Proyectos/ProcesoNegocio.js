@@ -294,6 +294,9 @@ export default {
             showBorradorModal: false,
             borradorData: null,
             guardandoBorrador: false,
+            modoSoloLectura: false,
+            unidadesYaOpcionadas: false,
+            showDaviviendaModal: false,
         };
     },
     async mounted() {
@@ -1165,8 +1168,6 @@ export default {
         async cargarBorrador(borrador) {
             try {
                 const opcion = JSON.parse(borrador.datos_json);
-                console.log('Cargando borrador:', opcion);
-
                 this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
                 this.valor_separacion = opcion.valor_separacion || 0;
                 this.valor_escrituras = opcion.valor_escrituras || 0;
@@ -1250,13 +1251,6 @@ export default {
                 });
 
                 this.tieneCambiosPendientes = false;
-
-                console.log('Borrador cargado - Verificación de valores:');
-                console.log('valor_separacion:', this.valor_separacion);
-                console.log('valor_reformas:', this.valor_reformas);
-                console.log('bancoSeleccionado:', this.bancoSeleccionado);
-                console.log('pagoSeleccionado:', this.pagoSeleccionado);
-                console.log('ingresos_mensuales:', this.ingresos_mensuales);
 
                 showMessage('Borrador cargado correctamente');
             } catch (error) {
@@ -1713,8 +1707,19 @@ export default {
                     id_proyecto: GlobalVariables.id_proyecto
                 });
 
-                this.cotizaciones = resp.data[0] || [];
-                this.nombre = resp.data[0]?.[0]?.nombre || '';
+                if (!resp || !resp.data) {
+                    console.error('Respuesta inválida del servidor:', resp);
+                    this.cotizaciones = [];
+                    this.nombre = '';
+                    return;
+                }
+
+                this.cotizaciones = Array.isArray(resp.data[0]) ? resp.data[0] : (Array.isArray(resp.data) ? resp.data : []);
+                this.nombre = this.cotizaciones[0]?.nombre || '';
+
+                if (this.cotizaciones.length === 0) {
+                    return;
+                }
 
                 const unidadesPromises = this.cotizaciones.map(item =>
                     this.cargarUnidadesCotizacion(item.cotizacion)
@@ -1764,6 +1769,10 @@ export default {
         },
         async cargarCotizacion(cotizacionId) {
             try {
+                if (!cotizacionId) {
+                    return { unidades: [], totalFinal: 0 };
+                }
+
                 this.cotizacionId = cotizacionId;
 
                 const { unidades, totalFinal, rawData } = await this.cargarUnidadesCotizacion(cotizacionId);
@@ -3310,9 +3319,7 @@ export default {
             this.davivienda.customerInformation.mobileNumber = this.ObjCliente.telefono1 || this.ObjCliente.telefono2;
             this.davivienda.customerInformation.email = this.ObjCliente.email1 || this.ObjCliente.email2;
             let ciudad = GlobalVariables.proyecto.sede.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            console.log('Davivienda Request:', this.davivienda);
             let res = await httpFunc(`/davivienda/${ciudad}`, this.davivienda);
-            console.log('Davivienda Response:', res);
         }
     },
     computed: {
@@ -3322,7 +3329,18 @@ export default {
         esOpcionGuardada() {
             return this.id_opcion !== null;
         },
- 
+        reformaAct() {
+            return this.unidadOpcion?.inv_terminado == 1;
+        },
+        esCotizacionAntigua() {
+            if (!this.f_cotizacion) return false;
+            const hoyStr = new Date().toISOString().slice(0, 10);
+            return this.f_cotizacion !== hoyStr;
+        },
+        unidadesNoDisponibles() {
+            return this.unidades && this.unidades.some(u => u.id_estado_unidad === 2);
+        },
+
         display_fecha_entrega: {
             get() {
                 if (this.esOpcionGuardada && this.opcion_fecha_entrega !== null) {
