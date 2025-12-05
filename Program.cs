@@ -17,6 +17,18 @@ using Newtonsoft.Json;
 using capital.Code.Inte.Davivienda;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+
+CultureInfo cultureInfo = new CultureInfo("en-US");
+cultureInfo.DateTimeFormat.ShortDatePattern = "yyyy-MM-dd";
+cultureInfo.DateTimeFormat.LongTimePattern = "HH:mm:ss";
+cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+ 
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();

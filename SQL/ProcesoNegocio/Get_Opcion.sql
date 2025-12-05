@@ -2,7 +2,7 @@
 -- Proceso: ProcesoNegocio/Get_Opcion
 -- =============================================
 --START_PARAM
-set @id_cotizacion = '1',
+set @id_cotizacion = '519',
     @id_proyecto = '3',
     @id_cliente = '2';
 --END_PARAM

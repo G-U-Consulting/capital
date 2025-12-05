@@ -1,6 +1,5 @@
 -- =============================================
 -- Proceso: ProcesoNegocio/Ins_Borrador_Opcion
--- Descripción: Inserta o actualiza un borrador de opción
 -- =============================================
 --START_PARAM
 set @id_opcion = NULL,

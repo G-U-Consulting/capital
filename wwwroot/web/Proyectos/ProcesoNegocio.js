@@ -294,8 +294,6 @@ export default {
             showBorradorModal: false,
             borradorData: null,
             guardandoBorrador: false,
-            showDaviviendaModal: false,
-            davivienda: {}
         };
     },
     async mounted() {
@@ -868,6 +866,32 @@ export default {
 
                 this.mode = nextIndex;
 
+                if (nextIndex === 1) {
+                    let resp2 = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { cliente: this.cliente });
+                    this.visitas = resp2.data[0];
+
+                    const hoy = new Date().toISOString().split("T")[0];
+
+                    const ultimoActivo = [...this.visitas].find(r =>
+                        r.is_active == 1 &&
+                        r.fecha?.split(" ")[0] === hoy
+                    );
+
+                    if (ultimoActivo) {
+                        this.id_visita = ultimoActivo.id_visita;
+                        await this.editarVisita(ultimoActivo.id_visita);
+                        this.noregistro = true;
+                    } else {
+                        this.noregistro = false;
+                    }
+                }
+
+                if (nextIndex === 2) {
+                    await this.seleccionarCotizacion(null);
+                    await this.getCotizaciones();
+                    this.cotizacionSeleccionada = null;
+                }
+
                 if (nextIndex === 3) {
                     await this.prepararDatosOpcion();
                     this.tieneCambiosPendientes = false;
@@ -1260,7 +1284,24 @@ export default {
     
         async mostrarModalBorrador(borrador) {
             this.borradorData = borrador;
-            this.showBorradorModal = true;
+            this.unidadesYaOpcionadas = borrador.unidades_opcionadas > 0;
+
+            if (this.unidadesYaOpcionadas) {
+                showConfirm(
+                    'Esta unidad ya fue opcionada. ¿Desea ver la cotización solo con fines informativos?',
+                    async () => {
+                        this.modoSoloLectura = true;
+                        await this.cargarBorrador(this.borradorData);
+                        this.borradorData = null;
+                    },
+                    () => {
+                        this.mode = 2;
+                        this.borradorData = null;
+                    }
+                );
+            } else {
+                this.showBorradorModal = true;
+            }
         },
      
         async aceptarBorrador() {
@@ -1272,11 +1313,9 @@ export default {
         },
 
         async rechazarBorrador() {
-            if (this.borradorData) {
-                await this.eliminarBorrador();
-            }
             this.showBorradorModal = false;
             this.borradorData = null;
+            this.mode = 2;
         },
 
         async guardarBorradorYCerrar() {

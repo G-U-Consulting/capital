@@ -83,7 +83,7 @@ mainVue = {
                     : `Existen cambios sin guardar en ${moduleName}`;
 
                 const botonesPersonalizados = moduleName === "ProcesoNegocio"
-                    ? { textOk: 'Guardar', textCancel: 'Salir sin guardar' }
+                    ? { textOk: 'Guardar Borrador', textCancel: 'Sin Guardar' }
                     : { textOk: null, textCancel: null };
 
                 return new Promise((resolve) => {
@@ -124,7 +124,7 @@ mainVue = {
                     : `⚠️ Existen cambios sin guardar en ${moduleName}`;
 
                 const botonesPersonalizados = moduleName === "ProcesoNegocio"
-                    ? { textOk: 'Guardar', textCancel: 'Salir sin guardar' }
+                    ? { textOk: 'Guardar Borrador', textCancel: 'Sin Guardar' }
                     : { textOk: null, textCancel: null };
 
                 return new Promise((resolve) => {

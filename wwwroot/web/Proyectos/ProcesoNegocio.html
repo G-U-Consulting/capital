@@ -5,7 +5,7 @@
         <div class="pure-g steps">
             <div v-for="(tab, index) in tabs" :key="index" class="pure-u-1-1 pure-u-md-1-4">
                 <div class="wizarTab wizarTabNoSelect" :class="tabClasses[index]"
-                    @click="handleNext(index), setSubmode(index); ObjCliente.id_cliente && index === 0 && initIntlTel(ObjCliente);">
+                    @click="handleNext(index)">
                     {{ tab }}
                 </div>
             </div>
@@ -674,6 +674,7 @@
                                 <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;" v-if="esOpcionGuardada && !modoSoloLectura">Esta opción ya ha sido guardada y está en modo de solo visualización. No se pueden realizar modificaciones.</span>
                                 <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;" v-if="esCotizacionAntigua">Esta es una cotización antigua (no del día de hoy) y está en modo de solo visualización. No se pueden realizar modificaciones.</span>
                                 <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;" v-if="unidadesNoDisponibles">Las unidades de esta cotización ya fueron opcionadas. Los datos se muestran en modo de solo visualización. No se pueden realizar modificaciones.</span>
+                                <span style="color: #92400e; font-weight: 500; font-size: 0.9rem; line-height: 1.4;" v-if="modoSoloLectura && !esOpcionGuardada">Esta unidad ya fue opcionada por otro proceso. Los datos se muestran solo con fines informativos. No se pueden realizar modificaciones.</span>
                             </div>
 
                             <div style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #f59e0b;"></div>
@@ -696,7 +697,7 @@
                         <span>¿Con acabados y Reformas?</span>
                         <div class="checkbox-center">
                             <label class="check">
-                                <input type="checkbox" v-model="reformaActivo" :disabled="esOpcionGuardada || reformaAct"/>
+                                <input type="checkbox" v-model="reformaActivo" :disabled="esOpcionGuardada || reformaAct || modoSoloLectura"/>
                                 <span class="checkmark"></span>
                             </label>
                         </div>
@@ -719,14 +720,14 @@
                     <div class="formInputStandard">
                         <span>Descuento Adicional</span>
                         <input type="text" style="text-align: right;" v-model="f_valor_descuento_adicional"
-                            @keyup="validarFormato" :disabled="esOpcionGuardada" />
+                            @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6"></div>
                 <div class="pure-u-1 pure-u-md-1-6"></div>
                 <div class="pure-u-1 pure-u-md-1-8">
                     <div class="formInputStandard">
-                        <div class="add-chip-modern" @click="!esOpcionGuardada && abrirModalCliente()" :style="esOpcionGuardada ? 'opacity: 0.5; cursor: not-allowed;' : ''">
+                        <div class="add-chip-modern" @click="!(esOpcionGuardada || modoSoloLectura) && abrirModalCliente()" :style="(esOpcionGuardada || modoSoloLectura) ? 'opacity: 0.5; cursor: not-allowed;' : ''">
                             <span>Agregar Cliente</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -781,13 +782,13 @@
             <div class="pure-u-1 pure-u-md-1-6">
                 <div class="formInputStandard">
                     <span>Beneficiencia:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" :disabled="esOpcionGuardada" />
+                    <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
                 </div>
             </div>
             <div class="pure-u-1 pure-u-md-1-6">
                 <div class="formInputStandard">
                     <span>Registro:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" :disabled="esOpcionGuardada" />
+                    <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
                 </div>
             </div>
             <div class='pure-u-1-1 formDivision' style="font-size: 1em; margin-top: .5rem;">
@@ -798,7 +799,7 @@
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'contado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
                             <label class="check pure-u-1-6">
-                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado" :disabled="esOpcionGuardada" />
+                                <input type="radio" name="pago" value="contado" v-model="pagoSeleccionado" :disabled="esOpcionGuardada || modoSoloLectura" />
                                 <span class="checkmark"></span>
                                 Contado
                             </label>
@@ -807,7 +808,7 @@
                             <span class="pure-u-1 pure-u-md-1-4">Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-3-4">
                                 <select class="pure-input-1" v-model="planSeleccionado" @change="calcularPlanPago"
-                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'contado'">
+                                    :disabled="esOpcionGuardada || modoSoloLectura || pagoSeleccionado !== 'contado'">
                                     <option value="">Seleccione</option>
                                     <option v-for="plan in planes_pago" :key="plan.id_planes_pago" :value="plan.id_planes_pago">
                                         {{ plan.descripcion }}
@@ -820,15 +821,15 @@
                 <div class="pure-u-1 pure-u-md-5-8">
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'financiado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
-                            <label class="check pure-u-1 pure-u-md-1-6" @click="!esOpcionGuardada && (pagoSeleccionado = 'financiado')">
-                                <input type="radio" name="pago" value="financiado" v-model="pagoSeleccionado" :disabled="esOpcionGuardada"/>
+                            <label class="check pure-u-1 pure-u-md-1-6" @click="!(esOpcionGuardada || modoSoloLectura) && (pagoSeleccionado = 'financiado')">
+                                <input type="radio" name="pago" value="financiado" v-model="pagoSeleccionado" :disabled="esOpcionGuardada || modoSoloLectura"/>
                                 <span class="checkmark"></span>
                                 Financiado
                             </label>
                             <span class="pure-u-1 pure-u-md-1-6">1. Entidad:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
                                 <select class="pure-input-1" v-model="bancoSeleccionado" @change="cargarFactor"
-                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'financiado'">
+                                    :disabled="esOpcionGuardada || modoSoloLectura || pagoSeleccionado !== 'financiado'">
                                     <option :value="0">Seleccione banco</option>
                                     <option v-for="b in banco_financiador" :key="b.id_bancos_financiador"
                                         :value="b.id_bancos_financiador">
@@ -840,7 +841,7 @@
                             <span class="pure-u-1 pure-u-md-1-6">2. Tipo:</span>
                             <div class="pure-u-1 pure-u-md-1-5">
                                 <select class="pure-input-1" v-model="unidadSeleccionada" @change="cargarAnios"
-                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'financiado' || bancoSeleccionado == 0">
+                                    :disabled="esOpcionGuardada || modoSoloLectura || pagoSeleccionado !== 'financiado' || bancoSeleccionado == 0">
                                     <option value="0">Seleccione unidad</option>
                                     <option v-for="unidad in unidadesDisponibles" :key="unidad" :value="unidad">
                                         {{ unidad }}
@@ -853,7 +854,7 @@
                             <span class="pure-u-1 pure-u-md-1-6">3. Años:</span>
                             <div class="pure-u-1 pure-u-md-1-4">
                                 <select class="pure-input-1" v-model="anioSeleccionado"
-                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'financiado' || unidadSeleccionada == 0"
+                                    :disabled="esOpcionGuardada || modoSoloLectura || pagoSeleccionado !== 'financiado' || unidadSeleccionada == 0"
                                     @change="onChangeAnio">
                                     <option value="">Seleccione años</option>
                                     <option v-for="anio in listaAnios" :key="anio" :value="anio">
@@ -865,7 +866,7 @@
                             <span class="pure-u-1 pure-u-md-1-6">4. Modalidad:</span>
                             <div class="pure-u-1 pure-u-md-1-5">
                                 <select class="pure-input-1" v-model="tipoFinanciacionSeleccionada"
-                                    :disabled="esOpcionGuardada || pagoSeleccionado !== 'financiado' || anioSeleccionado == 0"
+                                    :disabled="esOpcionGuardada || modoSoloLectura || pagoSeleccionado !== 'financiado' || anioSeleccionado == 0"
                                     @change="calcularFinanciacion">
                                     <option value="">Seleccione Modalidad:</option>
                                     <option v-for="tipo in tipo_financiacion" :key="tipo.id_tipo_financiacion"
@@ -888,7 +889,7 @@
                             <span>Ingresos Familiares</span>
                             <input ref="inputIngresos" style="text-align: right;" type="text" v-model="f_ingresos_mensuales"
                                 @keyup="validarFormato" @blur="onBlurIngresos" @input="onInputIngresos"
-                                :disabled="esOpcionGuardada || !tipoFinanciacionSeleccionada" />
+                                :disabled="esOpcionGuardada || modoSoloLectura || !tipoFinanciacionSeleccionada" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
@@ -897,7 +898,7 @@
                                 Cesantías
                             </span>
                             <input type="text" style="text-align: right;" v-model="f_valor_cesantias" @keyup="validarFormato"
-                                :disabled="esOpcionGuardada || f_ingresos_mensuales == 0" />
+                                :disabled="esOpcionGuardada || modoSoloLectura || f_ingresos_mensuales == 0" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
@@ -906,7 +907,7 @@
                                 Ahorros
                             </span>
                             <input type="text" style="text-align: right;" v-model="f_valor_ahorros" @keyup="validarFormato"
-                                :disabled="esOpcionGuardada || f_ingresos_mensuales == 0" />
+                                :disabled="esOpcionGuardada || modoSoloLectura || f_ingresos_mensuales == 0" />
                         </div>
                     </div>
                     <div class="pure-u-1 pure-u-md-1-7">
@@ -953,7 +954,7 @@
                                 <samp class="formula-pequena" v-if="!dentroRangoSubsidio">(Excede los 4 SMLV)</samp>
                             </span>
                             <select v-model="seleccionAnioEntrega" @change="calcularSubsidio" style="width: 100%;"
-                                :disabled="esOpcionGuardada || !subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
+                                :disabled="esOpcionGuardada || modoSoloLectura || !subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
                                 <option value="">Seleccione</option>
                                 <option v-for="anio in listaAniosEntrega" :key="anio" :value="anio">
                                     {{ anio }}
@@ -972,7 +973,7 @@
                         <div class="formInputStandard">
                             <span>Caja de compensación:</span>
                             <select v-model="caja_compensacion" style="width: 100%;"
-                                :disabled="esOpcionGuardada || !subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
+                                :disabled="esOpcionGuardada || modoSoloLectura || !subsidioActivo || pagoSeleccionado === 'contado' || !dentroRangoSubsidio">
                                 <option value="">Seleccione</option>
                                 <option v-for="caja in cajas_compensacion" :key="caja.id_caja" :value="caja.id_caja">
                                     {{ caja.caja }}
@@ -2318,7 +2319,7 @@
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
                     </div>
-                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="guardarBorrador" :disabled="guardandoBorrador">
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="guardarBorradorYCerrar" :disabled="guardandoBorrador">
                         <img src="../../img/ico/save.png" alt="Guardar Borrador">
                         <span>{{ guardandoBorrador ? 'Guardando...' : 'Guardar Borrador' }}</span>
                     </div>
