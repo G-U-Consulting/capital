@@ -65,6 +65,7 @@ create table fact_usuarios(
 	email varchar(200),
 	id_cargo int,
 	id_tipo_usuario int,
+	za1_id int, 
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,

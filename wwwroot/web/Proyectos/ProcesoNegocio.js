@@ -175,6 +175,7 @@ export default {
             seleccionAnioEntrega: "",
             valor_subsidio: 0,
             subsidio_vivienda: [],
+            asesor: {},
             ingresos_mensuales: 0,
 
             cuota_inicial: 0,
@@ -276,7 +277,7 @@ export default {
             noregistro: false,
             id_visita: null,
             nombre: '',
-            asesor: '',
+            nombre_asesor: '',
             proyecto: '',
             añoentrega: '',
             consecutivo: '',
@@ -290,6 +291,7 @@ export default {
             factorBanco: 0,
             valor_credito_final_base: 0,
             cuota_inicial_final_anterior: null,
+            davivienda: {},
 
             showBorradorModal: false,
             borradorData: null,
@@ -297,12 +299,14 @@ export default {
             modoSoloLectura: false,
             unidadesYaOpcionadas: false,
             showDaviviendaModal: false,
+            davForm: true,
+            davUrl: null,
         };
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
-        let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {});
+        let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {usuario: GlobalVariables.username});
         let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {id_proyecto: this.id_proyecto});
         this.categoria = resp.data[0];
         this.medio = resp.data[1];
@@ -319,6 +323,8 @@ export default {
         this.tipo_factor = resp.data[11];
         this.cajas_compensacion = resp.data[12];
         this.subsidio_vivienda = resp.data[13];
+        let usuario = resp.data[14];
+        if (usuario && usuario.length) this.asesor = usuario[0];
         this.campoObligatorio();
         window.addEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
         window.addEventListener('message', this.handleMessages);
@@ -1493,7 +1499,7 @@ export default {
             }
 
             if (index == 3) {
-                this.asesor = GlobalVariables.username;
+                this.nombre_asesor = this.asesor.nombres;
                 const id_unidad = this.unidades[0]?.id_unidad;
 
                 if (id_unidad && GlobalVariables.id_proyecto) {
@@ -3284,8 +3290,8 @@ export default {
         },
         clearDavivienda() {
             this.davivienda = {
-                propertyPrice: this.importeActiva || 0,
-                amount: parseInt(this.valor_credito_final.replace(',', '.')) || 0,
+                propertyPrice: Math.round(this.cleanNumber(this.importeActiva)) || 0,
+                amount: Math.round(this.cleanNumber(this.valor_credito_final)) || 0,
                 instalments: 1,
                 customerInformation: {
                     documentType: null,
@@ -3293,7 +3299,7 @@ export default {
                     names: null,
                     firstLastname: null,
                     secondLastName: null,
-                    monthlyIncome: 0,
+                    monthlyIncome: Math.round(this.cleanNumber(this.ingresos_mensuales)) || 0,
                     workActivity: null,
                     contractType: null,
                     birthdate: null,
@@ -3303,9 +3309,9 @@ export default {
                 },
                 builderInformation: {
                     deliveryDate: this.display_fecha_entrega.replaceAll('-', '/'),
-                    adviserId: "620",
+                    adviserId: this.asesor.za1_id,
                     projectId: GlobalVariables.proyecto.za1_id,
-                    email: "info@constructoracapital.com"
+                    email: this.asesor.email
                 }
             };
         },
@@ -3319,7 +3325,32 @@ export default {
             this.davivienda.customerInformation.mobileNumber = this.ObjCliente.telefono1 || this.ObjCliente.telefono2;
             this.davivienda.customerInformation.email = this.ObjCliente.email1 || this.ObjCliente.email2;
             let ciudad = GlobalVariables.proyecto.sede.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            let res = await httpFunc(`/davivienda/${ciudad}`, this.davivienda);
+            if (!this.davivienda.customerInformation.workActivity || 
+                (this.davivienda.customerInformation.workActivity == 'EMPLOYEE' && !this.davivienda.customerInformation.contractType))
+                showMessage("Debe ingresar actividad laboral y tipo de contrato en caso de EMPLEADO");
+            else {
+                try {
+                    let res = await fetch(`/davivienda/${ciudad}`, {
+                        method: 'POST',
+                        body: JSON.stringify(this.davivienda)
+                    });
+                    let headers = Object.fromEntries(res.headers), body = null;
+                    if (headers['content-type'] == "application/json") body = await res.json();
+                    else body = await res.text();
+                    if (res.status != 200) {
+                        console.error(`Error ${res.status}: `, body);
+                        showMessage(`Error ${res.status}`);
+                    }
+                    else {
+                        console.log(body);
+                        this.davForm = false;
+                    }
+                }
+                catch (e) {
+                    console.error(e);
+                    showMessage("Error: Lo sentimos, no se pudo establecer conexión con Davivienda.");
+                }
+            }
         }
     },
     computed: {

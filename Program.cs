@@ -440,7 +440,7 @@ app.Map("/davivienda/{ciudad}", async (HttpContext context, string ciudad) =>
         body = await stream.ReadToEndAsync();
     }
     Davivienda d = new(ciudad, rootPath, body);
-    IResult res = await d.RequestDavivienda();
-    return res;
+    await d.RequestDavivienda(context);
+    return Results.Empty;
 });
 app.Run();

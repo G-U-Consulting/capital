@@ -479,10 +479,10 @@ export default {
                     this.filtros[tabla] ? Object.keys(this.filtros[tabla]).every(key => {
                         if (tabla == 'trazabilidad' && key == 'created_on1')
                             return !this.filtros[tabla][key] ||
-                                (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() <= (new Date(item.created_on + ' 00:00').getTime());
+                                (new Date(this.filtros[tabla][key] + ' 23:59:59')).getTime() <= (new Date(item.created_on).getTime());
                         if (tabla == 'trazabilidad' && key == 'created_on2')
                             return !this.filtros[tabla][key] ||
-                                (new Date(this.filtros[tabla][key] + ' 00:00')).getTime() >= (new Date(item.created_on + ' 00:00').getTime());
+                                (new Date(this.filtros[tabla][key] + ' 23:59:59')).getTime() >= (new Date(item.created_on).getTime());
                         if (key.startsWith('id_') || key === 'created_by')
                             return !this.filtros[tabla][key] || String(item[key]) === this.filtros[tabla][key];
                         else return !this.filtros[tabla][key] || String(item[key]).toLowerCase().includes(this.filtros[tabla][key].toLowerCase());

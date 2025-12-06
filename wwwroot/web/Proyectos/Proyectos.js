@@ -93,13 +93,10 @@ export default {
             else this.setMainMode('ProcesoNegocio');
         },
         setSalaSesion() {
-            if (this.sala && this.sala.id_sala_venta) {
-                GlobalVariables.sala = this.sala;
-                let $modal = document.getElementById('modalOverlaySala');
-                $modal && ($modal.style.display = 'none');
-                this.setMainMode('ProcesoNegocio');
-            }
-            else showMessage('Seleccione una sala de ventas');
+            GlobalVariables.sala = this.sala;
+            let $modal = document.getElementById('modalOverlaySala');
+            $modal && ($modal.style.display = 'none');
+            this.setMainMode('ProcesoNegocio');
         },
 
         async setMainMode(mode, sel = false) {

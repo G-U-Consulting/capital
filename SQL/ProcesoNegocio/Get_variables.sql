@@ -2,6 +2,7 @@
 -- Proceso: ProcesoNegocio/Get_variables
 -- =============================================
 --START_PARAM
+set @usuario = 'prueba';
 --END_PARAM
 
 select id_categoria, categoria
@@ -57,3 +58,7 @@ where is_active = 1;
 select id_subsidio, smmlv, smmlv_0_2, smmlv_2_4, periodo
 from dim_subsidio_vis
 where is_active = 1;
+
+select id_usuario, usuario, nombres, identificacion, email, za1_id
+from fact_usuarios
+where usuario = @usuario collate utf8mb4_unicode_ci;

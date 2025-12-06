@@ -2060,7 +2060,7 @@
             </div>
             <div style="text-align: center; font-size: 14px; line-height: 1.4; margin-top: 2.5rem;">
                 <div style="border-top: 1px solid #000; width: 30%; margin: 0 auto 0.4rem;"></div>
-                <div>Asesor: <span style="font-weight: bold;">{{ asesor }}</span></div>
+                <div>Asesor: <span style="font-weight: bold;">{{ asesor.nombres }}</span></div>
                 <div>Fecha: <span style="font-weight: bold;">{{ f_cotizacion }}</span></div>
             </div>
         </div>
@@ -2373,10 +2373,10 @@
 </div>
 
 <div v-if="showDaviviendaModal" class="asunto-modal-overlay">
-    <div class="asunto-modal-box" style="max-width: 300px; padding: 1rem;">
+    <div class="asunto-modal-box" style="min-width: 300px; max-width: 75vw; width: min-content; padding: 1rem;">
         <span class="asunto-modal-close" @click="showDaviviendaModal = false;">×</span>
         <h3 style="margin-bottom: .5rem; color: #E1111C;">Crédito Davivienda</h3>
-        <div>
+        <div v-show="davForm" style="width: 280px;">
             <div class="formInputStandard">
                 <span>Actividad Laboral</span>
                 <select v-model="davivienda.customerInformation.workActivity"
@@ -2404,11 +2404,17 @@
             </div>
             <div class="formInputStandard">
                 <span>Número de cuotas</span>
-                <input type="text" @input="validarFormato($event); inRange($event, 1, 480)" v-model="f_instalments">
+                <input type="text" @input="validarFormato($event); inRange($event, 0, 480)" v-model="f_instalments">
+            </div>
+            <div class="formInputStandard" style="display: flex; width: 100%; justify-content: center;">
+                <button class="btn-davivienda" @click="requestDavivienda">Consultar</button>
             </div>
         </div>
-        <div class="formInputStandard" style="display: flex; width: 100%; justify-content: center;">
-            <button class="btn-davivienda" @click="requestDavivienda">Consultar</button>
+        <div v-show="!davForm">
+            <iframe :src="davUrl" frameborder="0" style="min-width: 300px; min-height: 200px;"></iframe>
+            <div class="formInputStandard" style="display: flex; width: 100%; justify-content: center;">
+                <button class="btn-davivienda" @click="davForm = true;">Volver</button>
+            </div>
         </div>
     </div>
 </div>

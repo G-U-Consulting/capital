@@ -210,20 +210,21 @@ public class Davivienda
         }
     }
 
-    public async Task<IResult> RequestDavivienda()
+    public async Task RequestDavivienda(HttpContext http)
     {
         try
         {
+            string data = "";
+            InfoRequest? info = JsonConvert.DeserializeObject<InfoRequest>(body) ?? throw new InvalidOperationException("Body JSON inválido");
+            info.customerInformation?.SetUtil(this);
+            info.builderInformation?.SetUtil(this);
+            data = JsonConvert.SerializeObject(info, Formatting.None);
+            
             string token = await GetAccess();
             if (string.IsNullOrEmpty(token))
                 throw new InvalidOperationException("No se pudo obtener token válido");
             Console.WriteLine(token);
             Console.WriteLine($"Current timestamp: {DateTimeOffset.Now.ToUnixTimeSeconds()}\nValid until: {tokens[ciudad]["validUntil"]}");
-            InfoRequest? info = JsonConvert.DeserializeObject<InfoRequest>(body) ?? throw new InvalidOperationException("Body JSON inválido");
-            info.customerInformation?.SetUtil(this);
-            info.builderInformation?.SetUtil(this);
-
-            string data = JsonConvert.SerializeObject(info, Formatting.None);
             var contentBytes = Encoding.UTF8.GetBytes(data);
             int contentLength = contentBytes.Length; // Longitud exacta en bytes
             Console.WriteLine(data);
@@ -252,18 +253,27 @@ public class Davivienda
 
             HttpResponseMessage response = await client.SendAsync(request);
             string content = await response.Content.ReadAsStringAsync();
-            string contentType = response.Content?.Headers?.ContentType?.ToString() ?? "application/json";
+            string contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
             int statusCode = (int)response.StatusCode;
+            
+            http.Response.StatusCode = (int)response.StatusCode;
+
+            foreach (var header in response.Headers)
+                http.Response.Headers[header.Key] = header.Value.ToArray();
+            foreach (var header in response.Content.Headers)
+                http.Response.Headers[header.Key] = header.Value.ToArray();
+
+            await response.Content.CopyToAsync(http.Response.Body);
 
             Console.WriteLine("Davivienda response: \n" + response);
             Console.WriteLine("Davivienda content: \n" + content);
-
-            return Results.Content(content, contentType, Encoding.UTF8, statusCode);
         }
         catch (Exception ex)
         {
+            http.Response.StatusCode = 500;
+            http.Response.Headers.ContentType = "application/json";
+            await http.Response.WriteAsync(JsonConvert.SerializeObject(new { isError = true, message = ex.Message }));
             Logger.Log("Inte.Davivienda.RequestDavivienda" + "   " + ciudad + " - " + ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
-            throw;
         }
     }
 

@@ -89,6 +89,19 @@ public partial class CustomerInformation
         }
     }
 
+    private string? _contractType;
+    public string? contractType
+    {
+        get => _contractType;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value) && _workActivity == "EMPLOYEE")
+                throw new ArgumentException("contractType es obligatorio para EMPLEADO.");
+            else if (string.IsNullOrWhiteSpace(value)) _contractType = null;
+            else _contractType = WebUt.SanitizeXss(value);
+        }
+    }
+
     private DateOnly? _birthdate;
     public string? birthdate
     {

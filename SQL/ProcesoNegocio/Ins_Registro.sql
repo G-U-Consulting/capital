@@ -21,7 +21,7 @@ set @id_cliente = '',
 --END_PARAM
 
 insert into fact_visitas (id_cliente, id_categoria_medio, id_medio, id_motivo_compra, id_referencia, otro_texto ,id_proyecto, descripcion, id_presupuesto_vivienda,id_tipo_tramite, created_by, id_sala_venta, id_modo_atencion, id_tipo_registro)
-    values (@id_cliente, @id_categoria, @id_medio, @id_motivo_compra, @id_referencia, @otro_texto, @id_proyecto, @descripcion, @id_presupuesto_vivienda,@id_tipo_tramite, @usuario, @id_sala_venta, @id_modo_atencion, @id_tipo_registro);
+    values (@id_cliente, @id_categoria, @id_medio, @id_motivo_compra, @id_referencia, @otro_texto, @id_proyecto, @descripcion, @id_presupuesto_vivienda,@id_tipo_tramite, @usuario, if(@id_sala_venta = '', null, @id_sala_venta), @id_modo_atencion, @id_tipo_registro);
 set @id_visita = last_insert_id();
 /*     
     set @datos = @tipo_registro;
