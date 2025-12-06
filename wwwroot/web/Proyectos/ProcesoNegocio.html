@@ -1115,6 +1115,47 @@
                                                     </ul>
                                                 </div>
 
+                                                <div class="card-detalle" v-if="excedentePagoCuotaInicial > 0">
+                                                    <div class="card-header">
+                                                        <h3 style="color: black;">AJUSTE POR EXCEDENTE EN CUOTA INICIAL</h3>
+                                                    </div>
+                                                    <ul>
+                                                        <li>
+                                                            <div>
+                                                                Importe Financiación Base:
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge">{{formatoMoneda(valor_credito_final_base)}}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                Excedente Pagado en Cuota Inicial:
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge" style="color: #27ae60; font-weight: bold;">{{formatoMoneda(excedentePagoCuotaInicial)}}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li style="border-top: 2px solid #27ae60; padding-top: 0.5rem; margin-top: 0.5rem;">
+                                                            <div>
+                                                                <strong>Importe Financiación Ajustado:</strong>
+                                                            </div>
+                                                            <div>
+                                                                <span class="valor-badge" style="color: #2980b9; font-weight: bold;">{{formatoMoneda(importeFinanciacionAjustado)}}</span>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <div>
+                                                                 <strong>(Nota):</strong>
+
+                                                                <div class="formula-pequena">
+                                                                    El cliente pagó más de lo requerido en la cuota inicial. Este excedente se aplica para reducir el importe de financiación, resultando en un menor monto a financiar.
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+
                                                 <div class="card-detalle">
                                                     <div class="card-header">
                                                         <h3>IMPORTE PERMISIBLE POR INGRESOS DE LA UNIDAD FAMILIAR (UF)</h3>

@@ -3371,6 +3371,19 @@ export default {
         unidadesNoDisponibles() {
             return this.unidades && this.unidades.some(u => u.id_estado_unidad === 2);
         },
+        excedentePagoCuotaInicial() {
+            if (!this.tablaPeriodos || this.tablaPeriodos.length === 0) return 0;
+            for (let i = 0; i < this.tablaPeriodos.length; i++) {
+                const fila = this.tablaPeriodos[i];
+                if (fila.saldo_final < 0) {
+                    return Math.abs(fila.saldo_final);
+                }
+            }
+            return 0;
+        },
+        importeFinanciacionAjustado() {
+            return this.valor_credito_final_base - this.excedentePagoCuotaInicial;
+        },
 
         display_fecha_entrega: {
             get() {
