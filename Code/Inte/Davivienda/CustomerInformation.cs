@@ -77,6 +77,7 @@ public partial class CustomerInformation
         }
     }
 
+    private static readonly string[] AllowedActivities = ["EMPLOYEE", "INDEPENDIENT", "PENSIONED"];
     private string? _workActivity;
     public string? workActivity
     {
@@ -85,10 +86,13 @@ public partial class CustomerInformation
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("workActivity es obligatorio.");
+            if (!AllowedActivities.Contains(value))
+                throw new ArgumentException($"workActivity no permitido. Valores válidos: {string.Join(", ", AllowedActivities)}");
             _workActivity = WebUt.SanitizeXss(value);
         }
     }
 
+    private static readonly string[] AllowedContracts = ["PERMANENT", "INDEFINED", "SERVICE PROVISION"];
     private string? _contractType;
     public string? contractType
     {
@@ -97,6 +101,8 @@ public partial class CustomerInformation
         {
             if (string.IsNullOrWhiteSpace(value) && _workActivity == "EMPLOYEE")
                 throw new ArgumentException("contractType es obligatorio para EMPLEADO.");
+            else if (_workActivity == "EMPLOYEE" && !AllowedContracts.Contains(value))
+                throw new ArgumentException($"contractType no permitido. Valores válidos: {string.Join(", ", AllowedContracts)}");
             else if (string.IsNullOrWhiteSpace(value)) _contractType = null;
             else _contractType = WebUt.SanitizeXss(value);
         }
