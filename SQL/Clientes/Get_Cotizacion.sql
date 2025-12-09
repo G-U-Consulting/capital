@@ -2,7 +2,7 @@
 -- Proceso: Clientes/Get_Cotizacion
 -- =============================================
 --START_PARAM
-set @id_cotizacion = 405;
+set @id_cotizacion = 537;
 --END_PARAM
 
 select co.cotizacion, co.descripcion, cl.tipo_documento, cl.numero_documento, p.nombre as proyecto,

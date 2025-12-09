@@ -16,6 +16,7 @@ export default {
             aptos: [],
             selectedApto: {},
             infoCotizacion: {},
+            infoOpcion: {},
 
             filMode: 'week',
             filIdSala: '',
@@ -99,7 +100,9 @@ export default {
             this.modalMode = mode;
             if (id_obj) this.selIdObj = id_obj;
             if (mode == 'Cotización')
-                await this.loadAptos();
+                await this.loadCotizacion();
+            if (mode == 'Opción')
+                await this.loadOpcion();
             let $modal = document.getElementById('modalOverlay');
             $modal && ($modal.style.display = 'flex');
             $modal && (this.modal = $modal);
@@ -385,7 +388,7 @@ export default {
 			this.showModal = false
 			this.modalImage = null
 		},
-        async loadAptos() {
+        async loadCotizacion() {
             showProgress();
             if (this.modalMode == 'Cotización') {
                 let cotizacion = [];
@@ -394,6 +397,14 @@ export default {
                 this.infoCotizacion = cotizacion[0] || {};
                 if (this.aptos[0]) await this.selectApto(this.aptos[0]);
                 this.activeTab = 'detalle';
+            }
+            hideProgress();
+        },
+        async loadOpcion() {
+            showProgress();
+            if (this.modalMode == 'Opción') {
+                let opcion = (await httpFunc("/generic/genericDT/Clientes:Get_Opcion", {id_opcion: this.selIdObj})).data;
+                this.infoOpcion = opcion[0] || {};
             }
             hideProgress();
         },

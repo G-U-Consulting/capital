@@ -2365,11 +2365,16 @@
 
             <div v-if="mode == 3"
                 style="display: flex; align-items: center; justify-content: space-between; width: 90%; gap: 1rem">
-                <div style="flex: 1;"></div>
+                <!-- <div style="flex: 1;"></div> -->
                 <div style="flex: 1; display: flex; justify-content: flex-end; gap: 2rem; text-align: center;">
-                    <div class="boton-accion" @click="showDaviviendaModal = true; clearDavivienda()">
+                    <div class="boton-accion" @click="showDaviviendaModal = true; clearDavivienda()" style="margin-right: auto;">
                         <img src="../../img/ico/davivienda.png" alt="Imprimir">
-                        <span>Crédito Preaprobado</span>
+                        <span>Preabrobar Crédito</span>
+                    </div>
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="guardarBorradorYCerrar" 
+                        :disabled="guardandoBorrador">
+                        <img src="../../img/ico/save.png" alt="Guardar Borrador">
+                        <span>{{ guardandoBorrador ? 'Guardando...' : 'Guardar Borrador' }}</span>
                     </div>
                     <div class="boton-accion" @click="guardarYGenerarPDF">
                         <img src="../../img/ico/printer.png" alt="Imprimir">
@@ -2378,10 +2383,6 @@
                     <div class="boton-accion">
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
-                    </div>
-                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="guardarBorradorYCerrar" :disabled="guardandoBorrador">
-                        <img src="../../img/ico/save.png" alt="Guardar Borrador">
-                        <span>{{ guardandoBorrador ? 'Guardando...' : 'Guardar Borrador' }}</span>
                     </div>
                     <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="enviarYOpcionar">
                         <img src="../../img/ico/achievement.png" alt="Opcionar">
