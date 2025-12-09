@@ -1253,6 +1253,17 @@ export default {
                 }
 
                 this.$nextTick(() => {
+                    this.calcularMesesMaximos();
+                    this.calcularEscrituras();
+                    if (this.ingresos_mensuales) {
+                        this.onInputIngresos();
+                    }
+                    if (this.tipoFinanciacionSeleccionada) {
+                        this.calcularFinanciacion();
+                    }
+                    if (this.seleccionAnioEntrega) {
+                        this.calcularSubsidio();
+                    }
                     this.$forceUpdate();
                 });
 
@@ -2523,7 +2534,8 @@ export default {
                 meses = this.meses;
             }
 
-            this.d_meses = meses;   
+            this.meses_max = meses;
+            this.d_meses = meses;
         },
         validarMeses(value) {
             const num = Number(value);
@@ -3351,6 +3363,121 @@ export default {
                     showMessage("Error: Lo sentimos, no se pudo establecer conexión con Davivienda.");
                 }
             }
+        },
+        async exportExcelAmortizacion() {
+            try {
+                showProgress();
+
+                if (typeof XLSX === 'undefined') {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = '../../js/lib/xlsx.full.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
+                const toNumber = (value) => {
+                    if (value === null || value === undefined || value === '') return 0;
+                    if (typeof value === 'number') return value;
+                    let str = value.toString().replace(/[^0-9.-]/g, '');
+                    let num = parseFloat(str);
+                    return isNaN(num) ? 0 : num;
+                };
+
+                const wb = XLSX.utils.book_new();
+                const ws_data = [];
+
+                ws_data.push(['TABLA DE AMORTIZACIÓN', '', '', '', '', '']);
+                ws_data.push(['Proyecto:', GlobalVariables.proyecto.nombre || '', '', '', '', '']);
+                ws_data.push(['Cotización:', this.cotizacion || 'N/A', '', '', '', '']);
+                ws_data.push(['Fecha Escrituración:', this.d_fecha_pe || '', '', '', '', '']);
+                ws_data.push(['', '', '', '', '', '']);
+
+                ws_data.push(['Separación', '', '', '', '', toNumber(this.valor_separacion)]);
+                ws_data.push(['Gastos Escritura', '', '', '', '', toNumber(this.valor_escrituras)]);
+
+                ws_data.push(['Periodo', 'Fecha', 'Saldo Inicial', 'Cuota Deseada', 'Cuota Calculada', 'Saldo Final']);
+
+                const filaInicioDatos = 9;
+
+                this.tablaPeriodos.forEach((fila, index) => {
+                    const cuotaDeseada = toNumber(fila.cuota_deseada);
+
+                    const row = [
+                        toNumber(fila.periodo),                   
+                        String(fila.fecha || ''),                  
+                        null,                                      
+                        cuotaDeseada > 0 ? cuotaDeseada : '',
+                        null,
+                        null
+                    ];
+
+                    ws_data.push(row);
+                });
+
+                ws_data.push(['', '', '', '', '', '']);
+                ws_data.push(['Importe Financiación', '', '', '', '', toNumber(this.valor_credito_final)]);
+
+                if (this.valor_subsidio && toNumber(this.valor_subsidio) > 0) {
+                    ws_data.push(['Subsidio No.1', '', '', '', '', toNumber(this.valor_subsidio)]);
+                }
+
+                const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                this.tablaPeriodos.forEach((fila, index) => {
+                    const filaExcel = filaInicioDatos + index;
+                    const periodosRestantes = this.tablaPeriodos.length - index;
+
+                    if (index === 0) {
+                        ws[`C${filaExcel}`] = { t: 'n', v: toNumber(this.cuota_inicial_final) };
+                    } else {
+                        ws[`C${filaExcel}`] = { t: 'n', f: `F${filaExcel - 1}` };
+                    }
+
+                    ws[`E${filaExcel}`] = { t: 'n', f: `IF(D${filaExcel}<>"",D${filaExcel},IF(C${filaExcel}<=0,0,ROUND(C${filaExcel}/${periodosRestantes},0)))` };
+
+                    ws[`F${filaExcel}`] = { t: 'n', f: `C${filaExcel}-E${filaExcel}` };
+                });
+
+                ws['!cols'] = [
+                    { wch: 10 },  
+                    { wch: 12 },  
+                    { wch: 18 },  
+                    { wch: 18 },  
+                    { wch: 18 }, 
+                    { wch: 18 }
+                ];
+
+                XLSX.utils.book_append_sheet(wb, ws, 'Tabla Amortización');
+
+
+                const nombreArchivo = `tabla_amortizacion_${String(this.cotizacion || 'sin_cotizacion').replace(/[^a-zA-Z0-9]/g, '_')}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}.xlsx`;
+
+                XLSX.writeFile(wb, nombreArchivo);
+
+                showMessage('Tabla de amortización exportada exitosamente con fórmulas');
+
+            } catch (e) {
+                console.error('Error completo al exportar:', e);
+                console.error('Tipo de error:', typeof e);
+                console.error('Propiedades del error:', Object.keys(e));
+
+                let mensajeError = 'Error desconocido';
+                if (e.errorMessage) {
+                    mensajeError = e.errorMessage;
+                } else if (e.message) {
+                    mensajeError = e.message;
+                } else if (e.error) {
+                    mensajeError = JSON.stringify(e.error);
+                } else {
+                    mensajeError = JSON.stringify(e);
+                }
+
+                showMessage('Error al exportar: ' + mensajeError);
+            }
+            hideProgress();
         }
     },
     computed: {
