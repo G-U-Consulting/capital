@@ -1505,7 +1505,12 @@
                 <div v-if="tablaAmortizacion" class="tabla-modal-overlay">
                     <div class="tabla-modal-box">
                         <span class="asunto-modal-close" @click="tablaAmortizacion = false">×</span>
-                        <h3>Tabla Amortización</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="margin: 0;">Tabla Amortización</h3>
+                            <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                                @click="exportExcelAmortizacion" title="Descargar tabla a Excel con fórmulas"
+                                style="cursor: pointer; width: 40px; height: 40px;" />
+                        </div>
 
                         <div class="tabla-scroll-content">
                             <table class="dataTable">

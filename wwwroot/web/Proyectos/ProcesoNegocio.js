@@ -3351,6 +3351,69 @@ export default {
                     showMessage("Error: Lo sentimos, no se pudo establecer conexión con Davivienda.");
                 }
             }
+        },
+        async exportExcelAmortizacion() {
+            try {
+                showProgress();
+
+                // Función helper para convertir valores a números limpiamente
+                const toNumber = (value) => {
+                    if (value === null || value === undefined || value === '') return 0;
+                    if (typeof value === 'number') return value;
+                    let str = value.toString().replace(/[^0-9.-]/g, '');
+                    let num = parseFloat(str);
+                    return isNaN(num) ? 0 : num;
+                };
+
+                // Preparar datos de la tabla de amortización con VALORES calculados
+                // Las fórmulas las manejará el ExcelFormater o se agregarán manualmente
+                let datos = [];
+
+                this.tablaPeriodos.forEach((fila) => {
+                    // Cuota Calculada: si el usuario digitó una cuota deseada, se pone ese valor
+                    // Si no digitó, ponemos el valor calculado del sistema
+                    const cuotaDeseada = toNumber(fila.cuota_deseada);
+                    const cuotaCalculada = cuotaDeseada > 0 ? cuotaDeseada : toNumber(fila.cuota_calculada);
+
+                    // Saldo Inicial
+                    const saldoInicial = toNumber(fila.saldo_inicial);
+
+                    // Principal es igual a la cuota
+                    const principal = cuotaCalculada;
+
+                    // Saldo Final
+                    const saldoFinal = saldoInicial - principal;
+
+                    datos.push({
+                        'Periodo': toNumber(fila.periodo),
+                        'Fecha': String(fila.fecha || ''),
+                        'Saldo Inicial': saldoInicial,
+                        'Cuota Calculada': cuotaCalculada,
+                        'Principal': principal,
+                        'Saldo Final': saldoFinal
+                    });
+                });
+
+                const nombreArchivo = `tabla_amortizacion_${String(this.cotizacion || 'sin_cotizacion').replace(/[^a-zA-Z0-9]/g, '_')}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`;
+
+                var archivo = (await httpFunc(`/util/Json2File/excel/${nombreArchivo}`, datos)).data;
+
+                try {
+                    var formato = (await httpFunc("/util/ExcelFormater", {
+                        "file": archivo,
+                        "format": "FormatoAmortizacion"
+                    })).data;
+                } catch (e) {
+                    console.log('Formato no disponible, descargando sin formato:', e);
+                }
+
+                window.open("./docs/" + archivo, "_blank");
+
+            } catch (e) {
+                console.error('Error completo al exportar:', e);
+                showMessage('Error al exportar: ' + (e.errorMessage || e.message || JSON.stringify(e)));
+            }
+            hideProgress();
         }
     },
     computed: {
