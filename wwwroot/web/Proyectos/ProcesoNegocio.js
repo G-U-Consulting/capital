@@ -838,7 +838,7 @@ export default {
                             resolve();
                         },
                         null,
-                        'Guardar',
+                        'Guardar Borrador',
                         'Salir sin guardar'
                     );
                 });
@@ -1248,9 +1248,9 @@ export default {
                 this.d_fecha_ulti_cuota = opcion.fecha_ultima_cuota || null;
                 this.d_fecha_escrituracion = opcion.fecha_escrituracion || null;
 
-                if (opcion.tablaPeriodos && opcion.tablaPeriodos.length > 0) {
-                    this.cargarTablaAmortizacion(opcion.tablaPeriodos);
-                }
+                // if (opcion.tablaPeriodos && opcion.tablaPeriodos.length > 0) {
+                //     this.cargarTablaAmortizacion(opcion.tablaPeriodos);
+                // }
 
                 this.$nextTick(() => {
                     this.calcularMesesMaximos();
@@ -3368,12 +3368,22 @@ export default {
             try {
                 showProgress();
 
-                if (typeof XLSX === 'undefined') {
+                if (typeof ExcelJS === 'undefined') {
                     await new Promise((resolve, reject) => {
                         const script = document.createElement('script');
-                        script.src = '../../js/lib/xlsx.full.min.js';
-                        script.onload = resolve;
-                        script.onerror = reject;
+                        script.src = '../../js/lib/exceljs.min.js';
+                        script.onload = () => {
+                            setTimeout(() => {
+                                if (typeof ExcelJS !== 'undefined') {
+                                    resolve();
+                                } else {
+                                    reject(new Error('ExcelJS no se cargó correctamente'));
+                                }
+                            }, 100);
+                        };
+                        script.onerror = (error) => {
+                            reject(new Error('Error al cargar ExcelJS: ' + error.message));
+                        };
                         document.head.appendChild(script);
                     });
                 }
@@ -3386,76 +3396,220 @@ export default {
                     return isNaN(num) ? 0 : num;
                 };
 
-                const wb = XLSX.utils.book_new();
-                const ws_data = [];
-
-                ws_data.push(['TABLA DE AMORTIZACIÓN', '', '', '', '', '']);
-                ws_data.push(['Proyecto:', GlobalVariables.proyecto.nombre || '', '', '', '', '']);
-                ws_data.push(['Cotización:', this.cotizacion || 'N/A', '', '', '', '']);
-                ws_data.push(['Fecha Escrituración:', this.d_fecha_pe || '', '', '', '', '']);
-                ws_data.push(['', '', '', '', '', '']);
-
-                ws_data.push(['Separación', '', '', '', '', toNumber(this.valor_separacion)]);
-                ws_data.push(['Gastos Escritura', '', '', '', '', toNumber(this.valor_escrituras)]);
-
-                ws_data.push(['Periodo', 'Fecha', 'Saldo Inicial', 'Cuota Deseada', 'Cuota Calculada', 'Saldo Final']);
-
-                const filaInicioDatos = 9;
-
-                this.tablaPeriodos.forEach((fila, index) => {
-                    const cuotaDeseada = toNumber(fila.cuota_deseada);
-
-                    const row = [
-                        toNumber(fila.periodo),                   
-                        String(fila.fecha || ''),                  
-                        null,                                      
-                        cuotaDeseada > 0 ? cuotaDeseada : '',
-                        null,
-                        null
-                    ];
-
-                    ws_data.push(row);
-                });
-
-                ws_data.push(['', '', '', '', '', '']);
-                ws_data.push(['Importe Financiación', '', '', '', '', toNumber(this.valor_credito_final)]);
-
-                if (this.valor_subsidio && toNumber(this.valor_subsidio) > 0) {
-                    ws_data.push(['Subsidio No.1', '', '', '', '', toNumber(this.valor_subsidio)]);
+                // Verificar que ExcelJS esté disponible
+                if (typeof ExcelJS === 'undefined') {
+                    throw new Error('ExcelJS no está disponible');
                 }
 
-                const ws = XLSX.utils.aoa_to_sheet(ws_data);
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Tabla Amortización');
 
-                this.tablaPeriodos.forEach((fila, index) => {
-                    const filaExcel = filaInicioDatos + index;
-                    const periodosRestantes = this.tablaPeriodos.length - index;
-
-                    if (index === 0) {
-                        ws[`C${filaExcel}`] = { t: 'n', v: toNumber(this.cuota_inicial_final) };
-                    } else {
-                        ws[`C${filaExcel}`] = { t: 'n', f: `F${filaExcel - 1}` };
-                    }
-
-                    ws[`E${filaExcel}`] = { t: 'n', f: `IF(D${filaExcel}<>"",D${filaExcel},IF(C${filaExcel}<=0,0,ROUND(C${filaExcel}/${periodosRestantes},0)))` };
-
-                    ws[`F${filaExcel}`] = { t: 'n', f: `C${filaExcel}-E${filaExcel}` };
-                });
-
-                ws['!cols'] = [
-                    { wch: 10 },  
-                    { wch: 12 },  
-                    { wch: 18 },  
-                    { wch: 18 },  
-                    { wch: 18 }, 
-                    { wch: 18 }
+                worksheet.columns = [
+                    { width: 15 },
+                    { width: 15 },
+                    { width: 20 },
+                    { width: 18 },
+                    { width: 20 },
+                    { width: 20 }
                 ];
 
-                XLSX.utils.book_append_sheet(wb, ws, 'Tabla Amortización');
+                const borderThin = {
+                    top: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+                    left: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+                    bottom: { style: 'thin', color: { argb: 'FFD0D0D0' } },
+                    right: { style: 'thin', color: { argb: 'FFD0D0D0' } }
+                };
 
+                let currentRow = 1;
+
+                worksheet.mergeCells('A1:F1');
+                const titleCell = worksheet.getCell('A1');
+                titleCell.value = 'TABLA DE AMORTIZACIÓN';
+                titleCell.font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } };
+                titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF009AB9' } };
+                titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                titleCell.border = borderThin;
+                currentRow++;
+
+                let unidadesTexto = '';
+                if (this.unidades && this.unidades.length > 0) {
+                    unidadesTexto = this.unidades
+                        .map(u => `Torre ${u.consecutivo || ''} Apto ${u.numero_apartamento || ''}`)
+                        .join(' || ');
+                }
+
+                const infoRows = [
+                    ['Proyecto:', GlobalVariables.proyecto.nombre || ''],
+                    ['Unidad:', unidadesTexto || 'N/A'],
+                    ['Fecha Escrituración:', this.d_fecha_pe || '']
+                ];
+
+                infoRows.forEach(([label, value]) => {
+                    const row = worksheet.getRow(currentRow);
+                    row.getCell(1).value = label;
+                    row.getCell(1).font = { bold: true, size: 11 };
+                    row.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
+                    row.getCell(1).border = borderThin;
+
+                    row.getCell(2).value = value;
+                    row.getCell(2).alignment = { horizontal: 'left', vertical: 'middle' };
+                    row.getCell(2).border = borderThin;
+                    currentRow++;
+                });
+
+                currentRow++;
+
+                const sepRow = worksheet.getRow(currentRow);
+                sepRow.getCell(1).value = 'Separación';
+                sepRow.getCell(1).font = { bold: true, size: 11, color: { argb: 'FFF57C00' } };
+                sepRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
+                sepRow.getCell(1).border = borderThin;
+
+                sepRow.getCell(6).value = toNumber(this.valor_separacion);
+                sepRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                sepRow.getCell(6).font = { bold: true, color: { argb: 'FFF57C00' } };
+                sepRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } };
+                sepRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
+                sepRow.getCell(6).border = borderThin;
+                currentRow++;
+
+                const gastosRow = worksheet.getRow(currentRow);
+                gastosRow.getCell(1).value = 'Gastos Escritura';
+                gastosRow.getCell(1).font = { bold: true, size: 11, color: { argb: 'FFE64A19' } };
+                gastosRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
+                gastosRow.getCell(1).border = borderThin;
+
+                gastosRow.getCell(6).value = toNumber(this.valor_escrituras);
+                gastosRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                gastosRow.getCell(6).font = { bold: true, color: { argb: 'FFE64A19' } };
+                gastosRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } };
+                gastosRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
+                gastosRow.getCell(6).border = borderThin;
+                currentRow++;
+             
+                const headerRow = worksheet.getRow(currentRow);
+                const headers = ['Periodo', 'Fecha', 'Saldo Inicial', 'Cuota Deseada', 'Cuota Calculada', 'Saldo Final'];
+                headers.forEach((header, index) => {
+                    const cell = headerRow.getCell(index + 1);
+                    cell.value = header;
+                    cell.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF009AB9' } };
+                    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                    cell.border = borderThin;
+                });
+                currentRow++;
+
+                let ultimaFilaPeriodo = currentRow;
+                this.tablaPeriodos.forEach((fila, index) => {
+                    const dataRow = worksheet.getRow(currentRow);
+                    const isEvenRow = index % 2 === 0;
+                    const fillColor = isEvenRow ? 'FFF5F5F5' : 'FFFFFFFF';
+                    const periodosRestantes = this.tablaPeriodos.length - index;
+                    const cuotaDeseada = toNumber(fila.cuota_deseada);
+              
+                    dataRow.getCell(1).value = fila.periodo;
+                    dataRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
+                    dataRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+                    dataRow.getCell(1).border = borderThin;
+
+                    dataRow.getCell(2).value = String(fila.fecha || '');
+                    dataRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+                    dataRow.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+                    dataRow.getCell(2).border = borderThin;
+
+                    if (index === 0) {
+                        dataRow.getCell(3).value = toNumber(this.cuota_inicial_final);
+                    } else {
+                        dataRow.getCell(3).value = { formula: `F${currentRow - 1}` };
+                    }
+                    dataRow.getCell(3).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                    dataRow.getCell(3).alignment = { horizontal: 'right', vertical: 'middle' };
+                    dataRow.getCell(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+                    dataRow.getCell(3).border = borderThin;
+   
+                    if (cuotaDeseada > 0) {
+                        dataRow.getCell(4).value = cuotaDeseada;
+                    }
+                    dataRow.getCell(4).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                    dataRow.getCell(4).alignment = { horizontal: 'right', vertical: 'middle' };
+                    dataRow.getCell(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+                    dataRow.getCell(4).border = borderThin;
+
+                    dataRow.getCell(5).value = { formula: `IF(D${currentRow}<>"",D${currentRow},IF(C${currentRow}<=0,0,ROUND(C${currentRow}/${periodosRestantes},0)))` };
+                    dataRow.getCell(5).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                    dataRow.getCell(5).alignment = { horizontal: 'right', vertical: 'middle' };
+                    dataRow.getCell(5).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+                    dataRow.getCell(5).border = borderThin;
+
+                    dataRow.getCell(6).value = { formula: `C${currentRow}-E${currentRow}` };
+                    dataRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                    dataRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
+                    dataRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+                    dataRow.getCell(6).border = borderThin;
+
+                    ultimaFilaPeriodo = currentRow;
+
+                    currentRow++;
+                });
+
+                const primeraFilaPeriodo = ultimaFilaPeriodo - this.tablaPeriodos.length + 1;
+                worksheet.addConditionalFormatting({
+                    ref: `F${primeraFilaPeriodo}:F${ultimaFilaPeriodo}`,
+                    rules: [
+                        {
+                            type: 'cellIs',
+                            operator: 'lessThan',
+                            formulae: [0],
+                            style: {
+                                font: { color: { argb: 'FFFF0000' }, bold: true }
+                            }
+                        }
+                    ]
+                });
+
+                currentRow++;
+
+                const importeRow = worksheet.getRow(currentRow);
+                importeRow.getCell(1).value = 'Importe Financiación';
+                importeRow.getCell(1).font = { bold: true, size: 11, color: { argb: 'FF0277BD' } };
+                importeRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
+                importeRow.getCell(1).border = borderThin;
+
+                importeRow.getCell(6).value = {
+                    formula: `${toNumber(this.valor_credito_final)}+IF(F${ultimaFilaPeriodo}<0,F${ultimaFilaPeriodo},0)`
+                };
+                importeRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                importeRow.getCell(6).font = { bold: true, color: { argb: 'FF0277BD' } };
+                importeRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE1F5FE' } };
+                importeRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
+                importeRow.getCell(6).border = borderThin;
+                currentRow++;
+
+                if (this.valor_subsidio && toNumber(this.valor_subsidio) > 0) {
+                    const subsidioRow = worksheet.getRow(currentRow);
+                    subsidioRow.getCell(1).value = 'Subsidio No.1';
+                    subsidioRow.getCell(1).font = { bold: true, size: 11, color: { argb: 'FF388E3C' } };
+                    subsidioRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
+                    subsidioRow.getCell(1).border = borderThin;
+
+                    subsidioRow.getCell(6).value = toNumber(this.valor_subsidio);
+                    subsidioRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                    subsidioRow.getCell(6).font = { bold: true, color: { argb: 'FF388E3C' } };
+                    subsidioRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F5E9' } };
+                    subsidioRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
+                    subsidioRow.getCell(6).border = borderThin;
+                }
 
                 const nombreArchivo = `tabla_amortizacion_${String(this.cotizacion || 'sin_cotizacion').replace(/[^a-zA-Z0-9]/g, '_')}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}.xlsx`;
 
-                XLSX.writeFile(wb, nombreArchivo);
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = nombreArchivo;
+                link.click();
+                window.URL.revokeObjectURL(url);
 
                 showMessage('Tabla de amortización exportada exitosamente con fórmulas');
 

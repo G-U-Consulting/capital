@@ -1158,7 +1158,7 @@
 
                                                 <div class="card-detalle">
                                                     <div class="card-header">
-                                                        <h3>IMPORTE PERMISIBLE POR INGRESOS DE LA UNIDAD FAMILIAR (UF)</h3>
+                                                        <h3>IMPORTE PERMISIBLE POR INGRESOS DE LA UNIDAD FAMILIAR</h3>
                                                     </div>
                                                     <ul>
                                                         <li>
@@ -2401,13 +2401,18 @@
 </div>
 
 <div v-if="showBorradorModal" class="asunto-modal-overlay">
-    <div class="asunto-modal-box" style="max-width: 500px;">
+    <div class="asunto-modal-box" style="max-width: 700px;">
         <span class="asunto-modal-close" @click="rechazarBorrador">×</span>
-        <h3>Borrador Encontrado</h3>
+        <h3>Borrador Guardado</h3>
         <p style="margin: 0 0 1em 0; line-height: 1.6; text-align: center;">
-            Se encontró un borrador guardado el
-            <strong>{{ borradorData?.fecha_formato }}</strong>
-        </p>
+            Guardado el <strong>{{ borradorData?.fecha_formato }}</strong>
+        </p
+        <div style="margin: 0 0 1.5em 0; padding: 1em; background-color: #fff3cd; border-radius: 6px; text-align: center;">
+            <div style="font-size: 1.1rem; font-weight: 600; color: #856404;">
+                {{ textoCotizacion || borradorData?.textoCotizacion || borradorData?.texto_cotizacion || 'No hay unidades cotizadas en este borrador' }}
+            </div>
+        </div>
+
         <p style="margin: 0 0 1.5em 0; color: #666; text-align: center;">
             ¿Deseas continuar editando este borrador o descartarlo y empezar de nuevo?
         </p>
