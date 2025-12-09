@@ -1503,13 +1503,18 @@
             </div>
             <div class="pure-u-1 pure-u-md-1-1">
                 <div v-if="tablaAmortizacion" class="tabla-modal-overlay">
-                    <div class="tabla-modal-box">
-                        <span class="asunto-modal-close" @click="tablaAmortizacion = false">×</span>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3 style="margin: 0;">Tabla Amortización</h3>
-                            <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
-                                @click="exportExcelAmortizacion" title="Descargar tabla a Excel con fórmulas"
-                                style="cursor: pointer; width: 40px; height: 40px;" />
+                    <div class="tabla-modal-box" style="position: relative;">
+                        <div style="position: sticky; top: 0; background: #fff; z-index: 10; border-bottom: 1px solid #eee; padding: 1em 1.5em;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="margin: 0; padding: 0; text-align: left; font-size: 1.4em;">Tabla Amortización</h3>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                                        @click="exportExcelAmortizacion" title="Descargar tabla a Excel con fórmulas"
+                                        style="cursor: pointer; width: 35px; height: 35px;" />
+                                    <span @click="tablaAmortizacion = false"
+                                        style="font-size: 2em; font-weight: bold; color: #999; cursor: pointer; line-height: 1; margin: 0; padding: 0;">×</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="tabla-scroll-content">

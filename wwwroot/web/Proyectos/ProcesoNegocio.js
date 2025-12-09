@@ -1253,6 +1253,17 @@ export default {
                 }
 
                 this.$nextTick(() => {
+                    this.calcularMesesMaximos();
+                    this.calcularEscrituras();
+                    if (this.ingresos_mensuales) {
+                        this.onInputIngresos();
+                    }
+                    if (this.tipoFinanciacionSeleccionada) {
+                        this.calcularFinanciacion();
+                    }
+                    if (this.seleccionAnioEntrega) {
+                        this.calcularSubsidio();
+                    }
                     this.$forceUpdate();
                 });
 
@@ -2523,7 +2534,8 @@ export default {
                 meses = this.meses;
             }
 
-            this.d_meses = meses;   
+            this.meses_max = meses;
+            this.d_meses = meses;
         },
         validarMeses(value) {
             const num = Number(value);
@@ -3356,7 +3368,16 @@ export default {
             try {
                 showProgress();
 
-                // Función helper para convertir valores a números limpiamente
+                if (typeof XLSX === 'undefined') {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = '../../js/lib/xlsx.full.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
                 const toNumber = (value) => {
                     if (value === null || value === undefined || value === '') return 0;
                     if (typeof value === 'number') return value;
@@ -3365,53 +3386,96 @@ export default {
                     return isNaN(num) ? 0 : num;
                 };
 
-                // Preparar datos de la tabla de amortización con VALORES calculados
-                // Las fórmulas las manejará el ExcelFormater o se agregarán manualmente
-                let datos = [];
+                const wb = XLSX.utils.book_new();
+                const ws_data = [];
 
-                this.tablaPeriodos.forEach((fila) => {
-                    // Cuota Calculada: si el usuario digitó una cuota deseada, se pone ese valor
-                    // Si no digitó, ponemos el valor calculado del sistema
+                ws_data.push(['TABLA DE AMORTIZACIÓN', '', '', '', '', '']);
+                ws_data.push(['Proyecto:', GlobalVariables.proyecto.nombre || '', '', '', '', '']);
+                ws_data.push(['Cotización:', this.cotizacion || 'N/A', '', '', '', '']);
+                ws_data.push(['Fecha Escrituración:', this.d_fecha_pe || '', '', '', '', '']);
+                ws_data.push(['', '', '', '', '', '']);
+
+                ws_data.push(['Separación', '', '', '', '', toNumber(this.valor_separacion)]);
+                ws_data.push(['Gastos Escritura', '', '', '', '', toNumber(this.valor_escrituras)]);
+
+                ws_data.push(['Periodo', 'Fecha', 'Saldo Inicial', 'Cuota Deseada', 'Cuota Calculada', 'Saldo Final']);
+
+                const filaInicioDatos = 9;
+
+                this.tablaPeriodos.forEach((fila, index) => {
                     const cuotaDeseada = toNumber(fila.cuota_deseada);
-                    const cuotaCalculada = cuotaDeseada > 0 ? cuotaDeseada : toNumber(fila.cuota_calculada);
 
-                    // Saldo Inicial
-                    const saldoInicial = toNumber(fila.saldo_inicial);
+                    const row = [
+                        toNumber(fila.periodo),                   
+                        String(fila.fecha || ''),                  
+                        null,                                      
+                        cuotaDeseada > 0 ? cuotaDeseada : '',
+                        null,
+                        null
+                    ];
 
-                    // Principal es igual a la cuota
-                    const principal = cuotaCalculada;
-
-                    // Saldo Final
-                    const saldoFinal = saldoInicial - principal;
-
-                    datos.push({
-                        'Periodo': toNumber(fila.periodo),
-                        'Fecha': String(fila.fecha || ''),
-                        'Saldo Inicial': saldoInicial,
-                        'Cuota Calculada': cuotaCalculada,
-                        'Principal': principal,
-                        'Saldo Final': saldoFinal
-                    });
+                    ws_data.push(row);
                 });
 
-                const nombreArchivo = `tabla_amortizacion_${String(this.cotizacion || 'sin_cotizacion').replace(/[^a-zA-Z0-9]/g, '_')}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`;
+                ws_data.push(['', '', '', '', '', '']);
+                ws_data.push(['Importe Financiación', '', '', '', '', toNumber(this.valor_credito_final)]);
 
-                var archivo = (await httpFunc(`/util/Json2File/excel/${nombreArchivo}`, datos)).data;
-
-                try {
-                    var formato = (await httpFunc("/util/ExcelFormater", {
-                        "file": archivo,
-                        "format": "FormatoAmortizacion"
-                    })).data;
-                } catch (e) {
-                    console.log('Formato no disponible, descargando sin formato:', e);
+                if (this.valor_subsidio && toNumber(this.valor_subsidio) > 0) {
+                    ws_data.push(['Subsidio No.1', '', '', '', '', toNumber(this.valor_subsidio)]);
                 }
 
-                window.open("./docs/" + archivo, "_blank");
+                const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+                this.tablaPeriodos.forEach((fila, index) => {
+                    const filaExcel = filaInicioDatos + index;
+                    const periodosRestantes = this.tablaPeriodos.length - index;
+
+                    if (index === 0) {
+                        ws[`C${filaExcel}`] = { t: 'n', v: toNumber(this.cuota_inicial_final) };
+                    } else {
+                        ws[`C${filaExcel}`] = { t: 'n', f: `F${filaExcel - 1}` };
+                    }
+
+                    ws[`E${filaExcel}`] = { t: 'n', f: `IF(D${filaExcel}<>"",D${filaExcel},IF(C${filaExcel}<=0,0,ROUND(C${filaExcel}/${periodosRestantes},0)))` };
+
+                    ws[`F${filaExcel}`] = { t: 'n', f: `C${filaExcel}-E${filaExcel}` };
+                });
+
+                ws['!cols'] = [
+                    { wch: 10 },  
+                    { wch: 12 },  
+                    { wch: 18 },  
+                    { wch: 18 },  
+                    { wch: 18 }, 
+                    { wch: 18 }
+                ];
+
+                XLSX.utils.book_append_sheet(wb, ws, 'Tabla Amortización');
+
+
+                const nombreArchivo = `tabla_amortizacion_${String(this.cotizacion || 'sin_cotizacion').replace(/[^a-zA-Z0-9]/g, '_')}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}.xlsx`;
+
+                XLSX.writeFile(wb, nombreArchivo);
+
+                showMessage('Tabla de amortización exportada exitosamente con fórmulas');
 
             } catch (e) {
                 console.error('Error completo al exportar:', e);
-                showMessage('Error al exportar: ' + (e.errorMessage || e.message || JSON.stringify(e)));
+                console.error('Tipo de error:', typeof e);
+                console.error('Propiedades del error:', Object.keys(e));
+
+                let mensajeError = 'Error desconocido';
+                if (e.errorMessage) {
+                    mensajeError = e.errorMessage;
+                } else if (e.message) {
+                    mensajeError = e.message;
+                } else if (e.error) {
+                    mensajeError = JSON.stringify(e.error);
+                } else {
+                    mensajeError = JSON.stringify(e);
+                }
+
+                showMessage('Error al exportar: ' + mensajeError);
             }
             hideProgress();
         }
