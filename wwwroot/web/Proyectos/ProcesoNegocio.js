@@ -3391,7 +3391,10 @@ export default {
                 const toNumber = (value) => {
                     if (value === null || value === undefined || value === '') return 0;
                     if (typeof value === 'number') return value;
-                    let str = value.toString().replace(/[^0-9.-]/g, '');
+                    let str = value.toString();
+                    str = str.replace(/[$\s]/g, '');
+                    str = str.replace(/\./g, '');
+                    str = str.replace(/,/g, '.');
                     let num = parseFloat(str);
                     return isNaN(num) ? 0 : num;
                 };
@@ -3506,7 +3509,7 @@ export default {
                     const fillColor = isEvenRow ? 'FFF5F5F5' : 'FFFFFFFF';
                     const periodosRestantes = this.tablaPeriodos.length - index;
                     const cuotaDeseada = toNumber(fila.cuota_deseada);
-              
+
                     dataRow.getCell(1).value = fila.periodo;
                     dataRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
                     dataRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
@@ -3520,28 +3523,32 @@ export default {
                     if (index === 0) {
                         dataRow.getCell(3).value = toNumber(this.cuota_inicial_final);
                     } else {
-                        dataRow.getCell(3).value = { formula: `F${currentRow - 1}` };
+                        dataRow.getCell(3).value = { formula: `IF(F${currentRow - 1}<=0,0,F${currentRow - 1})` };
                     }
                     dataRow.getCell(3).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
                     dataRow.getCell(3).alignment = { horizontal: 'right', vertical: 'middle' };
                     dataRow.getCell(3).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
                     dataRow.getCell(3).border = borderThin;
-   
-                    if (cuotaDeseada > 0) {
+
+                    const valorCuotaDeseada = String(fila.cuota_deseada || '').trim();
+                    if (valorCuotaDeseada !== '') {
                         dataRow.getCell(4).value = cuotaDeseada;
+                        dataRow.getCell(4).numFmt = '_($* #,##0_);_($* (#,##0);_($* "0"_);_(@_)';
+                    } else {
+                        dataRow.getCell(4).value = null;
+                        dataRow.getCell(4).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
                     }
-                    dataRow.getCell(4).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
                     dataRow.getCell(4).alignment = { horizontal: 'right', vertical: 'middle' };
                     dataRow.getCell(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
                     dataRow.getCell(4).border = borderThin;
 
-                    dataRow.getCell(5).value = { formula: `IF(D${currentRow}<>"",D${currentRow},IF(C${currentRow}<=0,0,ROUND(C${currentRow}/${periodosRestantes},0)))` };
+                    dataRow.getCell(5).value = { formula: `IF(C${currentRow}<=0,0,IF(D${currentRow}<>"",D${currentRow},ROUND(C${currentRow}/${periodosRestantes},0)))` };
                     dataRow.getCell(5).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
                     dataRow.getCell(5).alignment = { horizontal: 'right', vertical: 'middle' };
                     dataRow.getCell(5).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
                     dataRow.getCell(5).border = borderThin;
 
-                    dataRow.getCell(6).value = { formula: `C${currentRow}-E${currentRow}` };
+                    dataRow.getCell(6).value = { formula: `IF(C${currentRow}<=0,0,C${currentRow}-E${currentRow})` };
                     dataRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
                     dataRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
                     dataRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
@@ -3576,7 +3583,7 @@ export default {
                 importeRow.getCell(1).border = borderThin;
 
                 importeRow.getCell(6).value = {
-                    formula: `${toNumber(this.valor_credito_final)}+IF(F${ultimaFilaPeriodo}<0,F${ultimaFilaPeriodo},0)`
+                    formula: `${toNumber(this.valor_credito_final_base)}+SUMIF(F${primeraFilaPeriodo}:F${ultimaFilaPeriodo},"<0")`
                 };
                 importeRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
                 importeRow.getCell(6).font = { bold: true, color: { argb: 'FF0277BD' } };
