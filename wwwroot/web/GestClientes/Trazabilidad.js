@@ -14,6 +14,7 @@ export default {
             acciones: [],
             proyectos: [],
             aptos: [],
+            tablaPeriodos: [],
             selectedApto: {},
             infoCotizacion: {},
             infoOpcion: {},
@@ -42,6 +43,7 @@ export default {
             plantProyecto: '',
             tipoProyecto: '',
             recorrido: '',
+            tablaAmortizacion: false,
 
             tooltipVisible: false,
             tooltipX: 0,
@@ -402,6 +404,7 @@ export default {
         },
         async loadOpcion() {
             showProgress();
+            this.tablaPeriodos = [];
             if (this.modalMode == 'Opción') {
                 let opcion = (await httpFunc("/generic/genericDT/Clientes:Get_Opcion", {id_opcion: this.selIdObj})).data;
                 this.infoOpcion = opcion[0] || {};
@@ -421,6 +424,20 @@ export default {
 				minimumFractionDigits: 0
 			}).format(numero);
 		},
+        cleanNumber(value) {
+            if (value === null || value === undefined || value === '') return 0;
+            if (typeof value === 'number') return value;
+
+            const cleaned = String(value)
+                .replace(/\$/g, '')
+                .replace(/\s/g, '')
+                .replace(/\./g, '')
+                .replace(',', '.')
+                .trim();
+
+            if (cleaned === '') return 0;
+            return parseFloat(cleaned) || 0;
+        },
         calcularValorFinal(apto) {
 			if (!apto) return '';
 
@@ -481,7 +498,265 @@ export default {
 				showMessage("No se pudieron cargar los datos del apartamento.");
 			}
 		},
+        generarTabla() {
+            this.tablaPeriodos = [];
+            this.tablaAmortizacion = true;
 
+            const limpiarNumero = this.cleanNumber.bind(this);
+            const redondear0 = (num) => Math.round(num);
+
+            const [anioBase, mesBase, diaBase] = this.infoOpcion.display_fecha_primera_cuota.split('-').map(Number);
+            const partesPE = this.infoOpcion.fechaPE.split('-');
+            const anioPE = parseInt(partesPE[0]);
+            const mesPE = parseInt(partesPE[1]) - 1;
+            const diaPE = parseInt(partesPE[2]);
+            const fechaPE = new Date(anioPE, mesPE, diaPE);
+
+            const capital = limpiarNumero(this.infoOpcion.cuota_inicial);
+            const tnaAntes = limpiarNumero(this.infoOpcion.tna_antes);
+            const tnaDespues = limpiarNumero(this.infoOpcion.tna_despues);
+            const n = limpiarNumero(this.infoOpcion.d_meses);
+            
+            let saldo = capital;
+
+            let tnaActual = tnaAntes;
+            const iBase = tnaAntes / 100 / 12;
+
+            let cuotaActual;
+            if (iBase === 0) {
+                cuotaActual = redondear0(capital / n);
+            } else {
+                cuotaActual = redondear0(
+                    capital * (iBase * Math.pow(1 + iBase, n)) / (Math.pow(1 + iBase, n) - 1)
+                );
+            }
+
+            let fechaPeriodo = new Date(anioBase, mesBase - 1, diaBase);
+
+            for (let j = 0; j < n; j++) {
+                if (j > 0) {
+                    fechaPeriodo.setMonth(fechaPeriodo.getMonth() + 1);
+                }
+
+                const fechaFormateada = `${fechaPeriodo.getDate().toString().padStart(2, '0')}/${(fechaPeriodo.getMonth() + 1).toString().padStart(2, '0')}/${fechaPeriodo.getFullYear()}`;
+
+                const tnaPeriodo = fechaPeriodo > fechaPE ? tnaDespues : tnaAntes;
+
+                if (tnaPeriodo !== tnaActual) {
+                    tnaActual = tnaPeriodo;
+                    const iNueva = tnaActual / 100 / 12;
+                    const periodosRestantes = n - j;
+
+                    if (periodosRestantes > 0) {
+                        if (iNueva === 0) {
+                            cuotaActual = redondear0(saldo / periodosRestantes);
+                        } else {
+                            cuotaActual = redondear0(
+                                saldo * (iNueva * Math.pow(1 + iNueva, periodosRestantes)) / (Math.pow(1 + iNueva, periodosRestantes) - 1)
+                            );
+                        }
+                    }
+                }
+
+                const iPeriodo = tnaActual / 100 / 12;
+                const saldoInicial = saldo;
+
+                let interesPeriodoExacto = saldoInicial * iPeriodo;
+                let principalPeriodoExacto = cuotaActual - interesPeriodoExacto;
+                let saldoFinalExacto = saldoInicial - principalPeriodoExacto;
+
+                let interesPeriodo = redondear0(interesPeriodoExacto);
+                let principalPeriodo = redondear0(principalPeriodoExacto);
+                let saldoFinal = redondear0(saldoFinalExacto);
+
+                if (j === n - 1) {
+                    saldoFinal = 0;
+                    principalPeriodo = redondear0(saldoInicial - interesPeriodo);
+                    cuotaActual = redondear0(interesPeriodo + principalPeriodo);
+                } else {
+                    principalPeriodo = redondear0(saldoInicial - saldoFinal);
+                    interesPeriodo = redondear0(cuotaActual - principalPeriodo);
+                }
+
+                this.tablaPeriodos.push({
+                    periodo: j + 1,
+                    fecha: fechaFormateada,
+                    saldo_inicial: redondear0(saldoInicial),
+                    tna: tnaActual,
+                    cuota_deseada: '',
+                    cuota_calculada: cuotaActual,
+                    intereses: interesPeriodo,
+                    principal: principalPeriodo,
+                    saldo_final: saldoFinal
+                });
+
+                saldo = saldoFinal;
+            }
+        },
+        validar(index) {
+            const fila = this.tablaPeriodos[index];
+            const originalValue = fila.cuota_deseada;
+
+            this.$nextTick(() => {
+                if (!originalValue || originalValue.trim() === '') {
+                    fila.cuota_deseada = '';
+                    return;
+                }
+                const numeroParaFormato = this.cleanNumber(originalValue);
+                fila.cuota_deseada = this.formatoMoneda(numeroParaFormato);
+            });
+        },
+        recalcularFila(index) {
+            const limpiarNumero = this.cleanNumber.bind(this);
+
+            const redondear0 = (num) => Math.round(num);
+
+            const calcularPMT = (i, n, p) => {
+                if (i === 0) return p / n;
+                const factor = Math.pow(1 + i, n);
+                return (i * p * factor) / (factor - 1);
+            };
+
+            const fila = this.tablaPeriodos[index];
+            const totalPeriodos = this.tablaPeriodos.length;
+
+            const iPeriodo = fila.tna / 100 / 12;
+
+            let cuotaEfectiva;
+
+            const valorActual = String(fila.cuota_deseada || '').trim();
+
+            if (valorActual === '') {
+                
+                fila.cuota_deseada = '';
+
+                const periodosRestantes = totalPeriodos - fila.periodo + 1;
+
+                if (fila.periodo <= totalPeriodos && fila.saldo_inicial > 0) {
+                    cuotaEfectiva = redondear0(
+                        calcularPMT(iPeriodo, periodosRestantes, Math.abs(fila.saldo_inicial))
+                    );
+                } else {
+                    cuotaEfectiva = 0;
+                }
+
+            } else {
+               
+                const cuotaDeseadaInput = limpiarNumero(fila.cuota_deseada);
+                cuotaEfectiva = cuotaDeseadaInput;
+            }
+
+            if (fila.saldo_inicial <= 0) {
+                fila.cuota_calculada = 0;
+                fila.intereses = 0;
+                fila.principal = 0;
+                fila.saldo_final = 0;
+            } else {
+                const cuotaParaCalculo = Number(cuotaEfectiva) || 0;
+
+                const interesPeriodo = redondear0(fila.saldo_inicial * iPeriodo);
+                const principalPeriodo = redondear0(cuotaParaCalculo - interesPeriodo);
+                const saldoFinal = redondear0(fila.saldo_inicial - principalPeriodo);
+
+                fila.cuota_calculada = cuotaParaCalculo;
+                fila.intereses = interesPeriodo;
+                fila.principal = principalPeriodo;
+                fila.saldo_final = saldoFinal;
+            }
+
+            let saldoTemp = fila.saldo_final;
+            for (let i = index + 1; i < this.tablaPeriodos.length; i++) {
+                const f = this.tablaPeriodos[i];
+                f.saldo_inicial = saldoTemp;
+
+                if (saldoTemp <= 0) {
+                    for (let j = i; j < this.tablaPeriodos.length; j++) {
+                        const fRest = this.tablaPeriodos[j];
+                        fRest.saldo_inicial = 0;
+                        fRest.intereses = 0;
+                        fRest.principal = 0;
+                        fRest.cuota_calculada = 0;
+                        fRest.saldo_final = 0;
+                    }
+                    break;
+                }
+
+                const iPeriodoSig = f.tna / 100 / 12;
+                const interesSig = redondear0(saldoTemp * iPeriodoSig);
+                let cuotaSig;
+
+             
+                const valorSig = String(f.cuota_deseada || '').trim();
+                if (valorSig !== '') {
+               
+                    cuotaSig = limpiarNumero(f.cuota_deseada);
+                } else {
+                
+                    const periodosRestantesSig = totalPeriodos - f.periodo + 1;
+                    cuotaSig = redondear0(
+                        calcularPMT(iPeriodoSig, periodosRestantesSig, Math.abs(saldoTemp))
+                    );
+                }
+                const principalSig = redondear0(cuotaSig - interesSig);
+                const saldoFinalSig = redondear0(saldoTemp - principalSig);
+                f.intereses = interesSig;
+                f.principal = principalSig;
+                f.cuota_calculada = cuotaSig;
+                f.saldo_final = saldoFinalSig;
+
+                saldoTemp = saldoFinalSig;
+            }
+
+            let totalSaldosNegativos = 0;
+            for (let i = 0; i < this.tablaPeriodos.length; i++) {
+                const fila = this.tablaPeriodos[i];
+                if (fila.saldo_final < 0) {
+                    totalSaldosNegativos += fila.saldo_final;
+                    break;
+                }
+            }
+
+            if (this.infoOpcion.pago_financiado == '1') {
+                const ultima = this.tablaPeriodos[this.tablaPeriodos.length - 1];
+
+                if (ultima) {
+                    const cuotaDeseada = limpiarNumero(ultima.cuota_deseada);
+                    const cuotaCalculada = limpiarNumero(ultima.cuota_calculada);
+                    //this.ultimaCuotaDigitada = cuotaDeseada;
+
+                    if (cuotaDeseada > cuotaCalculada) {
+                        const diferencia = cuotaDeseada - cuotaCalculada;
+
+                        ultima.cuota_calculada = -diferencia;
+                        ultima.principal = -diferencia;
+                        ultima.saldo_final = -diferencia;
+                    }
+                }
+            }
+
+            const ultima = this.tablaPeriodos[this.tablaPeriodos.length - 1];
+
+            if (ultima) {
+                
+                const haySaldoNegativoAnterior = this.tablaPeriodos.some((f, idx) =>
+                    idx < this.tablaPeriodos.length - 1 && f.saldo_final < 0
+                );
+
+                if (!haySaldoNegativoAnterior) {
+                    if (ultima.saldo_final < 0 && this.infoOpcion.pago_financiado == '1')
+                        return;
+                    if (ultima.saldo_final < 1 && ultima.saldo_final > -1)
+                        ultima.saldo_final = 0;
+                    else if (ultima.saldo_final !== 0 && ultima.saldo_inicial > 0) {
+                        const saldoAnterior = ultima.saldo_inicial;
+                        const interesUltimo = ultima.intereses;
+                        ultima.principal = redondear0(saldoAnterior);
+                        ultima.cuota_calculada = redondear0(saldoAnterior + interesUltimo);
+                        ultima.saldo_final = 0;
+                    }
+                }
+            }
+        },
     },
     computed: {
         getFilteredList() {

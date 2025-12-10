@@ -58,7 +58,7 @@ select id_subsidio, periodo, smmlv, smmlv_0_2, smmlv_2_4, imagen, is_active
 from dim_subsidio_vis
 order by periodo;
 
-select id_tipo_financiacion, tipo_financiacion, is_active
+select id_tipo_financiacion, tipo_financiacion, porcentaje, is_active
 from dim_tipo_financiacion
 order by tipo_financiacion;
 

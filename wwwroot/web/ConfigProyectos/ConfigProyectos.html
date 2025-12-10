@@ -1760,10 +1760,15 @@
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Tipo Financiación</h2>
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
+                            <span>Tipo Financiación</span>
                             <input type="text" v-model="tipo_financiacion.tipo_financiacion" maxlength="50" />
                         </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-8">
+                            <span>Porcentaje</span>
+                            <input type="text" v-model="tipo_financiacion.porcentaje" @input="validarEntero($event); inRange($event, 0, 100);"/>
+                        </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
-                            <button v-on:click="onSave()">Guardar</button>
+                            <button style="margin-top: 1.5rem;" v-on:click="onSave()">Guardar</button>
                         </div>
                     </div>
                 </div>

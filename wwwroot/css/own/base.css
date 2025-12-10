@@ -3891,6 +3891,9 @@ tr.cal-row-info > td {
   cursor: pointer;
   color: #666;
 }
+.close-btn.size-1-5{
+  font-size: 1.5em;
+}
 
 @keyframes fadeIn {
   from { transform: scale(0.95); opacity: 0; }

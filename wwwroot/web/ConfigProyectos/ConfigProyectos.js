@@ -620,8 +620,15 @@ export default {
             cleaned = cleaned.replace(",", ".");
             return cleaned;
         },
+        inRange(e, min, max) {
+            const value = this.cleanNumber(e.target.value);
+            e.target.value = Math.min(Math.max(value, min), max);
+        },
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
+        },
+        validarEntero(e) {
+            e.target.value = e.target.value.replaceAll(/[^\d]/g, '');
         },
         validarNombre(e) {
             e.target.value = e.target.value.replaceAll(/[^\w\s]/g, '');

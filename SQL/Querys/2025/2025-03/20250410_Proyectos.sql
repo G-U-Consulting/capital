@@ -40,10 +40,12 @@ create table dim_tipo_financiacion(
 	id_tipo_financiacion int not null auto_increment,
 	constraint pk_dim_tipo_financiacion primary key (id_tipo_financiacion),
 	tipo_financiacion varchar(200) not null unique,
+	porcentaje int default 0,
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_valor_entre_0_y_100 check (porcentaje between 0 and 100)
 );
 create table dim_pie_legal(
 	id_pie_legal int not null auto_increment,
