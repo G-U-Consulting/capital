@@ -313,7 +313,7 @@
                     <span style="font-size: 1.5em;">Registros de visita</span>
                     <button @click="limpiarObj(1)" style="float: right;">Nueva visita</button>
                 </div>
-                <div class='pure-u-1-1 pure-u-md-1-4 filtro-proyecto-inline'>
+                <div class='pure-u-1-1 pure-u-md-1-4 filtro-proyecto-inline' style="display: inline-flex;">
                     <label for="filtro-proyecto" style="white-space: nowrap;">Filtrar por Proyecto:</label>
                     <select v-model="filtroProyecto" id="filtro-proyecto" style="flex: 1;">
                         <option value="">Todos</option>
@@ -321,6 +321,10 @@
                             {{ proy }}
                         </option>
                     </select>
+                </div>
+                <div class='pure-u-1-1 pure-u-md-3-4' style="text-align: end; margin-top: .5rem;">
+                    <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
+                            @click="exportExcel(visitasFiltradas)" title="Descargar datos a Excel" />
                 </div>
                 <div
                     style="height: 11rem; overflow-y: auto; margin-top: 0.1em;">

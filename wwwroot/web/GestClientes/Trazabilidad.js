@@ -409,6 +409,7 @@ export default {
                 let opcion = (await httpFunc("/generic/genericDT/Clientes:Get_Opcion", {id_opcion: this.selIdObj})).data;
                 this.infoOpcion = opcion[0] || {};
             }
+            this.generarTabla();
             hideProgress();
         },
 		formatoMoneda(valor) {
@@ -500,7 +501,6 @@ export default {
 		},
         generarTabla() {
             this.tablaPeriodos = [];
-            this.tablaAmortizacion = true;
 
             const limpiarNumero = this.cleanNumber.bind(this);
             const redondear0 = (num) => Math.round(num);
@@ -788,6 +788,19 @@ export default {
                 });
                 return total;
             },
+        },
+        excedentePagoCuotaInicial() {
+            if (!this.tablaPeriodos || this.tablaPeriodos.length === 0) return 0;
+            for (let i = 0; i < this.tablaPeriodos.length; i++) {
+                const fila = this.tablaPeriodos[i];
+                if (fila.saldo_final < 0) {
+                    return Math.abs(fila.saldo_final);
+                }
+            }
+            return 0;
+        },
+        importeFinanciacionAjustado() {
+            return (this.infoOpcion.valor_credito_base - this.excedentePagoCuotaInicial) || 0;
         },
     }
 

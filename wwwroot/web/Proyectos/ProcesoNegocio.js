@@ -1713,6 +1713,23 @@ export default {
             this.ObjCliente.nombres = '';
             this.ObjCliente.email1 = '';
         },
+        async exportExcel(tabla) {
+            try {
+                showProgress();
+                let data = JSON.parse(JSON.stringify(tabla));
+                data.forEach(row => {
+                        for (const key in row) key.startsWith('id_') && key !== 'id_visita' && delete row[key];
+                    }
+                );
+                var archivo = (await httpFunc("/util/Json2File/excel", data)).data;
+                var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
+                window.open("./docs/" + archivo, "_blank");
+            }
+            catch (e) {
+                console.error(e);
+            }
+            hideProgress();
+        },
         //////// mode 2 ////////////
         async showAtencionModal() {
             this.mostrarModal = true
