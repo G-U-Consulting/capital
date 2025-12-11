@@ -1569,25 +1569,6 @@
                                         </td>
                                         <td><input type="text" class="input-cuota"></td>
                                     </tr>
-<!-- 
-                                    <tr>
-                                        <td style="text-align: left; padding: 8px; color: #0277bd;">Importe Financiación</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td style="text-align: right; padding: 8px; color: #0277bd;">{{ formatoMoneda(valor_credito_final) }}</td>
-                                        <td></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="text-align: left; padding: 8px; color: #388e3c;">Subsidio No.1</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td style="text-align: right; padding: 8px; color: #388e3c;">{{ formatoMoneda(valor_subsidio) }}</td>
-                                        <td></td>
-                                    </tr> -->
                                 </tbody>
                             </table>
                         </div>
@@ -1596,150 +1577,137 @@
             </div>
         </div>
     </div>
-    <div style="display: none;" v-if="mode == 3">
+    <div  v-if="mode == 3" class="pdf-export-section" style="padding: 20px; background: white; width: 100%; box-sizing: border-box; display: none;">
         <div id="contenedor-pdf-completo">
-            <div id="template-formato-dev" class="pdf-template">
-                <div
-                    style="padding: 2.2rem; padding-bottom: .5rem; padding-top: 1.8rem; display: flex; justify-content: space-between; line-height: 1.08;">
-                    <div style="width: 23%;" id="logo-capital">
-                    </div>
-                    <div style="height: 100%; display: flex; align-items: center; width: 15%;">
-                        <h4 style="color: #009AB9; font-weight: bold;">Cotización</h4>
-                    </div>
-                    <div style="height: 50%; display: flex; flex-direction: column; width: 33%; font-size: 12.5px;">
-                        <div><span style="font-weight: bold;">Numero Cotizacion #: </span>{{cotizacionSeleccionada}}</div>
-                        <div><span style="font-weight: bold;">Fecha Creado: </span>{{f_cotizacion}}</div>
-                    </div>
-                </div>
-                <div style="padding: .4rem 2.2rem;">
-                    <span style="color: #009AB9; font-weight: bold; font-size: 15px;">Datos Personales</span>
-                    <table class="pdf-table datos-personales"
-                        style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #777;">
-                        <thead>
-                            <tr>
-                                <th colspan="4" style="border-left: #777 solid 1px;">Cliente</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="4" style="border-right: 1px solid #777; border-bottom: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Nombres:</b>
-                                        <span>{{ ObjCliente.nombres }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="2" style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Apellido 1:</b>
-                                        <span>{{ ObjCliente.apellido1 }}</span>
-                                    </div>
-                                </td>
-                                <td colspan="2" style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Apellido 2:</b>
-                                        <span>{{ ObjCliente.apellido2 }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                <td style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Dirección:</b>
-                                        <span>{{ ObjCliente.direccion }}</span>
-                                    </div>
-                                </td>
-                                <td style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Ciudad:</b>
-                                        <span>{{ ObjCliente.ciudad }}</span>
-                                    </div>
-                                </td>
-                                <td style="padding: 5px 10px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Departamento:</b>
-                                        <span>{{ ObjCliente.departamento }}</span>
-                                    </div>
-                                </td>
-                                 <td style="padding: 5px 10px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>País:</b>
-                                        <span>{{ ObjCliente.pais }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                <td colspan="2" style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Email 1:</b>
-                                        <span>{{ ObjCliente.email1 }}</span>
-                                    </div>
-                                </td>
-                                <td colspan="2" style="padding: 5px 10px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Email 2:</b>
-                                        <span>{{ ObjCliente.email2 }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                <td style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Teléfono 1:</b>
-                                        <span>{{ ObjCliente.telefono1 }}</span>
-                                    </div>
-                                </td>
-                                <td style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Teléfono 2:</b>
-                                        <span>{{ ObjCliente.telefono2 }}</span>
-                                    </div>
-                                </td>
-                                <td style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>F. Nacimiento:</b>
-                                        <span>{{ ObjCliente.fechaNacimiento }}</span>
-                                    </div>
-                                </td>
-                                <td style="padding: 5px 10px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Tipo Doc.:</b>
-                                        <span>{{ ObjCliente.tipoDocumento }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                <td style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Núm. Doc.:</b>
-                                        <span>{{ ObjCliente.numeroDocumento }}</span>
-                                    </div>
-                                </td>
-                                <td style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>País Exp.:</b>
-                                        <span>{{ ObjCliente.paisExpedicion }}</span>
-                                    </div>
-                                </td>
-                                <td style="border-right: 1px solid #777;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Ciudad Exp.:</b>
-                                        <span>{{ ObjCliente.ciudadExpedicion }}</span>
-                                    </div>
-                                </td>
-                                <td style="padding: 5px 10px;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                        <b>Fecha Exp.:</b>
-                                        <span>{{ ObjCliente.fechaExpedicion }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
+                <div style="padding: 1rem 1rem .4rem 1rem;">
+                    <span style="color: #009AB9; font-weight: bold; font-size: 15px; display: block;">Datos Personales</span>
+                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777;">
+                        <template v-for="(cliente, index) in clientesParaPDF" :key="index">
+                            <thead>
+                                <tr>
+                                    <th colspan="4" :style="'border-left: #777 solid 1px;' + (index > 0 ? ' border-top: 2px solid #777;' : '')">{{ clientesParaPDF.length > 1 ? 'Cliente #' + (index + 1) : 'Cliente' }}{{ clientesParaPDF.length > 1 && cliente.porcentaje ? ' - Participación: ' + cliente.porcentaje + '%' : '' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-left: #777 solid 1px;">
+                                    <td colspan="4" style="border-right: 1px solid #777; border-bottom: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Nombres:</b>
+                                            <span>{{ cliente.nombres }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="border-left: #777 solid 1px;">
+                                    <td colspan="2" style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Apellido 1:</b>
+                                            <span>{{ cliente.apellido1 }}</span>
+                                        </div>
+                                    </td>
+                                    <td colspan="2" style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Apellido 2:</b>
+                                            <span>{{ cliente.apellido2 }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
+                                    <td style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Dirección:</b>
+                                            <span>{{ cliente.direccion }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Ciudad:</b>
+                                            <span>{{ cliente.ciudad }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 5px 10px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Departamento:</b>
+                                            <span>{{ cliente.departamento }}</span>
+                                        </div>
+                                    </td>
+                                     <td style="padding: 5px 10px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>País:</b>
+                                            <span>{{ cliente.pais }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
+                                    <td colspan="2" style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Email 1:</b>
+                                            <span>{{ cliente.email1 }}</span>
+                                        </div>
+                                    </td>
+                                    <td colspan="2" style="padding: 5px 10px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Email 2:</b>
+                                            <span>{{ cliente.email2 }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
+                                    <td style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Teléfono 1:</b>
+                                            <span>{{ cliente.telefono1 }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Teléfono 2:</b>
+                                            <span>{{ cliente.telefono2 }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>F. Nacimiento:</b>
+                                            <span>{{ cliente.fechaNacimiento }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 5px 10px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Tipo Doc.:</b>
+                                            <span>{{ cliente.tipoDocumento }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
+                                    <td style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Núm. Doc.:</b>
+                                            <span>{{ cliente.numeroDocumento }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>País Exp.:</b>
+                                            <span>{{ cliente.paisExpedicion }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="border-right: 1px solid #777;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Ciudad Exp.:</b>
+                                            <span>{{ cliente.ciudadExpedicion }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 5px 10px;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
+                                            <b>Fecha Exp.:</b>
+                                            <span>{{ cliente.fechaExpedicion }}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </template>
                     </table>
-                </div>
-                <div style="padding: .4rem 2.2rem;">
-                    <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
+
+                    <span style="color: #009AB9; font-weight: bold; font-size: 15px; display: block; margin-top: 1rem;">
                         Información General
                         <span v-if="isTitular == 1">En representación de: ({{ ObjCliente.nombreEmpresa }} Nit: {{
                             ObjCliente.nit
@@ -1784,6 +1752,131 @@
                                     <div style="display: flex; justify-content: space-between;">
                                         <b>Opción Seleccionada:</b>
                                         <span>{{ textoCotizacion }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse; margin-top: 8px;">
+                        <thead>
+                            <tr>
+                                <th colspan="4" style="border-left: #777 solid 1px;">Detalles del Cálculo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="4" style="padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #777;">
+                                    IMPORTE TOTAL DE LA OPERACIÓN
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Importe Unidades <b>(A):</b></span>
+                                        <span>{{ formatoMoneda(unidades[0]?.valor_unidad || 0) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Acabados <b>(B):</b></span>
+                                        <span>{{ formatoMoneda(reformaActivo ? valor_acabados : 0) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Reformas <b>(C):</b></span>
+                                        <span>{{ formatoMoneda(reformaActivo ? valor_reformas : 0) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Desc. Adicional <b>(D):</b></span>
+                                        <span>{{ formatoMoneda(valor_descuento_adicional) }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px; background-color: #f5f5f5;">
+                                <td colspan="4">
+                                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                                        <span>Importe Total <b>(E):</b> <i style="font-size: 10px; font-weight: normal;">((A)+(B)+(C)-(D))</i></span>
+                                        <span>{{ formatoMoneda(importeActiva) }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="4" style="padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #777; border-top: 1px solid #777;">
+                                    IMPORTE MÁXIMO FINANCIABLE Y CUOTA MENSUAL HIPOTECA
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Modalidad:</span>
+                                        <span style="font-weight: bold;">{{ nombrePlan(planSeleccionado, tipoFinanciacionSeleccionada) || '-' }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Años:</span>
+                                        <span>{{ anioSeleccionado || '-' }}</span>
+                                    </div>
+                                </td>
+                                <td colspan="2">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Factor/millón <b>(F):</b></span>
+                                        <span>{{ formatNumber(factorBanco, false) || '-' }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="2">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Máximo Financiable <b>(G):</b> <i style="font-size: 10px;">70%(A-D)</i></span>
+                                        <span style="font-weight: bold;">{{ formatoMoneda(valor_credito_base) }}</span>
+                                    </div>
+                                </td>
+                                <td colspan="2">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Cuota mes Máx. financiable <b>(H):</b> <i style="font-size: 10px;">(G)x(F) / 1e6</i></span>
+                                        <span style="font-weight: bold;">{{ formatoMoneda(valorCreditoMillonFormateado) }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="4" style="padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #777; border-top: 1px solid #777;">
+                                    IMPORTE PERMISIBLE POR INGRESOS DE LA UNIDAD FAMILIAR
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="2">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Ingresos U. Familiar <b>(I):</b></span>
+                                        <span>{{ formatoMoneda(ingresos_mensuales) }}</span>
+                                    </div>
+                                </td>
+                                <td colspan="2">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Ingr. Regs. Máx <b>(J):</b> <i style="font-size: 10px;">(H) / 0.40</i></span>
+                                        <span style="font-weight: bold;">{{ formatoMoneda(minimoFamiliar) }}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="4" style="padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #777; border-top: 1px solid #777;">
+                                    AJUSTE POR EXCEDENTE EN CUOTA INICIAL
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td colspan="2">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Importe Financiación Base:</span>
+                                        <span>{{ formatoMoneda(valor_credito) }}</span>
+                                    </div>
+                                </td>
+                                <td colspan="2">
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>Cuota Inicial Base:</span>
+                                        <span>{{ formatoMoneda(cuota_inicial) }}</span>
                                     </div>
                                 </td>
                             </tr>
@@ -1874,7 +1967,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <table class="pdf-table resumen-opcion">
+                    <!-- <table class="pdf-table resumen-opcion">
                         <thead>
                             <tr>
                                 <th colspan="4" style="border-left: #777 solid 1px;">Financiación</th>
@@ -1918,54 +2011,100 @@
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
+                    </table> -->
                     <table class="pdf-table resumen-opcion">
                         <thead>
                             <tr>
-                                <th colspan="4" style="border-left: #777 solid 1px;">Datos Unidad</th>
+                                <th colspan="4" style="border-left: #777 solid 1px;">Información de la Unidad</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr style="border-left: #777 solid 1px;">
-                                <td>
+                                <td colspan="2">
                                     <b>Proyecto:</b>
                                     <span style="float: right;">{{ unidadOpcion?.nombre || '-' }}</span>
                                 </td>
+                                <td>
+                                    <b>Apartamento:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.numero_apartamento || '-' }}</span>
+                                </td>
+                                <td>
+                                    <b>Tipo:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.tipo || unidadOpcion?.observacion_apto || '-' }}</span>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
                                 <td>
                                     <b>Piso:</b>
                                     <span style="float: right;">{{ unidadOpcion?.piso || '-' }}</span>
                                 </td>
                                 <td>
-                                    <b># Alcobas:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.num_alcobas || '-' }}</span>
+                                    <b>Área Total:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.area_total ? unidadOpcion.area_total + ' m²' : '-' }}</span>
                                 </td>
                                 <td>
-                                    <b># Baños:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.num_banos || '-' }}</span>
+                                    <b>Área Privada Cubierta:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.area_privada_cub ? unidadOpcion.area_privada_cub + ' m²' : '-' }}</span>
+                                </td>
+                                <td>
+                                    <b>Área Privada Libre:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.area_privada_lib ? unidadOpcion.area_privada_lib + ' m²' : '-' }}</span>
                                 </td>
                             </tr>
                             <tr style="border-left: #777 solid 1px;">
                                 <td>
-                                    <b>Asoleacción :</b>
-                                    <span style="float: right;">{{ unidadOpcion?.asoleacion == 'PM' ? 'Sol de mañana' : unidadOpcion?.asoleacion == 'AM' ? 'Sol de tarde' : '-' }}</span>
+                                    <b># Alcobas:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.num_alcobas || '0' }}</span>
+                                </td>
+                                <td>
+                                    <b># Baños:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.num_banos || '0' }}</span>
+                                </td>
+                                <td>
+                                    <b>Localización:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.localizacion || '-' }}</span>
                                 </td>
                                 <td>
                                     <b>Altura:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.altura ? 'PISO ' + unidadOpcion.altura : '-' }}</span>
+                                    <span style="float: right;">{{ unidadOpcion?.altura || '-' }}</span>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <b>Asoleación:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.asoleacion == 'PM' ? 'Sol de tarde' : unidadOpcion?.asoleacion == 'AM' ? 'Sol de mañana' : '-' }}</span>
                                 </td>
                                 <td>
                                     <b>Cerca de Portería:</b>
                                     <span style="float: right;">{{ unidadOpcion?.cerca_porteria == '0' ? 'NO' : unidadOpcion?.cerca_porteria == '1' ? 'SI' : '-' }}</span>
                                 </td>
                                 <td>
-                                    <b>Meses:</b>
-                                    <span style="float: right;">{{ d_meses }}</span>
+                                    <b>Inventario Terminado:</b>
+                                    <span style="float: right;">{{ unidadOpcion?.inv_terminado == '1' ? 'SI' : 'NO' }}</span>
+                                </td>
+                                <td>
+                                    <b>Plazo Obra:</b>
+                                    <span style="float: right;">{{ d_meses }} meses</span>
+                                </td>
+                            </tr>
+                            <tr style="border-left: #777 solid 1px;">
+                                <td>
+                                    <b>Valor Unidad:</b>
+                                    <span style="float: right;">{{ formatoMoneda(unidades[0]?.valor_unidad || 0) }}</span>
+                                </td>
+                                <td>
+                                    <b>Descuento Base:</b>
+                                    <span style="float: right;">{{ formatoMoneda(unidades[0]?.valor_descuento || 0) }}</span>
+                                </td>
+                                <td colspan="2">
+                                    <b>Fecha Entrega:</b>
+                                    <span style="float: right;">{{ display_fecha_entrega || '-' }}</span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div style="padding: .4rem 2.2rem;">
+                <div style="padding: .4rem 2.2rem; margin-top: 4rem;">
                     <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
                         Img Unidad:
                         <samp style="font-size: 1rem;">
@@ -1974,96 +2113,20 @@
                     </span>
                     <div v-if="tipoProyecto"
                         style="display: flex; justify-content: center; align-items: center; gap: 1rem; padding: .8rem 0;">
-                        <img :src="tipoProyecto" alt="Imagen de Apartamento"
-                            style="max-width: 45%; max-height: 60vh; object-fit: contain; border-radius: 6px;">
-                        <img :src="tipoPlanta" alt="Imagen de Apartamento"
-                            style="max-width: 45%; max-height: 60vh; object-fit: contain; border-radius: 6px;">
+                        <img :src="tipoProyecto" alt="Imagen de Apartamento" crossorigin="anonymous"
+                            style="max-width: 48%; height: auto; max-height: 350px; object-fit: contain; border-radius: 6px;">
+                        <img :src="tipoPlanta" alt="Imagen de Apartamento" crossorigin="anonymous"
+                            style="max-width: 48%; height: auto; max-height: 350px; object-fit: contain; border-radius: 6px;">
                     </div>
                     <div v-else style="font-size: 12px; text-align: center; color: #666;">
                         No hay imagen disponible
                     </div>
                 </div>
-            </div>
-            <div v-if="tablaPeriodos != ''" style="padding: 0.4rem 2.2rem;margin-top: 2rem;">
-                <div style="text-align: center;">
-                    <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
-                        Tabla Amortización
-                    </span>
-                </div>
 
-                <table class="pdf-table"
-                    style="width: 100%; border-collapse: collapse; font-size: 10px; border: 2px solid #ccc;">
-                    <thead>
-                        <tr style="background: #f3f3f3; text-align: center;">
-                            <th style="width: 10%; padding: 4px;">Concepto</th>
-                            <th style="width: 10%; padding: 4px;">Fecha</th>
-                            <th style="width: 10%; padding: 4px;">Saldo Inicial</th>
-                            <th style="width: 10%; padding: 4px;">Cuota deseada</th>
-                            <th style="width: 10%; padding: 4px;">Cuota calculada</th>
-                            <th style="width: 10%; padding: 4px;">Saldo Final</th>
-                            <th style="width: 10%; padding: 4px;">Nota</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="text-align: left; padding: 5px 8px; color: #f57c00;">Separación</td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="text-align: right; padding: 5px 8px; color: #f57c00;">{{ formatoMoneda(valor_separacion) }}</td>
-                            <td style="padding: 3px;"></td>
-                        </tr>
-                        <tr style="border-top: 1px solid #ddd;">
-                            <td style="text-align: left; padding: 5px 8px; color: #e64a19;">Gastos Escritura</td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="text-align: right; padding: 5px 8px; color: #e64a19;">{{ formatoMoneda(valor_escrituras) }}</td>
-                            <td style="padding: 3px;"></td>
-                        </tr>
-
-                        <tr v-for="(fila, index) in tablaPeriodos" :key="index" style="border-top: 1px solid #ddd;">
-                            <td style="text-align: left; padding: 3px;">Cuota No. {{ fila.periodo }}</td>
-                            <td style="text-align: left; padding: 3px;">{{ fila.fecha }}</td>
-                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.saldo_inicial)
-                                }}</td>
-                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.cuota_deseada)
-                                }}</td>
-                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.cuota_calculada)
-                                }}</td>
-                            <td style="text-align: right; padding: 3px; white-space: nowrap;">{{ formatoMoneda(fila.saldo_final) }}
-                            </td>
-                            <td style="padding: 3px; text-align: left;">{{ fila.nota }}</td>
-                        </tr>
-<!--                        
-                        <tr>
-                            <td style="text-align: left; padding: 5px 8px; color: #0277bd;">Importe Financiación</td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="text-align: right; padding: 5px 8px; color: #0277bd;">{{ formatoMoneda(valor_credito_final) }}</td>
-                            <td style="padding: 3px;"></td>
-                        </tr>
-                        <tr style="border-top: 1px solid #ddd;">
-                            <td style="text-align: left; padding: 5px 8px; color: #388e3c;">Subsidio No.1</td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="padding: 3px;"></td>
-                            <td style="text-align: right; padding: 5px 8px; color: #388e3c;">{{ formatoMoneda(valor_subsidio) }}</td>
-                            <td style="padding: 3px;"></td>
-                        </tr> -->
-                    </tbody>
-                </table>
-            </div>
-            <div
-                style="padding: 1rem 2.2rem; font-size: 12px; color: #444; line-height: 1.35; border-top: 1px solid #ccc; margin-top: 1rem;">
-                <h3 style="font-size: 14px; font-weight: 700; color: #007a8c; margin-bottom: .5rem; text-align: center;">
-                    Información Legal y Financiera
-                </h3>
+                <div style="padding: .8rem 1rem; font-size: 11px; color: #444; line-height: 1.3; margin-top: .5rem;">
+                    <h3 style="font-size: 13px; font-weight: 700; color: #007a8c; margin-bottom: .4rem; text-align: center;">
+                        Información Legal y Financiera
+                    </h3>
                 <p style="text-align: justify; margin: .4rem 0;">
                     <strong>CONSTRUCTORA CAPITAL MEDELLÍN S.A.S.</strong> y <strong>CONSTRUCTORA CAPITAL BOGOTÁ S.A.S.</strong>
                     dejan constancia en que la visita realizada el día de hoy nos autorizó para recolectar y tratar sus datos
@@ -2075,7 +2138,7 @@
                     comerciales y de análisis,
                     conforme a la Ley 1581 de 2012.
                 </p>
-            
+
                 <p style="text-align: justify; margin: .4rem 0;">
                     Para consultas o reclamaciones sobre el tratamiento de sus datos personales, puede comunicarse al correo
                     <a href="mailto:protecciondedatos@constructoracapital.com" style="color: #007a8c; text-decoration: none;">
@@ -2085,7 +2148,7 @@
                 </p>
 
                 <div style="border-top: 1px dashed #bbb; margin: .8rem 0;"></div>
- 
+
                 <p style="text-align: justify; margin: .4rem 0;">
                     <strong>(*) Financiar tu inmueble en pesos</strong>, también conocido como <strong>TASA FIJA</strong>, te
                     permite garantizar el valor mensual de la cuota de tu crédito sin variaciones a lo largo del tiempo.
@@ -2093,16 +2156,16 @@
                     que te permite acceder a cuotas iniciales más bajas,
                     pero sujetas al comportamiento de la inflación.
                 </p>
-            
+
                 <p style="text-align: justify; margin: .4rem 0;">
                     Recuerda que por ley puedes solicitar el cambio de modalidad o trasladar tu hipoteca entre bancos sin penalidad,
                     siempre que cumplas con el perfil de riesgo requerido por la entidad financiera.
                     El único responsable del pago del inmueble y de la obtención de la financiación es el comprador o cesionario.
                     En caso de tener 70 años o más, la aprobación del crédito puede estar sujeta a condiciones especiales.
                 </p>
-            
+
                 <div style="border-top: 1px dashed #bbb; margin: .8rem 0;"></div>
-            
+
                 <p style="text-align: justify; margin: .4rem 0;">
                     <strong>(*) El valor de la separación</strong> no hace parte del pago del inmueble si este es de característica
                     <strong>VIS</strong>.
@@ -2112,12 +2175,74 @@
                         notariado y registro</em>,
                     entre otros, y no son negociables por las partes.
                 </p>
+                </div>
+                <div style="text-align: center; font-size: 14px; line-height: 1.4; margin-top: 2.5rem;">
+                    <div style="border-top: 1px solid #000; width: 30%; margin: 0 auto 0.4rem;"></div>
+                    <div>Asesor: <span style="font-weight: bold;">{{ asesor.nombres }}</span></div>
+                    <div>Fecha: <span style="font-weight: bold;">{{ f_cotizacion }}</span></div>
+                </div>
+
             </div>
-            <div style="text-align: center; font-size: 14px; line-height: 1.4; margin-top: 2.5rem;">
-                <div style="border-top: 1px solid #000; width: 30%; margin: 0 auto 0.4rem;"></div>
-                <div>Asesor: <span style="font-weight: bold;">{{ asesor.nombres }}</span></div>
-                <div>Fecha: <span style="font-weight: bold;">{{ f_cotizacion }}</span></div>
+        </div>
+    </div>
+    <div v-if="tablaPeriodos && tablaPeriodos.length > 0" class="pure-u-1 pure-u-md-1-1" style="margin-top: 2rem; display: none;">
+        <div id="tabla-amortizacion-landscape" style="width: 100%; padding: 10px 20px; background: white;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="width: 23%;">
+                    <img src="../img/ico/logo-capital.png" alt="Logo Capital" crossorigin="anonymous"
+                        style="max-width: 100%; max-height: 50px; object-fit: contain;">
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <h3 style="color: #009AB9; font-weight: bold; font-size: 16px; margin: 0;">Plan de Pagos</h3>
+                </div>
+                <div v-if="logoProyecto" style="width: 23%; display: flex; justify-content: flex-end; align-items: center;">
+                    <img :src="logoProyecto" alt="Logo Proyecto" crossorigin="anonymous"
+                        style="max-width: 100%; max-height: 50px; object-fit: contain;">
+                </div>
+                <div v-else style="width: 23%;"></div>
             </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 2px solid #999;">
+                <thead>
+                    <tr style="background: #009AB9; color: white; text-align: center;">
+                        <th style="padding: 8px; border: 1px solid #777; font-weight: bold; width: 5%; white-space: nowrap;">Concepto</th>
+                        <th style="padding: 8px; border: 1px solid #777; font-weight: bold; width: 5%; white-space: nowrap;">Fecha</th>
+                        <th style="padding: 8px; border: 1px solid #777; font-weight: bold; width: 5%; white-space: nowrap;">Saldo Inicial</th>
+                        <th style="padding: 8px; border: 1px solid #777; font-weight: bold; width: 5%; white-space: nowrap;">Cuota Deseada</th>
+                        <th style="padding: 8px; border: 1px solid #777; font-weight: bold; width: 5%; white-space: nowrap;">Cuota Calculada</th>
+                        <th style="padding: 8px; border: 1px solid #777; font-weight: bold; width: 5%; white-space: nowrap;">Saldo Final</th>
+                        <th style="padding: 8px; border: 1px solid #777; font-weight: bold; width: 70%;">Nota</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background: #fff3e0;">
+                        <td style="text-align: left; padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #f57c00;">Separación</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #f57c00;">{{ formatoMoneda(valor_separacion) }}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="background: #ffebee;">
+                        <td style="text-align: left; padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #e64a19;">Gastos Escritura</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #e64a19;">{{ formatoMoneda(valor_escrituras) }}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr v-for="(fila, index) in tablaPeriodos" :key="index" :style="index % 2 === 0 ? 'background: #f9f9f9;' : 'background: white;'">
+                        <td style="text-align: left; padding: 8px; border: 1px solid #ddd;">Cuota No. {{ fila.periodo }}</td>
+                        <td style="text-align: center; padding: 8px; border: 1px solid #ddd;">{{ fila.fecha }}</td>
+                        <td style="text-align: right; padding: 8px; border: 1px solid #ddd; white-space: nowrap;">{{ formatoMoneda(fila.saldo_inicial) }}</td>
+                        <td style="text-align: right; padding: 8px; border: 1px solid #ddd; white-space: nowrap;">{{ formatoMoneda(fila.cuota_deseada) }}</td>
+                        <td style="text-align: right; padding: 8px; border: 1px solid #ddd; white-space: nowrap;">{{ formatoMoneda(fila.cuota_calculada) }}</td>
+                        <td style="text-align: right; padding: 8px; border: 1px solid #ddd; white-space: nowrap;">{{ formatoMoneda(fila.saldo_final) }}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">{{ fila.nota }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     <div class="pure-u-1 pure-u-md-1-1">
@@ -2358,7 +2483,7 @@
     <!-- ------------------------------------------------------------ -->
     <!-- ----------------------------- Global------------------------- -->
     <!-- ------------------------------------------------------------ -->
-    <div class="pure-u-1-1" style="padding-top: 1em;" v-if="iscliente">
+    <div class="pure-u-1-1" v-if="iscliente">
         <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
             <div v-if="mode >= 0 && mode <= 1" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleSave">Guardar</button>

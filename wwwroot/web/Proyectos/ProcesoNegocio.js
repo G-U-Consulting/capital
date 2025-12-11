@@ -121,6 +121,7 @@ export default {
             contadorProyectos: {},
             unidades: [],
             tipoProyecto: null,
+            logoProyecto: null,
             tipo_factor: [],
             pagoSeleccionado: '',
             registroCompras: [
@@ -186,6 +187,10 @@ export default {
             valor_descuento_adicional: 0,
             valor_escrituras: 0,
             valor_separacion: 0,
+            fin_max_permisible: 0,
+            cuota_max_financiable: 0,
+            ingr_regs_max: 0,
+            cuota_permisible: 0,
 
             tipoFinanciacionSeleccionada: '',
 
@@ -624,7 +629,65 @@ export default {
 
             const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
             this.unidadOpcion = resp.data[0][0];
+            console.log('unidadOpcion completo:', this.unidadOpcion);
+            console.log('Propiedades disponibles:', Object.keys(this.unidadOpcion || {}));
             this.reformaActivo = this.unidadOpcion?.inv_terminado == 1;
+
+            if (GlobalVariables.id_proyecto) {
+                try {
+                    const id_proyecto = GlobalVariables.id_proyecto;
+
+                    const consultas = [
+                        {
+                            prop: "tipoProyecto",
+                            url: "/generic/genericDT/ProcesoNegocio:Get_Tipos",
+                            params: { tipo: "imagenes", id_proyecto, id_unidad },
+                            formatter: (data) => data?.[0] ? `/file/S3get/${data[0].llave}` : null
+                        },
+                        {
+                            prop: "tipoPlanta",
+                            url: "/generic/genericDT/Maestros:Get_Archivos",
+                            params: { tipo: "planta", id_proyecto },
+                            formatter: (data) => data?.[0] ? `/file/S3get/${data[0].llave}` : null
+                        },
+                        {
+                            prop: "logoProyecto",
+                            url: "/generic/genericDT/Maestros:Get_Archivos",
+                            params: { tipo: "logo", id_proyecto },
+                            formatter: (data) => data?.[0] ? `/file/S3get/${data[0].llave}` : null
+                        }
+                    ];
+
+                    const [resProyecto, resPlanta, resLogo] = await Promise.all(
+                        consultas.map((q) => httpFunc(q.url, q.params))
+                    );
+
+                    this.tipoProyecto = resProyecto.data?.length
+                        ? consultas[0].formatter(resProyecto.data)
+                        : null;
+
+                    this.tipoPlanta = resPlanta.data?.length
+                        ? consultas[1].formatter(resPlanta.data)
+                        : null;
+
+                    this.logoProyecto = resLogo.data?.length
+                        ? consultas[2].formatter(resLogo.data)
+                        : null;
+
+                } catch (error) {
+                    console.error("Error al cargar las imágenes del apartamento:", error);
+                }
+            }
+
+            try {
+                let img = await fetch('../../img/ico/svg/logo-capital.svg');
+                img = await img.text();
+                await this.$nextTick();
+                const container = document.getElementById('logo-capital');
+                if (container) container.innerHTML = img;
+            } catch (error) {
+                console.error("Error al cargar el logo:", error);
+            }
 
             await this.cargarOpcionExistente();
         },
@@ -634,10 +697,9 @@ export default {
 
             this.valor_descuento_adicional = 0;
             this.valor_escrituras = 0;
-            this.notariales = 0;
-            this.f_valor_notariales = 0;
-            this.beneficiencia = 0;
-            this.registro = 0;
+            this.valor_notariales = 0;
+            this.valor_beneficiencia = 0;
+            this.valor_registro = 0;
 
             this.pagoSeleccionado = '';
 
@@ -708,10 +770,10 @@ export default {
                
                     this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
                     this.valor_separacion = opcion.valor_separacion || 0;
-                    this.valor_escrituras = opcion.valor_escrituras || 0;
-                    this.notariales = opcion.notariales || 0;
-                    this.beneficiencia = opcion.beneficiencia || 0;
-                    this.registro = opcion.registro || 0;
+                    this.valor_notariales = opcion.notariales || 0;
+                    this.valor_beneficiencia = opcion.beneficiencia || 0;
+                    this.valor_registro = opcion.registro || 0;
+                    this.calcularEscrituras();
 
                     if (opcion.pago_financiado) {
                         this.pagoSeleccionado = 'Financiado';
@@ -1112,9 +1174,9 @@ export default {
                     valor_descuento_adicional: this.cleanNumber(this.valor_descuento_adicional) || 0,
                     valor_separacion: this.cleanNumber(this.esOpcionGuardada ? this.opcion_valor_separacion : this.valor_separacion) || 0,
                     valor_escrituras: this.cleanNumber(this.valor_escrituras) || 0,
-                    notariales: this.cleanNumber(this.notariales) || 0,
-                    beneficiencia: this.cleanNumber(this.beneficiencia) || 0,
-                    registro: this.cleanNumber(this.registro) || 0,
+                    notariales: this.cleanNumber(this.valor_notariales) || 0,
+                    beneficiencia: this.cleanNumber(this.valor_beneficiencia) || 0,
+                    registro: this.cleanNumber(this.valor_registro) || 0,
                     pago_contado: this.pagoSeleccionado?.toLowerCase() === 'contado' ? 1 : 0,
                     pago_financiado: this.pagoSeleccionado?.toLowerCase() === 'financiado' ? 1 : 0,
                     id_entidad: this.bancoSeleccionado || null,
@@ -1177,10 +1239,10 @@ export default {
                 const opcion = JSON.parse(borrador.datos_json);
                 this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
                 this.valor_separacion = opcion.valor_separacion || 0;
-                this.valor_escrituras = opcion.valor_escrituras || 0;
-                this.notariales = opcion.notariales || 0;
-                this.beneficiencia = opcion.beneficiencia || 0;
-                this.registro = opcion.registro || 0;
+                this.valor_notariales = opcion.notariales || 0;
+                this.valor_beneficiencia = opcion.beneficiencia || 0;
+                this.valor_registro = opcion.registro || 0;
+                this.calcularEscrituras();
 
                 if (opcion.pago_financiado) {
                     this.pagoSeleccionado = 'Financiado';
@@ -2883,19 +2945,173 @@ export default {
         },
         printPDF(id) {
             this.$nextTick(() => {
-                const content = document.getElementById(id);
-                html2pdf().set({
-                    margin: 0,
-                    letterRendering: false,
-                    filename: 'tabla.pdf',
-                    image: { type: 'jpeg', quality: 0.8 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
-                }).from(content).outputPdf('bloburl').then((pdfUrl) => {
-                    window.open(pdfUrl, '_blank');
-                });
+                setTimeout(() => {
+                    const content = document.getElementById(id);
+                    const tablaLandscape = document.getElementById('tabla-amortizacion-landscape');
+
+                    html2pdf().set({
+                        margin: [25, 10, 10, 10],
+                        filename: 'cotizacion.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: {
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: false,
+                            logging: false,
+                            windowWidth: 1024
+                        },
+                        pagebreak: { mode: 'css' },
+                        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                    }).from(content).toPdf().get('pdf').then(async pdfPortrait => {
+
+                        await this.agregarLogosEnTodasLasPaginas(pdfPortrait);
+
+                        if (this.tablaPeriodos && this.tablaPeriodos.length > 0 && tablaLandscape) {
+                            await this.renderTablaAmortizacion(pdfPortrait, tablaLandscape);
+                        }
+
+                        const pdfUrl = pdfPortrait.output('bloburl');
+                        window.open(pdfUrl, '_blank');
+
+                    }).catch((error) => {
+                        console.error('Error al generar PDF:', error);
+                        alert('Error al generar el PDF: ' + error.message);
+                    });
+                }, 100);
             });
         },
+        async agregarLogosEnTodasLasPaginas(pdf) {
+            const totalPages = pdf.internal.getNumberOfPages();
+
+            const logoCapital = '../img/ico/logo-capital.png';
+
+            const loadImageWithDimensions = (url) => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        resolve({
+                            base64: canvas.toDataURL('image/png'),
+                            width: img.width,
+                            height: img.height
+                        });
+                    };
+                    img.onerror = reject;
+                    img.src = url;
+                });
+            };
+
+            try {
+                const logoCapitalData = await loadImageWithDimensions(logoCapital);
+                const logoProyectoData = this.logoProyecto ? await loadImageWithDimensions(this.logoProyecto) : null;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+
+                    const maxHeightCapital = 18;
+                    const ratioCapital = logoCapitalData.width / logoCapitalData.height;
+                    const heightCapital = maxHeightCapital;
+                    const widthCapital = heightCapital * ratioCapital;
+                    pdf.addImage(logoCapitalData.base64, 'PNG', 10, 5, widthCapital, heightCapital);
+
+                    pdf.setFontSize(14);
+                    pdf.setTextColor(0, 154, 185);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text('Cotización', pageWidth / 2, 11, { align: 'center' });
+
+                    pdf.setFontSize(9);
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.text(`Numero Cotizacion #: ${this.cotizacionSeleccionada || ''}`, pageWidth / 2, 16, { align: 'center' });
+                    pdf.text(`Fecha Creado: ${this.f_cotizacion || ''}`, pageWidth / 2, 20, { align: 'center' });
+
+                    if (logoProyectoData) {
+                        const maxHeightProyecto = 18;
+                        const ratioProyecto = logoProyectoData.width / logoProyectoData.height;
+                        const heightProyecto = maxHeightProyecto;
+                        const widthProyecto = heightProyecto * ratioProyecto;
+                        const xPos = pageWidth - widthProyecto - 10;
+                        pdf.addImage(logoProyectoData.base64, 'PNG', xPos, 5, widthProyecto, heightProyecto);
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando logos:', error);
+            }
+        },
+        async renderTablaAmortizacion(pdfPortrait, tablaLandscape) {
+
+            const parent = tablaLandscape.parentElement;
+            const originalParentStyles = {
+                display: parent.style.display,
+                position: parent.style.position,
+                left: parent.style.left,
+                top: parent.style.top
+            };
+
+            parent.style.display = 'block';
+            parent.style.position = 'absolute';
+            parent.style.left = '-9999px';
+            parent.style.top = '0';
+
+            await this.$nextTick();
+            await new Promise(r => setTimeout(r, 500));
+
+            const canvas = await html2canvas(tablaLandscape, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+            pdfPortrait.addPage('letter', 'landscape');
+
+            const pageWidth = 279.4;
+            const pageHeight = 215.9;
+
+            const marginX = 10;
+            const marginY = 5;
+            const maxWidth = pageWidth - (marginX * 2);
+            const maxHeight = pageHeight - marginY - 5;
+
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const imgRatio = imgWidth / imgHeight;
+
+            let finalWidth = maxWidth;
+            let finalHeight = finalWidth / imgRatio;
+
+            if (finalHeight > maxHeight) {
+                finalHeight = maxHeight;
+                finalWidth = finalHeight * imgRatio;
+            }
+
+            const xPos = (pageWidth - finalWidth) / 2;
+            const yPos = marginY;
+
+            pdfPortrait.addImage(
+                imgData,
+                'JPEG',
+                xPos,
+                yPos,
+                finalWidth,
+                finalHeight,
+                undefined,
+                'FAST'
+            );
+            parent.style.display = originalParentStyles.display;
+            parent.style.position = originalParentStyles.position;
+            parent.style.left = originalParentStyles.left;
+            parent.style.top = originalParentStyles.top;
+        },
+
         guardarYGenerarPDF() {
             this.tablaPeriodos.forEach((fila, i) => this.recalcularFila(i));
             this.printPDF('contenedor-pdf-completo');
@@ -2984,9 +3200,9 @@ export default {
                     valor_descuento_adicional: this.cleanNumber(this.valor_descuento_adicional) || 0,
                     valor_separacion: this.cleanNumber(this.esOpcionGuardada ? this.opcion_valor_separacion : this.valor_separacion) || 0,
                     valor_escrituras: this.cleanNumber(this.valor_escrituras) || 0,
-                    notariales: this.cleanNumber(this.notariales) || 0,
-                    beneficiencia: this.cleanNumber(this.beneficiencia) || 0,
-                    registro: this.cleanNumber(this.registro) || 0,
+                    notariales: this.cleanNumber(this.valor_notariales) || 0,
+                    beneficiencia: this.cleanNumber(this.valor_beneficiencia) || 0,
+                    registro: this.cleanNumber(this.valor_registro) || 0,
                     pago_contado: this.pagoSeleccionado?.toLowerCase() === 'contado' ? 1 : 0,
                     pago_financiado: this.pagoSeleccionado?.toLowerCase() === 'financiado' ? 1 : 0,
                     id_entidad: this.bancoSeleccionado || null,
@@ -3157,7 +3373,20 @@ export default {
                     apellido2: this.ObjCliente.apellido2,
                     numeroDocumento: this.ObjCliente.numeroDocumento,
                     id_cliente: this.ObjCliente.id_cliente,
-                    porcentaje: this.ObjCliente.porcentaje_copropiedad
+                    porcentaje: this.ObjCliente.porcentaje_copropiedad,
+                    direccion: this.ObjCliente.direccion,
+                    ciudad: this.ObjCliente.ciudad,
+                    departamento: this.ObjCliente.departamento,
+                    pais: this.ObjCliente.pais,
+                    email1: this.ObjCliente.email1,
+                    email2: this.ObjCliente.email2,
+                    telefono1: this.ObjCliente.telefono1,
+                    telefono2: this.ObjCliente.telefono2,
+                    tipoDocumento: this.ObjCliente.tipoDocumento,
+                    paisExpedicion: this.ObjCliente.paisExpedicion,
+                    ciudadExpedicion: this.ObjCliente.ciudadExpedicion,
+                    fechaExpedicion: this.ObjCliente.fechaExpedicion,
+                    fechaNacimiento: this.ObjCliente.fechaNacimiento
                 });
             } else {
                 const idx = this.clientes.findIndex(c => c.id_cliente === this.ObjClienteOpcional.id_cliente);
@@ -3177,7 +3406,20 @@ export default {
                         apellido2: item.apellido2,
                         numeroDocumento: item.numero_documento,
                         id_cliente: item.id_cliente,
-                        porcentaje: item.porcentaje_copropiedad
+                        porcentaje: item.porcentaje_copropiedad,
+                        direccion: item.direccion,
+                        ciudad: item.ciudad,
+                        departamento: item.departamento,
+                        pais: item.pais,
+                        email1: item.email1,
+                        email2: item.email2,
+                        telefono1: item.telefono1,
+                        telefono2: item.telefono2,
+                        tipoDocumento: item.tipo_documento,
+                        paisExpedicion: item.pais_expedicion,
+                        ciudadExpedicion: item.ciudad_expedicion,
+                        fechaExpedicion: item.fecha_expedicion,
+                        fechaNacimiento: item.fecha_nacimiento
                     });
                 }
             }
@@ -3419,7 +3661,6 @@ export default {
                     return isNaN(num) ? 0 : num;
                 };
 
-                // Verificar que ExcelJS esté disponible
                 if (typeof ExcelJS === 'undefined') {
                     throw new Error('ExcelJS no está disponible');
                 }
@@ -3602,10 +3843,12 @@ export default {
                 importeRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
                 importeRow.getCell(1).border = borderThin;
 
+                const valorBase = toNumber(this.valor_credito_final_base) || toNumber(this.valor_credito_final);
+
                 importeRow.getCell(6).value = {
-                    formula: `${toNumber(this.valor_credito_final_base)}+SUMIF(F${primeraFilaPeriodo}:F${ultimaFilaPeriodo},"<0")`
+                    formula: `${valorBase}+SUMIF(F${primeraFilaPeriodo}:F${ultimaFilaPeriodo},"<0")`
                 };
-                importeRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                importeRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "0"_);_(@_)';
                 importeRow.getCell(6).font = { bold: true, color: { argb: 'FF0277BD' } };
                 importeRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE1F5FE' } };
                 importeRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
@@ -3744,6 +3987,32 @@ export default {
                     this.d_fecha_ulti_cuota = val;
                 }
             }
+        },
+        clientesParaPDF() {
+            if (this.clientes.length > 0) {
+                return this.clientes;
+            }
+            return [{
+                nombres: this.ObjCliente.nombres,
+                apellido1: this.ObjCliente.apellido1,
+                apellido2: this.ObjCliente.apellido2,
+                numeroDocumento: this.ObjCliente.numeroDocumento,
+                id_cliente: this.ObjCliente.id_cliente,
+                porcentaje: this.ObjCliente.porcentaje_copropiedad || 100,
+                direccion: this.ObjCliente.direccion,
+                ciudad: this.ObjCliente.ciudad,
+                departamento: this.ObjCliente.departamento,
+                pais: this.ObjCliente.pais,
+                email1: this.ObjCliente.email1,
+                email2: this.ObjCliente.email2,
+                telefono1: this.ObjCliente.telefono1,
+                telefono2: this.ObjCliente.telefono2,
+                tipoDocumento: this.ObjCliente.tipoDocumento,
+                paisExpedicion: this.ObjCliente.paisExpedicion,
+                ciudadExpedicion: this.ObjCliente.ciudadExpedicion,
+                fechaExpedicion: this.ObjCliente.fechaExpedicion,
+                fechaNacimiento: this.ObjCliente.fechaNacimiento
+            }];
         },
         display_valor_reformas() {
             return this.esOpcionGuardada && this.opcion_valor_reformas !== null
