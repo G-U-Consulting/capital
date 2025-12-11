@@ -18,7 +18,7 @@ select id_tipo_factor into @id_tipo_factor
 from dim_tipo_factor
 where lower(replace(tipo_factor, ' ', '')) = lower(replace(@tipo_factor, ' ', ''));
 
-select valor
+select valor, id_banco_factor
 from dim_banco_factor
 where
     id_banco = @id_banco

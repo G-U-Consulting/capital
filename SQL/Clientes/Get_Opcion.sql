@@ -19,7 +19,7 @@ select distinct round(@importe_original) as `importeOriginal`,
     round((@importe_original - o.valor_descuento_adicional)) as `importeActiva`,
     tf.tipo_financiacion as `tipoFinanciacionSeleccionada`, 
     id_anios as `anioSeleccionado`, 
-    round(0) as `f_factorBanco`, -- cual es el factor?
+    coalesce(bf.valor, 0) as `f_factorBanco`, -- cual es el factor?
     round(0) as `excedentePagoCuotaInicial`, -- como se calcula?
     round(0) as `valor_credito_final_base`, -- como se calcula?
     round(0) as `importeFinanciacionAjustado`, -- como se calcula?
@@ -54,5 +54,6 @@ join fact_unidades u on nu.id_unidad = u.id_unidad
 join dim_precio_unidad p on p.id_lista = u.id_lista and p.id_unidad = u.id_unidad
 join dim_tipo_financiacion tf on o.id_modalidad = tf.id_tipo_financiacion
 join fact_torres t on u.id_torre = t.id_torre
+left join dim_banco_factor bf on o.id_banco_factor = bf.id_banco_factor
 where o.id_opcion = @id_opcion
 limit 1;

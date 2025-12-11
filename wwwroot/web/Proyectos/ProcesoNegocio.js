@@ -289,6 +289,7 @@ export default {
             camposObligatorios: [],
             nombreCampos: {},
             factorBanco: 0,
+            idFactorBanco: null,
             valor_credito_final_base: 0,
             cuota_inicial_final_anterior: null,
             davivienda: {},
@@ -2991,7 +2992,8 @@ export default {
                     cuota_inicial: this.cleanNumber(this.cuota_inicial_final) || 0,
                     fecha_primera_cuota: this.esOpcionGuardada ? this.opcion_fecha_primera_cuota : this.d_fecha_cuota,
                     fecha_ultima_cuota: this.esOpcionGuardada ? this.opcion_fecha_ultima_cuota : this.d_fecha_ulti_cuota,
-                    fecha_escrituracion: this.esOpcionGuardada ? this.opcion_fecha_escrituracion : this.d_fecha_escrituracion
+                    fecha_escrituracion: this.esOpcionGuardada ? this.opcion_fecha_escrituracion : this.d_fecha_escrituracion,
+                    id_banco_factor: this.idFactorBanco || null
                 };
 
                 let resp;
@@ -3055,6 +3057,7 @@ export default {
                     tipo_factor: this.tipo_factor
                 });
                 this.factorBanco = resp.data[0][0].valor;
+                this.idFactorBanco = resp.data[0][0].id_banco_factor;
                 this.tipoFinanciacionSeleccionada = '';
 
             } catch (err) {
