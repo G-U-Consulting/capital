@@ -1515,7 +1515,7 @@
                                     <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
                                         @click="exportExcelAmortizacion" title="Descargar tabla a Excel con fórmulas"
                                         style="cursor: pointer; width: 35px; height: 35px;" />
-                                    <span @click="tablaAmortizacion = false"
+                                    <span @click="cerrarModalTabla"
                                         style="font-size: 2em; font-weight: bold; color: #999; cursor: pointer; line-height: 1; margin: 0; padding: 0;">×</span>
                                 </div>
                             </div>
@@ -1559,15 +1559,19 @@
                                         <td>{{ fila.fecha }}</td>
                                         <td style="text-align: right;">{{ formatoMoneda(fila.saldo_inicial) }}</td>
                                         <td>
-                                            <input type="text" v-model="fila.cuota_deseada" @input="recalcularFila(index)" class="input-cuota"
+                                            <input type="text" v-model="fila.cuota_deseada"
+                                                @input="recalcularFila(index)"
+                                                class="input-cuota"
                                                 :class="{'input-modificado': (fila.cuota_deseada !== null &&fila.cuota_deseada !== '' &&!isNaN(Number(fila.cuota_deseada.toString().replace(/\D/g, ''))))}"
+                                                :disabled="esOpcionGuardada"
+                                                :readonly="esOpcionGuardada"
                                                 @keyup="validar(index)" />
                                         </td>
                                         <td style="text-align: right;">{{ formatoMoneda(fila.cuota_calculada) }}</td>
                                         <td :class="{'texto-negativo': Number(fila.saldo_final.toString().replace(/[^0-9.-]/g, '')) < 0}" style="text-align: right;">
                                             {{ formatoMoneda(fila.saldo_final) }}
                                         </td>
-                                        <td><input type="text" class="input-cuota"></td>
+                                        <td><input type="text" class="input-cuota" :disabled="esOpcionGuardada" :readonly="esOpcionGuardada"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -2528,7 +2532,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <div v-if="showBorradorModal" class="asunto-modal-overlay">
     <div class="asunto-modal-box" style="max-width: 700px;">
