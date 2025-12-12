@@ -35,7 +35,7 @@
                 </div>
                 <div class="pure-u-1-2 pure-u-md-1-24">
                     <img src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel"
-                        @click="exportExcel('clientes')" title="Descargar datos a Excel" />
+                        @click.stop="exportExcel('clientes')" title="Descargar datos a Excel" />
                 </div>
             </div>
         </div>
@@ -171,7 +171,7 @@
 
             <div class='formDivision deployable' @click="showVisitas = !showVisitas">
                 <span>Proyectos visitados</span>
-                <img v-if="showVisitas" src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel('visitas')"
+                <img v-if="showVisitas" src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click.stop="exportExcel('visitas')"
                     title="Descargar datos a Excel" style="margin: 0 .7rem 2px auto;"/>
                 <span class="arrow" v-bind:class="{'expanded': showVisitas}">
                     &lt;
@@ -208,7 +208,7 @@
 
             <div class='formDivision deployable' @click="showCompras = !showCompras">
                 <span>Compras realizadas</span>
-                <img v-if="showCompras" src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel('ventas')"
+                <img v-if="showCompras" src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click.stop="exportExcel('ventas')"
                     title="Descargar datos a Excel" style="margin: 0 .7rem 2px auto;"/>
                 <span class="arrow" v-bind:class="{'expanded': showCompras}">
                     &lt;
@@ -245,7 +245,7 @@
 
             <div class='formDivision deployable' @click="showListas = !showListas">
                 <span>En listas de espera</span>
-                <img v-if="showListas" src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click="exportExcel('listas')"
+                <img v-if="showListas" src="../../img/cli/excel_02.png" alt="Excel" class="pure-img logoExcel" @click.stop="exportExcel('listas')"
                     title="Descargar datos a Excel" style="margin: 0 .7rem 2px auto;"/>
                 <span class="arrow" v-bind:class="{'expanded': showListas}">
                     &lt;

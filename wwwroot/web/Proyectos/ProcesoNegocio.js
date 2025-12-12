@@ -1778,12 +1778,17 @@ export default {
         async exportExcel(tabla) {
             try {
                 showProgress();
-                let data = JSON.parse(JSON.stringify(tabla));
-                data.forEach(row => {
+                let datos = JSON.parse(JSON.stringify(tabla));
+                datos.forEach(row => {
                         for (const key in row) key.startsWith('id_') && key !== 'id_visita' && delete row[key];
                     }
                 );
-                var archivo = (await httpFunc("/util/Json2File/excel", data)).data;
+                if (!datos.length) {
+                    hideProgress();
+                    showMessage('No hay datos para exportar');
+                    return;
+                }
+                var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
                 var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
                 window.open("./docs/" + archivo, "_blank");
             }

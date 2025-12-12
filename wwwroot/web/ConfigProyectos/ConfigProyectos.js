@@ -117,7 +117,7 @@ export default {
             this.ruta = [{
                 text: 'ZM', action: () =>
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, { text: 'Maestros', action: () => { this.mainmode = 0; this.mode = 0; this.setRuta() } }];
+            }, { text: 'Proyectos', action: () => { this.mainmode = 0; this.mode = 0; this.setRuta() } }];
             this.ruta = [...this.ruta, ...subpath];
         },
         setMainMode(mode) {
@@ -407,6 +407,11 @@ export default {
             try {
                 showProgress();
                 let datos = this.getFilteredList(tabla);
+                if (!datos.length) {
+                    hideProgress();
+                    showMessage('No hay datos para exportar');
+                    return;
+                }
                 var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
                 var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
                 window.open("./docs/" + archivo, "_blank");

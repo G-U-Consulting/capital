@@ -1221,6 +1221,11 @@
 			try {
 				showProgress();
 				let datos = this.getFilteredList(tabla);
+				if (!datos.length) {
+                    hideProgress();
+                    showMessage('No hay datos para exportar');
+                    return;
+                }
 				var archivo = (await httpFunc(`/util/Json2File/excel/${tabla}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
 				var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
 				window.open("./docs/" + archivo, "_blank");
