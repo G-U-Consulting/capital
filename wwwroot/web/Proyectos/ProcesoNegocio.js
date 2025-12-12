@@ -3076,7 +3076,7 @@ export default {
             const pageWidth = 279.4;
             const pageHeight = 215.9;
 
-            const marginX = 10;
+            const marginX = 8;
             const marginY = 5;
             const maxWidth = pageWidth - (marginX * 2);
             const maxHeight = pageHeight - marginY - 5;
@@ -3885,20 +3885,6 @@ export default {
 
             } catch (e) {
                 console.error('Error completo al exportar:', e);
-                console.error('Tipo de error:', typeof e);
-                console.error('Propiedades del error:', Object.keys(e));
-
-                let mensajeError = 'Error desconocido';
-                if (e.errorMessage) {
-                    mensajeError = e.errorMessage;
-                } else if (e.message) {
-                    mensajeError = e.message;
-                } else if (e.error) {
-                    mensajeError = JSON.stringify(e.error);
-                } else {
-                    mensajeError = JSON.stringify(e);
-                }
-
                 showMessage('Error al exportar: ' + mensajeError);
             }
             hideProgress();
