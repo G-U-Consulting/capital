@@ -3099,6 +3099,7 @@ export default {
                 for (let i = 1; i <= totalPages; i++) {
                     pdf.setPage(i);
                     const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
 
                     const maxHeightCapital = 18;
                     const ratioCapital = logoCapitalData.width / logoCapitalData.height;
@@ -3125,6 +3126,25 @@ export default {
                         const xPos = pageWidth - widthProyecto - 10;
                         pdf.addImage(logoProyectoData.base64, 'PNG', xPos, 5, widthProyecto, heightProyecto);
                     }
+
+                    // Agregar pie de página
+                    pdf.setFontSize(9);
+                    pdf.setFont(undefined, 'normal');
+
+                    // URL a la izquierda (negro)
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.text('www.constructoracapital.com', 10, pageHeight - 10);
+
+                    // Nombre del proyecto en el centro (azul)
+                    const nombreProyecto = GlobalVariables.proyecto?.nombre || '';
+                    pdf.setTextColor(0, 154, 185);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text(nombreProyecto, pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+                    // Número de página a la derecha (negro)
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.setFont(undefined, 'normal');
+                    pdf.text(`${i}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
                 }
             } catch (error) {
                 console.error('Error cargando logos:', error);
@@ -3192,6 +3212,27 @@ export default {
                 undefined,
                 'FAST'
             );
+
+            // Agregar pie de página
+            const currentPage = pdfPortrait.internal.getNumberOfPages();
+            pdfPortrait.setFontSize(9);
+            pdfPortrait.setFont(undefined, 'normal');
+
+            // URL a la izquierda (negro)
+            pdfPortrait.setTextColor(0, 0, 0);
+            pdfPortrait.text('www.constructoracapital.com', 10, pageHeight - 10);
+
+            // Nombre del proyecto en el centro (azul)
+            const nombreProyecto = GlobalVariables.proyecto?.nombre || '';
+            pdfPortrait.setTextColor(0, 154, 185);
+            pdfPortrait.setFont(undefined, 'bold');
+            pdfPortrait.text(nombreProyecto, pageWidth / 2, pageHeight - 10, { align: 'center' });
+
+            // Número de página a la derecha (negro)
+            pdfPortrait.setTextColor(0, 0, 0);
+            pdfPortrait.setFont(undefined, 'normal');
+            pdfPortrait.text(`${currentPage}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+
             parent.style.display = originalParentStyles.display;
             parent.style.position = originalParentStyles.position;
             parent.style.left = originalParentStyles.left;

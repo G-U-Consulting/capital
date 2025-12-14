@@ -306,16 +306,16 @@
     //     category: "TestArchivos",
     //     allow: ["*"]
     // }
-     "TestArchivos": {
-         templateUrl: "./web/Test/WebSockets.html",
-         jsUrl: "./web/Test/WebSockets.js",
-         title: "Prueba de WebSockets",
-         desc: "",
-         imgSrc: "./img/ico/menu/006-group.png",
-         zone: "ZM",
-         category: "WebSockets",
-         allow: ["*"]
-     }
+    //  "TestArchivos": {
+    //      templateUrl: "./web/Test/WebSockets.html",
+    //      jsUrl: "./web/Test/WebSockets.js",
+    //      title: "Prueba de WebSockets",
+    //      desc: "",
+    //      imgSrc: "./img/ico/menu/006-group.png",
+    //      zone: "ZM",
+    //      category: "WebSockets",
+    //      allow: ["*"]
+    //  }
 };
 const zones = {
     "ZM": {

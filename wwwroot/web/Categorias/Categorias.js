@@ -44,7 +44,7 @@ export default {
             this.ruta = [{
                 text: 'ZU', action: () => 
                 GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, {text: 'Categorias', action: () => { this.mainmode = 0; this.setMode(0) }}];
+            }, {text: 'Categorías', action: () => { this.mainmode = 0; this.setMode(0) }}];
             this.ruta = [...this.ruta, ...subpath];
         },
         setMode(mode) {
@@ -290,7 +290,7 @@ export default {
         },
         getMainPath() {
             let path = {};
-            if (this.mainmode == 1) path.text = "Categorias Adm";
+            if (this.mainmode == 1) path.text = "Categorías Adm";
             if (this.mainmode == 2) path.text = "Política de Contraseña";
             if (this.mainmode == 3) path.text = "Fondo Pantalla";
             path.action = () => this.setMode(0);
