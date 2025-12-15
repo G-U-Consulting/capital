@@ -590,7 +590,7 @@ export default {
         },
 
         async validateModeOpcion() {
-   
+
             if (!this.cotizacionSeleccionada) {
                 showMessage("No hay cotización seleccionada.");
                 return false;
@@ -602,14 +602,16 @@ export default {
                 return false;
             }
 
-            const hoyStr = new Date().toISOString().slice(0, 10);
-            const fechaStr = (cotizacion.fecha instanceof Date)
-                ? cotizacion.fecha.toISOString().slice(0, 10)
-                : this.normalizarFecha(cotizacion.fecha);
+            if (cotizacion.status !== 'Opcionada') {
+                const hoyStr = new Date().toISOString().slice(0, 10);
+                const fechaStr = (cotizacion.fecha instanceof Date)
+                    ? cotizacion.fecha.toISOString().slice(0, 10)
+                    : this.normalizarFecha(cotizacion.fecha);
 
-            if (fechaStr !== hoyStr) {
-                showMessage("Solo puede opcionar cotizaciones del día de hoy.");
-                return false;
+                if (fechaStr !== hoyStr) {
+                    showMessage("Solo puede opcionar cotizaciones del día de hoy.");
+                    return false;
+                }
             }
 
             if (cotizacion.importe <= 0) {
