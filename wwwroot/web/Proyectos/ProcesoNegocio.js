@@ -940,7 +940,11 @@ export default {
 
             await this.continuarNavegacion(nextIndex);
         },
-
+        setMode(mode) {
+            this.mode = mode;
+            if (mode === 0 && this.ObjCliente)
+                this.initIntlTel(this.ObjCliente);
+        },
         async continuarNavegacion(nextIndex) {
             if (this.mode === 0 && nextIndex === 1) {
                 if (!this.validateModeCliente()) return;
@@ -967,7 +971,7 @@ export default {
                 if (this.mode === 0 && nextIndex === 3) return;
                 if (this.mode === 1 && nextIndex === 3) return;
 
-                this.mode = nextIndex;
+                this.setMode(nextIndex);
 
                 if (nextIndex === 1) {
                     let resp2 = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { cliente: this.cliente });
@@ -1013,7 +1017,7 @@ export default {
         },
         async declinePolicy() {
             this.showPolicyModal = false;
-            this.mode = 0;
+            this.setMode(0);
         },
         async handleAction() {
             if (this.mode === 5) {
@@ -1062,7 +1066,7 @@ export default {
             
             this.id_cliente = Number(cliente[0].result.match(/\d+/)?.[0] || 0);
             this.isboton = true;
-            this.mode = 1;
+            this.setMode(1);
             this.israpida = false;
             this.policyAccepted = false;
             this.iscliente = !israpida;
@@ -1400,7 +1404,7 @@ export default {
                         this.borradorData = null;
                     },
                     () => {
-                        this.mode = 2;
+                        this.setMode(2);
                         this.borradorData = null;
                     }
                 );
@@ -1420,14 +1424,14 @@ export default {
         async rechazarBorrador() {
             this.showBorradorModal = false;
             this.borradorData = null;
-            this.mode = 2;
+            this.setMode(2);
         },
 
         async guardarBorradorYCerrar() {
             if (this.mode === 3 && this.tieneCambiosPendientes && !this.esOpcionGuardada) {
                 await this.guardarBorrador();
             }
-            this.mode = 0;
+            this.setMode(0);
             await this.limpiarObj();
         },
 
@@ -2109,7 +2113,7 @@ export default {
             await this.getCotizaciones();
             this.cotizacionSeleccionada = null;
             this.policyAccepted = true;
-            this.mode = 2;
+            this.setMode(2);
         },
         async continuarCliente() {
             let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_SaveCliente', {
@@ -3458,7 +3462,7 @@ export default {
 
                 showMessage(mensaje);
                 await this.limpiarObj();
-                this.mode = 0;
+                this.setMode(0);
 
             } catch (error) {
                 console.error('Error al enviar y opcionar:', error);

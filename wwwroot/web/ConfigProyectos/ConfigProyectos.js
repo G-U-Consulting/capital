@@ -99,11 +99,20 @@ export default {
             tooltipMsg: "Arrastra o haz clic para cargar archivos.",
             expandedVisible: false,
             expandedImage: null,
+            alertImg: false,
         };
     },
     async mounted() {
         this.loadData();
         this.setMainMode(0);
+    },
+    async unmounted() {
+        if (this.alertImg && (this.mainmode == 1 || this.mainmode == 2)) {
+            showConfirm("Tienes cambios sin guardar en imágenes. ¿Deseas guardar antes de cerrar?",
+                async () => {
+                    await this.onUpdateImg();
+                }, null, null, 'Guardar', 'Cancelar');
+        }
     },
     methods: {
         setRuta() {
@@ -117,11 +126,45 @@ export default {
             this.ruta = [{
                 text: 'ZM', action: () =>
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, { text: 'Proyectos', action: () => { this.mainmode = 0; this.mode = 0; this.setRuta() } }];
+            }, { text: 'Proyectos', action: () => { 
+                if ((this.mainmode == 1 || this.mainmode == 2) && this.alertImg) {
+                    showConfirm("Tienes cambios sin guardar en imágenes. ¿Deseas guardar antes de salir?",
+                        async () => {
+                            await this.onUpdateImg();
+                            this.mainmode = 0; 
+                            this.mode = 0; 
+                            this.setRuta();
+                        }, () => {
+                            this.mainmode = 0; 
+                            this.mode = 0; 
+                            this.setRuta();
+                            this.alertImg = false;
+                        }, null, 'Guardar', 'Salir sin guardar');
+                }
+                else {
+                    this.mainmode = 0; 
+                    this.mode = 0; 
+                    this.setRuta();
+                }
+            } }];
             this.ruta = [...this.ruta, ...subpath];
         },
         setMainMode(mode) {
+            if ((this.mainmode == 1 || this.mainmode == 2) && this.alertImg) {
+                showConfirm("Tienes cambios sin guardar en imágenes. ¿Deseas guardar antes de salir?",
+                    async () => {
+                        await this.onUpdateImg();
+                        this.setMainMode2(mode);
+                    }, () => {
+                        this.setMainMode2(mode);
+                        this.alertImg = false;
+                    }, null, 'Guardar', 'Salir sin guardar');
+            }
+            else this.setMainMode2(mode);
+        },
+        setMainMode2(mode) {
             this.mainmode = mode;
+            if (mode == 1 || mode == 2) this.loadImg();
             this.mode = 0;
             this.setRuta();
         },
@@ -324,6 +367,7 @@ export default {
                     if (res.isError) showMessage(res.errorMessage);
                     else this.uploadS3(res.data, id_doc, folder);
                 } else throw "No se encontró " + folder;
+                this.alertImg = false;
             }
             catch (e) {
                 showMessage('Error: ' + e);

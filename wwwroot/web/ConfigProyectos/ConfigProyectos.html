@@ -10,16 +10,16 @@
         </div>
 
         <div class="lateralMenuGroup">
-            <div v-on:click="setMainMode(1);loadImg();" class="lateralMenuItem noSelect group">
+            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect group">
                 Imágenes C.Capital
             </div>
-            <div v-on:click="setMainMode(1);loadImg();" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
                 <img src="./img/ico/svg/Maestro/Generales.svg" />
                 Generales Capital
                 <span class="tooltip-text">Imágenes generales capital</span>
             </div>
-            <div v-on:click="setMainMode(2);loadImg();" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect tooltip"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
                 <img src="./img/ico/svg/Maestro/Sostenibilidad.svg" />
                 Sostenibilidad
@@ -221,7 +221,7 @@
                     Imágenes {{mainmode == 1 ? 'Generales Capital' : 'Sostenibilidad'}}
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
-                    <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages" alt="">
+                    <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages(); alertImg = true;" alt="">
                 </div>
                 <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
                     style="position: relative;padding-top: 1em;">
@@ -231,7 +231,7 @@
                         @mouseenter="tooltipVisible = true" @mouseleave="tooltipVisible = false">
 
                         <div class="image-card" v-for="(item, index) in previews" :key="index" draggable="true"
-                            @dragstart="dragStart(index)" @mouseenter="tooltipVisible = false"
+                            @dragstart="dragStart(index); alertImg = true;" @mouseenter="tooltipVisible = false"
                             @mouseleave="tooltipVisible = true" style="position: relative;">
                             <img :src="item.src" @click.stop.prevent="expandImagenes(item)"
                                 @mouseenter="tooltipVisible = true; tooltipMsg = item.file.name"
@@ -242,7 +242,7 @@
                                     <img src="../../img/ico/download.jpg">
                                 </a>
                             </div>
-                            <div class="delete-btn" @click.stop.prevent="removeImage(index)">✖</div>
+                            <div class="delete-btn" @click.stop.prevent="removeImage(index); alertImg = true;">✖</div>
                         </div>
                         <div v-if="tooltipVisible" class="cursor-tooltip"
                             :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
@@ -250,7 +250,7 @@
                         </div>
                     </label>
                     <input type="file" id="file-input" class="hidden-input" style="display: none;" multiple
-                        accept="image/*" @change="handleFileChange" ref="fileInput" />
+                        accept="image/*" @input="handleFileChange($event); alertImg = true;" ref="fileInput" />
                 </div>
                 <div v-if="expandedVisible" class="image-modal" @click="closeExpanded">
                     <img :src="expandedImage" class="expanded-img" />
