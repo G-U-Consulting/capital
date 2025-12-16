@@ -46,10 +46,11 @@ alter table fact_clientes add unique key uk_doc (numero_documento);
 
 create table dim_tipo_registro (
     id_tipo_registro int auto_increment primary key,
-    tipo_registro varchar(100),
+    tipo_registro varchar(100) not null unique,
     is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+    constraint chk_tipo_registro_no_vacio check (trim(tipo_registro) <> '')
 );
 
 create table fact_cliente_actual (

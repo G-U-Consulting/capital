@@ -6,7 +6,8 @@
     is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
-	constraint pk_dim_sede primary key(id_sede)
+	constraint pk_dim_sede primary key(id_sede),
+	constraint chk_sede_no_vacio check (trim(sede) <> '')
 );
 insert into dim_sede(id_sede, sede, alias) values
 (1, 'Bogotá','BOG'),
@@ -281,7 +282,8 @@ create table dim_grupo_img(
 	id_grupo_img int primary key auto_increment,
 	is_active bit default 1,
 	grupo varchar(50) not null unique,
-	orden int not null
+	orden int not null,
+	constraint chk_grupo_img_no_vacio check (trim(grupo) <> '')
 );
 create table dim_instructivo(
 	id_instructivo int primary key auto_increment,
@@ -289,7 +291,8 @@ create table dim_instructivo(
 	is_active bit default 1,
 	procedimiento text,
 	documentacion_cierre text,
-	notas text
+	notas text,
+	constraint chk_instructivo_no_vacio check (trim(instructivo) <> '')
 );
 create table dim_categoria_medio(
 	id_categoria int primary key auto_increment,
@@ -297,7 +300,8 @@ create table dim_categoria_medio(
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_categoria_no_vacio check (trim(categoria) <> '')
 );
 create table dim_medio_publicitario(
 	id_medio int primary key auto_increment,
@@ -308,7 +312,8 @@ create table dim_medio_publicitario(
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
-	constraint fk_id_categoria foreign key(id_categoria) references dim_categoria_medio(id_categoria)
+	constraint fk_id_categoria foreign key(id_categoria) references dim_categoria_medio(id_categoria),
+	constraint chk_medio_no_vacio check (trim(medio) <> '')
 );
 create table dim_tramite(
 	id_tramite int primary key auto_increment,
@@ -317,7 +322,8 @@ create table dim_tramite(
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_tramite_no_vacio check (trim(tramite) <> '')
 );
 insert into dim_tramite(tramite) values('Asesoría Firma Digital Documentos por Docusign');
 insert into dim_tramite(tramite) values('Asesoría Pago con Cupón');
@@ -343,7 +349,8 @@ create table dim_subsidio_vis(
 	smmlv decimal(20,2) not null,
 	smmlv_0_2 decimal(20,2) not null,
 	smmlv_2_4 decimal(20,2) not null,
-	imagen varchar(255)
+	imagen varchar(255),
+	constraint chk_periodo_no_vacio check (trim(periodo) != 0)
 );
 insert into dim_subsidio_vis(periodo,smmlv,smmlv_0_2,smmlv_2_4) values(2025,1423500.00,42705000.00,28470000.00);
 
@@ -354,7 +361,8 @@ create table dim_documento(
 	is_active bit default 1,
 	is_img bit default 0,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_documento_no_vacio check (trim(documento) <> '')
 );
 insert into dim_documento (documento, is_active, is_img) values
 ('General', 1, 1),
@@ -611,7 +619,8 @@ create table dim_caja_compensacion(
 	caja varchar(100) not null unique,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_caja_no_vacio check (trim(caja) <> '')
 );
 insert into dim_caja_compensacion(caja) values
 ('Compensar'),
@@ -630,7 +639,8 @@ create table dim_tipo_tramite(
 	tipo_tramite varchar(50) not null unique,
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_tipo_tramite_no_vacio check (trim(tipo_tramite) <> '')
 );
 insert into dim_tipo_tramite(tipo_tramite) values
 ('Asesoría Firma Digital Documents por Docusign'),

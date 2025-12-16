@@ -107,10 +107,10 @@ export default {
         this.setMainMode(0);
     },
     async unmounted() {
-        if (this.alertImg && (this.mainmode == 1 || this.mainmode == 2)) {
-            showConfirm("Tienes cambios sin guardar en imágenes. ¿Deseas guardar antes de cerrar?",
+        if (this.alertImg && (this.mainmode == 1 || this.mainmode == 2 || this.mainmode == 13)) {
+            showConfirm("Tienes archivos sin guardar. ¿Deseas guardar antes de cerrar?",
                 async () => {
-                    await this.onUpdateImg();
+                    await this.mainmode == 13 ? this.onSaveDocument() : this.onUpdateImg();
                 }, null, null, 'Guardar', 'Cancelar');
         }
     },
@@ -127,10 +127,10 @@ export default {
                 text: 'ZM', action: () =>
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
             }, { text: 'Proyectos', action: () => { 
-                if ((this.mainmode == 1 || this.mainmode == 2) && this.alertImg) {
-                    showConfirm("Tienes cambios sin guardar en imágenes. ¿Deseas guardar antes de salir?",
+                if ((this.mainmode == 1 || this.mainmode == 2 || this.mainmode == 13) && this.alertImg) {
+                    showConfirm("Tienes archivos sin guardar. ¿Deseas guardar antes de salir?",
                         async () => {
-                            await this.onUpdateImg();
+                            await this.mainmode == 13 ? this.onSaveDocument() : this.onUpdateImg();
                             this.mainmode = 0; 
                             this.mode = 0; 
                             this.setRuta();
@@ -150,10 +150,10 @@ export default {
             this.ruta = [...this.ruta, ...subpath];
         },
         setMainMode(mode) {
-            if ((this.mainmode == 1 || this.mainmode == 2) && this.alertImg) {
-                showConfirm("Tienes cambios sin guardar en imágenes. ¿Deseas guardar antes de salir?",
+            if ((this.mainmode == 1 || this.mainmode == 2 || this.mainmode == 13) && this.alertImg) {
+                showConfirm("Tienes archivos sin guardar. ¿Deseas guardar antes de salir?",
                     async () => {
-                        await this.onUpdateImg();
+                        await this.mainmode == 13 ? this.onSaveDocument() : this.onUpdateImg();
                         this.setMainMode2(mode);
                     }, () => {
                         this.setMainMode2(mode);
@@ -222,7 +222,11 @@ export default {
                 if (resp.data === "OK") this.setMode(0);
                 else throw resp;
             } catch (e) {
-                if (e.isError) showMessage('Error: ' + e.errorMessage);
+                if (e.errorMessage && e.errorMessage.includes('_no_vacio'))
+                    showMessage('Error: ' + itemname + ' no puede estar vacío.');
+                else if (e.errorMessage && e.errorMessage.includes('cannot be null'))
+                    showMessage(`Error: Campo ${this.getErrorField(e.errorMessage)} obligatorio.`);
+                else if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
             return id;
@@ -284,7 +288,11 @@ export default {
                 }
                 else throw resp;
             } catch (e) {
-                if (e.isError) showMessage('Error: ' + e.errorMessage);
+                if (e.errorMessage && e.errorMessage.includes('_no_vacio'))
+                    showMessage('Error: ' + this.getItem()[1] + ' no puede estar vacío.');
+                else if (e.errorMessage && e.errorMessage.includes('cannot be null'))
+                    showMessage(`Error: Campo ${this.getErrorField(e.errorMessage)} obligatorio.`);
+                else if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
         },
@@ -308,7 +316,11 @@ export default {
                 else throw resp;
             }
             catch (e) {
-                if (e.isError) showMessage('Error: ' + e.errorMessage);
+                if (e.errorMessage && e.errorMessage.includes('_no_vacio'))
+                    showMessage('Error: ' + this.getItem()[1] + ' no puede estar vacío.');
+                else if (e.errorMessage && e.errorMessage.includes('cannot be null'))
+                    showMessage(`Error: Campo ${this.getErrorField(e.errorMessage)} obligatorio.`);
+                else if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
             hideProgress();
@@ -347,9 +359,14 @@ export default {
                     if (res.isError) showMessage(res.errorMessage);
                     else this.uploadS3(res.data, id_doc, 'docs');
                 } else throw resp;
+                this.alertImg = false;
                 this.setMode(0);
             } catch (e) {
-                if (e.isError) showMessage('Error: ' + e.errorMessage);
+                if (e.errorMessage && e.errorMessage.includes('_no_vacio'))
+                    showMessage('Error: ' + this.getItem()[1] + ' no puede estar vacío.');
+                else if (e.errorMessage && e.errorMessage.includes('cannot be null'))
+                    showMessage(`Error: Campo ${this.getErrorField(e.errorMessage)} obligatorio.`);
+                else if (e.isError) showMessage('Error: ' + e.errorMessage);
                 console.error(e);
             }
             hideProgress();
@@ -648,6 +665,7 @@ export default {
             let [parteEntera, parteDecimal] = value.split(".");
             parteEntera = parteEntera.replace(/\D/g, "");
             parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
+            if (parteEntera.startsWith("0")) parteEntera = parseInt(parteEntera).toString();
 
             let groups = [];
             let len = parteEntera.length;
@@ -666,15 +684,15 @@ export default {
         },
         cleanNumber(value) {
             let cleaned = value.replace(/['.]/g, "");
-            cleaned = cleaned.replace(",", ".");
-            return cleaned;
+            return cleaned.replace(",", ".");
         },
         inRange(e, min, max) {
             const value = this.cleanNumber(e.target.value);
             e.target.value = Math.min(Math.max(value, min), max);
         },
         validarFormato(e) {
-            e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
+            let num = e.target.value.replaceAll(/[^0-9\.,]/g, '') || '0';
+            e.target.value = num;
         },
         validarEntero(e) {
             e.target.value = e.target.value.replaceAll(/[^\d]/g, '');
@@ -888,20 +906,26 @@ export default {
         closeExpanded() {
             this.expandedVisible = false;
             this.expandedImage = null;
+        },
+        getErrorField(msgError) {
+            const regex = /Column '([^']+)'/;
+            const match = msgError.match(regex);
+            if (match && match[1]) return match[1].replace(/_/g, ' ');
+            return this.getItem()[1];
         }
     },
     computed: {
         f_smmlv: {
             get() { return this.formatNumber(this.subsidio['smmlv']); },
-            set(val) { this.subsidio['smmlv'] = this.cleanNumber(val); }
+            set(val) { this.subsidio['smmlv'] = this.cleanNumber(val) || '0'; }
         },
         f_smmlv_0_2: {
             get() { return this.formatNumber(this.subsidio['smmlv_0_2']); },
-            set(val) { this.subsidio['smmlv_0_2'] = this.cleanNumber(val); }
+            set(val) { this.subsidio['smmlv_0_2'] = this.cleanNumber(val) || '0'; }
         },
         f_smmlv_2_4: {
             get() { return this.formatNumber(this.subsidio['smmlv_2_4']); },
-            set(val) { this.subsidio['smmlv_2_4'] = this.cleanNumber(val); }
+            set(val) { this.subsidio['smmlv_2_4'] = this.cleanNumber(val) || '0'; }
         },
         has_factor() {
             return (id_banco, factor) => {

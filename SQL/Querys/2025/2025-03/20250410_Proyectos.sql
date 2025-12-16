@@ -16,7 +16,8 @@ create table dim_estado_publicacion(
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	add constraint chk_estado_publicacion_no_vacio check (trim(estado_publicacion) <> '')
 );
 create table dim_tipo_proyecto(
 	id_tipo_proyecto int not null auto_increment,
@@ -25,7 +26,8 @@ create table dim_tipo_proyecto(
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_tipo_proyecto_no_vacio check (trim(tipo_proyecto) <> '')
 );
 create table dim_tipo_vis(
 	id_tipo_vis int not null auto_increment,
@@ -34,7 +36,8 @@ create table dim_tipo_vis(
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_tipo_vis_no_vacio check (trim(tipo_vis) <> '')
 );
 create table dim_tipo_financiacion(
 	id_tipo_financiacion int not null auto_increment,
@@ -45,7 +48,8 @@ create table dim_tipo_financiacion(
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
-	constraint chk_valor_entre_0_y_100 check (porcentaje between 0 and 100)
+	constraint chk_valor_entre_0_y_100 check (porcentaje between 0 and 100),
+	constraint chk_tipo_financiacion_no_vacio check (trim(tipo_financiacion) <> '')
 );
 create table dim_pie_legal(
 	id_pie_legal int not null auto_increment,
@@ -56,7 +60,8 @@ create table dim_pie_legal(
 	codigo varchar(10),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_pie_legal_no_vacio check (trim(pie_legal) <> '')
 );
 create table dim_fiduciaria(
 	id_fiduciaria int not null auto_increment,
@@ -65,7 +70,8 @@ create table dim_fiduciaria(
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
-	constraint pk_id_fiduciaria primary key (id_fiduciaria)
+	constraint pk_id_fiduciaria primary key (id_fiduciaria),
+	constraint chk_fiduciaria_no_vacio check (trim(fiduciaria) <> '')
 );
 
 create table dim_opcion_visual(
@@ -87,8 +93,8 @@ create table dim_zona_proyecto (
     is_active bit default 1,
     created_on datetime default current_timestamp,
     created_by varchar(200) default CURRENT_USER,
-    constraint fk_zona_sede foreign key (id_sede) 
-        references dim_sede(id_sede)
+    constraint fk_zona_sede foreign key (id_sede) references dim_sede(id_sede),
+    constraint chk_zona_no_vacio check (trim(zona_proyecto) <> '')
 );
 create table dim_ciudadela (
     id_ciudadela int not null auto_increment,
@@ -103,7 +109,8 @@ create table dim_ciudadela (
 	constraint fk_ciudadela_sede foreign key (id_sede) 
 		references dim_sede(id_sede),
 	constraint fk_ciudadela_zona foreign key (id_zona_proyecto) 
-		references dim_zona_proyecto(id_zona_proyecto)
+		references dim_zona_proyecto(id_zona_proyecto),
+	constraint chk_ciudadela_no_vacio check (trim(ciudadela) <> '')
 );
 create table dim_banco_constructor(
 	id_banco int not null,
@@ -111,7 +118,8 @@ create table dim_banco_constructor(
     is_active bit default 1,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
-	constraint pk_dim_banco_constructor primary key(id_banco)
+	constraint pk_dim_banco_constructor primary key(id_banco),
+	constraint chk_banco_no_vacio check (trim(banco) <> '')
 );
 create trigger tr_insert_banco after insert on dim_banco_constructor for each row
 begin
@@ -326,15 +334,15 @@ insert into dim_tipo_vis(tipo_vis) values
 ('VIS de renovación'),
 ('Aplica subsidios VIS');
 
-insert into dim_tipo_financiacion(tipo_financiacion)values
+insert into dim_tipo_financiacion(tipo_financiacion, porcentaje)values
 /*('Acabados'),
 ('Reformas'),*/
-('Aplica Crédito 40-60'),
-('Aplica Crédito 50-50'),
-('Aplica Crédito 20-80'),
-('Aplica Crédito 30-70'),
-('Aplica Leasing 20-80'),
-('Aplica Leasing 10-90'),
+('Aplica Crédito 40-60', 60),
+('Aplica Crédito 50-50', 50),
+('Aplica Crédito 20-80', 80),
+('Aplica Crédito 30-70', 70),
+('Aplica Leasing 20-80', 80),
+('Aplica Leasing 10-90', 90),
 
 insert into dim_opcion_visual(opcion_visual) values
 ('Aumento automático PATE'),
