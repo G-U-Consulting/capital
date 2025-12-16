@@ -346,32 +346,21 @@ export default {
         formatNumber(value, dec = true, ndec = 2) {
             if (value == null || value === "") return "";
 
-            value = value.toString();
-            value = value.replace(/\./g, "");
-            value = value.replace(",", ".");
+            const numValue = this.cleanNumber(value);
+            if (numValue === 0 && value !== 0 && value !== '0') return "";
 
-            let [parteEntera, parteDecimal] = value.split(".");
-            parteEntera = parteEntera.replace(/\D/g, "");
-            parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
-
-            if (ndec >= 0)
-                parteDecimal = dec && ndec > 0 ? parteDecimal.padEnd(ndec, '0') : "";
+            const fixed = numValue.toFixed(dec && ndec > 0 ? ndec : 0);
+            const [parteEntera, parteDecimal] = fixed.split(".");
 
             let groups = [];
             let len = parteEntera.length;
             for (let i = len; i > 0; i -= 3)
                 groups.unshift(parteEntera.substring(Math.max(0, i - 3), i));
 
-            let formattedEntera = groups[0] || "";
-            for (let i = 1; i < groups.length; i++)
-                formattedEntera += '.' + groups[i];
+            let formattedEntera = groups.join('.');
 
             let result = formattedEntera;
-            if (parteDecimal && dec && ndec > 0) {
-                if (parteDecimal.length > ndec)
-                    parteDecimal = Math.round(
-                        parseInt(parteDecimal) / Math.pow(10, parteDecimal.length - ndec)
-                    ).toString();
+            if (dec && ndec > 0 && parteDecimal) {
                 result += "," + parteDecimal;
             }
 
@@ -381,15 +370,33 @@ export default {
             if (value === null || value === undefined || value === '') return 0;
             if (typeof value === 'number') return value;
 
-            const cleaned = String(value)
-                .replace(/\$/g, '')
-                .replace(/\s/g, '')
-                .replace(/\./g, '')
-                .replace(',', '.')
-                .trim();
+            let str = String(value).replace(/\$/g, '').replace(/\s/g, '').trim();
+            if (str === '') return 0;
 
-            if (cleaned === '') return 0;
-            return parseFloat(cleaned) || 0;
+            const puntos = (str.match(/\./g) || []).length;
+            const comas = (str.match(/,/g) || []).length;
+
+            if (puntos > 1) {
+                str = str.replace(/\./g, '').replace(',', '.');
+            } else if (comas > 1) {
+                str = str.replace(/,/g, '');
+            } else if (puntos === 1 && comas === 1) {
+                const posPunto = str.indexOf('.');
+                const posComa = str.indexOf(',');
+                if (posPunto < posComa) {
+                    str = str.replace(/\./g, '').replace(',', '.');
+                } else {
+                    str = str.replace(/,/g, '');
+                }
+            } else if (comas === 1 && puntos === 0) {
+                const partes = str.split(',');
+                if (partes[1] && partes[1].length <= 2) {
+                    str = str.replace(',', '.');
+                } else {
+                    str = str.replace(',', '');
+                }
+            }
+            return parseFloat(str) || 0;
         },
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
@@ -421,15 +428,10 @@ export default {
                 return;
             }
 
-            const parseNumber = (valor) => {
-                if (!valor) return 0;
-                return parseFloat(String(valor).replace(/\$/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.'));
-            };
-
-            const ingresosLimpios = parseNumber(this.ingresos_mensuales);
-            const smmlv = parseNumber(registro.smmlv);
-            const smmlv_0_2 = parseNumber(registro.smmlv_0_2);
-            const smmlv_2_4 = parseNumber(registro.smmlv_2_4);
+            const ingresosLimpios = this.cleanNumber(this.ingresos_mensuales);
+            const smmlv = this.cleanNumber(registro.smmlv);
+            const smmlv_0_2 = this.cleanNumber(registro.smmlv_0_2);
+            const smmlv_2_4 = this.cleanNumber(registro.smmlv_2_4);
 
 
             if (!ingresosLimpios || ingresosLimpios === 0) {
@@ -761,19 +763,19 @@ export default {
                     this.opcion_fecha_escrituracion = opcion.fecha_escrituracion ?? null;
                     this.opcion_fecha_primera_cuota = opcion.fecha_primera_cuota ?? null;
                     this.opcion_fecha_ultima_cuota = opcion.fecha_ultima_cuota ?? null;
-                    this.opcion_valor_reformas = opcion.valor_reformas ?? 0;
-                    this.opcion_valor_acabados = opcion.valor_acabados ?? 0;
-                    this.opcion_valor_separacion = opcion.valor_separacion ?? 0;
+                    this.opcion_valor_reformas = this.cleanNumber(opcion.valor_reformas);
+                    this.opcion_valor_acabados = this.cleanNumber(opcion.valor_acabados);
+                    this.opcion_valor_separacion = this.cleanNumber(opcion.valor_separacion);
                     this.opcion_fin_max_permisible = this.cleanNumber(opcion.fin_max_permisible);
                     this.opcion_cuota_max_financiable = this.cleanNumber(opcion.cuota_max_financiable);
                     this.opcion_ingr_regs_max = this.cleanNumber(opcion.ingr_regs_max);
-                
-               
-                    this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
-                    this.valor_separacion = opcion.valor_separacion || 0;
-                    this.valor_notariales = opcion.notariales || 0;
-                    this.valor_beneficiencia = opcion.beneficiencia || 0;
-                    this.valor_registro = opcion.registro || 0;
+
+
+                    this.valor_descuento_adicional = this.cleanNumber(opcion.valor_descuento_adicional);
+                    this.valor_separacion = this.cleanNumber(opcion.valor_separacion);
+                    this.valor_notariales = this.cleanNumber(opcion.notariales);
+                    this.valor_beneficiencia = this.cleanNumber(opcion.beneficiencia);
+                    this.valor_registro = this.cleanNumber(opcion.registro);
                     this.calcularEscrituras();
 
                     if (opcion.pago_financiado) {
@@ -809,10 +811,10 @@ export default {
                         this.tipoFinanciacionSeleccionada = '';
                     }
 
-                    this.ingresos_mensuales = opcion.ingresos_familiares || 0;
-                    this.cesantias = opcion.cesantias || 0;
-                    this.ahorros = opcion.ahorros || 0;
-                    this.valor_subsidio = opcion.valor_subsidio || 0;
+                    this.ingresos_mensuales = this.cleanNumber(opcion.ingresos_familiares);
+                    this.cesantias = this.cleanNumber(opcion.cesantias);
+                    this.ahorros = this.cleanNumber(opcion.ahorros);
+                    this.valor_subsidio = this.cleanNumber(opcion.valor_subsidio);
                     this.seleccionAnioEntrega = opcion.anio_entrega || '';
                     this.caja_compensacion = opcion.id_caja_compensacion || null;
 
@@ -820,10 +822,10 @@ export default {
                     this.cuota_permisible = this.cleanNumber(opcion.cuota_permisible);
                     this.cuota_max_financiable = this.cleanNumber(opcion.cuota_max_financiable);
                     this.ingr_regs_max = this.cleanNumber(opcion.ingr_regs_max);
-                    this.d_meses = opcion.meses || 0;
+                    this.d_meses = this.cleanNumber(opcion.meses);
 
-                    this.valor_credito_final = opcion.importe_financiacion || 0;
-                    this.cuota_inicial_final = opcion.cuota_inicial || 0;
+                    this.valor_credito_final = this.cleanNumber(opcion.importe_financiacion);
+                    this.cuota_inicial_final = this.cleanNumber(opcion.cuota_inicial);
 
                     // const tablaAmortizacion = respOpcion.data[1];
                     // if (tablaAmortizacion && tablaAmortizacion.length > 0) {
@@ -1274,11 +1276,11 @@ export default {
         async cargarBorrador(borrador) {
             try {
                 const opcion = JSON.parse(borrador.datos_json);
-                this.valor_descuento_adicional = opcion.valor_descuento_adicional || 0;
-                this.valor_separacion = opcion.valor_separacion || 0;
-                this.valor_notariales = opcion.notariales || 0;
-                this.valor_beneficiencia = opcion.beneficiencia || 0;
-                this.valor_registro = opcion.registro || 0;
+                this.valor_descuento_adicional = this.cleanNumber(opcion.valor_descuento_adicional);
+                this.valor_separacion = this.cleanNumber(opcion.valor_separacion);
+                this.valor_notariales = this.cleanNumber(opcion.notariales);
+                this.valor_beneficiencia = this.cleanNumber(opcion.beneficiencia);
+                this.valor_registro = this.cleanNumber(opcion.registro);
                 this.calcularEscrituras();
 
                 if (opcion.pago_financiado) {
@@ -1319,10 +1321,10 @@ export default {
                     this.tipoFinanciacionSeleccionada = '';
                 }
 
-                this.ingresos_mensuales = opcion.ingresos_familiares || 0;
-                this.cesantias = opcion.cesantias || 0;
-                this.ahorros = opcion.ahorros || 0;
-                this.valor_subsidio = opcion.valor_subsidio || 0;
+                this.ingresos_mensuales = this.cleanNumber(opcion.ingresos_familiares);
+                this.cesantias = this.cleanNumber(opcion.cesantias);
+                this.ahorros = this.cleanNumber(opcion.ahorros);
+                this.valor_subsidio = this.cleanNumber(opcion.valor_subsidio);
                 this.seleccionAnioEntrega = opcion.anio_entrega || '';
                 this.caja_compensacion = opcion.id_caja_compensacion || null;
 
@@ -1886,13 +1888,12 @@ export default {
                     cotizacion: cotizacionId
                 });
 
-                const parseNumber = str =>
-                    typeof str === 'string' ? parseFloat(str.replace(/\./g, '').replace(',', '.')) : Number(str) || 0;
+                const dataArray = respa?.data?.[0] || respa?.data || [];
 
-                const unidades = (respa.data[0] || []).map(unidad => ({
+                const unidades = (Array.isArray(dataArray) ? dataArray : []).map(unidad => ({
                     ...unidad,
-                    valor_unidad: parseNumber(unidad.valor_unidad),
-                    valor_descuento: parseNumber(unidad.valor_descuento)
+                    valor_unidad: this.cleanNumber(unidad.valor_unidad),
+                    valor_descuento: this.cleanNumber(unidad.valor_descuento)
                 }));
 
                 const totalFinal = unidades.reduce(
@@ -1900,7 +1901,7 @@ export default {
                     0
                 );
 
-                return { unidades, totalFinal, rawData: respa.data[0]?.[0] };
+                return { unidades, totalFinal, rawData: dataArray?.[0] };
             } catch (error) {
                 console.error(`Error al cargar unidades de cotización ${cotizacionId}:`, error);
                 return { unidades: [], totalFinal: 0, rawData: null };
@@ -2259,13 +2260,6 @@ export default {
             this.detenerMonitoreoVentanaUnidades();
         },
         async refrescarImportes() {
-            const parseNumber = (str) => {
-                if (typeof str === 'string') {
-                    return parseFloat(str.replace(/\./g, '').replace(',', '.'));
-                }
-                return Number(str) || 0;
-            };
-
             for (const cotizacion of this.cotizaciones) {
                 let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
                     id_cliente: this.id_cliente,
@@ -2273,10 +2267,12 @@ export default {
                     id_proyecto: GlobalVariables.id_proyecto,
                 });
 
-                const unidades = (respa.data[0] || []).map(unidad => ({
+                const dataArray = respa?.data?.[0] || respa?.data || [];
+
+                const unidades = (Array.isArray(dataArray) ? dataArray : []).map(unidad => ({
                     ...unidad,
-                    valor_unidad: parseNumber(unidad.valor_unidad),
-                    valor_descuento: parseNumber(unidad.valor_descuento)
+                    valor_unidad: this.cleanNumber(unidad.valor_unidad),
+                    valor_descuento: this.cleanNumber(unidad.valor_descuento)
                 }));
 
                 cotizacion.unidades = unidades;
@@ -2384,12 +2380,16 @@ export default {
             showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);
         },
         formatoMoneda(num) {
-        
+
             if (num === null || num === undefined || num === '') {
                 return '';
             }
             const numeroLimpio = typeof num === 'number' ? num : this.cleanNumber(num);
-            return "$ " + new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(numeroLimpio);
+
+            const parts = numeroLimpio.toFixed(0).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+            return "$ " + parts[0];
         },
         //////// mode 3 ////////////
         async cargarFactor() {
@@ -2616,7 +2616,15 @@ export default {
         },
         formatCurrency(v) {
             const dec = this.decimales;
-            return Number(v).toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+            const num = Number(v);
+            if (isNaN(num)) return '';
+
+            const fixed = num.toFixed(dec);
+            const parts = fixed.split('.');
+
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+            return dec > 0 ? parts.join(',') : parts[0];
         },
         monthsBetween(d1, d2) {
             const a = new Date(d1);
@@ -2970,7 +2978,11 @@ export default {
                 return '';
             }
             const numeroLimpio = this.cleanNumber(valor);
-            return new Intl.NumberFormat('es-CO', { minimumFractionDigits: 0 }).format(numeroLimpio);
+
+            const parts = numeroLimpio.toFixed(0).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+            return parts[0];
         },
         validar(index) {
             if (this.cargandoTablaDesdeDB) {
@@ -3133,24 +3145,20 @@ export default {
                         pdf.addImage(logoProyectoData.base64, 'PNG', xPos, 5, widthProyecto, heightProyecto);
                     }
 
-                    // Agregar pie de página
                     pdf.setFontSize(9);
                     pdf.setFont(undefined, 'normal');
 
-                    // URL a la izquierda (negro)
                     pdf.setTextColor(0, 0, 0);
                     pdf.text('www.constructoracapital.com', 10, pageHeight - 10);
 
-                    // Nombre del proyecto en el centro (azul)
                     const nombreProyecto = GlobalVariables.proyecto?.nombre || '';
                     pdf.setTextColor(0, 154, 185);
                     pdf.setFont(undefined, 'bold');
                     pdf.text(nombreProyecto, pageWidth / 2, pageHeight - 10, { align: 'center' });
 
-                    // Número de página a la derecha (negro)
                     pdf.setTextColor(0, 0, 0);
                     pdf.setFont(undefined, 'normal');
-                    pdf.text(`${i}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+                    pdf.text(`${i}/${totalPages}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
                 }
             } catch (error) {
                 console.error('Error cargando logos:', error);
@@ -3219,22 +3227,18 @@ export default {
                 'FAST'
             );
 
-            // Agregar pie de página
             const currentPage = pdfPortrait.internal.getNumberOfPages();
             pdfPortrait.setFontSize(9);
             pdfPortrait.setFont(undefined, 'normal');
 
-            // URL a la izquierda (negro)
             pdfPortrait.setTextColor(0, 0, 0);
             pdfPortrait.text('www.constructoracapital.com', 10, pageHeight - 10);
 
-            // Nombre del proyecto en el centro (azul)
             const nombreProyecto = GlobalVariables.proyecto?.nombre || '';
             pdfPortrait.setTextColor(0, 154, 185);
             pdfPortrait.setFont(undefined, 'bold');
             pdfPortrait.text(nombreProyecto, pageWidth / 2, pageHeight - 10, { align: 'center' });
 
-            // Número de página a la derecha (negro)
             pdfPortrait.setTextColor(0, 0, 0);
             pdfPortrait.setFont(undefined, 'normal');
             pdfPortrait.text(`${currentPage}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
@@ -4413,19 +4417,14 @@ export default {
         dentroRangoSubsidio() {
             if (!this.ingresos_mensuales || !this.subsidio_vivienda.length) return true;
 
-            const parseNumber = (valor) => {
-                if (!valor) return 0;
-                return parseFloat(String(valor).replace(/\$/g, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.'));
-            };
-
-            const ingresosLimpios = parseNumber(this.ingresos_mensuales);
+            const ingresosLimpios = this.cleanNumber(this.ingresos_mensuales);
 
             const registroActual = this.subsidio_vivienda.find(s => s.periodo == new Date().getFullYear())
                 || this.subsidio_vivienda[0];
 
             if (!registroActual) return true;
 
-            const smmlv = parseNumber(registroActual.smmlv);
+            const smmlv = this.cleanNumber(registroActual.smmlv);
 
             return ingresosLimpios <= smmlv * 4;
         },

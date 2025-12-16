@@ -126,10 +126,18 @@
                 <div class='formInputStandard'>
                     <div class='pure-g'>
                         <div v-for='item in estado_publicacion' class='pure-u-1-4'>
-                            <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" @change="syncChecks('estado_publicacion')" />
+                            <label class="check tooltip">
+                                <input type="checkbox" value='1' v-model="item.checked" @change="syncChecks('estado_publicacion')" :title="item.checked ? 'Desactivar' : 'Activar'" />
                                 <span class="checkmark"></span>
                                 {{ item.estado_publicacion }}
+                                <span v-if="item.estado_publicacion && item.estado_publicacion.toLowerCase().includes('edge')" class="tooltip-text">
+                                    {{
+                                        item.estado_publicacion.includes('Ya tiene') ? 'Proyecto con Certificación Edge actual' :
+                                        item.estado_publicacion.includes('Próxima') ? 'Proyecto en proceso de Certificación Edge' :
+                                        item.estado_publicacion.includes('Vigente') ? 'Proyecto con Certificación Edge vigente' :
+                                        'Certificación de Sostenibilidad Edge (Excellence in Design for Greater Efficiencies)'
+                                    }}
+                                </span>
                             </label>
                         </div>
                     </div>

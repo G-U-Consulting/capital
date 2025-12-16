@@ -18,15 +18,6 @@ using capital.Code.Inte.Davivienda;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-/* CultureInfo cultureInfo = new CultureInfo("en-US");
-cultureInfo.DateTimeFormat.ShortDatePattern = "yyyy-MM-dd";
-cultureInfo.DateTimeFormat.LongTimePattern = "HH:mm:ss";
-cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
-cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
-CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-CultureInfo.DefaultThreadCurrentUICulture = cultureInfo; */
  
 
 // Add services to the container.
@@ -44,8 +35,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddDataProtection()
         .PersistKeysToDbContext<AuthDBContext>()
         .SetApplicationName("Capital");
-//builder.Services.AddSingleton(sp => new WorkerTareas(builder.Environment.ContentRootPath));
-//builder.Services.AddHostedService(sp => sp.GetRequiredService<WorkerTareas>());
+builder.Services.AddSingleton(sp => new WorkerTareas(builder.Environment.ContentRootPath));
+builder.Services.AddHostedService(sp => sp.GetRequiredService<WorkerTareas>());
 
 var app = builder.Build();
 /*

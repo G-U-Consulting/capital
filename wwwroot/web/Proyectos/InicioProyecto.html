@@ -182,9 +182,9 @@
                                     :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                     <div class="img-matrix">
                                         <img v-if="item.edge_estado == 'vigente'" src="./img/ico/svg/OIP.png" class="sello-certificado-mini vigente"
-                                            alt="Sello Edge">
+                                            alt="Sello Edge" title="Certificación Edge Vigente">
                                         <img v-if="item.edge_estado == 'próxima'" src="./img/ico/svg/sello-proximo-edge.svg" class="sello-certificado-mini proxima"
-                                            alt="Sello Próximo">
+                                            alt="Sello Próximo" title="Próxima Certificación Edge">
                                         <img class="img-matrix-img" v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
                                     </div>
                                     <div class="bottom-matrix">
@@ -207,9 +207,9 @@
                                 :class="{ 'selected-row': selectedProject && selectedProject.nombre === item.nombre }">
                                 <div class="img-matrix">
                                     <img v-if="item.edge_estado == 'vigente'" src="./img/ico/svg/OIP.png" class="sello-certificado-mini vigente"
-                                        alt="Sello Edge">
+                                        alt="Sello Edge" title="Certificación Edge Vigente">
                                     <img v-if="item.edge_estado == 'próxima'" src="./img/ico/svg/sello-proximo-edge.svg" class="sello-certificado-mini proxima"
-                                        alt="Sello Próximo">
+                                        alt="Sello Próximo" title="Próxima Certificación Edge">
                                     <img class="img-matrix-img" v-if="item.img" :src="item.img" :alt="`img_${item.nombre}`">
                                 </div>
                                 <div class="bottom-matrix">
@@ -226,17 +226,20 @@
                     </div>
                 </div>
                 <div v-if="selectedProject" class="detail-panel">
-                    <div v-if="edge == 'vigente'" class="certification-badge">
-                        <img class="certification-badge-vig" src="./img/ico/svg/OIP.png" />
+                    <div v-if="edge == 'vigente'" class="certification-badge tooltip">
+                        <img class="certification-badge-vig" src="./img/ico/svg/OIP.png" title="Certificación Edge Vigente - Excellence in Design for Greater Efficiencies" />
+                        <span class="tooltip-text" style="pointer-events: none;">Certificación Edge Vigente - Excellence in Design for Greater Efficiencies</span>
                     </div>
-                    <div v-if="edge == 'próxima'" class="certification-badge proxima">
-                        <img class="certification-badge-prox" src="./img/ico/svg/sello-proximo-edge.svg" />
+                    <div v-if="edge == 'próxima'" class="certification-badge proxima tooltip">
+                        <img class="certification-badge-prox" src="./img/ico/svg/sello-proximo-edge.svg" title="Próxima Certificación Edge - En proceso" />
+                        <span class="tooltip-text" style="pointer-events: none;">Próxima Certificación Edge - En proceso</span>
                     </div>
                     <div class="labeled-switch">
-                        <div class="toggle-switch" @click.stop.prevent="toggleState(selectedProject)" @dblclick.stop.prevent>
+                        <div class="toggle-switch tooltip" @click.stop.prevent="toggleState(selectedProject)" @dblclick.stop.prevent :title="selectedProject.is_active == '1' ? 'Desactivar proyecto' : 'Activar proyecto'">
                             <input :id="'toggle' + selectedProject.nombre" type="checkbox" class="toggle-input"
                                 :checked="selectedProject.is_active != '1'">
                             <label class="toggle-label" :for="'toggle' + selectedProject.nombre" style="transform: rotate(180deg);"></label>
+                            <span class="tooltip-text tooltip-bottom" style="pointer-events: none;">{{ selectedProject.is_active == '1' ? 'Desactivar proyecto' : 'Activar proyecto' }}</span>
                         </div>
                     </div>
                     <div class="detail-logo">
@@ -468,10 +471,18 @@
                 <div class='formInputStandard'>
                     <div class='pure-g'>
                         <div v-for='item in estado_publicacion' class='pure-u-1-4'>
-                            <label class="check">
-                                <input type="checkbox" vvalue='1' v-model="item.checked"   />
+                            <label class="check tooltip">
+                                <input type="checkbox" vvalue='1' v-model="item.checked" :title="item.checked ? 'Desactivar' : 'Activar'" />
                                 <span class="checkmark"></span>
                                 {{ item.estado_publicacion }}
+                                <span v-if="item.estado_publicacion && item.estado_publicacion.toLowerCase().includes('edge')" class="tooltip-text">
+                                    {{
+                                        item.estado_publicacion.includes('Ya tiene') ? 'Proyecto con Certificación Edge actual' :
+                                        item.estado_publicacion.includes('Próxima') ? 'Proyecto en proceso de Certificación Edge' :
+                                        item.estado_publicacion.includes('Vigente') ? 'Proyecto con Certificación Edge vigente' :
+                                        'Certificación de Sostenibilidad Edge (Excellence in Design for Greater Efficiencies)'
+                                    }}
+                                </span>
                             </label>
                         </div>
                     </div>
