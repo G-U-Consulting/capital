@@ -4146,6 +4146,9 @@ export default {
         id_proyecto() {
             return GlobalVariables.id_proyecto;
         },
+        proyectoData() {
+            return (typeof GlobalVariables !== 'undefined' && GlobalVariables.proyecto) ? GlobalVariables.proyecto : null;
+        },
         esOpcionGuardada() {
             return this.id_opcion !== null;
         },
@@ -4172,6 +4175,16 @@ export default {
         },
         importeFinanciacionAjustado() {
             return this.valor_credito_final_base - this.excedentePagoCuotaInicial;
+        },
+        mostrarOtrosLinks() {
+            if (!this.proyectoData) return false;
+
+            const proyecto = this.proyectoData;
+            const tieneEspecificaciones = Number(proyecto.incluir_especificaciones_tecnicias) === 0 && proyecto.link_especificaciones_tecnicias;
+            const tieneCartilla = Number(proyecto.incluir_cartilla_negocios_cotizacion) === 0 && proyecto.link_cartilla_negocios;
+            const tieneBrochure = Number(proyecto.incluir_brochure) === 0 && proyecto.link_brochure;
+
+            return tieneEspecificaciones || tieneCartilla || tieneBrochure;
         },
 
         display_fecha_entrega: {
