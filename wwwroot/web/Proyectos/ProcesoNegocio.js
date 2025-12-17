@@ -376,26 +376,50 @@ export default {
             const puntos = (str.match(/\./g) || []).length;
             const comas = (str.match(/,/g) || []).length;
 
+            // Si hay múltiples puntos, todos son separadores de miles
             if (puntos > 1) {
                 str = str.replace(/\./g, '').replace(',', '.');
-            } else if (comas > 1) {
+            }
+            // Si hay múltiples comas, todas son separadores de miles
+            else if (comas > 1) {
                 str = str.replace(/,/g, '');
-            } else if (puntos === 1 && comas === 1) {
+            }
+            // Si hay un punto y una coma
+            else if (puntos === 1 && comas === 1) {
                 const posPunto = str.indexOf('.');
                 const posComa = str.indexOf(',');
+                // Si el punto viene antes que la coma, el punto es separador de miles
                 if (posPunto < posComa) {
                     str = str.replace(/\./g, '').replace(',', '.');
-                } else {
+                }
+                // Si la coma viene antes, la coma es separador de miles
+                else {
                     str = str.replace(/,/g, '');
                 }
-            } else if (comas === 1 && puntos === 0) {
+            }
+            // Si solo hay una coma
+            else if (comas === 1 && puntos === 0) {
                 const partes = str.split(',');
+                // Si después de la coma hay máximo 2 dígitos, es decimal
                 if (partes[1] && partes[1].length <= 2) {
                     str = str.replace(',', '.');
-                } else {
+                }
+                // Si hay más de 2 dígitos, es separador de miles
+                else {
                     str = str.replace(',', '');
                 }
             }
+            // Si solo hay un punto
+            else if (puntos === 1 && comas === 0) {
+                const partes = str.split('.');
+                // Si después del punto hay más de 2 dígitos O el punto está en posición múltiplo de 3 desde el final, es separador de miles
+                if (partes[1] && (partes[1].length > 2 || partes[1].length === 3)) {
+                    str = str.replace(/\./g, '');
+                }
+                // Si tiene 1 o 2 dígitos después del punto, es decimal (mantenerlo como está, solo reemplazar el punto por punto decimal estándar)
+                // En JavaScript parseFloat ya entiende el punto como decimal
+            }
+
             return parseFloat(str) || 0;
         },
         validarFormato(e) {
@@ -3068,11 +3092,13 @@ export default {
                         jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
                     }).from(content).toPdf().get('pdf').then(async pdfPortrait => {
 
-                        await this.agregarLogosEnTodasLasPaginas(pdfPortrait);
+                        await this.agregarLogosEnTodasLasPaginas(pdfPortrait, false);
 
                         if (this.tablaPeriodos && this.tablaPeriodos.length > 0 && tablaLandscape) {
                             await this.renderTablaAmortizacion(pdfPortrait, tablaLandscape);
                         }
+
+                        await this.actualizarNumeracionPaginas(pdfPortrait);
 
                         const pdfUrl = pdfPortrait.output('bloburl');
                         window.open(pdfUrl, '_blank');
@@ -3084,7 +3110,7 @@ export default {
                 }, 100);
             });
         },
-        async agregarLogosEnTodasLasPaginas(pdf) {
+        async agregarLogosEnTodasLasPaginas(pdf, incluirNumeracion = true) {
             const totalPages = pdf.internal.getNumberOfPages();
 
             const logoCapital = '../img/ico/logo-capital.png';
@@ -3156,9 +3182,11 @@ export default {
                     pdf.setFont(undefined, 'bold');
                     pdf.text(nombreProyecto, pageWidth / 2, pageHeight - 10, { align: 'center' });
 
-                    pdf.setTextColor(0, 0, 0);
-                    pdf.setFont(undefined, 'normal');
-                    pdf.text(`${i}/${totalPages}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+                    if (incluirNumeracion) {
+                        pdf.setTextColor(0, 0, 0);
+                        pdf.setFont(undefined, 'normal');
+                        pdf.text(`${i}/${totalPages}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+                    }
                 }
             } catch (error) {
                 console.error('Error cargando logos:', error);
@@ -3227,26 +3255,24 @@ export default {
                 'FAST'
             );
 
-            const currentPage = pdfPortrait.internal.getNumberOfPages();
-            pdfPortrait.setFontSize(9);
-            pdfPortrait.setFont(undefined, 'normal');
-
-            pdfPortrait.setTextColor(0, 0, 0);
-            pdfPortrait.text('www.constructoracapital.com', 10, pageHeight - 10);
-
-            const nombreProyecto = GlobalVariables.proyecto?.nombre || '';
-            pdfPortrait.setTextColor(0, 154, 185);
-            pdfPortrait.setFont(undefined, 'bold');
-            pdfPortrait.text(nombreProyecto, pageWidth / 2, pageHeight - 10, { align: 'center' });
-
-            pdfPortrait.setTextColor(0, 0, 0);
-            pdfPortrait.setFont(undefined, 'normal');
-            pdfPortrait.text(`${currentPage}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
-
             parent.style.display = originalParentStyles.display;
             parent.style.position = originalParentStyles.position;
             parent.style.left = originalParentStyles.left;
             parent.style.top = originalParentStyles.top;
+        },
+        async actualizarNumeracionPaginas(pdf) {
+            const totalPages = pdf.internal.getNumberOfPages();
+
+            for (let i = 1; i <= totalPages; i++) {
+                pdf.setPage(i);
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                pdf.setFontSize(9);
+                pdf.setTextColor(0, 0, 0);
+                pdf.setFont(undefined, 'normal');
+                pdf.text(`${i}/${totalPages}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+            }
         },
 
         guardarYGenerarPDF() {
