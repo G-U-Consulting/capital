@@ -263,7 +263,6 @@
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Variables", {"id_proyecto": GlobalVariables.id_proyecto});
             hideProgress();
             resp = resp.data;
-            resp[0].forEach(item => item.checked = false);
             this.estado_publicacion = resp[0];
             resp[1].forEach(item => item.checked = false);
             this.tiposVIS = resp[1];
@@ -275,6 +274,8 @@
             this.tipo = resp[6];
             resp[13].forEach(item => item.checked = false);
             this.salas_venta = resp[13];
+            // Certificaciones (selección única - radio button)
+            this.certificaciones = resp[14] || [];
             this.sede = resp[4];
             this.zona_proyecto = resp[5];
             this.ciudadela = resp[7];
@@ -436,7 +437,6 @@
             const mapKeys = {
                 tiposFinanciacion: { arr: this.tiposFinanciacion, key: 'id_tipo_financiacion' },
                 opcionesVisuales: { arr: this.opcionesVisuales, key: 'id_opcion_visual' },
-                estado_publicacion: { arr: this.estado_publicacion, key: 'id_estado_publicacion' },
                 banco_constructor: { arr: this.banco_constructor, key: 'id_banco_constructor' },
                 bancos_financiador: { arr: this.bancos_financiador, key: 'id_bancos_financiador' },
                 salas_venta: { arr: this.salas_venta, key: 'id_sala_venta' },
@@ -477,13 +477,11 @@
                 item.checked = oVSeleccionada ? (item.id_opcion_visual == oVSeleccionada) : false;
             });
 
-            const estadopublicacion = (proyecto.estado_publicacion || '')
-                .split(',')
-                .map(id => parseInt(id));
-            this.estado_publicacion.forEach(item => {
-                const id = parseInt(item.id_estado_publicacion);
-                item.checked = estadopublicacion.includes(id);
-            });
+            // Cargar estado de publicación (valor único)
+            this.editObjProyecto.id_estado_publicacion = proyecto.id_estado_publicacion || null;
+
+            // Cargar certificación (valor único)
+            this.editObjProyecto.id_certificacion = proyecto.id_certificacion || null;
 
             const listaTiposFinanciacion = (proyecto.tipos_financiacion || '')
                 .split(',')

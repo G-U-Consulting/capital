@@ -6,10 +6,11 @@ set @id_proyecto = '9';
 --END_PARAM
 
 
-select 
+select
     a.id_proyecto,
     a.id_sede,
     a.id_estado_publicacion,
+    a.id_certificacion,
     a.nombre,
     a.id_tipo_proyecto,
     a.id_ciudadela,

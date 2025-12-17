@@ -61,14 +61,16 @@ set
     @link_brochure = '',
     @banco_constructor = '',
     @bancos_financiadores = '',
-    @estado_publicacion = '',
-    @tipo_proyecto = '';
+    @id_estado_publicacion = 0,
+    @tipo_proyecto = '',
+    @id_certificacion = 0;
 --END_PARAM
 
 insert into fact_proyectos (
     nombre,
     direccion,
     id_sede,
+    id_estado_publicacion,
     id_zona_proyecto,
     id_ciudadela,
     otra_info,
@@ -122,10 +124,11 @@ insert into fact_proyectos (
     incluir_brochure,
     link_brochure
 )
-select 
+select
     @nombre,
     @direccion,
     nullif(@id_sede, 0),
+    nullif(@id_estado_publicacion, 0),
     nullif(@id_zona_proyecto, 0),
     nullif(@id_ciudadela, 0),
     @otra_info,
@@ -228,29 +231,12 @@ select
             set @i = @i + 1;
         end while;
     end if;
-    
-    set @datos = @estado_publicacion;
-    set @tabla = 'fact_estado_publicacion';
-    set @campo = 'id_estado_publicacion';
-    set @i = 1;
-    
-    if trim(@datos) <> '' then
-        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
-        prepare stmt from @sql;
-        execute stmt;
-        deallocate prepare stmt;
-    
-        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
-        while @i <= @n do
-            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
-            if @item <> '' then
-                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
-                prepare stmt from @sql;
-                execute stmt;
-                deallocate prepare stmt;
-            end if;
-            set @i = @i + 1;
-        end while;
+
+    -- Actualizar id_certificacion en fact_proyectos
+    if @id_certificacion > 0 then
+        update fact_proyectos
+        set id_certificacion = @id_certificacion
+        where id_proyecto = @id_proyecto;
     end if;
 
     -- set @datos = @tipo_proyecto;

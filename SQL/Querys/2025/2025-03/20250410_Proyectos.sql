@@ -324,9 +324,7 @@ insert into dim_estado_publicacion(estado_publicacion, codigo) values
 ('Publicado', 'PUB'),
 ('Excluir de Ad@', 'EXC'),
 ('Rot. Mostar Imágenes Generales', 'IGE'),
-('Rot. Mostar Imágenes Sostenibilidad', 'ISO'),
-('Próxima Certificación Edge', 'PED'),
-('Vigente Certificación Edge', 'VED');
+('Rot. Mostar Imágenes Sostenibilidad', 'ISO');
 
 insert into dim_tipo_vis(tipo_vis) values
 ('No VIS'),

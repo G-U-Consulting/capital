@@ -208,7 +208,6 @@ export default {
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Variables", {});
             hideProgress();
             resp = resp.data;
-            resp[0].forEach(item => item.checked = false);
             this.estado_publicacion = resp[0];
             resp[1].forEach(item => item.checked = false);
             this.tiposVIS = resp[1];
@@ -220,6 +219,8 @@ export default {
             this.tipo = resp[6];
             resp[12].forEach(item => item.checked = false);
             this.salas_venta = resp[12];
+            // Certificaciones (selección única - radio button)
+            this.certificaciones = resp[14] || [];
             this.sede = resp[4];
             this.zona_proyecto = resp[5];
             this.ciudadela = resp[7];
@@ -239,8 +240,15 @@ export default {
             }
 
             this.proyectos.forEach(async pro => {
+                // Determinar qué tipo de imagen cargar según el estado de publicación
+                let tipoImagen = 'logo'; // Por defecto logo
+
+                if (pro.estado_publicacion && pro.estado_publicacion.includes('Sostenibilidad')) {
+                    tipoImagen = 'Sostenibilidad';
+                }
+
                 let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
-                    { tipo: 'logo', id_proyecto: pro.id_proyecto });
+                    { tipo: tipoImagen, id_proyecto: pro.id_proyecto });
                 if (res.data && res.data.length)
                     pro.img = '/file/S3get/' + res.data[0].llave;
             });
@@ -531,10 +539,7 @@ export default {
                 .map(item => item.id_tipo_proyecto);
             this.objProyecto.tipo_proyecto = tipo.join(',');
 
-            const estadopublicacion = this.estado_publicacion
-                .filter(item => item.checked)
-                .map(item => item.id_estado_publicacion);
-            this.objProyecto.estado_publicacion = estadopublicacion.join(',');
+            // id_estado_publicacion y id_certificacion ya están asignados directamente en objProyecto por v-model
 
             const bancosconstructor = this.banco_constructor
                 .filter(item => item.checked)
