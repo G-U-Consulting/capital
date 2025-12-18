@@ -21,9 +21,9 @@ where u.usuario = @username and p.is_active = 1
 group by id_proyecto 
 order by p.nombre;
 
-select h.id_hito, h.titulo, h.descripcion, date_format(h.fecha, '%Y-%m-%d %T') as fecha, h.color, h.festivo, h.id_sala_venta, 
-    h.id_proyecto, h.id_torre, h.id_unidad, h.frecuencia, concat('Torre ', t.consecutivo) as torre, 
-    concat(un.clase, ' ', un.numero_apartamento) as unidad, date_format(h.limite, '%Y-%m-%d') as limite, 
+select h.id_hito, h.titulo, h.descripcion, date_format(h.fecha, '%Y-%m-%d %T') as fecha, h.color, h.festivo, h.id_sala_venta,
+    h.id_proyecto, h.id_torre, h.id_unidad, h.frecuencia, concat('Torre ', t.consecutivo) as torre,
+    concat(un.clase, ' ', un.numero_apartamento) as unidad, date_format(h.limite, '%Y-%m-%d') as limite,
     sv.sala_venta, pro.nombre as nombre_pro, group_concat(c.cargo order by c.cargo separator ',') as categorias
 from dim_hito_sala h
 join dim_sala_venta sv on h.id_sala_venta = sv.id_sala_venta
@@ -34,7 +34,8 @@ left join dim_cargo c on c.id_cargo = hc.id_cargo
 left join fact_proyectos pro on h.id_proyecto = pro.id_proyecto
 left join fact_torres t on h.id_torre = t.id_torre
 left join fact_unidades un on h.id_unidad = un.id_unidad
-where u.usuario = @username and sv.is_active = 1 and (h.id_proyecto is null or pro.is_active = 1) and u.id_cargo = c.id_cargo
+where u.usuario = @username and sv.is_active = 1 and (h.id_proyecto is null or pro.is_active = 1)
+    and (c.id_cargo is null or u.id_cargo = c.id_cargo)
 group by h.id_hito
 order by fecha;
 
