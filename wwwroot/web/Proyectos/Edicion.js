@@ -53,18 +53,18 @@
 
                 link_general_onelink: "",
                 link_especifico_onelink: "",
-                incluir_especificaciones_tecnicias: 1,
+                incluir_especificaciones_tecnicias: "1",
                 link_especificaciones_tecnicias: "",
-                incluir_cartilla_negocios_cotizacion: 0,
-                incluir_cartilla_negocios_opcion: 0,
+                incluir_cartilla_negocios_cotizacion: "1",
+                incluir_cartilla_negocios_opcion: "0",
                 link_cartilla_negocios: "",
-                frame_seguimiento_visible: 0,
+                frame_seguimiento_visible: "0",
                 link_seguimiento_leads: "",
-                frame_evaluacion_conocimiento: 0,
+                frame_evaluacion_conocimiento: "0",
                 link_evaluacion_conocimiento: "",
-                avance_obra_visible: 0,
+                avance_obra_visible: "0",
                 link_avance_obra: "",
-                incluir_brochure: 1,
+                incluir_brochure: "1",
                 link_brochure: ""
             },
             editObjProyecto: {
@@ -117,18 +117,18 @@
 
                 link_general_onelink: "",
                 link_especifico_onelink: "",
-                incluir_especificaciones_tecnicias: 1,
+                incluir_especificaciones_tecnicias: "1",
                 link_especificaciones_tecnicias: "",
-                incluir_cartilla_negocios_cotizacion: 0,
-                incluir_cartilla_negocios_opcion: 0,
+                incluir_cartilla_negocios_cotizacion: "1",
+                incluir_cartilla_negocios_opcion: "0",
                 link_cartilla_negocios: "",
-                frame_seguimiento_visible: 0,
+                frame_seguimiento_visible: "0",
                 link_seguimiento_leads: "",
-                frame_evaluacion_conocimiento: 0,
+                frame_evaluacion_conocimiento: "0",
                 link_evaluacion_conocimiento: "",
-                avance_obra_visible: 0,
+                avance_obra_visible: "0",
                 link_avance_obra: "",
-                incluir_brochure: 1,
+                incluir_brochure: "1",
                 link_brochure: "",
             },
             tieneCambiosPendientes: false,
@@ -263,7 +263,6 @@
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Variables", {"id_proyecto": GlobalVariables.id_proyecto});
             hideProgress();
             resp = resp.data;
-            resp[0].forEach(item => item.checked = false);
             this.estado_publicacion = resp[0];
             resp[1].forEach(item => item.checked = false);
             this.tiposVIS = resp[1];
@@ -275,6 +274,8 @@
             this.tipo = resp[6];
             resp[13].forEach(item => item.checked = false);
             this.salas_venta = resp[13];
+            // Certificaciones (selección única - radio button)
+            this.certificaciones = resp[14] || [];
             this.sede = resp[4];
             this.zona_proyecto = resp[5];
             this.ciudadela = resp[7];
@@ -436,7 +437,6 @@
             const mapKeys = {
                 tiposFinanciacion: { arr: this.tiposFinanciacion, key: 'id_tipo_financiacion' },
                 opcionesVisuales: { arr: this.opcionesVisuales, key: 'id_opcion_visual' },
-                estado_publicacion: { arr: this.estado_publicacion, key: 'id_estado_publicacion' },
                 banco_constructor: { arr: this.banco_constructor, key: 'id_banco_constructor' },
                 bancos_financiador: { arr: this.bancos_financiador, key: 'id_bancos_financiador' },
                 salas_venta: { arr: this.salas_venta, key: 'id_sala_venta' },
@@ -477,13 +477,11 @@
                 item.checked = oVSeleccionada ? (item.id_opcion_visual == oVSeleccionada) : false;
             });
 
-            const estadopublicacion = (proyecto.estado_publicacion || '')
-                .split(',')
-                .map(id => parseInt(id));
-            this.estado_publicacion.forEach(item => {
-                const id = parseInt(item.id_estado_publicacion);
-                item.checked = estadopublicacion.includes(id);
-            });
+            // Cargar estado de publicación (valor único)
+            this.editObjProyecto.id_estado_publicacion = proyecto.id_estado_publicacion || null;
+
+            // Cargar certificación (valor único)
+            this.editObjProyecto.id_certificacion = proyecto.id_certificacion || null;
 
             const listaTiposFinanciacion = (proyecto.tipos_financiacion || '')
                 .split(',')
@@ -537,13 +535,27 @@
             this.editObjProyecto.inmuebles_opcionados = Number(proyecto.inmuebles_opcionados) || 0;
             this.editObjProyecto.meta_ventas = Number(proyecto.meta_ventas) || 0;
             this.editObjProyecto.bloqueo_libres = Number(proyecto.bloqueo_libres) || 0;
-            this.editObjProyecto.incluir_especificaciones_tecnicias = Number(proyecto.incluir_especificaciones_tecnicias) || 0;
-            this.editObjProyecto.incluir_cartilla_negocios_cotizacion = Number(proyecto.incluir_cartilla_negocios_cotizacion) || 0;
-            this.editObjProyecto.incluir_cartilla_negocios_opcion = Number(proyecto.incluir_cartilla_negocios_opcion) || 0;
-            this.editObjProyecto.frame_seguimiento_visible = Number(proyecto.frame_seguimiento_visible) || 0;
-            this.editObjProyecto.frame_evaluacion_conocimiento = Number(proyecto.frame_evaluacion_conocimiento) || 0;
-            this.editObjProyecto.avance_obra_visible = Number(proyecto.avance_obra_visible) || 0;
-            this.editObjProyecto.incluir_brochure = Number(proyecto.incluir_brochure) || 0;
+            // Función para convertir valores BIT de MySQL correctamente
+            const convertBitToString = (value) => {
+                if (value === null || value === undefined) return "0";
+                // Si es un Buffer (como puede venir de MySQL BIT)
+                if (value && value.type === 'Buffer' && value.data) {
+                    return value.data[0] === 1 ? "1" : "0";
+                }
+                // Si es booleano
+                if (typeof value === 'boolean') return value ? "1" : "0";
+                // Si es número o string
+                return String(Number(value) || 0);
+            };
+
+            this.editObjProyecto.incluir_especificaciones_tecnicias = convertBitToString(proyecto.incluir_especificaciones_tecnicias);
+            this.editObjProyecto.incluir_cartilla_negocios_cotizacion = convertBitToString(proyecto.incluir_cartilla_negocios_cotizacion);
+            this.editObjProyecto.incluir_cartilla_negocios_opcion = convertBitToString(proyecto.incluir_cartilla_negocios_opcion);
+            this.editObjProyecto.frame_seguimiento_visible = convertBitToString(proyecto.frame_seguimiento_visible);
+            this.editObjProyecto.frame_evaluacion_conocimiento = convertBitToString(proyecto.frame_evaluacion_conocimiento);
+            this.editObjProyecto.avance_obra_visible = convertBitToString(proyecto.avance_obra_visible);
+            this.editObjProyecto.incluir_brochure = convertBitToString(proyecto.incluir_brochure);
+
             if (
                 proyecto.fecha_lanzamiento &&
                 proyecto.fecha_lanzamiento !== "0000-00-00" 
@@ -885,12 +897,25 @@
 
             try {
                 showProgress();
-                const result = await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", this.editObjProyecto);
+
+                // Convertir strings a enteros para campos BIT en la BD
+                const dataToSend = {
+                    ...this.editObjProyecto,
+                    incluir_especificaciones_tecnicias: parseInt(this.editObjProyecto.incluir_especificaciones_tecnicias),
+                    incluir_cartilla_negocios_cotizacion: parseInt(this.editObjProyecto.incluir_cartilla_negocios_cotizacion),
+                    incluir_cartilla_negocios_opcion: parseInt(this.editObjProyecto.incluir_cartilla_negocios_opcion),
+                    incluir_brochure: parseInt(this.editObjProyecto.incluir_brochure),
+                    frame_seguimiento_visible: parseInt(this.editObjProyecto.frame_seguimiento_visible),
+                    frame_evaluacion_conocimiento: parseInt(this.editObjProyecto.frame_evaluacion_conocimiento),
+                    avance_obra_visible: parseInt(this.editObjProyecto.avance_obra_visible)
+                };
+
+                await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", dataToSend);
                 hideProgress();
                 this.tieneCambiosPendientes = false;
                 this.setMainMode();
             } catch (error) {
-                console.error("Error al insertar el proyecto:", error);
+                console.error("Error al guardar el proyecto:", error);
             }
         },
         async cleanObjectData() {

@@ -118,18 +118,43 @@
                     </div>
                 </div>
             </div>
-            <!--Estado del Proyecto-->
+            <!--Estado de Publicación-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
-                Estado de Publicación del Proyecto
+                Estado de Publicación
             </div>
             <div class='pure-u-1-1 pure-u-md-1-1'>
                 <div class='formInputStandard'>
                     <div class='pure-g'>
                         <div v-for='item in estado_publicacion' class='pure-u-1-4'>
                             <label class="check">
-                                <input type="checkbox" value='1' v-model="item.checked" @change="syncChecks('estado_publicacion')" />
+                                <input type="radio" :value="item.id_estado_publicacion" v-model="editObjProyecto.id_estado_publicacion" name="estado_publicacion" />
                                 <span class="checkmark"></span>
                                 {{ item.estado_publicacion }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Certificaciones-->
+            <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
+                Certificaciones
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-1'>
+                <div class='formInputStandard'>
+                    <div class='pure-g'>
+                        <div v-for='item in certificaciones' class='pure-u-1-4'>
+                            <label class="check tooltip">
+                                <input type="radio" :value="item.id_certificacion" v-model="editObjProyecto.id_certificacion" name="certificacion" />
+                                <span class="checkmark"></span>
+                                {{ item.certificacion }}
+                                <span v-if="item.certificacion && item.certificacion.toLowerCase().includes('edge')" class="tooltip-text">
+                                    {{
+                                        item.certificacion.includes('Ya tiene') ? 'Proyecto con Certificación Edge actual' :
+                                        item.certificacion.includes('Próxima') ? 'Proyecto en proceso de Certificación Edge' :
+                                        item.certificacion.includes('Vigente') ? 'Proyecto con Certificación Edge vigente' :
+                                        'Certificación de Sostenibilidad Edge (Excellence in Design for Greater Efficiencies)'
+                                    }}
+                                </span>
                             </label>
                         </div>
                     </div>
@@ -619,13 +644,13 @@
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                     <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                         <span>Incluir</span>
-                        <div class='pure-g switch-box'>
+                        <div class='pure-g switch'>
                             <div class='pure-u-1-1'>
                                 <div class="toggle-switch"
-                                    :class="{'inactive': Number(editObjProyecto.incluir_especificaciones_tecnicias) === '0'}">
+                                    :class="{inactive: editObjProyecto.incluir_especificaciones_tecnicias === '0'}">
                                     <input id="incluir_especificaciones_tecnicias-toggle" type="checkbox"
-                                        :checked="Number(editObjProyecto.incluir_especificaciones_tecnicias) === '1'"
-                                        @click="editObjProyecto.incluir_especificaciones_tecnicias = Number(editObjProyecto.incluir_especificaciones_tecnicias) === '0' ? '1': '0'"
+                                        :checked="editObjProyecto.incluir_especificaciones_tecnicias === '1'"
+                                        @change="editObjProyecto.incluir_especificaciones_tecnicias = $event.target.checked ? '1' : '0'"
                                         class="toggle-input">
                                     <label class="toggle-label" for="incluir_especificaciones_tecnicias-toggle"></label>
                                 </div>
@@ -641,32 +666,17 @@
                 </div>
                 <!--Links de Cartilla Negocios-->
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
-                    <!-- <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
-                        <span>Cotización</span>
-                        <div class="pure-g switch-box">
-                            <div class='pure-u-1-1'>
-                                <div class="toggle-switch"
-                                    :class="{'inactive': Number(editObjProyecto.incluir_cartilla_negocios_cotizacion) === 0}">
-                                    <input id="incluir_cotizacion-toggle" type="checkbox"
-                                        :checked="Number(editObjProyecto.incluir_cartilla_negocios_cotizacion) === 1"
-                                        @click="editObjProyecto.incluir_cartilla_negocios_cotizacion = Number(editObjProyecto.incluir_cartilla_negocios_cotizacion) === 0 ? 1 : 0"
-                                        class="toggle-input">
-                                    <label class="toggle-label" for="incluir_cotizacion-toggle"></label>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
                     <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                         <span>Incluir</span>
-                        <div class='pure-g switch-box'>
+                        <div class="pure-g switch">
                             <div class='pure-u-1-1'>
                                 <div class="toggle-switch"
-                                    :class="{'inactive': Number(editObjProyecto.incluir_cartilla_negocios_opcion) === '0'}">
-                                    <input id="incluir_opcion-toggle" type="checkbox"
-                                        :checked="Number(editObjProyecto.incluir_cartilla_negocios_opcion) === '1'"
-                                        @click="editObjProyecto.incluir_cartilla_negocios_opcion = Number(editObjProyecto.incluir_cartilla_negocios_opcion) === '0' ? '1' : '0'"
+                                    :class="{inactive: editObjProyecto.incluir_cartilla_negocios_cotizacion === '0'}">
+                                    <input id="incluir_cotizacion-toggle" type="checkbox"
+                                        :checked="editObjProyecto.incluir_cartilla_negocios_cotizacion === '1'"
+                                        @change="editObjProyecto.incluir_cartilla_negocios_cotizacion = $event.target.checked ? '1' : '0'"
                                         class="toggle-input">
-                                    <label class="toggle-label" for="incluir_opcion-toggle"></label>
+                                    <label class="toggle-label" for="incluir_cotizacion-toggle"></label>
                                 </div>
                             </div>
                         </div>
@@ -682,12 +692,12 @@
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-2'>
                 <div class='formInputStandard pure-u-1-1 pure-u-md-1-6'>
                     <span>Incluir</span>
-                    <div class='pure-g switch-box'>
+                    <div class='pure-g switch'>
                         <div class='pure-u-1-1'>
-                            <div class="toggle-switch" :class="{'inactive': Number(editObjProyecto.incluir_brochure) === '0'}">
+                            <div class="toggle-switch" :class="{inactive: editObjProyecto.incluir_brochure === '0'}">
                                 <input id="incluir_brochure-toggle" type="checkbox"
-                                    :checked="Number(editObjProyecto.incluir_brochure) === '1'"
-                                    @click="editObjProyecto.incluir_brochure = Number(editObjProyecto.incluir_brochure) === '0' ? '1' : '0'"
+                                    :checked="editObjProyecto.incluir_brochure === '1'"
+                                    @change="editObjProyecto.incluir_brochure = $event.target.checked ? '1' : '0'"
                                     class="toggle-input">
                                 <label class="toggle-label" for="incluir_brochure-toggle"></label>
                             </div>

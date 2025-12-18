@@ -1,5 +1,5 @@
 -- =============================================
--- Ejecutar una vez en la base de datos para corregir cotizaciones duplicadasy prevenir duplicados.
+-- Ejecutar una vez en la base de datos para corregir cotizaciones duplicadas y prevenir duplicados.
 -- =============================================
 
 set @proyecto_id = NULL;
@@ -45,3 +45,30 @@ where id_proyecto is not null
   and id_cliente is not null
 group by id_cliente, id_proyecto, cotizacion
 having count(*) > 1;
+
+
+
+create table dim_certificacion (
+    id_certificacion int not null AUTO_INCREMENT,
+    certificacion varchar(200) not null unique,
+    codigo varchar(10),
+    is_active BIT default 1,
+    created_on DATETIME default current_timestamp,
+    created_by varchar(200) default CURRENT_USER,
+    constraint pk_dim_certificacion primary key (id_certificacion)
+) ENGINE=InnoDB default CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+alter table fact_proyectos
+add column id_certificacion int null AFTER id_estado_publicacion,
+add constraint fk_proyecto_certificacion foreign key (id_certificacion)
+    references dim_certificacion(id_certificacion)
+    on delete set null
+    on update cascade;
+
+
+insert into dim_certificacion (certificacion, is_active) values
+('Próxima Certificación Edge', 1),
+('Vigente Certificación Edge', 1),
+('Ya tiene Certificación Edge', 1),
+('Ya tiene Certificación Edge-Advanced', 1);

@@ -339,15 +339,23 @@
                 </div>
                 <div class="modal-card-large" v-show="modalMode == 'Opción'" style="width: 100%;">
                     <div class="modal-header">
-                        <h2>{{tablaAmortizacion ? 'Tabla Amortización' : 'Detalles del cálculo'}}</h2>
+                        <h2>{{tablaAmortizacion ? 'Plan de Pagos' : 'Detalles del cálculo'}}</h2>
                         <div style="display: flex; gap: 1rem;">
-                            <div v-if="!tablaAmortizacion" class="close-btn size-1-5" @click="generarTabla">📅</div>
-                            <div v-else class="close-btn size-1-5" @click="tablaAmortizacion = false; ">📋</div>
+                            <div v-if="!tablaAmortizacion" class="close-btn size-1-5" @click="tablaAmortizacion = true"
+                                style="display: flex; flex-direction: column; align-items: center;">
+                                <span>📅</span>
+                                <span style="font-size: 13px; color: #00839C;">Tabla</span>
+                            </div>
+                            <div v-else class="close-btn size-1-5" @click="tablaAmortizacion = false; "
+                                style="display: flex; flex-direction: column; align-items: center;">
+                                <span>📋</span>
+                                <span style="font-size: 13px; color: #00839C;">Valores</span>
+                            </div>
                             <div class="close-btn size-1-5" @click="closeModal($event, true); tablaAmortizacion = false;">✖</div>
                         </div>
                     </div>
                     <div class="modal-body" style="padding-top: 0;">
-                        <div v-if="!tablaAmortizacion" class="grid-detalles elegante" style="padding: .5rem;">
+                        <div v-if="!tablaAmortizacion" class="grid-detalles elegante" style="padding: 0;">
                             <div class="card-detalle">
                                 <div class="card-header">
                                     <h3>IMPORTE TOTAL DE LA OPERACIÓN</h3>
@@ -467,7 +475,7 @@
                                 </ul>
                             </div>
 
-                            <div class="card-detalle" v-if="infoOpcion.excedentePagoCuotaInicial > 0">
+                            <div class="card-detalle" v-if="excedentePagoCuotaInicial > 0">
                                 <div class="card-header">
                                     <h3 style="color: black;">AJUSTE POR EXCEDENTE EN CUOTA INICIAL</h3>
                                 </div>
@@ -478,7 +486,7 @@
                                         </div>
                                         <div>
                                             <span
-                                                class="valor-badge">{{formatoMoneda(infoOpcion.valor_credito_final_base)}}</span>
+                                                class="valor-badge">{{formatoMoneda(infoOpcion.valor_credito_base)}}</span>
                                         </div>
                                     </li>
                                     <li>
@@ -487,7 +495,7 @@
                                         </div>
                                         <div>
                                             <span class="valor-badge"
-                                                style="color: #27ae60; font-weight: bold;">{{formatoMoneda(infoOpcion.excedentePagoCuotaInicial)}}</span>
+                                                style="color: #27ae60; font-weight: bold;">{{formatoMoneda(excedentePagoCuotaInicial)}}</span>
                                         </div>
                                     </li>
                                     <li style="border-top: 2px solid #27ae60; padding-top: 0.5rem; margin-top: 0.5rem;">
@@ -496,7 +504,7 @@
                                         </div>
                                         <div>
                                             <span class="valor-badge"
-                                                style="color: #2980b9; font-weight: bold;">{{formatoMoneda(infoOpcion.importeFinanciacionAjustado)}}</span>
+                                                style="color: #2980b9; font-weight: bold;">{{formatoMoneda(importeFinanciacionAjustado)}}</span>
                                         </div>
                                     </li>
                                     <li>

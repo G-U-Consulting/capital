@@ -14,10 +14,9 @@ update fact_visitas
 set is_active = 0
 where id_visita = @id_visita;
 
-update fact_negocios_unidades
-set is_asignado = 0
+delete from fact_negocios_unidades
 where (
-        @terminarAtencion = 1 
+        @terminarAtencion = 1
         and id_proyecto = @id_proyecto
         and id_cliente = @id_cliente
         and created_on < CURDATE()

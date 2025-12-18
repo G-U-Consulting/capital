@@ -86,16 +86,16 @@ left join dim_sede g on a.id_sede = g.id_sede
 left join dim_zona_proyecto h on a.id_zona_proyecto = h.id_zona_proyecto
 left join dim_tipo_vis j on a.id_tipo_vis = j.id_tipo_vis
 left join (
-    select 
-        id_proyecto,
+    select
+        fp.id_proyecto,
         case
-            when find_in_set('6', group_concat(id_estado_publicacion)) then 'vigente'
-            when find_in_set('5', group_concat(id_estado_publicacion)) then 'próxima'
+            when dc.certificacion like '%Vigente%' then 'vigente'
+            when dc.certificacion like '%Próxima%' then 'próxima'
+            when dc.certificacion like '%Ya tiene%' then 'vigente'
             else 'N/A'
         end as edge_estado
-    from fact_estado_publicacion
-    where id_estado_publicacion in (5, 6)
-    group by id_proyecto
+    from fact_proyectos fp
+    left join dim_certificacion dc on fp.id_certificacion = dc.id_certificacion
 ) k on a.id_proyecto = k.id_proyecto
 left join (
     select 

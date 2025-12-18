@@ -53,31 +53,35 @@ set
 
     @link_general_onelink = '',
     @link_especifico_onelink = '',
-    @incluir_especificaciones_tecnicias = '',
+    @incluir_especificaciones_tecnicias = 0,
     @link_especificaciones_tecnicias = '',
-    @incluir_cartilla_negocios_cotizacion = '',
-    @incluir_cartilla_negocios_opcion = '',
+    @incluir_cartilla_negocios_cotizacion = 0,
+    @incluir_cartilla_negocios_opcion = 0,
     @link_cartilla_negocios = '',
-    @frame_seguimiento_visible = '',
+    @frame_seguimiento_visible = 0,
     @link_seguimiento_leads = '',
-    @frame_evaluacion_conocimiento = '',
+    @frame_evaluacion_conocimiento = 0,
     @link_evaluacion_conocimiento = '',
-    @avance_obra_visible = '',
+    @avance_obra_visible = 0,
     @link_avance_obra = '',
-    @incluir_brochure = '',
+    @incluir_brochure = 0,
     @link_brochure = '',
     @bancos_financiadores = '',
     @banco_constructor = '',
-    @estado_publicacion = '',
+    @id_estado_publicacion = 0,
     @tipo_proyecto = '',
-    @tiposFinanciacion= '';
+    @tiposFinanciacion= '',
+    @id_certificacion = 0;
 --END_PARAM
 
+
 update fact_proyectos
-set 
+set
     nombre = @nombre,
     direccion = @direccion,
     id_sede = nullif(@id_sede, 0),
+    id_estado_publicacion = nullif(@id_estado_publicacion, 0),
+    id_certificacion = nullif(@id_certificacion, 0),
     id_zona_proyecto = nullif(@id_zona_proyecto, 0),
     id_ciudadela = nullif(@id_ciudadela, 0),
     email_coordinacion_sala = @email_coordinacion_sala,
@@ -119,18 +123,18 @@ set
 
     link_general_onelink = @link_general_onelink,
     link_especifico_onelink = @link_especifico_onelink,
-    incluir_especificaciones_tecnicias = @incluir_especificaciones_tecnicias,
+    incluir_especificaciones_tecnicias = CAST(@incluir_especificaciones_tecnicias as UNSIGNED),
     link_especificaciones_tecnicias = @link_especificaciones_tecnicias,
-    incluir_cartilla_negocios_cotizacion = @incluir_cartilla_negocios_cotizacion,
-    incluir_cartilla_negocios_opcion = @incluir_cartilla_negocios_opcion,
+    incluir_cartilla_negocios_cotizacion = CAST(@incluir_cartilla_negocios_cotizacion as UNSIGNED),
+    incluir_cartilla_negocios_opcion = CAST(@incluir_cartilla_negocios_opcion as UNSIGNED),
     link_cartilla_negocios = @link_cartilla_negocios,
-    frame_seguimiento_visible = @frame_seguimiento_visible,
+    frame_seguimiento_visible = CAST(@frame_seguimiento_visible as UNSIGNED),
     link_seguimiento_leads = @link_seguimiento_leads,
-    frame_evaluacion_conocimiento = @frame_evaluacion_conocimiento,
+    frame_evaluacion_conocimiento = CAST(@frame_evaluacion_conocimiento as UNSIGNED),
     link_evaluacion_conocimiento = @link_evaluacion_conocimiento,
-    avance_obra_visible = @avance_obra_visible,
+    avance_obra_visible = CAST(@avance_obra_visible as UNSIGNED),
     link_avance_obra = @link_avance_obra,
-    incluir_brochure = @incluir_brochure,
+    incluir_brochure = CAST(@incluir_brochure as UNSIGNED),
     link_brochure = @link_brochure
     where id_proyecto = @id_proyecto;
 
@@ -162,30 +166,6 @@ set
     set @datos = @banco_constructor;
     set @tabla = 'fact_banco_constructor';
     set @campo = 'id_banco_constructor';
-    set @i = 1;
-
-    if trim(@datos) <> '' then
-        set @sql = concat('delete from ', @tabla, ' where id_proyecto = ', @id_proyecto);
-        prepare stmt from @sql;
-        execute stmt;
-        deallocate prepare stmt;
-
-        set @n = length(@datos) - length(replace(@datos, ',', '')) + 1;
-        while @i <= @n do
-            set @item = trim(substring_index(substring_index(@datos, ',', @i), ',', -1));
-            if @item <> '' then
-                set @sql = concat('insert into ', @tabla, ' (id_proyecto, ', @campo, ') values (', @id_proyecto, ',', cast(@item as unsigned), ')');
-                prepare stmt from @sql;
-                execute stmt;
-                deallocate prepare stmt;
-            end if;
-            set @i = @i + 1;
-        end while;
-    end if;
-
-    set @datos = @estado_publicacion;
-    set @tabla = 'fact_estado_publicacion';
-    set @campo = 'id_estado_publicacion';
     set @i = 1;
 
     if trim(@datos) <> '' then

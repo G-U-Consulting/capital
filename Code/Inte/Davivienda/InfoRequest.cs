@@ -50,15 +50,15 @@ public class InfoRequest
         }
     }
 
-    private BuilderInformation? _builderInformation;
-    public BuilderInformation? builderInformation
+    private BuilderInformation? _builderInformartion;
+    public BuilderInformation? builderInformartion
     {
-        get => _builderInformation;
+        get => _builderInformartion;
         set
         {
             if (value == null)
-                throw new ArgumentException("builderInformation es obligatorio.");
-            _builderInformation = value;
+                throw new ArgumentException("builderInformartion es obligatorio.");
+            _builderInformartion = value;
         }
     }
 }

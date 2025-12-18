@@ -25,7 +25,7 @@ public class Davivienda
         if (ciudad == "bogota")
         {
             entorno = "aws";
-            conexion = "pdn";
+            conexion = "lab";
         }
         else if (ciudad == "medellin")
         {
@@ -45,7 +45,9 @@ public class Davivienda
     public string rootPath;
     private byte[]? key;
     private static Dictionary<string, Dictionary<string, object?>> tokens = [];
+    public static Dictionary<string, Davivienda> requests = [];
     private JObject credentials = [];
+    public long validUntil = DateTimeOffset.Now.ToUnixTimeSeconds() + 3600;
 
     public void GetApiCredentials()
     {
@@ -74,7 +76,6 @@ public class Davivienda
 
     public void GenerateKey(string clientId)
     {
-        // str_pad( $client_id, 46, '0', STR_PAD_LEFT )
         if (clientId.Length <= 45)
             clientId = clientId.PadLeft(46, '0');
         // 1. decodificar base64
@@ -157,7 +158,6 @@ public class Davivienda
                 AutomaticDecompression = System.Net.DecompressionMethods.None
             };
             handler.ClientCertificates.Add(cert);
-            //handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 
             HttpClient client = new(handler);
             client.DefaultRequestHeaders.Accept.Add(
@@ -217,8 +217,15 @@ public class Davivienda
             string data = "";
             InfoRequest? info = JsonConvert.DeserializeObject<InfoRequest>(body) ?? throw new InvalidOperationException("Body JSON inválido");
             info.customerInformation?.SetUtil(this);
-            info.builderInformation?.SetUtil(this);
-            data = JsonConvert.SerializeObject(info, Formatting.None);
+            info.builderInformartion?.SetUtil(this);
+            JObject obj = JObject.FromObject(info);
+            string? workActivity = obj.SelectToken("customerInformation.workActivity")?.ToString();
+            if (!string.Equals(workActivity, "EMPLOYEE", StringComparison.OrdinalIgnoreCase))
+            {
+                JObject? cust = obj["customerInformation"] as JObject;
+                cust?.Property("contractType")?.Remove();
+            }
+            data = obj.ToString(Formatting.None);
             
             string token = await GetAccess();
             if (string.IsNullOrEmpty(token))
@@ -226,11 +233,12 @@ public class Davivienda
             Console.WriteLine(token);
             Console.WriteLine($"Current timestamp: {DateTimeOffset.Now.ToUnixTimeSeconds()}\nValid until: {tokens[ciudad]["validUntil"]}");
             var contentBytes = Encoding.UTF8.GetBytes(data);
-            int contentLength = contentBytes.Length; // Longitud exacta en bytes
+            int contentLength = contentBytes.Length;
             Console.WriteLine(data);
 
             string url = credentials["url"]?.ToString() ?? throw new ArgumentException("url no configurado");
             string endpoint = string.Concat(url, "mortgage/v1/initBuilderRequest");
+            //Console.WriteLine("Endpoint: " + url);
             
             HttpClient client = LoadCertificates();
 
@@ -238,32 +246,41 @@ public class Davivienda
             request.Version = new Version(1, 1);
             request.Headers.ExpectContinue = false;
             request.Content = new StringContent(data, Encoding.UTF8, "application/json");
-            //request.Content = new ByteArrayContent(contentBytes); // Usamos ByteArrayContent para tener más control
-            //request.Content.Headers.ContentLength = contentLength;
-            //request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
             Console.WriteLine($"client id: {credentials["clientId"]?.ToString()}");
             Console.WriteLine($"token: {token}");
 
             request.Headers.Add("x-ibm-client-id", credentials["clientId"]?.ToString());
-            //request.Headers.Accept.Clear();
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             request.Headers.UserAgent.ParseAdd("MyCustomUserAgent/1.0 (http://www.constructoracapital.com)");
             request.Headers.Authorization = AuthenticationHeaderValue.Parse(token);
 
             HttpResponseMessage response = await client.SendAsync(request);
             string content = await response.Content.ReadAsStringAsync();
+
             string contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
             int statusCode = (int)response.StatusCode;
-            
+            if (contentType.Contains("application/json") && response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.Found)
+            {
+                JObject resJson = JsonConvert.DeserializeObject<JObject>(content) ?? [];
+                resJson["davUrl"] = response.Headers.Location?.ToString();
+                content = resJson.ToString(Formatting.None);
+            }
+            else if (!response.IsSuccessStatusCode)
+            {
+                contentType = "application/json";
+                content = JsonConvert.SerializeObject(new { isError = true, message = $"Error en la petición: {response.StatusCode}", details = content.Trim() });
+            }
             http.Response.StatusCode = (int)response.StatusCode;
+            http.Response.Headers.ContentType = contentType;
+            await http.Response.WriteAsync(content);
+            
+            /* http.Response.StatusCode = (int)response.StatusCode;
 
             foreach (var header in response.Headers)
                 http.Response.Headers[header.Key] = header.Value.ToArray();
             foreach (var header in response.Content.Headers)
-                http.Response.Headers[header.Key] = header.Value.ToArray();
-
-            await response.Content.CopyToAsync(http.Response.Body);
+                http.Response.Headers[header.Key] = header.Value.ToArray(); */
 
             Console.WriteLine("Davivienda response: \n" + response);
             Console.WriteLine("Davivienda content: \n" + content);

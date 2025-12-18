@@ -61,3 +61,7 @@ select a.id_sala_venta, a.sala_venta, id_proyecto
 from dim_sala_venta a
 join dim_sala_proyecto b on a.id_sala_venta = b.id_sala_venta
 where a.is_active = 1 and b.id_proyecto = @id_proyecto;
+
+select id_certificacion, certificacion
+from dim_certificacion
+where is_active = 1;

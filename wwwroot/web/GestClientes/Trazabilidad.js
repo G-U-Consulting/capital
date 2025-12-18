@@ -367,6 +367,11 @@ export default {
             try {
                 showProgress();
                 let datos = this.getFilteredList(tabla);
+                if (!datos.length) {
+                    hideProgress();
+                    showMessage('No hay datos para exportar');
+                    return;
+                }
                 var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
                 var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
                 window.open("./docs/" + archivo, "_blank");
@@ -409,6 +414,7 @@ export default {
                 let opcion = (await httpFunc("/generic/genericDT/Clientes:Get_Opcion", {id_opcion: this.selIdObj})).data;
                 this.infoOpcion = opcion[0] || {};
             }
+            this.cargarTablaDesdeDB(this.selIdObj);
             hideProgress();
         },
 		formatoMoneda(valor) {
@@ -500,7 +506,6 @@ export default {
 		},
         generarTabla() {
             this.tablaPeriodos = [];
-            this.tablaAmortizacion = true;
 
             const limpiarNumero = this.cleanNumber.bind(this);
             const redondear0 = (num) => Math.round(num);
@@ -757,6 +762,68 @@ export default {
                 }
             }
         },
+        async cargarTablaDesdeDB(id_opcion) {
+            try {
+                const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Amortizacion', {
+                    id_opcion
+                });
+
+                if (resp.data && resp.data[0] && resp.data[0].length > 0) {
+                    this.cargarTablaAmortizacion(resp.data[0]);
+                } else {
+                    await this.generarTabla();
+                }
+            } catch (error) {
+                console.error('Error al cargar tabla desde BD:', error);
+                await this.generarTabla();
+            }
+        },
+        cargarTablaAmortizacion(datosTabla) {
+            try {
+                this.tablaPeriodos = datosTabla.map(fila => {
+                    let fechaFormateada = fila.fecha;
+                    if (fila.fecha && fila.fecha.includes('-')) {
+                        const partes = fila.fecha.split('-');
+                        if (partes.length === 3) {
+                            fechaFormateada = `${partes[2].padStart(2, '0')}/${partes[1].padStart(2, '0')}/${partes[0]}`;
+                        }
+                    }
+
+                    const saldoInicialLimpio = this.cleanNumber(fila.saldo_inicial);
+                    const tnaLimpia = this.cleanNumber(fila.tna);
+                    const cuotaCalculadaLimpia = this.cleanNumber(fila.cuota_calculada);
+                    const interesesLimpios = this.cleanNumber(fila.intereses);
+                    const principalLimpio = this.cleanNumber(fila.principal);
+                    const saldoFinalLimpio = this.cleanNumber(fila.saldo_final);
+      
+                    let cuotaDeseadaFormateada = '';
+                    if (fila.cuota_deseada) {
+                        const cuotaDeseadaLimpia = this.cleanNumber(fila.cuota_deseada);
+                        if (cuotaDeseadaLimpia > 0) {
+                            cuotaDeseadaFormateada = this.formatoMoneda(cuotaDeseadaLimpia);
+                        }
+                    }
+
+                    return {
+                        periodo: parseInt(fila.periodo),
+                        fecha: fechaFormateada,
+                        saldo_inicial: saldoInicialLimpio,
+                        tna: tnaLimpia,
+                        cuota_deseada: cuotaDeseadaFormateada,
+                        cuota_calculada: cuotaCalculadaLimpia,
+                        intereses: interesesLimpios,
+                        principal: principalLimpio,
+                        saldo_final: saldoFinalLimpio
+                    };
+                });
+
+                /* if (this.tablaPeriodos.length > 0) {
+                    this.tablaAmortizacion = true;
+                } */
+            } catch (error) {
+                console.error('❌ [cargarTablaAmortizacion] Error al cargar tabla de amortización:', error);
+            }
+        },
     },
     computed: {
         getFilteredList() {
@@ -788,6 +855,19 @@ export default {
                 });
                 return total;
             },
+        },
+        excedentePagoCuotaInicial() {
+            if (!this.tablaPeriodos || this.tablaPeriodos.length === 0) return 0;
+            for (let i = 0; i < this.tablaPeriodos.length; i++) {
+                const fila = this.tablaPeriodos[i];
+                if (fila.saldo_final < 0) {
+                    return Math.abs(fila.saldo_final);
+                }
+            }
+            return 0;
+        },
+        importeFinanciacionAjustado() {
+            return (this.infoOpcion.valor_credito_base - this.excedentePagoCuotaInicial) || 0;
         },
     }
 

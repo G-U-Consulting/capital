@@ -19,10 +19,7 @@ select distinct round(@importe_original) as `importeOriginal`,
     round((@importe_original - o.valor_descuento_adicional)) as `importeActiva`,
     tf.tipo_financiacion as `tipoFinanciacionSeleccionada`, 
     id_anios as `anioSeleccionado`, 
-    coalesce(bf.valor, 0) as `f_factorBanco`, -- cual es el factor?
-    round(0) as `excedentePagoCuotaInicial`, -- como se calcula?
-    round(0) as `valor_credito_final_base`, -- como se calcula?
-    round(0) as `importeFinanciacionAjustado`, -- como se calcula?
+    coalesce(bf.valor, 0) as `f_factorBanco`,
     round((@importe_original - o.valor_descuento_adicional) * tf.porcentaje / 100) as `valor_credito_base`,
     round(o.ingr_regs_max * 0.4) as `valorCreditoMillonFormateado`,
     round(o.ingresos_familiares) as `f_ingresos_mensuales`,

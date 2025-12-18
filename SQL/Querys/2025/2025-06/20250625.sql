@@ -40,13 +40,14 @@ create index ix_id_proyecto_fact_torres on fact_torres(id_proyecto);
 create table dim_estado_unidad(
 	id_estado_unidad int not null,
 	constraint pk_id_estado_unidad primary key(id_estado_unidad),
-	estado_unidad varchar(100),
-	estado_unidad_plural varchar(100),
+	estado_unidad varchar(100) not null unique,
+	estado_unidad_plural varchar(100) not null,
 	color_fondo varchar(20),
 	color_fuente varchar(20),
 	is_active bit default 1,
 	created_on datetime default current_timestamp,
-	created_by varchar(200) default current_user
+	created_by varchar(200) default current_user,
+	constraint chk_estado_unidad_no_vacio check (trim(estado_unidad) <> '')
 );
 insert into dim_estado_unidad(id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente) values
 (1, 'Libre','Libres', '#FFFFFF', '#000000'),

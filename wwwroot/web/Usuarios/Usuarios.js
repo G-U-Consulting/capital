@@ -266,6 +266,11 @@
         },
         async exportExcel() {
             showProgress();
+            if (!this.filtro.length) {
+                hideProgress();
+                showMessage('No hay datos para exportar');
+                return;
+            }
             var archivo = (await httpFunc("/generic/exportDataSP/Usuarios:Get_Usuarios", this.filtro)).data;
             var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoUsuarios" })).data;
             hideProgress();

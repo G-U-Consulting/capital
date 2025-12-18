@@ -15,7 +15,7 @@ order by categoria;
 
 select mp.id_medio, mp.medio, mp.id_categoria, mp.is_active, id_sinco, id_sinco as 'ID Sinco', cm.categoria
 from dim_medio_publicitario mp 
-join dim_categoria_medio cm on mp.id_categoria = cm.id_categoria
+left join dim_categoria_medio cm on mp.id_categoria = cm.id_categoria
 order by is_active desc, mp.medio asc;
 
 select id_banco, banco, is_active
@@ -85,7 +85,7 @@ order by estado_unidad;
 
 select s.id_sede, s.sede, s.id_gerente, s.alias, s.is_active, u.nombres as gerencia
 from dim_sede s
-join fact_usuarios u on s.id_gerente = u.id_usuario
+left join fact_usuarios u on s.id_gerente = u.id_usuario
 order by sede;
 
 select id_factor, factor, unidad from dim_factor order by id_factor;

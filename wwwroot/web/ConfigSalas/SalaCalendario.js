@@ -481,6 +481,11 @@ export default {
                             descripcion: td.e_descripcion,
                         })
                     );
+                    if (!datos.length) {
+                        hideProgress();
+                        showMessage('No hay datos para exportar');
+                        return;
+                    }
                     var archivo = (await httpFunc("/util/Json2File/excel", datos)).data;
                     var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoCalendario" })).data;
                     window.open("./docs/" + archivo, "_blank");
