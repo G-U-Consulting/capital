@@ -817,13 +817,9 @@ export default {
                     };
                 });
 
-                if (this.tablaPeriodos.length > 0) {
+                /* if (this.tablaPeriodos.length > 0) {
                     this.tablaAmortizacion = true;
-                }
-
-                this.$nextTick(() => {
-                    this.cargandoTablaDesdeDB = false;
-                });
+                } */
             } catch (error) {
                 console.error('❌ [cargarTablaAmortizacion] Error al cargar tabla de amortización:', error);
             }
