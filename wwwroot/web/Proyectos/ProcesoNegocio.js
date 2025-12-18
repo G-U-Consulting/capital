@@ -1883,10 +1883,44 @@ export default {
             } else if (this.mode === 3) {
                 this.opcionesSeguimientoActuales = this.seguimientoOpcion;
             }
+          
+            let descripcionAutomatica = '';
+
+            if (this.ObjCliente?.nombres) {
+                descripcionAutomatica += `- Nombre Cliente: ${this.ObjCliente.nombres}\n`;
+            }
+
+            if ((this.mode === 2 || this.mode === 3) && this.unidades && this.unidades.length > 0) {
+                const esUnicaUnidad = this.unidades.length === 1;
+
+                this.unidades.forEach((unidad, index) => {
+                    const nombreUnidad = unidad.tipo && unidad.numero_apartamento
+                        ? `${unidad.tipo} ${unidad.numero_apartamento}`
+                        : (unidad.numero_apartamento || unidad.tipo || `Unidad ${index + 1}`);
+
+                    const etiquetaUnidad = esUnicaUnidad ? 'Unidad' : `Unidad ${index + 1}`;
+
+                    descripcionAutomatica += `- ${etiquetaUnidad}: ${nombreUnidad}\n`;
+
+                    if (unidad.valor_unidad) {
+                        const importeUnidad = this.formatoMoneda(unidad.valor_unidad);
+                        const etiquetaImporte = esUnicaUnidad ? 'Importe Unidad' : `Importe Unidad ${index + 1}`;
+                        descripcionAutomatica += `- ${etiquetaImporte}: ${importeUnidad}\n`;
+                    }
+                });
+            }
+            if (this.ObjCliente?.telefono1) {
+                descripcionAutomatica += `- Teléfono: ${this.ObjCliente.telefono1}\n`;
+            }
+      
+            if (this.ObjCliente?.email1) {
+                descripcionAutomatica += `- Email: ${this.ObjCliente.email1}`;
+            }
+
             this.seguimientoData = {
                 tipo: '',
                 fecha: new Date().toISOString().split('T')[0],
-                descripcion: ''
+                descripcion: descripcionAutomatica
             };
             this.mostrarModal = true;
         },
