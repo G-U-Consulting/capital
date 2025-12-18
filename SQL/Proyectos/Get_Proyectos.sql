@@ -7,8 +7,8 @@
 select 
     a.id_proyecto, 
     a.nombre, 
-    DATE_FORMAT(a.created_on, '%Y-%m-%d %T') AS created_on, 
-    if(a.is_active = true, 1, 0) AS is_active,
+    DATE_FORMAT(a.created_on, '%Y-%m-%d %T') as created_on, 
+    if(a.is_active = true, 1, 0) as is_active,
     h.zona_proyecto,
     b.ciudadela,
     c.estado_publicacion, 
@@ -126,7 +126,6 @@ left join (
 left join (
     select 
         u.id_proyecto,
-
         concat(
             '$',
             replace(format(min((

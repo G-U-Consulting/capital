@@ -1604,9 +1604,9 @@
 
     <div  v-if="mode == 3" class="pdf-export-section" style="padding: 20px; background: white; width: 100%; box-sizing: border-box; display: none;">
         <div id="contenedor-pdf-completo">
-                <div style="padding: 1rem 1rem .4rem 1rem;">
-                    <span style="color: #009AB9; font-weight: bold; font-size: 15px; display: block;">Datos Personales</span>
-                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777;">
+                <div style="padding: 1rem 1rem .4rem 1rem; page-break-inside: avoid;">
+                    <span style="color: #009AB9; font-weight: bold; font-size: 15px; display: block; margin-bottom: 0.5rem;">Datos Personales</span>
+                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777; page-break-inside: avoid;">
                         <template v-for="(cliente, index) in clientesParaPDF" :key="index">
                             <thead>
                                 <tr>
@@ -1732,14 +1732,14 @@
                         </template>
                     </table>
 
-                    <span style="color: #009AB9; font-weight: bold; font-size: 15px; display: block; margin-top: 1rem;">
+                    <span style="color: #009AB9; font-weight: bold; font-size: 15px; display: block; margin-top: 1rem; margin-bottom: 0.5rem;">
                         Información General
                         <span v-if="isTitular == 1">En representación de: ({{ ObjCliente.nombreEmpresa }} Nit: {{
                             ObjCliente.nit
                             }})</span>
                         <span v-else>Persona Natural</span>
                     </span>
-                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse;">
+                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse; page-break-inside: avoid;">
                         <thead>
                             <tr>
                                 <th colspan="4" style="border-left: #777 solid 1px;">Resumen de Unidad</th>
@@ -1782,7 +1782,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse; margin-top: 8px;">
+                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse; margin-top: 8px; page-break-inside: avoid;">
                         <thead>
                             <tr>
                                 <th colspan="4" style="border-left: #777 solid 1px;">Detalles del Cálculo</th>
@@ -1907,7 +1907,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse;">
+                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse; page-break-inside: avoid;">
                         <thead>
                             <tr>
                                 <th colspan="2" style="border-left: #777 solid 1px;">Separación y Escrituración</th>
@@ -1930,7 +1930,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <table class="pdf-table resumen-opcion">
+                    <table class="pdf-table resumen-opcion" style="page-break-inside: avoid;">
                         <thead>
                             <tr>
                                 <th colspan="4" style="border-left: #777 solid 1px;">Modo de Pago</th>
@@ -1960,7 +1960,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <table class="pdf-table resumen-opcion">
+                    <table class="pdf-table resumen-opcion" style="page-break-inside: avoid;">
                         <thead>
                             <tr>
                                 <th colspan="5" style="border-left: #777 solid 1px;">Descuentos, subsidios y aportes</th>
@@ -2037,7 +2037,7 @@
                             </tr>
                         </tbody>
                     </table> -->
-                    <table class="pdf-table resumen-opcion">
+                    <table class="pdf-table resumen-opcion" style="page-break-inside: avoid;">
                         <thead>
                             <tr>
                                 <th colspan="4" style="border-left: #777 solid 1px;">Información de la Unidad</th>
@@ -2149,8 +2149,8 @@
                 </div>
 
                 <!-- Otros Links -->
-                <div v-if="mostrarOtrosLinks" style="padding: .8rem 1rem; font-size: 11px; color: #444; line-height: 1.3; margin-top: .5rem;">
-                    <h3 style="font-size: 13px; font-weight: 700; color: #007a8c; margin-bottom: .4rem; text-align: center;">
+                <div v-if="mostrarOtrosLinks" style="padding: .8rem 1rem; font-size: 11px; color: #444; line-height: 1.3; margin-top: .5rem; page-break-inside: avoid;">
+                    <h3 style="font-size: 13px; font-weight: 700; color: #007a8c; margin-bottom: .6rem; text-align: center; page-break-after: avoid;">
                         Otros Links
                     </h3>
                     <div style="display: flex; flex-direction: column; gap: .3rem;">
@@ -2178,60 +2178,67 @@
                     </div>
                 </div>
 
-                <div style="padding: .8rem 1rem; font-size: 11px; color: #444; line-height: 1.3; margin-top: .5rem;">
-                    <h3 style="font-size: 13px; font-weight: 700; color: #007a8c; margin-bottom: .4rem; text-align: center;">
+                <div style="padding: .8rem 1rem; font-size: 11px; color: #444; line-height: 1.4; margin-top: .5rem; page-break-inside: avoid;">
+                    <h3 style="font-size: 13px; font-weight: 700; color: #007a8c; margin-bottom: .6rem; text-align: center; page-break-after: avoid;">
                         Información Legal y Financiera
                     </h3>
-                <p style="text-align: justify; margin: .4rem 0;">
-                    <strong>CONSTRUCTORA CAPITAL MEDELLÍN S.A.S.</strong> y <strong>CONSTRUCTORA CAPITAL BOGOTÁ S.A.S.</strong>
-                    dejan constancia en que la visita realizada el día de hoy nos autorizó para recolectar y tratar sus datos
-                    personales.
-                    La política de tratamiento de datos se encuentra disponible en
-                    <a href="https://www.constructoracapital.com" target="_blank"
-                        style="color: #007a8c; text-decoration: none;">www.constructoracapital.com</a>.
-                    Los datos personales suministrados serán tratados de manera segura y confidencial con fines informativos,
-                    comerciales y de análisis,
-                    conforme a la Ley 1581 de 2012.
-                </p>
 
-                <p style="text-align: justify; margin: .4rem 0;">
-                    Para consultas o reclamaciones sobre el tratamiento de sus datos personales, puede comunicarse al correo
-                    <a href="mailto:protecciondedatos@constructoracapital.com" style="color: #007a8c; text-decoration: none;">
-                        protecciondedatos@constructoracapital.com
-                    </a>
-                    o a las líneas telefónicas (604) 4487440 en Medellín y (601) 4430700 en Bogotá.
-                </p>
+                    <div style="page-break-inside: avoid; margin-bottom: .6rem;">
+                        <p style="text-align: justify; margin: .4rem 0; line-height: 1.5;">
+                            <strong>CONSTRUCTORA CAPITAL MEDELLÍN S.A.S.</strong> y <strong>CONSTRUCTORA CAPITAL BOGOTÁ S.A.S.</strong>
+                            dejan constancia en que la visita realizada el día de hoy nos autorizó para recolectar y tratar sus datos
+                            personales.
+                            La política de tratamiento de datos se encuentra disponible en
+                            <a href="https://www.constructoracapital.com" target="_blank"
+                                style="color: #007a8c; text-decoration: none;">www.constructoracapital.com</a>.
+                            Los datos personales suministrados serán tratados de manera segura y confidencial con fines informativos,
+                            comerciales y de análisis,
+                            conforme a la Ley 1581 de 2012.
+                        </p>
 
-                <div style="border-top: 1px dashed #bbb; margin: .8rem 0;"></div>
+                        <p style="text-align: justify; margin: .4rem 0; line-height: 1.5;">
+                            Para consultas o reclamaciones sobre el tratamiento de sus datos personales, puede comunicarse al correo
+                            <a href="mailto:protecciondedatos@constructoracapital.com" style="color: #007a8c; text-decoration: none;">
+                                protecciondedatos@constructoracapital.com
+                            </a>
+                            o a las líneas telefónicas (604) 4487440 en Medellín y (601) 4430700 en Bogotá.
+                        </p>
+                    </div>
 
-                <p style="text-align: justify; margin: .4rem 0;">
-                    <strong>(*) Financiar tu inmueble en pesos</strong>, también conocido como <strong>TASA FIJA</strong>, te
-                    permite garantizar el valor mensual de la cuota de tu crédito sin variaciones a lo largo del tiempo.
-                    También puedes financiarlo en <strong>UVR (Unidades de Valor Real)</strong>, o <strong>TASA VARIABLE</strong>,
-                    que te permite acceder a cuotas iniciales más bajas,
-                    pero sujetas al comportamiento de la inflación.
-                </p>
+                    <div style="border-top: 1px dashed #bbb; margin: .8rem 0;"></div>
 
-                <p style="text-align: justify; margin: .4rem 0;">
-                    Recuerda que por ley puedes solicitar el cambio de modalidad o trasladar tu hipoteca entre bancos sin penalidad,
-                    siempre que cumplas con el perfil de riesgo requerido por la entidad financiera.
-                    El único responsable del pago del inmueble y de la obtención de la financiación es el comprador o cesionario.
-                    En caso de tener 70 años o más, la aprobación del crédito puede estar sujeta a condiciones especiales.
-                </p>
+                    <div style="page-break-inside: avoid; margin-bottom: .6rem;">
+                        <p style="text-align: justify; margin: .4rem 0; line-height: 1.5;">
+                            <strong>(*) Financiar tu inmueble en pesos</strong>, también conocido como <strong>TASA FIJA</strong>, te
+                            permite garantizar el valor mensual de la cuota de tu crédito sin variaciones a lo largo del tiempo.
+                            También puedes financiarlo en <strong>UVR (Unidades de Valor Real)</strong>, o <strong>TASA VARIABLE</strong>,
+                            que te permite acceder a cuotas iniciales más bajas,
+                            pero sujetas al comportamiento de la inflación.
+                        </p>
 
-                <div style="border-top: 1px dashed #bbb; margin: .8rem 0;"></div>
+                        <p style="text-align: justify; margin: .4rem 0; line-height: 1.5;">
+                            Recuerda que por ley puedes solicitar el cambio de modalidad o trasladar tu hipoteca entre bancos sin penalidad,
+                            siempre que cumplas con el perfil de riesgo requerido por la entidad financiera.
+                            El único responsable del pago del inmueble y de la obtención de la financiación es el comprador o cesionario.
+                            En caso de tener 70 años o más, la aprobación del crédito puede estar sujeta a condiciones especiales.
+                        </p>
+                    </div>
 
-                <p style="text-align: justify; margin: .4rem 0;">
-                    <strong>(*) El valor de la separación</strong> no hace parte del pago del inmueble si este es de característica
-                    <strong>VIS</strong>.
-                    Estos recursos entregados a Constructora Capital o a la Fiducia corresponden al pago por los diferentes
-                    conceptos requeridos para poder escriturar el inmueble,
-                    entre los que se incluyen <em>avalúos, estudios de títulos, trámites de subsidio, gastos administrativos,
-                        notariado y registro</em>,
-                    entre otros, y no son negociables por las partes.
-                </p>
+                    <div style="border-top: 1px dashed #bbb; margin: .8rem 0;"></div>
+
+                    <div style="page-break-inside: avoid; margin-bottom: .6rem;">
+                        <p style="text-align: justify; margin: .4rem 0; line-height: 1.5;">
+                            <strong>(*) El valor de la separación</strong> no hace parte del pago del inmueble si este es de característica
+                            <strong>VIS</strong>.
+                            Estos recursos entregados a Constructora Capital o a la Fiducia corresponden al pago por los diferentes
+                            conceptos requeridos para poder escriturar el inmueble,
+                            entre los que se incluyen <em>avalúos, estudios de títulos, trámites de subsidio, gastos administrativos,
+                                notariado y registro</em>,
+                            entre otros, y no son negociables por las partes.
+                        </p>
+                    </div>
                 </div>
-                <div style="text-align: center; font-size: 14px; line-height: 1.4; margin-top: 2.5rem;">
+                <div style="text-align: center; font-size: 14px; line-height: 1.4; margin-top: 2.5rem; page-break-inside: avoid;">
                     <div style="border-top: 1px solid #000; width: 30%; margin: 0 auto 0.4rem;"></div>
                     <div>Asesor: <span style="font-weight: bold;">{{ asesor.nombres }}</span></div>
                     <div>Fecha: <span style="font-weight: bold;">{{ f_cotizacion }}</span></div>
