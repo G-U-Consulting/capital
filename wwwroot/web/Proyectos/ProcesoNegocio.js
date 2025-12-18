@@ -3232,7 +3232,7 @@ export default {
                     const tablaLandscape = document.getElementById('tabla-amortizacion-landscape');
 
                     html2pdf().set({
-                        margin: [25, 10, 10, 10],
+                        margin: [30, 10, 20, 10],
                         filename: 'cotizacion.pdf',
                         image: { type: 'jpeg', quality: 0.98 },
                         html2canvas: {
@@ -3242,7 +3242,7 @@ export default {
                             logging: false,
                             windowWidth: 1024
                         },
-                        pagebreak: { mode: 'css' },
+                        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
                         jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
                     }).from(content).toPdf().get('pdf').then(async pdfPortrait => {
 
@@ -3299,47 +3299,50 @@ export default {
                     const pageWidth = pdf.internal.pageSize.getWidth();
                     const pageHeight = pdf.internal.pageSize.getHeight();
 
-                    const maxHeightCapital = 18;
+                    const maxHeightCapital = 16;
                     const ratioCapital = logoCapitalData.width / logoCapitalData.height;
                     const heightCapital = maxHeightCapital;
                     const widthCapital = heightCapital * ratioCapital;
-                    pdf.addImage(logoCapitalData.base64, 'PNG', 10, 5, widthCapital, heightCapital);
+                    pdf.addImage(logoCapitalData.base64, 'PNG', 10, 6, widthCapital, heightCapital);
 
                     pdf.setFontSize(14);
                     pdf.setTextColor(0, 154, 185);
                     pdf.setFont(undefined, 'bold');
-                    pdf.text('Cotización', pageWidth / 2, 11, { align: 'center' });
+                    pdf.text('Cotización', pageWidth / 2, 12, { align: 'center' });
 
                     pdf.setFontSize(9);
                     pdf.setTextColor(0, 0, 0);
                     pdf.setFont(undefined, 'normal');
-                    pdf.text(`Numero Cotizacion #: ${this.cotizacionSeleccionada || ''}`, pageWidth / 2, 16, { align: 'center' });
-                    pdf.text(`Fecha Creado: ${this.f_cotizacion || ''}`, pageWidth / 2, 20, { align: 'center' });
+                    pdf.text(`Numero Cotizacion #: ${this.cotizacionSeleccionada || ''}`, pageWidth / 2, 17, { align: 'center' });
+                    pdf.text(`Fecha Creado: ${this.f_cotizacion || ''}`, pageWidth / 2, 22, { align: 'center' });
 
                     if (logoProyectoData) {
-                        const maxHeightProyecto = 18;
+                        const maxHeightProyecto = 16;
                         const ratioProyecto = logoProyectoData.width / logoProyectoData.height;
                         const heightProyecto = maxHeightProyecto;
                         const widthProyecto = heightProyecto * ratioProyecto;
                         const xPos = pageWidth - widthProyecto - 10;
-                        pdf.addImage(logoProyectoData.base64, 'PNG', xPos, 5, widthProyecto, heightProyecto);
+                        pdf.addImage(logoProyectoData.base64, 'PNG', xPos, 6, widthProyecto, heightProyecto);
                     }
 
+                   
                     pdf.setFontSize(9);
                     pdf.setFont(undefined, 'normal');
 
                     pdf.setTextColor(0, 0, 0);
-                    pdf.text('www.constructoracapital.com', 10, pageHeight - 10);
+                    pdf.text('www.constructoracapital.com', 10, pageHeight - 8);
 
+                  
                     const nombreProyecto = GlobalVariables.proyecto?.nombre || '';
                     pdf.setTextColor(0, 154, 185);
                     pdf.setFont(undefined, 'bold');
-                    pdf.text(nombreProyecto, pageWidth / 2, pageHeight - 10, { align: 'center' });
+                    pdf.text(nombreProyecto, pageWidth / 2, pageHeight - 8, { align: 'center' });
 
+        
                     if (incluirNumeracion) {
                         pdf.setTextColor(0, 0, 0);
                         pdf.setFont(undefined, 'normal');
-                        pdf.text(`${i}/${totalPages}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+                        pdf.text(`${i}/${totalPages}`, pageWidth - 15, pageHeight - 8, { align: 'right' });
                     }
                 }
             } catch (error) {
@@ -3425,7 +3428,7 @@ export default {
                 pdf.setFontSize(9);
                 pdf.setTextColor(0, 0, 0);
                 pdf.setFont(undefined, 'normal');
-                pdf.text(`${i}/${totalPages}`, pageWidth - 15, pageHeight - 10, { align: 'right' });
+                pdf.text(`${i}/${totalPages}`, pageWidth - 15, pageHeight - 8, { align: 'right' });
             }
         },
 

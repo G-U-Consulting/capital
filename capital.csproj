@@ -6,16 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="SQL\NewFolder\**" />
-    <Compile Remove="wwwroot\img\client\**" />
-    <Content Remove="SQL\NewFolder\**" />
-    <Content Remove="wwwroot\img\client\**" />
-    <EmbeddedResource Remove="SQL\NewFolder\**" />
-    <EmbeddedResource Remove="wwwroot\img\client\**" />
-    <None Remove="SQL\NewFolder\**" />
-    <None Remove="wwwroot\img\client\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="4.0.0.1" />
@@ -42,6 +32,9 @@
   <ItemGroup>
 	  <None Update="SQL\**\*">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Include="wwwroot\**">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
   </ItemGroup>
 
