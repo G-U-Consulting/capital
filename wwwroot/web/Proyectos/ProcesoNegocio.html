@@ -524,6 +524,10 @@
                     </div>
                 </div>
             </div>
+            <div class="btn-modern btn-fixed" @click="showAtencionModal">
+                <span class="icon">✔</span>
+                <span class="text">Terminar<br>Atención</span>
+            </div>
         </div>
         <!-- ----------------------------------------------------------------- -->
         <!-- --------------------------- Cotización--------------------------- -->
@@ -644,19 +648,6 @@
                         </div>
                  
                     </div> -->
-            <div v-if="mostrarModal" class="asunto-modal-overlay">
-                <div class="asunto-modal-box">
-                    <span class="asunto-modal-close" @click="mostrarModal = false">×</span>
-                    <h3>Seleccione el Seguimiento</h3>
-                    <select class="asunto-select" v-model="asuntoSeleccionado">
-                        <option disabled value="">Seleccione el seguimiento...</option>
-                        <option v-for="(opcion, index) in cotizacion" :key="index">{{ opcion }}</option>
-                    </select>
-                    <div style="text-align: center; margin-top: 1em;">
-                        <button @click="terminarAtencion">Confirmar</button>
-                    </div>
-                </div>
-            </div>
         </div>
         <!-- ----------------------------------------------------------------- -->
         <!-- ----------------------------- Opción ---------------------------- -->
@@ -1581,6 +1572,36 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Seguimiento Global -->
+    <div v-if="mostrarModal" class="asunto-modal-overlay">
+        <div class="asunto-modal-box">
+            <span class="asunto-modal-close" @click="cerrarModalSeguimiento">×</span>
+            <h3>{{ tituloModalSeguimiento }}</h3>
+            <div style="padding: 0 1em;">
+                <div style="margin-bottom: 1em;">
+                    <label style="display: block; margin-bottom: 0.3em; font-weight: bold;">Tipo de Seguimiento:</label>
+                    <select class="asunto-select" v-model="seguimientoData.tipo" style="width: 100%;">
+                        <option disabled value="">Seleccione el seguimiento...</option>
+                        <option v-for="opcion in opcionesSeguimientoActuales" :key="opcion" :value="opcion">{{ opcion }}</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1em;">
+                    <label style="display: block; margin-bottom: 0.3em; font-weight: bold;">Fecha de Seguimiento:</label>
+                    <input type="date" v-model="seguimientoData.fecha" style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px;" />
+                </div>
+                <div style="margin-bottom: 1em;">
+                    <label style="display: block; margin-bottom: 0.3em; font-weight: bold;">Descripción:</label>
+                    <textarea v-model="seguimientoData.descripcion" rows="3" placeholder="Ingrese una descripción del seguimiento..." style="width: 100%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 1em;">
+                <button @click="confirmarSeguimiento">Confirmar</button>
+                <button @click="cerrarModalSeguimiento" style="margin-left: 0.5em; background-color: #666;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <div  v-if="mode == 3" class="pdf-export-section" style="padding: 20px; background: white; width: 100%; box-sizing: border-box; display: none;">
         <div id="contenedor-pdf-completo">
                 <div style="padding: 1rem 1rem .4rem 1rem;">
@@ -2127,6 +2148,36 @@
                     </div>
                 </div>
 
+                <!-- Otros Links -->
+                <div v-if="mostrarOtrosLinks" style="padding: .8rem 1rem; font-size: 11px; color: #444; line-height: 1.3; margin-top: .5rem;">
+                    <h3 style="font-size: 13px; font-weight: 700; color: #007a8c; margin-bottom: .4rem; text-align: center;">
+                        Otros Links
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: .3rem;">
+                        <div v-if="proyectoData && Number(proyectoData.incluir_especificaciones_tecnicias) === 0 && proyectoData.link_especificaciones_tecnicias">
+                            <span style="font-weight: 600; color: #444;">Link a especificaciones Técnicas PDF web: </span>
+                            <a :href="proyectoData.link_especificaciones_tecnicias" target="_blank"
+                                style="color: #007a8c; text-decoration: none; word-break: break-all;">
+                                {{ proyectoData.link_especificaciones_tecnicias }}
+                            </a>
+                        </div>
+                        <div v-if="proyectoData && Number(proyectoData.incluir_cartilla_negocios_cotizacion) === 0 && proyectoData.link_cartilla_negocios">
+                            <span style="font-weight: 600; color: #444;">Link a Cartilla de Negocios Fiduciarios: </span>
+                            <a :href="proyectoData.link_cartilla_negocios" target="_blank"
+                                style="color: #007a8c; text-decoration: none; word-break: break-all;">
+                                {{ proyectoData.link_cartilla_negocios }}
+                            </a>
+                        </div>
+                        <div v-if="proyectoData && Number(proyectoData.incluir_brochure) === 0 && proyectoData.link_brochure">
+                            <span style="font-weight: 600; color: #444;">Link a brochure PDF web: </span>
+                            <a :href="proyectoData.link_brochure" target="_blank"
+                                style="color: #007a8c; text-decoration: none; word-break: break-all;">
+                                {{ proyectoData.link_brochure }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="padding: .8rem 1rem; font-size: 11px; color: #444; line-height: 1.3; margin-top: .5rem;">
                     <h3 style="font-size: 13px; font-weight: 700; color: #007a8c; margin-bottom: .4rem; text-align: center;">
                         Información Legal y Financiera
@@ -2504,7 +2555,11 @@
                         <img src="../../img/ico/davivienda.png" alt="Imprimir">
                         <span>Preabrobar Crédito</span>
                     </div>
-                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="guardarBorradorYCerrar" 
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="showAtencionModal">
+                        <img src="../../img/ico/achievement_orange.png" alt="Terminar Atención">
+                        <span>Terminar Atención</span>
+                    </div>
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="guardarBorradorYCerrar"
                         :disabled="guardandoBorrador">
                         <img src="../../img/ico/save.png" alt="Guardar Borrador">
                         <span>{{ guardandoBorrador ? 'Guardando...' : 'Guardar Borrador' }}</span>

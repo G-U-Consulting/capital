@@ -146,12 +146,21 @@ export default {
             cotizacionActiva: null,
             mostrarModal: false,
             asuntoSeleccionado: '',
-            cotizacion: [
+            seguimientoCotizacion: [
                 "Seguimiento a la cotización",
             ],
-            opcion: [
-                "Seguimiento a la opción",
+            seguimientoOpcion: [
+                "Seguimiento a la Opción",
             ],
+            seguimientoRegistro: [
+                "Seguimiento al Registro",
+            ],
+            seguimientoData: {
+                tipo: '',
+                fecha: '',
+                descripcion: ''
+            },
+            opcionesSeguimientoActuales: [],
             cotizacionSeleccionada: null,
             cotizaciones: [],
             ishistory: false,
@@ -376,48 +385,37 @@ export default {
             const puntos = (str.match(/\./g) || []).length;
             const comas = (str.match(/,/g) || []).length;
 
-            // Si hay múltiples puntos, todos son separadores de miles
             if (puntos > 1) {
                 str = str.replace(/\./g, '').replace(',', '.');
             }
-            // Si hay múltiples comas, todas son separadores de miles
             else if (comas > 1) {
                 str = str.replace(/,/g, '');
             }
-            // Si hay un punto y una coma
             else if (puntos === 1 && comas === 1) {
                 const posPunto = str.indexOf('.');
                 const posComa = str.indexOf(',');
-                // Si el punto viene antes que la coma, el punto es separador de miles
                 if (posPunto < posComa) {
                     str = str.replace(/\./g, '').replace(',', '.');
                 }
-                // Si la coma viene antes, la coma es separador de miles
                 else {
                     str = str.replace(/,/g, '');
                 }
             }
-            // Si solo hay una coma
             else if (comas === 1 && puntos === 0) {
                 const partes = str.split(',');
-                // Si después de la coma hay máximo 2 dígitos, es decimal
                 if (partes[1] && partes[1].length <= 2) {
                     str = str.replace(',', '.');
                 }
-                // Si hay más de 2 dígitos, es separador de miles
                 else {
                     str = str.replace(',', '');
                 }
             }
-            // Si solo hay un punto
+
             else if (puntos === 1 && comas === 0) {
                 const partes = str.split('.');
-                // Si después del punto hay más de 2 dígitos O el punto está en posición múltiplo de 3 desde el final, es separador de miles
                 if (partes[1] && (partes[1].length > 2 || partes[1].length === 3)) {
                     str = str.replace(/\./g, '');
                 }
-                // Si tiene 1 o 2 dígitos después del punto, es decimal (mantenerlo como está, solo reemplazar el punto por punto decimal estándar)
-                // En JavaScript parseFloat ya entiende el punto como decimal
             }
 
             return parseFloat(str) || 0;
@@ -949,7 +947,7 @@ export default {
                     showConfirm(
                         'Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de salir?',
                         async () => {
-                            await this.enviarYOpcionar();
+                            await this.guardarBorradorYCerrar();
                             this.tieneCambiosPendientes = false;
                             await this.continuarNavegacion(nextIndex);
                             resolve();
@@ -1862,7 +1860,28 @@ export default {
         },
         //////// mode 2 ////////////
         async showAtencionModal() {
-            this.mostrarModal = true
+            if (this.mode === 1) {
+                this.opcionesSeguimientoActuales = this.seguimientoRegistro;
+            } else if (this.mode === 2) {
+                this.opcionesSeguimientoActuales = this.seguimientoCotizacion;
+            } else if (this.mode === 3) {
+                this.opcionesSeguimientoActuales = this.seguimientoOpcion;
+            }
+            this.seguimientoData = {
+                tipo: '',
+                fecha: new Date().toISOString().split('T')[0],
+                descripcion: ''
+            };
+            this.mostrarModal = true;
+        },
+
+        cerrarModalSeguimiento() {
+            this.mostrarModal = false;
+            this.seguimientoData = {
+                tipo: '',
+                fecha: '',
+                descripcion: ''
+            };
         },
         async getCotizaciones() {
             showProgress();
@@ -2370,6 +2389,125 @@ export default {
             } finally {
                 hideProgress();
             }
+        },
+
+        async confirmarSeguimiento() {
+            if (!this.seguimientoData.tipo) {
+                showMessage('Por favor seleccione un tipo de seguimiento');
+                return;
+            }
+            if (!this.seguimientoData.fecha) {
+                showMessage('Por favor seleccione una fecha de seguimiento');
+                return;
+            }
+            if (!this.seguimientoData.descripcion || this.seguimientoData.descripcion.trim() === '') {
+                showMessage('Por favor ingrese una descripción del seguimiento');
+                return;
+            }
+
+            showProgress();
+            try {
+                const datosHito = {
+                    titulo: this.seguimientoData.tipo,
+                    descripcion: this.seguimientoData.descripcion,
+                    fecha: this.seguimientoData.fecha,
+                    color: this.colorSeguimiento,
+                    festivo: '0',
+                    id_sala_venta: GlobalVariables.sala?.id_sala_venta,
+                    id_proyecto: GlobalVariables.id_proyecto,
+                    cargos: ''
+                };
+                if ((this.mode === 2 || this.mode === 3) && this.unidades && this.unidades.length > 0) {
+                    const primeraUnidad = this.unidades[0];
+                    if (primeraUnidad.id_torre) {
+                        datosHito.id_torre = primeraUnidad.id_torre;
+                    }
+                    if (primeraUnidad.id_unidad) {
+                        datosHito.id_unidad = primeraUnidad.id_unidad;
+                    }
+                }
+                const resultado = await httpFunc('/generic/genericDS/Salas:Ins_Hito', datosHito);
+
+                if (resultado.isError) {
+                    throw new Error(resultado.message || resultado.error || 'Error al guardar el seguimiento');
+                }
+
+                this.cerrarModalSeguimiento();
+
+                showMessage('Seguimiento guardado exitosamente en la agenda');
+
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                this.limpiarFormularios();
+                this.mode = 0;
+
+            } catch (error) {
+                console.error('Error al confirmar seguimiento:', error);
+                showMessage('Error: ' + (error.message || 'No se pudo guardar el seguimiento'));
+            } finally {
+                hideProgress();
+            }
+        },
+
+        limpiarFormularios() {
+            this.ObjCliente = {
+                id_cliente: '',
+                nombres: '',
+                apellido1: '',
+                apellido2: '',
+                direccion: '',
+                ciudad: '',
+                barrio: '',
+                departamento: '',
+                pais: '',
+                email1: '',
+                email2: '',
+                telefono1: '',
+                telefono2: '',
+                tipoDocumento: '',
+                numeroDocumento: '',
+                paisExpedicion: '',
+                departamentoExpedicion: '',
+                ciudadExpedicion: '',
+                fechaExpedicion: '',
+                isPoliticaAceptada: 0,
+                ventanaUnidades: null,
+                currentSubmode: null,
+                is_atencion_rapida: 0,
+                is_titular: 0,
+                nombreEmpresa: '',
+                nit: '',
+                fechaNacimiento: '',
+                porcentaje_copropiedad: '',
+                pais_tel1: 'co',
+                pais_tel2: 'co',
+                codigo_tel1: '+57',
+                codigo_tel2: '+57'
+            };
+
+            this.iscliente = false;
+            this.israpida = false;
+            this.cliente = '';
+            this.id_cliente = 0;
+            this.unidades = [];
+            this.cotizacionSeleccionada = null;
+            this.cotizaciones = [];
+            this.visitas = [];
+            this.ObjVisita = {
+                id_proyecto: '',
+                tipo_registro: '',
+                modo_atencion: '',
+                id_categoria: '',
+                id_medio: '',
+                id_motivo_compra: '',
+                id_referencia: '',
+                id_presupuesto_vivienda: '',
+                otro_texto: '',
+                descripcion: '',
+                id_cliente: '',
+                id_tipo_tramite: '',
+                usuario: '',
+            };
         },
         async modalveto() {
             this.vetoData = null;
@@ -4140,7 +4278,7 @@ export default {
                 link.click();
                 window.URL.revokeObjectURL(url);
 
-                showMessage('Tabla de amortización exportada exitosamente con fórmulas');
+                showMessage('Tabla de amortización exportada exitosamente');
 
             } catch (e) {
                 console.error('Error completo al exportar:', e);
@@ -4152,6 +4290,9 @@ export default {
     computed: {
         id_proyecto() {
             return GlobalVariables.id_proyecto;
+        },
+        proyectoData() {
+            return (typeof GlobalVariables !== 'undefined' && GlobalVariables.proyecto) ? GlobalVariables.proyecto : null;
         },
         esOpcionGuardada() {
             return this.id_opcion !== null;
@@ -4179,6 +4320,16 @@ export default {
         },
         importeFinanciacionAjustado() {
             return this.valor_credito_final_base - this.excedentePagoCuotaInicial;
+        },
+        mostrarOtrosLinks() {
+            if (!this.proyectoData) return false;
+
+            const proyecto = this.proyectoData;
+            const tieneEspecificaciones = Number(proyecto.incluir_especificaciones_tecnicias) === 0 && proyecto.link_especificaciones_tecnicias;
+            const tieneCartilla = Number(proyecto.incluir_cartilla_negocios_cotizacion) === 0 && proyecto.link_cartilla_negocios;
+            const tieneBrochure = Number(proyecto.incluir_brochure) === 0 && proyecto.link_brochure;
+
+            return tieneEspecificaciones || tieneCartilla || tieneBrochure;
         },
 
         display_fecha_entrega: {
@@ -4469,6 +4620,21 @@ export default {
             get() { return this.formatNumber(this.davivienda.customerInformation.monthlyIncome, false); },
             set(val) { this.davivienda.customerInformation.monthlyIncome = this.cleanNumber(val); }
         },
+
+        tituloModalSeguimiento() {
+            return "Seleccione el Seguimiento";
+        },
+
+        colorSeguimiento() {
+            if (this.mode === 1) {
+                return '#00839C';
+            } else if (this.mode === 2) {
+                return '#0097AE';
+            } else if (this.mode === 3) {
+                return '#003848';
+            }
+            return '#00839C';
+        }
     },
     watch: {
         visitasFiltradas: {
