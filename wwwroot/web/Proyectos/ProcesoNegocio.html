@@ -2620,7 +2620,7 @@
     <div class="asunto-modal-box" style="min-width: 300px; max-width: 75vw; width: min-content; padding: 1rem;">
         <span class="asunto-modal-close" @click="showDaviviendaModal = false;">×</span>
         <h3 style="margin-bottom: .5rem; color: #E1111C;">Crédito Davivienda</h3>
-        <div v-show="davForm" style="width: 280px;">
+        <div v-show="davForm" style="width: 320px;">
             <div class="formInputStandard">
                 <span>Actividad Laboral</span>
                 <select v-model="davivienda.customerInformation.workActivity"
@@ -2641,6 +2641,15 @@
                     <option value="INDEFINED">INDEFINIDO</option>
                     <option value="SERVICE PROVISION">PRESTACIÓN DE SERVICIOS</option>
                 </select>
+            </div>
+            <div class="formInputStandard">
+                <span>Confirmar Teléfono</span>
+                <input type="text" @input="validarEntero(['davivienda','customerInformation','mobileNumber'])" 
+                    v-model="davivienda.customerInformation.mobileNumber">
+            </div>
+            <div class="formInputStandard">
+                <span>Confirmar Email</span>
+                <input type="text" v-model="davivienda.customerInformation.email">
             </div>
             <div class="formInputStandard">
                 <span>Ingresos Mensuales</span>

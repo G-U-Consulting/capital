@@ -420,6 +420,22 @@ export default {
 
             return parseFloat(str) || 0;
         },
+        validarEntero(properties) {
+            let field = this[properties];
+            if (properties instanceof Array) {
+                let ult = properties.pop();
+                field = this;
+                properties.forEach(p => field = field[p]);
+                field[ult] = field[ult].replaceAll(/[^\d]/g, '');
+                if (field[ult] == '') field[ult] = '0';
+                field[ult] = field[ult].replace(/^0+(\d)/, '$1');
+            }
+            else {
+                field = field.replaceAll(/[^\d]/g, '');
+                if (field == '') field = '0';
+                field = field.replace(/^0+(\d)/, '$1');
+            }
+        },
         validarFormato(e) {
             e.target.value = e.target.value.replaceAll(/[^0-9\.,]/g, '');
             if (e.target.value == '') e.target.value = '0';
@@ -3934,38 +3950,34 @@ export default {
                 amount: Math.round(this.cleanNumber(this.valor_credito_final)) || Math.round(this.cleanNumber(this.importeActiva)) || 0,
                 instalments: 1,
                 customerInformation: {
-                    documentType: null,
-                    documentNumber: null,
-                    names: null,
-                    firstLastname: null,
-                    secondLastName: null,
+                    documentType: this.ObjCliente.tipoDocumento,
+                    documentNumber: this.ObjCliente.numeroDocumento,
+                    names: this.ObjCliente.nombres,
+                    firstLastname: this.ObjCliente.apellido1,
+                    secondLastName: this.ObjCliente.apellido2,
                     monthlyIncome: Math.round(this.cleanNumber(this.ingresos_mensuales)) || 0,
                     workActivity: null,
                     contractType: null,
-                    birthdate: null,
-                    mobileNumber: null,
-                    email: null,
+                    birthdate: this.ObjCliente.fechaNacimiento,
+                    mobileNumber: this.ObjCliente.telefono1 || this.ObjCliente.telefono2,
+                    email: this.ObjCliente.email1 || this.ObjCliente.email2,
                     redirectionURL: "https://dev.serlefinpbi.com"
                 },
                 builderInformartion: {
                     deliveryDate: this.display_fecha_entrega.replaceAll('-', '/'),
-                    adviserId: this.asesor.za1_id,
+                    adviserId: "55",
                     projectId: GlobalVariables.proyecto.za1_id,
                     email: this.asesor.email
                 }
             };
         },
         async requestDavivienda() {
-            this.davivienda.customerInformation.documentType = this.ObjCliente.tipoDocumento;
-            this.davivienda.customerInformation.documentNumber = this.ObjCliente.numeroDocumento;
-            this.davivienda.customerInformation.names = this.ObjCliente.nombres;
-            this.davivienda.customerInformation.firstLastname = this.ObjCliente.apellido1;
-            this.davivienda.customerInformation.secondLastName = this.ObjCliente.apellido2;
-            this.davivienda.customerInformation.birthdate = this.ObjCliente.fechaNacimiento;
-            this.davivienda.customerInformation.mobileNumber = this.ObjCliente.telefono1 || this.ObjCliente.telefono2;
-            this.davivienda.customerInformation.email = this.ObjCliente.email1 || this.ObjCliente.email2;
             let ciudad = GlobalVariables.proyecto.sede.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            if (!this.davivienda.customerInformation.workActivity || 
+            if (!this.davivienda.customerInformation.mobileNumber)
+                showMessage("Debe ingresar un número de teléfono móvil del cliente");
+            else if (!this.davivienda.customerInformation.email)
+                showMessage("Debe ingresar un correo electrónico del cliente");
+            else if (!this.davivienda.customerInformation.workActivity || 
                 (this.davivienda.customerInformation.workActivity == 'EMPLOYEE' && !this.davivienda.customerInformation.contractType))
                 showMessage("Debe ingresar actividad laboral y tipo de contrato en caso de EMPLEADO");
             else {
@@ -3975,7 +3987,7 @@ export default {
                         body: JSON.stringify(this.davivienda)
                     });
                     let headers = Object.fromEntries(res.headers), body = null;
-                    if (headers['content-type'] == "application/json") body = await res.json();
+                    if (headers['content-type'].includes("application/json")) body = await res.json();
                     else body = await res.text();
                     console.log('Respuesta Davivienda:', body);
                     if (res.status >= 400) {
@@ -3985,12 +3997,12 @@ export default {
                     else {
                         let $iframe = document.createElement('iframe');
                         $iframe.src = body.davUrl || '';
-                        $iframe.style.minWidth = '400px';
-                        $iframe.style.minHeight = '300px';
+                        $iframe.style.minWidth = '550px';
+                        $iframe.style.minHeight = '350px';
                         let $davFrame = document.getElementById('dav-frame');
-                        $davFrame.insertAdjacentElement('beforebegin', $iframe);
-                        //this.davUrl = body.davUrl || null;
+                        $davFrame.insertAdjacentElement('afterbegin', $iframe);
                         this.davForm = false;
+                        window.open(body.davUrl || '', '_blank');
                     }
                 }
                 catch (e) {
