@@ -719,7 +719,7 @@ export default {
                     console.error("Error al cargar las imágenes del apartamento:", error);
                 }
             }
-
+            
             try {
                 let img = await fetch('../../img/ico/svg/logo-capital.svg');
                 img = await img.text();
@@ -3968,7 +3968,7 @@ export default {
                 },
                 builderInformartion: {
                     deliveryDate: this.display_fecha_entrega.replaceAll('-', '/'),
-                    adviserId: "55",
+                    adviserId: this.asesor.za1_id,
                     projectId: GlobalVariables.proyecto.za1_id,
                     email: this.asesor.email
                 }
@@ -3985,6 +3985,7 @@ export default {
                 showMessage("Debe ingresar actividad laboral y tipo de contrato en caso de EMPLEADO");
             else {
                 try {
+                    showProgress();
                     let res = await fetch(`/davivienda/${ciudad}`, {
                         method: 'POST',
                         body: JSON.stringify(this.davivienda)
@@ -3998,13 +3999,14 @@ export default {
                         showMessage(`Error ${res.status}`);
                     }
                     else {
-                        let $iframe = document.createElement('iframe');
+                        /* let $iframe = document.createElement('iframe');
                         $iframe.src = body.davUrl || '';
                         $iframe.style.minWidth = '550px';
                         $iframe.style.minHeight = '350px';
                         let $davFrame = document.getElementById('dav-frame');
                         $davFrame.insertAdjacentElement('afterbegin', $iframe);
-                        this.davForm = false;
+                        this.davForm = false; */
+                        this.showDaviviendaModal = false;
                         window.open(body.davUrl || '', '_blank');
                     }
                 }
@@ -4012,7 +4014,14 @@ export default {
                     console.error(e);
                     showMessage("Error: Lo sentimos, no se pudo establecer conexión con Davivienda.");
                 }
+                finally {
+                    hideProgress();
+                }
             }
+        },
+        davVolver() {
+            document.querySelector('#dav-frame>iframe')?.remove();
+            davForm = true;
         },
         async guardarTablaManualmente() {
             if (!this.id_opcion) {

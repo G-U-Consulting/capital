@@ -265,13 +265,14 @@ public class Davivienda
                 JObject resJson = JsonConvert.DeserializeObject<JObject>(content) ?? [];
                 resJson["davUrl"] = response.Headers.Location?.ToString();
                 content = resJson.ToString(Formatting.None);
+                statusCode = 200;
             }
             else if (!response.IsSuccessStatusCode)
             {
                 contentType = "application/json";
                 content = JsonConvert.SerializeObject(new { isError = true, message = $"Error en la petición: {response.StatusCode}", details = content.Trim() });
             }
-            http.Response.StatusCode = (int)response.StatusCode;
+            http.Response.StatusCode = statusCode;
             http.Response.Headers.ContentType = contentType;
             await http.Response.WriteAsync(content);
             
@@ -282,7 +283,7 @@ public class Davivienda
             foreach (var header in response.Content.Headers)
                 http.Response.Headers[header.Key] = header.Value.ToArray(); */
 
-            Console.WriteLine("Davivienda response: \n" + response);
+            //Console.WriteLine("Davivienda response: \n" + response);
             Console.WriteLine("Davivienda content: \n" + content);
         }
         catch (Exception ex)

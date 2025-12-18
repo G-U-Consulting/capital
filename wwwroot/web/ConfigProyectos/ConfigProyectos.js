@@ -90,8 +90,8 @@ export default {
             },
 
             tooltipVisible: false,
-            tooltipX: 0,
-            tooltipY: 0,
+			tooltipX: 0,
+			tooltipY: 0,
             previews: [],
             files: [],
             draggedFile: null,
@@ -212,6 +212,7 @@ export default {
             this.copy_bf = cbfs;
         },
         async onSave() {
+            if (this.emptyFields()) return;
             let [item, itemname] = this.getItem(), id = null;
             if (this.mainmode == 5) item["is_active"] = this.medioIsActive ? '1' : '0';
             try {
@@ -230,6 +231,19 @@ export default {
                 console.error(e);
             }
             return id;
+        },
+        emptyFields() {
+            let empty = false;
+            let elements = document.querySelectorAll('[data-required]');
+            elements.forEach(el => {
+                if (!el.value && el !== 0) {
+                    empty = true;
+                    el.classList.add('errorInput');
+                    el.oninput = (e) => e.target.classList.remove('errorInput');
+                }
+            });
+            empty && showMessage("Campos requeridos");
+            return empty;
         },
         async onUpdateFactor() {
             showProgress();
@@ -266,6 +280,7 @@ export default {
             ))
         },
         async onSaveBanco() {
+            if (this.emptyFields()) return;
             try {
                 showProgress();
                 const resp = await httpFunc(`/generic/genericST/Maestros:${this.mode == 1 ? 'Ins' : 'Upd'}_Banco`, this.banco, this.mode == 1);
@@ -297,6 +312,7 @@ export default {
             }
         },
         async onSaveSubsidio() {
+            if (this.emptyFields()) return;
             showProgress();
             try {
                 let sub = { ...this.subsidio };
@@ -347,6 +363,7 @@ export default {
             this.loadFiles(doc.id_documento, 'docs');
         },
         async onSaveDocument() {
+            if (this.emptyFields()) return;
             showProgress();
             try {
                 this.documento.is_img = '0';

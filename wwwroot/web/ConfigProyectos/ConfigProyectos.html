@@ -13,17 +13,19 @@
             <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect group">
                 Imágenes C.Capital
             </div>
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Imágenes generales capital'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
                 <img src="./img/ico/svg/Maestro/Generales.svg" />
                 Generales Capital
-                <span class="tooltip-text">Imágenes generales capital</span>
             </div>
-            <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Imágenes sostenibilidad'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
                 <img src="./img/ico/svg/Maestro/Sostenibilidad.svg" />
                 Sostenibilidad
-                <span class="tooltip-text">Imágenes sostenibilidad</span>
             </div>
         </div>
 
@@ -31,17 +33,19 @@
             <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect group">
                 Medios de Comunicación
             </div>
-            <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Categorías medios'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
                 <img src="./img/ico/svg/Maestro/Categorias.svg" />
                 Categorías
-                <span class="tooltip-text">Categorías medios</span>
             </div>
-            <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Medios publicitarios'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
                 <img src="./img/ico/svg/Maestro/Medios.svg" />
                 Medios
-                <span class="tooltip-text">Medios publicitarios</span>
             </div>
         </div>
 
@@ -49,35 +53,37 @@
             <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect group">
                 Financiación
             </div>
-            <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
+            <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Bancos'" @mouseleave="tooltipVisible = false;"
+                @mousemove="updateCursor" v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
                 <img src="./img/ico/svg/Maestro/Bancos.svg" />
                 Bancos
-                <span class="tooltip-text">Bancos</span>
             </div>
-            <div v-on:click="setMainMode(23)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(23)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Cajas de compensación'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 23}">
                 <img src="./img/ico/svg/Maestro/CajaCompensacion.svg" />
                 Cajas de Compensación
-                <span class="tooltip-text">Cajas de Compensación</span>
             </div>
-            <div v-on:click="setMainMode(7)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
+            <div v-on:click="setMainMode(7)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Fiduciarias'" @mouseleave="tooltipVisible = false;"
+                @mousemove="updateCursor" v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
                 <img src="./img/ico/svg/Maestro/Fiduciaria.svg" />
                 Fiduciarias
-                <span class="tooltip-text">Fiduciarias</span>
             </div>
-            <div v-on:click="setMainMode(14)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 14}">
+            <div v-on:click="setMainMode(14)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Subsidios VIS'" @mouseleave="tooltipVisible = false;"
+                @mousemove="updateCursor" v-bind:class="{'lateralMenuItemSelected': mainmode == 14}">
                 <img src="./img/ico/svg/Maestro/Subsidios.svg" />
                 Subsidios VIS
-                <span class="tooltip-text">Subsidios VIS</span>
             </div>
-            <div v-on:click="setMainMode(15)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(15)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Tipos de financiación'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 15}">
                 <img src="./img/ico/svg/Maestro/Tipos.svg" />
                 Tipos
-                <span class="tooltip-text">Tipos de Financiación</span>
             </div>
         </div>
 
@@ -85,23 +91,24 @@
             <div v-on:click="setMainMode(22)" class="lateralMenuItem noSelect group">
                 Agrupación de Proyectos
             </div>
-            <div v-on:click="setMainMode(22)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 22}">
+            <div v-on:click="setMainMode(22)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Sedes'" @mouseleave="tooltipVisible = false;"
+                @mousemove="updateCursor" v-bind:class="{'lateralMenuItemSelected': mainmode == 22}">
                 <img src="./img/ico/svg/Maestro/Sede.svg" />
                 Sedes
-                <span class="tooltip-text">Sedes</span>
             </div>
-            <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Zonas agrupamiento proyectos'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 8}">
                 <img src="./img/ico/svg/Maestro/Zona.svg" />
                 Zonas Proyectos
-                <span class="tooltip-text">Zonas agrupamiento proyectos</span>
             </div>
-            <div v-on:click="setMainMode(9)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 9}">
+            <div v-on:click="setMainMode(9)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Ciudadelas'" @mouseleave="tooltipVisible = false;"
+                @mousemove="updateCursor" v-bind:class="{'lateralMenuItemSelected': mainmode == 9}">
                 <img src="./img/ico/svg/Maestro/Ciudadela.svg" />
                 Ciudadelas
-                <span class="tooltip-text">Ciudadelas</span>
             </div>
         </div>
 
@@ -109,41 +116,46 @@
             <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect group">
                 Proyectos
             </div>
-            <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
+            <div v-on:click="setMainMode(16)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Clase Unidades'" @mouseleave="tooltipVisible = false;"
+                @mousemove="updateCursor" v-bind:class="{'lateralMenuItemSelected': mainmode == 16}">
                 <img src="./img/ico/svg/Maestro/Tipos.svg" />
                 Clase Unidades
-                <span class="tooltip-text">Clase Unidades</span>
             </div>
-            <div v-on:click="setMainMode(17)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(17)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Estados publicación'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 17}">
                 <img src="./img/ico/svg/Maestro/Estados.svg" />
                 Estados Publica.
-                <span class="tooltip-text">Estados de Publicación</span>
             </div>
-            <div v-on:click="setMainMode(18)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(18)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Tipologías de proyecto'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 18}">
                 <img src="./img/ico/svg/Maestro/Tipologias.svg" />
                 Tipologías
-                <span class="tooltip-text">Tipologías de Proyecto</span>
             </div>
-            <!-- <div v-on:click="setMainMode(19)" class="lateralMenuItem noSelect tooltip"
+            <!-- <div v-on:click="setMainMode(19)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Emails receptores'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 19}">
                 <img src="./img/ico/svg/Maestro/Email.svg" />
                 Emails receptores
-                <span class="tooltip-text">Emails receptores</span>
             </div> -->
-            <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Agrupamiento de imágenes'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
                 <img src="./img/ico/svg/Maestro/GruposImagenes.svg" />
                 Grupos de img
-                <span class="tooltip-text">Agrupamiento de imágenes</span>
             </div>
-            <div v-on:click="setMainMode(21)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(21)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Estados de unidades y colores'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 21}">
                 <img src="./img/ico/svg/Maestro/Gamas.svg" />
                 Estados Unidades
-                <span class="tooltip-text">Estados de Unidades y Colores</span>
             </div>
         </div>
 
@@ -151,17 +163,19 @@
             <div v-on:click="setMainMode(24)" class="lateralMenuItem noSelect group">
                 Clientes
             </div>
-            <div v-on:click="setMainMode(24)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(24)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Tipos de Trámites'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 24}">
                 <img src="./img/ico/svg/Maestro/TiposTramites.svg" />
                 Tipos de Trámites
-                <span class="tooltip-text">Tipos de Trámites</span>
             </div>
-            <div v-on:click="setMainMode(25)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(25)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Tipos de Registro'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 25}">
                 <img src="./img/ico/svg/Maestro/ClientesRegistro.svg" />
                 Tipos de Registro
-                <span class="tooltip-text">Tipos de Registro</span>
             </div>
         </div>
 
@@ -169,33 +183,39 @@
             <div v-on:click="setMainMode(10)" class="lateralMenuItem noSelect group">
                 Documentos
             </div>
-            <div v-on:click="setMainMode(10)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(10)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Instructivos consignación y cierre'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 10}">
                 <img src="./img/ico/svg/Maestro/Instructivos.svg" />
                 Instructivos
-                <span class="tooltip-text">Instructivos consignación y cierre</span>
             </div>
-            <div v-on:click="setMainMode(11)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(11)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Pies legales cotizaciones'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 11}">
                 <img src="./img/ico/svg/Maestro/PiesLegales.svg" />
                 Pies Legales
-                <span class="tooltip-text">Pies legales cotizaciones</span>
             </div>
-            <div v-on:click="setMainMode(12)" class="lateralMenuItem noSelect tooltip"
-                v-bind:class="{'lateralMenuItemSelected': mainmode == 12}">
+            <div v-on:click="setMainMode(12)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Trámites'" @mouseleave="tooltipVisible = false;"
+                @mousemove="updateCursor" v-bind:class="{'lateralMenuItemSelected': mainmode == 12}">
                 <img src="./img/ico/svg/Maestro/Tramites.svg" />
                 Trámites
-                <span class="tooltip-text">Trámites</span>
             </div>
-            <div v-on:click="setMainMode(13)" class="lateralMenuItem noSelect tooltip"
+            <div v-on:click="setMainMode(13)" class="lateralMenuItem noSelect"
+                @mouseenter="tooltipVisible = true; tooltipMsg = 'Otros Documentos'"
+                @mouseleave="tooltipVisible = false;" @mousemove="updateCursor"
                 v-bind:class="{'lateralMenuItemSelected': mainmode == 13}">
                 <img src="./img/ico/svg/Maestro/Otros.svg" />
                 Otros
-                <span class="tooltip-text">Otros Documentos</span>
             </div>
         </div>
 
         <div class="lateralMenuGroup">
+        </div>
+        <div v-if="tooltipVisible && tooltipMsg" class="cursor-tooltip" v-html="tooltipMsg"
+            :style="{ top: tooltipY + 'px', left: tooltipX + 'px' }">
         </div>
     </div>
 
@@ -221,7 +241,8 @@
                     Imágenes {{mainmode == 1 ? 'Generales Capital' : 'Sostenibilidad'}}
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
-                    <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages(); alertImg = true;" alt="">
+                    <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg"
+                        @click="clearAllImages(); alertImg = true;" alt="">
                 </div>
                 <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
                     style="position: relative;padding-top: 1em;">
@@ -347,12 +368,12 @@
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre</span>
-                            <input type="text" v-model="grupoImg.grupo" maxlength="50" />
+                            <input type="text" v-model="grupoImg.grupo" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <span>Orden</span>
-                            <input type="number" v-model="grupoImg.orden" 
-                                @input="!$event.target.value && (grupoImg.orden = 0)"/>
+                            <input type="number" v-model="grupoImg.orden" data-required
+                                @input="!$event.target.value && (grupoImg.orden = 0)" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
@@ -449,7 +470,7 @@
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Categoría</h2>
                     <div class="pure-g main-content" style="margin-top: 1em; margin-bottom: 3em;">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="categoriaMedio.categoria" maxlength="50" />
+                            <input type="text" v-model="categoriaMedio.categoria" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
@@ -506,7 +527,8 @@
                             <div class="pure-u-1-1 pure-u-md-1-24"></div>
 
                             <div class="pure-u-1-1 pure-u-md-1-5">
-                                <button v-on:click="setMode(1)">Nuevo Medio</button>
+                                <button v-on:click="setMode(1); medioIsActive = true;
+                                    medioPublicitario.id_categoria = ''">Nuevo Medio</button>
                             </div>
                         </div>
                     </div>
@@ -553,22 +575,22 @@
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <span>Nombre</span>
-                            <input type="text" v-model="medioPublicitario.medio" maxlength="50" />
+                            <input type="text" v-model="medioPublicitario.medio" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <span>Categoria</span>
-                            <select v-model='medioPublicitario.id_categoria'>
-                                <option value='' disabled selected>Seleccione</option>
-                                <option
-                                    v-for="cat in categoriasMedios.sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
-                                    :value='cat.id_categoria' :disabled="cat.is_active != '1'">
+                            <select v-model='medioPublicitario.id_categoria' data-required>
+                                <option value="" disabled selected>[Seleccione]</option>
+                                <option v-for="cat in categoriasMedios.filter(cat => cat.is_active == '1')
+                                        .sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
+                                    :value='cat.id_categoria'>
                                     {{ cat.categoria }}
                                 </option>
                             </select>
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <span>ID en Sinco</span>
-                            <input type="text" v-model="medioPublicitario.id_sinco" maxlength="50" />
+                            <input type="text" v-model="medioPublicitario.id_sinco" maxlength="50" data-required />
                         </div>
                         <div class='formInputStandard pure-u-1-2 pure-u-md-1-4'>
                             <label class="check" for="medioIsActive" style="margin-top: 1.8rem;">
@@ -677,11 +699,11 @@
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Banco</h2>
                     <div class="pure-g main-content" style="height: calc(100vh - 12.9rem);">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24" v-if="mode == 1">
-                            <input type="text" v-model="banco.banco" maxlength="50" />
+                            <input type="text" v-model="banco.banco" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2" style="padding-left: 0"
                             v-if="mode == 2">
-                            <input type="text" v-model="banco.banco" maxlength="50" />
+                            <input type="text" v-model="banco.banco" maxlength="50" data-required />
                         </div>
                         <div v-if="mode == 1" class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSaveBanco()">Guardar</button>
@@ -816,7 +838,7 @@
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Fiduciaria</h2>
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="fiduciaria.fiduciaria" maxlength="50" />
+                            <input type="text" v-model="fiduciaria.fiduciaria" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
@@ -919,11 +941,11 @@
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-2">
                             <span>Nombre Zona</span>
-                            <input type="text" v-model="zonaProyecto.zona_proyecto" maxlength="200" />
+                            <input type="text" v-model="zonaProyecto.zona_proyecto" maxlength="200" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Sede</span>
-                            <select v-model='zonaProyecto.id_sede'>
+                            <select v-model='zonaProyecto.id_sede' data-required>
                                 <option
                                     v-for="sed in sedes.sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
                                     :value='sed.id_sede' :disabled="sed.is_active != '1'">
@@ -1038,11 +1060,12 @@
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Nombre Ciudadela</span>
-                            <input type="text" v-model="ciudadela.ciudadela" maxlength="50" />
+                            <input type="text" v-model="ciudadela.ciudadela" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Sede</span>
-                            <select v-model='ciudadela.id_sede' @change="delete ciudadela.id_zona_proyecto">
+                            <select v-model='ciudadela.id_sede' @change="delete ciudadela.id_zona_proyecto"
+                                data-required>
                                 <option
                                     v-for="sed in sedes.sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
                                     :value='sed.id_sede' :disabled="sed.is_active != '1'">
@@ -1052,7 +1075,7 @@
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Zona</span>
-                            <select v-model='ciudadela.id_zona_proyecto'>
+                            <select v-model='ciudadela.id_zona_proyecto' data-required>
                                 <option
                                     v-for="zon in zonasProyectos.filter(z => z.id_sede == ciudadela.id_sede).sort((a, b) => parseInt(b.is_active) - parseInt(a.is_active))"
                                     :value='zon.id_zona_proyecto' :disabled="zon.is_active != '1'">
@@ -1151,7 +1174,7 @@
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Instructivo</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
-                            <input type="text" v-model="instructivo.instructivo" maxlength="50" />
+                            <input type="text" v-model="instructivo.instructivo" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5"></div>
                     </div>
@@ -1274,7 +1297,7 @@
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Pie Legal</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
-                            <input type="text" v-model="pie_legal.pie_legal" maxlength="50" />
+                            <input type="text" v-model="pie_legal.pie_legal" maxlength="50" data-required />
                         </div>
                     </div>
                     <div class="pure-g tab-container">
@@ -1389,7 +1412,7 @@
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Trámite</h2>
                     <div class="pure-g">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
-                            <input type="text" v-model="tramite.tramite" maxlength="50" />
+                            <input type="text" v-model="tramite.tramite" maxlength="50" data-required />
                         </div>
                     </div>
                     <div class="pure-g tab-container">
@@ -1496,13 +1519,15 @@
                     Archivos
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-24 positTex'>
-                    <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg" @click="clearAllImages(); alertImg = true;" alt="">
+                    <img class="pure-img logoExcel" src="../../img/ico/svg/delete.svg"
+                        @click="clearAllImages(); alertImg = true;" alt="">
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
                     Nombre
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-5 positTex'>
-                    <input type="text" v-model="documento.documento" @input="validarNombre" maxlength="50" />
+                    <input type="text" v-model="documento.documento" @input="validarNombre" maxlength="50"
+                        data-required />
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-24'></div>
                 <div class="pure-u-1" @mousemove="updateCursor" @mouseleave="tooltipVisible = false"
@@ -1559,7 +1584,8 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-10-24">
-                                <input type="text" placeholder="Periodo" v-model="filtros.subsidios['periodo']" maxlength="4"/>
+                                <input type="text" placeholder="Periodo" v-model="filtros.subsidios['periodo']"
+                                    maxlength="4" />
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-12">
                                 <div class="imgGraybutton" @click="onClear('subsidios')">
@@ -1632,7 +1658,8 @@
                         <div class="pure-u-1-1 pure-u-md-1-3">
                             <div class="formInputStandard">
                                 <span>Periodo (año)</span>
-                                <input type="number" v-model="subsidio.periodo" style="font-size: 1rem;" />
+                                <input type="number" v-model="subsidio.periodo" style="font-size: 1rem;"
+                                    data-required />
                             </div>
                             <div class="formInputStandard">
                                 <span>Valor smmlv</span>
@@ -1767,11 +1794,13 @@
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
                             <span>Tipo Financiación</span>
-                            <input type="text" v-model="tipo_financiacion.tipo_financiacion" maxlength="50" />
+                            <input type="text" v-model="tipo_financiacion.tipo_financiacion" maxlength="50"
+                                data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-8">
                             <span>Porcentaje</span>
-                            <input type="text" v-model="tipo_financiacion.porcentaje" @input="validarEntero($event); inRange($event, 0, 100);"/>
+                            <input type="text" v-model="tipo_financiacion.porcentaje"
+                                @input="validarEntero($event); inRange($event, 0, 100);" />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button style="margin-top: 1.5rem;" v-on:click="onSave()">Guardar</button>
@@ -1865,10 +1894,10 @@
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Clase Unidad</h2>
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-12-24">
-                            <input type="text" v-model="tipo_proyecto.tipo_proyecto" maxlength="50" />
+                            <input type="text" v-model="tipo_proyecto.tipo_proyecto" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-5-24">
-                            <input type="text" v-model="tipo_proyecto.codigo" maxlength="50" />
+                            <input type="text" v-model="tipo_proyecto.codigo" maxlength="10" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
@@ -1962,7 +1991,8 @@
                     <h2>{{mode == 1 ? 'Nuevo' : 'Editar'}} Estado Publicación</h2>
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="estado_proyecto.estado_publicacion" maxlength="50" />
+                            <input type="text" v-model="estado_proyecto.estado_publicacion" maxlength="50"
+                                data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
@@ -2055,7 +2085,7 @@
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Tipología Proyecto</h2>
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="tipo_vis.tipo_vis" maxlength="50" />
+                            <input type="text" v-model="tipo_vis.tipo_vis" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
@@ -2190,11 +2220,11 @@
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Estado unidad</span>
-                            <input type="text" v-model="color.estado_unidad" maxlength="50" />
+                            <input type="text" v-model="color.estado_unidad" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Estado unidad plural</span>
-                            <input type="text" v-model="color.estado_unidad_plural" maxlength="50" />
+                            <input type="text" v-model="color.estado_unidad_plural" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-12" style="text-align: center;">
                             <span>Fondo</span>
@@ -2297,15 +2327,15 @@
                     <div class="pure-g main-content">
                         <div class="formInputStandard pure-u-1-3 pure-u-md-1-3">
                             <span>Sede</span>
-                            <input type="text" v-model="sede.sede" maxlength="50" />
+                            <input type="text" v-model="sede.sede" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-3">
                             <span>Alias</span>
-                            <input type="text" v-model="sede.alias" maxlength="3" />
+                            <input type="text" v-model="sede.alias" maxlength="3" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-3 pure-u-md-1-3">
                             <span>Gerencia Comercial</span>
-                            <select v-model='sede.id_gerente'>
+                            <select v-model='sede.id_gerente' data-required>
                                 <option v-for="user in gerentes" :value="user.id_usuario">
                                     {{ user.nombres }}
                                 </option>
@@ -2403,7 +2433,7 @@
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Caja de Compensación</h2>
                     <div class="pure-g main-content" style="margin-top: 1em; margin-bottom: 3em;">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="cajaCompensacion.caja" maxlength="50" />
+                            <input type="text" v-model="cajaCompensacion.caja" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
@@ -2467,7 +2497,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="cat in getFilteredList('tiposTramite')" @dblclick.stop.prevent="onSelect(cat)">
+                                <tr v-for="cat in getFilteredList('tiposTramite')"
+                                    @dblclick.stop.prevent="onSelect(cat)">
                                     <td
                                         v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{cat[key]}}
@@ -2495,7 +2526,7 @@
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Tipos de Trámite</h2>
                     <div class="pure-g main-content" style="margin-top: 1em; margin-bottom: 3em;">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="tipoTramite.tipo_tramite" maxlength="50" />
+                            <input type="text" v-model="tipoTramite.tipo_tramite" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
@@ -2560,7 +2591,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="cat in getFilteredList('tiposRegistro')" @dblclick.stop.prevent="onSelect(cat)">
+                                <tr v-for="cat in getFilteredList('tiposRegistro')"
+                                    @dblclick.stop.prevent="onSelect(cat)">
                                     <td
                                         v-for="key in Object.keys(cat).filter(k => !k.startsWith('id_') && !k.startsWith('is_'))">
                                         {{cat[key]}}
@@ -2588,7 +2620,7 @@
                     <h2>{{mode == 1 ? 'Nueva' : 'Editar'}} Tipo de Registro</h2>
                     <div class="pure-g main-content" style="margin-top: 1em; margin-bottom: 3em;">
                         <div class="formInputStandard pure-u-1-2 pure-u-md-16-24">
-                            <input type="text" v-model="tipoRegistro.tipo_registro" maxlength="50" />
+                            <input type="text" v-model="tipoRegistro.tipo_registro" maxlength="50" data-required />
                         </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-5">
                             <button v-on:click="onSave()">Guardar</button>
