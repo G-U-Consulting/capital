@@ -1,4 +1,5 @@
 using System;
+using capital.Code.Inte.Davivienda;
 using capital.Code.Inte.Salesforce;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -54,6 +55,7 @@ public class WorkerTareas(string rootPath) : BackgroundService
                 }
             }
             else await Task.Delay(20000, stoppingToken);
+            CleanDavRequest();
         }
     }
 
@@ -157,5 +159,18 @@ public class WorkerTareas(string rootPath) : BackgroundService
             consecutiveErrors++;
             return ex.Message;
         }
+    }
+
+    private static void CleanDavRequest()
+    {
+        int c = 0;
+        foreach (string key in Davivienda.requests.Keys)
+        {
+            Davivienda dav = Davivienda.requests[key];
+            if (DateTimeOffset.Now.ToUnixTimeSeconds() >= dav.validUntil)
+                Davivienda.requests.Remove(key);
+            c++;
+        }
+        Console.WriteLine("Dav clean: " + c);
     }
 }

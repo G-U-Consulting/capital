@@ -3934,7 +3934,7 @@ export default {
         clearDavivienda() {
             this.davivienda = {
                 propertyPrice: Math.round(this.cleanNumber(this.importeActiva)) || 0,
-                amount: Math.round(this.cleanNumber(this.valor_credito_final)) || 0,
+                amount: Math.round(this.cleanNumber(this.valor_credito_final)) || Math.round(this.cleanNumber(this.importeActiva)) || 0,
                 instalments: 1,
                 customerInformation: {
                     documentType: null,
@@ -3950,7 +3950,7 @@ export default {
                     email: null,
                     redirectionURL: "https://dev.serlefinpbi.com"
                 },
-                builderInformation: {
+                builderInformartion: {
                     deliveryDate: this.display_fecha_entrega.replaceAll('-', '/'),
                     adviserId: this.asesor.za1_id,
                     projectId: GlobalVariables.proyecto.za1_id,
@@ -3980,12 +3980,19 @@ export default {
                     let headers = Object.fromEntries(res.headers), body = null;
                     if (headers['content-type'] == "application/json") body = await res.json();
                     else body = await res.text();
-                    if (res.status != 200) {
+                    console.log('Respuesta Davivienda:', body);
+                    if (res.status >= 400) {
                         console.error(`Error ${res.status}: `, body);
                         showMessage(`Error ${res.status}`);
                     }
                     else {
-                        console.log(body);
+                        let $iframe = document.createElement('iframe');
+                        $iframe.src = body.davUrl || '';
+                        $iframe.style.minWidth = '400px';
+                        $iframe.style.minHeight = '300px';
+                        let $davFrame = document.getElementById('dav-frame');
+                        $davFrame.insertAdjacentElement('beforebegin', $iframe);
+                        //this.davUrl = body.davUrl || null;
                         this.davForm = false;
                     }
                 }

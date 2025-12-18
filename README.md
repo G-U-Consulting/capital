@@ -1,6 +1,32 @@
 # capital
 
+## Build
 
+Build en ambiente dev
+```
+date
+cd /home/git/capital
+git fetch
+LOCAL=$(git rev-parse @)
+REMOTE=$(git rev-parse @{u})
+
+if [ "$LOCAL" = "$REMOTE" ]; then
+    echo "Up to date"
+elif [ "$LOCAL" = "$(git merge-base @ @{u})" ]; then
+	git pull
+	/usr/bin/dotnet build capital.csproj --configuration Release
+	cd /home/git/capital/bin/Release
+	echo "Copying ........"
+	rsync -avI /home/git/capital/bin/Release/net9.0/* /var/www/publish/capital
+	echo "Restarting ......"
+	sudo systemctl restart capital.service
+	echo "Cleaning ......"
+elif [ "$REMOTE" = "$(git merge-base @ @{u})" ]; then
+    echo "You have local commits not yet pushed"
+else
+    echo "Diverged (Both have unique commits)"
+fi
+```
 
 ## Comandos imporantes
 
