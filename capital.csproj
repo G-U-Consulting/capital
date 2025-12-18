@@ -33,9 +33,9 @@
 	  <None Update="SQL\**\*">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-	  <Content Include="wwwroot\**">
+	  <None Include="wwwroot\**">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
+	  </None>
   </ItemGroup>
 
   <ItemGroup>
