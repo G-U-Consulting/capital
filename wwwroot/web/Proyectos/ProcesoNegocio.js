@@ -14,7 +14,7 @@ export default {
                 "Bienvenida",
                 "Registro",
                 "Cotización",
-                "Opción",
+                "Detalle y Forma de pago",
             ],
             camposPorSubmode: {
                 0: ["nombres", "apellido1", "apellido2", "fechaNacimiento", "direccion", "ciudad", "barrio", "departamento", "pais", "email1", "email2", "telefono1", "telefono2", "tipoDocumento", "numeroDocumento", "paisExpedicion", "departamentoExpedicion", "ciudadExpedicion", "fechaExpedicion"],
