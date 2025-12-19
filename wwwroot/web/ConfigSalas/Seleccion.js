@@ -93,12 +93,26 @@ export default {
             return id;
         },
         async onSaveSala() {
+            if (this.emptyFields()) return;
             let sala = { ...this.sala_venta };
             let id_sala_venta = await this.onSave();
             if (this.mode == 1 && id_sala_venta) 
                 this.sala_venta = { id_sede: '', id_zona_proyecto: '', id_ciudadela: '', ...sala, id_sala_venta };
             this.onSelect(this.sala_venta);
             this.loadProjects(this.sala_venta);
+        },
+        emptyFields() {
+            let empty = false;
+            let elements = document.querySelectorAll('[data-required]');
+            elements.forEach(el => {
+                if (!el.value && el !== 0) {
+                    empty = true;
+                    el.classList.add('errorInput');
+                    el.oninput = (e) => e.target.classList.remove('errorInput');
+                }
+            });
+            empty && showMessage("Campos requeridos");
+            return empty;
         },
         async onChangePF() {
             this.sala_venta = {

@@ -12,7 +12,8 @@
         </div>
         <div style="padding: .5rem;">
             <div class="pure-u-1-2 pure-u-md-3-8">
-                <input type="text" placeholder="Ingrese numero de documento o nombre" v-model="searchID">
+                <input type="text" placeholder="Ingrese numero de documento o nombre" v-model="searchID"
+                    @keyup="$event.keyCode == 13 && searchUser()">
             </div>
             <div class="pure-u-1-24 pure-u-md-1-24">
                 <div class="imgGraybutton" @click="searchUser">

@@ -116,6 +116,7 @@ export default {
             hideProgress();
         },
         async agregarCargo() {
+            if (this.emptyFields()) return;
             try {
                 if(this.createCargo.cargo == ""){
                     console.log("Error");
@@ -128,6 +129,19 @@ export default {
             } catch (error) {
                 console.log(error);
             }
+        },
+        emptyFields() {
+            let empty = false;
+            let elements = document.querySelectorAll('[data-required]');
+            elements.forEach(el => {
+                if (!el.value && el !== 0) {
+                    empty = true;
+                    el.classList.add('errorInput');
+                    el.oninput = (e) => e.target.classList.remove('errorInput');
+                }
+            });
+            empty && showMessage("Campos requeridos");
+            return empty;
         },
         async eliminarCargo(item) {
             showConfirm("La Categoria <b>"+item.cargo+"</b> se eliminará permanentemente.", this.delCategoria, null, item);

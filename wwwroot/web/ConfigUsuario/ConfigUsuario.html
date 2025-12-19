@@ -81,15 +81,15 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class='pure-u-1-1 pure-u-md-8-24'>
-                                <input type="text" v-model="createCargo.cargo" placeholder="Ingrese nueva categoría Adm">
+                                <input type="text" v-model="createCargo.cargo" placeholder="Ingrese nueva categoría Adm" data-required>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-24'></div>
                             <div class='pure-u-1-1 pure-u-md-8-24'>
-                                <input type="text" v-model="createCargo.descripcion" placeholder="Ingrese la descripción">
+                                <input type="text" v-model="createCargo.descripcion" placeholder="Ingrese la descripción" data-required>
                             </div>
                             <div class='pure-u-1-1 pure-u-md-1-24'></div>
                             <div class='pure-u-1-1 pure-u-md-5-24' style="text-align: right;">
-                                <button @click="agregarCargo">Insertar</button>
+                                <button @click="agregarCargo">Guardar</button>
                             </div>
                         </div>
                     </div>
