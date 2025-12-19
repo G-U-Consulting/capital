@@ -16,6 +16,18 @@ export default {
                 "Cotización",
                 "Opción",
             ],
+            camposPorSubmode: {
+                0: ["nombres", "apellido1", "apellido2", "fechaNacimiento", "direccion", "ciudad", "barrio", "departamento", "pais", "email1", "email2", "telefono1", "telefono2", "tipoDocumento", "numeroDocumento", "paisExpedicion", "departamentoExpedicion", "ciudadExpedicion", "fechaExpedicion"],
+                1: ["id_tipo_registro", "id_modo_atencion", "id_categoria", "id_medio", "id_motivo_compra", "id_presupuesto_vivienda", "id_referencia", "descripcion"],
+                2: [],
+                3: [],
+            },
+            validacionEspecial: {
+                0: [],
+                1: [],
+                2: [],
+                3: [],
+            },
             showPolicyModal: false,
             policyAccepted: false,
             ObjCliente: {
@@ -983,9 +995,79 @@ export default {
             await this.continuarNavegacion(nextIndex);
         },
         setMode(mode) {
+            const anteriorMode = this.mode;
+
+            if (anteriorMode !== null && anteriorMode !== mode) {
+                this.validarMode(anteriorMode);
+            }
+
             this.mode = mode;
+
+            this.validarMode(mode);
+
             if (mode === 0 && this.ObjCliente)
                 this.initIntlTel(this.ObjCliente);
+        },
+        validarMode(modeIndex) {
+            const camposAValidar = this.camposPorSubmode[modeIndex] || [];
+            let modeIncompleto = false;
+
+            for (const campo of camposAValidar) {
+                const valorVisita = this.ObjVisita[campo];
+                const valorCliente = this.ObjCliente[campo];
+
+                const esVacio = (valor) => {
+                    return !valor ||
+                           (typeof valor === 'string' && valor.trim() === '') ||
+                           (typeof valor === 'number' && valor === 0) ||
+                           valor === '0';
+                };
+
+                if (esVacio(valorVisita) && esVacio(valorCliente)) {
+                    modeIncompleto = true;
+                    break;
+                }
+            }
+
+            const validacionesEspeciales = this.validacionEspecial[modeIndex] || [];
+            for (const validacion of validacionesEspeciales) {
+                if (validacion.tipo === 'checkbox_group') {
+                    const checkboxes = this[validacion.campo];
+                    if (checkboxes) {
+                        const seleccionados = checkboxes.filter(item => item.checked).length;
+                        if (validacion.requerimiento &&
+                            validacion.requerimiento.tipo === 'minimo' &&
+                            seleccionados < validacion.requerimiento.valor) {
+                            modeIncompleto = true;
+                            break;
+                        }
+                    }
+                } else if (validacion.tipo === 'email') {
+                    const emailVisita = this.ObjVisita[validacion.campo];
+                    const emailCliente = this.ObjCliente[validacion.campo];
+                    const validoVisita = emailVisita && this.validarEmail(emailVisita);
+                    const validoCliente = emailCliente && this.validarEmail(emailCliente);
+                    if (!validoVisita && !validoCliente) {
+                        modeIncompleto = true;
+                        break;
+                    }
+                }
+            }
+
+            if (modeIncompleto) {
+                if (!this.tabsIncomplete.includes(modeIndex)) {
+                    this.tabsIncomplete.push(modeIndex);
+                }
+            } else {
+                const pos = this.tabsIncomplete.indexOf(modeIndex);
+                if (pos !== -1) {
+                    this.tabsIncomplete.splice(pos, 1);
+                }
+            }
+        },
+        validarEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         },
         async continuarNavegacion(nextIndex) {
             if (this.mode === 0 && nextIndex === 1) {
@@ -1639,7 +1721,6 @@ export default {
                     this.noregistro = true;
                 } else {
                     this.noregistro = false;
-                    // this.limpiarObj();
                 }
             }
 
@@ -4490,9 +4571,9 @@ export default {
                 } else if (this.mode === index) {
                     return 'wizarTabActive';
                 } else if (!this.tabsIncomplete.includes(index)) {
-                    return 'wizarTabIncomplete';
-                } else {
                     return 'wizarTabCompleted';
+                } else {
+                    return 'wizarTabIncomplete';
                 }
             });
         },
@@ -4695,6 +4776,22 @@ export default {
         }
     },
     watch: {
+        ObjVisita: {
+            handler() {
+                if (this.mode !== null) {
+                    this.validarMode(this.mode);
+                }
+            },
+            deep: true
+        },
+        ObjCliente: {
+            handler() {
+                if (this.mode !== null) {
+                    this.validarMode(this.mode);
+                }
+            },
+            deep: true
+        },
         visitasFiltradas: {
             handler(val) {
                 this.contarProyectos(val);

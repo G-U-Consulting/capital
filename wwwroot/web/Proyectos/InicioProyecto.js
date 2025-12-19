@@ -70,32 +70,30 @@ export default {
                 link_brochure: ""
             },
             camposPorSubmode: {
-                0: ["nombre"],
-                1: ["id_banco_constructor"],
-                2: ["id_pie_legal"],
-                3: ['id_fiduciaria'],
-                4: ["ciudad_lanzamiento"],
-                5: ["link_general_onelink"],
+                0: ["nombre", "direccion", "id_sede", "id_zona_proyecto", "id_ciudadela", "id_tipo_proyecto", "id_estado_publicacion"],
+                1: ["id_tipo_vis"],
+                2: ["dias_separacion", "dias_cierre_sala", "meses_ci", "email_cotizaciones", "id_pie_legal"],
+                3: ["centro_costos", "id_fiduciaria"],
+                4: ["ciudad_lanzamiento", "fecha_lanzamiento", "latitud", "link_waze", "linea_whatsapp", "meta_ventas"],
+                5: ["link_general_onelink", "link_especifico_onelink"],
             },
             validacionEspecial: {
-                // 0: [{ tipo: 'checkbox_group', campo: 'ciudadela', requerimiento: { tipo: 'minimo', valor: 1 } }],
+                0: [
+                    { tipo: 'checkbox_group', campo: 'salas_venta', requerimiento: { tipo: 'minimo', valor: 1 } }
+                ],
                 1: [
-                    // { tipo: 'checkbox_group', campo: 'tiposVIS', requerimiento: { tipo: 'minimo', valor: 1 } },
-                    // { tipo: 'checkbox_group', campo: 'tiposFinanciacion', requerimiento: { tipo: 'minimo', valor: 1 } }
+                    { tipo: 'checkbox_group', campo: 'banco_constructor', requerimiento: { tipo: 'minimo', valor: 1 } },
+                    { tipo: 'checkbox_group', campo: 'bancos_financiador', requerimiento: { tipo: 'minimo', valor: 1 } },
+                    { tipo: 'checkbox_group', campo: 'tiposFinanciacion', requerimiento: { tipo: 'minimo', valor: 1 } }
                 ],
                 2: [
-                    // { tipo: 'email', campo: 'email_cotizaciones' }
+                    { tipo: 'email', campo: 'email_cotizaciones' }
                 ],
                 3: [
-                    // { tipo: 'checkbox_group', campo: 'opcionesVisuales', requerimiento: { tipo: 'minimo', valor: 1 } }
-
+                    { tipo: 'checkbox_group', campo: 'opcionesVisuales', requerimiento: { tipo: 'minimo', valor: 1 } }
                 ],
-                4: [
-                    // { tipo: 'email', campo: 'email_receptor_1' },
-                    // { tipo: 'email', campo: 'email_receptor_2' },
-                    // { tipo: 'email', campo: 'email_receptor_3' },
-                    // { tipo: 'email', campo: 'email_receptor_4' }
-                ],
+                4: [],
+                5: []
             },
             isFormularioCompleto: false,
             tiposVIS: [],
@@ -140,8 +138,7 @@ export default {
                 } else if (!this.tabsIncomplete.includes(index)) {
                     return 'wizarTabCompleted';
                 } else {
-                    // return 'wizarTabIncomplete';
-                    return 'wizarTabCompleted';
+                    return 'wizarTabIncomplete';
                 }
             });
         },
@@ -185,6 +182,16 @@ export default {
         },
         proyectosNormales() {
             return this.proyectosFiltrados.filter(p => p.lanzamiento !== '1');
+        },
+        zonasFiltradas() {
+            const sedeId = this.objProyecto?.id_sede;
+            if (!sedeId) return this.zona_proyecto;
+            return this.zona_proyecto.filter(z => z.id_sede === sedeId);
+        },
+        ciudadelaFiltradas() {
+            const sedeId = this.objProyecto?.id_sede;
+            if (!sedeId) return this.ciudadela;
+            return this.ciudadela.filter(z => z.id_sede === sedeId);
         },
         unoNoDisponible() {
             return this.esNoDisponible(this.selectedProject.unidades_libres) ||

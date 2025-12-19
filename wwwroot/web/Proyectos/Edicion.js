@@ -134,32 +134,30 @@
             tieneCambiosPendientes: false,
             cargandoProyecto: false,
             camposPorSubmode: {
-                0: ["nombre"],
-                1: ["id_banco_constructor"],
-                2: ["id_pie_legal"],
-                3: ['id_fiduciaria'],
-                4: ["ciudad_lanzamiento"],
-                5: ["link_general_onelink"],
+                0: ["nombre", "direccion", "id_sede", "id_zona_proyecto", "id_ciudadela", "id_tipo_proyecto", "id_estado_publicacion"],
+                1: ["id_tipo_vis"],
+                2: ["dias_separacion", "dias_cierre_sala", "meses_ci", "email_cotizaciones", "id_pie_legal"],
+                3: ["centro_costos", "id_fiduciaria"],
+                4: ["ciudad_lanzamiento", "fecha_lanzamiento", "latitud", "link_waze", "linea_whatsapp", "meta_ventas"],
+                5: ["link_general_onelink", "link_especifico_onelink"],
             },
             validacionEspecial: {
-                // 0: [{ tipo: 'checkbox_group', campo: 'ciudadela', requerimiento: { tipo: 'minimo', valor: 1 } }],
+                0: [
+                    { tipo: 'checkbox_group', campo: 'salas_venta', requerimiento: { tipo: 'minimo', valor: 1 } }
+                ],
                 1: [
-                    // { tipo: 'checkbox_group', campo: 'tiposVIS', requerimiento: { tipo: 'minimo', valor: 1 } },
-                    // { tipo: 'checkbox_group', campo: 'tiposFinanciacion', requerimiento: { tipo: 'minimo', valor: 1 } }
+                    { tipo: 'checkbox_group', campo: 'banco_constructor', requerimiento: { tipo: 'minimo', valor: 1 } },
+                    { tipo: 'checkbox_group', campo: 'bancos_financiador', requerimiento: { tipo: 'minimo', valor: 1 } },
+                    { tipo: 'checkbox_group', campo: 'tiposFinanciacion', requerimiento: { tipo: 'minimo', valor: 1 } }
                 ],
                 2: [
-                    // { tipo: 'email', campo: 'email_cotizaciones' }
+                    { tipo: 'email', campo: 'email_cotizaciones' }
                 ],
                 3: [
-                    // { tipo: 'checkbox_group', campo: 'opcionesVisuales', requerimiento: { tipo: 'minimo', valor: 1 } }
-
+                    { tipo: 'checkbox_group', campo: 'opcionesVisuales', requerimiento: { tipo: 'minimo', valor: 1 } }
                 ],
-                4: [
-                    // { tipo: 'email', campo: 'email_receptor_1' },
-                    // { tipo: 'email', campo: 'email_receptor_2' },
-                    // { tipo: 'email', campo: 'email_receptor_3' },
-                    // { tipo: 'email', campo: 'email_receptor_4' }
-                ],
+                4: [],
+                5: []
             },
             isFormularioCompleto: false,
             tiposVIS: [],
@@ -212,8 +210,8 @@
                 } else if (!this.tabsIncomplete.includes(index)) {
                     return 'wizarTabCompleted';
                 } else {
-                    // return 'wizarTabIncomplete';
-                    return 'wizarTabCompleted';
+                    return 'wizarTabIncomplete';
+                    // return 'wizarTabCompleted';
                 }
             });
         },
@@ -274,7 +272,6 @@
             this.tipo = resp[6];
             resp[13].forEach(item => item.checked = false);
             this.salas_venta = resp[13];
-            // Certificaciones (selección única - radio button)
             this.certificaciones = resp[14] || [];
             this.sede = resp[4];
             this.zona_proyecto = resp[5];
@@ -467,20 +464,13 @@
                 }
             });
 
-            // var tFSeleccionada = proyecto.id_tipo_financiacion;
-            // this.tiposFinanciacion.forEach(item => {
-            //     item.checked = tFSeleccionada ? (item.id_tipo_financiacion == tFSeleccionada) : false;
-            // });
-
             var oVSeleccionada = proyecto.id_opcion_visual;
             this.opcionesVisuales.forEach(item => {
                 item.checked = oVSeleccionada ? (item.id_opcion_visual == oVSeleccionada) : false;
             });
 
-            // Cargar estado de publicación (valor único)
             this.editObjProyecto.id_estado_publicacion = proyecto.id_estado_publicacion || null;
 
-            // Cargar certificación (valor único)
             this.editObjProyecto.id_certificacion = proyecto.id_certificacion || null;
 
             const listaTiposFinanciacion = (proyecto.tipos_financiacion || '')
@@ -672,10 +662,6 @@
             if (oVs != null)
                 this.objProyecto.id_opcion_visual = oVs.id_opcion_visual;
 
-            // var tFn = this.tiposFinanciacion.find(item => { return item.checked });
-            // if (tFn != null)
-            //     this.objProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
-
             const tipoFinanciacion = this.tiposFinanciacion.find(item => item.checked);
             if (tipoFinanciacion) {
                 this.objProyecto.id_tipo_financiacion = tipoFinanciacion.id_tipo_financiacion;
@@ -844,11 +830,6 @@
             if (oVs != null)
                 this.editObjProyecto.id_opcion_visual = oVs.id_opcion_visual;
 
-            // var tFn = this.tiposFinanciacion.find(item => { return item.checked });
-            // if (tFn != null)
-            //     this.editObjProyecto.id_tipo_financiacion = tFn.id_tipo_financiacion;
-
-           
             const tipo = this.tipo
                 .filter(item => item.checked)
                 .map(item => item.id_tipo_proyecto);
