@@ -55,7 +55,7 @@ public class WorkerTareas(string rootPath) : BackgroundService
                 }
             }
             else await Task.Delay(20000, stoppingToken);
-            CleanDavRequest();
+            //CleanDavRequest();
         }
     }
 

@@ -110,6 +110,8 @@
 			tooltipX: 0,
 			tooltipY: 0,
 			expandedVisible: false,
+
+			modifiedPrices: {}
 		};
 	},
 	three: null,
@@ -911,9 +913,19 @@
 			$modal && ($modal.style.display = 'flex');
 		},
 		closeListModal(e) {
-			if (e.target.matches('#modalOverlayList'))
-				e.target.style.display = 'none';
-			if (e.target.matches('.closeListModal'))
+			/* if (e.target.matches('#modalOverlayList'))
+				e.target.style.display = 'none'; */
+			if (e.target.matches('.closeListModal') && !this.listFromCSV 
+				&& Object.keys(this.modifiedPrices).length) {
+				showConfirm("¿Desea guardar los cambios antes de cerrar?", () => {
+					this.updatePrices();
+					document.getElementById('modalOverlayList').style.display = 'none';
+				}, () => {
+					this.modifiedPrices = {};
+					document.getElementById('modalOverlayList').style.display = 'none';
+				}, null, 'Guardar', 'Cerrar sin guardar');
+			}
+			else if (e.target.matches('.closeListModal'))
 				document.getElementById('modalOverlayList').style.display = 'none';
 		},
 		reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
@@ -950,7 +962,7 @@
 				datos.forEach(apto => {
 					Object.keys(apto).forEach(k => {
 						if (k.startsWith('created') || k.startsWith('updated') || k.startsWith('is_')
-							|| (k.startsWith('id_') && k !== 'id_agrupacion') || k.endsWith('1'))
+							|| (k.startsWith('id_') && k !== 'id_agrupacion') || k.endsWith('1') || k === 'valor_unidad')
 							delete apto[k];
 						else if (k.includes('fecha'))
 							apto[k] &&= this.formatDatetime(apto[k], 'bdate');
@@ -1222,10 +1234,10 @@
 				showProgress();
 				let datos = this.getFilteredList(tabla);
 				if (!datos.length) {
-                    hideProgress();
-                    showMessage('No hay datos para exportar');
-                    return;
-                }
+					hideProgress();
+					showMessage('No hay datos para exportar');
+					return;
+				}
 				var archivo = (await httpFunc(`/util/Json2File/excel/${tabla}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
 				var formato = (await httpFunc("/util/ExcelFormater", { "file": archivo, "format": "FormatoMaestros" })).data;
 				window.open("./docs/" + archivo, "_blank");
@@ -1260,6 +1272,21 @@
 				return `${date.getHours().toString().padStart(2, '0')}:${minutes}`
 			return `${day}/${month}/${year} ${hour}:${minutes} ${meridian}`;
 		},
+		async updatePrices() {
+			showProgress();
+			await Promise.all(Object.keys(this.modifiedPrices).map(async key => {
+				try {
+					let res = await (httpFunc('/generic/genericST/Unidades:Upd_PrecioIndividual', this.modifiedPrices[key]));
+					if (res.isError || res.data !== 'OK') throw res;
+				} catch (e) {
+					console.error(e);
+					showMessage('Error: ' + e.errorMessage || e.data);
+				}
+			}));
+			this.modifiedPrices = {};
+			document.getElementById('modalOverlayList').style.display = 'none';
+			hideProgress();
+		}
 	},
 	computed: {
 		f_tasa_base: {
@@ -1320,7 +1347,7 @@
 		},
 		sortTorres: {
 			get() {
-				let tmp = [...this.torres]
+				let tmp = [...this.torres];
 				if (this.ordenTorres == 'salida')
 					tmp = [...this.torres].sort((a, b) => parseInt(a.orden_salida) - parseInt(b.orden_salida));
 				this.sortIds = tmp.map(t => t.id_torre);
@@ -1384,6 +1411,15 @@
 			let tipos = this.tipos.filter(t =>
 				this.torre.pisos.some(p => p.unidades.some(u => u.id_tipo === t.id_tipo)));
 			return tipos;
+		},
+		onPrecioInput() {
+			return (p, field, e) => {
+				this.validarFormato(e);
+				let dec = e.target.value.endsWith(',');
+				p[field] = this.cleanNumber(e.target.value);
+				e.target.value = this.formatNumber(p[field]) + (dec ? ',' : '');
+				this.modifiedPrices[p.id_precio] = p;
+			}
 		}
 	},
 };

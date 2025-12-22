@@ -737,19 +737,19 @@
                     <div class="pure-u-1-2 pure-u-md-1-5">
                         <div class="formInputStandard">
                             <label>Fecha Escritura</label>
-                            <input type="date" v-model="apto.fecha_fec" class="pure-input-1"/>
+                            <input type="date" v-model="apto.fecha_fec" class="pure-input-1" />
                         </div>
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-5">
                         <div class="formInputStandard">
                             <label>Fecha Entrega</label>
-                            <input type="date" v-model="apto.fecha_edi" class="pure-input-1"/>
+                            <input type="date" v-model="apto.fecha_edi" class="pure-input-1" />
                         </div>
                     </div>
                     <div class="pure-u-1-2 pure-u-md-1-5">
                         <div class="formInputStandard">
                             <label>Fecha Entrega mostrar</label>
-                            <input type="date" v-model="apto.fecha_edi_mostrar" class="pure-input-1"/>
+                            <input type="date" v-model="apto.fecha_edi_mostrar" class="pure-input-1" />
                         </div>
                     </div>
 
@@ -1422,16 +1422,21 @@
                     <div class="cont-list-resources"
                         style="width: 100%; border: 0; border-radius: 0; margin: 0; height: 100%; max-height: none;">
                         <div class="list-resources" style="overflow-y: auto;">
-                            <div class="menu-section" v-if="previewList && previewList[viewList]"
+                            <div v-bind:class="{'menu-section' : listFromCSV}"
+                                v-if="previewList && previewList[viewList]"
                                 v-for="(torre, i) in previewList[viewList].torres">
                                 <div v-if="i == 0" class="menu-title" @click="toggleExpand"
                                     style="border-bottom: 2px #bbb solid;">
                                     <span>{{torre.expanded ? 'Colapsar todo' : 'Expandir todo'}}</span>
                                     <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': torre.expanded}">
                                 </div>
-                                <div class="menu-title" style="justify-content: flex-end; gap: 1rem"
-                                    @click="torre.expanded = !torre.expanded">
-                                    <span style="margin-right: auto;">Torre {{torre.torre}}</span>
+                                <div v-bind:class="{'menu-title': listFromCSV}"
+                                    style="justify-content: flex-end; gap: 1rem"
+                                    @click="listFromCSV && (torre.expanded = !torre.expanded)">
+                                    <span
+                                        v-bind:class="{'menu-title-text' : listFromCSV, 'menu-title-text-no-expand' : !listFromCSV}">
+                                        Torre {{torre.torre}}
+                                    </span>
                                     <div v-if="listFromCSV" @click.stop.prevent="toggleSelectedTorre(torre)">
                                         <label class="check" :for="`selected-t-${torre.torre}`"
                                             style="display: inline; padding-left: 15px;">
@@ -1440,10 +1445,12 @@
                                             <span class="checkmark" style="background-color: white;"></span>
                                         </label>
                                     </div>
-                                    <img src="../../img/ico/down-combo.png" v-bind:class="{'expanded': torre.expanded}">
+                                    <img v-if="listFromCSV" src="../../img/ico/down-combo.png"
+                                        v-bind:class="{'expanded': torre.expanded}">
                                 </div>
                                 <div class="menu-content" v-bind:class="{'open': torre.expanded}" style="padding: 0;">
-                                    <table class="dataTable" style="table-layout: auto;">
+                                    <table class="dataTable" style="table-layout: auto;"
+                                        v-bind:class="{'editable-prices': !listFromCSV, 'readonly-prices': listFromCSV}">
                                         <thead>
                                             <tr>
                                                 <th>Unidad ID</th>
@@ -1458,17 +1465,45 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="p in torre.precios">
-                                                <td>{{p.apartamento}}</td>
-                                                <td style="text-align: right;">{{formatNumber(p.precio, false)}}</td>
-                                                <td style="text-align: right;">{{formatNumber(p.en_smlv, false)}}</td>
-                                                <td style="text-align: right;">{{formatNumber(p.precio_m2, true, 2)}}
+                                                <td style="padding: 0.2em 0.5em; text-align: left;">{{p.apartamento}}
                                                 </td>
-                                                <td style="text-align: right;">{{formatNumber(p.precio_alt, false)}}
+                                                <td>
+                                                    <span v-if="listFromCSV">{{formatNumber(p.precio, false)}}</span>
+                                                    <input v-else type="text" :value="formatNumber(p.precio, false)"
+                                                        @input="onPrecioInput(p, 'precio', $event)" />
                                                 </td>
-                                                <td style="text-align: right;">{{formatNumber(p.en_smlv_alt, false)}}
+                                                <td>
+                                                    <span v-if="listFromCSV">{{formatNumber(p.en_smlv, false)}}</span>
+                                                    <input v-else type="text" :value="formatNumber(p.en_smlv, false)"
+                                                        @input="onPrecioInput(p, 'en_smlv', $event)" />
                                                 </td>
-                                                <td style="text-align: right;">{{formatNumber(p.precio_m2_alt, true,
-                                                    2)}}</td>
+                                                <td>
+                                                    <span v-if="listFromCSV">{{formatNumber(p.precio_m2, true,
+                                                        2)}}</span>
+                                                    <input v-else type="text"
+                                                        :value="formatNumber(p.precio_m2)"
+                                                        @input="onPrecioInput(p, 'precio_m2', $event)" />
+                                                </td>
+                                                <td>
+                                                    <span v-if="listFromCSV">{{formatNumber(p.precio_alt,
+                                                        false)}}</span>
+                                                    <input v-else type="text" :value="formatNumber(p.precio_alt, false)"
+                                                        @input="onPrecioInput(p, 'precio_alt', $event)" />
+                                                </td>
+                                                <td>
+                                                    <span v-if="listFromCSV">{{formatNumber(p.en_smlv_alt,
+                                                        false)}}</span>
+                                                    <input v-else type="text"
+                                                        :value="formatNumber(p.en_smlv_alt, false)"
+                                                        @input="onPrecioInput(p, 'en_smlv_alt', $event)" />
+                                                </td>
+                                                <td>
+                                                    <span v-if="listFromCSV">{{formatNumber(p.precio_m2_alt, true,
+                                                        2)}}</span>
+                                                    <input v-else type="text"
+                                                        :value="formatNumber(p.precio_m2_alt)"
+                                                        @input="onPrecioInput(p, 'precio_m2_alt', $event)" />
+                                                </td>
                                                 <td style="text-align: center;" v-if="listFromCSV"
                                                     @click="toggleSelectedApto(p, torre)">
                                                     <label class="check" :for="`selected-${p.apartamento}`"
@@ -1487,10 +1522,11 @@
                     </div>
                 </div>
             </div>
-            <button v-if="listFromCSV" @click="confirmUploadList"
-                style="display: block; margin: 1rem auto 0;">Guardar</button>
-            <button v-else class="closeListModal" @click="closeListModal"
-                style="display: block; margin: 1rem auto 0;">Volver</button>
+            <div style="display: flex; justify-content: space-evenly; margin-top: 1rem;">
+                <button v-if="listFromCSV" @click="confirmUploadList">Guardar</button>
+                <button v-else class="closeListModal" @click="closeListModal">Volver</button>
+                <button v-if="!listFromCSV" @click="updatePrices">Guardar</button>
+            </div>
         </div>
     </div>
     <div v-if="expandedVisible && tabmode === 4 && playIndex !== null" class="image-modal" @click="closeExpanded">

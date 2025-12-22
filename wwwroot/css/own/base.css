@@ -1939,6 +1939,24 @@ div.btn-left-rotafolio img {
 .menu-title:hover {
   background-color: #ccc;
 }
+.menu-title-text {
+  margin-right: auto;
+}
+.menu-title-text-no-expand {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.readonly-prices td {
+  text-align: right;
+}
+.editable-prices td {
+  padding: 0;
+}
+.editable-prices td>input {
+  font-size: 15px;
+  text-align: right;
+}
+
 
 .menu-content {
   display: flex;
