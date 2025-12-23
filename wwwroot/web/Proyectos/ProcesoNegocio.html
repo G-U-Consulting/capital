@@ -518,9 +518,9 @@
                     </div>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-1'>
-                    <div class='formInputStandard filtro-proyecto-inline'>
-                        <span>Descripción</span>
-                        <input type='text' v-model='ObjVisita.descripcion' maxlength='100' placeholder="Seleccione" :disabled="camposBloqueados"/>
+                    <div class='formInputStandard'>
+                        <span>Notas</span>
+                        <textarea v-model='ObjVisita.descripcion' maxlength='200' rows='3' placeholder="Escriba sus notas aquí" :disabled="camposBloqueados" style="width: 100%; min-height: 43px; resize: vertical;"></textarea>
                     </div>
                 </div>
             </div>
@@ -1386,7 +1386,7 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1-1 formDivision" style="font-size: 1.2em; display: flex; margin-top: 1.5rem;">
+            <div class="pure-u-1-1 formDivision" style="font-size: 1.2em; display: flex; margin-top: .5rem;">
                 <div class="pure-u-1 pure-u-md-1-2">
                     <span style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <span class="info-container">
@@ -2548,7 +2548,9 @@
     <div class="pure-u-1-1" v-if="iscliente">
         <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
             <div v-if="mode >= 0 && mode <= 1" class="pure-u-auto">
-                <button class="pure-button button-fixed" @click="handleSave">Guardar</button>
+                <button class="pure-button button-fixed" @click="handleSave">
+                    {{ (mode == 1 && ObjVisita.id_visita && !camposBloqueados) ? 'Editar' : 'Guardar' }}
+                </button>
             </div>
             <div v-if="mode == 2" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleNext(3)">Siguiente</button>

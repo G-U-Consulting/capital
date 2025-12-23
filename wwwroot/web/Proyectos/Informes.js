@@ -34,5 +34,19 @@
         hideProgress();
     },
     methods: {
+        handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const maxSize = 5 * 1024 * 1024;
+
+            if (file.size > maxSize) {
+                showMessage(`El archivo "${file.name}" excede el tamaño máximo permitido de 5MB. Tamaño actual: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                event.target.value = "";
+                this.fileSelected = null;
+                return;
+            }
+
+            this.fileSelected = file;
+        }
     }
 };

@@ -77,8 +77,17 @@ export default {
         },
         async processFiles(files) {
             let noDocs = [];
+            let oversizedFiles = [];
+            const maxSize = 5 * 1024 * 1024;
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i].file;
+
+                if (file.size > maxSize) {
+                    oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+                    continue;
+                }
+
                 const exists = this.files.some(existingFile => existingFile.name === file.name);
                 if (!exists) {
                     let ext = file.name.split('.').pop();
@@ -100,7 +109,13 @@ export default {
                     } else noDocs.push(file.name);
                 }
             }
-            noDocs.length && showMessage(`Error: Documentos no soportados\n${noDocs.join(', ')}`);
+
+            if (oversizedFiles.length) {
+                showMessage(`Los siguientes archivos exceden el tamaño máximo de 5MB:\n${oversizedFiles.join('\n')}`);
+            }
+            if (noDocs.length) {
+                showMessage(`Error: Documentos no soportados\n${noDocs.join(', ')}`);
+            }
         },
         getURLFile(file) {
             return URL.createObjectURL(file);
