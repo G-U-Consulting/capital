@@ -602,8 +602,14 @@ export default {
         },
         fileUpload(e) {
             let file = e.target.files[0];
-            if (file && !file.type.startsWith("image/")) e.target.value = "";
-            else if (file) {
+            const maxSize = 5 * 1024 * 1024;
+
+            if (file && !file.type.startsWith("image/")) {
+                e.target.value = "";
+            } else if (file && file.size > maxSize) {
+                showMessage(`El archivo "${file.name}" excede el tamaño máximo permitido de 5MB. Tamaño actual: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                e.target.value = "";
+            } else if (file) {
                 this.subImg = file;
                 this.subsidio.imagen = URL.createObjectURL(file);
             }
@@ -768,9 +774,18 @@ export default {
         },
         async processFiles(files) {
             let noDocs = [];
+            let oversizedFiles = [];
+            const maxSize = 5 * 1024 * 1024;
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const exists = this.files.some(existingFile => existingFile.name === file.name);
+
+                if (file.size > maxSize) {
+                    oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+                    continue;
+                }
+
                 if (!exists) {
                     let ext = file.name.split('.').pop();
                     if (file.type.startsWith('image/') || this.getIcon(ext)) {
@@ -791,7 +806,13 @@ export default {
                     } else noDocs.push(file.name);
                 }
             }
-            noDocs.length && showMessage(`Error: Documentos no soportados\n${noDocs.join(', ')}`);
+
+            if (oversizedFiles.length) {
+                showMessage(`Los siguientes archivos exceden el tamaño máximo de 5MB:\n${oversizedFiles.join('\n')}`);
+            }
+            if (noDocs.length) {
+                showMessage(`Error: Documentos no soportados\n${noDocs.join(', ')}`);
+            }
         },
         getURLFile(file) {
             return URL.createObjectURL(file);

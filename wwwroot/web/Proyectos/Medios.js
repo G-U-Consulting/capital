@@ -492,8 +492,16 @@
             this.processFilesUnified(selectedFiles, isAvo);
         },
         processFilesUnified(files, isAvo) {
+            const maxSize = 5 * 1024 * 1024;
+            let oversizedFiles = [];
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+
+                if (file.size > maxSize) {
+                    oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+                    continue;
+                }
 
                 if (file.type.startsWith('image/')) {
                     const fileList = isAvo ? this.filesAvo : this.files;
@@ -525,6 +533,10 @@
                         reader.readAsDataURL(file);
                     }
                 }
+            }
+
+            if (oversizedFiles.length) {
+                showMessage(`Los siguientes archivos exceden el tamaño máximo de 5MB:\n${oversizedFiles.join('\n')}`);
             }
         },
         handleDragOver(event) {
@@ -725,6 +737,14 @@
         previewImage(event, target) {
             const file = event.target.files[0];
             if (!file) return;
+
+            const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+
+            if (file.size > maxSize) {
+                showMessage(`El archivo "${file.name}" excede el tamaño máximo permitido de 5MB. Tamaño actual: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+                event.target.value = "";
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = e => {

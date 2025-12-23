@@ -959,7 +959,13 @@ export default {
 
             const saveActions = {
                 0: () => this.nuevoCliente(0),
-                1: () => this.nuevaVisita(),
+                1: () => {
+                    if (this.ObjVisita.id_visita && !this.camposBloqueados) {
+                        return this.updateVisita();
+                    } else {
+                        return this.nuevaVisita();
+                    }
+                },
                 2: () => this.guardarCotizacion()
             };
 
@@ -1834,9 +1840,19 @@ export default {
         },
 
         validateModeVisita() {
-            if (this.ObjVisita.id_visita != null) {
-                showMessage("Esta visita no se puede actualizar.");
+           
+            if (this.ObjVisita.id_visita != null && this.camposBloqueados) {
+                showMessage("Esta visita no se puede actualizar porque no es del día de hoy.");
                 return false;
+            }
+
+           
+            if (this.ObjVisita.id_visita != null && !this.camposBloqueados) {
+                if (!this.ObjVisita.id_tipo_registro || !this.ObjVisita.id_modo_atencion) {
+                    showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
+                    return false;
+                }
+                return true;
             }
 
             if (!this.validarCampos(this.ObjVisita, this.camposObligatorios)) {
@@ -1908,12 +1924,89 @@ export default {
                 this.actualizarCheckboxes(this.tipo_registro, data.tipo_registro, 'id_tipo_registro');
                 this.actualizarCheckboxes(this.modo_atencion, data.modo_atencion, 'id_modo_atencion');
 
-                this.camposBloqueados = true;
+                const fechaRegistro = data.fecha ? data.fecha.split(" ")[0] : null;
+                const fechaHoy = new Date().toISOString().split("T")[0];
+
+                this.camposBloqueados = fechaRegistro !== fechaHoy;
+
+                if (this.camposBloqueados) {
+                    showMessage('Este registro no es del día de hoy. Solo puede visualizar la información.');
+                }
             } catch (error) {
                 console.error('Error al editar visita:', error);
                 showMessage('Error al cargar la visita.');
             }
         },
+
+        async updateVisita() {
+            if (!this.ObjVisita.id_visita) {
+                showMessage("No hay una visita seleccionada para actualizar.");
+                return "Error";
+            }
+
+            if (!this.ObjVisita.id_tipo_registro || !this.ObjVisita.id_modo_atencion) {
+                showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
+                return "Error";
+            }
+
+            showProgress();
+            try {
+                const datosVisita = {
+                    id_visita: this.ObjVisita.id_visita,
+                    id_categoria: this.ObjVisita.id_categoria || '',
+                    id_medio: this.ObjVisita.id_medio || '',
+                    id_motivo_compra: this.ObjVisita.id_motivo_compra || '',
+                    id_referencia: this.ObjVisita.id_referencia || '',
+                    otro_texto: this.ObjVisita.otro_texto || '',
+                    descripcion: this.ObjVisita.descripcion || '',
+                    id_presupuesto_vivienda: this.ObjVisita.id_presupuesto_vivienda || '',
+                    id_tipo_tramite: this.ObjVisita.id_tipo_tramite || '',
+                    id_modo_atencion: this.ObjVisita.id_modo_atencion,
+                    id_tipo_registro: this.ObjVisita.id_tipo_registro,
+                    usuario: GlobalVariables.username
+                };
+
+                const resp = await httpFunc('/generic/genericST/ProcesoNegocio:Upd_Registro', datosVisita);
+
+                console.log('Respuesta del servidor:', resp);
+
+                let resultado = '';
+                if (typeof resp.data === 'string') {
+                    resultado = resp.data;
+                } else if (resp.data && Array.isArray(resp.data) && resp.data[0] && resp.data[0].result) {
+                    resultado = resp.data[0].result;
+                } else if (resp.data && resp.data.result) {
+                    resultado = resp.data.result;
+                } else {
+                    console.error('Formato de respuesta no reconocido:', resp);
+                    showMessage("Error: Formato de respuesta no reconocido del servidor.");
+                    return "Error";
+                }
+
+                console.log('Resultado procesado:', resultado);
+
+                if (resultado.includes("OK")) {
+                    showMessage("Registro actualizado correctamente.");
+                    let resp2 = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { cliente: this.cliente });
+                    this.visitas = resp2.data[0];
+                    this.contarProyectos(this.visitas);
+                    return "OK";
+                } else if (resultado.includes("ERROR")) {
+                    showMessage(resultado);
+                    return "Error";
+                } else {
+                    showMessage("Error al actualizar el registro.");
+                    return "Error";
+                }
+            } catch (error) {
+                console.error('Error al actualizar visita:', error);
+                showMessage("Error al actualizar el registro.");
+                return "Error";
+            } finally {
+                hideProgress();
+            }
+        },
+
         contarProyectos(lista) {
             const contador = {};
             lista.forEach(item => {
@@ -2030,6 +2123,11 @@ export default {
                 }
 
                 this.cotizaciones = Array.isArray(resp.data[0]) ? resp.data[0] : (Array.isArray(resp.data) ? resp.data : []);
+
+                this.cotizaciones.sort((a, b) => {
+                    return (b.cotizacion || 0) - (a.cotizacion || 0);
+                });
+
                 this.nombre = this.cotizaciones[0]?.nombre || '';
 
                 if (this.cotizaciones.length === 0) {
@@ -2185,7 +2283,7 @@ export default {
                         : rawId || 0;
                 }
 
-                this.cotizaciones.push({
+                this.cotizaciones.unshift({
                     cotizacion: siguienteId,
                     fecha: formatoFecha,
                     descripcion: '',
