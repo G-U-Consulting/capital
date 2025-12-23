@@ -111,7 +111,19 @@
 			tooltipY: 0,
 			expandedVisible: false,
 
-			modifiedPrices: {}
+			modifiedPrices: {},
+			partialUpd: true,
+			unidadKeys: [
+				'clase', 'apartamento', 'torre', 'piso', 'nombre_unidad', 'estatus', 'tipo', 'codigo_planta', 'localizacion', 'observacion_apto',
+				'fecha_fec', 'fecha_edi', 'fecha_edi_mostrar', 'inv_terminado', 'num_alcobas', 'num_banos',
+				'area_privada_cub', 'area_privada_lib', 'area_total', 'acue', 'area_total_mas_acue',
+				'lista', 'valor_separacion', 'valor_acabados', 'valor_reformas', 'valor_descuento', 'valor_complemento', 'pate', 'asoleacion', 'altura', 'agrupacion',
+				'cerca_porteria', 'cerca_juegos_infantiles', 'cerca_piscina',
+				'tiene_balcon', 'tiene_parq_sencillo', 'tiene_parq_doble', 'tiene_deposito', 'tiene_acabados', 'ID_apartamento',
+				'cuenta_tipo', 'cuenta_numero', 'convenio', 'cuota_inicial_banco', 'ean'
+			],
+			requiredKeys: ['clase', 'apartamento', 'torre', 'piso'],
+			convenioKeys: ['cuenta_tipo', 'cuenta_numero', 'convenio', 'cuota_inicial_banco', 'ean']
 		};
 	},
 	three: null,
@@ -316,21 +328,47 @@
 		async confirmUpload() {
 			showProgress();
 			let data = this.u_torres.length ? this.u_torres : this.torres;
-			let res = null;
-			try {
-				res = await (httpFunc(`/generic/genericST/Unidades:Upd_Unidades`, {
-					id_proyecto: GlobalVariables.id_proyecto,
-					unidades: JSON.stringify(data),
-					Usuario: GlobalVariables.username,
-					is_create: this.dataUpdate ? '0' : '1'
-				}));
-				if (res.isError || res.data !== 'OK') throw res;
-				await this.loadUnidades(true);
-				this.setTabmode(0, true);
-				this.u_torres = [];
-			} catch (e) {
-				console.error(e);
-				showMessage('Error: ' + e.errorMessage || e.data);
+			let res = null, errorMessage = null;
+			if (data.length && data[0].pisos.length && data[0].pisos[0].unidades.length) {
+				let keys = Object.keys(data[0].pisos[0].unidades[0]);
+				// Actualización completa
+				if (this.dataUpdate && !this.partialUpd) {
+					const missing = this.unidadKeys.find(k => !keys.includes(k));
+					if (missing) errorMessage = `Error: Se debe incluir la columna '${missing}'.`;
+				}
+				// Actualización parcial: columnas requeridas
+				if (this.dataUpdate && this.partialUpd) {
+					const missing = this.requiredKeys.find(k => !keys.includes(k));
+					if (missing) errorMessage = `Error: Se debe incluir la columna '${missing}'.`;
+					// Convenio: todas o ninguna
+					if (!this.convenioKeys.every(k => keys.includes(k)) && !this.convenioKeys.every(k => !keys.includes(k)))
+						errorMessage = `Error: Se deben incluir u omitir todas las siguientes columnas: '${this.convenioKeys.join(', ')}'`;
+				}
+				if (errorMessage) {
+					showMessage(errorMessage);
+					this.tabmode = 1;
+					this.mode = 3;
+				}
+				else {
+					try {
+						res = await (httpFunc(`/generic/genericST/Unidades:Upd_Unidades${(this.dataUpdate && this.partialUpd) ? 'Parcial' : ''}`, {
+								id_proyecto: GlobalVariables.id_proyecto,
+								unidades: JSON.stringify(data),
+								Usuario: GlobalVariables.username,
+								is_create: this.dataUpdate ? '0' : '1'
+							}));
+							if (res.isError || res.data !== 'OK') throw res;
+							await this.loadUnidades(true);
+						this.setTabmode(0, true);
+						this.u_torres = [];
+					} catch (e) {
+						console.error(e);
+						showMessage('Error: ' + e.errorMessage || e.data);
+					}
+				}
+			}
+			else {
+				showMessage('No se encontraron unidades para actualizar');
 			}
 			hideProgress();
 		},
@@ -915,7 +953,7 @@
 		closeListModal(e) {
 			/* if (e.target.matches('#modalOverlayList'))
 				e.target.style.display = 'none'; */
-			if (e.target.matches('.closeListModal') && !this.listFromCSV 
+			if (e.target.matches('.closeListModal') && !this.listFromCSV
 				&& Object.keys(this.modifiedPrices).length) {
 				showConfirm("¿Desea guardar los cambios antes de cerrar?", () => {
 					this.updatePrices();
@@ -958,30 +996,37 @@
 		async downloadAptos() {
 			try {
 				showProgress();
-				let datos = JSON.parse(JSON.stringify(this.getFilteredList('aptos')));
-				datos.forEach(apto => {
-					Object.keys(apto).forEach(k => {
-						if (k.startsWith('created') || k.startsWith('updated') || k.startsWith('is_')
-							|| (k.startsWith('id_') && k !== 'id_agrupacion') || k.endsWith('1') || k === 'valor_unidad')
-							delete apto[k];
-						else if (k.includes('fecha'))
-							apto[k] &&= this.formatDatetime(apto[k], 'bdate');
+				let datos = [], sortedKeys = [
+					'clase', 'numero_apartamento', 'idtorre', 'piso', 'nombre_unidad', 'estatus', 'tipo', 'codigo_planta', 'localizacion',
+					'observacion_apto', 'fecha_fec', 'fecha_edi', 'fecha_edi_mostrar', 'inv_terminado', 'num_alcobas', 'num_banos',
+					'area_privada_cub', 'area_privada_lib', 'area_total', 'acue', 'area_total_mas_acue',
+					'lista', 'valor_separacion', 'valor_acabados', 'valor_reformas', 'valor_descuento', 'valor_complemento',
+					'pate', 'num_ref_bancaria',
+					'asoleacion', 'altura', 'agrupacion',
+					'cerca_porteria', 'cerca_juegos_infantiles', 'cerca_piscina',
+					'tiene_balcon', 'tiene_parq_sencillo', 'tiene_parq_doble', 'tiene_deposito', 'tiene_acabados', 'za1_id',
+					'cuenta_tipo', 'cuenta_numero', 'convenio', 'cuota_inicial_banco', 'ean' // dim_cuenta_convenio
+				];
+				this.getFilteredList('aptos').forEach(apto => {
+					let tmpApto = {};
+					sortedKeys.forEach(k => {
+						if (k.startsWith('fecha'))
+							tmpApto[k] = this.formatDatetime(apto[k], 'bdate');
 						else if (k.startsWith('valor') || k.includes('area') || k.includes('observacion'))
-							apto[k] = apto[k].replace(',', '.');
+							tmpApto[k] = apto[k].replace(',', '.');
 						else if (k === 'numero_apartamento') {
-							apto.apartamento = apto[k];
-							delete apto[k];
+							tmpApto.apartamento = apto[k];
 						}
 						else if (k === 'za1_id') {
-							apto['ID_apartamento'] = apto[k];
-							delete apto[k];
+							tmpApto['ID_apartamento'] = apto[k];
 						}
 						else if (k === 'idtorre') {
-							apto.torre = apto[k];
-							delete apto[k];
+							tmpApto.torre = apto[k];
 						}
+						else tmpApto[k] = apto[k];
 					});
-				})
+					datos.push(tmpApto);
+				});
 				let archivo = (await httpFunc(`/util/Json2File/csv/unidades_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}_ZA2`, datos)).data;
 				window.open("./docs/" + archivo, "_blank");
 				showMessage('Formato válido solo en Zona Asesores 2.0');

@@ -1966,6 +1966,7 @@ div.btn-left-rotafolio img {
   max-height: 0;
   overflow: hidden;
   transition: all .2s ease-in-out;
+  padding: 0;
 }
 .menu-content.open {
   border-top: 1px #ccc solid;
@@ -1989,6 +1990,10 @@ div.btn-left-rotafolio img {
   width: 100%;
   aspect-ratio: 16 / 9;
   border: 1px #ccc solid;
+}
+.menu-content.blockheader {
+  height: calc(100vh - 13rem);
+  overflow-y: auto;
 }
 
 .menu-content .item-content.current{

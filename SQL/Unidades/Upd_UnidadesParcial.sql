@@ -54,21 +54,8 @@ create temporary table tmp_unidades as(
         tiene_parq_doble varchar(50) path '$."tiene_parq_doble"',
         tiene_deposito varchar(50) path '$."tiene_deposito"',
         tiene_acabados varchar(50) path '$."tiene_acabados"',
-        id_agrupacion varchar(50) path '$."id_agrupacion"',
-        valor_complemento varchar(50) path '$."valor_complemento"',
-
-        parqueadero varchar(50) path '$."parqueadero"',
-        parqueadero_area varchar(50) path '$."parqueadero_area"',
-        parqueadero_ubicacion varchar(50) path '$."parqueadero_ubicacion"',
-        valor_parqueadero varchar(50) path '$."valor_parqueadero"',
-        parqueadero2 varchar(50) path '$."parqueadero2"',
-        parqueadero2_area varchar(50) path '$."parqueadero2_area"',
-        parqueadero2_ubicacion varchar(50) path '$."parqueadero2_ubicacion"',
-        valor_parqueadero2 varchar(50) path '$."valor_parqueadero2"',
-        deposito varchar(50) path '$."deposito"',
-        deposito_area varchar(50) path '$."deposito_area"',
-        deposito_ubicacion varchar(50) path '$."deposito_ubicacion"',
-        valor_deposito varchar(50) path '$."valor_deposito"'
+        agrupacion varchar(50) path '$."agrupacion"',
+        valor_complemento varchar(50) path '$."valor_complemento"'
     ))  as a
     where a.apartamento is not null and a.apartamento != '' 
         and a.torre is not null and a.torre != '' 
@@ -197,122 +184,15 @@ SET
     u.tiene_parq_doble = CASE WHEN t.tiene_parq_doble IS NOT NULL AND TRIM(t.tiene_parq_doble) <> '' THEN CONVERT(t.tiene_parq_doble, UNSIGNED) ELSE u.tiene_parq_doble END,
     u.tiene_deposito = CASE WHEN t.tiene_deposito IS NOT NULL AND TRIM(t.tiene_deposito) <> '' THEN CONVERT(t.tiene_deposito, UNSIGNED) ELSE u.tiene_deposito END,
     u.tiene_acabados = CASE WHEN t.tiene_acabados IS NOT NULL AND TRIM(t.tiene_acabados) <> '' THEN CONVERT(t.tiene_acabados, UNSIGNED) ELSE u.tiene_acabados END,
-    u.id_agrupacion = CASE WHEN t.id_agrupacion IS NOT NULL AND TRIM(t.id_agrupacion) <> '' THEN coalesce((
-        SELECT au.id_agrupacion FROM dim_agrupacion_unidad au WHERE au.id_agrupacion = t.id_agrupacion AND au.id_proyecto = @id_proyecto
-    ), u.id_agrupacion) ELSE u.id_agrupacion END,
+    u.id_agrupacion = CASE WHEN t.agrupacion IS NOT NULL AND TRIM(t.agrupacion) <> '' THEN (
+        SELECT au.id_agrupacion FROM dim_agrupacion_unidad au WHERE au.nombre = t.agrupacion AND au.id_proyecto = @id_proyecto
+    ) ELSE u.id_agrupacion END,
     u.updated_by = @Usuario,
     u.updated_on = CURRENT_TIMESTAMP
 WHERE u.id_proyecto = @id_proyecto;
 
-/*    id_proyecto, id_torre, id_estado_unidad, nombre_unidad, za1_id, salesforce_id, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
-    fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
-    valor_separacion, valor_acabados, valor_reformas, valor_descuento, valor_complemento, pate, id_cuenta_convenio, asoleacion, altura, id_clase, id_lista, cerca_porteria, 
-    cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, id_agrupacion, created_by 
-) 
-select distinct
-    @id_proyecto as id_proyecto,
-    t.id_torre as id_torre,
-    (select e.id_estado_unidad 
-        from dim_estado_unidad e 
-        where e.estado_unidad = t.estatus) as id_estado_unidad,
-    concat(if(t.clase is not null and t.clase != '', 
-        (select coalesce(tp.codigo, @cod_apt) 
-            from dim_tipo_proyecto tp 
-            where tp.tipo_proyecto = t.clase), @cod_apt), ' ', t.apartamento) as nombre_unidad,
-    t.za1_id as za1_id,
-    t.salesforce_id as salesforce_id,
-    t.apartamento as numero_apartamento,
-    convert(t.piso, int) as piso,
-    t.tipo as tipo,
-    if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta) as codigo_planta,
-    (select tu.id_tipo from dim_tipo_unidad tu where tu.tipo = 
-        if(t.codigo_planta is null or t.codigo_planta = '', t.tipo, t.codigo_planta) and tu.id_proyecto = @id_proyecto) as id_tipo,
-    t.localizacion as localizacion,
-    left(t.observacion_apto, 500) as observacion_apto,
-    str_to_date(if(t.fecha_fec = '', null, t.fecha_fec), '%Y-%m-%d') as fecha_fec,
-    str_to_date(if(t.fecha_edi = '', null, t.fecha_edi), '%Y-%m-%d') as fecha_edi,
-    str_to_date(if(t.fecha_edi_mostrar = '', null, t.fecha_edi_mostrar), '%Y-%m-%d') as fecha_edi_mostrar,
-    convert(t.inv_terminado, unsigned) as inv_terminado,
-    convert(t.num_alcobas, int) as num_alcobas,
-    convert(t.num_banos, int) as num_banos,
-    convert(replace(t.area_privada_cub, ',', '.'), decimal(20, 2)) as area_privada_cub,
-    convert(replace(t.area_privada_lib, ',', '.'), decimal(20, 2)) as area_privada_lib,
-    convert(replace(t.area_total, ',', '.'), decimal(20, 2)) as area_total,
-    convert(replace(t.acue, ',', '.'), decimal(20, 2)) as acue,
-    convert(replace(t.area_total_mas_acue, ',', '.'), decimal(20, 2)) as area_total_mas_acue,
-    convert(replace(t.valor_separacion, ',', '.'), decimal(20, 2)) as valor_separacion,
-    convert(replace(t.valor_acabados, ',', '.'), decimal(20, 2)) as valor_acabados,
-    convert(replace(t.valor_reformas, ',', '.'), decimal(20, 2)) as valor_reformas,
-    convert(replace(t.valor_descuento, ',', '.'), decimal(20, 2)) as valor_descuento,
-    convert(replace(t.valor_complemento, ',', '.'), decimal(20, 2)) as valor_complemento,
-    t.pate as pate,
-    t.id_cuenta_convenio as id_cuenta_convenio,
-    t.asoleacion as asoleacion,
-    t.altura as altura,
-    if(t.clase is null or trim(t.clase) = '', null, 
-        (select tp.id_tipo_proyecto from dim_tipo_proyecto tp where tp.tipo_proyecto = clase)) as id_clase,
-    if(t.lista is null or trim(t.lista) = '', null, 
-        (select l.id_lista from dim_lista_precios l where l.lista = t.lista and l.id_proyecto = @id_proyecto)) as id_lista,
-    convert(t.cerca_porteria, unsigned) as cerca_porteria,
-    convert(t.cerca_juegos_infantiles, unsigned) as cerca_juegos_infantiles,
-    convert(t.cerca_piscina, unsigned) as cerca_piscina,
-    convert(t.tiene_balcon, unsigned) as tiene_balcon,
-    convert(t.tiene_parq_sencillo, unsigned) as tiene_parq_sencillo,
-    convert(t.tiene_parq_doble, unsigned) as tiene_parq_doble,
-    convert(t.tiene_deposito, unsigned) as tiene_deposito,
-    convert(t.tiene_acabados, unsigned) as tiene_acabados,
-    (select au.id_agrupacion from dim_agrupacion_unidad au 
-        where au.nombre = t.agrupacion and au.id_proyecto = @id_proyecto) as id_agrupacion,
-    @Usuario as created_by
-from tmp_unidades t
-on duplicate key update
-    id_estado_unidad = values(id_estado_unidad),
-    nombre_unidad = values(nombre_unidad),
-    za1_id = values(za1_id),
-    salesforce_id = values(salesforce_id),
-    piso = values(piso),
-    tipo = values(tipo),
-    codigo_planta = values(codigo_planta),
-    id_tipo = values(id_tipo),
-    localizacion = values(localizacion),
-    observacion_apto = values(observacion_apto),
-    fecha_fec = values(fecha_fec),
-    fecha_edi = values(fecha_edi),
-    fecha_edi_mostrar = values(fecha_edi_mostrar),
-    inv_terminado = values(inv_terminado),
-    num_alcobas = values(num_alcobas),
-    num_banos = values(num_banos),
-    area_privada_cub = values(area_privada_cub),
-    area_privada_lib = values(area_privada_lib),
-    area_total = values(area_total),
-    acue = values(acue),
-    area_total_mas_acue = values(area_total_mas_acue),
-    valor_separacion = values(valor_separacion),
-    valor_acabados = values(valor_acabados),
-    valor_reformas = values(valor_reformas),
-    valor_descuento = values(valor_descuento),
-    valor_complemento = values(valor_complemento),
-    pate = values(pate),
-    id_cuenta_convenio = values(id_cuenta_convenio),
-    asoleacion = values(asoleacion),
-    altura = values(altura),
-    id_clase = values(id_clase),
-    id_lista = values(id_lista),
-    cerca_porteria = values(cerca_porteria),
-    cerca_juegos_infantiles = values(cerca_juegos_infantiles),
-    cerca_piscina = values(cerca_piscina),
-    tiene_balcon = values(tiene_balcon),
-    tiene_parq_sencillo = values(tiene_parq_sencillo),
-    tiene_parq_doble = values(tiene_parq_doble),
-    tiene_deposito = values(tiene_deposito),
-    tiene_acabados = values(tiene_acabados),
-    id_agrupacion = values(id_agrupacion),
-    updated_by = @Usuario,
-    updated_on = current_timestamp; */
 
-
-
-/* update tmp_unidades a
+update tmp_unidades a
 left join dim_tipo_proyecto tp on trim(a.clase) = tp.tipo_proyecto
 join fact_unidades b on a.id_torre = b.id_torre and a.apartamento = b.numero_apartamento 
     and b.id_proyecto = @id_proyecto and tp.id_tipo_proyecto = b.id_clase
@@ -337,6 +217,6 @@ join tmp_unidades t on t.id_unidad = u.id_unidad
 join dim_agrupacion_unidad au on au.id_proyecto = @id_proyecto and au.nombre = trim(t.agrupacion)
 set u.id_agrupacion = au.id_agrupacion
 where t.agrupacion is not null
-    and trim(t.agrupacion) <> '' and (u.id_agrupacion is null or u.id_agrupacion <> au.id_agrupacion); */
+    and trim(t.agrupacion) <> '' and (u.id_agrupacion is null or u.id_agrupacion <> au.id_agrupacion);
 
 select 'OK' as respuesta;

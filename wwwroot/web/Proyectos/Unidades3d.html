@@ -37,22 +37,31 @@
                     </tbody>
                 </table>
             </div>
-            <div style="text-align: center;">
-                <table style="margin: 0px auto;">
-                    <tbody>
-                        <tr>
-                            <td style="text-align: left;">Total torres</td>
-                            <td style="font-weight: bold;">{{stats.torres}}</td>
-                            <td rowspan="2" style="padding: 0rem 2rem;">
-                                <button v-on:click="confirmUpload">Continuar</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: left;">Total unidades</td>
-                            <td style="font-weight: bold;">{{stats.unidades}}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div style="width: 100%; margin-top: .75rem; display: flex;">
+                <div style="display: flex; width: calc(100% / 3);">
+                    <label v-if="dataUpdate" class="check" for="partialUpd">
+                        <input type="checkbox" id="partialUpd" v-model="partialUpd" />
+                        <span class="checkmark"></span>
+                        Actualización Parcial
+                    </label>
+                </div>
+                <div style="text-align: center;  width: calc(100% / 3);">
+                    <table style="margin: 0px auto;">
+                        <tbody>
+                            <tr>
+                                <td style="text-align: left;">Total torres</td>
+                                <td style="font-weight: bold;">{{stats.torres}}</td>
+                                <td rowspan="2" style="padding: 0rem 2rem;">
+                                    <button v-on:click="confirmUpload">Continuar</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">Total unidades</td>
+                                <td style="font-weight: bold;">{{stats.unidades}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <input type="file" id="fileUpload" style="height:1.2em; width:1.2em; display:none;" accept=".csv"
@@ -1448,7 +1457,7 @@
                                     <img v-if="listFromCSV" src="../../img/ico/down-combo.png"
                                         v-bind:class="{'expanded': torre.expanded}">
                                 </div>
-                                <div class="menu-content" v-bind:class="{'open': torre.expanded}" style="padding: 0;">
+                                <div class="menu-content" v-bind:class="{'open': torre.expanded, 'blockheader': !listFromCSV}" style="padding: 0;">
                                     <table class="dataTable" style="table-layout: auto;"
                                         v-bind:class="{'editable-prices': !listFromCSV, 'readonly-prices': listFromCSV}">
                                         <thead>
@@ -1523,9 +1532,9 @@
                 </div>
             </div>
             <div style="display: flex; justify-content: space-evenly; margin-top: 1rem;">
+                <button class="closeListModal" @click="closeListModal">Volver</button>
                 <button v-if="listFromCSV" @click="confirmUploadList">Guardar</button>
-                <button v-else class="closeListModal" @click="closeListModal">Volver</button>
-                <button v-if="!listFromCSV" @click="updatePrices">Guardar</button>
+                <button v-else @click="updatePrices">Guardar</button>
             </div>
         </div>
     </div>
