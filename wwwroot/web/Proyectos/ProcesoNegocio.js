@@ -17,7 +17,7 @@ export default {
                 "Detalle y Forma de Pago",
             ],
             camposPorSubmode: {
-                0: ["nombres", "apellido1", "apellido2", "fechaNacimiento", "direccion", "ciudad", "barrio", "departamento", "pais", "email1", "email2", "telefono1", "telefono2", "tipoDocumento", "numeroDocumento", "paisExpedicion", "departamentoExpedicion", "ciudadExpedicion", "fechaExpedicion"],
+                0: ["nombres", "apellido1", "apellido2", "fechaNacimiento", "direccion", "ciudad", "barrio", "departamento", "pais", "email1", "email2", "telefono1", "telefono2", "tipoDocumento", "numeroDocumento", "paisExpedicion", "departamentoExpedicion", "ciudadExpedicion", "fechaExpedicion", "nombre_familiar", "parentesco_familiar", "telefono_familiar"],
                 1: ["id_tipo_registro", "id_modo_atencion", "id_categoria", "id_medio", "id_motivo_compra", "id_presupuesto_vivienda", "id_referencia", "descripcion"],
                 2: [],
                 3: [],
@@ -62,7 +62,11 @@ export default {
                 pais_tel1: 'co',
                 pais_tel2: 'co',
                 codigo_tel1: '+57',
-                codigo_tel2: '+57'
+                codigo_tel2: '+57',
+                nombre_familiar: '',
+                parentesco_familiar: '',
+                telefono_familiar: '',
+                email_familiar: ''
             },
             ObjClienteOpcional: {
                 id_cliente: '',
@@ -96,7 +100,11 @@ export default {
                 pais_tel1: 'co',
                 pais_tel2: 'co',
                 codigo_tel1: '+57',
-                codigo_tel2: '+57'
+                codigo_tel2: '+57',
+                nombre_familiar: '',
+                parentesco_familiar: '',
+                telefono_familiar: '',
+                email_familiar: ''
             },
             ObjVisita: {
                 id_proyecto: '',
@@ -1928,10 +1936,6 @@ export default {
                 const fechaHoy = new Date().toISOString().split("T")[0];
 
                 this.camposBloqueados = fechaRegistro !== fechaHoy;
-
-                if (this.camposBloqueados) {
-                    showMessage('Este registro no es del día de hoy. Solo puede visualizar la información.');
-                }
             } catch (error) {
                 console.error('Error al editar visita:', error);
                 showMessage('Error al cargar la visita.');

@@ -15,7 +15,7 @@
     <div class="pure-u-1-24"></div>
     <div class="pure-u-1-24"></div>
     <div class="pure-u-22-24 menuCard"
-        :style="'height: calc(100vh - 14rem); overflow-y: auto; padding: 1em 1em 0 1em !important;' + (mode == 3 && esOpcionGuardada ? ' border: 2px solid rgb(245, 158, 11); background-color: rgba(254, 243, 199, 0.05);' : '')">
+        :style="'height: calc(100vh - 13rem); overflow-y: auto; padding: 1em 1em 0 1em !important;' + (mode == 3 && esOpcionGuardada ? ' border: 2px solid rgb(245, 158, 11); background-color: rgba(254, 243, 199, 0.05);' : '')">
         <!-- ----------------------------------------------------------------- -->
         <!-- ----------------------------- Bienvenida------------------------- -->
         <!-- ----------------------------------------------------------------- -->
@@ -210,6 +210,41 @@
                                         <input type='date' v-model='ObjCliente.fechaExpedicion' maxlength='100' placeholder="Seleccione" />
                                     </div>
                                 </div>
+                                <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="font-size: 1.3em;">
+                                    Información Familiar
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Nombre del Familiar</span>
+                                        <input type='text' v-model='ObjCliente.nombre_familiar' maxlength='200' placeholder="Ingrese nombre completo" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Parentesco</span>
+                                        <select v-model='ObjCliente.parentesco_familiar'>
+                                            <option value='' selected>Seleccione</option>
+                                            <option value='Cónyuge'>Cónyuge</option>
+                                            <option value='Hijo/a'>Hijo/a</option>
+                                            <option value='Padre'>Padre</option>
+                                            <option value='Madre'>Madre</option>
+                                            <option value='Hermano/a'>Hermano/a</option>
+                                            <option value='Otro'>Otro</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Teléfono del Familiar</span>
+                                        <input type='text' v-model='ObjCliente.telefono_familiar' maxlength='12' @input="validarNumero" placeholder="Ingrese teléfono" />
+                                    </div>
+                                </div>
+                                <div class='pure-u-1-1 pure-u-md-1-6'>
+                                    <div class='formInputStandard'>
+                                        <span>Email del Familiar (Opcional)</span>
+                                        <input type='email' v-model='ObjCliente.email_familiar' maxlength='100' placeholder="correo@ejemplo.com" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -387,10 +422,13 @@
                     </table>
                 </div>
             </div>
-            <div>
-                <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
-                    <span style="font-size: 1.5em;">Tipo de Registro (referido a la visita seleccionada en la
-                        tabla)</span>
+            <div :class="{ 'registro-bloqueado': camposBloqueados }">
+                <div v-if="camposBloqueados" class="banner-solo-lectura">
+                    <span class="icono">📋</span>
+                    <span class="texto">Registro de solo lectura - Este registro no es del día de hoy y no puede ser modificado</span>
+                </div>
+                <div class='pure-u-1-1 formDivision'>
+                    <span style="font-size: 1.2em;">Tipo de Registro (referido a la visita seleccionada en la tabla)</span>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-1'>
                     <div class='formInputStandard'>
@@ -408,7 +446,7 @@
                     </div>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
-                    <span style="font-size: 1.5em;">Motivo de atención (referido a la visita seleccionada in la tabla)</span>
+                    <span style="font-size: 1.2em;">Motivo de atención (referido a la visita seleccionada in la tabla)</span>
                 </div>
                 <div class="pure-u-1-1 pure-u-md-1-1">
                     <div class="formInputStandard">
@@ -459,8 +497,7 @@
                     </div>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-1 formDivision'>
-                    <span style="font-size: 1.5em;">Otra información (referido a la visita seleccionada en la
-                        tabla)</span>
+                    <span style="font-size: 1.2em;">Otra información (referido a la visita seleccionada en latabla)</span>
                 </div>
                 <div class='pure-u-1-1 pure-u-md-1-5'>
                     <div class='formInputStandard'>
@@ -553,7 +590,7 @@
                                 <th class="col-1-6">Cotización</th>
                                 <th class="col-1-6">Fecha</th>
                                 <th class="col-3-6">Descripción</th>
-                                <th class="col-1-6" title="Importe Menos Descuento Base.">Importe Menos Descuento Base</th>
+                                <th class="col-1-6" title="Importe Base.">Importe Base</th>
                                 <th class="col-1-6">Status</th>
                                 <th class="col-1-6">Eliminar</th>
                             </tr>
@@ -2307,8 +2344,8 @@
             </table>
         </div>
     </div>
-    <div class="pure-u-1 pure-u-md-1-1">
-        <div v-if="mostrarModalCliente" class="tabla-modal-overlay">
+    <div class="pure-u-1 pure-u-md-1-1" v-if="mostrarModalCliente">
+        <div class="tabla-modal-overlay">
             <div class="tabla-modal-box">
                 <span class="asunto-modal-close" @click="mostrarModalCliente = false">×</span>
                 <h3>Agregar Cliente</h3>
@@ -2546,8 +2583,8 @@
     <!-- ----------------------------- Global------------------------- -->
     <!-- ------------------------------------------------------------ -->
     <div class="pure-u-1-1" v-if="iscliente">
-        <div class="pure-g" style="justify-content: center; gap: 1em; display: flex;">
-            <div v-if="mode >= 0 && mode <= 1" class="pure-u-auto">
+        <div class="pure-g" style="justify-content: center; gap: 1em; display: flex; margin-top: .5em;">
+            <div v-if="mode >= 0 && mode <= 1 && !camposBloqueados" class="pure-u-auto">
                 <button class="pure-button button-fixed" @click="handleSave">
                     {{ (mode == 1 && ObjVisita.id_visita && !camposBloqueados) ? 'Editar' : 'Guardar' }}
                 </button>

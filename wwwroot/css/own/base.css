@@ -4695,3 +4695,31 @@ tr.cal-row-info > td {
 .btn-davivienda:hover {
   background-color: #FF3A44 !important; 
 }
+
+.registro-bloqueado {
+    border: 1px solid #FF8C00 !important;
+    background: linear-gradient(to right, rgba(255, 140, 0, 0.04) 0%, rgba(255, 140, 0, 0) 100%);
+    margin-top: .1rem;
+}
+
+.banner-solo-lectura {
+    background: linear-gradient(90deg, #FF8C00 0%, #FFA500 100%);
+    color: white;
+    padding: 0.3rem;
+    margin: 0 0 0.3rem 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 500;
+    font-size: 0.85em;
+    box-shadow: 0 1px 3px rgba(255, 140, 0, 0.2);
+}
+
+.banner-solo-lectura .icono {
+    font-size: 1em;
+    line-height: 1;
+}
+
+.banner-solo-lectura .texto {
+    line-height: 1.2;
+}
