@@ -45,15 +45,17 @@ create table dim_estado_unidad(
 	color_fondo varchar(20),
 	color_fuente varchar(20),
 	is_active bit default 1,
+	is_virtual bit default 0,
 	created_on datetime default current_timestamp,
 	created_by varchar(200) default current_user,
 	constraint chk_estado_unidad_no_vacio check (trim(estado_unidad) <> '')
 );
-insert into dim_estado_unidad(id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente) values
-(1, 'Libre','Libres', '#FFFFFF', '#000000'),
-(2, 'Opcionado','Opcionados', '#0094b9', '#FFFFFF'),
-(3, 'Consignado','Consignados', '#0c62a4', '#FFFFFF'),
-(4, 'Vendido','Vendidos', '#173d5b', '#FFFFFF');
+insert into dim_estado_unidad(id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente, is_virtual) values
+(1, 'Libre','Libres', '#FFFFFF', '#000000', 0),
+(2, 'Opcionado','Opcionados', '#0094b9', '#FFFFFF', 0),
+(3, 'Consignado','Consignados', '#0c62a4', '#FFFFFF', 0),
+(4, 'Vendido','Vendidos', '#173d5b', '#FFFFFF', 0),
+(5, 'Opcionado (virt)', 'Opcionados (virt)', '#0094b9', '#FFFFFF', 1);
 
 create table dim_cuenta_convenio(
 	id_cuenta_convenio int not null auto_increment,

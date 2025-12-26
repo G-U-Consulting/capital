@@ -2234,6 +2234,13 @@
                             <span>Fuente</span>
                             <input type="color" v-model="color.color_fuente" />
                         </div>
+                        <div class="formInputStandard pure-u-1-2 pure-u-md-1-6" style="text-align: center;">
+                            <label class="check" for="is_virtual" style="margin-top: 1.8rem;">
+                                <input type="checkbox" id="is_virtual" v-model="color.is_virtual" true-value="1" false-value="0" />
+                                <span class="checkmark"></span>
+                                Virtual
+                            </label>
+                        </div>
                         <div class="formInputStandard pure-u-1-2 pure-u-md-1-4">
                             <div style="display: block; margin-bottom: 0.3rem; height: 1.3rem;"></div>
                             <button v-on:click="onSave()">Guardar</button>

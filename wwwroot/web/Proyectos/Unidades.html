@@ -94,7 +94,7 @@
                             <div style="align-self: center;">
                                 <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
                             </div>
-                            <div v-for="e in [...estados].reverse()">
+                            <div v-for="e in [...estados].reverse().filter(e => e.is_virtual == '0')">
                                 <div class="cal-event-count" :style="`background: ${e.color_fondo}`">
                                     <span :style="`color: ${e.color_fuente}`">
                                         {{aptos.filter(a => a.id_estado_unidad === e.id_estado_unidad

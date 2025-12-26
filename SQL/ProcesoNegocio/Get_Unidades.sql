@@ -67,7 +67,7 @@ where u.id_proyecto = @id_proyecto
 order by u.numero_apartamento;
 
 
-select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente
+select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente, is_virtual
 from dim_estado_unidad
 where is_active = 1;
 

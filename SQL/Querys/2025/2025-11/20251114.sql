@@ -20,3 +20,12 @@ create table dim_log_salesforce(
   id_cola_tareas_rpa int not null unique references cola_tareas_rpa(id_cola_tareas_rpa),
   sincronizada bit not null
 );
+
+create table dim_lista_restrictiva(
+  id_lista int primary key auto_increment,
+  id_opcion int not null references fact_opcion(id_opcion),
+  id_cliente int not null references fact_clientes(id_cliente),
+  created_on datetime default current_timestamp,
+  resultados text,
+  unique(id_opcion, id_cliente)
+);

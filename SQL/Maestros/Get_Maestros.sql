@@ -79,7 +79,7 @@ from dim_email_receptor
 where is_active = 1
 order by id_email;
 
-select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente, is_active
+select id_estado_unidad, estado_unidad, estado_unidad_plural, color_fondo, color_fuente, is_active, is_virtual
 from dim_estado_unidad
 order by estado_unidad;
 

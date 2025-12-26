@@ -335,8 +335,11 @@
         <!-- ----------------------------- Registro--------------------------- -->
         <!-- ----------------------------------------------------------------- -->
         <div class="pure-g" v-if="mode == 1">
-            <div class='pure-u-1-1' style="font-size: 1.6em;">
+            <div class='pure-u-4-5' style="font-size: 1.6em;">
                 {{ ObjCliente.nombres + " " + ObjCliente.apellido1 + " " +  ObjCliente.apellido2 }}
+            </div>
+            <div class='pure-u-1-5' style="text-align: right;">
+                <button @click="showRotafolio">Ver Rotafolio</button>
             </div>
             <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index" :class="[
                 'tab-registro', { active: activeTab === index },{ 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }]">

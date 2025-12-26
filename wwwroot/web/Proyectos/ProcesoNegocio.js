@@ -3804,6 +3804,7 @@ export default {
 
                 let resp;
                 let mensaje;
+                let nueva = false;
 
                 if (this.id_opcion) {
                     opcionData.id_opcion = this.id_opcion;
@@ -3814,6 +3815,7 @@ export default {
                     opcionData.created_by = GlobalVariables.username;
                     resp = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Opcion', opcionData);
                     mensaje = 'Opción creada correctamente';
+                    nueva = true;
                 }
 
                 if (resp.isError) {
@@ -3860,6 +3862,15 @@ export default {
 
                 if (idOpcionFinal && this.tablaPeriodos && this.tablaPeriodos.length > 0) {
                     await this.guardarTablaAmortizacion(idOpcionFinal, false);
+                }
+
+                if (nueva) {
+                    httpFunc(`/stradata/${idOpcionFinal}/${this.ObjCliente.id_cliente}`, 
+                        {
+                            nombre: `${this.ObjCliente.nombres || ''} ${this.ObjCliente.apellido1 || ''} ${this.ObjCliente.apellido2 || ''}`,
+                            id: this.ObjCliente.numeroDocumento || '',
+                        }
+                    );
                 }
 
                 await this.eliminarBorrador();
@@ -4526,6 +4537,25 @@ export default {
                 showMessage('Error al exportar: ' + mensajeError);
             }
             hideProgress();
+        },
+        showRotafolio() {
+            const idProyecto = GlobalVariables.id_proyecto;
+            const url = './?loc=Proyectos&SubLoc=Rotafolio&id_proyecto=' + idProyecto;
+            const screenWidth = window.screen.availWidth;
+            const screenHeight = window.screen.availHeight;
+            const features = [
+                'toolbar=no',
+                'location=no',
+                'status=no',
+                'menubar=no',
+                'scrollbars=yes',
+                'resizable=yes',
+                `width=${screenWidth}`,
+                `height=${screenHeight}`,
+                'top=100',
+                'left=100'
+            ].join(',');
+            GlobalVariables.ventanaRotafolio = window.open(url, 'VentanaModuloRotafolio', features);
         }
     },
     computed: {

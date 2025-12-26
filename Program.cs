@@ -434,4 +434,15 @@ app.Map("/davivienda/{ciudad}", async (HttpContext context, string ciudad) =>
     await d.RequestDavivienda(context);
     return Results.Empty;
 });
+app.Map("/stradata/{id_opcion}/{id_cliente}", async (HttpContext context, string id_opcion, string id_cliente) =>
+{
+    string body;
+    using (var stream = new StreamReader(context.Request.Body)) {
+        body = await stream.ReadToEndAsync();
+    }
+    Stradata stradata = new(body, id_opcion, id_cliente, rootPath);
+    await stradata.Validate();
+    
+    return Results.Empty;
+});
 app.Run();
