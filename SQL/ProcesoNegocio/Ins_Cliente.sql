@@ -32,7 +32,8 @@ set
     @pais_tel1 = NULL,
     @codigo_tel1 = NULL,
     @pais_tel2 = NULL,
-    @codigo_tel2 = NULL;
+    @codigo_tel2 = NULL,
+    @observaciones = '';
 --END_PARAM
 
 if (@is_atencion_rapida = 1) then
@@ -78,13 +79,13 @@ else
         pais, email1, email2, telefono1, telefono2, tipo_documento, numero_documento,
         pais_expedicion, departamento_expedicion, ciudad_expedicion, fecha_expedicion,
         is_politica_aceptada, is_atencion_rapida, is_titular, nombre_empresa, nit,
-        fecha_nacimiento, porcentaje_copropiedad, pais_tel1, codigo_tel1, pais_tel2, codigo_tel2
+        fecha_nacimiento, porcentaje_copropiedad, pais_tel1, codigo_tel1, pais_tel2, codigo_tel2, observaciones
     ) values (
         @nombres, @apellido1, @apellido2, @direccion, @ciudad, @barrio, @departamento,
         @pais, @email1, @email2, @telefono1, @telefono2, @tipoDocumento, @numeroDocumento,
         @paisExpedicion, @departamentoExpedicion, @ciudadExpedicion, if(@fechaExpedicion = '', null, @fechaExpedicion),
         @isPoliticaAceptada, @is_atencion_rapida, @is_titular, @nombreEmpresa, @nit,
-        if(@fechaNacimiento = '', null, @fechaNacimiento), @porcentaje_copropiedad, @pais_tel1, @codigo_tel1, @pais_tel2, @codigo_tel2
+        if(@fechaNacimiento = '', null, @fechaNacimiento), @porcentaje_copropiedad, @pais_tel1, @codigo_tel1, @pais_tel2, @codigo_tel2, @observaciones
     )
     on duplicate key update
         nombres = values(nombres),
@@ -115,6 +116,7 @@ else
         codigo_tel1 = values(codigo_tel1),
         pais_tel2 = values(pais_tel2),
         codigo_tel2 = values(codigo_tel2),
+        observaciones = values(observaciones),
         id_cliente = last_insert_id(id_cliente);
 
     if @old_id = 0 then 

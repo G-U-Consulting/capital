@@ -18,6 +18,7 @@ create table fact_clientes (
     pais_tel2 char(2),
     codigo_tel2 varchar(5),
     descripcion text,
+    observaciones text,
 
     tipo_documento varchar(50),
     numero_documento varchar(50),

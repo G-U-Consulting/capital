@@ -35,7 +35,8 @@ select
     a.nit,
     a.is_titular,
     a.nombre_empresa,
-    a.porcentaje_copropiedad
+    a.porcentaje_copropiedad,
+    a.observaciones
 from fact_clientes a
 where a.is_active = 1
   and @cliente != ''
