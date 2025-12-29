@@ -166,6 +166,11 @@
         jsUrl: "./web/GestClientes/Vetos.js",
         allow: ["*"]
     },
+    "GCLRestrictiva": {
+        templateUrl: "./web/GestClientes/ListaRestrictiva.html",
+        jsUrl: "./web/GestClientes/ListaRestrictiva.js",
+        allow: ["*"]
+    },
     "GPTrazabilidad": {
         templateUrl: "./web/GestProyectos/Trazabilidad.html",
         jsUrl: "./web/GestProyectos/Trazabilidad.js",

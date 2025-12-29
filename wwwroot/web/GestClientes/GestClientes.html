@@ -49,6 +49,11 @@
                     <img src="./img/ico/svg/sidebar/Clientes.svg" />
                     Vetos
                 </div>
+                <div v-on:click="setMainMode('GCLRestrictiva')" class="lateralMenuItem noSelect"
+                    v-bind:class="{'lateralMenuItemSelected': mainmode == 'GCLRestrictiva'}">
+                    <img src="./img/ico/svg/sidebar/Clientes.svg" />
+                    Listas Restrictivas
+                </div>
             </div>
 
         </div>

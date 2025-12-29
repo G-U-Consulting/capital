@@ -4723,3 +4723,141 @@ tr.cal-row-info > td {
 .banner-solo-lectura .texto {
     line-height: 1.2;
 }
+
+.sds-flex {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  gap: 16px;
+}
+
+.sds-card {
+  background: #f3f3f3;
+  border: 1px solid #a5a5a5;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  margin-bottom: .5rem;
+}
+.sds-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.3s ease;
+}
+
+.sds-card-header {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sds-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #173d5b, #0c62a4);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #f1f9fa;
+  border: 1px solid #003b47;
+  flex-shrink: 0;
+}
+
+.sds-name {
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.sds-meta {
+  color: #000000;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.sds-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0 12px;
+}
+
+.sds-chip {
+  background: #f1f9fa;
+  border: 1px solid #003b47;
+  color: #181818;
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 999px;
+}
+
+.sds-rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sds-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 5px;
+}
+
+.sds-label {
+  color: #000000;
+  font-size: 12px;
+}
+
+.sds-value {
+  font-size: 14px;
+  color: #181818;
+  word-break: break-word;
+}
+
+.sds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #003b47;
+  background: #f1f9fa;
+}
+
+.sds-risk-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.sds-risk-Alto {
+  background: #e74c3c;
+}
+
+.sds-risk-Medio {
+  background: #f39c12;
+}
+
+.sds-risk-Bajo {
+  background: #2ecc71;
+}
+
+.sds-progress {
+  height: 8px;
+  background: #1b2034;
+  border: 1px solid #003b47;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sds-progress>span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #0c62a4, #173d5b);
+  width: 0%;
+}
