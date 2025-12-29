@@ -4583,7 +4583,7 @@ tr.cal-row-info > td {
 .add-chip-modern {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 61px;
     background: #f5f7fb;
     padding: 8px 14px;
     border-radius: 14px;

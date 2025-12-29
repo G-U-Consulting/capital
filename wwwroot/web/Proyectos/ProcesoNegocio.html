@@ -710,33 +710,18 @@
                 Reformas, Acabados, Descuento
             </div>
             <div class="pure-u-1 pure-u-md-1-1">
-                <!-- <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>¿Con acabados y Reformas?</span>
-                        <div class="checkbox-center">
-                            <label class="check">
-                                <input type="checkbox" v-model="reformaActivo" :disabled="esOpcionGuardada || reformaAct || modoSoloLectura"/>
-                                <span class="checkmark"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div> -->
                 <div class="pure-u-1 pure-u-md-1-8">
-                    <div class="formInputStandard">
-                        <span>Reformas</span>
+                    <div class="formInputStandard" v-show="valor_reformas != 0 && valor_reformas != '' && valor_reformas != null">
+                        <span>Reformas <span v-if="reformaActivo" style="color: red; font-weight: bold;">(IT)</span></span>
                         <input type="text" style="text-align: right;" v-model="f_valor_reformas" @keyup="validarFormato"
-                            disabled />
+                            :disabled="esOpcionGuardada || modoSoloLectura || reformaActivo" />
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-8">
-                    <div class="formInputStandard">
-                        <span>Acabados</span>
-                        <input type="text" style="text-align: right;" v-model="f_valor_acabados" @keyup="validarFormato" disabled/>
-                    </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-24">
-                    <div class="formInputStandard">
-                        <span style="color: red; font-weight: bold;text-align: center; margin-top: 2rem;">IT</span>
+                    <div class="formInputStandard" v-show="valor_acabados != 0 && valor_acabados != '' && valor_acabados != null">
+                        <span>Acabados <span v-if="reformaActivo" style="color: red; font-weight: bold;">(IT)</span></span>
+                        <input type="text" style="text-align: right;" v-model="f_valor_acabados" @keyup="validarFormato"
+                            :disabled="esOpcionGuardada || modoSoloLectura || reformaActivo"/>
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
@@ -748,12 +733,18 @@
                 </div>
                 <div class="pure-u-1 pure-u-md-3-8">
                     <div class="formInputStandard">
-                        <span>Descripción Descuento Adicional</span>
+                        <span class="info-container">
+                            Descripción Descuento Adicional
+                            <i class="info-icon">ⓘ</i>
+                            <div class="tooltip-opc">
+                                Debe ser aprobado por la dirección comercial.
+                            </div>
+                        </span>
                         <input type="text"/>
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-8">
-                    <div class="formInputStandard" style="display: flex; align-items: flex-end;">
+                <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.1rem; ">
+                    <div class="formInputStandard" style="display: flex; align-items: flex-end; text-align: right;">
                         <div class="add-chip-modern" style="width: 100%;" @click="!(esOpcionGuardada || modoSoloLectura) && abrirModalCliente()" :style="(esOpcionGuardada || modoSoloLectura) ? 'opacity: 0.5; cursor: not-allowed;' : ''">
                             <span>Agregar Cliente</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -935,7 +926,7 @@
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-1">
-                    <div class="pure-u-1 pure-u-md-1-7" style="margin-top: 1.5em">
+                    <!-- <div class="pure-u-1 pure-u-md-1-7" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;"
                                 v-show="pagoSeleccionado === 'financiado'">
@@ -944,8 +935,8 @@
                                 Subsidio
                             </label>
                         </div>
-                    </div>
-                    <div class="pure-u-1 pure-u-md-1-6">
+                    </div> -->
+                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && valor_acabados == 0">
                         <div class="formInputStandard">
                             <span>
                                 Año Entrega
@@ -960,14 +951,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && valor_acabados == 0">
                         <div class="formInputStandard">
                             <span>Valor Subsidio</span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(valor_subsidio)" readonly
                                 :disabled="esOpcionGuardada || pagoSeleccionado === 'contado'" />
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && valor_acabados == 0">
                         <div class="formInputStandard">
                             <span>Caja de compensación:</span>
                             <select v-model="caja_compensacion" style="width: 100%;"
@@ -983,9 +974,11 @@
                     <div class="pure-u-1 pure-u-md-1-6">
                         <div class="formInputStandard">
                             <span class="detalle-label" style="margin: 1.5rem;"></span>
-                            <span class="info-container modern-info">
-                                <span class="info-dot" @click="detalle = true">Ver Detalles ⓘ</span>
-                                <div v-if="detalle" class="modal-overlay" @click.self="detalle = false">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="detalle" class="modal-overlay" @click.self="detalle = false">
                                     <div class="modal-card-large">
                                         <div class="modal-header">
                                             <h2>Detalles del cálculo</h2>
@@ -1370,16 +1363,12 @@
                                                     Permite identificar si los ingresos son suficientes para financiar
                                                     el 70% del inmueble.
                                                 </div>
-                                        
+
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </span>
-                        </div> 
-                    </div>
-                </div>
-            </div>
+
             <div class="pure-u-1-1 formDivision" style="font-size: 1.2em; display: flex;">
                 <div class="pure-u-1 pure-u-md-1-2">
                     <span style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -1490,41 +1479,50 @@
                     </div>
                 </div>
             </div>
-            <div class='pure-u-1-1 formDivision' style="font-size: 1em;">
-                Escrituración
-            </div>
-            <div class="pure-u-1 pure-u-md-1-6">
-                <div class="formInputStandard">
-                     <span class="info-container">
-                        Gastos de Escritura
-                        <i class="info-icon">ⓘ</i>
-                        <div class="tooltip-opc">
-                            Nota: (1) Este valor de gastos notariales es aproximado. El valor final podría variar dependiendo de los anexos que
-                            lleve la escritura, las autenticaciones y biometrias de la misma. (2) Si el cliente quiere afectar el inmueble como
-                            vivienda familiar el valor se debe incrementar en $200.000.
-                        </div>
-                    </span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_escrituras" @keyup="validarFormato" disabled/>
+            <div v-if="!subsidioActivo">
+                <div class='pure-u-1-1 formDivision' style="font-size: 1em;">
+                    Escrituración
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                         <span class="info-container">
+                            Gastos de Escritura
+                            <i class="info-icon">ⓘ</i>
+                            <div class="tooltip-opc">
+                                Nota: (1) Este valor de gastos notariales es aproximado. El valor final podría variar dependiendo de los anexos que
+                                lleve la escritura, las autenticaciones y biometrias de la misma. (2) Si el cliente quiere afectar el inmueble como
+                                vivienda familiar el valor se debe incrementar en $200.000.
+                            </div>
+                        </span>
+                        <input type="text" style="text-align: right;" v-model="f_valor_escrituras" @keyup="validarFormato" disabled/>
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span>Notariales:</span>
+                        <input type="text" style="text-align: right;" v-model="f_valor_notariales" @keyup="validarFormato" :disabled="esOpcionGuardada" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span>Beneficiencia:</span>
+                        <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span>Registro:</span>
+                        <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
+                    </div>
+                </div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard">
+                        <span style="visibility: hidden;">-</span>
+                        <button @click="detalle = true">Ver detalle</button>
+                    </div>
                 </div>
             </div>
-            <div class="pure-u-1 pure-u-md-1-6">
-                <div class="formInputStandard">
-                    <span>Notariales:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_notariales" @keyup="validarFormato" :disabled="esOpcionGuardada" />
-                </div>
-            </div>
-            <div class="pure-u-1 pure-u-md-1-6">
-                <div class="formInputStandard">
-                    <span>Beneficiencia:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
-                </div>
-            </div>
-            <div class="pure-u-1 pure-u-md-1-6">
-                <div class="formInputStandard">
-                    <span>Registro:</span>
-                    <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
-                </div>
-            </div>
+
             <div class="pure-u-1 pure-u-md-1-1">
                 <div v-if="tablaAmortizacion" class="tabla-modal-overlay">
                     <div class="tabla-modal-box" style="position: relative;">
