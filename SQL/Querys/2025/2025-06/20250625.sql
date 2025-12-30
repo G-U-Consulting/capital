@@ -130,6 +130,7 @@ create table fact_unidades(
 	valor_descuento  decimal(20, 2),
 	valor_complemento decimal(20, 2),
 	pate varchar(50),
+	encargo_fiduciario varchar(50),
 	id_cuenta_convenio int,
 	constraint fk_id_cuenta_convenio_fact_unidades foreign key(id_cuenta_convenio) references dim_cuenta_convenio(id_cuenta_convenio),
 	asoleacion varchar(50),
@@ -153,7 +154,6 @@ create table fact_unidades(
 	id_agrupacion int references dim_agrupacion_unidad(id_agrupacion),
 	constraint uk_unidad_torre_proyecto unique(numero_apartamento, id_torre, id_proyecto, id_clase)
 );
-alter table fact_unidades add column id_clase int references dim_tipo_proyecto(id_tipo_proyecto);
 create table dim_precio_unidad(
 	id_lista int not null references dim_lista_precios(id_lista),
 	id_unidad int not null references fact_unidades(id_unidad),

@@ -27,5 +27,6 @@ create table dim_lista_restrictiva(
   id_cliente int not null references fact_clientes(id_cliente),
   created_on datetime default current_timestamp,
   resultados text,
+  is_active bit default 1,
   unique(id_opcion, id_cliente)
 );

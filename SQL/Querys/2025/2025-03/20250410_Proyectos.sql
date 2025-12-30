@@ -222,7 +222,7 @@ create table fact_proyectos(
 	email_cotizaciones varchar(200),
 	meta_ventas int,
 	email_coordinacion_sala varchar(200),
-	centro_costos varchar(50),
+	centro_costos varchar(4),
 	id_pie_legal int,
 	constraint fk_id_pie_legal_fact_proyectos foreign key(id_pie_legal) references dim_pie_legal(id_pie_legal),
 	id_fiduciaria int,

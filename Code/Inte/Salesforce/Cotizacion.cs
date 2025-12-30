@@ -204,7 +204,7 @@ public class Cotizacion : Salesforce<Cotizacion>
             upd["id_negocios_unidades"] = _id_negocios_unidades;
             upd["opportunity_id"] = opportunity_id;
             try {
-                await Generic.ProcessRequest(null, null, "genericST", "integraciones/Upd_Cotizacion", JsonConvert.SerializeObject(upd), rootPath);
+                await Generic.ProcessRequest(null, null, "genericST", "Integraciones/Upd_Cotizacion", JsonConvert.SerializeObject(upd), rootPath);
             }
             catch (Exception ex)
             {

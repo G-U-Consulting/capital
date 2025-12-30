@@ -8,8 +8,8 @@
 select id_proyecto, nombre
 from fact_proyectos;
 
-select l.id_cliente, l.id_opcion, l.resultados, date_format(l.created_on, '%Y-%m-%d') as created_on, 
-    c.numero_documento, p.id_proyecto, p.nombre as proyecto,
+select l.id_lista, l.id_opcion, l.resultados, date_format(l.created_on, '%Y-%m-%d') as created_on, 
+    l.is_active, l.id_cliente, c.numero_documento, p.id_proyecto, p.nombre as proyecto,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre
 from dim_lista_restrictiva l
 join fact_clientes c on l.id_cliente = c.id_cliente

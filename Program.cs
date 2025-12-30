@@ -445,4 +445,10 @@ app.Map("/stradata/{id_opcion}/{id_cliente}", async (HttpContext context, string
     
     return Results.Empty;
 });
+app.Map("/avisor/{id_opcion}", async (HttpContext context, string id_opcion) =>
+{
+    Avisor avisor = await Avisor.GetInstance(id_opcion, rootPath);
+    string link = await avisor.GenerarLink();
+    return link;
+});
 app.Run();

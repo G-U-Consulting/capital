@@ -1,4 +1,3 @@
-using System;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -9,7 +8,6 @@ using IniParser.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using orca.Code.Logger;
-using Microsoft.AspNetCore.Http;
 
 namespace capital.Code.Inte.Davivienda;
 

@@ -3,7 +3,7 @@
 -- =============================================
 --START_PARAM
 set @id_cliente = NULL,
-    @id_opcion = 80,
+    @id_opcion = NULL,
     @resultados = NULL;
 --END_PARAM
 

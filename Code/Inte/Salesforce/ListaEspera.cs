@@ -114,7 +114,7 @@ public class ListaEspera : Salesforce<ListaEspera>
             upd["id_lista"] = _id_lista;
             upd["salesforce_id"] = waiting_list_id;
             try {
-                await Generic.ProcessRequest(null, null, "genericST", "integraciones/Upd_ListaEspera", JsonConvert.SerializeObject(upd), rootPath);
+                await Generic.ProcessRequest(null, null, "genericST", "Integraciones/Upd_ListaEspera", JsonConvert.SerializeObject(upd), rootPath);
             }
             catch (Exception ex)
             {

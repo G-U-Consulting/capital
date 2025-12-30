@@ -66,10 +66,11 @@
                 <thead>
                     <tr>
                         <th style="width: 12%;">ID Opción</th>
-                        <th style="width: 40%;">Nombre</th>
+                        <th style="width: 33%;">Nombre</th>
                         <th style="width: 14%;">Documento</th>
                         <th style="width: 14%;">Fecha</th>
-                        <th style="width: 20%;">Proyecto</th>
+                        <th style="width: 17%;">Proyecto</th>
+                        <th style="width: 10%;">Bloqueado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,6 +80,7 @@
                         <td>{{l.numero_documento}}</td>
                         <td>{{l.created_on}}</td>
                         <td>{{l.proyecto}}</td>
+                        <td style="text-align: center;">{{l.is_active == '1' ? 'Sí' : 'No'}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -163,7 +165,7 @@
         </div>
         <div style="display: flex; width: 100%; justify-content: center; gap: 1rem; margin-top: .5rem;">
             <button @click="closeModal()">Volver</button>
-            <button @click="onDelete">Desbloquear</button>
+            <button v-if="lista.is_active == '1'" @click="onDelete">Desbloquear</button>
         </div>
     </div>
 </div>

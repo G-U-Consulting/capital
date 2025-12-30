@@ -51,18 +51,19 @@ export default {
             let item = this.filtros[table];
             item = Object.keys(item).forEach((key) => item[key] = '');
         },
-        async onDelete(lista) {
-            /* showProgress();
+        async onDelete() {
+            showProgress();
             let res = null;
             try {
-                res = await httpFunc('/generic/genericST/Clientes:Del_Veto', { id_veto: veto.id_veto });
+                res = await httpFunc('/generic/genericST/Clientes:Del_ListaRestrictiva', { id_lista: this.lista.id_lista });
                 if (res.isError || res.data !== 'OK') throw res;
                 this.loadData();
+                this.closeModal();
             } catch (e) {
                 console.error(e);
                 showMessage('Error: ' + e.errorMessage || e.data);
             }
-            hideProgress(); */
+            hideProgress();
         },
         reqOperation(msg, okCallback, cancelCallback, item, textOk, textCancel) {
             showConfirm(msg, okCallback, cancelCallback, item, textOk, textCancel);

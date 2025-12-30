@@ -1,10 +1,5 @@
-
-
-using System.Linq;
 using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using orca.Code.Api;
@@ -62,6 +57,6 @@ public class Stradata(string body, string id_opcion, string id_cliente, string r
         obj["id_cliente"] = id_cliente;
         obj["id_opcion"] = id_opcion;
         obj["resultados"] = resultados;
-        await Generic.ProcessRequest(null, null, "genericST", "clientes/Ins_ListaRestrictiva", JsonConvert.SerializeObject(obj), rootPath);
+        await Generic.ProcessRequest(null, null, "genericST", "Clientes/Ins_ListaRestrictiva", JsonConvert.SerializeObject(obj), rootPath);
     }
 }

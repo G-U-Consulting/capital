@@ -164,7 +164,7 @@ public class Visita : Salesforce<Visita>
             upd["id_cliente"] = IdClient;
             upd["salesforce_id"] = id_salesforce;
             try {
-                await Generic.ProcessRequest(null, null, "genericST", "integraciones/Upd_Cliente", JsonConvert.SerializeObject(upd), rootPath);
+                await Generic.ProcessRequest(null, null, "genericST", "Integraciones/Upd_Cliente", JsonConvert.SerializeObject(upd), rootPath);
             }
             catch (Exception ex)
             {
