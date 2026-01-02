@@ -38,7 +38,9 @@ create temporary table tmp_unidades as(
         valor_acabados varchar(50) path '$."valor_acabados"',
         valor_reformas varchar(50) path '$."valor_reformas"',
         valor_descuento varchar(50) path '$."valor_descuento"',
+        encargo_fiduciario varchar(50) path '$."encargoFiduciario"',
         pate varchar(50) path '$."pate"',
+        num_ref_bancaria varchar(50) path '$."num_ref_bancaria"',
         cuenta_tipo varchar(50) path '$."cuenta_tipo"',
         cuenta_numero varchar(50) path '$."cuenta_numero"',
         convenio varchar(50) path '$."convenio"',
@@ -168,7 +170,7 @@ select coalesce(codigo, 'APT') into @cod_apt from dim_tipo_proyecto where id_tip
 insert into fact_unidades(
     id_proyecto, id_torre, id_estado_unidad, nombre_unidad, za1_id, salesforce_id, numero_apartamento, piso, tipo, codigo_planta, id_tipo, localizacion, observacion_apto, fecha_fec,
     fecha_edi, fecha_edi_mostrar, inv_terminado, num_alcobas, num_banos, area_privada_cub, area_privada_lib, area_total, acue, area_total_mas_acue,
-    valor_separacion, valor_acabados, valor_reformas, valor_descuento, valor_complemento, pate, id_cuenta_convenio, asoleacion, altura, id_clase, id_lista, cerca_porteria, 
+    valor_separacion, valor_acabados, valor_reformas, valor_descuento, valor_complemento, encargo_fiduciario, pate, num_ref_bancaria, id_cuenta_convenio, asoleacion, altura, id_clase, id_lista, cerca_porteria, 
     cerca_juegos_infantiles, cerca_piscina, tiene_balcon, tiene_parq_sencillo, tiene_parq_doble, tiene_deposito, tiene_acabados, id_agrupacion, created_by 
 ) 
 select distinct
@@ -207,7 +209,9 @@ select distinct
     convert(replace(t.valor_reformas, ',', '.'), decimal(20, 2)) as valor_reformas,
     convert(replace(t.valor_descuento, ',', '.'), decimal(20, 2)) as valor_descuento,
     convert(replace(t.valor_complemento, ',', '.'), decimal(20, 2)) as valor_complemento,
+    t.encargo_fiduciario as encargo_fiduciario,
     t.pate as pate,
+    t.num_ref_bancaria as num_ref_bancaria,
     t.id_cuenta_convenio as id_cuenta_convenio,
     t.asoleacion as asoleacion,
     t.altura as altura,
@@ -254,7 +258,9 @@ on duplicate key update
     valor_reformas = values(valor_reformas),
     valor_descuento = values(valor_descuento),
     valor_complemento = values(valor_complemento),
+    encargo_fiduciario = values(encargo_fiduciario),
     pate = values(pate),
+    num_ref_bancaria = values(num_ref_bancaria),
     id_cuenta_convenio = values(id_cuenta_convenio),
     asoleacion = values(asoleacion),
     altura = values(altura),

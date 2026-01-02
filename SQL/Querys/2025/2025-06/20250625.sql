@@ -131,6 +131,7 @@ create table fact_unidades(
 	valor_complemento decimal(20, 2),
 	pate varchar(50),
 	encargo_fiduciario varchar(50),
+	num_ref_bancaria varchar(50),
 	id_cuenta_convenio int,
 	constraint fk_id_cuenta_convenio_fact_unidades foreign key(id_cuenta_convenio) references dim_cuenta_convenio(id_cuenta_convenio),
 	asoleacion varchar(50),
