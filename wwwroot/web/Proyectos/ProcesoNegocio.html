@@ -338,7 +338,7 @@
                             @click="exportExcel(visitasFiltradas)" title="Descargar datos a Excel" />
                 </div>
                 <div
-                    style="height: 11rem; overflow-y: auto; margin-top: 0.1em;">
+                    style="height: 11rem; overflow-y: auto; margin-top: 0.1em; border: 1px solid #666;">
                     <table class="dataTable">
                         <thead>
                             <tr>
@@ -399,7 +399,7 @@
                     </table>
                 </div>
             </div>
-            <div :class="{ 'registro-bloqueado': camposBloqueados }">
+            <div :class="{ 'registro-bloqueado': camposBloqueados }" style="margin-top: .5rem;">
                 <div v-if="camposBloqueados" class="banner-solo-lectura">
                     <span class="icono">📋</span>
                     <span class="texto">Registro de solo lectura - Este registro no es del día de hoy y no puede ser modificado</span>
@@ -710,15 +710,15 @@
                 Reformas, Acabados, Descuento
             </div>
             <div class="pure-u-1 pure-u-md-1-1">
-                <div class="pure-u-1 pure-u-md-1-8">
-                    <div class="formInputStandard" v-show="valor_reformas != 0 && valor_reformas != '' && valor_reformas != null">
+                <div class="pure-u-1 pure-u-md-1-8" v-if="valor_reformas != 0 && valor_reformas != '' && valor_reformas != null">
+                    <div class="formInputStandard">
                         <span>Reformas <span v-if="reformaActivo" style="color: red; font-weight: bold;">(IT)</span></span>
                         <input type="text" style="text-align: right;" v-model="f_valor_reformas" @keyup="validarFormato"
                             :disabled="esOpcionGuardada || modoSoloLectura || reformaActivo" />
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-8">
-                    <div class="formInputStandard" v-show="valor_acabados != 0 && valor_acabados != '' && valor_acabados != null">
+                <div class="pure-u-1 pure-u-md-1-8" v-if="valor_acabados != 0 && valor_acabados != '' && valor_acabados != null">
+                    <div class="formInputStandard">
                         <span>Acabados <span v-if="reformaActivo" style="color: red; font-weight: bold;">(IT)</span></span>
                         <input type="text" style="text-align: right;" v-model="f_valor_acabados" @keyup="validarFormato"
                             :disabled="esOpcionGuardada || modoSoloLectura || reformaActivo"/>
@@ -1479,54 +1479,56 @@
                     </div>
                 </div>
             </div>
-            <div v-if="!subsidioActivo">
-                <div class='pure-u-1-1 formDivision' style="font-size: 1em;">
-                    Escrituración
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                         <span class="info-container">
-                            Gastos de Escritura
-                            <i class="info-icon">ⓘ</i>
-                            <div class="tooltip-opc">
-                                Nota: (1) Este valor de gastos notariales es aproximado. El valor final podría variar dependiendo de los anexos que
-                                lleve la escritura, las autenticaciones y biometrias de la misma. (2) Si el cliente quiere afectar el inmueble como
-                                vivienda familiar el valor se debe incrementar en $200.000.
-                            </div>
-                        </span>
-                        <input type="text" style="text-align: right;" v-model="f_valor_escrituras" @keyup="validarFormato" disabled/>
-                    </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>Notariales:</span>
-                        <input type="text" style="text-align: right;" v-model="f_valor_notariales" @keyup="validarFormato" :disabled="esOpcionGuardada" />
-                    </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>Beneficiencia:</span>
-                        <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
-                    </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span>Registro:</span>
-                        <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
-                    </div>
-                </div>
-                <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard">
-                        <span style="visibility: hidden;">-</span>
-                        <button @click="detalle = true">Ver detalle</button>
-                    </div>
+            <div class='pure-u-1-1 formDivision' style="font-size: 1em;" v-if="!subsidioActivo">
+                Escrituración
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6" v-if="!subsidioActivo">
+                <div class="formInputStandard">
+                     <span class="info-container">
+                        Gastos de Escritura
+                        <i class="info-icon">ⓘ</i>
+                        <div class="tooltip-opc">
+                            Nota: (1) Este valor de gastos notariales es aproximado. El valor final podría variar dependiendo de los anexos que
+                            lleve la escritura, las autenticaciones y biometrias de la misma. (2) Si el cliente quiere afectar el inmueble como
+                            vivienda familiar el valor se debe incrementar en $200.000.
+                        </div>
+                    </span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_escrituras" @keyup="validarFormato" disabled/>
                 </div>
             </div>
-
+            <div class="pure-u-1 pure-u-md-1-6" v-if="!subsidioActivo">
+                <div class="formInputStandard">
+                    <span>Notariales:</span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_notariales" @keyup="validarFormato" :disabled="esOpcionGuardada" />
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6" v-if="!subsidioActivo">
+                <div class="formInputStandard">
+                    <span>Beneficiencia:</span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_beneficiencia" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6" v-if="!subsidioActivo">
+                <div class="formInputStandard">
+                    <span>Registro:</span>
+                    <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-md-1-6" v-if="!subsidioActivo">
+                <div class="formInputStandard" style="text-align: center;margin-top: 1.5rem;">
+                    <button @click="detalle = true">Ver detalle</button>
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-md-5-6" v-if="subsidioActivo"></div>
+            <div class="pure-u-1 pure-u-md-1-6" v-if="subsidioActivo">
+                <div class="formInputStandard" style="text-align: center;margin-top: 1.5rem;">
+                    <button @click="detalle = true">Ver detalle</button>
+                </div>
+            </div>
             <div class="pure-u-1 pure-u-md-1-1">
                 <div v-if="tablaAmortizacion" class="tabla-modal-overlay">
                     <div class="tabla-modal-box" style="position: relative;">
-                        <div style="position: sticky; top: 0; background: #fff; z-index: 10; border-bottom: 1px solid #eee; padding: 1em 1.5em;">
+                        <div style="position: sticky; top: 0; background: #fff; z-index: 10; border: 1px solid #eee; padding: 1em 1.5em;">
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <h3 style="margin: 0; padding: 0; text-align: left; font-size: 1.4em;">Plan de Pagos</h3>
                                 <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1543,9 +1545,9 @@
                             <table class="dataTable">
                                 <thead>
                                     <tr>
-                                        <th style="width: 8%;">Concepto</th>
+                                        <th style="width: 10%;">Concepto</th>
                                         <th style="width: 8%;">Fecha</th>
-                                        <th style="width: 12%;">Saldo Inicial Periodo</th>
+                                        <th style="width: 8%;">Saldo Inicial Periodo</th>
                                         <th style="width: 8%;">Cuota deseada</th>
                                         <th style="width: 10%;">Cuota Calculada</th>
                                         <th style="width: 8%;">Saldo Final</th>
@@ -1554,22 +1556,70 @@
                                 </thead>
                                 <tbody>
                                     <tr style="border-top: 2px solid #009AB9;">
-                                        <td style="text-align: left; padding: 8px; color: #f57c00;">Separación</td>
+                                        <td style="text-align: left; padding: 8px; color: #1976d2; font-weight: bold;">Cota Inicial</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td style="text-align: right; padding: 8px; color: #f57c00;">{{ formatoMoneda(valor_separacion) }}</td>
+                                        <td style="text-align: right; padding: 8px; color: #1976d2; font-weight: bold;">{{ formatoMoneda(cuotaInicialOriginal) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr style="height: 10px;">
+                                        <td colspan="7" style="padding: 0; border: none;"></td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid #009AB9;">
+                                        <td style="text-align: left; padding: 8px;">Cota Inicial menos SCA</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(cuotaInicialMenosSCA) }}</td>
                                         <td></td>
                                     </tr>
                                     <tr>
-                                        <td style="text-align: left; padding: 8px; color: #e64a19;">Gastos Escritura</td>
+                                        <td style="text-align: left; padding: 8px;" title="Cota Inicial menos SCA y Separación">Cota Inicial menos SCA y Separación</td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td style="text-align: right; padding: 8px; color: #e64a19;">{{ formatoMoneda(valor_escrituras) }}</td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(cuotaInicialMenosSCAySeparacion) }}</td>
                                         <td></td>
+                                    </tr>
+                                    <tr style="height: 10px;">
+                                        <td colspan="7" style="padding: 0; border: none;"></td>
+                                    </tr>
+                                    <tr v-if="!subsidioActivo" style="border-top: 2px solid #009AB9;">
+                                        <td style="text-align: left; padding: 8px;">Cuota Separación</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(valor_separacion) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr v-if="subsidioActivo" style="border-top: 2px solid #009AB9;">
+                                        <td style="text-align: left; padding: 8px;">Cuota Gastos Notariales</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(valor_escrituras) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr style="height: 10px;">
+                                        <td colspan="7" style="padding: 0; border: none;"></td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid #009AB9;">
+                                        <td style="text-align: left; padding: 8px; font-weight: bold;">Número de cuotas</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px; font-weight: bold;">{{ d_meses }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr style="height: 10px;">
+                                        <td colspan="7" style="padding: 0; border: none;"></td>
                                     </tr>
 
                                     <tr v-for="(fila, index) in tablaPeriodos" :key="index">
@@ -1590,6 +1640,79 @@
                                             {{ formatoMoneda(fila.saldo_final) }}
                                         </td>
                                         <td><input type="text" class="input-cuota" :disabled="esOpcionGuardada" :readonly="esOpcionGuardada"></td>
+                                    </tr>
+                                    <tr style="height: 10px;">
+                                        <td colspan="7" style="padding: 0; border: none;"></td>
+                                    </tr>
+
+                                    <tr style="border-top: 2px solid #009AB9;">
+                                        <td style="text-align: left; padding: 8px;">Subsidios</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(valor_subsidio) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding: 8px;">Cesantías</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(cesantias) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; padding: 8px;">Ahorros</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(ahorros) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr style="height: 10px;">
+                                        <td colspan="7" style="padding: 0; border: none;"></td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid #009AB9;">
+                                        <td style="text-align: left; padding: 8px;">Crédito hipotecario</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(valor_credito_final) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr style="height: 10px;">
+                                        <td colspan="7" style="padding: 0; border: none;"></td>
+                                    </tr>
+                                    <tr style="background: #e3f2fd; border-top: 2px solid #009AB9;">
+                                        <td style="text-align: left; padding: 8px; font-weight: bold;">Total Importes</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px; font-weight: bold;">{{ formatoMoneda(totalImportes) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr v-if="!subsidioActivo">
+                                        <td style="text-align: left; padding: 8px;">Cuota Gastos notariales (solo NO VIS)</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px;">{{ formatoMoneda(valor_escrituras) }}</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr v-if="!subsidioActivo" style="background: #e3f2fd;">
+                                        <td style="text-align: left; padding: 8px; font-weight: bold;" title="Total Importes con gastos notariales">Total Importes con gastos notariales</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td style="text-align: right; padding: 8px; font-weight: bold;">{{ formatoMoneda(totalImportesConGastos) }}</td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -2302,23 +2425,71 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style="background: #fff3e0;">
-                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd; font-weight: bold; color: #f57c00;">Separación</td>
+                    <tr style="background: #e3f2fd;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd; font-weight: bold; color: #1976d2;">Cota Inicial</td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
-                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd; font-weight: bold; color: #f57c00;">{{ formatoMoneda(valor_separacion) }}</td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd; font-weight: bold; color: #1976d2;">{{ formatoMoneda(cuotaInicialOriginal) }}</td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
                     </tr>
-                    <tr style="background: #ffebee;">
-                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd; font-weight: bold; color: #e64a19;">Gastos Escritura</td>
+                    <tr style="height: 8px;">
+                        <td colspan="7" style="padding: 0; border: none;"></td>
+                    </tr>
+                    <tr style="background: white; border-top: 2px solid #009AB9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Cota Inicial menos SCA</td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
-                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd; font-weight: bold; color: #e64a19;">{{ formatoMoneda(valor_escrituras) }}</td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(cuotaInicialMenosSCA) }}</td>
                         <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="background: #f9f9f9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Cota Inicial menos SCA y Separación</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(cuotaInicialMenosSCAySeparacion) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="height: 8px;">
+                        <td colspan="7" style="padding: 0; border: none;"></td>
+                    </tr>
+                    <tr v-if="!subsidioActivo" style="background: white; border-top: 2px solid #009AB9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Cuota Separación</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(valor_separacion) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr v-if="subsidioActivo" style="background: white; border-top: 2px solid #009AB9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Cuota Gastos Notariales</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(valor_escrituras) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="height: 8px;">
+                        <td colspan="7" style="padding: 0; border: none;"></td>
+                    </tr>
+                    <tr style="background: #e3f2fd; border-top: 2px solid #009AB9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd; font-weight: bold;">Número de cuotas</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd; font-weight: bold;">{{ d_meses }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="height: 8px;">
+                        <td colspan="7" style="padding: 0; border: none;"></td>
                     </tr>
                     <tr v-for="(fila, index) in tablaPeriodos" :key="index" :style="index % 2 === 0 ? 'background: #f9f9f9;' : 'background: white;'">
                         <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Cuota No. {{ fila.periodo }}</td>
@@ -2328,6 +2499,79 @@
                         <td style="text-align: right; padding: 4px; border: 1px solid #ddd; white-space: nowrap;">{{ formatoMoneda(fila.cuota_calculada) }}</td>
                         <td style="text-align: right; padding: 4px; border: 1px solid #ddd; white-space: nowrap;">{{ formatoMoneda(fila.saldo_final) }}</td>
                         <td style="padding: 4px; border: 1px solid #ddd; text-align: left;">{{ fila.nota }}</td>
+                    </tr>
+                    <tr style="height: 8px;">
+                        <td colspan="7" style="padding: 0; border: none;"></td>
+                    </tr>
+
+                    <tr style="background: white; border-top: 2px solid #009AB9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Subsidios</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(valor_subsidio) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="background: #f9f9f9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Cesantías</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(cesantias) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="background: white;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Ahorros</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(ahorros) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="height: 8px;">
+                        <td colspan="7" style="padding: 0; border: none;"></td>
+                    </tr>
+                    <tr style="background: #f9f9f9; border-top: 2px solid #009AB9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Crédito hipotecario</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(valor_credito_final) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr style="height: 8px;">
+                        <td colspan="7" style="padding: 0; border: none;"></td>
+                    </tr>
+                    <tr style="background: #e3f2fd; border-top: 2px solid #009AB9;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd; font-weight: bold;">Total Importes</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd; font-weight: bold;">{{ formatoMoneda(totalImportes) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr v-if="!subsidioActivo" style="background: white;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd;">Cuota Gastos notariales (solo NO VIS)</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd;">{{ formatoMoneda(valor_escrituras) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                    </tr>
+                    <tr v-if="!subsidioActivo" style="background: #e3f2fd;">
+                        <td style="text-align: left; padding: 4px; border: 1px solid #ddd; font-weight: bold;">Total Importes con gastos notariales</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
+                        <td style="text-align: right; padding: 4px; border: 1px solid #ddd; font-weight: bold;">{{ formatoMoneda(totalImportesConGastos) }}</td>
+                        <td style="padding: 4px; border: 1px solid #ddd;"></td>
                     </tr>
                 </tbody>
             </table>

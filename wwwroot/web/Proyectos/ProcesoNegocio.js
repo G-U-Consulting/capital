@@ -1370,7 +1370,7 @@ export default {
                     pagoSeleccionado: this.pagoSeleccionado || '',
                     planSeleccionado: this.planSeleccionado || null,
                     reformaActivo: this.reformaActivo || false,
-                    subsidioActivo: this.subsidioActivo || false,
+                    // subsidioActivo NO se guarda, siempre se obtiene del proyecto al cargar
                     factorBanco: this.factorBanco || 0,
                     ingresos_familiares: this.cleanNumber(this.ingresos_mensuales) || 0,
                     cesantias: this.cleanNumber(this.cesantias) || 0,
@@ -1480,7 +1480,7 @@ export default {
                 this.pagoSeleccionado = opcion.pagoSeleccionado || '';
                 this.planSeleccionado = opcion.planSeleccionado || null;
                 this.reformaActivo = opcion.reformaActivo || false;
-                this.subsidioActivo = opcion.subsidioActivo || false;
+                // subsidioActivo NO debe cargarse desde opciones guardadas, siempre viene del proyecto
                 this.factorBanco = opcion.factorBanco || 0;
                 this.valor_credito = opcion.valor_credito || 0;
                 this.valor_credito_max = opcion.valor_credito_max || 0;
@@ -1500,6 +1500,7 @@ export default {
                 this.$nextTick(() => {
                     this.calcularMesesMaximos();
                     this.calcularEscrituras();
+                    this.isSubsidio(); // Asegurar que subsidioActivo se obtiene del proyecto
                     if (this.ingresos_mensuales) {
                         this.onInputIngresos();
                     }
@@ -1702,7 +1703,7 @@ export default {
                     showConfirm(
                         'Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de continuar?',
                         async () => {
-                            await this.guardarBorrador();
+                            await this.guardarBorradorYCerrar();
                             await this.continuarSetSubmode(index);
                             resolve();
                         },
@@ -2526,7 +2527,7 @@ export default {
                     showConfirm(
                         'Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de cerrar?',
                         async () => {
-                            await this.enviarYOpcionar();
+                            await this.guardarBorradorYCerrar();
                             this.tieneCambiosPendientes = false;
                             this.cerrarVentanaUnidadesForzado();
                             resolve();
@@ -3960,7 +3961,7 @@ export default {
             cuota -= totalAportes;
             cuota -= this.cleanNumber(this.cuota_escritura_final);
 
-            if (!this.subsidioActivo) {
+             if (!this.subsidioActivo) {
                 cuota -= this.cleanNumber(this.valor_separacion);
             }
 
@@ -4355,7 +4356,7 @@ export default {
 
                 worksheet.mergeCells('A1:F1');
                 const titleCell = worksheet.getCell('A1');
-                titleCell.value = 'TABLA DE AMORTIZACIÓN';
+                titleCell.value = 'PLAN DE PAGOS';
                 titleCell.font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } };
                 titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF009AB9' } };
                 titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -4390,34 +4391,6 @@ export default {
 
                 currentRow++;
 
-                const sepRow = worksheet.getRow(currentRow);
-                sepRow.getCell(1).value = 'Separación';
-                sepRow.getCell(1).font = { bold: true, size: 11, color: { argb: 'FFF57C00' } };
-                sepRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
-                sepRow.getCell(1).border = borderThin;
-
-                sepRow.getCell(6).value = toNumber(this.valor_separacion);
-                sepRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
-                sepRow.getCell(6).font = { bold: true, color: { argb: 'FFF57C00' } };
-                sepRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } };
-                sepRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
-                sepRow.getCell(6).border = borderThin;
-                currentRow++;
-
-                const gastosRow = worksheet.getRow(currentRow);
-                gastosRow.getCell(1).value = 'Gastos Escritura';
-                gastosRow.getCell(1).font = { bold: true, size: 11, color: { argb: 'FFE64A19' } };
-                gastosRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
-                gastosRow.getCell(1).border = borderThin;
-
-                gastosRow.getCell(6).value = toNumber(this.valor_escrituras);
-                gastosRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
-                gastosRow.getCell(6).font = { bold: true, color: { argb: 'FFE64A19' } };
-                gastosRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } };
-                gastosRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
-                gastosRow.getCell(6).border = borderThin;
-                currentRow++;
-             
                 const headerRow = worksheet.getRow(currentRow);
                 const headers = ['Periodo', 'Fecha', 'Saldo Inicial', 'Cuota Deseada', 'Cuota Calculada', 'Saldo Final'];
                 headers.forEach((header, index) => {
@@ -4609,6 +4582,85 @@ export default {
         },
         importeFinanciacionAjustado() {
             return this.valor_credito_final_base - this.excedentePagoCuotaInicial;
+        },
+        cuotaInicialOriginal() {
+            let importeSinDescuentos = this.importeBase || 0;
+
+            if (this.reformaActivo) {
+                const reforma = this.cleanNumber(this.valor_reformas) + this.cleanNumber(this.valor_acabados);
+                importeSinDescuentos += reforma;
+            }
+            if (this.pagoSeleccionado?.toLowerCase() === 'contado') {
+                return Math.max(0, importeSinDescuentos);
+            }
+
+            if (this.planSeleccionado) {
+                return Math.max(0, importeSinDescuentos);
+            }
+
+            if (this.tipoFinanciacionSeleccionada) {
+                const numeros = this.tipoFinanciacionSeleccionada.match(/\d+/g);
+
+                if (numeros && numeros.length >= 1) {
+                    const porcentajeCredito = parseFloat(numeros[numeros.length - 1]) || 0;
+
+                    const porcentajeCuotaInicial = 100 - porcentajeCredito;
+
+                    const valorCalculado = (importeSinDescuentos * porcentajeCuotaInicial) / 100;
+
+                    if (valorCalculado > 0) {
+                        return valorCalculado;
+                    }
+                }
+            }
+
+            return this.cleanNumber(this.cuota_inicial_final) || 0;
+        },
+        cuotaInicialTotal() {
+            return this.cleanNumber(this.cuota_inicial_final) || 0;
+        },
+        cuotaInicialMenosSCA() {
+            const subsidios = this.cleanNumber(this.valor_subsidio) || 0;
+            const cesantias = this.cleanNumber(this.cesantias) || 0;
+            const ahorros = this.cleanNumber(this.ahorros) || 0;
+            return this.cuotaInicialOriginal - subsidios - cesantias - ahorros;
+        },
+        cuotaInicialMenosSCAySeparacion() {
+            const separacion = this.cleanNumber(this.valor_separacion) || 0;
+            return this.cuotaInicialMenosSCA - separacion;
+        },
+        valorCadaCuota() {
+            const numCuotas = parseInt(this.d_meses) || 0;
+            if (numCuotas === 0) return 0;
+            return this.cuotaInicialMenosSCAySeparacion / numCuotas;
+        },
+        totalImportes() {
+           
+            const separacion = this.cleanNumber(this.valor_separacion) || 0;
+
+            const gastosNotariales = (this.cleanNumber(this.valor_escrituras) || 0);
+
+            let sumaCuotas = 0;
+            if (this.tablaPeriodos && this.tablaPeriodos.length > 0) {
+                sumaCuotas = this.tablaPeriodos.reduce((total, periodo) => {
+                    return total + (this.cleanNumber(periodo.cuota_calculada) || 0);
+                }, 0);
+            }
+
+            const subsidios = this.cleanNumber(this.valor_subsidio) || 0;
+            const cesantias = this.cleanNumber(this.cesantias) || 0;
+            const ahorros = this.cleanNumber(this.ahorros) || 0;
+            const credito = this.cleanNumber(this.valor_credito_final) || 0;
+
+            return gastosNotariales + sumaCuotas + subsidios + cesantias + ahorros + credito;
+        },
+        totalImportesConGastos() {
+            if (this.subsidioActivo) {
+                return this.totalImportes;
+            } else {
+                const gastos = this.cleanNumber(this.valor_escrituras) || 0;
+                return this.totalImportes + gastos;
+            }
         },
         mostrarOtrosLinks() {
             if (!this.proyectoData) return false;

@@ -4697,7 +4697,7 @@ tr.cal-row-info > td {
 }
 
 .registro-bloqueado {
-    border: 1px solid #FF8C00 !important;
+    border: 2px solid #FF8C00 !important;
     background: linear-gradient(to right, rgba(255, 140, 0, 0.04) 0%, rgba(255, 140, 0, 0) 100%);
     margin-top: .1rem;
 }
