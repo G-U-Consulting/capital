@@ -1753,439 +1753,401 @@
 
     <div  v-if="mode == 3" class="pdf-export-section" style="padding: 20px; background: white; width: 100%; box-sizing: border-box; display: none;">
         <div id="contenedor-pdf-completo">
-                <div style="padding: 1rem 1rem .4rem 1rem; page-break-inside: avoid;">
-                    <span style="color: #009AB9; font-weight: bold; font-size: 15px; display: block; margin-bottom: 0.5rem;">Datos Personales</span>
-                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777; page-break-inside: avoid;">
-                        <template v-for="(cliente, index) in clientesParaPDF" :key="index">
+                <div style="padding: .5rem 0 .4rem 0; page-break-inside: avoid;">
+                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777; page-break-inside: avoid; font-size: 9px; margin-bottom: 1rem;">
+                        <thead>
+                            <tr>
+                                <th colspan="12" style="background: #305496; color: white;"> Clientes </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="height: 10px;">
+                                <td colspan="5" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; background: #bdd7ee;">
+                                    Nombre y Apellidos
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; background: #bdd7ee;">
+                                    Tipo Doc
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; background: #bdd7ee;">
+                                    # Doc
+                                </td>
+                                <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; background: #bdd7ee;">
+                                    Pais
+                                </td>
+                                <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; background: #bdd7ee;">
+                                    Ciudad
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; background: #bdd7ee;">
+                                    Porcentaje
+                                </td>
+                            </tr>
+                            <template v-for="(cliente, index) in clientesParaPDF" :key="'resumen-' + index">
+                                <tr>
+                                    <td colspan="1"
+                                        style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; word-wrap: break-word; overflow-wrap: break-word;">
+                                        # {{ index + 1 }}
+                                    </td>
+                                    <td colspan="4"
+                                        style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; word-wrap: break-word; overflow-wrap: break-word; max-width: 150px;">
+                                        {{ cliente.nombres }} {{ cliente.apellido1 }} {{ cliente.apellido2 }}
+                                    </td>
+                                    <td colspan="1"
+                                        style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; word-wrap: break-word; overflow-wrap: break-word;">
+                                        {{ cliente.tipoDocumento }}
+                                    </td>
+                                    <td colspan="1"
+                                        style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; word-wrap: break-word; overflow-wrap: break-word;">
+                                        {{ cliente.numeroDocumento }}
+                                    </td>
+                                    <td colspan="2"
+                                        style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; word-wrap: break-word; overflow-wrap: break-word;">
+                                        {{ cliente.pais }}
+                                    </td>
+                                    <td colspan="2"
+                                        style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; word-wrap: break-word; overflow-wrap: break-word;">
+                                        {{ cliente.ciudad }}
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777;
+                                        border-bottom: 1px solid #777; text-align: center; padding: 4px; word-wrap: break-word; overflow-wrap: break-word;">
+                                        {{ cliente.porcentaje ? cliente.porcentaje + '%' : 'N/A' }}
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777; page-break-inside: avoid; font-size: 9px;">
+                        <template v-for="(cliente, index) in clientesParaPDF" :key="'detalle-' + index">
                             <thead>
                                 <tr>
-                                    <th colspan="4" :style="'border-left: #777 solid 1px;' + (index > 0 ? ' border-top: 2px solid #777;' : '')">{{ clientesParaPDF.length > 1 ? 'Cliente #' + (index + 1) : 'Cliente' }}{{ clientesParaPDF.length > 1 && cliente.porcentaje ? ' - Participación: ' + cliente.porcentaje + '%' : '' }}</th>
+                                    <th colspan="12" :style="'background: #2f75b5;color: white;border-left: #777 solid 1px;' + (index > 0 ? ' border-top: 2px solid #777;' : '')">{{ clientesParaPDF.length >= 1 ? 'Detalle del Cliente #' + (index + 1) : 'Cliente' }}{{ clientesParaPDF.length >= 1 && cliente.porcentaje ? ' - Participación: ' + cliente.porcentaje + '%' : '' }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr style="border-left: #777 solid 1px;">
-                                    <td colspan="4" style="border-right: 1px solid #777; border-bottom: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Nombres:</b>
-                                            <span>{{ cliente.nombres }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Nombres</b>
+                                    </td>
+                                    <td colspan="5" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                        <span style="font-size: 8px;">{{ cliente.nombres }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Apellido 1</b>
+                                    </td>
+                                    <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                       <span style="font-size: 8px;">{{ cliente.apellido1 }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Apellido 2</b>
+                                    </td>
+                                    <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                       <span style="font-size: 8px;">{{ cliente.apellido2 }}</span>
                                     </td>
                                 </tr>
                                 <tr style="border-left: #777 solid 1px;">
-                                    <td colspan="2" style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Apellido 1:</b>
-                                            <span>{{ cliente.apellido1 }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word; background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Tipo Id</b>
                                     </td>
-                                    <td colspan="2" style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Apellido 2:</b>
-                                            <span>{{ cliente.apellido2 }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word;">
+                                        <span style="font-size: 8px;">{{ cliente.tipoDocumento }}</span>
                                     </td>
-                                </tr>
-                                <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                    <td style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Dirección:</b>
-                                            <span>{{ cliente.direccion }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Número Id</b>
                                     </td>
-                                    <td style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Ciudad:</b>
-                                            <span>{{ cliente.ciudad }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word;">
+                                       <span style="font-size: 8px;">{{ cliente.numeroDocumento }}</span>
                                     </td>
-                                    <td style="padding: 5px 10px;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Departamento:</b>
-                                            <span>{{ cliente.departamento }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word; background: #bdd7ee; white-space: nowrap;">
+                                        <b style="font-size: 8px;">F. nacimiento</b>
                                     </td>
-                                     <td style="padding: 5px 10px;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>País:</b>
-                                            <span>{{ cliente.pais }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word;">
+                                       <span style="font-size: 8px;">{{ cliente.fechaNacimiento }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee; white-space: nowrap;">
+                                        <b style="font-size: 8px;">País Exped.</b>
+                                    </td>
+                                    <td colspan="3" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word; max-width: 80px;">
+                                       <span style="font-size: 8px;">{{ cliente.paisExpedicion }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee; white-space: nowrap;">
+                                        <b style="font-size: 8px;">F. Expedición</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; word-wrap: break-word; overflow-wrap: break-word;">
+                                       <span style="font-size: 8px;">{{ cliente.fechaExpedicion }}</span>
                                     </td>
                                 </tr>
-                                <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                    <td colspan="2" style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Email 1:</b>
-                                            <span>{{ cliente.email1 }}</span>
-                                        </div>
+                                <tr style="border-left: #777 solid 1px;">
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Pais</b>
                                     </td>
-                                    <td colspan="2" style="padding: 5px 10px;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Email 2:</b>
-                                            <span>{{ cliente.email2 }}</span>
-                                        </div>
+                                    <td colspan="5" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                        <span style="font-size: 8px;">{{ cliente.pais }}</span>
                                     </td>
-                                </tr>
-                                <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                    <td style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Teléfono 1:</b>
-                                            <span>{{ cliente.telefono1 }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Depart.</b>
                                     </td>
-                                    <td style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Teléfono 2:</b>
-                                            <span>{{ cliente.telefono2 }}</span>
-                                        </div>
+                                    <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                       <span style="font-size: 8px;">{{ cliente.departamento }}</span>
                                     </td>
-                                    <td style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>F. Nacimiento:</b>
-                                            <span>{{ cliente.fechaNacimiento }}</span>
-                                        </div>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Ciudad</b>
                                     </td>
-                                    <td style="padding: 5px 10px;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Tipo Doc.:</b>
-                                            <span>{{ cliente.tipoDocumento }}</span>
-                                        </div>
+                                    <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                       <span style="font-size: 8px;">{{ cliente.ciudad }}</span>
                                     </td>
                                 </tr>
-                                <tr style="border-left: #777 solid 1px; border-top: 1px solid #777;">
-                                    <td style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Núm. Doc.:</b>
-                                            <span>{{ cliente.numeroDocumento }}</span>
-                                        </div>
+                                <tr style="border-left: #777 solid 1px;">
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Dirección</b>
                                     </td>
-                                    <td style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>País Exp.:</b>
-                                            <span>{{ cliente.paisExpedicion }}</span>
-                                        </div>
+                                    <td colspan="11" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                        <span style="font-size: 8px;">{{ cliente.direccion }}</span>
                                     </td>
-                                    <td style="border-right: 1px solid #777;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Ciudad Exp.:</b>
-                                            <span>{{ cliente.ciudadExpedicion }}</span>
-                                        </div>
+                                </tr>
+                                <tr style="border-left: #777 solid 1px;">
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Teléfono 1</b>
                                     </td>
-                                    <td style="padding: 5px 10px;">
-                                        <div style="display: flex; justify-content: space-between; font-size: 14px;">
-                                            <b>Fecha Exp.:</b>
-                                            <span>{{ cliente.fechaExpedicion }}</span>
-                                        </div>
+                                    <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                        <span style="font-size: 8px;">{{ cliente.telefono1 }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Teléfono 2</b>
+                                    </td>
+                                    <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                        <span style="font-size: 8px;">{{ cliente.telefono2 }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Email 1</b>
+                                    </td>
+                                    <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                        <span style="font-size: 8px;">{{ cliente.email1 }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;background: #bdd7ee;">
+                                        <b style="font-size: 8px;">Email 2</b>
+                                    </td>
+                                    <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777;  word-wrap: break-word; overflow-wrap: break-word;">
+                                        <span style="font-size: 8px;">{{ cliente.email2 }}</span>
                                     </td>
                                 </tr>
                             </tbody>
                         </template>
                     </table>
-
-                    <span style="color: #009AB9; font-weight: bold; font-size: 15px; display: block; margin-top: 1rem; margin-bottom: 0.5rem;">
-                        Información General
-                        <span v-if="isTitular == 1">En representación de: ({{ ObjCliente.nombreEmpresa }} Nit: {{
-                            ObjCliente.nit
-                            }})</span>
-                        <span v-else>Persona Natural</span>
-                    </span>
-                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse; page-break-inside: avoid;">
+                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777; page-break-inside: avoid; font-size: 9px; margin-top: 1rem;">
                         <thead>
                             <tr>
-                                <th colspan="4" style="border-left: #777 solid 1px;">Resumen de Unidad</th>
+                                <th colspan="12" style="background: #305496; color: white;">Importes de la cotización</th>
+                            </tr>
+                            <tr>
+                                <td colspan="12" style="height: 0.5rem; border: none;"></td>
+                            </tr>
+                            <tr>
+                                <th colspan="12" style="background: #2f75b5; color: white; text-align: left; padding: 4px; text-align: center;">Resumen de la Operación</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <b>Importe:</b>
-                                        <span>{{ formatoMoneda(unidades[0]?.valor_unidad || 0) }}</span>
-                                    </div>
+                            <tr>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; background: #bdd7ee;">
+                                    <b style="font-size: 8px;">Ciudad</b>
                                 </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <b>Descuento Base:</b>
-                                        <span>{{ formatoMoneda(unidades[0]?.valor_descuento || 0) }}</span>
-                                    </div>
+                                 <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <span style="font-size: 8px;">{{ proyectoData?.sede || '-' }}</span>
                                 </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <b>Imp. - Desc. Base:</b>
-                                        <span>{{ formatoMoneda(importeActiva) }}</span>
-                                    </div>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; background: #bdd7ee;">
+                                    <b style="font-size: 8px;">Ciudadela</b>
                                 </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <b>Tipo Unidad:</b>
-                                        <span>{{ unidades[0]?.tipo || '-' }}</span>
-                                    </div>
+                                 <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <span style="font-size: 8px;">{{ proyectoData?.ciudadela || '-' }}</span>
                                 </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="4">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <b>Opción Seleccionada:</b>
-                                        <span>{{ textoCotizacion }}</span>
-                                    </div>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; background: #bdd7ee;">
+                                    <b style="font-size: 8px;">Proyecto</b>
+                                </td>
+                                <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <span style="font-size: 8px;">{{ proyectoData?.nombre || '-' }}</span>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px; background: #bdd7ee;">
+                                    <b style="font-size: 8px;">Total Importe</b>
+                                </td>
+                                <td colspan="2" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <span style="font-size: 8px;">{{ formatoMoneda(importeOriginal) }}</span>
                                 </td>
                             </tr>
+                        </tbody>
+                        <thead>
+                            <tr>
+                                <td colspan="12" style="height: 0.5rem; border: none;"></td>
+                            </tr>
+                            <tr>
+                                <th colspan="12" style="background: #2f75b5; color: white; text-align: left; padding: 4px; text-align: center;">Importes Base y Totales de la operación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #bdd7ee;">
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Item #</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Id</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Clase</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Tipología</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Tipo</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Torre</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Planta</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Imp. Base</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Reformas</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Acabados</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Dto. adicional</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Importe Total Item</b>
+                                </td>
+                            </tr>
+                            <template v-for="(unidad, index) in unidades" :key="'unidad-' + index">
+                                <tr>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">#{{ index + 1 }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidad.id_unidad || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidad.clase || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidad.tipo || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidad.numero_apartamento || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidad.consecutivo || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidad.piso || extraerPiso(unidad.numero_apartamento) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(unidad.valor_unidad || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(unidad.valor_reformas || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(unidad.valor_acabados || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(unidad.valor_descuento || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(Number(unidad.valor_unidad || 0) + Number(unidad.valor_reformas || 0) + Number(unidad.valor_acabados || 0) - Number(unidad.valor_descuento || 0)) }}</span>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
-                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse; margin-top: 8px; page-break-inside: avoid;">
+                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777; page-break-inside: avoid; font-size: 9px; margin-top: 1rem;">
                         <thead>
                             <tr>
-                                <th colspan="4" style="border-left: #777 solid 1px;">Detalles del Cálculo</th>
+                                <th colspan="12" style="background: #2f75b5; color: white;">Forma de pago y financiación</th>
+                            </tr>
+                            <tr style="background: #bdd7ee;">
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Item #</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Id</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Importe Base</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Reformas y Acabados</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Dto. adicional</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Importe Total</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">% Financiación s/Imp. Base</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Importe estimado Financiación</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Importe estimado Cesantias</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Importe estimado Subsidio</b>
+                                </td>
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Importe estimado Ahorros</b>
+                                </td>   
+                                <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                    <b style="font-size: 8px;">Importe estimado Cuota Inicial</b>
+                                </td>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="4" style="padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #777;">
-                                    IMPORTE TOTAL DE LA OPERACIÓN
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Importe Unidades <b>(A):</b></span>
-                                        <span>{{ formatoMoneda(unidades[0]?.valor_unidad || 0) }}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Acabados <b>(B):</b></span>
-                                        <span>{{ formatoMoneda(reformaActivo ? valor_acabados : 0) }}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Reformas <b>(C):</b></span>
-                                        <span>{{ formatoMoneda(reformaActivo ? valor_reformas : 0) }}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Desc. Adicional <b>(D):</b></span>
-                                        <span>{{ formatoMoneda(valor_descuento_adicional) }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px; background-color: #f5f5f5;">
-                                <td colspan="4">
-                                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
-                                        <span>Importe Total <b>(E):</b> <i style="font-size: 10px; font-weight: normal;">((A)+(B)+(C)-(D))</i></span>
-                                        <span>{{ formatoMoneda(importeActiva) }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="4" style="padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #777; border-top: 1px solid #777;">
-                                    IMPORTE MÁXIMO FINANCIABLE Y CUOTA MENSUAL HIPOTECA
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Modalidad:</span>
-                                        <span style="font-weight: bold;">{{ nombrePlan(planSeleccionado, tipoFinanciacionSeleccionada) || '-' }}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Años:</span>
-                                        <span>{{ anioSeleccionado || '-' }}</span>
-                                    </div>
-                                </td>
-                                <td colspan="2">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Factor/millón <b>(F):</b></span>
-                                        <span>{{ formatNumber(factorBanco, false) || '-' }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="2">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Máximo Financiable <b>(G):</b> <i style="font-size: 10px;">70%(A-D)</i></span>
-                                        <span style="font-weight: bold;">{{ formatoMoneda(valor_credito_base) }}</span>
-                                    </div>
-                                </td>
-                                <td colspan="2">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Cuota mes Máx. financiable <b>(H):</b> <i style="font-size: 10px;">(G)x(F) / 1e6</i></span>
-                                        <span style="font-weight: bold;">{{ formatoMoneda(valorCreditoMillonFormateado) }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="4" style="padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #777; border-top: 1px solid #777;">
-                                    IMPORTE PERMISIBLE POR INGRESOS DE LA UNIDAD FAMILIAR
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="2">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Ingresos U. Familiar <b>(I):</b></span>
-                                        <span>{{ formatoMoneda(ingresos_mensuales) }}</span>
-                                    </div>
-                                </td>
-                                <td colspan="2">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Ingr. Regs. Máx <b>(J):</b> <i style="font-size: 10px;">(H) / 0.40</i></span>
-                                        <span style="font-weight: bold;">{{ formatoMoneda(minimoFamiliar) }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="4" style="padding: 6px 10px; font-weight: bold; border-bottom: 1px solid #777; border-top: 1px solid #777;">
-                                    AJUSTE POR EXCEDENTE EN CUOTA INICIAL
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="2">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Importe Financiación Base:</span>
-                                        <span>{{ formatoMoneda(valor_credito) }}</span>
-                                    </div>
-                                </td>
-                                <td colspan="2">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span>Cuota Inicial Base:</span>
-                                        <span>{{ formatoMoneda(cuota_inicial) }}</span>
-                                    </div>
-                                </td>
-                            </tr>
+                            <template v-for="(unidad, index) in unidades" :key="'pago-' + index">
+                                <tr>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">#{{ index + 1 }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidad.id_unidad || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(Number(unidad.valor_unidad || 0) - Number(unidad.valor_descuento || 0)) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(Number(unidad.valor_reformas || 0) + Number(unidad.valor_acabados || 0)) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(valor_descuento_adicional || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(Number(unidad.valor_unidad || 0) + Number(unidad.valor_reformas || 0) + Number(unidad.valor_acabados || 0) - Number(unidad.valor_descuento || 0) - Number(valor_descuento_adicional || 0)) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(valor_credito || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(valor_credito_final || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(f_valor_cesantias || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(valor_subsidio || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(f_valor_ahorros || 0) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ formatoMoneda(cuota_inicial_final || 0) }}</span>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
-                    <table class="pdf-table resumen-opcion" style="width: 100%; border-collapse: collapse; page-break-inside: avoid;">
-                        <thead>
-                            <tr>
-                                <th colspan="2" style="border-left: #777 solid 1px;">Separación y Escrituración</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <b>Valor Separación:</b>
-                                        <span>{{ formatoMoneda(f_valor_separacion) }}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <b>Escrituración y notaría:</b>
-                                        <span>{{ formatoMoneda(f_valor_escrituras) }}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="pdf-table resumen-opcion" style="page-break-inside: avoid;">
-                        <thead>
-                            <tr>
-                                <th colspan="4" style="border-left: #777 solid 1px;">Modo de Pago</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <b>Tipo:</b>
-                                    <span style="float: right;">{{ pagoSeleccionado === 'contado' ? 'Contado' : 'Financiado'
-                                        }}</span>
-                                </td>
-                                <td>
-                                    <b>Entidad:</b>
-                                    <span style="float: right;">{{ nombreBanco(bancoSeleccionado) }}</span>
-                                </td>
-                                <td>
-                                    <b>Modalidad:</b>
-                                    <span style="float: right;">{{ nombrePlan(planSeleccionado,
-                                        tipoFinanciacionSeleccionada)
-                                        }}</span>
-                                </td>
-                                <td>
-                                    <b>Años:</b>
-                                    <span style="float: right;">{{ anioSeleccionado }}</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="pdf-table resumen-opcion" style="page-break-inside: avoid;">
-                        <thead>
-                            <tr>
-                                <th colspan="5" style="border-left: #777 solid 1px;">Descuentos, subsidios y aportes</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <b>Cesantías:</b>
-                                    <span style="float: right;">{{ formatoMoneda(f_valor_cesantias) }}</span>
-                                </td>
-                                <td>
-                                    <b>Ahorros:</b>
-                                    <span style="float: right;">{{ formatoMoneda(f_valor_ahorros) }}</span>
-                                </td>
-                                <td>
-                                    <b>Subsidio:</b>
-                                    <span style="float: right;">{{ subsidioActivo ? formatoMoneda(valor_subsidio) : '$0'
-                                        }}</span>
-                                </td>
-                                <td>
-                                    <b>Caja:</b>
-                                    <span style="float: right;">{{ nombreCaja(caja_compensacion) }}</span>
-                                </td>
-                                <td>
-                                    <b>Año Subidio:</b>
-                                    <span style="float: right;">{{ seleccionAnioEntrega }}</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!-- <table class="pdf-table resumen-opcion">
-                        <thead>
-                            <tr>
-                                <th colspan="4" style="border-left: #777 solid 1px;">Financiación</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <b>Imp. Financiado:</b>
-                                    <span style="float: right;">{{ formatoMoneda(valor_credito) }}</span>
-                                </td>
-                                <td>
-                                    <b>Cuota Inicial:</b>
-                                    <span style="float: right;">{{ formatoMoneda(cuota_inicial) }}</span>
-                                </td>
-                                <td>
-                                    <b>TNA Antes PE:</b>
-                                    <span style="float: right;">{{ formatoTNA(d_tna_antes) }}</span>
-                                </td>
-                                <td>
-                                    <b>TNA Después PE:</b>
-                                    <span style="float: right;">{{ formatoTNA(d_tna_despues) }}</span>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <b>Fecha PE:</b>
-                                    <span style="float: right;">{{ d_fecha_pe }}</span>
-                                </td>
-                                <td>
-                                    <b>Fecha Entrega Aprox:</b>
-                                    <span style="float: right;">{{ display_fecha_entrega }}</span>
-                                </td>
-                                <td>
-                                    <b>1ra Cuota:</b>
-                                    <span style="float: right;">{{ display_fecha_primera_cuota }}</span>
-                                </td>
-                                <td>
-                                    <b>Meses:</b>
-                                    <span style="float: right;">{{ d_meses }}</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table> -->
                     <table class="pdf-table resumen-opcion" style="page-break-inside: avoid;">
                         <thead>
                             <tr>

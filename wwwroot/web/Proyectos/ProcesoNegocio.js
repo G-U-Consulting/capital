@@ -367,6 +367,18 @@ export default {
 
     },
     methods: {
+        extraerPiso(numero_apartamento) {
+            
+            if (!numero_apartamento) return '-';
+        
+            const numeros = numero_apartamento.toString().replace(/\D/g, '');
+           
+            if (numeros.length >= 3) {
+                return numeros.slice(0, -2);
+            }
+            
+            return numeros || '-';
+        },
         formatNumber(value, dec = true, ndec = 2) {
             if (value == null || value === "") return "";
 
@@ -551,21 +563,12 @@ export default {
 
             const baseCredito = (importeOriginalNumber - descuentoAdicionalNumber) * (pctCredito / 100);
             const baseInicial = importeOriginalNumber * (pctInicial / 100);
-            const cuotaInicialTotal = this.cleanNumber(this.importeActiva) - baseCredito;
-
-            let totalAportes = this.cleanNumber(this.cesantias) + this.cleanNumber(this.ahorros);
-
-            if (this.pagoSeleccionado?.toLowerCase() === "financiado") {
-                totalAportes += this.cleanNumber(this.valor_subsidio);
-            }
-
-            if (totalAportes >= cuotaInicialTotal) {
-                this.cuota_inicial = 0;
-                this.valor_credito = Math.max(Math.round(baseCredito), 0);
-            } else {
-                this.cuota_inicial = Math.round(cuotaInicialTotal);
-                this.valor_credito = Math.round(baseCredito);
-            }
+           
+            const importeConReformas = importeOriginalNumber + (this.reformaActivo ? (this.cleanNumber(this.valor_reformas) + this.cleanNumber(this.valor_acabados)) : 0);
+            const cuotaInicialTotal = (importeConReformas - descuentoAdicionalNumber) - baseCredito;
+           
+            this.cuota_inicial = Math.max(0, Math.round(cuotaInicialTotal));
+            this.valor_credito = Math.round(baseCredito);
 
             this.cuota_inicial_base = this.cuota_inicial;
             this.valor_credito_base = this.valor_credito;
@@ -3939,6 +3942,7 @@ export default {
             this.cuota_inicial = this.cuota_inicial_base;
             const creditoActual = this.valor_credito || 0;
 
+            // Si el crédito actual excede el máximo financiable, aumentar la cuota inicial
             if (creditoActual > nuevoMax) {
                 const restante = creditoActual - nuevoMax;
                 this.valor_credito_max = nuevoMax;
@@ -3951,6 +3955,7 @@ export default {
                 this.valor_credito_final = this.valor_credito_max || 0;
             }
 
+            // Calcular cuota inicial final restando aportes
             let cuota = this.cleanNumber(this.cuota_inicial);
             let totalAportes = this.cleanNumber(this.cesantias) + this.cleanNumber(this.ahorros);
 
@@ -3961,7 +3966,7 @@ export default {
             cuota -= totalAportes;
             cuota -= this.cleanNumber(this.cuota_escritura_final);
 
-             if (!this.subsidioActivo) {
+            if (!this.subsidioActivo) {
                 cuota -= this.cleanNumber(this.valor_separacion);
             }
 
@@ -4590,6 +4595,11 @@ export default {
                 const reforma = this.cleanNumber(this.valor_reformas) + this.cleanNumber(this.valor_acabados);
                 importeSinDescuentos += reforma;
             }
+
+            // Restar el descuento adicional del importe
+            const descuentoAdicional = this.cleanNumber(this.valor_descuento_adicional) || 0;
+            importeSinDescuentos -= descuentoAdicional;
+
             if (this.pagoSeleccionado?.toLowerCase() === 'contado') {
                 return Math.max(0, importeSinDescuentos);
             }
@@ -4599,18 +4609,12 @@ export default {
             }
 
             if (this.tipoFinanciacionSeleccionada) {
-                const numeros = this.tipoFinanciacionSeleccionada.match(/\d+/g);
+                // Usar cuota_inicial que ya tiene el ajuste por límite de ingresos
+                // En lugar de calcular basado solo en porcentaje
+                const cuotaAjustada = this.cleanNumber(this.cuota_inicial) || 0;
 
-                if (numeros && numeros.length >= 1) {
-                    const porcentajeCredito = parseFloat(numeros[numeros.length - 1]) || 0;
-
-                    const porcentajeCuotaInicial = 100 - porcentajeCredito;
-
-                    const valorCalculado = (importeSinDescuentos * porcentajeCuotaInicial) / 100;
-
-                    if (valorCalculado > 0) {
-                        return valorCalculado;
-                    }
+                if (cuotaAjustada > 0) {
+                    return cuotaAjustada;
                 }
             }
 
