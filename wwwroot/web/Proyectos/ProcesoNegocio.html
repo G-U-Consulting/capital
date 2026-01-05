@@ -449,8 +449,8 @@
                                 </div>
                                 <div v-if="item.modo_atencion === 'Tramites'" class="pure-u-1-1 pure-u-md-1-5"
                                     style="padding-left: 1rem;">
-                                    <select v-model="ObjVisita.id_tipo_tramite" :disabled="camposBloqueados">
-                                        <option disabled value="">[Trámites]</option>
+                                    <select v-model="ObjVisita.id_tipo_tramite" :disabled="camposBloqueados || !tramite">
+                                        <option :value="0">[Trámites]</option>
                                         <option v-for="opcion in tipo_tramite" :value="opcion.id_tipo_tramite">
                                             {{ opcion.tipo_tramite }}
                                         </option>
@@ -467,7 +467,7 @@
                                 </div>
                                 <div v-if="item.modo_atencion === 'Otro'" class="pure-u-1-1 pure-u-md-1-4">
                                     <input type="text" v-model="ObjVisita.otro_texto" maxlength="100" placeholder="Especificar"
-                                         style="width: 100%;" :disabled="camposBloqueados"/>
+                                         style="width: 100%;" :disabled="camposBloqueados || !Otro"/>
                                 </div>
                             </template>
                         </div>
@@ -2148,99 +2148,123 @@
                             </template>
                         </tbody>
                     </table>
-                    <table class="pdf-table resumen-opcion" style="page-break-inside: avoid;">
+                    <table class="pdf-table datos-personales" style="width: 100%; border-collapse: collapse; border: 1px solid #777; page-break-inside: avoid; font-size: 9px; margin-top: 1rem;">
                         <thead>
                             <tr>
-                                <th colspan="4" style="border-left: #777 solid 1px;">Información de la Unidad</th>
+                                <th colspan="12" style="background: #305496; color: white;">Especificaciones de las unidades</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td colspan="2">
-                                    <b>Proyecto:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.nombre || '-' }}</span>
-                                </td>
-                                <td>
-                                    <b>Apartamento:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.numero_apartamento || '-' }}</span>
-                                </td>
-                                <td>
-                                    <b>Tipo:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.tipo || unidadOpcion?.observacion_apto || '-' }}</span>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <b>Piso:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.piso || '-' }}</span>
-                                </td>
-                                <td>
-                                    <b>Área Total:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.area_total ? unidadOpcion.area_total + ' m²' : '-' }}</span>
-                                </td>
-                                <td>
-                                    <b>Área Privada Cubierta:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.area_privada_cub ? unidadOpcion.area_privada_cub + ' m²' : '-' }}</span>
-                                </td>
-                                <td>
-                                    <b>Área Privada Libre:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.area_privada_lib ? unidadOpcion.area_privada_lib + ' m²' : '-' }}</span>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <b># Alcobas:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.num_alcobas || '0' }}</span>
-                                </td>
-                                <td>
-                                    <b># Baños:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.num_banos || '0' }}</span>
-                                </td>
-                                <td>
-                                    <b>Localización:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.localizacion || '-' }}</span>
-                                </td>
-                                <td>
-                                    <b>Altura:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.altura || '-' }}</span>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <b>Asoleación:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.asoleacion == 'PM' ? 'Sol de tarde' : unidadOpcion?.asoleacion == 'AM' ? 'Sol de mañana' : '-' }}</span>
-                                </td>
-                                <td>
-                                    <b>Cerca de Portería:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.cerca_porteria == '0' ? 'NO' : unidadOpcion?.cerca_porteria == '1' ? 'SI' : '-' }}</span>
-                                </td>
-                                <td>
-                                    <b>Inventario Terminado:</b>
-                                    <span style="float: right;">{{ unidadOpcion?.inv_terminado == '1' ? 'SI' : 'NO' }}</span>
-                                </td>
-                                <td>
-                                    <b>Plazo Obra:</b>
-                                    <span style="float: right;">{{ d_meses }} meses</span>
-                                </td>
-                            </tr>
-                            <tr style="border-left: #777 solid 1px;">
-                                <td>
-                                    <b>Valor Unidad:</b>
-                                    <span style="float: right;">{{ formatoMoneda(unidades[0]?.valor_unidad || 0) }}</span>
-                                </td>
-                                <td>
-                                    <b>Descuento Base:</b>
-                                    <span style="float: right;">{{ formatoMoneda(unidades[0]?.valor_descuento || 0) }}</span>
-                                </td>
-                                <td colspan="2">
-                                    <b>Fecha Entrega:</b>
-                                    <span style="float: right;">{{ display_fecha_entrega || '-' }}</span>
-                                </td>
-                            </tr>
+                            <template v-for="(unidad, index) in unidades" :key="'espec-' + index">
+                                <tr>
+                                    <td colspan="12" style="height: 0.5rem; border: none;"></td>
+                                </tr>
+                                <tr>
+                                    <th colspan="12" style="background: #2f75b5; color: white; text-align: center;">
+                                        Especificaciones Item #{{ index + 1 }}
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Clase</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.clase || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Tipo</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.tipo || unidadesDetalladas[index]?.observacion_apto || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Planta</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.piso || extraerPiso(unidad.numero_apartamento) }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;"># Alcobas</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.num_alcobas || '0' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;"># Baños</b>
+                                    </td>
+                                     <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.num_banos || '0' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Invent. Terminado</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.inv_terminado == '1' ? 'SI' : 'NO' }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Area Total</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.area_total ? unidadesDetalladas[index].area_total + ' m²' : '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Área Priv. Cubierta</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.area_privada_cub ? unidadesDetalladas[index].area_privada_cub + ' m²' : '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Área Priv. Libre</b>
+                                    </td>
+                                    <td colspan="7" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.area_privada_lib ? unidadesDetalladas[index].area_privada_lib + ' m²' : '-' }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Localización</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.localizacion || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Altura</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.altura || '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Asoleación</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.asoleacion == 'PM' ? 'Sol de tarde' : unidadesDetalladas[index]?.asoleacion == 'AM' ? 'Sol de mañana' : '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Cerca Portería</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.cerca_porteria == '0' ? 'NO' : unidadesDetalladas[index]?.cerca_porteria == '1' ? 'SI' : '-' }}</span>
+                                    </td>
+                                      <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Plazo Obra</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ d_meses ? d_meses + ' meses' : '-' }}</span>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
+                                        <b style="font-size: 8px;">Fecha entrega</b>
+                                    </td>
+                                    <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
+                                        <span style="font-size: 8px;">{{ unidad.fecha_entrega_f || d_fecha_entrega || '-' }}</span>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
-                <div style="padding: .4rem 2.2rem; margin-top: 4rem;">
+                <div style="padding: .4rem 2.2rem; margin-top: 2rem;">
                     <span style="color: #009AB9; font-weight: bold; font-size: 15px;">
                         Img Unidad:
                         <samp style="font-size: 1rem;">
@@ -2258,8 +2282,6 @@
                         No hay imagen disponible
                     </div>
                 </div>
-
-                <!-- Otros Links -->
                 <div v-if="mostrarOtrosLinks" style="padding: .8rem 1rem; font-size: 11px; color: #444; line-height: 1.3; margin-top: .5rem; page-break-inside: avoid;">
                     <h3 style="font-size: 13px; font-weight: 700; color: #007a8c; margin-bottom: .6rem; text-align: center; page-break-after: avoid;">
                         Otros Links

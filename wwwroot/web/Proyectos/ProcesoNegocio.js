@@ -114,6 +114,7 @@ export default {
                 id_cliente: '',
                 id_tipo_tramite: '',
                 usuario: '',
+                id_modo_atencion: []
             },
             modo_atencion: [],
             tipo_registro: [],
@@ -135,6 +136,7 @@ export default {
             filtroProyecto: '',
             contadorProyectos: {},
             unidades: [],
+            unidadesDetalladas: [],
             tipoProyecto: null,
             logoProyecto: null,
             tipo_factor: [],
@@ -691,6 +693,20 @@ export default {
             const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
             this.unidadOpcion = resp.data[0][0];
             this.reformaActivo = this.unidadOpcion?.inv_terminado == 1;
+
+            this.unidadesDetalladas = await Promise.all(
+                this.unidades.map(async (unidad) => {
+                    try {
+                        const respUnidad = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', {
+                            id_unidad: unidad.id_unidad
+                        });
+                        return respUnidad.data[0][0];
+                    } catch (error) {
+                        console.error(`Error al cargar unidad ${unidad.id_unidad}:`, error);
+                        return unidad;
+                    }
+                })
+            );
 
             if (GlobalVariables.id_proyecto) {
                 try {
@@ -1307,7 +1323,7 @@ export default {
                     id_tipo_tramite: '',
                     usuario: '',
                     id_tipo_registro: '',
-                    id_modo_atencion: ''
+                    id_modo_atencion: []
                 }
                 if (Array.isArray(this.tipo_registro)) {
                     this.tipo_registro.forEach(item => item.checked = false);
@@ -2762,6 +2778,7 @@ export default {
                 id_cliente: '',
                 id_tipo_tramite: '',
                 usuario: '',
+                id_modo_atencion: []
             };
         },
         async modalveto() {
@@ -4835,10 +4852,22 @@ export default {
             return this.visitas.filter(v => v.proyecto === this.filtroProyecto);
         },
         tramite() {
-            return this.modo_atencion.some(item => item.modo_atencion === 'Tramites' && item.checked);
+            const tramiteItem = this.modo_atencion.find(item => item.modo_atencion === 'Tramites');
+            if (!tramiteItem) return false;
+
+            if (Array.isArray(this.ObjVisita.id_modo_atencion)) {
+                return this.ObjVisita.id_modo_atencion.includes(tramiteItem.id_modo_atencion);
+            }
+            return this.ObjVisita.id_modo_atencion === tramiteItem.id_modo_atencion;
         },
         Otro() {
-            return this.modo_atencion.some(item => item.modo_atencion === 'Otro' && item.checked);
+            const otroItem = this.modo_atencion.find(item => item.modo_atencion === 'Otro');
+            if (!otroItem) return false;
+
+            if (Array.isArray(this.ObjVisita.id_modo_atencion)) {
+                return this.ObjVisita.id_modo_atencion.includes(otroItem.id_modo_atencion);
+            }
+            return this.ObjVisita.id_modo_atencion === otroItem.id_modo_atencion;
         },
         cotizacionesFiltradas() {
             if (this.ishistory) {
@@ -5141,6 +5170,16 @@ export default {
         f_ingresos_mensuales() {
             if (this.seleccionAnioEntrega) {
                 this.calcularSubsidio();
+            }
+        },
+        tramite(newVal) {
+            if (!newVal) {
+                this.ObjVisita.id_tipo_tramite = '';
+            }
+        },
+        Otro(newVal) {
+            if (!newVal) {
+                this.ObjVisita.otro_texto = '';
             }
         }
     },

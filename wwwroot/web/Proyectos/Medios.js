@@ -63,6 +63,9 @@
             logoFile: null,
             slideFile: null,
             plantaFile: null,
+            logoChanged: false,
+            slideChanged: false,
+            plantaChanged: false,
             selectImg: null,
             selectVid: null,
             selectRvr: null,
@@ -92,6 +95,7 @@
             expandedVisible: false,
             expandedImage: null,
             archivosPreview: [],
+            uploadedFilesMap: [],
         };
     },
     computed: {
@@ -153,8 +157,6 @@
             await this.loadPreviewItem();
         },
         async setSubmode(index) {
-
-            console.log(this.logoPreview  )
             const hayPendientes =
                 this.previews.some(item => !!item.extension) ||
                 (this.previewsAvo && this.previewsAvo.some(item => !!item.extension));
@@ -370,9 +372,16 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         this[targetKey] = e.target.result;
-                        if (targetKey === 'logoPreview') this.logoFile = file;
-                        else if (targetKey === 'slidePreview') this.slideFile = file;
-                        else if (targetKey === 'plantaPreview') this.plantaFile = file;
+                        if (targetKey === 'logoPreview') {
+                            this.logoFile = file;
+                            this.logoChanged = true;
+                        } else if (targetKey === 'slidePreview') {
+                            this.slideFile = file;
+                            this.slideChanged = true;
+                        } else if (targetKey === 'plantaPreview') {
+                            this.plantaFile = file;
+                            this.plantaChanged = true;
+                        }
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -461,9 +470,16 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         this[targetKey] = e.target.result;
-                        if (targetKey === 'logoPreview') this.logoFile = file;
-                        else if (targetKey === 'slidePreview') this.slideFile = file;
-                        else if (targetKey === 'plantaPreview') this.plantaFile = file;
+                        if (targetKey === 'logoPreview') {
+                            this.logoFile = file;
+                            this.logoChanged = true;
+                        } else if (targetKey === 'slidePreview') {
+                            this.slideFile = file;
+                            this.slideChanged = true;
+                        } else if (targetKey === 'plantaPreview') {
+                            this.plantaFile = file;
+                            this.plantaChanged = true;
+                        }
                     };
                     reader.readAsDataURL(file);
                 } else {
@@ -752,9 +768,16 @@
             };
             reader.readAsDataURL(file);
 
-            if (target === 'logoPreview') this.logoFile = { file, tipo: 'logo' };
-            else if (target === 'slidePreview') this.slideFile = { file, tipo: 'slide' };
-            else if (target === 'plantaPreview') this.plantaFile = { file, tipo: 'planta' };
+            if (target === 'logoPreview') {
+                this.logoFile = { file, tipo: 'logo' };
+                this.logoChanged = true;
+            } else if (target === 'slidePreview') {
+                this.slideFile = { file, tipo: 'slide' };
+                this.slideChanged = true;
+            } else if (target === 'plantaPreview') {
+                this.plantaFile = { file, tipo: 'planta' };
+                this.plantaChanged = true;
+            }
 
         },
         expandImage(type) {
@@ -787,10 +810,22 @@
                 return f instanceof File ? f : f.file || null;
             }
 
+            
             if (this.submode === 1) {
-                [this.logoFile, this.slideFile, this.plantaFile].forEach(fObj => {
-                    const file = getFile(fObj);
-                    if (file) form.append(file.name, file);
+                this.uploadedFilesMap = [];
+                const filesWithTypes = [
+                    { file: this.logoFile, tipo: 'logo', orden: 0, changed: this.logoChanged },
+                    { file: this.slideFile, tipo: 'slide', orden: 1, changed: this.slideChanged },
+                    { file: this.plantaFile, tipo: 'planta', orden: 2, changed: this.plantaChanged }
+                ];
+
+               
+                filesWithTypes.forEach(item => {
+                    const file = getFile(item.file);
+                    if (file && item.changed) {
+                        form.append(file.name, file);
+                        this.uploadedFilesMap.push(item);
+                    }
                 });
             } else if (this.submode === 2) {
                 this.files.forEach(fObj => {
@@ -853,16 +888,40 @@
             const folder = folderMap[this.submode] || 'principal';
 
             if (this.submode === 1) {
-                const fileList = [this.logoFile, this.slideFile, this.plantaFile].map(getFile).filter(Boolean);
+                
+                const allFiles = [
+                    { file: this.logoFile, tipo: 'logo', orden: 0, changed: this.logoChanged },
+                    { file: this.slideFile, tipo: 'slide', orden: 1, changed: this.slideChanged },
+                    { file: this.plantaFile, tipo: 'planta', orden: 2, changed: this.plantaChanged }
+                ];
 
-                this.S3Files = fileList.map((file, index) => ({
-                    file,
-                    name: this.newName,
-                    orden: index,
-                    id_documento: response.data[index]?.Id,
-                    id_proyecto: GlobalVariables.id_proyecto,
-                    tipo: ['logo', 'slide', 'planta'][index]
-                }));
+                let uploadIndex = 0;
+                this.S3Files = allFiles
+                    .filter(item => getFile(item.file) !== null)
+                    .map((item) => {
+                        const file = getFile(item.file);
+                        let id_documento;
+
+                        if (item.changed) {
+                            
+                            id_documento = response.data[uploadIndex]?.Id;
+                            uploadIndex++;
+                        } else {
+                           
+                            id_documento = file?.id_documento;
+                        }
+
+                        return {
+                            file: file,
+                            name: this.newName,
+                            orden: item.orden,
+                            id_documento: id_documento || 1,
+                            id_proyecto: GlobalVariables.id_proyecto,
+                            tipo: item.tipo,
+                            changed: item.changed
+                        };
+                    });
+
             } else {
                 const previewsSource = this.submode === 5 ? this.previewsAvo : this.previews;
                 this.S3Files = response.data.map((item, index) => {
@@ -900,13 +959,15 @@
             }
 
             for (const archivo of this.S3Files) {
+                const grupoId = (this.submode === 1) ? 0 : this.selectedGrupoId;
+
                 const result = await httpFunc("/generic/genericST/Medios:Del_Archivos", {
                     nombre: archivo.name || '',
                     orden: archivo.orden,
                     id_documento: archivo.id_documento,
                     id_proyecto: archivo.id_proyecto,
                     tipo: archivo.tipo,
-                    id_grupo_proyecto: this.selectedGrupoId
+                    id_grupo_proyecto: grupoId
                 });
 
                 if (result.isError) {
@@ -917,12 +978,13 @@
             }
 
             for (const archivo of this.S3Files) {
+                const grupoId = (this.submode === 1) ? 0 : this.selectedGrupoId;
                 const result = await httpFunc("/generic/genericST/Medios:Ins_Archivos", {
                     nombre: archivo.name || '',
                     orden: archivo.orden,
                     id_documento: archivo.id_documento || 1,
                     id_proyecto: archivo.id_proyecto,
-                    id_grupo_proyecto: this.selectedGrupoId,
+                    id_grupo_proyecto: grupoId,
                     tipo: archivo.tipo,
                     link: archivo.link,
                     extension: archivo.extension || ''
@@ -986,6 +1048,16 @@
             }
 
             if (this.submode === 1) {
+                this.logoPreview = null;
+                this.slidePreview = null;
+                this.plantaPreview = null;
+                this.logoFile = null;
+                this.slideFile = null;
+                this.plantaFile = null;
+                this.logoChanged = false;
+                this.slideChanged = false;
+                this.plantaChanged = false;
+
                 const tipos = ['logo', 'slide', 'planta'];
                 const seenKeys = new Set();
 
@@ -993,7 +1065,7 @@
                     const res = await httpFunc("/generic/genericDT/Medios:Get_Archivos", {
                         id_proyecto: GlobalVariables.id_proyecto,
                         tipo,
-                        id_grupo_proyecto: this.selectedGrupoId,
+                        id_grupo_proyecto: 0, // Para imágenes principales no se usa grupo
                     });
 
                     if (res?.data?.length) {
@@ -1045,6 +1117,9 @@
                 });
 
                 if (this.submode === 1) {
+                    // Guardar el id_documento en el fileObj para usarlo después
+                    fileObj.id_documento = file.id_documento;
+
                     if (file.tipo.includes('logo')) {
                         this.logoPreview = src;
                         this.logoFile = fileObj;
