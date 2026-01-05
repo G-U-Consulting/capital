@@ -325,6 +325,7 @@ export default {
             valor_credito_final_base: 0,
             cuota_inicial_final_anterior: null,
             davivienda: {},
+            cupones: [],
 
             showBorradorModal: false,
             borradorData: null,
@@ -332,6 +333,7 @@ export default {
             modoSoloLectura: false,
             unidadesYaOpcionadas: false,
             showDaviviendaModal: false,
+            showAvisorModal: false,
             davForm: true,
             davUrl: null,
         };
@@ -3904,12 +3906,20 @@ export default {
                 }
 
                 if (nueva) {
-                    httpFunc(`/stradata/${idOpcionFinal}/${this.ObjCliente.id_cliente}`, 
+                    let sds = (await httpFunc(`/stradata/${idOpcionFinal}/${this.ObjCliente.id_cliente}`, 
                         {
                             nombre: `${this.ObjCliente.nombres || ''} ${this.ObjCliente.apellido1 || ''} ${this.ObjCliente.apellido2 || ''}`,
                             id: this.ObjCliente.numeroDocumento || '',
                         }
-                    );
+                    )).data;
+                    console.log(sds);
+                    if (sds.restricted) mensaje = "Error: No es posible continuar con la opción.";
+                    else {
+                        this.cupones = (await httpFunc(`/avisor`, { id_opcion: idOpcionFinal })).data;
+                        console.log(this.cupones);
+                        this.showAvisorModal = true;
+                    }
+
                 }
 
                 await this.eliminarBorrador();

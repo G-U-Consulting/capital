@@ -58,7 +58,7 @@ public class Avisor
                             <ecol:ReferenceArray>{cupon["cuenta_tipo"]}</ecol:ReferenceArray>
                             <ecol:ReferenceArray>{cupon["cuenta_numero"]}</ecol:ReferenceArray>
                             <ecol:ReferenceArray>{cupon["convenio"]}</ecol:ReferenceArray>
-                            <ecol:PaymentSystem>10</ecol:PaymentSystem>
+                            <ecol:PaymentSystem></ecol:PaymentSystem>
                             <ecol:Invoice>{cupon["Invoice"]}</ecol:Invoice>
                         </ecol:request>
                     </ecol:createTransactionPayment>
@@ -79,13 +79,18 @@ public class Avisor
             if (result != null)
             {
                 string? returnCode = result.Element(ns + "ReturnCode")?.Value;
+                res["Invoice"] = cupon["Invoice"]?.ToString();
+                res["unidad"] = cupon["unidad"]?.ToString();
                 if (returnCode == "SUCCESS")
                 {
                     res["isError"] = false;
                     res["ticketId"] = result.Element(ns + "TicketId")?.Value;
                     res["eCollectUrl"] = result.Element(ns + "eCollectUrl")?.Value;
                 }
-                else res["isError"] = true;
+                else {
+                    res["isError"] = true;
+                    res["errorMessage"] = returnCode;
+                }
             }
             cupones.Add(res);
         }
