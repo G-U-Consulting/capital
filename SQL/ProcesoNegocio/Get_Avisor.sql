@@ -2,7 +2,7 @@
 -- Proceso: ProcesoNegocio/Get_Avisor
 -- =============================================
 --START_PARAM
-set @id_opcion = 100;
+set @id_opcion = NULL;
 --END_PARAM
 
 select regexp_replace(coalesce(p.za1_id, (p.id_proyecto)), '[A-Za-z]', '') as `ID_rotafolio`, p.id_sede as `ID_ciudad`,

@@ -445,10 +445,15 @@ app.Map("/stradata/{id_opcion}/{id_cliente}", async (HttpContext context, string
     
     return Results.Empty;
 });
-app.Map("/avisor/{id_opcion}", async (HttpContext context, string id_opcion) =>
+app.Map("/avisor", async (HttpContext context) =>
 {
-    Avisor avisor = await Avisor.GetInstance(id_opcion, rootPath);
-    string link = await avisor.GenerarLink();
+    string body;
+    using (var stream = new StreamReader(context.Request.Body)) {
+        body = await stream.ReadToEndAsync();
+    }
+    JObject obj = (JObject?)JsonConvert.DeserializeObject(body) ?? [];
+    Avisor avisor = await Avisor.GetInstance(obj, rootPath);
+    string link = await avisor.GetLinks();
     return link;
 });
 app.Run();
