@@ -13,12 +13,10 @@ public class Avisor
     private JArray data = [];
     private static string rootPath = "";
 
-    public static async Task<Avisor> GetInstance(string id_opcion, string rp)
+    public static async Task<Avisor> GetInstance(JObject obj, string rp)
     {
         if (string.IsNullOrEmpty(rootPath)) rootPath = rp;
-        JObject? obj = [];
         JArray JData = [];
-        obj["id_opcion"] = id_opcion;
         JToken resData = await Generic.ProcessRequest(null, null, "genericDT", "ProcesoNegocio/Get_Avisor", JsonConvert.SerializeObject(obj), rootPath);
         if (resData != null)
         {
@@ -32,7 +30,7 @@ public class Avisor
         };
     }
 
-    public async Task<string> GenerarLink()
+    public async Task<string> GetLinks()
     {
         JArray cupones = [];
         foreach (JObject cupon in data.Cast<JObject>())
@@ -72,6 +70,7 @@ public class Avisor
             HttpResponseMessage response = await client.PostAsync(url_pdn, content);
             string soapResponse = await response.Content.ReadAsStringAsync();
 
+            Console.WriteLine("Response avisor: \n" + soapResponse);
             XDocument xdoc = XDocument.Parse(soapResponse);
             XNamespace ns = "http://www.avisortech.com/eCollectWebservices";
             var result = xdoc.Descendants(ns + "createTransactionPaymentResult").FirstOrDefault();

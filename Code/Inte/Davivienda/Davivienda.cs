@@ -23,7 +23,7 @@ public class Davivienda
         if (ciudad == "bogota")
         {
             entorno = "aws";
-            conexion = "lab";
+            conexion = "pdn";
         }
         else if (ciudad == "medellin")
         {

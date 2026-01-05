@@ -385,7 +385,6 @@ export default {
             this.tooltipX = event.clientX + 10;
             this.tooltipY = event.clientY + 10;
         },
-
         
 		openImgModal(img) {
 			this.modalImage = img
@@ -434,15 +433,46 @@ export default {
             if (value === null || value === undefined || value === '') return 0;
             if (typeof value === 'number') return value;
 
-            const cleaned = String(value)
-                .replace(/\$/g, '')
-                .replace(/\s/g, '')
-                .replace(/\./g, '')
-                .replace(',', '.')
-                .trim();
+            let str = String(value).replace(/\$/g, '').replace(/\s/g, '').trim();
+            if (str === '') return 0;
 
-            if (cleaned === '') return 0;
-            return parseFloat(cleaned) || 0;
+            const puntos = (str.match(/\./g) || []).length;
+            const comas = (str.match(/,/g) || []).length;
+
+            if (puntos > 1) {
+                str = str.replace(/\./g, '').replace(',', '.');
+            }
+            else if (comas > 1) {
+                str = str.replace(/,/g, '');
+            }
+            else if (puntos === 1 && comas === 1) {
+                const posPunto = str.indexOf('.');
+                const posComa = str.indexOf(',');
+                if (posPunto < posComa) {
+                    str = str.replace(/\./g, '').replace(',', '.');
+                }
+                else {
+                    str = str.replace(/,/g, '');
+                }
+            }
+            else if (comas === 1 && puntos === 0) {
+                const partes = str.split(',');
+                if (partes[1] && partes[1].length <= 2) {
+                    str = str.replace(',', '.');
+                }
+                else {
+                    str = str.replace(',', '');
+                }
+            }
+
+            else if (puntos === 1 && comas === 0) {
+                const partes = str.split('.');
+                if (partes[1] && (partes[1].length > 2 || partes[1].length === 3)) {
+                    str = str.replace(/\./g, '');
+                }
+            }
+
+            return parseFloat(str) || 0;
         },
         calcularValorFinal(apto) {
 			if (!apto) return '';
