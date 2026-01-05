@@ -556,7 +556,7 @@ table thead th {
   .modal-buttons button {
     min-width: 100px;
     text-align: center;
-    border: none;
+    border: none !important;
     outline: none;
   }
   .modal-buttons button:first-child {
@@ -2384,6 +2384,12 @@ tr.cal-row-info > td {
   max-height: 92vh;
   overflow-y: auto;
 }
+
+.modal-container button {
+  border: none !important;
+  outline: none;
+}
+
 .modal-check-cont {
   display: flex; 
   flex-wrap: wrap;
@@ -3019,6 +3025,11 @@ tr.cal-row-info > td {
   border-bottom: 1px solid #eee;
 }
 
+.tabla-modal-box button {
+  border: none !important;
+  outline: none;
+}
+
 .tabla-scroll-content {
     overflow-y: auto;
     max-height: calc(90vh - 100px);
@@ -3048,6 +3059,11 @@ tr.cal-row-info > td {
   font-size: 1.4em;
   margin-bottom: 1em;
   text-align: center;
+}
+
+.asunto-modal-box button {
+  border: none !important;
+  outline: none;
 }
 
 .asunto-select {
@@ -4642,6 +4658,11 @@ tr.cal-row-info > td {
     max-height: calc(100vh - 80px);
     overflow-y: auto;
     animation: fadeIn 0.25s ease-out;
+}
+
+.modal-card-large button {
+    border: none !important;
+    outline: none;
 }
 
 .modal-header {
