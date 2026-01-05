@@ -1525,6 +1525,17 @@
                     <button @click="detalle = true">Ver detalle</button>
                 </div>
             </div>
+            <div class="pure-u-1 pure-u-md-1-3">
+                <div class="formInputStandard" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="white-space: nowrap;">Pie Legal:</span>
+                    <select v-model="id_pie_legal_seleccionado" :disabled="esOpcionGuardada || modoSoloLectura" style="flex: 1;">
+                        <option value="">-- Seleccione un pie legal (opcional) --</option>
+                        <option v-for="item in pies_legales_activos" :key="item.id_pie_legal" :value="item.id_pie_legal">
+                            {{ item.pie_legal }}
+                        </option>
+                    </select>
+                </div>
+            </div>
             <div class="pure-u-1 pure-u-md-1-1">
                 <div v-if="tablaAmortizacion" class="tabla-modal-overlay">
                     <div class="tabla-modal-box" style="position: relative;">
@@ -1624,8 +1635,6 @@
                                         <td colspan="7" style="padding: 0; border: none;"></td>
                                     </tr>
                                 </tbody>
-
-                                <!-- SECCIÓN 3: Totales finales con encabezado Concepto | Importe -->
                                 <thead>
                                     <tr style="border-top: 3px solid #00839C;">
                                         <th colspan="6" style="text-align: left; background-color: #00839C; color: white; padding: 8px;">Concepto</th>
@@ -2122,7 +2131,7 @@
                                         <b style="font-size: 8px;">Clase</b>
                                     </td>
                                     <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
-                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.clase || '-' }}</span>
+                                        <span style="font-size: 8px;">{{ unidadesDetalladas[index]?.clase1 || '-' }}</span>
                                     </td>
                                     <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; background: #bdd7ee; text-align: center; padding: 4px;">
                                         <b style="font-size: 8px;">Tipo</b>
@@ -2322,6 +2331,15 @@
                                 notariado y registro</em>,
                             entre otros, y no son negociables por las partes.
                         </p>
+                    </div>
+
+                    <div v-if="texto_pie_legal" style="border-top: 1px solid #bbb; margin: .8rem 0;"></div>
+
+                    <div v-if="texto_pie_legal" style="margin-bottom: .6rem;">
+                        <h4 style="font-size: 11px; font-weight: 700; color: #007a8c; margin-bottom: .4rem; text-align: center;">
+                            Pie Legal
+                        </h4>
+                        <div v-html="texto_pie_legal" style="text-align: justify; margin: .4rem 0; line-height: 1.5; font-size: 11px; width: 100%; overflow: visible; word-wrap: break-word;"></div>
                     </div>
                 </div>
                 <div style="text-align: center; font-size: 14px; line-height: 1.4; margin-top: 2.5rem; page-break-inside: avoid;">

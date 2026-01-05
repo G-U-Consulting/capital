@@ -336,6 +336,10 @@ export default {
             showAvisorModal: false,
             davForm: true,
             davUrl: null,
+
+            pies_legales_activos: [],
+            id_pie_legal_seleccionado: '',
+            texto_pie_legal: '',
         };
     },
     async mounted() {
@@ -365,6 +369,7 @@ export default {
         window.addEventListener('message', this.handleMessages);
         window.addEventListener('beforeunload', this.handleBeforeUnload);
         this.isSubsidio();
+        await this.cargarPiesLegales();
 
         window.activeMiniModule = this;
         window.activeMiniModule.name = "ProcesoNegocio";
@@ -372,16 +377,29 @@ export default {
     },
     methods: {
         extraerPiso(numero_apartamento) {
-            
+
             if (!numero_apartamento) return '-';
-        
+
             const numeros = numero_apartamento.toString().replace(/\D/g, '');
-           
+
             if (numeros.length >= 3) {
                 return numeros.slice(0, -2);
             }
-            
+
             return numeros || '-';
+        },
+        async cargarPiesLegales() {
+            try {
+                const resp = await httpFunc('/generic/genericDS/Maestros:Get_Maestros', {});
+                if (resp.data && resp.data[8]) {
+                    const todosLosPiesLegales = resp.data[8];
+                    if (todosLosPiesLegales && Array.isArray(todosLosPiesLegales)) {
+                        this.pies_legales_activos = todosLosPiesLegales.filter(p => p.is_active == '1' || p.is_active == 1);
+                    }
+                }
+            } catch (error) {
+                console.error('Error al cargar pies legales:', error);
+            }
         },
         formatNumber(value, dec = true, ndec = 2) {
             if (value == null || value === "") return "";
@@ -1411,6 +1429,7 @@ export default {
                     fecha_primera_cuota: this.esOpcionGuardada ? this.opcion_fecha_primera_cuota : this.d_fecha_cuota,
                     fecha_ultima_cuota: this.esOpcionGuardada ? this.opcion_fecha_ultima_cuota : this.d_fecha_ulti_cuota,
                     fecha_escrituracion: this.esOpcionGuardada ? this.opcion_fecha_escrituracion : this.d_fecha_escrituracion,
+                    id_pie_legal: this.id_pie_legal_seleccionado || null,
                     tablaPeriodos: this.tablaPeriodos || []
                 };
 
@@ -1501,7 +1520,7 @@ export default {
                 this.pagoSeleccionado = opcion.pagoSeleccionado || '';
                 this.planSeleccionado = opcion.planSeleccionado || null;
                 this.reformaActivo = opcion.reformaActivo || false;
-                // subsidioActivo NO debe cargarse desde opciones guardadas, siempre viene del proyecto
+                
                 this.factorBanco = opcion.factorBanco || 0;
                 this.valor_credito = opcion.valor_credito || 0;
                 this.valor_credito_max = opcion.valor_credito_max || 0;
@@ -1513,6 +1532,8 @@ export default {
                 this.d_fecha_cuota = opcion.fecha_primera_cuota || null;
                 this.d_fecha_ulti_cuota = opcion.fecha_ultima_cuota || null;
                 this.d_fecha_escrituracion = opcion.fecha_escrituracion || null;
+
+                this.id_pie_legal_seleccionado = opcion.id_pie_legal || '';
 
                 // if (opcion.tablaPeriodos && opcion.tablaPeriodos.length > 0) {
                 //     this.cargarTablaAmortizacion(opcion.tablaPeriodos);
@@ -5191,6 +5212,14 @@ export default {
         Otro(newVal) {
             if (!newVal) {
                 this.ObjVisita.otro_texto = '';
+            }
+        },
+        id_pie_legal_seleccionado(val) {
+            if (val) {
+                const pieLegal = this.pies_legales_activos.find(p => p.id_pie_legal == val);
+                this.texto_pie_legal = pieLegal ? pieLegal.texto : '';
+            } else {
+                this.texto_pie_legal = '';
             }
         }
     },
