@@ -2838,30 +2838,34 @@
     </div>
 </div>
 
-<div v-if="showAvisorModal" class="asunto-modal-overlay">
-    <div class="asunto-modal-box" style="min-width: 400px; max-width: 75vw; width: min-content; padding: 1rem;">
-        <span class="asunto-modal-close" @click="showAvisorModal = false;">×</span>
-        <h3 style="margin-bottom: .5rem; color: #E1111C;">Cupones de separación - Avisor</h3>
-        <div style="max-height: calc(100vh - 22rem); min-height: 300px; overflow-y: auto;">
-            <ul>
-                <li v-for="cupon in cupones" class="cupon-item">
-                    <p><strong>Factura:</strong> {{ cupon.Invoice }}</p>
-                    <p><strong>Unidad:</strong> {{ cupon.unidad }}</p>
 
-                    <div v-if="!cupon.isError">
-                        <p><strong>Ticket ID:</strong> {{ cupon.ticketId }}</p>
-                        <button class="avisor-button" @click="window.open(cupon.eCollectUrl, "_blank")">
-                            Ir al enlace de pago
-                        </button>
-                    </div>
-                    <div v-else>
-                        <p class="avisor-error"><strong>Error:</strong> {{ cupon.errorMessage }}</p>
+<div v-if="showAvisorModal" class="asunto-modal-overlay">
+    <div class="asunto-modal-box" style="min-width: 500px; max-width: 75vw; width: min-content; padding: 1rem;">
+        <span class="asunto-modal-close" @click="showAvisorModal = false;">×</span>
+        <h3 style="margin-bottom: .5rem; color: #00839C;">Cupones de separación - Avisor</h3>
+        <div style="max-height: calc(100vh - 18rem); min-height: 250px; overflow-y: auto;">
+            <ul>
+                <li v-for="cupon in cupones" class="avisor-cupon-item">
+                    <div class="pure-g" style="align-items: baseline;">
+                        <span class="pure-u-1-2"><strong>Unidad:</strong> {{ cupon.unidad }}</span>
+                        <span class="pure-u-1-2" style="text-align: center;">
+                            <strong>Factura:</strong> {{ cupon.Invoice }}
+                        </span>
+
+                        <template v-if="!cupon.isError">
+                            <span class="pure-u-1-2"><strong>Ticket ID:</strong> {{ cupon.ticketId }}</span>
+                            <div class="avisor-div-btn">
+                                <button class="avisor-button" @click="openLink(cupon.eCollectUrl)">
+                                    Abrir Cupón
+                                </button>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <p class="avisor-error"><strong>Error:</strong> {{ cupon.errorMessage }}</p>
+                        </template>
                     </div>
                 </li>
             </ul>
-            <div class="formInputStandard" style="display: flex; width: 100%; justify-content: center;">
-                <button  class="avisor-button" @click="requestDavivienda">Volver</button>
-            </div>
         </div>
     </div>
 </div>

@@ -58,19 +58,19 @@ public class Avisor
                             <ecol:ReferenceArray>{cupon["cuenta_tipo"]}</ecol:ReferenceArray>
                             <ecol:ReferenceArray>{cupon["cuenta_numero"]}</ecol:ReferenceArray>
                             <ecol:ReferenceArray>{cupon["convenio"]}</ecol:ReferenceArray>
-                            <ecol:PaymentSystem></ecol:PaymentSystem>
+                            <ecol:PaymentSystem>10</ecol:PaymentSystem>
                             <ecol:Invoice>{cupon["Invoice"]}</ecol:Invoice>
                         </ecol:request>
                     </ecol:createTransactionPayment>
                 </soapenv:Body>
             </soapenv:Envelope>";
-            Console.WriteLine(xml);
+            //Console.WriteLine(xml);
             HttpClient client = new();
             StringContent content = new(xml, Encoding.UTF8, "text/xml");
             HttpResponseMessage response = await client.PostAsync(url_pdn, content);
             string soapResponse = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine("Response avisor: \n" + soapResponse);
+            //Console.WriteLine("Response avisor: \n" + soapResponse);
             XDocument xdoc = XDocument.Parse(soapResponse);
             XNamespace ns = "http://www.avisortech.com/eCollectWebservices";
             var result = xdoc.Descendants(ns + "createTransactionPaymentResult").FirstOrDefault();

@@ -3906,17 +3906,15 @@ export default {
                 }
 
                 if (nueva) {
-                    let sds = (await httpFunc(`/stradata/${idOpcionFinal}/${this.ObjCliente.id_cliente}`, 
+                    let sds = await httpFunc(`/stradata/${idOpcionFinal}/${this.ObjCliente.id_cliente}`, 
                         {
                             nombre: `${this.ObjCliente.nombres || ''} ${this.ObjCliente.apellido1 || ''} ${this.ObjCliente.apellido2 || ''}`,
                             id: this.ObjCliente.numeroDocumento || '',
                         }
-                    )).data;
-                    console.log(sds);
+                    );
                     if (sds.restricted) mensaje = "Error: No es posible continuar con la opción.";
                     else {
-                        this.cupones = (await httpFunc(`/avisor`, { id_opcion: idOpcionFinal })).data;
-                        console.log(this.cupones);
+                        this.cupones = await httpFunc(`/avisor`, { id_opcion: idOpcionFinal });
                         this.showAvisorModal = true;
                     }
 
@@ -4579,6 +4577,9 @@ export default {
                 'left=100'
             ].join(',');
             GlobalVariables.ventanaRotafolio = window.open(url, 'VentanaModuloRotafolio', features);
+        },
+        openLink(url) {
+            window.open(url, '_blank');
         }
     },
     computed: {

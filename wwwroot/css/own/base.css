@@ -4866,20 +4866,21 @@ tr.cal-row-info > td {
 }
 
 .avisor-cupon-item {
-  margin-bottom: 15px;
-  padding: 10px;
+  margin-bottom: 12px;
+  padding: 5px;
   border-bottom: 1px solid #ddd;
 }
 .avisor-button {
-  background: #38a73f;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
+  background-color: #38a73f !important;
+  margin-top: 1rem;
 }
 .avisor-button:hover {
-  background: #2c2f41;
+  background-color: #2c2f41 !important;
+}
+.avisor-div-btn{
+  display: flex;
+  width: 50%;
+  justify-content: center;
 }
 .avisor-error {
   color: red;
