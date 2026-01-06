@@ -30,3 +30,16 @@ create table dim_lista_restrictiva(
   is_active bit default 1,
   unique(id_opcion, id_cliente)
 );
+
+create table dim_cupon_avisor (
+  id_cupon int primary key auto_increment,
+  id_opcion int not null references fact_opcion(id_opcion),
+  id_unidad int not null references fact_unidades(id_unidad),
+  invoice varchar(50) unique,
+  ticket_id varchar(50),
+  ecollect_url varchar(255),
+  is_error bit not null,
+  error_message varchar(255),
+  created_on datetime default current_timestamp,
+  unique(id_opcion, id_unidad)
+);

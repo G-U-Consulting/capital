@@ -12,6 +12,7 @@ public class Avisor
     private static readonly string url_test = "https://test1.e-collect.com/app_express/webservice/eCollectWebservicesv4.asmx?wsdl";
     private JArray data = [];
     private static string rootPath = "";
+    private string? id_opcion;
 
     public static async Task<Avisor> GetInstance(JObject obj, string rp)
     {
@@ -24,10 +25,7 @@ public class Avisor
             if (content is JArray arr && arr.Count > 0)
                 JData = arr;
         }
-        return new Avisor()
-        {
-            data = JData
-        };
+        return new Avisor() { data = JData, id_opcion = obj["id_opcion"]?.ToString() };
     }
 
     public async Task<string> GetLinks()
@@ -79,12 +77,15 @@ public class Avisor
             if (result != null)
             {
                 string? returnCode = result.Element(ns + "ReturnCode")?.Value;
+                res["id_opcion"] = id_opcion;
+                res["id_unidad"] = cupon["id_unidad"]?.ToString();
                 res["Invoice"] = cupon["Invoice"]?.ToString();
                 res["unidad"] = cupon["unidad"]?.ToString();
+                res["TransValue"] = cupon["TransValue"]?.ToString();
                 if (returnCode == "SUCCESS")
                 {
                     res["isError"] = false;
-                    res["ticketId"] = result.Element(ns + "TicketId")?.Value;
+                    res["TicketId"] = result.Element(ns + "TicketId")?.Value;
                     res["eCollectUrl"] = result.Element(ns + "eCollectUrl")?.Value;
                 }
                 else {
@@ -94,7 +95,8 @@ public class Avisor
             }
             cupones.Add(res);
         }
-
-        return JsonConvert.SerializeObject(cupones);
+        JObject obj = new() { ["data"] = cupones };
+        await Generic.ProcessRequest(null, null, "genericST", "ProcesoNegocio/Ins_CuponesAvisor", JsonConvert.SerializeObject(obj), rootPath);
+        return JsonConvert.SerializeObject(cupones);;
     }
 }
