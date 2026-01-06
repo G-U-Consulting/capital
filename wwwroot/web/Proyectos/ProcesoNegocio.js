@@ -1878,13 +1878,21 @@ export default {
         },
         ///////// Visitas ////////////
         prepararDatosVisita() {
-            const tipoRegistro = this.tipo_registro
-                .filter(item => item.checked)
-                .map(item => item.id_tipo_registro);
+            let tipoRegistro = this.ObjVisita.id_tipo_registro || this.ObjVisita.tipo_registro || '';
+            let modoAtencion = this.ObjVisita.id_modo_atencion || this.ObjVisita.modo_atencion || '';
 
-            const modoAtencion = this.modo_atencion
-                .filter(item => item.checked)
-                .map(item => item.id_modo_atencion);
+            let tipoRegistroArray = tipoRegistro;
+            let modoAtencionArray = modoAtencion;
+
+            if (Array.isArray(tipoRegistro)) {
+                tipoRegistro = tipoRegistro.join(',');
+            }
+            if (Array.isArray(modoAtencion)) {
+                modoAtencion = modoAtencion.join(',');
+            }
+
+            let idTipoRegistro = Array.isArray(tipoRegistroArray) ? tipoRegistroArray[0] : (tipoRegistro ? tipoRegistro.split(',')[0] : null);
+            let idModoAtencion = Array.isArray(modoAtencionArray) ? modoAtencionArray[0] : (modoAtencion ? modoAtencion.split(',')[0] : null);
 
             return {
                 ...this.ObjVisita,
@@ -1892,21 +1900,26 @@ export default {
                 id_cliente: this.id_cliente,
                 usuario: GlobalVariables.username,
                 id_sala_venta: GlobalVariables.sala.id_sala_venta,
-                tipo_registro: tipoRegistro.join(','),
-                modo_atencion: modoAtencion.join(',')
+                tipo_registro: tipoRegistro,
+                id_tipo_registro: idTipoRegistro,
+                modo_atencion: modoAtencion,
+                id_modo_atencion: idModoAtencion
             };
         },
 
         validateModeVisita() {
-           
+
             if (this.ObjVisita.id_visita != null && this.camposBloqueados) {
                 showMessage("Esta visita no se puede actualizar porque no es del día de hoy.");
                 return false;
             }
 
-           
+
             if (this.ObjVisita.id_visita != null && !this.camposBloqueados) {
-                if (!this.ObjVisita.id_tipo_registro || !this.ObjVisita.id_modo_atencion) {
+                const tieneRegistro = this.ObjVisita.id_tipo_registro || this.ObjVisita.tipo_registro;
+                const tieneAtencion = this.ObjVisita.id_modo_atencion || this.ObjVisita.modo_atencion;
+
+                if (!tieneRegistro || !tieneAtencion) {
                     showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
                     return false;
                 }
@@ -1917,7 +1930,10 @@ export default {
                 return false;
             }
 
-            if (!this.ObjVisita.id_tipo_registro || !this.ObjVisita.id_modo_atencion) {
+            const tieneRegistro = this.ObjVisita.id_tipo_registro || this.ObjVisita.tipo_registro;
+            const tieneAtencion = this.ObjVisita.id_modo_atencion || this.ObjVisita.modo_atencion;
+
+            if (!tieneRegistro || !tieneAtencion) {
                 showMessage("Debe seleccionar al menos un Tipo de Registro y un Modo de Atención.");
                 return false;
             }
