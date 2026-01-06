@@ -2756,7 +2756,7 @@
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
                     </div>
-                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="enviarYOpcionar">
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="showOpcionarModal = true">
                         <img src="../../img/ico/achievement.png" alt="Opcionar">
                         <span>Enviar y Opcionar</span>
                     </div>
@@ -2884,6 +2884,27 @@
                     </div>
                 </li>
             </ul>
+        </div>
+    </div>
+</div>
+
+<div v-if="showOpcionarModal" class="asunto-modal-overlay">
+    <div class="asunto-modal-box" style="max-width: 600px;">
+        <span class="asunto-modal-close" @click="showOpcionarModal = false">×</span>
+        <h3 style="margin-bottom: 1em; color: #00839C;">Confirmar Enviar y Opcionar</h3>
+        <p style="margin: 0 0 1.5em 0; line-height: 1.6; text-align: center; color: #555;">
+            Al confirmar esta acción se enviará la cotización al cliente y se guardará la opción.
+            Esta acción bloqueará los campos para edición. ¿Desea continuar?
+        </p>
+        <div style="display: flex; gap: 1em; justify-content: center;">
+            <button @click="showOpcionarModal = false" class="pure-button"
+                style="background-color: #999; color: white;">
+                Cancelar
+            </button>
+            <button @click="confirmarEnviarYOpcionar" class="pure-button pure-button-primary"
+                style="background-color: #00839C; color: white;">
+                Enviar y Opcionar
+            </button>
         </div>
     </div>
 </div>

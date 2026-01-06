@@ -334,6 +334,7 @@ export default {
             unidadesYaOpcionadas: false,
             showDaviviendaModal: false,
             showAvisorModal: false,
+            showOpcionarModal: false,
             davForm: true,
             davUrl: null,
 
@@ -3798,6 +3799,10 @@ export default {
                 return false;
             }
         },
+        async confirmarEnviarYOpcionar() {
+            this.showOpcionarModal = false;
+            await this.enviarYOpcionar();
+        },
         async enviarYOpcionar() {
             if (!this.cotizacionSeleccionada) {
                 showMessage('Debe seleccionar una cotización');
@@ -3966,10 +3971,9 @@ export default {
                 await this.eliminarBorrador();
 
                 this.tieneCambiosPendientes = false;
+                this.esOpcionGuardada = true;
 
                 showMessage(mensaje);
-                await this.limpiarObj();
-                this.setMode(0);
 
             } catch (error) {
                 console.error('Error al enviar y opcionar:', error);
