@@ -334,6 +334,7 @@ export default {
             unidadesYaOpcionadas: false,
             showDaviviendaModal: false,
             showAvisorModal: false,
+            showOpcionarModal: false,
             davForm: true,
             davUrl: null,
 
@@ -3798,6 +3799,10 @@ export default {
                 return false;
             }
         },
+        async confirmarEnviarYOpcionar() {
+            this.showOpcionarModal = false;
+            await this.enviarYOpcionar();
+        },
         async enviarYOpcionar() {
             if (!this.cotizacionSeleccionada) {
                 showMessage('Debe seleccionar una cotización');
@@ -3966,10 +3971,9 @@ export default {
                 await this.eliminarBorrador();
 
                 this.tieneCambiosPendientes = false;
+                this.esOpcionGuardada = true;
 
                 showMessage(mensaje);
-                await this.limpiarObj();
-                this.setMode(0);
 
             } catch (error) {
                 console.error('Error al enviar y opcionar:', error);
@@ -4407,7 +4411,7 @@ export default {
                 }
 
                 const workbook = new ExcelJS.Workbook();
-                const worksheet = workbook.addWorksheet('Tabla Amortización');
+                const worksheet = workbook.addWorksheet('Plan de Pagos');
 
                 worksheet.columns = [
                     { width: 15 },
@@ -4415,7 +4419,8 @@ export default {
                     { width: 20 },
                     { width: 18 },
                     { width: 20 },
-                    { width: 20 }
+                    { width: 20 },
+                    { width: 50 }
                 ];
 
                 const borderThin = {
@@ -4427,11 +4432,11 @@ export default {
 
                 let currentRow = 1;
 
-                worksheet.mergeCells('A1:F1');
+                worksheet.mergeCells('A1:G1');
                 const titleCell = worksheet.getCell('A1');
                 titleCell.value = 'PLAN DE PAGOS';
                 titleCell.font = { bold: true, size: 16, color: { argb: 'FFFFFFFF' } };
-                titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF009AB9' } };
+                titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00839C' } };
                 titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
                 titleCell.border = borderThin;
                 currentRow++;
@@ -4463,14 +4468,110 @@ export default {
                 });
 
                 currentRow++;
+  
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const conceptoHeader = worksheet.getCell(`A${currentRow}`);
+                conceptoHeader.value = 'Concepto';
+                conceptoHeader.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                conceptoHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00839C' } };
+                conceptoHeader.alignment = { horizontal: 'left', vertical: 'middle' };
+                conceptoHeader.border = borderThin;
+
+                const importeHeader = worksheet.getCell(`G${currentRow}`);
+                importeHeader.value = 'Importe';
+                importeHeader.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                importeHeader.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00839C' } };
+                importeHeader.alignment = { horizontal: 'right', vertical: 'middle' };
+                importeHeader.border = borderThin;
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const cuotaInicialRow = worksheet.getCell(`A${currentRow}`);
+                cuotaInicialRow.value = 'Cuota Inicial';
+                cuotaInicialRow.font = { bold: true, size: 11, color: { argb: 'FF1976D2' } };
+                cuotaInicialRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                cuotaInicialRow.border = borderThin;
+
+                const cuotaInicialValue = worksheet.getCell(`G${currentRow}`);
+                cuotaInicialValue.value = toNumber(this.cuotaInicialOriginal || this.cuota_inicial_final);
+                cuotaInicialValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                cuotaInicialValue.font = { bold: true, color: { argb: 'FF1976D2' } };
+                cuotaInicialValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                cuotaInicialValue.border = borderThin;
+                currentRow++;
+
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const cuotaMenosSCA = worksheet.getCell(`A${currentRow}`);
+                cuotaMenosSCA.value = 'Cuota Inicial menos subsidio, cesantías y ahorros';
+                cuotaMenosSCA.font = { size: 11 };
+                cuotaMenosSCA.alignment = { horizontal: 'left', vertical: 'middle' };
+                cuotaMenosSCA.border = borderThin;
+
+                const cuotaMenosSCAValue = worksheet.getCell(`G${currentRow}`);
+                cuotaMenosSCAValue.value = toNumber(this.cuotaInicialMenosSCA || 0);
+                cuotaMenosSCAValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                cuotaMenosSCAValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                cuotaMenosSCAValue.border = borderThin;
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const cuotaMenosSCAySep = worksheet.getCell(`A${currentRow}`);
+                cuotaMenosSCAySep.value = 'Cuota Inicial menos subsidio, cesantías, ahorros y Separación';
+                cuotaMenosSCAySep.font = { size: 11 };
+                cuotaMenosSCAySep.alignment = { horizontal: 'left', vertical: 'middle' };
+                cuotaMenosSCAySep.border = borderThin;
+
+                const cuotaMenosSCAySepValue = worksheet.getCell(`G${currentRow}`);
+                cuotaMenosSCAySepValue.value = toNumber(this.cuotaInicialMenosSCAySeparacion || 0);
+                cuotaMenosSCAySepValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                cuotaMenosSCAySepValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                cuotaMenosSCAySepValue.border = borderThin;
+                currentRow++;
+
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const cuotaSepRow = worksheet.getCell(`A${currentRow}`);
+                cuotaSepRow.value = this.subsidioActivo ? 'Cuota Gastos Notariales' : 'Cuota Separación';
+                cuotaSepRow.font = { size: 11 };
+                cuotaSepRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                cuotaSepRow.border = borderThin;
+
+                const cuotaSepValue = worksheet.getCell(`G${currentRow}`);
+                cuotaSepValue.value = this.subsidioActivo ? toNumber(this.valor_escrituras || 0) : toNumber(this.valor_separacion || 0);
+                cuotaSepValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                cuotaSepValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                cuotaSepValue.border = borderThin;
+                currentRow++;
+
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const numCuotasRow = worksheet.getCell(`A${currentRow}`);
+                numCuotasRow.value = 'Número de cuotas';
+                numCuotasRow.font = { bold: true, size: 11 };
+                numCuotasRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                numCuotasRow.border = borderThin;
+
+                const numCuotasValue = worksheet.getCell(`G${currentRow}`);
+                numCuotasValue.value = this.d_meses || 0;
+                numCuotasValue.numFmt = '0';
+                numCuotasValue.font = { bold: true };
+                numCuotasValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                numCuotasValue.border = borderThin;
+                currentRow++;
+
+                currentRow++;
 
                 const headerRow = worksheet.getRow(currentRow);
-                const headers = ['Periodo', 'Fecha', 'Saldo Inicial', 'Cuota Deseada', 'Cuota Calculada', 'Saldo Final'];
+                const headers = ['Concepto', 'Fecha', 'Saldo Inicial Periodo', 'Cuota deseada', 'Cuota Calculada', 'Saldo Final', 'Nota'];
                 headers.forEach((header, index) => {
                     const cell = headerRow.getCell(index + 1);
                     cell.value = header;
                     cell.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
-                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF009AB9' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00839C' } };
                     cell.alignment = { horizontal: 'center', vertical: 'middle' };
                     cell.border = borderThin;
                 });
@@ -4484,7 +4585,7 @@ export default {
                     const periodosRestantes = this.tablaPeriodos.length - index;
                     const cuotaDeseada = toNumber(fila.cuota_deseada);
 
-                    dataRow.getCell(1).value = fila.periodo;
+                    dataRow.getCell(1).value = `Cuota No.${fila.periodo}`;
                     dataRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
                     dataRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
                     dataRow.getCell(1).border = borderThin;
@@ -4528,6 +4629,11 @@ export default {
                     dataRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
                     dataRow.getCell(6).border = borderThin;
 
+                    dataRow.getCell(7).value = '';
+                    dataRow.getCell(7).alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+                    dataRow.getCell(7).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
+                    dataRow.getCell(7).border = borderThin;
+
                     ultimaFilaPeriodo = currentRow;
 
                     currentRow++;
@@ -4550,37 +4656,130 @@ export default {
 
                 currentRow++;
 
-                const importeRow = worksheet.getRow(currentRow);
-                importeRow.getCell(1).value = 'Importe Financiación';
-                importeRow.getCell(1).font = { bold: true, size: 11, color: { argb: 'FF0277BD' } };
-                importeRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
-                importeRow.getCell(1).border = borderThin;
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const conceptoFooter = worksheet.getCell(`A${currentRow}`);
+                conceptoFooter.value = 'Concepto';
+                conceptoFooter.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                conceptoFooter.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00839C' } };
+                conceptoFooter.alignment = { horizontal: 'left', vertical: 'middle' };
+                conceptoFooter.border = borderThin;
 
-                const valorBase = toNumber(this.valor_credito_final_base) || toNumber(this.valor_credito_final);
-
-                importeRow.getCell(6).value = {
-                    formula: `${valorBase}+SUMIF(F${primeraFilaPeriodo}:F${ultimaFilaPeriodo},"<0")`
-                };
-                importeRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "0"_);_(@_)';
-                importeRow.getCell(6).font = { bold: true, color: { argb: 'FF0277BD' } };
-                importeRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE1F5FE' } };
-                importeRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
-                importeRow.getCell(6).border = borderThin;
+                const importeFooter = worksheet.getCell(`G${currentRow}`);
+                importeFooter.value = 'Importe';
+                importeFooter.font = { bold: true, size: 11, color: { argb: 'FFFFFFFF' } };
+                importeFooter.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00839C' } };
+                importeFooter.alignment = { horizontal: 'right', vertical: 'middle' };
+                importeFooter.border = borderThin;
                 currentRow++;
 
-                if (this.valor_subsidio && toNumber(this.valor_subsidio) > 0) {
-                    const subsidioRow = worksheet.getRow(currentRow);
-                    subsidioRow.getCell(1).value = 'Subsidio No.1';
-                    subsidioRow.getCell(1).font = { bold: true, size: 11, color: { argb: 'FF388E3C' } };
-                    subsidioRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
-                    subsidioRow.getCell(1).border = borderThin;
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const subsidioRow = worksheet.getCell(`A${currentRow}`);
+                subsidioRow.value = 'Subsidios';
+                subsidioRow.font = { size: 11 };
+                subsidioRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                subsidioRow.border = borderThin;
 
-                    subsidioRow.getCell(6).value = toNumber(this.valor_subsidio);
-                    subsidioRow.getCell(6).numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
-                    subsidioRow.getCell(6).font = { bold: true, color: { argb: 'FF388E3C' } };
-                    subsidioRow.getCell(6).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F5E9' } };
-                    subsidioRow.getCell(6).alignment = { horizontal: 'right', vertical: 'middle' };
-                    subsidioRow.getCell(6).border = borderThin;
+                const subsidioValue = worksheet.getCell(`G${currentRow}`);
+                subsidioValue.value = toNumber(this.valor_subsidio || 0);
+                subsidioValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                subsidioValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                subsidioValue.border = borderThin;
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const cesantiasRow = worksheet.getCell(`A${currentRow}`);
+                cesantiasRow.value = 'Cesantías';
+                cesantiasRow.font = { size: 11 };
+                cesantiasRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                cesantiasRow.border = borderThin;
+
+                const cesantiasValue = worksheet.getCell(`G${currentRow}`);
+                cesantiasValue.value = toNumber(this.cesantias || 0);
+                cesantiasValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                cesantiasValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                cesantiasValue.border = borderThin;
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const ahorrosRow = worksheet.getCell(`A${currentRow}`);
+                ahorrosRow.value = 'Ahorros';
+                ahorrosRow.font = { size: 11 };
+                ahorrosRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                ahorrosRow.border = borderThin;
+
+                const ahorrosValue = worksheet.getCell(`G${currentRow}`);
+                ahorrosValue.value = toNumber(this.ahorros || 0);
+                ahorrosValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                ahorrosValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                ahorrosValue.border = borderThin;
+                currentRow++;
+
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const creditoRow = worksheet.getCell(`A${currentRow}`);
+                creditoRow.value = 'Crédito hipotecario';
+                creditoRow.font = { size: 11 };
+                creditoRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                creditoRow.border = borderThin;
+
+                const creditoValue = worksheet.getCell(`G${currentRow}`);
+                creditoValue.value = toNumber(this.valor_credito_final || 0);
+                creditoValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                creditoValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                creditoValue.border = borderThin;
+                currentRow++;
+
+                currentRow++;
+
+                worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                const totalImportesRow = worksheet.getCell(`A${currentRow}`);
+                totalImportesRow.value = 'Total Importes';
+                totalImportesRow.font = { bold: true, size: 11 };
+                totalImportesRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE3F2FD' } };
+                totalImportesRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                totalImportesRow.border = borderThin;
+
+                const totalImportesValue = worksheet.getCell(`G${currentRow}`);
+                totalImportesValue.value = toNumber(this.totalImportes || 0);
+                totalImportesValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                totalImportesValue.font = { bold: true };
+                totalImportesValue.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE3F2FD' } };
+                totalImportesValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                totalImportesValue.border = borderThin;
+                currentRow++;
+
+                if (!this.subsidioActivo) {
+                    worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                    const gastosRow = worksheet.getCell(`A${currentRow}`);
+                    gastosRow.value = 'Cuota Gastos notariales (solo NO VIS)';
+                    gastosRow.font = { size: 11 };
+                    gastosRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                    gastosRow.border = borderThin;
+
+                    const gastosValue = worksheet.getCell(`G${currentRow}`);
+                    gastosValue.value = toNumber(this.valor_escrituras || 0);
+                    gastosValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                    gastosValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                    gastosValue.border = borderThin;
+                    currentRow++;
+
+                    worksheet.mergeCells(`A${currentRow}:F${currentRow}`);
+                    const totalConGastosRow = worksheet.getCell(`A${currentRow}`);
+                    totalConGastosRow.value = 'Total Importes con gastos notariales';
+                    totalConGastosRow.font = { bold: true, size: 11 };
+                    totalConGastosRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE3F2FD' } };
+                    totalConGastosRow.alignment = { horizontal: 'left', vertical: 'middle' };
+                    totalConGastosRow.border = borderThin;
+
+                    const totalConGastosValue = worksheet.getCell(`G${currentRow}`);
+                    totalConGastosValue.value = toNumber(this.totalImportesConGastos || 0);
+                    totalConGastosValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
+                    totalConGastosValue.font = { bold: true };
+                    totalConGastosValue.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE3F2FD' } };
+                    totalConGastosValue.alignment = { horizontal: 'right', vertical: 'middle' };
+                    totalConGastosValue.border = borderThin;
+                    currentRow++;
                 }
 
                 const nombreArchivo = `tabla_amortizacion_${String(this.cotizacion || 'sin_cotizacion').replace(/[^a-zA-Z0-9]/g, '_')}_${GlobalVariables.proyecto.nombre.replaceAll(' ', '_')}.xlsx`;
