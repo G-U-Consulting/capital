@@ -442,7 +442,7 @@ app.Map("/stradata/{id_opcion}/{id_cliente}", async (HttpContext context, string
     }
     Stradata stradata = new(body, id_opcion, id_cliente, rootPath);
     JObject res = [];
-    res["restricted"] = false;
+    res["restricted"] = await stradata.Validate();
     
     return JsonConvert.SerializeObject(res);
 });
