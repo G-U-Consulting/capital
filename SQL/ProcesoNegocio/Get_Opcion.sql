@@ -44,6 +44,7 @@ select
     DATE_FORMAT(o.fecha_escrituracion, '%Y-%m-%d') as fecha_escrituracion,
     DATE_FORMAT(o.created_on, '%Y-%m-%d') as created_on,
     o.created_by,
+    o.id_pie_legal,
     c.id_cliente,
     c.id_proyecto,
     c.cotizacion

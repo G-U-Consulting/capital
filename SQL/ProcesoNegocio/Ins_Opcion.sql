@@ -36,7 +36,8 @@ set @id_cotizacion = '1',
     @fecha_primera_cuota = NULL,
     @fecha_ultima_cuota = NULL,
     @fecha_escrituracion = NULL,
-    @id_banco_factor = NULL;
+    @id_banco_factor = NULL,
+    @id_pie_legal = NULL;
 --END_PARAM
 
 insert into fact_opcion (
@@ -74,7 +75,8 @@ insert into fact_opcion (
     fecha_ultima_cuota,
     fecha_escrituracion,
     created_by,
-    id_banco_factor
+    id_banco_factor,
+    id_pie_legal
 ) values (
     @id_cotizacion,
     @fecha_entrega,
@@ -110,7 +112,8 @@ insert into fact_opcion (
     @fecha_ultima_cuota,
     @fecha_escrituracion,
     @created_by,
-    if(@id_banco_factor = '', null, @id_banco_factor)
+    if(@id_banco_factor = '', null, @id_banco_factor),
+    if(@id_pie_legal = '', null, @id_pie_legal)
 );
 
 set @id_opcion = last_insert_id();

@@ -833,6 +833,9 @@ export default {
             this.unidadOpcion = null;
             this.importeBase = 0;
             this.reformaActivo = false;
+
+            this.id_pie_legal_seleccionado = '';
+            this.texto_pie_legal = '';
         },
 
         async cargarOpcionExistente() {
@@ -918,6 +921,8 @@ export default {
 
                     this.valor_credito_final = this.cleanNumber(opcion.importe_financiacion);
                     this.cuota_inicial_final = this.cleanNumber(opcion.cuota_inicial);
+
+                    this.id_pie_legal_seleccionado = opcion.id_pie_legal || '';
 
                     // const tablaAmortizacion = respOpcion.data[1];
                     // if (tablaAmortizacion && tablaAmortizacion.length > 0) {
@@ -3877,7 +3882,8 @@ export default {
                     fecha_primera_cuota: this.esOpcionGuardada ? this.opcion_fecha_primera_cuota : this.d_fecha_cuota,
                     fecha_ultima_cuota: this.esOpcionGuardada ? this.opcion_fecha_ultima_cuota : this.d_fecha_ulti_cuota,
                     fecha_escrituracion: this.esOpcionGuardada ? this.opcion_fecha_escrituracion : this.d_fecha_escrituracion,
-                    id_banco_factor: this.idFactorBanco || null
+                    id_banco_factor: this.idFactorBanco || null,
+                    id_pie_legal: this.id_pie_legal_seleccionado || null
                 };
 
                 let resp;

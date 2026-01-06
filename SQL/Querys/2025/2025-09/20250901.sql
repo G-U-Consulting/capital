@@ -302,6 +302,7 @@ create table fact_opcion (
     fecha_ultima_cuota date,
     fecha_escrituracion date,
     id_banco_factor int references dim_banco_factor(id_banco_factor),
+    id_pie_legal int references dim_pie_legal(id_pie_legal),
 
     constraint fk_fact_opcion_cot foreign key (id_cotizacion)
         references fact_cotizaciones(id_cotizacion)

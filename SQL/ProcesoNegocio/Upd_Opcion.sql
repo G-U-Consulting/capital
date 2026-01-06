@@ -35,7 +35,8 @@ set @id_opcion = '1',
     @fecha_primera_cuota = NULL,
     @fecha_ultima_cuota = NULL,
     @fecha_escrituracion = NULL,
-    @id_banco_factor = NULL;
+    @id_banco_factor = NULL,
+    @id_pie_legal = NULL;
 --END_PARAM
 
 update fact_opcion
@@ -72,7 +73,8 @@ set
     fecha_primera_cuota = @fecha_primera_cuota,
     fecha_ultima_cuota = @fecha_ultima_cuota,
     fecha_escrituracion = @fecha_escrituracion,
-    id_banco_factor = if(@id_banco_factor = '', null, @id_banco_factor)
+    id_banco_factor = if(@id_banco_factor = '', null, @id_banco_factor),
+    id_pie_legal = if(@id_pie_legal = '', null, @id_pie_legal)
 where id_opcion = @id_opcion;
 
 select concat('ok-id_opcion:', @id_opcion, ' ', 'updated') as result;
