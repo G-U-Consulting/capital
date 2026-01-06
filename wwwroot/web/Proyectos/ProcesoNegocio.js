@@ -341,6 +341,7 @@ export default {
             pies_legales_activos: [],
             id_pie_legal_seleccionado: '',
             texto_pie_legal: '',
+            nombre_pie_legal: '',
         };
     },
     async mounted() {
@@ -837,6 +838,7 @@ export default {
 
             this.id_pie_legal_seleccionado = '';
             this.texto_pie_legal = '';
+            this.nombre_pie_legal = '';
         },
 
         async cargarOpcionExistente() {
@@ -5439,8 +5441,10 @@ export default {
             if (val) {
                 const pieLegal = this.pies_legales_activos.find(p => p.id_pie_legal == val);
                 this.texto_pie_legal = pieLegal ? pieLegal.texto : '';
+                this.nombre_pie_legal = pieLegal ? pieLegal.pie_legal : '';
             } else {
                 this.texto_pie_legal = '';
+                this.nombre_pie_legal = '';
             }
         }
     },

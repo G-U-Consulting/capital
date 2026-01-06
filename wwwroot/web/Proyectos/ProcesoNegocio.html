@@ -1527,7 +1527,7 @@
             </div>
             <div class="pure-u-1 pure-u-md-1-3">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="white-space: nowrap;">Pie Legal:</span>
+                    <span style="white-space: nowrap;">Pie Legal (Opcional):</span>
                     <select v-model="id_pie_legal_seleccionado" :disabled="esOpcionGuardada || modoSoloLectura" style="flex: 1;">
                         <option value="">-- Seleccione un pie legal (opcional) --</option>
                         <option v-for="item in pies_legales_activos" :key="item.id_pie_legal" :value="item.id_pie_legal">
@@ -2337,7 +2337,7 @@
 
                     <div v-if="texto_pie_legal" style="margin-bottom: .6rem;">
                         <h4 style="font-size: 11px; font-weight: 700; color: #007a8c; margin-bottom: .4rem; text-align: center;">
-                            Pie Legal
+                            Pie Legal<span v-if="nombre_pie_legal"> ({{ nombre_pie_legal }})</span>
                         </h4>
                         <div v-html="texto_pie_legal" style="text-align: justify; margin: .4rem 0; line-height: 1.5; font-size: 11px; width: 100%; overflow: visible; word-wrap: break-word;"></div>
                     </div>
