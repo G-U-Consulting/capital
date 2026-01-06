@@ -15,7 +15,7 @@ public class Stradata(string body, string id_opcion, string id_cliente, string r
     private readonly string id_cliente = id_cliente;
     public string rootPath = rootPath;
 
-    public async Task Validate()
+    public async Task<bool> Validate()
     {
         try
         {
@@ -31,7 +31,7 @@ public class Stradata(string body, string id_opcion, string id_cliente, string r
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
                 HttpResponseMessage response = await client.PostAsync(url, new StringContent(body, Encoding.UTF8, "application/json"));
                 string data = await response.Content.ReadAsStringAsync();
-                await ProcessResults(data);
+                return await ProcessResults(data);
             }
         }
         catch (Exception ex)
@@ -39,17 +39,21 @@ public class Stradata(string body, string id_opcion, string id_cliente, string r
             Logger.Log("Inte.Stradata.Validate" + "   opcion: " + id_opcion + "    cliente: " + id_cliente + " - " +
                 ex.Message + Environment.NewLine + body + Environment.NewLine + ex.StackTrace);
         }
+        return false;
     }
-    private async Task ProcessResults(string data)
+    private async Task<bool> ProcessResults(string data)
     {
         JObject? obj = (JObject?)JsonConvert.DeserializeObject(data);
         if (obj != null)
         {
             JArray results = (JArray?)obj.GetValue("resultados") ?? [];
             results = new(results.OfType<JObject>().Where(r => r["nivel_riesgo"]?.ToString() != "Ninguno"));
-            if (results.Count > 0)
+            bool restricted = results.Count > 0;
+            if (restricted) 
                 await SaveLista(results.ToString());
+            return restricted;
         }
+        return false;
     }
     private async Task SaveLista(string resultados)
     {

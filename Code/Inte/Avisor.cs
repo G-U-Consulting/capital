@@ -64,13 +64,13 @@ public class Avisor
                     </ecol:createTransactionPayment>
                 </soapenv:Body>
             </soapenv:Envelope>";
-            Console.WriteLine(xml);
+            //Console.WriteLine(xml);
             HttpClient client = new();
             StringContent content = new(xml, Encoding.UTF8, "text/xml");
             HttpResponseMessage response = await client.PostAsync(url_pdn, content);
             string soapResponse = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine("Response avisor: \n" + soapResponse);
+            //Console.WriteLine("Response avisor: \n" + soapResponse);
             XDocument xdoc = XDocument.Parse(soapResponse);
             XNamespace ns = "http://www.avisortech.com/eCollectWebservices";
             var result = xdoc.Descendants(ns + "createTransactionPaymentResult").FirstOrDefault();
@@ -79,13 +79,18 @@ public class Avisor
             if (result != null)
             {
                 string? returnCode = result.Element(ns + "ReturnCode")?.Value;
+                res["Invoice"] = cupon["Invoice"]?.ToString();
+                res["unidad"] = cupon["unidad"]?.ToString();
                 if (returnCode == "SUCCESS")
                 {
                     res["isError"] = false;
                     res["ticketId"] = result.Element(ns + "TicketId")?.Value;
                     res["eCollectUrl"] = result.Element(ns + "eCollectUrl")?.Value;
                 }
-                else res["isError"] = true;
+                else {
+                    res["isError"] = true;
+                    res["errorMessage"] = returnCode;
+                }
             }
             cupones.Add(res);
         }

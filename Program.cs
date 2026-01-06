@@ -441,9 +441,10 @@ app.Map("/stradata/{id_opcion}/{id_cliente}", async (HttpContext context, string
         body = await stream.ReadToEndAsync();
     }
     Stradata stradata = new(body, id_opcion, id_cliente, rootPath);
-    await stradata.Validate();
+    JObject res = [];
+    res["restricted"] = false;
     
-    return Results.Empty;
+    return JsonConvert.SerializeObject(res);
 });
 app.Map("/avisor", async (HttpContext context) =>
 {
