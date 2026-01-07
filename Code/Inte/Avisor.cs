@@ -8,14 +8,23 @@ namespace capital.Code.Inte;
 
 public class Avisor
 {
+    private static readonly Dictionary<string, string> options = new()
+    {
+        [""] = "enviar",
+        ["10"] = "descargar",
+    };
     private static readonly string url_pdn = "https://www.e-collect.com/app_express/webservice/eCollectWebservicesv4.asmx?wsdl";
     private static readonly string url_test = "https://test1.e-collect.com/app_express/webservice/eCollectWebservicesv4.asmx?wsdl";
     private JArray data = [];
     private static string rootPath = "";
-    private string? id_opcion;
+    private string? id_cupon;
+    private string? opt;
+    private string? usuario;
 
     public static async Task<Avisor> GetInstance(JObject obj, string rp)
     {
+        string? usuario = obj["usuario"]?.ToString();
+        if (string.IsNullOrWhiteSpace(usuario)) throw new ArgumentException("No se envió el usuario");
         if (string.IsNullOrEmpty(rootPath)) rootPath = rp;
         JArray JData = [];
         JToken resData = await Generic.ProcessRequest(null, null, "genericDT", "ProcesoNegocio/Get_Avisor", JsonConvert.SerializeObject(obj), rootPath);
@@ -25,15 +34,19 @@ public class Avisor
             if (content is JArray arr && arr.Count > 0)
                 JData = arr;
         }
-        return new Avisor() { data = JData, id_opcion = obj["id_opcion"]?.ToString() };
+        return new Avisor() 
+        { 
+            data = JData, 
+            id_cupon = obj["id_cupon"]?.ToString(), 
+            opt = obj["opt"]?.ToString() ?? "", 
+            usuario = usuario
+        };
     }
 
     public async Task<string> GetLinks()
     {
-        JArray cupones = [];
-        foreach (JObject cupon in data.Cast<JObject>())
-        {
-            string xml = $@"
+        JObject cupon = (JObject)data[0];
+        string xml = $@"
             <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:ecol=""http://www.avisortech.com/eCollectWebservices"">
                 <soapenv:Header/>
                 <soapenv:Body>
@@ -56,47 +69,42 @@ public class Avisor
                             <ecol:ReferenceArray>{cupon["cuenta_tipo"]}</ecol:ReferenceArray>
                             <ecol:ReferenceArray>{cupon["cuenta_numero"]}</ecol:ReferenceArray>
                             <ecol:ReferenceArray>{cupon["convenio"]}</ecol:ReferenceArray>
-                            <ecol:PaymentSystem>10</ecol:PaymentSystem>
+                            <ecol:PaymentSystem>{opt}</ecol:PaymentSystem>
                             <ecol:Invoice>{cupon["Invoice"]}</ecol:Invoice>
                         </ecol:request>
                     </ecol:createTransactionPayment>
                 </soapenv:Body>
             </soapenv:Envelope>";
-            //Console.WriteLine(xml);
-            HttpClient client = new();
-            StringContent content = new(xml, Encoding.UTF8, "text/xml");
-            HttpResponseMessage response = await client.PostAsync(url_pdn, content);
-            string soapResponse = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(xml);
+        HttpClient client = new();
+        StringContent content = new(xml, Encoding.UTF8, "text/xml");
+        HttpResponseMessage response = await client.PostAsync(url_pdn, content);
+        string soapResponse = await response.Content.ReadAsStringAsync();
 
-            //Console.WriteLine("Response avisor: \n" + soapResponse);
-            XDocument xdoc = XDocument.Parse(soapResponse);
-            XNamespace ns = "http://www.avisortech.com/eCollectWebservices";
-            var result = xdoc.Descendants(ns + "createTransactionPaymentResult").FirstOrDefault();
+        Console.WriteLine("Response avisor: \n" + soapResponse);
+        XDocument xdoc = XDocument.Parse(soapResponse);
+        XNamespace ns = "http://www.avisortech.com/eCollectWebservices";
+        var result = xdoc.Descendants(ns + "createTransactionPaymentResult").FirstOrDefault();
 
-            JObject res = [];
-            if (result != null)
+        string Response = "OK-";
+        if (result != null)
+        {
+            string? returnCode = result.Element(ns + "ReturnCode")?.Value;
+            if (returnCode == "SUCCESS")
             {
-                string? returnCode = result.Element(ns + "ReturnCode")?.Value;
-                res["id_opcion"] = id_opcion;
-                res["id_unidad"] = cupon["id_unidad"]?.ToString();
-                res["Invoice"] = cupon["Invoice"]?.ToString();
-                res["unidad"] = cupon["unidad"]?.ToString();
-                res["TransValue"] = cupon["TransValue"]?.ToString();
-                if (returnCode == "SUCCESS")
+                Response += result.Element(ns + "eCollectUrl")?.Value;
+                JObject res = new()
                 {
-                    res["isError"] = false;
-                    res["TicketId"] = result.Element(ns + "TicketId")?.Value;
-                    res["eCollectUrl"] = result.Element(ns + "eCollectUrl")?.Value;
-                }
-                else {
-                    res["isError"] = true;
-                    res["errorMessage"] = returnCode;
-                }
+                    ["id_cupon"] = id_cupon,
+                    [$"ticket_id_{options.GetValueOrDefault(opt ?? "", "enviar")}"] = result.Element(ns + "TicketId")?.Value,
+                    [$"ecollect_url_{options.GetValueOrDefault(opt ?? "", "enviar")}"] = Response[3..],
+                    ["usuario"] = usuario
+                };
+                await Generic.ProcessRequest(null, null, "genericST", "ProcesoNegocio/Upd_Avisor", JsonConvert.SerializeObject(res), rootPath);
             }
-            cupones.Add(res);
+            else Response = returnCode ?? "No hubo respuesta de Avisor";
         }
-        JObject obj = new() { ["data"] = cupones };
-        await Generic.ProcessRequest(null, null, "genericST", "ProcesoNegocio/Ins_CuponesAvisor", JsonConvert.SerializeObject(obj), rootPath);
-        return JsonConvert.SerializeObject(cupones);;
+        else Response = "No hubo respuesta de Avisor";
+        return Response;
     }
 }

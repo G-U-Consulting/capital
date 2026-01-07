@@ -47,7 +47,8 @@ select
     o.id_pie_legal,
     c.id_cliente,
     c.id_proyecto,
-    c.cotizacion
+    c.cotizacion,
+    (select count(*) from dim_lista_restrictiva lr where lr.id_opcion = o.id_opcion) as bloqueada
 from fact_opcion o
 join fact_cotizaciones c on o.id_cotizacion = c.id_cotizacion
 where o.id_cotizacion = @id_cotizacion

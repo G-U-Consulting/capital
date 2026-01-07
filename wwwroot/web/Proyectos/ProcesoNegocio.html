@@ -2747,6 +2747,10 @@
                 style="display: flex; align-items: center; justify-content: space-between; width: 90%; gap: 1rem">
                 <!-- <div style="flex: 1;"></div> -->
                 <div style="flex: 1; display: flex; justify-content: flex-end; gap: 2rem; text-align: center;">
+                    <div v-if="id_opcion && !opcion_bloq" class="boton-accion" @click="loadCupones()">
+                        <img src="../../img/ico/pasarela.png" alt="Imprimir">
+                        <span>Cupon de Pago</span>
+                    </div>
                     <div class="boton-accion" @click="showDaviviendaModal = true; clearDavivienda()" style="margin-right: auto;">
                         <img src="../../img/ico/davivienda.png" alt="Imprimir">
                         <span>Preabrobar Crédito</span>
@@ -2879,20 +2883,19 @@
                     <div class="pure-g" style="align-items: baseline;">
                         <span class="pure-u-1-2"><strong>Unidad:</strong> {{ cupon.unidad }}</span>
                         <span class="pure-u-1-2" style="text-align: center;">
-                            <strong>Factura:</strong> {{ cupon.Invoice }}
+                            <strong>Factura:</strong> {{ cupon.invoice }}
                         </span>
 
-                        <template v-if="!cupon.isError">
-                            <span class="pure-u-1-2"><strong>Ticket ID:</strong> {{ cupon.TicketId }}</span>
-                            <div class="avisor-div-btn">
-                                <button class="avisor-button" @click="openLink(cupon.eCollectUrl)">
-                                    Abrir Cupón
-                                </button>
-                            </div>
-                        </template>
-                        <template v-else>
-                            <p class="avisor-error"><strong>Error:</strong> {{ cupon.errorMessage }}</p>
-                        </template>
+                        <div class="avisor-div-btn pure-u-1-2">
+                            <button class="avisor-button" @click="openLink(cupon, '')">
+                                Enviar Cupón
+                            </button>
+                        </div>
+                        <div class="avisor-div-btn pure-u-1-2">
+                            <button class="avisor-button" @click="openLink(cupon, '10')">
+                                Descargar Cupón
+                            </button>
+                        </div>
                     </div>
                 </li>
             </ul>
