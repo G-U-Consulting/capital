@@ -91,7 +91,7 @@ mainVue = {
                         mensajePersonalizado,
                         async () => {
                             if (moduleName === "ProcesoNegocio") {
-                                await window.activeMiniModule.enviarYOpcionar();
+                                await window.activeMiniModule.guardarBorradorYCerrar();
                             }
                             window.activeMiniModule.tieneCambiosPendientes = false;
                             await GlobalVariables._originalLoadModule(name, inputParameter);
@@ -132,7 +132,7 @@ mainVue = {
                         mensajePersonalizado,
                         async () => {
                             if (moduleName === "ProcesoNegocio") {
-                                await window.activeMiniModule.enviarYOpcionar();
+                                await window.activeMiniModule.guardarBorradorYCerrar();
                             }
                             window.activeMiniModule.tieneCambiosPendientes = false;
                             await GlobalVariables._originalLoadMiniModule(modName, zone, data);

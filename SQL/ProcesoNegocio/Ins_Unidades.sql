@@ -43,7 +43,8 @@ insert into fact_negocios_unidades (
     numero_apartamento,
     id_unidad,
     fecha_entrega,
-    valor_separacion
+    valor_separacion,
+    precio_alt
 )
 select
     @id_cliente,
@@ -65,7 +66,15 @@ select
     @numero_apartamento,
     @id_unidad,
     @fecha_entrega,
-    @valor_separacion
+    @valor_separacion,
+    COALESCE(
+        (select precio
+         from dim_precio_unidad
+         where id_unidad = @id_unidad
+         and id_lista = @lista
+         limit 1),
+        0
+    ) as precio_alt
 from fact_torres t
 where t.consecutivo = convert(@torre using utf8mb4) collate utf8mb4_unicode_ci
 limit 1;
