@@ -161,7 +161,15 @@
                             <td>{{formatDatetime(p.fecha + ' 00:00', 'date')}}</td>
                             <td>{{getWeekDay(p.fecha)}}</td>
                             <td>{{p.cargo}}</td>
-                            <td>{{p.nombres}}</td>
+                            <td :style="editRow && selRow == i ? 'padding: 0;' : null">
+                                <select v-if="editRow && selRow == i" v-model="programacion.id_usuario" @change="onUserChange(p)">
+                                    <option value="" disabled>[Seleccione]</option>
+                                    <option v-for="u in usuarios" :value="u.id_usuario">{{u.nombres}}</option>
+                                </select>
+                                <span v-else>
+                                    {{p.nombres}}
+                                </span>
+                            </td>
                             <td>{{p.identificacion}}</td>
                             <td :style="editRow && selRow == i ? 'padding: 0;' : null">
                                 <select v-if="editRow && selRow == i" v-model="programacion.id_estado">

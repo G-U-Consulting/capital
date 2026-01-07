@@ -338,6 +338,7 @@ export default {
             showOpcionarModal: false,
             davForm: true,
             davUrl: null,
+            loadingProcess: 'Cargando...',
 
             pies_legales_activos: [],
             id_pie_legal_seleccionado: '',
@@ -376,7 +377,7 @@ export default {
 
         window.activeMiniModule = this;
         window.activeMiniModule.name = "ProcesoNegocio";
-
+        console.log(this.showCustomProgress, this.hideCustomProgress);
     },
     methods: {
         extraerPiso(numero_apartamento) {
@@ -3856,7 +3857,8 @@ export default {
                 }
             }
 
-            showProgress();
+            this.loadingProcess = `${this.id_opcion ? 'Actualizando' : 'Registrando'} la opción`;
+            this.showCustomProgress();
             try {
                 const opcionData = {
                     fecha_entrega: this.esOpcionGuardada ? this.opcion_fecha_entrega : this.d_fecha_entrega,
@@ -3937,6 +3939,7 @@ export default {
                         }
                     } else {
                         try {
+                            this.loadingProcess = "Obteniendo datos";
                             const respOpcion = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Opcion', {
                                 id_cotizacion: this.idcotizacion,
                                 id_proyecto: GlobalVariables.id_proyecto,
@@ -3958,6 +3961,7 @@ export default {
                 }
 
                 if (nueva) {
+                    this.loadingProcess = "Verificando listas restrictivas";
                     let sds = await httpFunc(`/stradata/${idOpcionFinal}/${this.ObjCliente.id_cliente}`, 
                         {
                             nombre: `${this.ObjCliente.nombres || ''} ${this.ObjCliente.apellido1 || ''} ${this.ObjCliente.apellido2 || ''}`,
@@ -3970,6 +3974,7 @@ export default {
                     }
                 }
 
+                this.loadingProcess = "Finalizando";
                 await this.eliminarBorrador();
 
                 this.tieneCambiosPendientes = false;
@@ -3981,7 +3986,7 @@ export default {
                 console.error('Error al enviar y opcionar:', error);
                 showMessage('Error: ' + (error.message || 'No se pudo guardar la opción'));
             } finally {
-                hideProgress();
+                this.hideCustomProgress();
             }
         },
         async loadCupones () {
@@ -4852,6 +4857,14 @@ export default {
             ].join(',');
             GlobalVariables.ventanaRotafolio = window.open(url, 'VentanaModuloRotafolio', features);
         },
+        showCustomProgress(){
+            let $loader = document.querySelector('.custom-loader-modal');
+            $loader && ($loader.style.display = 'flex');
+        },
+        hideCustomProgress(){
+            let $loader = document.querySelector('.custom-loader-modal');
+            $loader && ($loader.style.display = 'none');
+        }
     },
     computed: {
         id_proyecto() {

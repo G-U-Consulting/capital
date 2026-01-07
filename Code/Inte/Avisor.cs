@@ -3,6 +3,7 @@ using System.Xml.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using orca.Code.Api;
+using orca.Code.Logger;
 
 namespace capital.Code.Inte;
 
@@ -28,25 +29,27 @@ public class Avisor
         if (string.IsNullOrEmpty(rootPath)) rootPath = rp;
         JArray JData = [];
         JToken resData = await Generic.ProcessRequest(null, null, "genericDT", "ProcesoNegocio/Get_Avisor", JsonConvert.SerializeObject(obj), rootPath);
-        if (resData != null)
+        if (resData != null || resData?["data"] != null)
         {
             var content = resData["data"];
             if (content is JArray arr && arr.Count > 0)
                 JData = arr;
         }
-        return new Avisor() 
-        { 
-            data = JData, 
-            id_cupon = obj["id_cupon"]?.ToString(), 
-            opt = obj["opt"]?.ToString() ?? "", 
+        return new Avisor()
+        {
+            data = JData,
+            id_cupon = obj["id_cupon"]?.ToString(),
+            opt = obj["opt"]?.ToString() ?? "",
             usuario = usuario
         };
     }
 
     public async Task<string> GetLinks()
     {
-        JObject cupon = (JObject)data[0];
-        string xml = $@"
+        try
+        {
+            JObject cupon = (JObject)data[0];
+            string xml = $@"
             <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:ecol=""http://www.avisortech.com/eCollectWebservices"">
                 <soapenv:Header/>
                 <soapenv:Body>
@@ -75,36 +78,42 @@ public class Avisor
                     </ecol:createTransactionPayment>
                 </soapenv:Body>
             </soapenv:Envelope>";
-        Console.WriteLine(xml);
-        HttpClient client = new();
-        StringContent content = new(xml, Encoding.UTF8, "text/xml");
-        HttpResponseMessage response = await client.PostAsync(url_pdn, content);
-        string soapResponse = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(xml);
+            HttpClient client = new();
+            StringContent content = new(xml, Encoding.UTF8, "text/xml");
+            HttpResponseMessage response = await client.PostAsync(url_pdn, content);
+            string soapResponse = await response.Content.ReadAsStringAsync();
 
-        Console.WriteLine("Response avisor: \n" + soapResponse);
-        XDocument xdoc = XDocument.Parse(soapResponse);
-        XNamespace ns = "http://www.avisortech.com/eCollectWebservices";
-        var result = xdoc.Descendants(ns + "createTransactionPaymentResult").FirstOrDefault();
+            Console.WriteLine("Response avisor: \n" + soapResponse);
+            XDocument xdoc = XDocument.Parse(soapResponse);
+            XNamespace ns = "http://www.avisortech.com/eCollectWebservices";
+            var result = xdoc.Descendants(ns + "createTransactionPaymentResult").FirstOrDefault();
 
-        string Response = "OK-";
-        if (result != null)
-        {
-            string? returnCode = result.Element(ns + "ReturnCode")?.Value;
-            if (returnCode == "SUCCESS")
+            string Response = "OK-";
+            if (result != null)
             {
-                Response += result.Element(ns + "eCollectUrl")?.Value;
-                JObject res = new()
+                string? returnCode = result.Element(ns + "ReturnCode")?.Value;
+                if (returnCode == "SUCCESS")
                 {
-                    ["id_cupon"] = id_cupon,
-                    [$"ticket_id_{options.GetValueOrDefault(opt ?? "", "enviar")}"] = result.Element(ns + "TicketId")?.Value,
-                    [$"ecollect_url_{options.GetValueOrDefault(opt ?? "", "enviar")}"] = Response[3..],
-                    ["usuario"] = usuario
-                };
-                await Generic.ProcessRequest(null, null, "genericST", "ProcesoNegocio/Upd_Avisor", JsonConvert.SerializeObject(res), rootPath);
+                    Response += result.Element(ns + "eCollectUrl")?.Value;
+                    JObject res = new()
+                    {
+                        ["id_cupon"] = id_cupon,
+                        [$"ticket_id_{options.GetValueOrDefault(opt ?? "", "enviar")}"] = result.Element(ns + "TicketId")?.Value,
+                        [$"ecollect_url_{options.GetValueOrDefault(opt ?? "", "enviar")}"] = Response[3..],
+                        ["usuario"] = usuario
+                    };
+                    await Generic.ProcessRequest(null, null, "genericST", "ProcesoNegocio/Upd_Avisor", JsonConvert.SerializeObject(res), rootPath);
+                }
+                else Response = returnCode ?? "No hubo respuesta de Avisor";
             }
-            else Response = returnCode ?? "No hubo respuesta de Avisor";
+            else Response = "No hubo respuesta de Avisor";
+            return Response;
         }
-        else Response = "No hubo respuesta de Avisor";
-        return Response;
+        catch (Exception e)
+        {
+            Logger.Log("Avisor.GetLinks    " + e.Message + Environment.NewLine + e.StackTrace);
+            return "No se encontraron los datos de la opción \n" + e.Message;
+        }
     }
 }

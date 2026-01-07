@@ -114,7 +114,7 @@
 			modifiedPrices: {},
 			partialUpd: true,
 			unidadKeys: [
-				'clase', 'apartamento', 'torre', 'piso', 'nombre_unidad', 'estatus', 'tipo', 'codigo_planta', 'localizacion', 'observacion_apto',
+				'apartamento', 'torre', 'piso', 'nombre_unidad', 'estatus', 'tipo', 'codigo_planta', 'localizacion', 'observacion_apto',
 				'fecha_fec', 'fecha_edi', 'fecha_edi_mostrar', 'inv_terminado', 'num_alcobas', 'num_banos',
 				'area_privada_cub', 'area_privada_lib', 'area_total', 'acue', 'area_total_mas_acue',
 				'lista', 'valor_separacion', 'valor_acabados', 'valor_reformas', 'valor_descuento', 'valor_complemento', 
@@ -123,7 +123,7 @@
 				'tiene_balcon', 'tiene_parq_sencillo', 'tiene_parq_doble', 'tiene_deposito', 'tiene_acabados', 'ID_apartamento',
 				'cuenta_tipo', 'cuenta_numero', 'convenio', 'cuota_inicial_banco', 'ean'
 			],
-			requiredKeys: ['clase', 'apartamento', 'torre', 'piso'],
+			requiredKeys: ['apartamento', 'torre', 'piso'],
 			convenioKeys: ['cuenta_tipo', 'cuenta_numero', 'convenio', 'cuota_inicial_banco', 'ean']
 		};
 	},

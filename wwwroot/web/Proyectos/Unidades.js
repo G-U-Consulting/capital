@@ -114,7 +114,7 @@
 			this.estados = estados;
 			this.NwTorre = torres;
 			this.clases = clases;
-			const claseApartamento = clases.find(c => c.clase === 'Apartamentos');
+			const claseApartamento = clases.find(c => c.id_clase == '8');
 
 			if (claseApartamento) {
 				this.filtros.aptos.id_clase = claseApartamento.id_clase;

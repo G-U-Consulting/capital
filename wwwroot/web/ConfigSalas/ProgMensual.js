@@ -280,13 +280,13 @@ export default {
         },
         async onSelect(p, i) {
             if (this.selRow != i && this.editRow) await this.onSave();
-            if (this.selRow != i && p.id_usuario) {
+            if (this.selRow != i) {
                 this.programacion = { ...p };
                 this.editRow = false;
                 this.editNewRow = false;
                 this.selRow = i;
             }
-            if (!p.id_usuario) this.selRow = null;
+            //if (!p.id_usuario) this.selRow = null;
         },
         async onSave() {
             if (this.editNewRow) {
@@ -443,11 +443,19 @@ export default {
         async downloadTemplate(type) {
             try {
                 showProgress();
-                let datos = this.programaciones.filter(p => (new Date(p.fecha + ' 00:00').getFullYear() == this.selDate.getFullYear()
-                    && new Date(p.fecha + ' 00:00').getMonth() == this.selDate.getMonth()) && p.id_usuario).map(p => (
+                let datos = this.programaciones
+                    .filter(p => (new Date(p.fecha + ' 00:00').getFullYear() == this.selDate.getFullYear()
+                        && new Date(p.fecha + ' 00:00').getMonth() == this.selDate.getMonth()))
+                    .map(p => (
                         {
-                            fecha: new Date(p.fecha + ' 00:00'), cedula: parseInt(p.identificacion), estado: p.estado, dia: this.getWeekDay(p.fecha),
-                            asesor: p.nombres, sala: this.sala.sala_venta, categoria: p.cargo, festivo: this.isHoliday(p.fecha) ? 'Sí' : 'No'
+                            fecha: new Date(p.fecha + ' 00:00'), 
+                            cedula: parseInt(p.identificacion), 
+                            estado: p.estado || "", 
+                            dia: this.getWeekDay(p.fecha),
+                            asesor: p.nombres, 
+                            sala: this.sala.sala_venta, 
+                            categoria: p.cargo, 
+                            festivo: this.isHoliday(p.fecha) ? 'Sí' : 'No'
                         }
                     ));
                 var archivo = (await httpFunc(`/util/Json2File/${type}`, datos)).data;
@@ -461,6 +469,13 @@ export default {
                 console.error(e);
             }
             hideProgress();
+        },
+        onUserChange(programacion) {
+            let usuario = this.usuarios.find(u => u.id_usuario == this.programacion.id_usuario);
+            if (usuario) {
+                programacion.cargo = usuario.cargo;
+                programacion.identificacion = usuario.identificacion;
+            }
         }
     },
     computed: {

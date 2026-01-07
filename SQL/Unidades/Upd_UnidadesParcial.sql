@@ -60,9 +60,10 @@ create temporary table tmp_unidades as(
     ))  as a
     where a.apartamento is not null and a.apartamento != '' 
         and a.torre is not null and a.torre != '' 
-        and a.clase is not null and a.clase != ''
 );
-
+select tp.tipo_proyecto into @nom_clase_apt
+from dim_tipo_proyecto tp where tp.id_tipo_proyecto = 8;
+update tmp_unidades set clase = @nom_clase_apt where clase is null or trim(clase) = '';
 alter table tmp_unidades
   add index idx_clase (clase);
 
