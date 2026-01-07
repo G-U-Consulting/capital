@@ -326,6 +326,7 @@ export default {
             cuota_inicial_final_anterior: null,
             davivienda: {},
             cupones: [],
+            opcion_bloq: false,
 
             showBorradorModal: false,
             borradorData: null,
@@ -861,6 +862,7 @@ export default {
                     this.opcion_fecha_escrituracion = opcion.fecha_escrituracion ?? null;
                     this.opcion_fecha_primera_cuota = opcion.fecha_primera_cuota ?? null;
                     this.opcion_fecha_ultima_cuota = opcion.fecha_ultima_cuota ?? null;
+                    this.opcion_bloq = opcion.bloqueada != '0';
                     this.opcion_valor_reformas = this.cleanNumber(opcion.valor_reformas);
                     this.opcion_valor_acabados = this.cleanNumber(opcion.valor_acabados);
                     this.opcion_valor_separacion = this.cleanNumber(opcion.valor_separacion);
@@ -3962,12 +3964,10 @@ export default {
                             id: this.ObjCliente.numeroDocumento || '',
                         }
                     );
-                    if (sds.restricted) mensaje = "Error: No es posible continuar con la opción.";
-                    else {
-                        this.cupones = await httpFunc(`/avisor`, { id_opcion: idOpcionFinal });
-                        this.showAvisorModal = true;
+                    if (sds.restricted) {
+                        mensaje = "Error: No es posible continuar con la opción.";
+                        this.opcion_bloq = true;
                     }
-
                 }
 
                 await this.eliminarBorrador();
@@ -3983,6 +3983,36 @@ export default {
             } finally {
                 hideProgress();
             }
+        },
+        async loadCupones () {
+            showProgress();
+            let resp = (await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Avisor', { id_opcion: this.id_opcion, usuario: GlobalVariables.username })).data;
+            if (resp.isError)
+                showMessage(resp.errorMessage || 'Error al guardar la opción');
+            else {
+                this.cupones = (await httpFunc('/generic/genericDT/ProcesoNegocio:Get_CuponesAvisor', { id_opcion: this.id_opcion })).data;
+                console.log(this.cupones);
+                this.showAvisorModal = true;
+            }
+            hideProgress();
+        },
+        async openLink(cupon, opt) {
+            showProgress();
+            const options = 
+            {
+                "": "ecollect_url_enviar",
+                "10": "ecollect_url_descargar"
+            }
+            let url = cupon[options[opt]];
+            if (!url) {
+                url = await httpFunc(`/avisor`, { id_cupon: cupon.id_cupon, usuario: GlobalVariables.username, opt });
+                if (url.startsWith("OK-")) {
+                    cupon[options[opt]] = url.substring(3);
+                    window.open(cupon[options[opt]], '_blank');
+                }
+                else showMessage("Error: " + url);
+            } else window.open(url, '_blank');
+            hideProgress();
         },
         async onChangeAnio() {
             if (this.esOpcionGuardada) {
@@ -4822,9 +4852,6 @@ export default {
             ].join(',');
             GlobalVariables.ventanaRotafolio = window.open(url, 'VentanaModuloRotafolio', features);
         },
-        openLink(url) {
-            window.open(url, '_blank');
-        }
     },
     computed: {
         id_proyecto() {

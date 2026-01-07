@@ -35,11 +35,12 @@ create table dim_cupon_avisor (
   id_cupon int primary key auto_increment,
   id_opcion int not null references fact_opcion(id_opcion),
   id_unidad int not null references fact_unidades(id_unidad),
-  invoice varchar(50) unique,
-  ticket_id varchar(50),
-  ecollect_url varchar(255),
-  is_error bit not null,
-  error_message varchar(255),
+  id_usuario int not null references fact_usuarios(id_usuario),
+  invoice varchar(50) not null unique,
+  ticket_id_enviar varchar(50),
+  ticket_id_descargar varchar(50),
+  ecollect_url_enviar varchar(255),
+  ecollect_url_descargar varchar(255),
   created_on datetime default current_timestamp,
   unique(id_opcion, id_unidad)
 );
