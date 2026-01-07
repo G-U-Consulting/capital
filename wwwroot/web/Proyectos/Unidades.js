@@ -456,6 +456,7 @@
 			
 			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', payload);
 			
+			console.log(payload)
 
 			if (res.data.includes("OK")) {
 				this.mode = 3;

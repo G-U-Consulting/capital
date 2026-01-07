@@ -2254,11 +2254,13 @@ export default {
                 const unidades = (Array.isArray(dataArray) ? dataArray : []).map(unidad => ({
                     ...unidad,
                     valor_unidad: this.cleanNumber(unidad.valor_unidad),
-                    valor_descuento: this.cleanNumber(unidad.valor_descuento)
+                    valor_descuento: this.cleanNumber(unidad.valor_descuento),
+                    precio_alt: this.cleanNumber(unidad.precio_alt || 0),
+                    mostrar_precio_alt: false
                 }));
 
                 const totalFinal = unidades.reduce(
-                    (acc, u) => acc + u.valor_unidad - u.valor_descuento,
+                    (acc, u) => acc + (u.mostrar_precio_alt ? u.precio_alt : u.valor_unidad) - u.valor_descuento,
                     0
                 );
 
@@ -2321,6 +2323,20 @@ export default {
             } catch (error) {
                 console.error('Error al cargar cotización:', error);
                 throw error;
+            }
+        },
+        recalcularTotales() {
+            const nuevoTotal = this.unidades.reduce(
+                (acc, u) => acc + (u.mostrar_precio_alt ? u.precio_alt : u.valor_unidad) - u.valor_descuento,
+                0
+            );
+
+            this.totalFinal = nuevoTotal;
+            this.importeBase = nuevoTotal;
+
+            const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
+            if (cotizacion) {
+                cotizacion.importe = nuevoTotal;
             }
         },
         async seleccionarCotizacion(cotizacionId, id) {
@@ -2633,7 +2649,9 @@ export default {
                 const unidades = (Array.isArray(dataArray) ? dataArray : []).map(unidad => ({
                     ...unidad,
                     valor_unidad: this.cleanNumber(unidad.valor_unidad),
-                    valor_descuento: this.cleanNumber(unidad.valor_descuento)
+                    valor_descuento: this.cleanNumber(unidad.valor_descuento),
+                    precio_alt: this.cleanNumber(unidad.precio_alt || 0),
+                    mostrar_precio_alt: false
                 }));
 
                 cotizacion.unidades = unidades;
