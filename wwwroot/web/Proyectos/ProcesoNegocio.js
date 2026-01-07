@@ -4463,6 +4463,8 @@ export default {
                 const workbook = new ExcelJS.Workbook();
                 const worksheet = workbook.addWorksheet('Plan de Pagos');
 
+                worksheet.views = [{ showGridLines: false }];
+
                 worksheet.columns = [
                     { width: 15 },
                     { width: 15 },
@@ -4590,7 +4592,7 @@ export default {
                 cuotaSepRow.border = borderThin;
 
                 const cuotaSepValue = worksheet.getCell(`G${currentRow}`);
-                cuotaSepValue.value = this.subsidioActivo ? toNumber(this.valor_escrituras || 0) : toNumber(this.valor_separacion || 0);
+                cuotaSepValue.value = toNumber(this.valor_separacion || 0);
                 cuotaSepValue.numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)';
                 cuotaSepValue.alignment = { horizontal: 'right', vertical: 'middle' };
                 cuotaSepValue.border = borderThin;
@@ -4880,6 +4882,10 @@ export default {
         },
         esOpcionGuardada() {
             return this.id_opcion !== null;
+        },
+        esCotizacionOpcionada() {
+            const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
+            return this.esOpcionGuardada || cotizacion?.status === 'Opcionada';
         },
         reformaAct() {
             return this.unidadOpcion?.inv_terminado == 1;
