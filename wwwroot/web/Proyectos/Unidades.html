@@ -149,9 +149,10 @@
                             <div class="aptos-grid-rows">
                                 <div v-if="aptos.length" v-for="(row, rIndex) in rowsForTorre(idtorre, aptos)" :key="rIndex"
                                     :style="aptosRowStyle(idtorre, row)">
-                                    <div v-for="apto in row" :key="apto.apartamento + '-' + (apto.id_estado_unidad ?? 'null')" class="apto-cuadro"
-                                        @click="selectApto(apto)" :class="[
-                                    { 
+                                    <div v-for="apto in row" :key="apto.apartamento + '-' + (apto.id_estado_unidad ?? 'null')" class="apto-cuadro apto-with-tooltip"
+                                        @click="selectApto(apto)"
+                                        :class="[
+                                    {
                                       active: selectedApto && selectedApto.apartamento === apto.apartamento,
                                       'apto-asignado': apto.asignado == 1,
                                       'apto-fake': apto.fake,
@@ -160,6 +161,7 @@
                                     'estado-' + (apto.estatus || '').trim().toLowerCase()
                                  ]">
                                         <span v-if="apto.id_estado_unidad">{{ apto.apartamento }}</span>
+                                        <span class="custom-tooltip">{{ getEstadoTooltip(apto) }}</span>
                                     </div>
                                 </div>
                                 <div v-else class="apto-empty-row"></div>
