@@ -223,6 +223,14 @@ export default {
             });
         },
         setDate(dir) {
+            if (this.editRow) {
+                this.editRow = false;
+                let current = this.getFilteredList('programaciones')[this.selRow];
+                if (current) {
+                    delete current.cargo;
+                    delete current.identificacion;
+                }
+            }
             let date = this.selDate, m = date.getMonth(), y = date.getFullYear();
             date.setMonth(date.getMonth() + dir);
             if (Math.abs((date.getFullYear() - y) * 12 + (date.getMonth() - m)) !== 1)
@@ -289,7 +297,7 @@ export default {
             //if (!p.id_usuario) this.selRow = null;
         },
         async onSave() {
-            if (this.editNewRow) {
+            if (this.editNewRow || (this.editRow && !this.programacion.id_programacion)) {
                 showProgress();
                 if (this.selRow)
                     this.programacion = this.getFilteredList('programaciones')[this.selRow];
@@ -299,11 +307,19 @@ export default {
                     this.loadData(true);
                     this.programacion = {};
                     this.cancel();
+                    this.editRow = false;
                 } else {
+                    let current = this.getFilteredList('programaciones')[this.selRow];
+                    if (current) {
+                        delete current.cargo;
+                        delete current.identificacion;
+                    }
+                    this.editRow = false;
                     console.error(res);
                     let err = (res.errorMessage || res.data || 'Error interno')
                     showMessage('Error: ' + err.replaceAll('<b>', '').replaceAll('</b>', '').replaceAll('<i>', '').replaceAll('</i>', ''));
                 }
+                this.selUser = {};
                 hideProgress();
             }
             if (this.editRow && this.programacion.id_programacion) {
@@ -327,6 +343,8 @@ export default {
             if (this.selRow != null) {
                 this.programacion = { ...this.getFilteredList('programaciones')[this.selRow] };
                 this.editRow = !this.editRow
+                if (this.editRow && this.programacion.id_usuario)
+                    this.selUser = this.usuarios.find(u => u.id_usuario == this.programacion.id_usuario);
             }
         },
         cancel() {
@@ -335,7 +353,7 @@ export default {
             this.selUser = {};
         },
         async reqDeleteAll() {
-            showConfirm(`Se eliminarán todas las asignaciones de la tabla.`, this.onDeleteAll, null, null);
+            showConfirm(`Se eliminarán todas las asignaciones de la tabla <b>permanentemente</b>.`, this.onDeleteAll, null, null);
         },
         async reqDelete() {
             if (!this.editNewRow && this.selRow)
@@ -470,12 +488,19 @@ export default {
             }
             hideProgress();
         },
-        onUserChange(programacion) {
-            let usuario = this.usuarios.find(u => u.id_usuario == this.programacion.id_usuario);
+        onUserChange(prog) {
+            let usuario = this.usuarios.find(u => u.id_usuario == this.selUser.id_usuario);
             if (usuario) {
-                programacion.cargo = usuario.cargo;
-                programacion.identificacion = usuario.identificacion;
+                prog.id_usuario = this.selUser.id_usuario;
+                prog.cargo = usuario.cargo;
+                prog.identificacion = usuario.identificacion;
             }
+            else {
+                prog.id_usuario = '';
+                prog.cargo = '';
+                prog.identificacion = '';
+            }
+            if (prog.id_programacion) this.programacion = prog;
         }
     },
     computed: {

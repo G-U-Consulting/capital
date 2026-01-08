@@ -252,13 +252,13 @@ export default {
             else
                 asesores = [this.filAsesorSala.find(a => a.usuario === this.filtros.trazabilidad.asesor)];
             const fechas = Array.from(new Set(
-                this.getFilteredList('trazabilidad').map(t => t.created_on)
+                this.getFilteredList('trazabilidad').map(t => t.created_on.split(" ")[0])
             )).sort();
             const datasets = asesores.map((a, idx) => ({
                 label: a.nombres,
                 data: fechas.map(fecha =>
                     this.getFilteredList('trazabilidad').filter(
-                        t => t.asesor === a.usuario && t.created_on === fecha && acciones.includes(t.obj)
+                        t => t.asesor === a.usuario && t.created_on.split(" ")[0] === fecha && acciones.includes(t.obj)
                     ).length
                 ),
                 backgroundColor: this.getColor(idx, asesores.length),
@@ -293,7 +293,7 @@ export default {
             ));
 
             const fechas = Array.from(new Set(
-                this.getFilteredList('trazabilidad').map(t => t.created_on)
+                this.getFilteredList('trazabilidad').map(t => t.created_on.split(" ")[0])
             )).sort();
             const datasets = items.map((id, idx) => ({
                 label: group === 'sede' ? this.sedes.find(s => s.id_sede === id)?.sede :
@@ -304,7 +304,7 @@ export default {
                     this.getFilteredList('trazabilidad').filter(
                         t => ((group === 'sede' && t.id_sede === id) || (group === 'zona' && t.id_zona_proyecto === id)
                             || (group === 'ciudadela' && t.id_ciudadela === id) || (group === 'proyecto' && t.id_proyecto === id))
-                            && t.created_on === fecha && acciones.includes(t.obj)
+                            && t.created_on.split(" ")[0] === fecha && acciones.includes(t.obj)
                     ).length
                 ),
                 backgroundColor: this.getColor(idx, items.length),
