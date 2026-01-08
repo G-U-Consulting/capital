@@ -4885,3 +4885,53 @@ tr.cal-row-info > td {
 .avisor-error {
   color: red;
 }
+/* ========================================
+   ======================================== */
+
+.apto-with-tooltip {
+  position: relative;
+}
+
+.apto-with-tooltip .custom-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background: linear-gradient(135deg, #00839C 0%, #00839C 100%);
+  color: white;
+  text-align: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 99999;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 
+              0 3px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  letter-spacing: 0.3px;
+}
+
+.apto-with-tooltip .custom-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #00839C transparent transparent transparent;
+}
+
+.apto-with-tooltip:hover .custom-tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.apto-cuadro.apto-with-tooltip {
+  overflow: visible !important;
+}

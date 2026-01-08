@@ -86,6 +86,22 @@
 			this.selectedApto = apto;
 			this.showFloating = true;
 		},
+		getEstadoTooltip(apto) {
+			if (apto.asignado == 1) {
+				return 'Unidad bloqueada';
+			}
+			if (!apto.estatus) {
+				return 'Sin información de estado';
+			}
+			const estado = apto.estatus.trim().toLowerCase();
+			const tooltips = {
+				'libre': 'Unidad disponible para la venta',
+				'opcionado': 'Unidad con opción de compra activa',
+				'consignado': 'Unidad en proceso de consignación',
+				'vendido': 'Unidad vendida'
+			};
+			return tooltips[estado] || ('Estado: ' + apto.estatus);
+		},
 		closeFloating() {
 			this.showFloating = false;
 			this.selectedApto = null;
