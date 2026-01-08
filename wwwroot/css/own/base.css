@@ -4865,6 +4865,63 @@ tr.cal-row-info > td {
   width: 0%;
 }
 
+.custom-loader-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+}
+.custom-loader-modal-content {
+  width: min(420px, 90vw);
+  padding: 24px 22px;
+  border-radius: 14px;
+  background: #0e547d;
+  color: #F9FAFB;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), 0 2px 10px rgba(0, 0, 0, 0.25);
+  display: grid;
+  gap: 14px;
+  text-align: center;
+}
+.custom-loader {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  border-top-color: #60fad4;
+  border-right-color: #60fad4;
+  animation: spin 0.9s linear infinite;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12), inset 0 0 12px rgba(96, 165, 250, 0.18);
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.custom-loader-modal-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.custom-loader-modal-sub {
+  font-size: 0.92rem;
+  color: #D1D5DB;
+}
+.custom-loader-modal-content {
+  transform: translateY(6px);
+  opacity: 0;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.custom-loader-modal.show .custom-loader-modal-content,
+.custom-loader-modal[style*="display: flex"] .custom-loader-modal-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
 .avisor-cupon-item {
   margin-bottom: 12px;
   padding: 5px;
