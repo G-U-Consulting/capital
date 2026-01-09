@@ -316,7 +316,7 @@ export default {
                     }
                     this.editRow = false;
                     console.error(res);
-                    let err = (res.errorMessage || res.data || 'Error interno')
+                    let err = this.translateSqlError(res.errorMessage || res.data);
                     showMessage('Error: ' + err.replaceAll('<b>', '').replaceAll('</b>', '').replaceAll('<i>', '').replaceAll('</i>', ''));
                 }
                 this.selUser = {};
@@ -332,7 +332,7 @@ export default {
                     this.cancel();
                 } else {
                     console.error(res);
-                    let err = (res.errorMessage || res.data || 'Error interno')
+                    let err = this.translateSqlError(res.errorMessage || res.data);
                     showMessage('Error: ' + err.replaceAll('<b>', '').replaceAll('</b>', '').replaceAll('<i>', '').replaceAll('</i>', ''));
                 }
                 this.editRow = false;
@@ -409,12 +409,14 @@ export default {
             }
         },
         translateSqlError(msg, rowData) {
-            if (msg.includes("Column 'id_usuario' cannot be null"))
+            if (msg.includes("Column 'id_usuario' cannot be null") && rowData)
                 return `No se encontró el asesor con cédula '<b>${rowData.cedula}</b>' en la sala <i>${this.sala.sala_venta}</i>.`;
-            if (msg.includes("Column 'id_estado' cannot be null"))
-                return `No se ingresó un estado válido: '${rowData.estado}'.`;
-            if (msg.includes("Duplicate entry"))
-                return `El asesor con cédula <b>${rowData.cedula}</b> ya tiene una asignación el día <b>${rowData.fecha ? this.formatDatetime(rowData.fecha, 'date') : rowData.fecha}</b>.`;
+            else if (msg.includes("Column 'id_usuario' cannot be null") && !rowData)
+                return `Se debe asignar un usuario.`;
+            if (msg.includes("Column 'id_estado' cannot be null") && rowData)
+                return `No se ingresó un estado válido: '<b>${rowData.estado}</b>'.`;
+            else if (msg.includes("Column 'id_estado' cannot be null") && !rowData)
+                return `Se debe asignar un estado.`;
             if (msg.includes("chk_prog_fecha_valida"))
                 return `No se ingresó una fecha válida: '${rowData.fecha}'.`;
             if (msg.includes("<b>") || msg.includes('<i>')) return msg;

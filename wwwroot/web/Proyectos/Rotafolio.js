@@ -22,6 +22,7 @@ export default {
 
             lupa: false,
             zoomLens: null,
+            isSubLoc: false,
 
             zoom: false,
             zoomBox: null,
@@ -37,6 +38,7 @@ export default {
         };
     },
     async mounted() {
+        this.isSubLoc = !!GlobalVariables.isSubLoc;
         this.proyecto = await GlobalVariables.miniModuleCallback("Rotafolio", null);
         this.setMainMode('Rotafolio');
         var tag = document.createElement("script");

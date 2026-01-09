@@ -377,7 +377,6 @@ export default {
 
         window.activeMiniModule = this;
         window.activeMiniModule.name = "ProcesoNegocio";
-        console.log(this.showCustomProgress, this.hideCustomProgress);
     },
     methods: {
         extraerPiso(numero_apartamento) {
