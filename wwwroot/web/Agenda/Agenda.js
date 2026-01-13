@@ -454,7 +454,6 @@ export default {
                 showProgress();
                 await this.loadChecked();
                 hideProgress();
-                console.log(this.hito);
             }
             if (mode == 4) this.editTask = false;
             this.modalmode = mode;

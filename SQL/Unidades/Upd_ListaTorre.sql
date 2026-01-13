@@ -16,7 +16,7 @@ if trim(@ids_tipos) <> '' then
             update fact_unidades
             set id_lista = @id_lista
             where id_torre = @id_torre and id_estado_unidad = 1 and id_tipo = @id_tipo;
-            update dim_lista_tipo_torre
+            update dim_props_tipo_torre
             set id_lista = @id_lista
             where id_torre = @id_torre and id_tipo = @id_tipo;
         end if;

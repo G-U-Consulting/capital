@@ -245,25 +245,25 @@
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
-                    <select id="torre" class="pure-input-1">
-                        <option value="" disabled selected>Torre</option>
-                        <!--<option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo"> {{ item.cargo }} </option>-->
+                    <select id="torre" class="pure-input-1" v-model="selTorre">
+                        <option :value="{}" disabled selected>[Torre]</option>
+                        <option v-for="t in torres" :value="t"> {{ t.nombre_torre }} </option>
                     </select>
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
-                    <select id="tipo" class="pure-input-1">
-                        <option value="" disabled selected>Tipo</option>
-                        <!--<option v-for="item in cargos" :key="item.id_cargo" :value="item.id_cargo"> {{ item.cargo }} </option>-->
+                    <select id="tipo" class="pure-input-1" v-model="selTipo">
+                        <option :value="{}" disabled selected>[Tipo]</option>
+                        <option v-for="t in tipos_unidad" :value="t"> {{ t.tipo }} </option>
                     </select>
                 </div>
             </div>
             <div class="pure-u-1-1 pure-u-md-1-6">
-                <button style="margin-top: 0.4rem;" v-on:click="setMode(1)">Agregar</button>
+                <button style="margin-top: 0.4rem;" v-on:click="onAddNoVis">Agregar</button>
             </div>
             <div class='pure-u-3-4 pure-u-md-12-24'>
-                <input style="margin-top: 0.4rem;" type='text' v-model='editObjProyecto.subsidios_vis' maxlen='100' />
+                <input style="margin-top: 0.4rem;" type='text' v-model='f_vis_excluidos' @blur="valNoVis"/>
             </div>
             <!--Fin TODO-->
             <!--TODO Acabados y reformas-->
