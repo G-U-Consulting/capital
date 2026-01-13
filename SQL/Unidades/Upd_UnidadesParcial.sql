@@ -126,7 +126,7 @@ insert ignore into dim_tipo_unidad(tipo, id_proyecto)
 select if(t.codigo_planta is null or trim(t.codigo_planta) = '', t.tipo, t.codigo_planta), @id_proyecto
 from tmp_unidades t;
 
-insert ignore into dim_lista_tipo_torre(id_torre, id_tipo)
+insert ignore into dim_props_tipo_torre(id_torre, id_tipo)
 select ft.id_torre, tu.id_tipo 
 from fact_torres ft, dim_tipo_unidad tu 
 where ft.id_proyecto = @id_proyecto and tu.id_proyecto = @id_proyecto;

@@ -385,7 +385,7 @@
                 </div>
             </div>
             <div class="cal-modal-overlay" id="modalOverlay" @click="closeModal($event)">
-                <div class="modal-container pure-g" v-if="modalmode == 1 || modalmode == 2" style="max-width: 850px;">
+                <div class="modal-container pure-g" v-if="modalmode == 1 || modalmode == 2" style="max-width: 900px;">
                     <div class="modal-scroll">
                         <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal($event, true)"
                             class="modal-cerrar">
@@ -409,8 +409,8 @@
                             <input type='color' :value="hito.color" style="margin-top: 2px;" disabled />
                         </div>
                         <div class='pure-u-5-24 pure-u-md-5-24 formInputStandard'>
-                            <span>Hora</span>
-                            <input type='time' :value="hito.hora" readonly />
+                            <span>Fecha y Hora</span>
+                            <input type='datetime-local' :value="hito.fecha" readonly />
                         </div>
 
                         <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
@@ -484,7 +484,7 @@
                             :style="`border: 1px solid ${e.color}90; border-left: 6px solid ${e.color}; background-color: ${e.color}10;`">
                             <div class="pure-u-5-6 pure-u-md-5-6">
                                 <h4 class="event-title">
-                                    {{ e.titulo }} - {{ getMetaHito(e) }} - {{ formatDatetime(e.fecha, 'time') }}
+                                    {{ e.titulo }} - {{ getMetaHito(e) }} - {{ formatDatetime(e.fecha, 'datetime-local') }}
                                     ({{(frecuencias.find(f => f.value == e.frecuencia) || frecuencias[0]).name}})
                                 </h4>
                                 <p class="event-description">{{ e.descripcion }}</p>

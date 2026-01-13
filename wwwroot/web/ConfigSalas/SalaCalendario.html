@@ -131,7 +131,7 @@
         </div>
     </div>
     <div class="cal-modal-overlay" id="modalOverlay" @click="closeModal($event)">
-        <div class="modal-container pure-g" v-if="mode == 1 || mode == 2" style="max-width: 850px;">
+        <div class="modal-container pure-g" v-if="mode == 1 || mode == 2" style="max-width: 900px;">
             <div class="modal-scroll">
                 <img src="../../img/ico/svg/cerrar-transparente.svg" @click="closeModal($event, true)"
                     class="modal-cerrar">
@@ -167,8 +167,8 @@
                     <input type='color' v-model="hito.color" style="margin-top: 2px;" />
                 </div>
                 <div class='pure-u-5-24 pure-u-md-5-24 formInputStandard'>
-                    <span>Hora</span>
-                    <input type='time' v-model="hito.hora" />
+                    <span>Fecha y Hora</span>
+                    <input type='datetime-local' v-model="hito.fecha" />
                 </div>
 
                 <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>

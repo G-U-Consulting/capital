@@ -88,10 +88,11 @@ create table dim_tipo_unidad(
 	unique(tipo, id_proyecto)
 );
 
-create table dim_lista_tipo_torre(
+create table dim_props_tipo_torre(
 	id_tipo int not null references dim_tipo_unidad(id_tipo),
 	id_torre int not null references fact_torres(id_torre),
 	id_lista int references dim_lista_precios(id_lista),
+	excluir_vis bit default 0,
 	primary key(id_tipo, id_torre)
 );
 

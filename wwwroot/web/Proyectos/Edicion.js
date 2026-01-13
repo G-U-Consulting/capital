@@ -165,6 +165,9 @@
             banco_constructor: [],
             bancos_financiador: [],
             fiduciaria: [],
+            torres: [],
+            tipos_unidad: [],
+            excluir_vis: [],
             opcionesVisuales: [],
             tabsIncomplete: [],
             draggedFile: null,
@@ -191,6 +194,9 @@
             interval: null,
             selectedProject: null,
             adm: "0 Solicitudes @Adm",
+            selTorre: {},
+            selTipo: {},
+            tmp_vis_excluidos: ''
         };
     },
     watch: {
@@ -249,7 +255,15 @@
             if (newVal) {
                 this.setRuta();
             }
-        }
+        },
+        f_vis_excluidos: {
+            get() { 
+                return this.excluir_vis.map(item => item.consecutivo + '/' + item.tipo).join(';');
+            },
+            set (val) {
+                this.tmp_vis_excluidos = val;
+            }
+        },
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
@@ -289,7 +303,9 @@
             this.ciudadela = resp[7];
             this.pie_legal = resp[8];
             this.fiduciaria = resp[9];
-
+            this.torres = resp[15];
+            this.tipos_unidad = resp[16];
+            this.excluir_vis = resp[17];
             
             const res = await httpFunc("/generic/genericDS/ProcesoNegocio:Get_Plazos", {});
 
@@ -937,6 +953,7 @@
                 };
 
                 await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", dataToSend);
+                await this.onSaveNoVis();
                 hideProgress();
                 this.tieneCambiosPendientes = false;
                 this.setMainMode();
@@ -1155,5 +1172,61 @@
         tortaProject(item) {
             this.selectedProject = item;
         },
+        onAddNoVis() {
+            let entries = (this.f_vis_excluidos || '').split(';');
+            if (this.selTorre.id_torre && this.selTipo.id_tipo && !entries.includes(`${this.selTorre.consecutivo}/${this.selTipo.tipo}`)) {
+                this.excluir_vis.push({
+                    id_torre: this.selTorre.id_torre,
+                    nombre_torre: this.selTorre.nombre_torre,
+                    consecutivo: this.selTorre.consecutivo,
+                    id_tipo: this.selTipo.id_tipo,
+                    tipo: this.selTipo.tipo,
+                });
+                this.selTorre = {};
+                this.selTipo = {};
+                this.tmp_vis_excluidos = this.excluir_vis.map(item => item.consecutivo + '/' + item.tipo).join(';');
+            }
+        },
+        async onSaveNoVis() {
+            if (this.excluir_vis.length) {
+				showProgress();
+				let res = null;
+				try {
+					res = await httpFunc(`/generic/genericST/Proyectos:Upd_TipoNoVis`,
+						{ data: JSON.stringify(this.excluir_vis), id_proyecto: GlobalVariables.id_proyecto });
+					if (res.isError || res.data !== 'OK') throw res;
+				} catch (e) {
+					console.error(e);
+					showMessage('Error:   ' + e.errorMessage || e.data);
+				}
+				hideProgress();
+			}
+        },
+        valNoVis() {
+            if (!this.tmp_vis_excluidos.trim()) this.excluir_vis = [];
+            else {
+                let tmp_excluir_vis = [], no_torre = [], no_tipo = [], err_msg = "";
+                this.tmp_vis_excluidos.split(';').forEach(item => {
+                    let [consecutivo, tipo] = item.split('/'),
+                        _torre = this.torres.find(t => t.consecutivo == consecutivo),
+                        _tipo = this.tipos_unidad.find(t => t.tipo == tipo);
+                    if (_torre && _tipo)
+                        tmp_excluir_vis.push({
+                            id_torre: _torre.id_torre,
+                            nombre_torre: _torre.nombre_torre,
+                            consecutivo: _torre.consecutivo,
+                            id_tipo: _tipo.id_tipo,
+                            tipo: _tipo.tipo,
+                        });
+                    else if (!_torre) no_torre.push(consecutivo);
+                    else if (!_tipo) no_tipo.push(tipo);
+                });
+                if (no_torre.length || no_tipo.length) err_msg = "Error: ";
+                if (no_torre.length) err_msg += `\nNo se encontraron torres: ${no_torre.join(', ')}.`;
+                if (no_tipo.length) err_msg += `\nNo se encontraron tipos: ${no_tipo.join(', ')}.`;
+                err_msg.trim() && showMessage(err_msg);
+                this.excluir_vis = tmp_excluir_vis;
+            }
+        }
     }
 };
