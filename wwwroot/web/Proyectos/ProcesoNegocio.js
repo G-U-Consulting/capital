@@ -2747,26 +2747,20 @@ export default {
 
             showProgress();
             try {
-                const datosHito = {
-                    titulo: this.seguimientoData.tipo,
-                    descripcion: this.seguimientoData.descripcion,
-                    fecha: this.seguimientoData.fecha,
-                    color: this.colorSeguimiento,
-                    festivo: '0',
-                    id_sala_venta: GlobalVariables.sala?.id_sala_venta,
+                const modoTexto = this.mode === 1 ? 'Registro' : this.mode === 2 ? 'Cotización' : 'Opción';
+                const descripcionCompleta = `[${modoTexto}]\n${this.seguimientoData.descripcion}`;
+
+                const datosTarea = {
+                    alta: new Date().toISOString().split('T')[0],
+                    deadline: this.seguimientoData.fecha,
+                    descripcion: descripcionCompleta,
+                    id_estado: 1,
+                    id_prioridad: 4,
                     id_proyecto: GlobalVariables.id_proyecto,
-                    cargos: ''
+                    id_usuario: this.asesor.id_usuario
                 };
-                if ((this.mode === 2 || this.mode === 3) && this.unidades && this.unidades.length > 0) {
-                    const primeraUnidad = this.unidades[0];
-                    if (primeraUnidad.id_torre) {
-                        datosHito.id_torre = primeraUnidad.id_torre;
-                    }
-                    if (primeraUnidad.id_unidad) {
-                        datosHito.id_unidad = primeraUnidad.id_unidad;
-                    }
-                }
-                const resultado = await httpFunc('/generic/genericDS/Salas:Ins_Hito', datosHito);
+
+                const resultado = await httpFunc('/generic/genericDS/Agenda:Ins_Tarea', datosTarea);
 
                 if (resultado.isError) {
                     throw new Error(resultado.message || resultado.error || 'Error al guardar el seguimiento');
@@ -2774,7 +2768,7 @@ export default {
 
                 this.cerrarModalSeguimiento();
 
-                showMessage('Seguimiento guardado exitosamente en la agenda');
+                showMessage('Seguimiento guardado exitosamente como tarea');
 
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -5320,16 +5314,6 @@ export default {
             return "Seleccione el Seguimiento";
         },
 
-        colorSeguimiento() {
-            if (this.mode === 1) {
-                return '#00839C';
-            } else if (this.mode === 2) {
-                return '#0097AE';
-            } else if (this.mode === 3) {
-                return '#003848';
-            }
-            return '#00839C';
-        }
     },
     watch: {
         ObjVisita: {

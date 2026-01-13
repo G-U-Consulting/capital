@@ -352,19 +352,21 @@
                             <table class="dataTable" v-if="showMode == 'task'">
                                 <thead>
                                     <tr>
-                                        <th style="width: 13%;">Deadline</th>
+                                        <th style="width: 11%;">Alta</th>
+                                        <th style="width: 11%;">Deadline</th>
                                         <th style="width: 16%;">Proyecto</th>
-                                        <th style="width: 32%;">Descripción</th>
-                                        <th style="width: 13%;">Prioridad</th>
-                                        <th style="width: 13%;">Estado</th>
+                                        <th style="width: 27%;">Descripción</th>
+                                        <th style="width: 11%;">Prioridad</th>
+                                        <th style="width: 11%;">Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="t in tableDays" @click="t.day.currentMonth && selDay(t.day)"
                                         @dblclick="onDblClickDay(t.day)" :id="`tab-m${t.day.month}-d${t.day.monthDay}`"
-                                        v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday, 
+                                        v-bind:class="{'cal-table-selected': t.day.isSelected, 'cal-table-today': t.day.isToday,
                                     'cal-deshabilitada': !t.day.currentMonth, 'cal-row-info': !!t.prioridad}"
                                         :style="t.color ? 'background: ' + t.color + ';' : t.day.isSelected ? 'background: #ddd;' : null">
+                                        <td>{{t.alta}}</td>
                                         <td @mouseenter="tooltipVisible = true; tooltipMsg = t.day.progState || 'Sin asignación'"
                                             @mousemove="updateCursor" @mouseleave="tooltipVisible = false;">
                                             {{formatDatetime(null, 'date', t.day.date)}}</td>
