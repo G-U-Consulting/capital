@@ -615,16 +615,17 @@
                                 <th style="width: 5%;">Torre</th>
                                 <th style="width: 10%;">Tipo</th>
                                 <th style="width: 8%;">ID Unidad</th>
-                                <th style="width: 14%;">Fecha</th>
-                                <th style="width: 32%;">Observación</th>
+                                <th style="width: 10%;">Fecha</th>
+                                <th style="width: 36%;">Observación</th>
+                                <th style="width: 4%;" title="Precio Alternativo">Alt</th>
                                 <th style="width: 13%;">
                                     <span v-if="unidades.some(u => u.mostrar_precio_alt)">Importe Alt</span>
                                     <span v-else>Importe</span>
                                 </th>
                                 <th style="width: 13%;">Descuento Base</th>
+                                <th v-if="hayFeriasActivas" style="width: 13%;">Descuento Feria</th>
                                 <th style="width: 8%;">Lista</th>
                                 <th style="width: 4%;" title="Inventario terminado">IT</th>
-                                <th style="width: 4%;" title="Precio Alternativo">Alt</th>
                                 <th style="width: 7%;">Eliminar</th>
                             </tr>
                         </thead>
@@ -634,15 +635,7 @@
                                 <td>{{ item.tipo }}</td>
                                 <td>{{ item.numero_apartamento }}</td>
                                 <td>{{ item.fecha_formateada }}</td>
-                                <td>{{ item.observacion_apto }}</td>
-                                <td style="text-align: right;">
-                                    {{ formatoMoneda(item.mostrar_precio_alt ? item.precio_alt : item.valor_unidad) }}
-                                </td>
-                                <td style="text-align: right">
-                                    {{ formatoMoneda(item.valor_descuento) }}
-                                </td>
-                                <td>{{ item.lista }}</td>
-                                <td style="text-align: center;">{{ item.inv_terminado == '1' ? 'SI' : 'NO' }} </td>
+                                <td :title="item.observacion_apto">{{ item.observacion_apto }}</td>
                                 <td style="text-align: center;">
                                     <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
                                         <label class="check" style="margin: 0; padding-left: 15px; position: relative;">
@@ -651,6 +644,17 @@
                                         </label>
                                     </div>
                                 </td>
+                                <td style="text-align: right;">
+                                    {{ formatoMoneda(item.mostrar_precio_alt ? item.precio_alt : item.valor_unidad) }}
+                                </td>
+                                <td style="text-align: right">
+                                    {{ formatoMoneda(item.valor_descuento) }}
+                                </td>
+                                <td v-if="hayFeriasActivas" style="text-align: right">
+                                    {{ formatoMoneda(item.descuento_feria || 0) }}
+                                </td>
+                                <td style="text-align: center;">{{ item.lista }}</td>
+                                <td style="text-align: center;">{{ item.inv_terminado == '1' ? 'SI' : 'NO' }} </td>
                                  <td style="text-align: center;">
                                     <span class="delete" v-if="item.is_asignado == 1"
                                         @click.stop.prevent="reqOperation(`Desea eliminar el item? <b></b>.`, dropitem, null, item)"> ✖

@@ -447,7 +447,59 @@
             h = +h % 12 + (f.includes('p') ? 12 : 0);
             return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')} ${h.toString().padStart(2, '0')}:${mi}:${s}`;
         },
+		async obtenerDescuentoFeria(id_proyecto) {
+			try {
+				const resp = await httpFunc('/generic/genericDS/Maestros:Get_Salas', {});
+				if (!resp.data || !resp.data[0]) {
+					return 0;
+				}
+
+				const salas = resp.data[0];
+				const salasFeria = salas.filter(s =>
+					(s.is_feria == '1' || s.is_feria == 1 || s.is_feria === true) &&
+					(s.is_active == '1' || s.is_active == 1 || s.is_active === true)
+				);
+
+				for (const sala of salasFeria) {
+					const resPro = await httpFunc('/generic/genericDS/Maestros:Get_ProyectoSala', {
+						id_sala_venta: sala.id_sala_venta
+					});
+
+					if (resPro.data && resPro.data[1]) {
+						const proyectosSala = resPro.data[1];
+						const proyecto = proyectosSala.find(p => p.id_proyecto == id_proyecto);
+
+						if (proyecto) {
+							if (!proyecto.opcionar || proyecto.opcionar == '0' || proyecto.opcionar == 0 || proyecto.opcionar === false) {
+								return 0;
+							}
+
+							if (proyecto.descuento && proyecto.vigencia) {
+								const hoy = new Date();
+								const fechaInicio = new Date(proyecto.fecha_asignacion);
+								const fechaFin = new Date(proyecto.vigencia);
+
+								hoy.setHours(0, 0, 0, 0);
+								fechaInicio.setHours(0, 0, 0, 0);
+								fechaFin.setHours(0, 0, 0, 0);
+
+								if (hoy >= fechaInicio && hoy <= fechaFin) {
+									return parseFloat(proyecto.descuento) || 0;
+								}
+							}
+						}
+					}
+				}
+
+				return 0;
+			} catch (error) {
+				console.error('Error al obtener descuento de feria:', error);
+				return 0;
+			}
+		},
 		async addUnidad(apto) {
+			const descuentoFeria = await this.obtenerDescuentoFeria(GlobalVariables.id_proyecto);
+
 			let payload = {
 				id_cliente: GlobalVariables.id_cliente,
 				id_proyecto: GlobalVariables.id_proyecto,
@@ -468,8 +520,9 @@
 				valor_separacion: apto.valor_separacion,
 				id_unidad: apto.id_unidad,
 				fecha_entrega: this.toMySQLDateTime(apto.fecha_escrituracion),
+				descuento_feria: descuentoFeria
 			};
-			
+
 			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', payload);
 			
 			console.log(payload)

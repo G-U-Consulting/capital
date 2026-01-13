@@ -12,7 +12,7 @@ select
     b.despues_p_equ,
     DATE_FORMAT(c.fecha_fec, '%Y-%m-%d') as fecha_escrituracion,
     DATE_FORMAT(b.fecha_p_equ, '%Y-%m-%d') as fecha_p_equ,
-    DATE_FORMAT(f.created_on, '%Y-%m-%d %H:%i:%s') as fecha_formateada,
+    DATE_FORMAT(f.created_on, '%Y-%m-%d') as fecha_formateada,
     DATE_FORMAT(c.fecha_edi, '%Y-%m-%d') as fecha_entrega_f,
     f.is_asignado,
     f.*,

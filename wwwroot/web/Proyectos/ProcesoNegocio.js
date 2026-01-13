@@ -2202,6 +2202,7 @@ export default {
         async getCotizaciones() {
             showProgress();
             try {
+
                 const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizaciones', {
                     id_cliente: this.id_cliente,
                     id_proyecto: GlobalVariables.id_proyecto
@@ -2259,11 +2260,12 @@ export default {
                     valor_unidad: this.cleanNumber(unidad.valor_unidad),
                     valor_descuento: this.cleanNumber(unidad.valor_descuento),
                     precio_alt: this.cleanNumber(unidad.precio_alt || 0),
+                    descuento_feria: this.cleanNumber(unidad.descuento_feria || 0),
                     mostrar_precio_alt: false
                 }));
 
                 const totalFinal = unidades.reduce(
-                    (acc, u) => acc + (u.mostrar_precio_alt ? u.precio_alt : u.valor_unidad) - u.valor_descuento,
+                    (acc, u) => acc + (u.mostrar_precio_alt ? u.precio_alt : u.valor_unidad) - u.valor_descuento - (u.descuento_feria || 0),
                     0
                 );
 
@@ -2330,7 +2332,7 @@ export default {
         },
         recalcularTotales() {
             const nuevoTotal = this.unidades.reduce(
-                (acc, u) => acc + (u.mostrar_precio_alt ? u.precio_alt : u.valor_unidad) - u.valor_descuento,
+                (acc, u) => acc + (u.mostrar_precio_alt ? u.precio_alt : u.valor_unidad) - u.valor_descuento - (u.descuento_feria || 0),
                 0
             );
 
@@ -4900,6 +4902,9 @@ export default {
             const cotizacion = this.cotizaciones.find(c => c.cotizacion === this.cotizacionSeleccionada);
             return this.esOpcionGuardada || cotizacion?.status === 'Opcionada';
         },
+        hayFeriasActivas() {
+            return this.unidades && this.unidades.some(u => (u.descuento_feria || 0) > 0);
+        },
         reformaAct() {
             return this.unidadOpcion?.inv_terminado == 1;
         },
@@ -4932,7 +4937,7 @@ export default {
                 importeSinDescuentos += reforma;
             }
 
-            // Restar el descuento adicional del importe
+
             const descuentoAdicional = this.cleanNumber(this.valor_descuento_adicional) || 0;
             importeSinDescuentos -= descuentoAdicional;
 
@@ -4945,8 +4950,6 @@ export default {
             }
 
             if (this.tipoFinanciacionSeleccionada) {
-                // Usar cuota_inicial que ya tiene el ajuste por límite de ingresos
-                // En lugar de calcular basado solo en porcentaje
                 const cuotaAjustada = this.cleanNumber(this.cuota_inicial) || 0;
 
                 if (cuotaAjustada > 0) {

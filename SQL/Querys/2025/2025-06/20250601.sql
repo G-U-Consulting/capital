@@ -171,6 +171,7 @@ create table fact_negocios_unidades (
     salesforce_oportunidad_id varchar(50),
     lista varchar(100),
     precio_alt decimal(20,2),
+    descuento_feria decimal(18,2),
     fecha_entrega datetime,
     is_asignado bit default 1,
     is_active bit default 1,
