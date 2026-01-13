@@ -27,7 +27,10 @@ export default {
     async mounted() {
         this.proyecto = await GlobalVariables.miniModuleCallback("Recorridos", null);
         this.setMainMode('Recorridos');
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "Recorridos";
         await this.listResources();
+        this.setRuta();
     },
     methods: {
         setMainMode(mode) {
@@ -122,6 +125,20 @@ export default {
             let expanded = this.isExpanded();
             this.grupos.forEach(g => g.expanded = !expanded);
         },
+        setRuta() {
+            if (GlobalVariables.miniModuleCallback) {
+                this.ruta = [{
+                    text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || this.proyecto?.nombre || ''}`,
+                    action: () => {
+                        GlobalVariables.miniModuleCallback('GoToProjectHome', null);
+                    }
+                }, {
+                    text: 'Recorridos Virtuales',
+                    action: () => {}
+                }];
+                GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            }
+        }
     },
     computed: {
         isExpanded() {

@@ -9,6 +9,8 @@ export default {
             mainmode: 0,
             mode: 0,
             submode: 1,
+            ruta: [],
+            proyecto: null,
             tabsIncomplete: [],
             tabs: [
                 "Bienvenida",
@@ -348,7 +350,7 @@ export default {
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
-        GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
+        this.proyecto = await GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
         let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {usuario: GlobalVariables.username});
         let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {id_proyecto: this.id_proyecto});
         this.categoria = resp.data[0];
@@ -374,9 +376,9 @@ export default {
         window.addEventListener('beforeunload', this.handleBeforeUnload);
         this.isSubsidio();
         await this.cargarPiesLegales();
-
         window.activeMiniModule = this;
         window.activeMiniModule.name = "ProcesoNegocio";
+        this.setRuta();
     },
     methods: {
         extraerPiso(numero_apartamento) {
@@ -1200,6 +1202,8 @@ export default {
                         await this.mostrarModalBorrador(borrador);
                     }
                 }
+
+                this.setRuta();
             }
         },
         async acceptPolicy(isChecked) {
@@ -4879,6 +4883,37 @@ export default {
         hideCustomProgress(){
             let $loader = document.querySelector('.custom-loader-modal');
             $loader && ($loader.style.display = 'none');
+        },
+        getSubmodeText() {
+            const submodes = {
+                0: 'Bienvenida',
+                1: 'Registro',
+                2: 'Cotización',
+                3: 'Detalle y Forma de Pago'
+            };
+            return submodes[this.mode] || '';
+        },
+        setRuta() {
+            const submodeText = this.getSubmodeText();
+            if (submodeText && GlobalVariables.miniModuleCallback) {
+                this.ruta = [{
+                    text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || this.proyecto?.nombre || ''}`,
+                    action: () => {
+                        GlobalVariables.miniModuleCallback('GoToProjectHome', null);
+                    }
+                }, {
+                    text: 'Proceso de Negocio',
+                    action: () => {
+                        if (this.mode !== 0) {
+                            this.handleNext(0);
+                        }
+                    }
+                }, {
+                    text: submodeText,
+                    action: () => {}
+                }];
+                GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            }
         }
     },
     computed: {

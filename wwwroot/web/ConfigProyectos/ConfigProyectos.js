@@ -116,38 +116,78 @@ export default {
     },
     methods: {
         setRuta() {
-            let subpath = [this.getMainPath()];
+            let mainPath = this.getMainPath();
+            let subpath = mainPath.text ? [mainPath] : [];
             let nuevo = { text: 'Nuevo', action: () => { this.mode = 1; this.setRuta() } },
                 editar = { text: 'Edición', action: () => { this.mode = 2; this.setRuta() } };
             if (this.mode == 1) subpath.push(nuevo);
             if (this.mode == 2) subpath.push(editar);
             if (this.mode == 3 && this.mainmode == 6) subpath = [...subpath, editar,
             { text: 'Factores', action: () => { this.mode = 3; this.setRuta() } }];
-            this.ruta = [{
-                text: 'ZM', action: () =>
-                    GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
-            }, { text: 'Proyectos', action: () => { 
-                if ((this.mainmode == 1 || this.mainmode == 2 || this.mainmode == 13) && this.alertImg) {
-                    showConfirm("Tienes archivos sin guardar. ¿Deseas guardar antes de salir?",
-                        async () => {
-                            await this.mainmode == 13 ? this.onSaveDocument() : this.onUpdateImg();
-                            this.mainmode = 0; 
-                            this.mode = 0; 
-                            this.setRuta();
-                        }, () => {
-                            this.mainmode = 0; 
-                            this.mode = 0; 
-                            this.setRuta();
-                            this.alertImg = false;
-                        }, null, 'Guardar', 'Salir sin guardar');
+
+            if (GlobalVariables.miniModuleCallback) {
+                this.ruta = [{
+                    text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || ''}`,
+                    action: () => {
+                        this.mainmode = 0;
+                        this.mode = 0;
+                        this.setRuta();
+                    }
+                }, ...subpath];
+                GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            } else {
+                this.ruta = [{
+                    text: GlobalVariables.zonaActual || 'ZM', action: () =>
+                        GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
+                }, { text: 'Proyectos', action: () => {
+                    if ((this.mainmode == 1 || this.mainmode == 2 || this.mainmode == 13) && this.alertImg) {
+                        showConfirm("Tienes archivos sin guardar. ¿Deseas guardar antes de salir?",
+                            async () => {
+                                await this.mainmode == 13 ? this.onSaveDocument() : this.onUpdateImg();
+                                this.mainmode = 0;
+                                this.mode = 0;
+                                this.setRuta();
+                            }, () => {
+                                this.mainmode = 0;
+                                this.mode = 0;
+                                this.setRuta();
+                                this.alertImg = false;
+                            }, null, 'Guardar', 'Salir sin guardar');
+                    }
+                    else {
+                        this.mainmode = 0;
+                        this.mode = 0;
+                        this.setRuta();
+                    }
+                } }];
+                if (GlobalVariables.nombre_proyecto) {
+                    this.ruta.push({
+                        text: GlobalVariables.nombre_proyecto,
+                        action: () => {
+                            if ((this.mainmode == 1 || this.mainmode == 2 || this.mainmode == 13) && this.alertImg) {
+                                showConfirm("Tienes archivos sin guardar. ¿Deseas guardar antes de salir?",
+                                    async () => {
+                                        await this.mainmode == 13 ? this.onSaveDocument() : this.onUpdateImg();
+                                        this.mainmode = 0;
+                                        this.mode = 0;
+                                        this.setRuta();
+                                    }, () => {
+                                        this.mainmode = 0;
+                                        this.mode = 0;
+                                        this.setRuta();
+                                        this.alertImg = false;
+                                    }, null, 'Guardar', 'Salir sin guardar');
+                            }
+                            else {
+                                this.mainmode = 0;
+                                this.mode = 0;
+                                this.setRuta();
+                            }
+                        }
+                    });
                 }
-                else {
-                    this.mainmode = 0; 
-                    this.mode = 0; 
-                    this.setRuta();
-                }
-            } }];
-            this.ruta = [...this.ruta, ...subpath];
+                this.ruta = [...this.ruta, ...subpath];
+            }
         },
         setMainMode(mode) {
             if ((this.mainmode == 1 || this.mainmode == 2 || this.mainmode == 13) && this.alertImg) {

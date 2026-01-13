@@ -204,8 +204,10 @@ export default {
         await this.setViewMode();
         await this.setMainMode();
         await this.loadOnlyActive();
-        //TODO - Quitar
-        //this.selectProject(this.proyectos[0]);
+
+        if (GlobalVariables.proyecto && GlobalVariables.proyecto.id_proyecto && GlobalVariables.proyectosApp && GlobalVariables.proyectosApp.lateralMenu) {
+            await this.selectProject(GlobalVariables.proyecto, 'portada');
+        }
     },
     methods: {
         async setMainMode() {

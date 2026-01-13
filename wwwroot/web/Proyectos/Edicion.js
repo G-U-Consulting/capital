@@ -239,6 +239,16 @@
         },
         proyectosNormales() {
             return this.getFilteredList('proyectos').filter(p => p.lanzamiento !== '1');
+        },
+        proyectoGlobal() {
+            return GlobalVariables.proyecto;
+        }
+    },
+    watch: {
+        proyectoGlobal(newVal) {
+            if (newVal) {
+                this.setRuta();
+            }
         }
     },
     async mounted() {
@@ -248,6 +258,7 @@
         await this.loadOnlyActive();
         window.activeMiniModule = this;
         window.activeMiniModule.name = "Edicion";
+        this.setRuta();
     },
     beforeUnmount() {
         if (window.activeMiniModule === this) {
@@ -410,6 +421,40 @@
             validarSubmode(index);
             this.submode = index;
             this.isFormularioCompleto = this.tabsIncomplete.length === 0;
+            this.setRuta();
+        },
+        getSubmodeText() {
+            const submodes = {
+                0: 'Datos generales',
+                1: 'Tipología y financiación',
+                2: 'Pagos y Cotizaciones',
+                3: 'C. de costos y fiduciaria',
+                4: 'Información adicional',
+                5: 'Enlaces'
+            };
+            return submodes[this.submode] || '';
+        },
+        setRuta() {
+            const submodeText = this.getSubmodeText();
+            if (submodeText && GlobalVariables.miniModuleCallback) {
+                this.ruta = [{
+                    text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || ''}`,
+                    action: () => {
+                        GlobalVariables.miniModuleCallback('GoToProjectHome', null);
+                    }
+                }, {
+                    text: 'Información Básica',
+                    action: () => {
+                        if (this.submode !== 0) {
+                            this.confirmarCambioSubmode(0);
+                        }
+                    }
+                }, {
+                    text: submodeText,
+                    action: () => {}
+                }];
+                GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            }
         },
         async setViewMode(mode) {
             let vista = await GlobalVariables.getPreferences('vistaProyecto', true);

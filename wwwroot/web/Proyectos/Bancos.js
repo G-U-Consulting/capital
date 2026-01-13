@@ -25,6 +25,8 @@ export default {
         this.proyecto = await GlobalVariables.miniModuleCallback("Bancos", null);
         this.nombrePro = this.proyecto.nombre;
         this.setMainMode('Bancos');
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "Bancos";
         await this.loadData();
         this.initMode();
     },
@@ -34,8 +36,7 @@ export default {
         },
         initMode() {
             this.mode = 0;
-            this.ruta = [{ text: `${this.proyecto.nombre} / Bancos`, action: () => this.initMode() }];
-            GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            this.setRuta();
         },
         async loadData() {
             [this.bancos, this.factores, this.tipos_factor, this.bancos_factores] =
@@ -57,9 +58,7 @@ export default {
             });
             this.banco_factor = bfs;
             this.copy_bf = cbfs;
-            GlobalVariables.miniModuleCallback('SetRuta', [this.ruta[0],
-            { text: `Edición - ${selected.banco}`, action: () => { } }
-            ]);
+            this.setRuta();
         },
         onClear(table) {
             let item = this.filtros[table];
@@ -174,6 +173,37 @@ export default {
             }
             hideProgress();
         },
+        setRuta() {
+            if (GlobalVariables.miniModuleCallback) {
+                if (this.mode === 0) {
+                    this.ruta = [{
+                        text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || this.proyecto?.nombre || ''}`,
+                        action: () => {
+                            GlobalVariables.miniModuleCallback('GoToProjectHome', null);
+                        }
+                    }, {
+                        text: 'Administrar Bancos',
+                        action: () => {}
+                    }];
+                } else if (this.mode === 2) {
+                    this.ruta = [{
+                        text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || this.proyecto?.nombre || ''}`,
+                        action: () => {
+                            GlobalVariables.miniModuleCallback('GoToProjectHome', null);
+                        }
+                    }, {
+                        text: 'Administrar Bancos',
+                        action: () => {
+                            this.initMode();
+                        }
+                    }, {
+                        text: `Edición - ${this.banco.banco}`,
+                        action: () => {}
+                    }];
+                }
+                GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            }
+        }
     },
     computed: {
         getFilteredList() {

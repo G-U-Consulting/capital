@@ -150,7 +150,9 @@
     async mounted() {
         this.tabsIncomplete = this.mediaTabs.map((_, index) => index);
         GlobalVariables.miniModuleCallback("ImagenesVideos", GlobalVariables.proyecto);
-        this.setSubmode(0);
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "Medios";
+        await this.setSubmode(0);
     },
     methods: {
         async onToggleChange() {
@@ -176,6 +178,7 @@
             }
 
             this.submode = index;
+            this.setRuta();
 
             if (index === 0) {
                 const grupo_img = await this.actualizarDatos('imagenes');
@@ -184,7 +187,7 @@
                 const grupo_avo = await this.actualizarDatos('avances de obra');
 
                 await this.construirTablas(grupo_img, grupo_vid, grupo_vir, grupo_avo);
-                
+                this.setRuta();
             }
             if (index == 1) {
                 this.loadImg()
@@ -1594,6 +1597,33 @@
             this.expandedVisible = false;
             this.expandedImage = null;
         },
-        //
+        getSubmodeText() {
+            if (this.submode >= 0 && this.submode < this.mediaTabs.length) {
+                return this.mediaTabs[this.submode];
+            }
+            return '';
+        },
+        setRuta() {
+            const submodeText = this.getSubmodeText();
+            if (submodeText && GlobalVariables.miniModuleCallback) {
+                this.ruta = [{
+                    text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || ''}`,
+                    action: () => {
+                        GlobalVariables.miniModuleCallback('GoToProjectHome', null);
+                    }
+                }, {
+                    text: 'Imágenes y Videos',
+                    action: () => {
+                        if (this.submode !== 0) {
+                            this.setSubmode(0);
+                        }
+                    }
+                }, {
+                    text: submodeText,
+                    action: () => {}
+                }];
+                GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            }
+        }
     }
 };

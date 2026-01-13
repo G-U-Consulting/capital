@@ -20,7 +20,10 @@ export default {
     async mounted() {
         this.proyecto = await GlobalVariables.miniModuleCallback("OpenDocs", null);
         this.setMainMode('Documentacion');
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "Documentacion";
         this.loadFiles();
+        this.setRuta();
     },
     methods: {
         setMainMode(mode) {
@@ -234,6 +237,20 @@ export default {
                 }
             });
             hideProgress();
+        },
+        setRuta() {
+            if (GlobalVariables.miniModuleCallback) {
+                this.ruta = [{
+                    text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || this.proyecto?.nombre || ''}`,
+                    action: () => {
+                        GlobalVariables.miniModuleCallback('GoToProjectHome', null);
+                    }
+                }, {
+                    text: 'Documentación',
+                    action: () => {}
+                }];
+                GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            }
         }
     }
 }

@@ -41,6 +41,8 @@ export default {
         this.isSubLoc = !!GlobalVariables.isSubLoc;
         this.proyecto = await GlobalVariables.miniModuleCallback("Rotafolio", null);
         this.setMainMode('Rotafolio');
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "Rotafolio";
         var tag = document.createElement("script");
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName("script")[0];
@@ -48,6 +50,7 @@ export default {
         await this.setTime();
         await this.listResources();
         this.handleFullscreen();
+        this.setRuta();
     },
     unmounted() {
         this.interval && clearInterval(this.interval);
@@ -407,8 +410,21 @@ export default {
                 ? this.c_zoomFactor = factor.reverse().find(f => f < this.c_zoomFactor) || Math.min(...factor)
                 : this.c_zoomFactor = factor.find(f => f > this.c_zoomFactor) || Math.max(...factor);
             this.changeZoom(relX, relY);
+        },
+        setRuta() {
+            if (GlobalVariables.miniModuleCallback) {
+                this.ruta = [{
+                    text: `${GlobalVariables.nombre_proyecto || GlobalVariables.proyecto?.nombre || this.proyecto?.nombre || ''}`,
+                    action: () => {
+                        GlobalVariables.miniModuleCallback('GoToProjectHome', null);
+                    }
+                }, {
+                    text: 'Rotafolio de Proyectos',
+                    action: () => {}
+                }];
+                GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
+            }
         }
-
     },
     computed: {
         isExpanded() {

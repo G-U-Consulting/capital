@@ -21,6 +21,7 @@ export default {
             delete GlobalVariables.isSubLoc;
             await this.setMainMode('InicioProyecto');
             this.ocultarLayout = false;
+            this.setRuta([]);
             return;
         }
         GlobalVariables.isSubLoc = true;
@@ -57,6 +58,7 @@ export default {
                     this.proyecto = null;
                     this.lateralMenu = false;
                     await this.setMainMode('InicioProyecto');
+                    this.setRuta([]);
                     if (this.miniModule && this.miniModule.setMode) {
                         this.miniModule.setMode(0);
                     }
@@ -111,12 +113,6 @@ export default {
 
             this.mainmode = mode;
             this.miniModule = await GlobalVariables.loadMiniModule(mode, this.proyecto, "#projectsMainContent");
-
-            let ruta = [];
-            if (mode !== 'InicioProyecto' || sel) {
-                ruta.push({ text: this.getPathName(mode), action: () => { } });
-            }
-            this.setRuta(ruta);
         },
 
         getPathName(mode) {
@@ -142,7 +138,8 @@ export default {
                 case "SelectedProject":
                     this.lateralMenu = true;
                     this.proyecto = data;
-                    if (this.ruta.length <= 2) this.pushRuta(this.proyecto["nombre"], 0);
+                    this.ocultarLayout = false;
+                    this.setRuta([{ text: this.proyecto.nombre, action: () => {} }]);
                     break;
 
                 case "NewProject":
@@ -193,6 +190,12 @@ export default {
 
                 case "SetRuta":
                     this.setRuta(data);
+                    break;
+
+                case "GoToProjectHome":
+                    this.lateralMenu = true;
+                    await this.setMainMode('InicioProyecto');
+                    this.setRuta([{ text: this.proyecto.nombre, action: () => {} }]);
                     break;
             }
         },
