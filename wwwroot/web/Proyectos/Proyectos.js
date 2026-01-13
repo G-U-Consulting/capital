@@ -18,10 +18,12 @@ export default {
         GlobalVariables.proyectosApp = this;
         const params = new URLSearchParams(GlobalVariables.urlParams);
         if (!params.get('SubLoc')) {
+            delete GlobalVariables.isSubLoc;
             await this.setMainMode('InicioProyecto');
             this.ocultarLayout = false;
             return;
         }
+        GlobalVariables.isSubLoc = true;
         const subLoc = params.get('SubLoc');
         const id_proyecto = params.get('id_proyecto');
         const id_cliente = params.get('id_cliente');

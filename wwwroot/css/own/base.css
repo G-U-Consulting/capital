@@ -1971,7 +1971,7 @@ div.btn-left-rotafolio img {
 .menu-content.open {
   border-top: 1px #ccc solid;
   padding: 8px;
-  max-height: 5000px;
+  max-height: 20000px;
 }
 
 .menu-content .item-content {
@@ -2476,9 +2476,12 @@ tr.cal-row-info > td {
 }
 .prog-grid-btn {
   display: inline-grid; 
-  grid: repeat(3, 1fr) / 1fr 1fr; 
+  grid: repeat(3, 1fr) / auto 1fr; 
   gap: .8rem; 
   justify-items: end;
+}
+.prog-grid-btn button {
+  max-width: none !important;
 }
 
 .resumen-errores table {

@@ -1,7 +1,8 @@
-<div v-if="mode == 0" style="padding-top: 1em">
-    <div class="pure-u-1-24"></div>
-    <div class="pure-u-22-24 menuCard"
-        style="max-height: calc(100vh - 8rem); overflow-y: auto; padding: 1em 1em 0 0 !important ">
+<div v-if="mode == 0" v-bind:style="{'padding-top: 1em': !isSubLoc}">
+    <div v-if="!isSubLoc" class="pure-u-1-24"></div>
+    <div class="menuCard" v-bind:class="{'pure-u-1-1': isSubLoc, 'pure-u-22-24': !isSubLoc}"
+        style="overflow-y: auto; padding: 1em 1em 0 0 !important"
+        :style="isSubLoc ? { height: '100vh' } : { maxHeight: 'calc(100vh - 8rem)' }">
         <div class="pure-g">
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision'
                 style="font-size: 1.5em; margin-bottom: 4px; margin-left: 1rem;">
