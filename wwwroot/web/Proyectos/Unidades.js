@@ -520,7 +520,8 @@
 				valor_separacion: apto.valor_separacion,
 				id_unidad: apto.id_unidad,
 				fecha_entrega: this.toMySQLDateTime(apto.fecha_escrituracion),
-				descuento_feria: descuentoFeria
+				descuento_feria: descuentoFeria,
+				id_sala_venta: GlobalVariables.id_sala_venta
 			};
 
 			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', payload);

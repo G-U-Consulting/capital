@@ -29,6 +29,7 @@ export default {
         const id_proyecto = params.get('id_proyecto');
         const id_cliente = params.get('id_cliente');
         this.id_cotizacion = params.get('id_cotizacion');
+        GlobalVariables.id_sala_venta = params.get('id_sala_venta');
         this.cotizacion = params.get('cotizacion');
         this.id_cliente = id_cliente;
         this.setProyecto(id_proyecto, subLoc);
@@ -78,23 +79,14 @@ export default {
         },
 
         async selSalaVenta() {
-            if (!GlobalVariables.sala) {
-                showProgress();
-                if (!this.salas || !this.salas.length)
-                    this.salas = (await httpFunc("/generic/genericDT/Proyectos:Get_Salas", { "id_proyecto": this.proyecto.id_proyecto })).data;
-                if (this.salas.length === 0)
-                    showMessage("Debe asignar este proyecto a una sala de ventas");
-                if (this.salas.length === 1) {
-                    GlobalVariables.sala = this.salas[0];
-                    this.setMainMode('ProcesoNegocio');
-                }
-                if (this.salas.length > 1) {
-                    let $modal = document.getElementById('modalOverlaySala');
-                    $modal && ($modal.style.display = 'flex');
-                }
-                hideProgress();
-            }
-            else this.setMainMode('ProcesoNegocio');
+            showProgress();
+            this.salas = (await httpFunc("/generic/genericDT/Proyectos:Get_Salas", { "id_proyecto": this.proyecto.id_proyecto })).data;
+            hideProgress();
+            if (GlobalVariables.sala)
+                this.sala = this.salas.find(s => s.id_sala_venta == GlobalVariables.sala.id_sala_venta) || {};
+            else this.sala = {};
+            let $modal = document.getElementById('modalOverlaySala');
+            $modal && ($modal.style.display = 'flex');
         },
         setSalaSesion() {
             GlobalVariables.sala = this.sala;
@@ -102,7 +94,9 @@ export default {
             $modal && ($modal.style.display = 'none');
             this.setMainMode('ProcesoNegocio');
         },
-
+        closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        },
         async setMainMode(mode, sel = false) {
             if (GlobalVariables.ventanaUnidades && !GlobalVariables.ventanaUnidades.closed) {
                 GlobalVariables.ventanaUnidades.close();

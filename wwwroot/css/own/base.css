@@ -4427,6 +4427,9 @@ tr.cal-row-info > td {
     font-size: 12px;
     transition: transform 0.2s ease, color 0.2s ease;
 }
+.boton-accion-disabled {
+  color: #555;
+}
 
 .boton-accion img {
     width: 30px;
@@ -4438,6 +4441,11 @@ tr.cal-row-info > td {
 .boton-accion:hover {
     transform: translateY(-2px);
     color: #007a8c;
+}
+.boton-accion-disabled:hover {
+    transform: none;
+    color: #666;
+    cursor: not-allowed;
 }
 
 .pdf-table {

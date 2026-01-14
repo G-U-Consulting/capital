@@ -99,7 +99,8 @@
         <div id="projectsMainContent"></div>
 
         <div class="cal-modal-overlay" id="modalOverlaySala">
-            <div class="modal-container" style="min-width: 450px; max-width: 450px;">
+            <div class="modal-container" style="min-width: 450px; max-width: 450px; position: relative;">
+                <span class="asunto-modal-close" @click="closeModal('modalOverlaySala')">×</span>
                 <h2 style="text-align: center; margin-bottom: .5rem;">Selección Sala de Ventas</h2>
                 <div class="pure-g" style="height: 85px; align-content: center;">
                     <div class="pure-u-1-2 formInputStandard">

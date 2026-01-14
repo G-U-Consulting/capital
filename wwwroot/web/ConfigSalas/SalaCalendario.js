@@ -258,7 +258,7 @@ export default {
         async openModal(mode, e) {
             let fre = this.frecuencias[0];
             if (mode == 1) {
-                this.hito = { hora: '00:00', color: '#006ec9', id_sala_venta: this.sala.id_sala_venta };
+                this.hito = { fecha: this.formatDatetime(null, 'bdatetime', this.selDate), hora: '00:00', color: '#006ec9', id_sala_venta: this.sala.id_sala_venta };
                 this.eventType = 'Sala';
                 this.onChangeFreq(fre);
                 this.cargos.forEach(c => c.checked = false);
@@ -284,8 +284,8 @@ export default {
         async onSave() {
             showProgress();
             try {
-                if (this.hito.fecha) this.hito.fecha = `${this.hito.fecha.split(' ')[0]} ${this.hito.hora}`;
-                else this.hito.fecha = `${this.formatDatetime(null, 'bdate', this.selDate)} ${this.hito.hora}`;
+                if (this.hito.fecha) this.hito.fecha = this.hito.fecha.replace('T', ' ');
+                else this.hito.fecha = this.formatDatetime(null, 'bdatetime', this.selDate);
                 let cargos = this.cargos.filter(c => c.checked).map(c => c.id_cargo).join(',');
                 if (!cargos) throw 'Error: Debe seleccionar al menos una categoría';
                 if (this.eventType === 'Proyecto' && !this.hito.id_proyecto) 
@@ -445,6 +445,10 @@ export default {
                 return `${day}/${month}/${year}`;
             if (type === 'bdate')
                 return `${year}-${month}-${day}`;
+			if (type === 'bdatetime')
+				return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}`;
+			if (type === 'bdatetimes')
+				return `${year}-${month}-${day} ${date.getHours().toString().padStart(2, '0')}:${minutes}:${seconds}`;
             if (type === 'time')
                 return `${hour}:${minutes} ${meridian}`;
             if (type === 'vtime')
@@ -453,6 +457,17 @@ export default {
         },
         equalsDate(f1, f2) {
             return f1 && f2 && f1.getDate() === f2.getDate() && f1.getMonth() === f2.getMonth() && f1.getFullYear() === f2.getFullYear();
+        },
+        compareDate(sf1, sf2) {
+            let f1 = sf1 ? new Date(sf1) : new Date(),
+                f2 = sf2 ? new Date(sf2) : new Date();
+            if (f1 && f2 && f1.getDate() === f2.getDate() && f1.getMonth() === f2.getMonth() && f1.getFullYear() === f2.getFullYear())
+                return 0;
+            else return f1.getTime() < f2.getTime() ? -1 : 1;
+        },
+        setLimit() {
+            if (this.hito.limite && this.compareDate(this.hito.fecha, this.hito.limite + ' 00:00') == 1)
+                this.hito.limite = this.formatDatetime(this.hito.fecha, 'bdate');
         },
         updateCursor(event) {
             this.tooltipX = event.clientX + 10;

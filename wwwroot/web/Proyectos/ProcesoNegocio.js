@@ -346,6 +346,10 @@ export default {
             id_pie_legal_seleccionado: '',
             texto_pie_legal: '',
             nombre_pie_legal: '',
+            tooltipVisible: false,
+            tooltipX: 0,
+            tooltipY: 0,
+            tooltipMsg: '',
         };
     },
     async mounted() {
@@ -2570,7 +2574,7 @@ export default {
 
             const idProyecto = GlobalVariables.id_proyecto;
             const url = './?loc=Proyectos&SubLoc=ProcesosUnidades&id_proyecto=' + idProyecto + '&id_cliente=' + this.id_cliente + '&cotizacion=' + this.cotizacionSeleccionada
-                + '&id_cotizacion=' + (this.idcotizacion || '');
+                + '&id_cotizacion=' + (this.idcotizacion || '') + '&id_sala_venta=' + (GlobalVariables.sala?.id_sala_venta || '');
             const screenWidth = window.screen.availWidth;
             const screenHeight = window.screen.availHeight;
             const features = [
@@ -4915,7 +4919,11 @@ export default {
                 }];
                 GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
             }
-        }
+        },
+		updateCursorRight(event) {
+			this.tooltipX = document.body.getBoundingClientRect().width - event.clientX + 2;
+			this.tooltipY = event.clientY - 30;
+		},
     },
     computed: {
         id_proyecto() {
@@ -5344,6 +5352,11 @@ export default {
         f_monthlyIncome: {
             get() { return this.formatNumber(this.davivienda.customerInformation.monthlyIncome, false); },
             set(val) { this.davivienda.customerInformation.monthlyIncome = this.cleanNumber(val); }
+        },
+        f_permitirOpcionar: {
+            get() {
+                return GlobalVariables.sala?.opcionar == '1';
+            }
         },
 
         tituloModalSeguimiento() {

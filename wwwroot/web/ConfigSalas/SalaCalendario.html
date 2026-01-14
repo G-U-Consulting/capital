@@ -168,7 +168,8 @@
                 </div>
                 <div class='pure-u-5-24 pure-u-md-5-24 formInputStandard'>
                     <span>Fecha y Hora</span>
-                    <input type='datetime-local' v-model="hito.fecha" />
+                    <input type='datetime-local' v-model="hito.fecha" class="cal-no-delete"
+                        @input="setLimit" @keydown.delete.prevent @keydown.backspace.prevent/>
                 </div>
 
                 <div class='pure-u-7-24 pure-u-md-7-24 formInputStandard'>
@@ -225,7 +226,7 @@
                 <div class='pure-u-1-1 pure-u-md-1-5 formInputStandard' style="padding: .5rem;">
                     <span>Hasta</span>
                     <input type="date" v-model="hito.limite" style="margin-top: 2px;" :disabled="!hito.frecuencia"
-                        :min="hito.fecha ? hito.fecha.split(' ')[0] : formatDatetime(null, 'bdate', selDate)">
+                        :min="hito.fecha ? formatDatetime(hito.fecha, 'bdate') : formatDatetime(null, 'bdate', selDate)">
                 </div>
 
                 <div class='pure-u-1-1 pure-u-md-1-1 formInputStandard'>

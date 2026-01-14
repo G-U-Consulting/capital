@@ -21,7 +21,8 @@ set @id_cliente = '2',
     @id_unidad = '0',
     @numero_apartamento = 'Apto 410',
     @fecha_entrega = '2023-12-31',
-    @descuento_feria = '0.00';
+    @descuento_feria = '0.00',
+    @id_sala_venta = NULL;
 --END_PARAM
 
 insert into fact_negocios_unidades (
@@ -91,8 +92,11 @@ values('unassign', 'unidad',
     utc_timestamp() + interval 30 minute);
 
 select id_clase into @id_clase from fact_unidades where id_unidad = @id_unidad;
+select opcionar into @enabled
+from dim_sala_proyecto 
+where id_sala_venta = @id_sala_venta and id_proyecto = @id_proyecto;
 
-if @id_clase = 8 then
+if @id_clase = 8 and @enabled = 1 then
     insert into cola_tareas_rpa(tipo, sub_tipo, datos) 
     values('salesforce', 'CotizacionSF', 
         concat('{"id_cotizacion":', @id_cotizacion, ',"id_unidad":', @id_unidad, ',"quotestate":"Cotizado"}'));

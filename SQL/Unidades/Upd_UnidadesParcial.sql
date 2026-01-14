@@ -137,6 +137,7 @@ select coalesce(codigo, 'APT') into @cod_apt from dim_tipo_proyecto where id_tip
 UPDATE fact_unidades u
 JOIN tmp_unidades t ON t.apartamento = u.numero_apartamento
 JOIN dim_tipo_proyecto tp ON TRIM(t.clase) = tp.tipo_proyecto AND tp.id_tipo_proyecto = u.id_clase
+join fact_torres ft on u.id_torre = ft.id_torre
 SET
     u.id_estado_unidad = CASE WHEN t.estatus IS NOT NULL AND TRIM(t.estatus) <> '' THEN (
         SELECT e.id_estado_unidad FROM dim_estado_unidad e WHERE e.estado_unidad = t.estatus
@@ -192,7 +193,7 @@ SET
     ) ELSE u.id_agrupacion END,
     u.updated_by = @Usuario,
     u.updated_on = CURRENT_TIMESTAMP
-WHERE u.id_proyecto = @id_proyecto;
+WHERE u.id_proyecto = @id_proyecto and ft.consecutivo = t.torre;
 
 
 update tmp_unidades a

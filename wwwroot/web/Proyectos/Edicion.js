@@ -248,13 +248,6 @@
         },
         proyectoGlobal() {
             return GlobalVariables.proyecto;
-        }
-    },
-    watch: {
-        proyectoGlobal(newVal) {
-            if (newVal) {
-                this.setRuta();
-            }
         },
         f_vis_excluidos: {
             get() { 
@@ -264,6 +257,13 @@
                 this.tmp_vis_excluidos = val;
             }
         },
+    },
+    watch: {
+        proyectoGlobal(newVal) {
+            if (newVal) {
+                this.setRuta();
+            }
+        }
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
@@ -278,6 +278,9 @@
         if (window.activeMiniModule === this) {
             window.activeMiniModule = null;
         }
+    },
+    unmounted() {
+        this.interval && clearInterval(this.interval);
     },
     methods: {
         async setMainMode() {
