@@ -519,6 +519,10 @@
             resp = resp.data;
             const proyecto = resp[0][0];
 
+            if (GlobalVariables.proyecto) {
+                GlobalVariables.proyecto.id_pie_legal = proyecto.id_pie_legal;
+            }
+
             Object.keys(this.editObjProyecto).forEach(key => {
                 if (proyecto[key] !== undefined && proyecto[key] !== null) {
                     this.editObjProyecto[key] = proyecto[key];
@@ -586,16 +590,12 @@
             this.editObjProyecto.inmuebles_opcionados = Number(proyecto.inmuebles_opcionados) || 0;
             this.editObjProyecto.meta_ventas = Number(proyecto.meta_ventas) || 0;
             this.editObjProyecto.bloqueo_libres = Number(proyecto.bloqueo_libres) || 0;
-            // Función para convertir valores BIT de MySQL correctamente
             const convertBitToString = (value) => {
                 if (value === null || value === undefined) return "0";
-                // Si es un Buffer (como puede venir de MySQL BIT)
                 if (value && value.type === 'Buffer' && value.data) {
                     return value.data[0] === 1 ? "1" : "0";
                 }
-                // Si es booleano
                 if (typeof value === 'boolean') return value ? "1" : "0";
-                // Si es número o string
                 return String(Number(value) || 0);
             };
 
@@ -954,6 +954,11 @@
 
                 await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", dataToSend);
                 await this.onSaveNoVis();
+
+                if (GlobalVariables.proyecto) {
+                    GlobalVariables.proyecto.id_pie_legal = this.editObjProyecto.id_pie_legal;
+                }
+
                 hideProgress();
                 this.tieneCambiosPendientes = false;
                 this.setMainMode();

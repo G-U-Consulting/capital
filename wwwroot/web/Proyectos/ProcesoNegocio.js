@@ -839,7 +839,8 @@ export default {
             this.importeBase = 0;
             this.reformaActivo = false;
 
-            this.id_pie_legal_seleccionado = '';
+            const pieLegalProyecto = GlobalVariables.proyecto?.id_pie_legal || '';
+            this.id_pie_legal_seleccionado = pieLegalProyecto;
             this.texto_pie_legal = '';
             this.nombre_pie_legal = '';
         },
@@ -1547,7 +1548,7 @@ export default {
                 this.d_fecha_ulti_cuota = opcion.fecha_ultima_cuota || null;
                 this.d_fecha_escrituracion = opcion.fecha_escrituracion || null;
 
-                this.id_pie_legal_seleccionado = opcion.id_pie_legal || '';
+                this.id_pie_legal_seleccionado = opcion.id_pie_legal || GlobalVariables.proyecto?.id_pie_legal || '';
 
                 // if (opcion.tablaPeriodos && opcion.tablaPeriodos.length > 0) {
                 //     this.cargarTablaAmortizacion(opcion.tablaPeriodos);

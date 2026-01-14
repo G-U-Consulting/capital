@@ -367,6 +367,11 @@ export default {
             var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Proyecto", { "id_proyecto": item["id_proyecto"] });
             resp = resp.data;
             const proyecto = resp[0][0];
+
+            if (GlobalVariables.proyecto) {
+                GlobalVariables.proyecto.id_pie_legal = proyecto.id_pie_legal;
+            }
+
             Object.keys(this.editObjProyecto).forEach(key => {
                 if (proyecto[key] !== undefined && proyecto[key] !== null) {
                     this.editObjProyecto[key] = proyecto[key];
