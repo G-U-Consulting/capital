@@ -2019,6 +2019,8 @@ div.btn-left-rotafolio img {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .tab-registro:hover {
@@ -2039,9 +2041,11 @@ div.btn-left-rotafolio img {
 .tabs-container-registro {
   display: flex;
   border-bottom: 1px solid #ccc;
-  margin-bottom: 1rem;
+  margin-bottom: .3rem;
   background-color: white;
   padding-left: 10px;
+  width: 100%;
+  gap: 2px;
 }
 
 .tab-content-registro {
@@ -3784,7 +3788,7 @@ tr.cal-row-info > td {
   transition: background-color 0.3s ease;
 }
 .cont-textarea{
-  height: 11vh;
+  height: 9vh;
 }
 
 .btn-modern {
