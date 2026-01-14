@@ -126,6 +126,8 @@ export default {
             frontImg: '',
             interval: null,
             selectedProject: null,
+            edge: '',
+            certificacionNombre: '',
             adm: "0 Solicitudes @Adm",
             onlyLibres: null,
         };
@@ -910,6 +912,18 @@ export default {
         async tortaProject(item) {
             this.selectedProject = item;
             this.edge = item.edge_estado;
+
+            if (item.id_certificacion) {
+                const certificacion = this.certificaciones.find(c => c.id_certificacion == item.id_certificacion);
+                this.certificacionNombre = certificacion ? certificacion.certificacion : '';
+            } else if (item.edge_estado) {
+                const certificacion = this.certificaciones.find(c =>
+                    c.certificacion && c.certificacion.toLowerCase().includes(item.edge_estado.toLowerCase())
+                );
+                this.certificacionNombre = certificacion ? certificacion.certificacion : '';
+            } else {
+                this.certificacionNombre = '';
+            }
         },
         mostrarValor(valor) {
             return this.esNoDisponible(valor) ? 'No disponible' : valor;

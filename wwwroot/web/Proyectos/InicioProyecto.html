@@ -227,12 +227,12 @@
                 </div>
                 <div v-if="selectedProject" class="detail-panel">
                     <div v-if="edge == 'vigente'" class="certification-badge tooltip">
-                        <img class="certification-badge-vig" src="./img/ico/svg/OIP.png" title="Certificación Edge Vigente - Excellence in Design for Greater Efficiencies" />
-                        <span class="tooltip-text" style="pointer-events: none;">Certificación Edge Vigente - Excellence in Design for Greater Efficiencies</span>
+                        <img class="certification-badge-vig" src="./img/ico/svg/OIP.png" :title="certificacionNombre" />
+                        <span class="tooltip-text" style="pointer-events: none;">{{ certificacionNombre }}</span>
                     </div>
                     <div v-if="edge == 'próxima'" class="certification-badge proxima tooltip">
-                        <img class="certification-badge-prox" src="./img/ico/svg/sello-proximo-edge.svg" title="Próxima Certificación Edge - En proceso" />
-                        <span class="tooltip-text" style="pointer-events: none;">Próxima Certificación Edge - En proceso</span>
+                        <img class="certification-badge-prox" src="./img/ico/svg/sello-proximo-edge.svg" :title="certificacionNombre" />
+                        <span class="tooltip-text" style="pointer-events: none;">{{ certificacionNombre }}</span>
                     </div>
                     <div class="labeled-switch">
                         <div class="toggle-switch tooltip" @click.stop.prevent="toggleState(selectedProject)" @dblclick.stop.prevent :title="selectedProject.is_active == '1' ? 'Desactivar proyecto' : 'Activar proyecto'">
@@ -488,18 +488,10 @@
                 <div class='formInputStandard'>
                     <div class='pure-g'>
                         <div v-for='item in certificaciones' class='pure-u-1-4'>
-                            <label class="check tooltip">
+                            <label class="check">
                                 <input type="radio" :value="item.id_certificacion" v-model="objProyecto.id_certificacion" name="certificacion_nuevo" />
                                 <span class="checkmark"></span>
                                 {{ item.certificacion }}
-                                <span v-if="item.certificacion && item.certificacion.toLowerCase().includes('edge')" class="tooltip-text">
-                                    {{
-                                        item.certificacion.includes('Ya tiene') ? 'Proyecto con Certificación Edge actual' :
-                                        item.certificacion.includes('Próxima') ? 'Proyecto en proceso de Certificación Edge' :
-                                        item.certificacion.includes('Vigente') ? 'Proyecto con Certificación Edge vigente' :
-                                        'Certificación de Sostenibilidad Edge (Excellence in Design for Greater Efficiencies)'
-                                    }}
-                                </span>
                             </label>
                         </div>
                     </div>

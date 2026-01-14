@@ -143,18 +143,10 @@
                 <div class='formInputStandard'>
                     <div class='pure-g'>
                         <div v-for='item in certificaciones' class='pure-u-1-4'>
-                            <label class="check tooltip">
+                            <label class="check">
                                 <input type="radio" :value="item.id_certificacion" v-model="editObjProyecto.id_certificacion" name="certificacion" />
                                 <span class="checkmark"></span>
                                 {{ item.certificacion }}
-                                <span v-if="item.certificacion && item.certificacion.toLowerCase().includes('edge')" class="tooltip-text">
-                                    {{
-                                        item.certificacion.includes('Ya tiene') ? 'Proyecto con Certificación Edge actual' :
-                                        item.certificacion.includes('Próxima') ? 'Proyecto en proceso de Certificación Edge' :
-                                        item.certificacion.includes('Vigente') ? 'Proyecto con Certificación Edge vigente' :
-                                        'Certificación de Sostenibilidad Edge (Excellence in Design for Greater Efficiencies)'
-                                    }}
-                                </span>
                             </label>
                         </div>
                     </div>
