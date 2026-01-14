@@ -143,24 +143,7 @@ export default {
             logoProyecto: null,
             tipo_factor: [],
             pagoSeleccionado: '',
-            registroCompras: [
-                {
-                    fecha: '2025-06-01',
-                    proyecto: 'Proyecto A',
-                    tipo: 'Compra',
-                    modo: 'Contado',
-                    descripcion: 'Compra de materiales A',
-                    id_cliente: 111111
-                },
-                {
-                    fecha: '2025-06-15',
-                    proyecto: 'Proyecto B',
-                    tipo: 'Compra',
-                    modo: 'Crédito',
-                    descripcion: 'Compra de herramientas B',
-                    id_cliente: 111111
-                }
-            ],
+            registroCompras: [],
             cotizacionActiva: null,
             mostrarModal: false,
             asuntoSeleccionado: '',
@@ -1191,6 +1174,12 @@ export default {
                     } else {
                         this.noregistro = false;
                     }
+
+                    try {
+                        await this.cargarRegistroCompras();
+                    } catch (error) {
+                        console.error('Error al cargar registro de compras:', error);
+                    }
                 }
 
                 if (nextIndex === 2) {
@@ -1709,11 +1698,6 @@ export default {
             this.isClienteVetado = data.is_vetado == "1";
 
             this.ObjClienteOriginal = { ...this.ObjCliente };
-
-            this.registroCompras = [
-                { fecha: '2025-06-01', proyecto: 'Proyecto A', tipo: 'Compra', modo: 'Contado', descripcion: 'Compra A', id_cliente: '111111' },
-                { fecha: '2025-06-15', proyecto: 'Proyecto B', tipo: 'Compra', modo: 'Crédito', descripcion: 'Compra B', id_cliente: '111111' }
-            ];
 
             this.activeTabs(this.cliente);
             this.initIntlTel(ids ? this.ObjCliente : this.ObjClienteOpcional);
@@ -2338,6 +2322,28 @@ export default {
                 throw error;
             }
         },
+        async cargarRegistroCompras() {
+            try {
+                if (!this.id_cliente || !GlobalVariables.id_proyecto) {
+                    this.registroCompras = [];
+                    return;
+                }
+
+                const resp = await httpFunc('/generic/genericDT/ProcesoNegocio:Get_Unidades_Opcionadas_Cliente', {
+                    id_cliente: this.id_cliente,
+                    id_proyecto: GlobalVariables.id_proyecto
+                });
+
+                if (resp && resp.data && resp.data.length > 0) {
+                    this.registroCompras = [...resp.data];
+                } else {
+                    this.registroCompras = [];
+                }
+            } catch (error) {
+                console.error('Error al cargar registro de compras:', error);
+                this.registroCompras = [];
+            }
+        },
         recalcularTotales() {
             const nuevoTotal = this.unidades.reduce(
                 (acc, u) => acc + (u.mostrar_precio_alt ? u.precio_alt : u.valor_unidad) - u.valor_descuento - (u.descuento_feria || 0),
@@ -2494,7 +2500,7 @@ export default {
         },
         activeTabs(id_cliente) {
             if (
-                this.registroCompras[0]?.id_cliente !== id_cliente
+                this.registroCompras[0]?.id_cliente !== this.id_cliente
             ) {
                 this.registroCompras = [];
             }

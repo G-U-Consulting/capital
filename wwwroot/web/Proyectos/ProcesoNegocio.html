@@ -314,13 +314,15 @@
             <div class='pure-u-1-5' style="text-align: right;">
                 <button @click="showRotafolio">Ver Rotafolio</button>
             </div>
-            <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index" :class="[
-                'tab-registro', { active: activeTab === index },{ 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }]">
-                {{ tabItem }}
-                <span v-if="tabItem === 'Registros de compras' && registroCompras.length > 0" class="dot"></span>
+            <div class="pure-u-1-1 tabs-container-registro">
+                <div v-for="(tabItem, index) in tab" :key="index" @click="activeTab = index" :class="[
+                    'tab-registro', { active: activeTab === index },{ 'highlight-text': tabItem === 'Registros de compras' && registroCompras.length > 0 }]">
+                    {{ tabItem }}
+                    <span v-if="tabItem === 'Registros de compras' && registroCompras.length > 0" class="dot"></span>
+                </div>
             </div>
             <div v-if="activeTab == 0">
-                <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
+                <div class='pure-u-1-1 formDivision'">
                     <span style="font-size: 1.5em;">Registros de visita</span>
                     <button @click="limpiarObj(1)" style="float: right;">Nueva visita</button>
                 </div>
@@ -374,10 +376,13 @@
             <div v-if="activeTab == 1">
                 <div class='pure-u-1-1 formDivision' style="margin-top: 0.5em;">
                     <span style="font-size: 1.5em;">Registros de compras</span>
+                    <span v-if="registroCompras.length > 0" style="font-size: 1.2em; color: #666; margin-left: 0.5em;">({{ registroCompras.length }} registros)</span>
                 </div>
-                <div
-                    style="height: 11rem; overflow-y: auto; margin-top: 0.5em;">
-                    <table class="dataTable">
+                <div style="height: 11rem; overflow-y: auto; margin-top: 0.5em;">
+                    <div v-if="registroCompras.length === 0" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 1.1em;">
+                        No hay registros de compras para este cliente en este proyecto.
+                    </div>
+                    <table v-else class="dataTable">
                         <thead>
                             <tr>
                                 <th style="width: 15%;">Fecha</th>
