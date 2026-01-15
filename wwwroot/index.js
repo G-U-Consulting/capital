@@ -121,6 +121,8 @@ mainVue = {
                 const moduleName = window.activeMiniModule.name || "el módulo";
                 const mensajePersonalizado = moduleName === "ProcesoNegocio"
                     ? "Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de salir?"
+                    : moduleName == 'SalaVenta' 
+                    ? 'Algunos proyectos no tienen fecha de vigencia.'
                     : `⚠️ Existen cambios sin guardar en ${moduleName}`;
 
                 const botonesPersonalizados = moduleName === "ProcesoNegocio"
@@ -131,14 +133,17 @@ mainVue = {
                     showConfirm(
                         mensajePersonalizado,
                         async () => {
-                            if (moduleName === "ProcesoNegocio") {
+                            if (moduleName === "ProcesoNegocio")
                                 await window.activeMiniModule.guardarBorradorYCerrar();
-                            }
+                            if (moduleName === 'SalaVenta')
+                                window.activeMiniModule.setBloq(false);
                             window.activeMiniModule.tieneCambiosPendientes = false;
                             await GlobalVariables._originalLoadMiniModule(modName, zone, data);
                             resolve();
                         },
                         async () => {
+                            if (moduleName === 'SalaVenta')
+                                return;
                             window.activeMiniModule.tieneCambiosPendientes = false;
                             await GlobalVariables._originalLoadMiniModule(modName, zone, data);
                             resolve();

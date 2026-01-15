@@ -26,6 +26,7 @@ export default {
             ruta: [],
             enableEdit: false,
             selRow: null,
+            bloq: true,
 
             filtros: {
                 ciudadelas: { is_active: '', id_sede: '', id_zona_proyecto: '' },
@@ -40,10 +41,24 @@ export default {
         this.sala_venta = await GlobalVariables.miniModuleCallback("GetSala", null);
         this.loadData();
         this.setMainMode(0);
+        window.addEventListener('beforeunload', this.handleBeforeUnload);
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "SalaVenta";
+        this.bloq = true;
         hideProgress();
     },
     methods: {
+        handleBeforeUnload(e) {
+            console.log('2', this.pro_sala, this.mode);
+            if (this.tieneCambiosPendientes) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        },
         setMainMode(mode) {
+            if (this.tieneCambiosPendientes)
+                return;
             this.mainmode = mode;
             if (this.sala_venta) {
                 this.mode = 2;
@@ -52,20 +67,18 @@ export default {
             else this.mode = 0;
         },
         setMode(mode) {
+            if (this.tieneCambiosPendientes)
+                return;
             if (mode == 0) this.loadData();
-            if (mode == 1)
-                this.sala_venta = {};
+            if (mode == 1) this.sala_venta = {};
             this.mode = mode;
             let ruta = [];
-            if (mode == 1) {
+            if (mode == 1)
                 ruta.push({ text: 'Nueva', action: () => this.setMode(1) });
-            }
-            if (mode == 2 || mode == 3) {
+            if (mode == 2 || mode == 3)
                 ruta.push({ text: `${this.sala_venta.sala_venta} - Edición`, action: () => this.onSelect(this.sala_venta) });
-            }
-            if (mode == 3) {
+            if (mode == 3)
                 ruta.push({ text: 'Configuración', action: () => this.loadChecked() });
-            }
             GlobalVariables.miniModuleCallback('SetRuta', ruta);
         },
         hasPermission(id) {
@@ -96,7 +109,7 @@ export default {
             if (this.emptyFields()) return;
             let sala = { ...this.sala_venta };
             let id_sala_venta = await this.onSave();
-            if (this.mode == 1 && id_sala_venta) 
+            if (this.mode == 1 && id_sala_venta)
                 this.sala_venta = { id_sede: '', id_zona_proyecto: '', id_ciudadela: '', ...sala, id_sala_venta };
             this.onSelect(this.sala_venta);
             this.loadProjects(this.sala_venta);
@@ -242,6 +255,7 @@ export default {
                 showMessage('Error: ' + res.errorMessage);
             } else[this.proyectos, this.pro_sala] = res.data;
             hideProgress();
+            GlobalVariables.miniModuleCallback('SetBloq', this.tieneCambiosPendientes);
         },
         async addProjects() {
             showProgress();
@@ -321,6 +335,18 @@ export default {
                 console.error(res.errorMessage);
                 showMessage('Error: ' + res.errorMessage);
             } else this.mode = 2;
+        },
+        isDate(txt) {
+            if (!txt || !txt.match(/^\d{4}-\d{2}-\d{2}$/)) return false;
+            let date = new Date(txt);
+            return !!date.getTime();
+        },
+        setBloq(bloq) {
+            console.log("setbloq", bloq, this.mode);
+            this.bloq = bloq;
+            this.mode = 0;
+            GlobalVariables.miniModuleCallback('SetBloq', bloq);
+            console.log(this.mode);
         }
     },
     computed: {
@@ -332,6 +358,24 @@ export default {
                     ) : []
                 ) : [];
             };
+        },
+        tieneCambiosPendientes: {
+            get() {
+                let tmp = this.bloq && this.mode > 0 && this.sala_venta.is_feria == '1' && this.pro_sala.some(pro => !this.isDate(pro.vigencia));
+                return tmp;
+            }
         }
     },
+    watch: {
+        beforeDestroy() {
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
+            if (window.activeMiniModule === this)
+                window.activeMiniModule = null;
+        },
+        beforeUnmount() {
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
+            if (window.activeMiniModule === this)
+                window.activeMiniModule = null;
+        },
+    }
 };

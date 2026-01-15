@@ -5,6 +5,7 @@ export default {
             ruta: [],
             sala: null,
             submode: 0,
+            bloq: false,
 
             lateralMenu: false,
             showList: true
@@ -23,16 +24,21 @@ export default {
                 text: 'ZM', action: () =>
                     GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
             }, {
-                text: 'Salas de ventas', action: () => { this.lateralMenu = false; this.sala = null; this.setMainMode('SeleccionSalas'); this.setRuta([]); }
+                text: 'Salas de ventas', action: () => { 
+                    !this.bloq && (this.lateralMenu = false); 
+                    !this.bloq && (this.sala = null); 
+                    this.setMainMode('SeleccionSalas'); 
+                    !this.bloq && this.setRuta([]); 
+                }
             }, ...subpath];
         },
         async setMainMode(mode, sel) {
-            if (this.mainmode == mode && mode != 'SeleccionSalas') return;
-            this.mainmode = mode;
+            if ((this.mainmode == mode && mode != 'SeleccionSalas')) return;
             this.miniModule = await GlobalVariables.loadMiniModule(mode, this.sala, "#mainContent");
+            !this.bloq && (this.mainmode = mode);
             let ruta = [];
             if (mode != 'SeleccionSalas' || sel) ruta.push({ text: this.getPathName(mode), action: () => { } });
-            this.setRuta(ruta);
+            !this.bloq && this.setRuta(ruta);
         },
         getPathName() {
             if (this.mainmode == 'SeleccionSalas') return this.sala ? `${this.sala.sala_venta} - Edición` : 'Nuevo';
@@ -52,6 +58,8 @@ export default {
                 return this.sala;
             } else if (type == "SetRuta") {
                 this.setRuta(data);
+            } else if (type == "SetBloq") {
+                this.bloq = data;
             }
             else if (type == "ToggleLateralMenu") this.lateralMenu = !this.lateralMenu;
 
