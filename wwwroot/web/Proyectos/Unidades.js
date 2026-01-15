@@ -498,6 +498,10 @@
 			}
 		},
 		async addUnidad(apto) {
+			if (!await this.validarTorreUnidad(apto)) {
+				return;
+			}
+
 			const descuentoFeria = await this.obtenerDescuentoFeria(GlobalVariables.id_proyecto);
 
 			let payload = {
@@ -525,7 +529,7 @@
 			};
 
 			let res = await httpFunc('/generic/genericST/ProcesoNegocio:Ins_Unidades', payload);
-			
+
 			console.log(payload)
 
 			if (res.data.includes("OK")) {
@@ -542,6 +546,55 @@
 				}
 			} else {
 				showMessage("Ocurrió un error al registrar la unidad");
+			}
+		},
+		async validarTorreUnidad(nuevaUnidad) {
+			try {
+				const tipoUnidad = (nuevaUnidad.tipo || '').toLowerCase().trim();
+				const tiposExcluidos = ['parqueadero', 'parqueo', 'bodega', 'local', 'deposito'];
+				const esExcluido = tiposExcluidos.some(tipo => tipoUnidad.includes(tipo));
+
+				if (esExcluido) {
+					return true;
+				}
+
+				if (!GlobalVariables.cotizacion || !GlobalVariables.id_cliente || !GlobalVariables.id_proyecto) {
+					return true;
+				}
+
+				const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
+					id_cliente: GlobalVariables.id_cliente,
+					id_proyecto: GlobalVariables.id_proyecto,
+					cotizacion: GlobalVariables.cotizacion
+				});
+
+				const unidadesExistentes = resp?.data?.[0] || [];
+
+				if (unidadesExistentes.length === 0) {
+					return true;
+				}
+
+				const unidadesValidables = unidadesExistentes.filter(u => {
+					const tipo = (u.tipo || '').toLowerCase().trim();
+					return !tiposExcluidos.some(tipoExc => tipo.includes(tipoExc));
+				});
+
+				if (unidadesValidables.length === 0) {
+					return true;
+				}
+
+				const torreExistente = String(unidadesValidables[0].torre || '').trim();
+				const nuevaTorre = String(nuevaUnidad.idtorre || '').trim();
+
+				if (torreExistente !== nuevaTorre) {
+					showMessage(`No puede agregar unidades de diferentes torres a la misma cotización. Esta cotización ya tiene unidades de la Torre ${torreExistente}.`);
+					return false;
+				}
+
+				return true;
+			} catch (error) {
+				console.error('Error al validar torre de unidad:', error);
+				return true;
 			}
 		},
 		async onSave() {
