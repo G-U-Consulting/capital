@@ -4612,37 +4612,88 @@ tr.cal-row-info > td {
 }
 
 .add-chip-modern {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 61px;
-    background: #f5f7fb;
-    padding: 8px 14px;
-    border-radius: 14px;
+    justify-content: center;
+    gap: 10px;
+    background: transparent;
+    padding: 5px 10px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 500;
+    font-size: 0.875em;
+    font-weight: 600;
+    letter-spacing: 0.3px;
     color: #00839C;
-    border: 1px solid #dbe5ff;
-    transition: all 0.25s ease;
+    border: 2px solid #00839C;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
     user-select: none;
 }
 
 .add-chip-modern svg {
+    width: 18px;
+    height: 18px;
     stroke: #00839C;
-    transition: transform .25s ease, stroke .25s ease;
+    stroke-width: 2.5;
+    transition: stroke 0.3s ease, transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.add-chip-modern span {
+    position: relative;
+    z-index: 1;
 }
 
 .add-chip-modern:hover {
     background: #00839C;
     color: white;
-    border-color: #00839C;
-    box-shadow: 0 4px 12px rgba(68, 127, 247, 0.25);
-    
+    box-shadow: 0 4px 15px rgba(0, 131, 156, 0.3);
 }
 
 .add-chip-modern:hover svg {
     stroke: white;
     transform: rotate(90deg);
+}
+
+.add-chip-modern:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 8px rgba(0, 131, 156, 0.25);
+}
+
+.add-chip-modern.add-chip-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    border-color: #a0a0a0;
+    color: #a0a0a0;
+}
+
+.add-chip-modern.add-chip-disabled svg {
+    stroke: #a0a0a0;
+}
+
+.btn-ver-detalle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 18px;
+    background: transparent;
+    color: #00839C;
+    border: 2px solid #00839C;
+    border-radius: 6px;
+    font-size: 0.85em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-ver-detalle:hover {
+    background: #00839C;
+    color: white;
+    box-shadow: 0 3px 10px rgba(0, 131, 156, 0.25);
+}
+
+.btn-ver-detalle:active {
+    transform: scale(0.97);
 }
 
 .modal-overlay {

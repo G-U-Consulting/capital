@@ -766,16 +766,19 @@
                         <input type="text"/>
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.1rem; ">
-                    <div class="formInputStandard" style="display: flex; align-items: flex-end; text-align: right;">
-                        <div class="add-chip-modern" style="width: 100%;" @click="!(esOpcionGuardada || modoSoloLectura) && abrirModalCliente()" :style="(esOpcionGuardada || modoSoloLectura) ? 'opacity: 0.5; cursor: not-allowed;' : ''">
-                            <span>Agregar Cliente</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="16"></line>
-                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                <div class="pure-u-1 pure-u-md-1-6" style="margin-top: 1.4rem;">
+                    <div class="formInputStandard" style="display: flex; align-items: flex-end; justify-content: flex-end;">
+                        <div class="add-chip-modern"
+                            @click="!(esOpcionGuardada || modoSoloLectura) && abrirModalCliente()"
+                            :class="{ 'add-chip-disabled': esOpcionGuardada || modoSoloLectura }">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <line x1="19" y1="8" x2="19" y2="14"></line>
+                                <line x1="22" y1="11" x2="16" y2="11"></line>
                             </svg>
+                            <span>Agregar Cliente</span>
                         </div>
                     </div>
                 </div>
@@ -948,7 +951,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-1">
+                <div class="pure-u-1 pure-u-md-1-1" v-if="subsidioActivo && sinAcabados">
                     <!-- <div class="pure-u-1 pure-u-md-1-7" style="margin-top: 1.5em">
                         <div class="formInputStandard">
                             <label class="check pure-u-1-1 pure-u-md-1-6" style="margin-top: .4em;"
@@ -1497,7 +1500,7 @@
                     </div>
                 </div>
                 <div class="pure-u-1 pure-u-md-1-6">
-                    <div class="formInputStandard" style="margin-top: 1.5rem;text-align: center;">
+                    <div class="formInputStandard" style="margin-top: 1.5rem; text-align: right;">
                         <button @click="verAmortizacion">Ver Tabla</button>
                     </div>
                 </div>
@@ -1537,26 +1540,23 @@
                     <input type="text" style="text-align: right;" v-model="f_valor_registro" @keyup="validarFormato" :disabled="esOpcionGuardada || modoSoloLectura" />
                 </div>
             </div>
-            <div class="pure-u-1 pure-u-md-1-6" v-if="!subsidioActivo">
-                <div class="formInputStandard" style="text-align: center;margin-top: 1.5rem;">
-                    <button @click="detalle = true">Ver detalle</button>
+            <div class="pure-g" style="margin-top: 0.5rem;">
+                <div class="pure-u-1 pure-u-md-1-3">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="white-space: nowrap;">Pie Legal (Opcional):</span>
+                        <select v-model="id_pie_legal_seleccionado" :disabled="esOpcionGuardada || modoSoloLectura" style="flex: 1;">
+                            <option value="">-- Seleccione un pie legal (opcional) --</option>
+                            <option v-for="item in pies_legales_activos" :key="item.id_pie_legal" :value="item.id_pie_legal">
+                                {{ item.pie_legal }}
+                            </option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="pure-u-1 pure-u-md-5-6" v-if="subsidioActivo"></div>
-            <div class="pure-u-1 pure-u-md-1-6" v-if="subsidioActivo">
-                <div class="formInputStandard" style="text-align: center;margin-top: 1.5rem;">
-                    <button @click="detalle = true">Ver detalle</button>
-                </div>
-            </div>
-            <div class="pure-u-1 pure-u-md-1-3" style="margin-top: 0.5rem;">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="white-space: nowrap;">Pie Legal (Opcional):</span>
-                    <select v-model="id_pie_legal_seleccionado" :disabled="esOpcionGuardada || modoSoloLectura" style="flex: 1;">
-                        <option value="">-- Seleccione un pie legal (opcional) --</option>
-                        <option v-for="item in pies_legales_activos" :key="item.id_pie_legal" :value="item.id_pie_legal">
-                            {{ item.pie_legal }}
-                        </option>
-                    </select>
+                <div class="pure-u-1 pure-u-md-1-2"></div>
+                <div class="pure-u-1 pure-u-md-1-6">
+                    <div class="formInputStandard" style="text-align: right;">
+                        <button @click="detalle = true">Ver detalle</button>
+                    </div>
                 </div>
             </div>
             <div class="pure-u-1 pure-u-md-1-1">
