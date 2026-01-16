@@ -959,7 +959,7 @@
                             </label>
                         </div>
                     </div> -->
-                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && valor_acabados == 0">
+                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && sinAcabados">
                         <div class="formInputStandard">
                             <span>
                                 Año Entrega
@@ -974,14 +974,14 @@
                             </select>
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && valor_acabados == 0">
+                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && sinAcabados">
                         <div class="formInputStandard">
                             <span>Valor Subsidio</span>
                             <input style="text-align: right;" type="text" :value="formatoMoneda(valor_subsidio)" readonly
                                 :disabled="esOpcionGuardada || pagoSeleccionado === 'contado'" />
                         </div>
                     </div>
-                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && valor_acabados == 0">
+                    <div class="pure-u-1 pure-u-md-1-6" v-show="subsidioActivo && sinAcabados">
                         <div class="formInputStandard">
                             <span>Caja de compensación:</span>
                             <select v-model="caja_compensacion" style="width: 100%;"

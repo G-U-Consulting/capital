@@ -2367,6 +2367,8 @@ export default {
 
                 this.unidades = unidades;
 
+                await this.isSubsidio();
+
                 this.limpiarDatosOpcion();
 
                 if (this.mode === 3) {
@@ -3111,7 +3113,28 @@ export default {
             let dato = resp.data[0][0].id_tipo_vis
             let estado = resp.data[0][0].estado_publicacion_final
 
-            this.subsidioActivo = dato != 4;
+            const proyectoEsVIS = dato != 4;
+
+            let unidadesExcluidas = false;
+            if (proyectoEsVIS && this.unidades && this.unidades.length > 0) {
+                const respExclusiones = await httpFunc('/generic/genericDT/Unidades:Get_Exclusiones_VIS', {
+                    id_proyecto: GlobalVariables.id_proyecto
+                });
+                const exclusiones = respExclusiones.data || [];
+                const normalizarTipo = (tipo) => (tipo || '').toUpperCase().replace(/[\s_]+/g, '_').trim();
+
+                unidadesExcluidas = this.unidades.some(unidad => {
+                    const tipoNormalizado = normalizarTipo(unidad.tipo);
+                    const torreUnidad = String(unidad.torre || '');
+                    return exclusiones.some(exc => {
+                        const tipoExcNormalizado = normalizarTipo(exc.tipo);
+                        const torreExc = String(exc.consecutivo || '');
+                        return tipoNormalizado === tipoExcNormalizado && torreUnidad === torreExc;
+                    });
+                });
+            }
+
+            this.subsidioActivo = proyectoEsVIS && !unidadesExcluidas;
             this.tipo_factor = dato == 4 ? 'NO VIS' + " + " + estado : 'VIS' + " + " + estado;
         },
         parseNumberFromString(s) {
@@ -4934,6 +4957,15 @@ export default {
     computed: {
         id_proyecto() {
             return GlobalVariables.id_proyecto;
+        },
+        sinAcabados() {
+            const val = this.valor_acabados;
+            if (val === null || val === undefined || val === '') return true;
+            if (typeof val === 'string') {
+                const cleaned = val.replace(/\./g, '').replace(/,/g, '.');
+                return parseFloat(cleaned) === 0;
+            }
+            return val === 0;
         },
         proyectoData() {
             return (typeof GlobalVariables !== 'undefined' && GlobalVariables.proyecto) ? GlobalVariables.proyecto : null;

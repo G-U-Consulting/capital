@@ -502,6 +502,10 @@
 				return;
 			}
 
+			if (!await this.validarVISUnidad(apto)) {
+				return;
+			}
+
 			const descuentoFeria = await this.obtenerDescuentoFeria(GlobalVariables.id_proyecto);
 
 			let payload = {
@@ -594,6 +598,113 @@
 				return true;
 			} catch (error) {
 				console.error('Error al validar torre de unidad:', error);
+				return true;
+			}
+		},
+		async validarVISUnidad(nuevaUnidad) {
+			try {
+				
+				const tipoUnidad = (nuevaUnidad.tipo || '').toLowerCase().trim();
+				const tiposExcluidos = ['parqueadero', 'parqueo', 'bodega', 'local', 'deposito'];
+				const esTipoExcluido = tiposExcluidos.some(tipo => tipoUnidad.includes(tipo));
+
+				if (esTipoExcluido) {
+					return true;
+				}
+
+				if (!GlobalVariables.cotizacion || !GlobalVariables.id_cliente || !GlobalVariables.id_proyecto) {
+					return true;
+				}
+
+				
+				const respProyecto = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Proyecto', {
+					id_proyecto: GlobalVariables.id_proyecto
+				});
+
+				const idTipoVis = respProyecto?.data?.[0]?.[0]?.id_tipo_vis;
+
+				console.log('idTipoVis:', idTipoVis);
+
+				
+				if (idTipoVis == 4) {
+					return true;
+				}
+
+				
+				const respExclusiones = await httpFunc('/generic/genericDT/Unidades:Get_Exclusiones_VIS', {
+					id_proyecto: GlobalVariables.id_proyecto
+				});
+
+				const exclusionesVIS = respExclusiones?.data || [];
+
+				console.log('exclusionesVIS:', JSON.stringify(exclusionesVIS, null, 2));
+				console.log('nuevaUnidad:', { idtorre: nuevaUnidad.idtorre, tipo: nuevaUnidad.tipo });
+
+				
+				const normalizarTipo = (tipo) => (tipo || '').toUpperCase().replace(/[\s_]+/g, '_').trim();
+
+				
+				exclusionesVIS.forEach((exc, i) => {
+					console.log(`Exclusion ${i}:`, { consecutivo: exc.consecutivo, tipo: exc.tipo, tipoNormalizado: normalizarTipo(exc.tipo) });
+				});
+
+				console.log('nuevaUnidad tipo normalizado:', normalizarTipo(nuevaUnidad.tipo));
+
+				
+				const nuevaEstaExcluida = exclusionesVIS.some(exc =>
+					String(exc.consecutivo) === String(nuevaUnidad.idtorre) &&
+					normalizarTipo(exc.tipo) === normalizarTipo(nuevaUnidad.tipo)
+				);
+
+				console.log('nuevaEstaExcluida:', nuevaEstaExcluida);
+
+				
+				const respUnidades = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades_Cotizacion', {
+					id_cliente: GlobalVariables.id_cliente,
+					id_proyecto: GlobalVariables.id_proyecto,
+					cotizacion: GlobalVariables.cotizacion
+				});
+
+				const unidadesExistentes = respUnidades?.data?.[0] || [];
+
+				console.log('unidadesExistentes:', unidadesExistentes);
+
+				
+				const unidadesValidables = unidadesExistentes.filter(u => {
+					const tipo = (u.tipo || '').toLowerCase().trim();
+					return !tiposExcluidos.some(tipoExc => tipo.includes(tipoExc));
+				});
+
+				console.log('unidadesValidables:', unidadesValidables.map(u => ({ torre: u.torre, tipo: u.tipo })));
+
+				if (unidadesValidables.length === 0) {
+					return true;
+				}
+
+				
+				const existenteExcluida = unidadesValidables.some(u =>
+					exclusionesVIS.some(exc =>
+						String(exc.consecutivo) === String(u.torre) &&
+						normalizarTipo(exc.tipo) === normalizarTipo(u.tipo)
+					)
+				);
+
+				console.log('existenteExcluida:', existenteExcluida);
+
+			
+				if (nuevaEstaExcluida && !existenteExcluida) {
+					showMessage('No puede agregar una unidad excluida de subsidio VIS a una cotización que ya tiene unidades con subsidio VIS.');
+					return false;
+				}
+
+				if (!nuevaEstaExcluida && existenteExcluida) {
+					showMessage('No puede agregar una unidad con subsidio VIS a una cotización que ya tiene unidades excluidas de subsidio VIS.');
+					return false;
+				}
+
+				return true;
+			} catch (error) {
+				console.error('Error al validar VIS de unidad:', error);
 				return true;
 			}
 		},
