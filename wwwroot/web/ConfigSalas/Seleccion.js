@@ -49,7 +49,6 @@ export default {
     },
     methods: {
         handleBeforeUnload(e) {
-            console.log('2', this.pro_sala, this.mode);
             if (this.tieneCambiosPendientes) {
                 e.preventDefault();
                 e.returnValue = '';
@@ -342,11 +341,13 @@ export default {
             return !!date.getTime();
         },
         setBloq(bloq) {
-            console.log("setbloq", bloq, this.mode);
             this.bloq = bloq;
-            this.mode = 0;
             GlobalVariables.miniModuleCallback('SetBloq', bloq);
             console.log(this.mode);
+        },
+        setSelect(bloq) {
+            this.setBloq(bloq);
+            GlobalVariables.miniModuleCallback('StartModule', null);
         }
     },
     computed: {
@@ -363,7 +364,8 @@ export default {
             get() {
                 let tmp = this.bloq && this.mode > 0 && this.sala_venta.is_feria == '1' && this.pro_sala.some(pro => !this.isDate(pro.vigencia));
                 return tmp;
-            }
+            },
+            set(val) {}
         }
     },
     watch: {

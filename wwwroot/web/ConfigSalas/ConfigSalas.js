@@ -27,6 +27,7 @@ export default {
                 text: 'Salas de ventas', action: () => { 
                     !this.bloq && (this.lateralMenu = false); 
                     !this.bloq && (this.sala = null); 
+                    window.activeMiniModule.name = "selSalaVenta";
                     this.setMainMode('SeleccionSalas'); 
                     !this.bloq && this.setRuta([]); 
                 }

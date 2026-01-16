@@ -121,7 +121,7 @@ mainVue = {
                 const moduleName = window.activeMiniModule.name || "el módulo";
                 const mensajePersonalizado = moduleName === "ProcesoNegocio"
                     ? "Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de salir?"
-                    : moduleName == 'SalaVenta' 
+                    : moduleName == 'SalaVenta' || moduleName == 'selSalaVenta' 
                     ? 'Algunos proyectos no tienen fecha de vigencia.'
                     : `⚠️ Existen cambios sin guardar en ${moduleName}`;
 
@@ -137,6 +137,8 @@ mainVue = {
                                 await window.activeMiniModule.guardarBorradorYCerrar();
                             if (moduleName === 'SalaVenta')
                                 window.activeMiniModule.setBloq(false);
+                            if (moduleName === 'selSalaVenta')
+                                window.activeMiniModule.setSelect(false);
                             window.activeMiniModule.tieneCambiosPendientes = false;
                             await GlobalVariables._originalLoadMiniModule(modName, zone, data);
                             resolve();
