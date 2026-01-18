@@ -338,6 +338,7 @@ export default {
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         this.proyecto = await GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
+        this.setRuta();
         let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {usuario: GlobalVariables.username});
         let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {id_proyecto: this.id_proyecto});
         this.categoria = resp.data[0];
@@ -365,7 +366,6 @@ export default {
         await this.cargarPiesLegales();
         window.activeMiniModule = this;
         window.activeMiniModule.name = "ProcesoNegocio";
-        this.setRuta();
     },
     methods: {
         extraerPiso(numero_apartamento) {

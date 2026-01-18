@@ -133,7 +133,9 @@ export default {
                     this.lateralMenu = true;
                     this.proyecto = data;
                     this.ocultarLayout = false;
-                    this.setRuta([{ text: this.proyecto.nombre, action: () => {} }]);
+                    if (!window.activeMiniModule || window.activeMiniModule.name !== "Edicion") {
+                        this.setRuta([{ text: this.proyecto.nombre, action: () => {} }]);
+                    }
                     break;
 
                 case "NewProject":

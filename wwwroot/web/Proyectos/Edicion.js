@@ -3,6 +3,8 @@
         return {
             mode: -1,
             submode: 0,
+            datosCargados: false,
+            cargandoInicial: true,
             proyectos: [],
             estado_publicacion: [],
             selectedEstadoPublicacion: [],
@@ -260,19 +262,21 @@
     },
     watch: {
         proyectoGlobal(newVal) {
-            if (newVal) {
+            if (newVal && !this.cargandoInicial) {
                 this.setRuta();
             }
         }
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
-        await this.setViewMode();
-        await this.setMainMode();
-        await this.loadOnlyActive();
+        if (GlobalVariables.proyecto || GlobalVariables.id_proyecto) {
+            this.mode = 2;
+        }
+        this.setRuta();
         window.activeMiniModule = this;
         window.activeMiniModule.name = "Edicion";
-        this.setRuta();
+        await this.setSubmode(0);
+        this.cargandoInicial = false;
     },
     beforeUnmount() {
         if (window.activeMiniModule === this) {
@@ -285,10 +289,14 @@
     methods: {
         async setMainMode() {
             showProgress();
-            this.proyectos = (await httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {})).data;
-            var resp = await httpFunc("/generic/genericDS/Proyectos:Get_Variables", {"id_proyecto": GlobalVariables.id_proyecto});
+            const [proyectosResp, variablesResp, plazosResp] = await Promise.all([
+                httpFunc("/generic/genericDT/Proyectos:Get_Proyectos", {}),
+                httpFunc("/generic/genericDS/Proyectos:Get_Variables", {"id_proyecto": GlobalVariables.id_proyecto}),
+                httpFunc("/generic/genericDS/ProcesoNegocio:Get_Plazos", {})
+            ]);
             hideProgress();
-            resp = resp.data;
+            this.proyectos = proyectosResp.data;
+            var resp = variablesResp.data;
             this.estado_publicacion = resp[0];
             resp[1].forEach(item => item.checked = false);
             this.tiposVIS = resp[1];
@@ -309,10 +317,8 @@
             this.torres = resp[15];
             this.tipos_unidad = resp[16];
             this.excluir_vis = resp[17];
-            
-            const res = await httpFunc("/generic/genericDS/ProcesoNegocio:Get_Plazos", {});
 
-            const data = res.data[0];
+            const data = plazosResp.data[0];
 
             if (!Array.isArray(data)) {
                 throw new Error("Formato de datos de plazos inesperado.");
@@ -346,16 +352,17 @@
                 this.bancos_financiador.unshift(cartaCompromiso);
             }
 
-            this.proyectos.forEach(async pro => {
-                let res = await httpFunc('/generic/genericDT/Maestros:Get_Archivos',
-                    { tipo: 'logo', id_proyecto: pro.id_proyecto });
-                if (res.data && res.data.length)
-                    pro.img = '/file/S3get/' + res.data[0].llave;
+            this.proyectos.forEach(pro => {
+                httpFunc('/generic/genericDT/Maestros:Get_Archivos',
+                    { tipo: 'logo', id_proyecto: pro.id_proyecto }).then(res => {
+                    if (res.data && res.data.length)
+                        pro.img = '/file/S3get/' + res.data[0].llave;
+                });
             });
 
             if (this.inputParameter != null) {
                 this.selectProject(this.inputParameter);
-            } else {
+            } else if (this.mode !== 2) {
                 this.setMode(0);
             }
         },
@@ -383,8 +390,14 @@
             }
             this.setSubmode(index);
         },
-        setSubmode(index) {
-          
+        async setSubmode(index) {
+            if (!this.datosCargados) {
+                await this.setViewMode();
+                await this.setMainMode();
+                await this.loadOnlyActive();
+                this.datosCargados = true;
+            }
+
             const anteriorIndex = this.submode;
 
             const validarSubmode = (submodeIndex) => {
@@ -440,7 +453,9 @@
             validarSubmode(index);
             this.submode = index;
             this.isFormularioCompleto = this.tabsIncomplete.length === 0;
-            this.setRuta();
+            if (!this.cargandoInicial) {
+                this.setRuta();
+            }
         },
         getSubmodeText() {
             const submodes = {
