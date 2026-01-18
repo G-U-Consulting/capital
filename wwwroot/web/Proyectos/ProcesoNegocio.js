@@ -3220,12 +3220,12 @@ export default {
             if (num < 1) this.d_meses = 1;
             if (num > this.meses_max) this.d_meses = this.meses_max;
         },
-        generarTabla() {
+        generarTabla(abrirModal = true) {
             if (!this.d_fecha_cuota || !this.d_meses || !this.cuota_inicial) {
-                showMessage('Faltan datos requeridos');
+                if (abrirModal) showMessage('Faltan datos requeridos');
                 return;
             }
-            this.tablaAmortizacion = true;
+            if (abrirModal) this.tablaAmortizacion = true;
 
             if(this.ultimaCuotaDigitada !== 0){
                 return;
@@ -3798,8 +3798,17 @@ export default {
             }
         },
 
-        guardarYGenerarPDF() {
-            this.tablaPeriodos.forEach((fila, i) => this.recalcularFila(i));
+        async guardarYGenerarPDF() {
+            if (!this.tablaPeriodos || this.tablaPeriodos.length === 0) {
+                if (this.id_opcion && this.esOpcionGuardada) {
+                    await this.cargarTablaDesdeDB();
+                } else {
+                    this.generarTabla(false);
+                }
+            }
+            if (this.tablaPeriodos && this.tablaPeriodos.length > 0) {
+                this.tablaPeriodos.forEach((fila, i) => this.recalcularFila(i));
+            }
             this.printPDF('contenedor-pdf-completo');
         },
         async guardarTablaAmortizacion(idOpcion, mostrarMensaje = false) {
