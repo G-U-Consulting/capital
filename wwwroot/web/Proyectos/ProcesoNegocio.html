@@ -2550,7 +2550,7 @@
                         </div>
                     </div>
                     <div class='pure-u-1-1 pure-u-md-1-2' style="text-align: right;margin-top: .2rem;">
-                        <button @click="agregarCliente">Agregar</button>
+                        <button @click="agregarCliente" :disabled="agregandoCliente">Agregar</button>
                     </div>
                     <div v-if="iscliente">
                         <div>

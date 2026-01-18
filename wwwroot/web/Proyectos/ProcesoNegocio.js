@@ -9,6 +9,8 @@ export default {
             mainmode: 0,
             mode: 0,
             submode: 1,
+            agregandoCliente: false,
+            abriendoModalCliente: false,
             ruta: [],
             proyecto: null,
             tabsIncomplete: [],
@@ -1274,26 +1276,33 @@ export default {
             this.initIntlTel(this.ObjClienteOpcional);
         },
         async agregarCliente() {
-            if (!this.validarCampos(this.ObjClienteOpcional, this.camposObligatorios)) return;
+            if (this.agregandoCliente) return;
+            this.agregandoCliente = true;
 
-            await this.addCliente();
+            try {
+                if (!this.validarCampos(this.ObjClienteOpcional, this.camposObligatorios)) return;
 
-            const existe = this.clientes.some(
-                c => c.numeroDocumento === this.ObjClienteOpcional.numeroDocumento
-            );
-            if (existe) {
-                showMessage("Ya agregaste un cliente con este número de documento.");
-                return;
+                const existe = this.clientes.some(
+                    c => c.numeroDocumento === this.ObjClienteOpcional.numeroDocumento
+                );
+                if (existe) {
+                    showMessage("Ya agregaste un cliente con este número de documento.");
+                    return;
+                }
+
+                await this.addCliente();
+
+                const nuevo = JSON.parse(JSON.stringify(this.ObjClienteOpcional));
+                this.clientes.push(nuevo);
+
+                showMessage("Cliente agregado a la lista.");
+            } finally {
+                this.agregandoCliente = false;
             }
-
-            const nuevo = JSON.parse(JSON.stringify(this.ObjClienteOpcional));
-            this.clientes.push(nuevo);
-
-            showMessage("Cliente agregado a la lista.");
-
         },
         eliminarCliente(index) {
             this.clientes.splice(index, 1);
+            this.actualizarPorcentajeSiUnico();
         },
         async limpiarObjClient() {
             this.limpiarObj();
@@ -4153,7 +4162,11 @@ export default {
             });
         },
         async abrirModalCliente() {
-            this.clientes = [];
+            if (this.abriendoModalCliente) return;
+            this.abriendoModalCliente = true;
+
+            try {
+                this.clientes = [];
 
             const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizacion_Cliente', {
                 id_cotizacion: this.idcotizacion
@@ -4220,8 +4233,19 @@ export default {
                     });
                 }
             }
+            this.actualizarPorcentajeSiUnico();
             this.mostrarModalCliente = true;
             this.initIntlTel(this.ObjClienteOpcional);
+            } finally {
+                this.abriendoModalCliente = false;
+            }
+        },
+
+        actualizarPorcentajeSiUnico() {
+            if (this.clientes.length === 1 && !this.clientes[0].porcentaje) {
+                this.clientes[0].porcentaje = 100;
+                this.guardarPorcentaje(this.clientes[0]);
+            }
         },
 
         async guardarPorcentaje(c) {
