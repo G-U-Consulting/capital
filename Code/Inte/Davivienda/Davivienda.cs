@@ -138,12 +138,10 @@ public class Davivienda
         string pemPath = credentials["pemPath"]?.ToString() ?? throw new ArgumentException("pemPath no configurado");
         X509Certificate2 cert;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)){
-                Console.WriteLine("Linux/IOS");
                 cert = X509Certificate2.CreateFromPemFile(crtPath, pemPath);
             }
             else
             {
-                Console.WriteLine("Windows");
                 cert = X509CertificateLoader.LoadPkcs12FromFile(
                     pfxPath,
                     $"{conexion}pfx",
@@ -190,8 +188,8 @@ public class Davivienda
             HttpResponseMessage response = await client.PostAsync(endpoint, postfields);
             string content = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine("Endpoint: \n" + endpoint);
-            Console.WriteLine("Content: \n" + content);
+            //Console.WriteLine("Endpoint: \n" + endpoint);
+            //Console.WriteLine("Content: \n" + content);
 
             if (!response.IsSuccessStatusCode)
                 throw new Exception($"Error en la petición: {response.StatusCode}");
@@ -228,11 +226,10 @@ public class Davivienda
             string token = await GetAccess();
             if (string.IsNullOrEmpty(token))
                 throw new InvalidOperationException("No se pudo obtener token válido");
-            Console.WriteLine(token);
-            Console.WriteLine($"Current timestamp: {DateTimeOffset.Now.ToUnixTimeSeconds()}\nValid until: {tokens[ciudad]["validUntil"]}");
+            //Console.WriteLine(token);
             var contentBytes = Encoding.UTF8.GetBytes(data);
             int contentLength = contentBytes.Length;
-            Console.WriteLine(data);
+            //Console.WriteLine(data);
 
             string url = credentials["url"]?.ToString() ?? throw new ArgumentException("url no configurado");
             string endpoint = string.Concat(url, "mortgage/v1/initBuilderRequest");
@@ -245,8 +242,7 @@ public class Davivienda
             request.Headers.ExpectContinue = false;
             request.Content = new StringContent(data, Encoding.UTF8, "application/json");
 
-            Console.WriteLine($"client id: {credentials["clientId"]?.ToString()}");
-            Console.WriteLine($"token: {token}");
+            //Console.WriteLine($"client id: {credentials["clientId"]?.ToString()}");
 
             request.Headers.Add("x-ibm-client-id", credentials["clientId"]?.ToString());
             request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -273,16 +269,9 @@ public class Davivienda
             http.Response.StatusCode = statusCode;
             http.Response.Headers.ContentType = contentType;
             await http.Response.WriteAsync(content);
-            
-            /* http.Response.StatusCode = (int)response.StatusCode;
-
-            foreach (var header in response.Headers)
-                http.Response.Headers[header.Key] = header.Value.ToArray();
-            foreach (var header in response.Content.Headers)
-                http.Response.Headers[header.Key] = header.Value.ToArray(); */
 
             //Console.WriteLine("Davivienda response: \n" + response);
-            Console.WriteLine("Davivienda content: \n" + content);
+            //Console.WriteLine("Davivienda content: \n" + content);
         }
         catch (Exception ex)
         {

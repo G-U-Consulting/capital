@@ -89,7 +89,7 @@ public abstract class Salesforce<T>(string subtipo, string datos, string rootPat
         headers.Add("Authorization", $"Bearer {token}");
         string data = JsonConvert.SerializeObject(this);
         data = Regex.Replace(data, @"""_[^""]*"":""?[^,""]*""?,?", "");
-        Console.WriteLine("\ndata: \t" + data);
+        //Console.WriteLine("\ndata: \t" + data);
         using CancellationTokenSource cts = new(TimeSpan.FromSeconds(30));
         string res = await WebUt.WebRequest(instance_url + route, HttpMethod.Post, data, "application/json", cts.Token, headers);
         //Console.WriteLine("\nsalesforce res: \t" + res);

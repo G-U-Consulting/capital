@@ -122,7 +122,7 @@ mainVue = {
                 const mensajePersonalizado = moduleName === "ProcesoNegocio"
                     ? "Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de salir?"
                     : moduleName == 'SalaVenta' || moduleName == 'selSalaVenta' 
-                    ? 'Algunos proyectos no tienen fecha de vigencia.'
+                    ? 'Algunos proyectos no tienen fecha de vigencia para el descuento.'
                     : `⚠️ Existen cambios sin guardar en ${moduleName}`;
 
                 const botonesPersonalizados = moduleName === "ProcesoNegocio"
