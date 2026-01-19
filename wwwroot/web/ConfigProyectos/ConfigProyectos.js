@@ -137,7 +137,7 @@ export default {
                 GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
             } else {
                 this.ruta = [{
-                    text: GlobalVariables.zonaActual || 'ZM', action: () =>
+                    text: GlobalVariables.zonaActual?.name || 'ZM', action: () =>
                         GlobalVariables.zonaActual && GlobalVariables.showModules(GlobalVariables.zonaActual)
                 }, { text: 'Proyectos', action: () => {
                     if ((this.mainmode == 1 || this.mainmode == 2 || this.mainmode == 13) && this.alertImg) {
