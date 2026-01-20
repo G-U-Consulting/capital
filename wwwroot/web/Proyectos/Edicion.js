@@ -170,6 +170,7 @@
             torres: [],
             tipos_unidad: [],
             excluir_vis: [],
+            excluir_bloq: [],
             opcionesVisuales: [],
             tabsIncomplete: [],
             draggedFile: null,
@@ -196,9 +197,13 @@
             interval: null,
             selectedProject: null,
             adm: "0 Solicitudes @Adm",
-            selTorre: {},
-            selTipo: {},
-            tmp_vis_excluidos: ''
+            selTorreVis: {},
+            selTipoVis: {},
+            tmp_vis_excluidos: '',
+            selTorreBloq: {},
+            selTipoBloq: {},
+            tmp_bloq_excluidos: '',
+            changeBloq: false,
         };
     },
     watch: {
@@ -259,6 +264,14 @@
                 this.tmp_vis_excluidos = val;
             }
         },
+        f_bloq_excluidos: {
+            get() { 
+                return this.excluir_bloq.map(item => item.consecutivo + '/' + item.tipo).join(';');
+            },
+            set (val) {
+                this.tmp_bloq_excluidos = val;
+            }
+        },
     },
     watch: {
         proyectoGlobal(newVal) {
@@ -317,6 +330,7 @@
             this.torres = resp[15];
             this.tipos_unidad = resp[16];
             this.excluir_vis = resp[17];
+            this.excluir_bloq = resp[18];
 
             const data = plazosResp.data[0];
 
@@ -972,6 +986,7 @@
 
                 await httpFunc("/generic/genericST/Proyectos:Upd_Proyecto", dataToSend);
                 await this.onSaveNoVis();
+                await this.onSaveBloq();
 
                 if (GlobalVariables.proyecto) {
                     GlobalVariables.proyecto.id_pie_legal = this.editObjProyecto.id_pie_legal;
@@ -1197,16 +1212,16 @@
         },
         onAddNoVis() {
             let entries = (this.f_vis_excluidos || '').split(';');
-            if (this.selTorre.id_torre && this.selTipo.id_tipo && !entries.includes(`${this.selTorre.consecutivo}/${this.selTipo.tipo}`)) {
+            if (this.selTorreVis.id_torre && this.selTipoVis.id_tipo && !entries.includes(`${this.selTorreVis.consecutivo}/${this.selTipoVis.tipo}`)) {
                 this.excluir_vis.push({
-                    id_torre: this.selTorre.id_torre,
-                    nombre_torre: this.selTorre.nombre_torre,
-                    consecutivo: this.selTorre.consecutivo,
-                    id_tipo: this.selTipo.id_tipo,
-                    tipo: this.selTipo.tipo,
+                    id_torre: this.selTorreVis.id_torre,
+                    nombre_torre: this.selTorreVis.nombre_torre,
+                    consecutivo: this.selTorreVis.consecutivo,
+                    id_tipo: this.selTipoVis.id_tipo,
+                    tipo: this.selTipoVis.tipo,
                 });
-                this.selTorre = {};
-                this.selTipo = {};
+                this.selTorreVis = {};
+                this.selTipoVis = {};
                 this.tmp_vis_excluidos = this.excluir_vis.map(item => item.consecutivo + '/' + item.tipo).join(';');
             }
         },
@@ -1250,6 +1265,109 @@
                 err_msg.trim() && showMessage(err_msg);
                 this.excluir_vis = tmp_excluir_vis;
             }
+        },
+
+
+        onAddBloq() {
+            if (this.selTorreBloq.id_torre && this.selTipoBloq.id_tipo) {
+                if (!this.excluir_bloq.filter(eb => eb.id_torre == this.selTorreBloq.id_torre && eb.id_tipo == this.selTipoBloq.id_tipo).length) {
+                    this.excluir_bloq.push({
+                        id_torre: this.selTorreBloq.id_torre,
+                        nombre_torre: this.selTorreBloq.nombre_torre,
+                        consecutivo: this.selTorreBloq.consecutivo,
+                        id_tipo: this.selTipoBloq.id_tipo,
+                        tipo: this.selTipoBloq.tipo,
+                    });
+                }
+            }
+            else if (!this.selTorreBloq.id_torre && this.selTipoBloq.id_tipo) {
+                this.torres.forEach(t => {
+                    if (!this.excluir_bloq.filter(eb => eb.id_torre == t.id_torre && eb.id_tipo == this.selTipoBloq.id_tipo).length) {
+                        this.excluir_bloq.push({
+                            id_torre: t.id_torre,
+                            nombre_torre: t.nombre_torre,
+                            consecutivo: t.consecutivo,
+                            id_tipo: this.selTipoBloq.id_tipo,
+                            tipo: this.selTipoBloq.tipo,
+                        });
+                    }
+                });
+            }
+            else if (this.selTorreBloq.id_torre && !this.selTipoBloq.id_tipo) {
+                this.tipos_unidad.forEach(tu => {
+                    if (!this.excluir_bloq.filter(eb => eb.id_torre == this.selTorreBloq.id_torre && eb.id_tipo == tu.id_tipo).length) {
+                        this.excluir_bloq.push({
+                            id_torre: this.selTorreBloq.id_torre,
+                            nombre_torre: this.selTorreBloq.nombre_torre,
+                            consecutivo: this.selTorreBloq.consecutivo,
+                            id_tipo: tu.id_tipo,
+                            tipo: tu.tipo,
+                        });
+                    }
+                });
+            }
+            else if (!this.selTorreBloq.id_torre && !this.selTipoBloq.id_tipo) {
+                this.torres.forEach(t => {
+                    this.tipos_unidad.forEach(tu => {
+                        if (!this.excluir_bloq.filter(eb => eb.id_torre == t.id_torre && eb.id_tipo == tu.id_tipo).length) {
+                            this.excluir_bloq.push({
+                                id_torre: t.id_torre,
+                                nombre_torre: t.nombre_torre,
+                                consecutivo: t.consecutivo,
+                                id_tipo: tu.id_tipo,
+                                tipo: tu.tipo,
+                            });
+                        }
+                    });
+                });
+            }
+            this.selTorreBloq = {};
+            this.selTipoBloq = {};
+            this.tmp_bloq_excluidos = this.excluir_bloq.map(item => item.consecutivo + '/' + item.tipo).join(';');
+            this.onSaveBloq();
+        },
+        async onSaveBloq() {
+            if (this.excluir_bloq.length) {
+				showProgress();
+				let res = null;
+				try {
+					res = await httpFunc(`/generic/genericST/Proyectos:Upd_TipoTorreBloq`,
+						{ data: JSON.stringify(this.excluir_bloq), id_proyecto: GlobalVariables.id_proyecto });
+					if (res.isError || res.data !== 'OK') throw res;
+				} catch (e) {
+					console.error(e);
+					showMessage('Error:   ' + e.errorMessage || e.data);
+				}
+				hideProgress();
+			}
+            this.changeBloq = false;
+        },
+        valBloq() {
+            if (!this.tmp_bloq_excluidos.trim()) this.excluir_bloq = [];
+            else {
+                let tmp_excluir_bloq = [], no_torre = [], no_tipo = [], err_msg = "";
+                this.tmp_bloq_excluidos.split(';').forEach(item => {
+                    let [consecutivo, tipo] = item.split('/'),
+                        _torre = this.torres.find(t => t.consecutivo == consecutivo),
+                        _tipo = this.tipos_unidad.find(t => t.tipo == tipo);
+                    if (_torre && _tipo)
+                        tmp_excluir_bloq.push({
+                            id_torre: _torre.id_torre,
+                            nombre_torre: _torre.nombre_torre,
+                            consecutivo: _torre.consecutivo,
+                            id_tipo: _tipo.id_tipo,
+                            tipo: _tipo.tipo,
+                        });
+                    else if (!_torre) no_torre.push(consecutivo);
+                    else if (!_tipo) no_tipo.push(tipo);
+                });
+                if (no_torre.length || no_tipo.length) err_msg = "Error: ";
+                if (no_torre.length) err_msg += `\nNo se encontraron torres: ${no_torre.join(', ')}.`;
+                if (no_tipo.length) err_msg += `\nNo se encontraron tipos: ${no_tipo.join(', ')}.`;
+                err_msg.trim() && showMessage(err_msg);
+                this.excluir_bloq = tmp_excluir_bloq;
+            }
+            this.changeBloq && this.onSaveBloq();
         }
     }
 };

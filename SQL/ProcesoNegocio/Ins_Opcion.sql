@@ -139,4 +139,14 @@ from fact_cotizacion_cliente cc
 join fact_clientes c on c.id_cliente = cc.id_cliente
 where cc.id_cotizacion = @id_cotizacion;
 
-select concat('ok-id_opcion:', last_insert_id()) as result;
+
+/*
+select distinct p.bloqueo_libres, p.inmuebles_opcionados
+into @is_bloq, @num_opc
+from fact_proyectos p
+join fact_unidades u on p.id_proyecto = u.id_proyecto
+join fact_negocios_unidades n on n.id_unidad = u.id_unidad
+where n.id_cotizacion = @id_cotizacion;
+*/
+
+select concat('ok-id_opcion:', @id_opcion) as result;

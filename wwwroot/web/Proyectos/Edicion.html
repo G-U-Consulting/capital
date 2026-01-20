@@ -237,7 +237,7 @@
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
-                    <select id="torre" class="pure-input-1" v-model="selTorre">
+                    <select id="torre" class="pure-input-1" v-model="selTorreVis">
                         <option :value="{}" disabled selected>[Torre]</option>
                         <option v-for="t in torres" :value="t"> {{ t.nombre_torre }} </option>
                     </select>
@@ -245,7 +245,7 @@
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
-                    <select id="tipo" class="pure-input-1" v-model="selTipo">
+                    <select id="tipo" class="pure-input-1" v-model="selTipoVis">
                         <option :value="{}" disabled selected>[Tipo]</option>
                         <option v-for="t in tipos_unidad" :value="t"> {{ t.tipo }} </option>
                     </select>
@@ -538,17 +538,42 @@
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard positTex'>
-                    <input type='number' v-model='editObjProyecto.inmuebles_opcionados' maxlen='100' />
+                    <input type='number' v-model='editObjProyecto.inmuebles_opcionados'/>
                 </div>
             </div>
-            <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
+            <div class='pure-u-1-1 pure-u-md-1-2'></div>
+            
+            <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='formInputStandard'>
+                    <select id="torre" class="pure-input-1" v-model="selTorreBloq">
+                        <option :value="{}" selected>[Todas las torres]</option>
+                        <option v-for="t in torres" :value="t"> {{ t.nombre_torre }} </option>
+                    </select>
+                </div>
+            </div>
+            <div class='pure-u-1-1 pure-u-md-1-6'>
+                <div class='formInputStandard'>
+                    <select id="tipo" class="pure-input-1" v-model="selTipoBloq">
+                        <option :value="{}" selected>[Todos los tipos]</option>
+                        <option v-for="t in tipos_unidad" :value="t"> {{ t.tipo }} </option>
+                    </select>
+                </div>
+            </div>
+            <div class="pure-u-1-1 pure-u-md-1-6">
+                <button style="margin-top: 0.4rem;" v-on:click="onAddBloq">Agregar</button>
+            </div>
+            <div class='pure-u-3-4 pure-u-md-12-24'>
+                <input style="margin-top: 0.4rem;" type='text' v-model='f_bloq_excluidos' @blur="valBloq" @input="changeBloq = true;"/>
+            </div>
+
+            <!-- <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
                 Tipos excluidos
             </div>
             <div class='pure-u-1-1 pure-u-md-1-3'>
                 <div class='formInputStandard positTex'>
                     <input type='text' v-model='editObjProyecto.tipos_excluidos' maxlen='100' />
                 </div>
-            </div>
+            </div> -->
             <!--Waze, Whatsapp y Otros-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                 Waze, Whatsapp y Otros

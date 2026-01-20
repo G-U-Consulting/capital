@@ -78,8 +78,9 @@ create table fact_lista_espera(
     created_on datetime default current_timestamp
 );
 
-create trigger tr_tarea_unidad_liberada after update on fact_unidades for each row
+create trigger tr_unidad_actualizada after update on fact_unidades for each row
 begin
+    -- Crear tarea al liberar la unidad
     if new.id_estado_unidad = 1 and old.id_estado_unidad != 1 then
         insert into dim_tarea_usuario
             (alta, deadline, id_proyecto, descripcion, id_prioridad, id_estado, id_usuario)
@@ -468,7 +469,6 @@ begin
         end if;
     end if;
 end;
-
 
 create table dim_whitelist_views(
     name varchar(50) primary key
