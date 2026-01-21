@@ -2,16 +2,25 @@
 -- Proceso: ProcesoNegocio/Get_Unidades
 -- =============================================
 --START_PARAM
-set @id_proyecto = 3;
+set @id_proyecto = 9;
 
 --END_PARAM
-select id_torre, id_proyecto, consecutivo, orden_salida, en_venta, aptos_piso, aptos_fila, id_sinco, 
-    date_format(fecha_p_equ,'%Y-%m-%d') as fecha_p_equ, date_format(fecha_inicio_obra,'%Y-%m-%d') as fecha_inicio_obra, 
-    date_format(fecha_escrituracion,'%Y-%m-%d') as fecha_escrituracion, tasa_base, antes_p_equ, despues_p_equ, 
-    id_fiduciaria, cod_proyecto_fid, nit_fid_doc_cliente, id_instructivo, propuesta_pago, consecutivo as idtorre, banco
-from fact_torres a 
- left join dim_banco_constructor b on a.id_banco_constructor = b.id_banco
-where id_proyecto = @id_proyecto;
+select count(distinct u_all.id_unidad) as total_unidades, count(distinct u_bloq.id_unidad) as unidades_opcionadas, 
+    (count(distinct u_bloq.id_unidad)/count(distinct u_all.id_unidad)) * 100 as porcentaje_opcionadas,
+    group_concat(distinct ptt.id_tipo separator ',') as tipos_bloq, group_concat(distinct tu.tipo separator ',') as nombre_tipos,
+    t.id_torre, t.id_proyecto, t.consecutivo, t.orden_salida, t.en_venta, t.aptos_piso, t.aptos_fila, t.id_sinco, 
+    date_format(t.fecha_p_equ,'%Y-%m-%d') as fecha_p_equ, date_format(t.fecha_inicio_obra,'%Y-%m-%d') as fecha_inicio_obra, 
+    date_format(t.fecha_escrituracion,'%Y-%m-%d') as fecha_escrituracion, t.tasa_base, t.antes_p_equ, t.despues_p_equ, 
+    t.id_fiduciaria, t.cod_proyecto_fid, t.nit_fid_doc_cliente, t.id_instructivo, t.propuesta_pago, t.consecutivo as idtorre, b.banco
+from fact_torres t 
+ left join dim_banco_constructor b on t.id_banco_constructor = b.id_banco
+ left join fact_unidades u_all on t.id_torre = u_all.id_torre
+ left join dim_props_tipo_torre ptt on t.id_torre = ptt.id_torre and ptt.excluir_bloqueados = 1
+ left join fact_unidades u_bloq on u_all.id_unidad = u_bloq.id_unidad and ptt.id_tipo = u_bloq.id_tipo 
+    and (u_bloq.id_estado_unidad = 2 or u_bloq.id_estado_unidad = 5 or u_bloq.id_estado_unidad = 6)
+left join dim_tipo_unidad tu on ptt.id_tipo = tu.id_tipo
+where t.id_proyecto = @id_proyecto and u_all.id_estado_unidad is not null
+group by t.id_torre;
 
 select
   date_format(u.fecha_fec, '%Y-%m-%d %T') as fecha_fec,

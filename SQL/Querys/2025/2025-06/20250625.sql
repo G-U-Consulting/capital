@@ -56,8 +56,7 @@ insert into dim_estado_unidad(id_estado_unidad, estado_unidad, estado_unidad_plu
 (3, 'Consignado','Consignados', '#0c62a4', '#FFFFFF', 0),
 (4, 'Vendido','Vendidos', '#173d5b', '#FFFFFF', 0),
 (5, 'Opcionado (v)', 'Opcionados (v)', '#0094b9', '#FFFFFF', 1),
-(6, 'Opcionado (bloq)', 'Opcionados (bloq)', '#0094b9', '#FFFFFF', 1),
-(7, 'Bloq Comercial', 'Bloq Comercial', '#ff5e1a', '#FFFFFF', 1);
+(6, 'Opcionado (bloq)', 'Opcionados (bloq)', '#0094b9', '#FFFFFF', 1);
 
 create table dim_cuenta_convenio(
 	id_cuenta_convenio int not null auto_increment,

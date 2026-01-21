@@ -46,7 +46,7 @@ public class WorkerTareas(string rootPath) : BackgroundService
                 if (consecutiveErrors == errorsAtStart)
                 {
                     consecutiveErrors = 0;
-                    await Task.Delay(1000, stoppingToken);
+                    await Task.Delay(5000, stoppingToken);
                 }
                 else
                 {

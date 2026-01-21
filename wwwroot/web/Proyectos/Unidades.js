@@ -1009,6 +1009,18 @@
 				showMessage("Ocurrió un error al registrar la unidad");
 			}
 		},
+		bloqueoComercial(apto) {
+			if (apto.id_estado_unidad != '1' || !GlobalVariables.proyecto.bloqueo_libres || !GlobalVariables.proyecto.inmuebles_opcionados || GlobalVariables.proyecto.bloqueo_libres == '0')
+				return false;
+			let torre = this.NwTorre.find(t => apto.id_torre == t.id_torre);
+			if (torre && torre.tipos_bloq) {
+				let tipos = torre.tipos_bloq.split(','), 
+					limit = Number(GlobalVariables.proyecto.inmuebles_opcionados),
+					p_opcionados = Number(torre.porcentaje_opcionadas);
+				return tipos.includes(apto.id_tipo) && !Number.isNaN(limit) && !Number.isNaN(p_opcionados) && p_opcionados >= limit;
+			}
+			else return false;
+		}
 	},
 	computed: {
 		f_area_privada_cub: {

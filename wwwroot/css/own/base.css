@@ -4219,6 +4219,10 @@ tr.cal-row-info > td {
   color: transparent;
   pointer-events: none;
 }
+.apto-bloq-com {
+  background-color: #ff4a13;
+  color: white !important;
+}
 
 .resaltado {
     color: #FF6F00;

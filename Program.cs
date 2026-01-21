@@ -35,8 +35,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddDataProtection()
         .PersistKeysToDbContext<AuthDBContext>()
         .SetApplicationName("Capital");
-builder.Services.AddSingleton(sp => new WorkerTareas(builder.Environment.ContentRootPath));
-builder.Services.AddHostedService(sp => sp.GetRequiredService<WorkerTareas>());
+//builder.Services.AddSingleton(sp => new WorkerTareas(builder.Environment.ContentRootPath));
+//builder.Services.AddHostedService(sp => sp.GetRequiredService<WorkerTareas>());
 
 var app = builder.Build();
 /*

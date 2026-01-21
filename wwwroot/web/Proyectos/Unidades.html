@@ -156,7 +156,8 @@
                                       active: selectedApto && selectedApto.apartamento === apto.apartamento,
                                       'apto-asignado': apto.asignado == 1,
                                       'apto-fake': apto.fake,
-                                      'apto-gris': !apto.id_estado_unidad && !apto.fake
+                                      'apto-gris': !apto.id_estado_unidad && !apto.fake,
+                                      'apto-bloq-com': bloqueoComercial(apto)
                                     },
                                     'estado-' + (apto.estatus || '').trim().toLowerCase()
                                  ]">
