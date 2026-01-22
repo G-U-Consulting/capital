@@ -935,7 +935,7 @@ export default {
             }
         },
 
-        cargarTablaAmortizacion(datosTabla) {
+        cargarTablaAmortizacion(datosTabla, abrirModal = true) {
             try {
                 this.cargandoTablaDesdeDB = true;
 
@@ -976,7 +976,7 @@ export default {
                     };
                 });
 
-                if (this.tablaPeriodos.length > 0) {
+                if (this.tablaPeriodos.length > 0 && abrirModal) {
                     this.tablaAmortizacion = true;
                 }
 
@@ -2060,8 +2060,6 @@ export default {
 
                 const resp = await httpFunc('/generic/genericST/ProcesoNegocio:Upd_Registro', datosVisita);
 
-                console.log('Respuesta del servidor:', resp);
-
                 let resultado = '';
                 if (typeof resp.data === 'string') {
                     resultado = resp.data;
@@ -2074,8 +2072,6 @@ export default {
                     showMessage("Error: Formato de respuesta no reconocido del servidor.");
                     return "Error";
                 }
-
-                console.log('Resultado procesado:', resultado);
 
                 if (resultado.includes("OK")) {
                     showMessage("Registro actualizado correctamente.");
@@ -3119,8 +3115,8 @@ export default {
             let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Proyecto', {
                 id_proyecto: GlobalVariables.id_proyecto
             });
-            let dato = resp.data[0][0].id_tipo_vis
-            let estado = resp.data[0][0].estado_publicacion_final
+            let dato = resp.data[0][0]?.id_tipo_vis
+            let estado = resp.data[0][0]?.estado_publicacion_final
 
             const proyectoEsVIS = dato != 4;
 
@@ -3557,20 +3553,20 @@ export default {
                 await this.generarTabla();
             }
         },
-        async cargarTablaDesdeDB() {
+        async cargarTablaDesdeDB(abrirModal = true) {
             try {
                 const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Amortizacion', {
                     id_opcion: this.id_opcion
                 });
 
                 if (resp.data && resp.data[0] && resp.data[0].length > 0) {
-                    this.cargarTablaAmortizacion(resp.data[0]);
+                    this.cargarTablaAmortizacion(resp.data[0], abrirModal);
                 } else {
-                    await this.generarTabla();
+                    await this.generarTabla(abrirModal);
                 }
             } catch (error) {
                 console.error('Error al cargar tabla desde BD:', error);
-                await this.generarTabla();
+                await this.generarTabla(abrirModal);
             }
         },
         async cerrarModalTabla() {
@@ -3801,7 +3797,7 @@ export default {
         async guardarYGenerarPDF() {
             if (!this.tablaPeriodos || this.tablaPeriodos.length === 0) {
                 if (this.id_opcion && this.esOpcionGuardada) {
-                    await this.cargarTablaDesdeDB();
+                    await this.cargarTablaDesdeDB(false);
                 } else {
                     this.generarTabla(false);
                 }
@@ -4049,6 +4045,17 @@ export default {
                 this.tieneCambiosPendientes = false;
                 this.esOpcionGuardada = true;
 
+                // Enviar correo de confirmación si es una opción nueva y no está bloqueada
+                if (nueva && !this.opcion_bloq && idOpcionFinal) {
+                    try {
+                        await this.enviarCorreoOpcion(idOpcionFinal, true);
+                        mensaje += '\n\nSe ha enviado un correo de confirmación a los clientes.';
+                    } catch (errorCorreo) {
+                        console.error('Error al enviar correo de confirmación:', errorCorreo);
+                        mensaje += '\n\nNota: No se pudo enviar el correo de confirmación.';
+                    }
+                }
+
                 showMessage(mensaje);
 
             } catch (error) {
@@ -4065,7 +4072,6 @@ export default {
                 showMessage(resp.errorMessage || 'Error al guardar la opción');
             else {
                 this.cupones = (await httpFunc('/generic/genericDT/ProcesoNegocio:Get_CuponesAvisor', { id_opcion: this.id_opcion })).data;
-                console.log(this.cupones);
                 this.showAvisorModal = true;
             }
             hideProgress();
@@ -4087,6 +4093,210 @@ export default {
                 else showMessage("Error: " + url);
             } else window.open(url, '_blank');
             hideProgress();
+        },
+        async enviarCorreoManual() {
+            // Verificar si hay una opción guardada
+            if (!this.id_opcion) {
+                showMessage('No hay una opción guardada para enviar por correo. Primero debe opcionar.');
+                return;
+            }
+
+            showProgress('Preparando envío de correo...');
+            try {
+                await this.enviarCorreoOpcion(this.id_opcion, false);
+                showMessage('Correo enviado exitosamente');
+            } catch (error) {
+                console.error('[CORREO] Error al enviar correo manual:', error);
+                showMessage('Error al enviar el correo: ' + error.message);
+            } finally {
+                hideProgress();
+            }
+        },
+        async enviarCorreoOpcion(idOpcion, esNuevaOpcion = false) {
+            if (!idOpcion) {
+                console.warn('[CORREO] No se proporcionó id_opcion');
+                return;
+            }
+
+            try {
+                this.loadingProcess = "Generando correo de confirmación";
+
+                const respDatos = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_DatosOpcionCorreo', {
+                    id_opcion: idOpcion
+                });
+
+                if (!respDatos.data || !respDatos.data[0] || !respDatos.data[0][0]) {
+                    console.error('[CORREO] No se pudieron obtener los datos de la opción. Respuesta:', respDatos);
+                    return;
+                }
+
+                const datosOpcion = respDatos.data[0][0];
+                const clientes = respDatos.data[1] || [];
+                const cupones = respDatos.data[2] || [];
+
+                if (clientes.length === 0) {
+                    console.error('No hay clientes para enviar el correo');
+                    return;
+                }
+
+                let cuponesSection = '';
+                if (cupones.length > 0) {
+                    cuponesSection = `
+                        <div class="cupones-section">
+                            <h3>Cupones de Pago</h3>
+                            <p>A continuación encontrará los enlaces para realizar el pago de la separación:</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Unidad</th>
+                                        <th>Invoice</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${cupones.map(c => `
+                                        <tr>
+                                            <td>${c.unidad || ''}</td>
+                                            <td>${c.invoice || ''}</td>
+                                            <td>
+                                                ${c.ecollect_url_enviar ? `<a href="${c.ecollect_url_enviar}" class="btn-cupon" target="_blank">Pagar en línea</a>` : ''}
+                                                ${c.ecollect_url_descargar ? `<a href="${c.ecollect_url_descargar}" class="btn-cupon" target="_blank">Descargar cupón</a>` : ''}
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
+                this.loadingProcess = "Generando PDF de la opción";
+                const pdfBase64 = await this.generarPDFBase64();
+
+                const baseUrlCorreo = 'https://dev.serlefinpbi.com';
+                const logoProyectoImg = datosOpcion.logo_proyecto_llave
+                    ? `<img src="${baseUrlCorreo}/file/S3get/${datosOpcion.logo_proyecto_llave}" alt="${datosOpcion.proyecto}" style="max-width: 180px; max-height: 80px;">`
+                    : '';
+
+                
+                const emailsData = clientes
+                    .filter(c => c.email && c.email.trim() !== '')
+                    .map(cliente => ({
+                        email: cliente.email,
+                        nombre_cliente: cliente.nombre_cliente || '',
+                        tipo_documento: cliente.tipo_documento || '',
+                        numero_documento: cliente.numero_documento || '',
+                        telefono: cliente.telefono || '',
+                        direccion: cliente.direccion || '',
+                        proyecto: datosOpcion.proyecto || '',
+                        id_opcion: idOpcion,
+                        fecha_opcion: datosOpcion.fecha_opcion || '',
+                        torre: datosOpcion.torre || '',
+                        nombre_unidad: datosOpcion.nombre_unidad || '',
+                        tipo_unidad: datosOpcion.tipo_unidad || '',
+                        area_privada: datosOpcion.area_privada || '',
+                        area_construida: datosOpcion.area_construida || '',
+                        valor_total: datosOpcion.valor_total || '',
+                        valor_separacion: datosOpcion.valor_separacion || '',
+                        cuota_inicial: datosOpcion.cuota_inicial || '',
+                        valor_financiar: datosOpcion.valor_financiar || '',
+                        forma_pago: datosOpcion.forma_pago || '',
+                        fecha_entrega: datosOpcion.fecha_entrega || '',
+                        nombre_asesor: datosOpcion.nombre_asesor || '',
+                        email_asesor: datosOpcion.email_asesor || '',
+                        telefono_asesor: datosOpcion.telefono_asesor || '',
+                        cupones_section: cuponesSection,
+                        logo_proyecto_img: logoProyectoImg
+                    }));
+
+                if (emailsData.length === 0) {
+                    console.warn('[CORREO] No hay emails válidos para enviar. Clientes sin email:', clientes.filter(c => !c.email || c.email.trim() === ''));
+                    return;
+                }
+
+                this.loadingProcess = "Enviando correos de confirmación";
+
+
+                const respEnvio = await httpFunc('/util/SendMail/OpcionFinalizada', {
+                    emails: emailsData,
+                    subject: `Confirmación de Opción - ${datosOpcion.proyecto} - ${datosOpcion.nombre_unidad}`,
+                    pdfBase64: pdfBase64,
+                    pdfFileName: `Opcion_${idOpcion}_${(datosOpcion.nombre_unidad || 'unidad').replace(/\s+/g, '_')}.pdf`
+                });
+
+                if (respEnvio === 'OK') {
+
+                } else {
+                    console.error('[CORREO] ❌ Error al enviar correos:', respEnvio);
+                }
+
+            } catch (error) {
+                console.error('[CORREO] ❌ Error al enviar correo de opción:', error);
+            }
+        },
+        async generarPDFBase64() {
+          
+            if (!this.tablaPeriodos || this.tablaPeriodos.length === 0) {
+                if (this.id_opcion && this.esOpcionGuardada) {
+                    await this.cargarTablaDesdeDB(false);
+                } else {
+                    this.generarTabla(false);
+                }
+            }
+            if (this.tablaPeriodos && this.tablaPeriodos.length > 0) {
+                this.tablaPeriodos.forEach((fila, i) => this.recalcularFila(i));
+            }
+
+            return new Promise((resolve, reject) => {
+                this.$nextTick(() => {
+                    setTimeout(async () => {
+                        try {
+                            const content = document.getElementById('contenedor-pdf-completo');
+                            const tablaLandscape = document.getElementById('tabla-amortizacion-landscape');
+
+                            if (!content) {
+                                resolve(null);
+                                return;
+                            }
+
+                            const pdfInstance = html2pdf().set({
+                                margin: [30, 10, 20, 10],
+                                filename: 'opcion.pdf',
+                                image: { type: 'jpeg', quality: 0.98 },
+                                html2canvas: {
+                                    scale: 2,
+                                    useCORS: true,
+                                    allowTaint: false,
+                                    logging: false,
+                                    windowWidth: 1024
+                                },
+                                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+                                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                            });
+
+                            pdfInstance.from(content).toPdf().get('pdf').then(async (pdf) => {
+                                await this.agregarLogosEnTodasLasPaginas(pdf, false);
+
+                                if (this.tablaPeriodos && this.tablaPeriodos.length > 0 && tablaLandscape) {
+                                    await this.renderTablaAmortizacion(pdf, tablaLandscape);
+                                }
+
+                                await this.actualizarNumeracionPaginas(pdf);
+
+                             
+                                const pdfBase64 = pdf.output('datauristring');
+                                resolve(pdfBase64);
+                            }).catch((error) => {
+                                console.error('Error al generar PDF base64:', error);
+                                resolve(null);
+                            });
+                        } catch (error) {
+                            console.error('Error en generarPDFBase64:', error);
+                            resolve(null);
+                        }
+                    }, 500);
+                });
+            });
         },
         async onChangeAnio() {
             if (this.esOpcionGuardada) {
@@ -4120,7 +4330,6 @@ export default {
             this.cuota_inicial = this.cuota_inicial_base;
             const creditoActual = this.valor_credito || 0;
 
-            // Si el crédito actual excede el máximo financiable, aumentar la cuota inicial
             if (creditoActual > nuevoMax) {
                 const restante = creditoActual - nuevoMax;
                 this.valor_credito_max = nuevoMax;
@@ -4438,7 +4647,6 @@ export default {
                     let headers = Object.fromEntries(res.headers), body = null;
                     if (headers['content-type'].includes("application/json")) body = await res.json();
                     else body = await res.text();
-                    console.log('Respuesta Davivienda:', body);
                     if (res.status >= 400) {
                         console.error(`Error ${res.status}: `, body);
                         showMessage(`Error ${res.status}`);
