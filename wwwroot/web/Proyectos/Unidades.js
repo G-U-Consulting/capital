@@ -1015,8 +1015,8 @@
 			let torre = this.NwTorre.find(t => apto.id_torre == t.id_torre);
 			if (torre && torre.tipos_bloq) {
 				let tipos = torre.tipos_bloq.split(','), 
-					limit = Number(GlobalVariables.proyecto.inmuebles_opcionados),
-					p_opcionados = Number(torre.porcentaje_opcionadas);
+					limit = Number(GlobalVariables.proyecto.inmuebles_opcionados.replace(',', '.')),
+					p_opcionados = Number(torre.porcentaje_opcionadas.replace(',', '.'));
 				return tipos.includes(apto.id_tipo) && !Number.isNaN(limit) && !Number.isNaN(p_opcionados) && p_opcionados >= limit;
 			}
 			else return false;

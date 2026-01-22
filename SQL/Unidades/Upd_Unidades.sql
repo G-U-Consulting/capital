@@ -78,6 +78,8 @@ create temporary table tmp_unidades as(
 );
 select tp.tipo_proyecto into @nom_clase_apt
 from dim_tipo_proyecto tp where tp.id_tipo_proyecto = 8;
+select id_fiduciaria into @id_fidu_default
+from fact_proyectos where id_proyecto = @id_proyecto;
 update tmp_unidades set clase = @nom_clase_apt where clase is null or trim(clase) = '';
 
 alter table tmp_unidades
@@ -87,13 +89,14 @@ alter table tmp_unidades
 
 
 -- TODO hacer validación de datos antes de continuar
-INSERT INTO fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, created_by)
+INSERT INTO fact_torres(id_proyecto, nombre_torre, consecutivo, orden_salida, aptos_piso, id_fiduciaria, created_by)
 SELECT 
     @id_proyecto,
     CONCAT('Torre ', datos.torre),
     datos.torre,
     CAST(datos.torre AS UNSIGNED),
     datos.max_aptos,
+    @id_fidu_default,
     @usuario
 FROM (
     SELECT 

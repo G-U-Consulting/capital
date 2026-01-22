@@ -5,12 +5,14 @@
 set @id_proyecto = 1;
 
 --END_PARAM
-select id_torre, id_proyecto, consecutivo, orden_salida, en_venta, aptos_piso, aptos_fila, id_sinco, id_banco_constructor,
+select id_torre, t.id_proyecto, consecutivo, orden_salida, en_venta, aptos_piso, aptos_fila, id_sinco, t.id_banco_constructor,
     date_format(fecha_p_equ,'%Y-%m-%d') as fecha_p_equ, date_format(fecha_inicio_obra,'%Y-%m-%d') as fecha_inicio_obra, 
     date_format(fecha_escrituracion,'%Y-%m-%d') as fecha_escrituracion, tasa_base, antes_p_equ, despues_p_equ, 
-    id_fiduciaria, cod_proyecto_fid, nit_fid_doc_cliente, id_instructivo, propuesta_pago, consecutivo as idtorre
-from fact_torres
-where id_proyecto = @id_proyecto;
+    coalesce(t.id_fiduciaria, p.id_fiduciaria) as id_fiduciaria, 
+    cod_proyecto_fid, nit_fid_doc_cliente, id_instructivo, propuesta_pago, consecutivo as idtorre
+from fact_torres t
+left join fact_proyectos p on t.id_proyecto = p.id_proyecto
+where t.id_proyecto = @id_proyecto;
 
 select date_format(u.fecha_fec, '%Y-%m-%d') as fecha_fec, 
     date_format(u.fecha_edi, '%Y-%m-%d') as fecha_edi, 

@@ -260,6 +260,9 @@ set
     --     end while;
     -- end if;
 
+update fact_torres
+set id_fiduciaria = coalesce(id_fiduciaria, @id_fiduciaria)
+where id_proyecto = @id_proyecto;
     
 
     select concat('OK-id_proyecto:', @id_proyecto) as resp;
