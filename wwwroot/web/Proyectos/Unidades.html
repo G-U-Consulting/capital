@@ -123,7 +123,7 @@
                                         :style="aptosRowStyle(idtorre, row)">
                                         <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini"
                                             @click="selectApto(apto)" :class="[
-                                                                       { active: selectedApto && selectedApto.apartamento === apto.apartamento,
+                                                                       { active: selectedApto && selectedApto.id_unidad === apto.id_unidad,
                                                                     'apto-gris': apto.id_estado_unidad == '' },
                                                                        'estado-' + (apto.estatus || '').trim().toLowerCase()
                                                                      ]">
@@ -153,7 +153,7 @@
                                         @click="selectApto(apto)"
                                         :class="[
                                     {
-                                      active: selectedApto && selectedApto.apartamento === apto.apartamento,
+                                      active: selectedApto && selectedApto.id_unidad === apto.id_unidad,
                                       'apto-asignado': apto.asignado == 1,
                                       'apto-fake': apto.fake,
                                       'apto-gris': !apto.id_estado_unidad && !apto.fake,

@@ -1161,13 +1161,14 @@
 					const aptos = pisos[piso] || [];
 					const faltan = (maxColsPorPiso[piso] || 0) - aptos.length;
 
-					const simulados = Array.from({ length: faltan }, () => ({
+					const simulados = Array.from({ length: faltan }, (_, index) => ({
 						apartamento: "",
 						asignado: 0,
 						estatus: "fake",
 						idtorre,
 						piso,
-						fake: true
+						fake: true,
+						id_unidad: `fake-${idtorre}-${piso}-${index}`
 					}));
 
 					nuevaTorre[piso] = [...aptos, ...simulados];
