@@ -238,11 +238,27 @@ app.Map("/util/SendMail/{template}", async (HttpRequest request, HttpResponse re
         JObject obj = JObject.Parse(body);
         JArray? emails = (JArray?)obj["emails"];
         string? subject = (string?)obj["subject"];
+
+        string? pdfBase64 = (string?)obj["pdfBase64"];
+        string? pdfFileName = (string?)obj["pdfFileName"];
+        byte[]? pdfBytes = null;
+        if (!string.IsNullOrEmpty(pdfBase64))
+        {
+            if (pdfBase64.Contains(","))
+                pdfBase64 = pdfBase64.Split(',')[1];
+            pdfBytes = Convert.FromBase64String(pdfBase64);
+        }
+
         foreach (JObject data in emails.Cast<JObject>())
         {
             string? email = data["email"]?.ToString();
             if (email != null)
-                SendMail.Send(email, subject ?? "", template, data, rootPath);
+            {
+                if (pdfBytes != null && !string.IsNullOrEmpty(pdfFileName))
+                    SendMail.Send(email, subject ?? "", template, data, rootPath, pdfBytes, pdfFileName);
+                else
+                    SendMail.Send(email, subject ?? "", template, data, rootPath);
+            }
         }
         return "OK";
     } catch (Exception ex) {
@@ -252,6 +268,7 @@ app.Map("/util/SendMail/{template}", async (HttpRequest request, HttpResponse re
     }
 
 }).WithName("SendMail");
+
 app.Map("/util/{ut}", async (HttpRequest request, HttpResponse response, string ut) => {
     string body = "";
     try {

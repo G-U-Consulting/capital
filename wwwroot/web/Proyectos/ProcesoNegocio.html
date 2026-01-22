@@ -836,7 +836,7 @@
                 <div class="pure-u-1 pure-u-md-5-8">
                     <fieldset :class="['opcionPago', { activo: pagoSeleccionado === 'financiado' }]">
                         <div class="pure-u-1 pure-u-md-1-1">
-                            <label class="check pure-u-1 pure-u-md-1-6" @click="!(esOpcionGuardada || modoSoloLectura) && (pagoSeleccionado = 'financiado')">
+                            <label class="check pure-u-1 pure-u-md-1-6">
                                 <input type="radio" name="pago" value="financiado" v-model="pagoSeleccionado" :disabled="esOpcionGuardada || modoSoloLectura"/>
                                 <span class="checkmark"></span>
                                 Financiado
@@ -2040,7 +2040,7 @@
                                         <span style="font-size: 8px;">{{ formatoMoneda(unidad.valor_descuento || 0) }}</span>
                                     </td>
                                     <td colspan="1" style="border-right: 1px solid #777; border-bottom: 1px solid #777; text-align: center; padding: 4px;">
-                                        <span style="font-size: 8px;">{{ formatoMoneda(Number(unidad.valor_unidad || 0) + Number(unidad.valor_reformas || 0) + Number(unidad.valor_acabados || 0) - Number(unidad.valor_descuento || 0)) }}</span>
+                                        <span style="font-size: 8px;">{{ formatoMoneda(cleanNumber(unidad.valor_unidad) + cleanNumber(unidad.valor_reformas) + cleanNumber(unidad.valor_acabados) - cleanNumber(unidad.valor_descuento)) }}</span>
                                     </td>
                                 </tr>
                             </template>
@@ -2779,7 +2779,7 @@
                         <img src="../../img/ico/printer.png" alt="Imprimir">
                         <span>Sólo Imprimir</span>
                     </div>
-                    <div class="boton-accion">
+                    <div class="boton-accion" @click="enviarCorreoManual">
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
                     </div>
