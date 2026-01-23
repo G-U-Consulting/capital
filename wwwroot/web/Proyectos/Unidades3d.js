@@ -10,7 +10,7 @@
 				"Unidades",
 				"Listas de Precios",
 				"Agrupaciones",
-				"Otros",
+				"Imágenes y Recorridos de Tipo",
 			],
 
 			torres: [],

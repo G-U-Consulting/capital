@@ -486,8 +486,8 @@
                         <div class="pure-u-1-1">
                             <div class="toggle-switch" :class="{ inactive: editObjProyecto.lanzamiento === '1' }">
                                 <input id="lanzamiento-toggle" type="checkbox" class="toggle-input"
-                                    :checked="editObjProyecto.lanzamiento === '0'"
-                                @change="editObjProyecto.lanzamiento = $event.target.checked ? '0' : '1'" />
+                                       :checked="editObjProyecto.lanzamiento === '0'"
+                                       @change="editObjProyecto.lanzamiento = $event.target.checked ? '0' : '1'" />
                                 <label class="toggle-label" for="lanzamiento-toggle"></label>
                             </div>
                         </div>
@@ -525,8 +525,8 @@
                         <div class="pure-u-1-1">
                             <div class="toggle-switch" :class="{ inactive: Number(editObjProyecto.bloqueo_libres) === 1 }">
                                 <input id="bloqueo_libres-toggle" type="checkbox" class="toggle-input"
-                                    :checked="Number(editObjProyecto.bloqueo_libres) === 0"
-                                    @change="editObjProyecto.bloqueo_libres = $event.target.checked ? 0 : 1" />
+                                       :checked="Number(editObjProyecto.bloqueo_libres) === 0"
+                                       @change="editObjProyecto.bloqueo_libres = $event.target.checked ? 0 : 1" />
                                 <label class="toggle-label" for="bloqueo_libres-toggle"></label>
                             </div>
                         </div>
@@ -534,15 +534,17 @@
                 </div>
             </div>
             <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
-                Límite Unds opcionadas por torre (%)
+                Límite Unds/Torre (%)
             </div>
+
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard positTex'>
-                    <input type='number' v-model='editObjProyecto.inmuebles_opcionados' min="0" max="100"/>
+                    <input type='number' v-model='editObjProyecto.inmuebles_opcionados' min="0" max="100" />
                 </div>
             </div>
+
             <div class='pure-u-1-1 pure-u-md-1-2'></div>
-            
+
             <div class='pure-u-1-1 pure-u-md-1-6'>
                 <div class='formInputStandard'>
                     <select id="torre" class="pure-input-1" v-model="selTorreBloq">
@@ -563,17 +565,17 @@
                 <button style="margin-top: 0.4rem;" v-on:click="onAddBloq">Agregar</button>
             </div>
             <div class='pure-u-3-4 pure-u-md-12-24'>
-                <input style="margin-top: 0.4rem;" type='text' v-model='f_bloq_excluidos' @blur="valBloq" @input="changeBloq = true;"/>
+                <input style="margin-top: 0.4rem;" type='text' v-model='f_bloq_excluidos' @blur="valBloq" @input="changeBloq = true;" />
             </div>
 
             <!-- <div class='pure-u-1-1 pure-u-md-1-6 positTex'>
-                Tipos excluidos
-            </div>
-            <div class='pure-u-1-1 pure-u-md-1-3'>
-                <div class='formInputStandard positTex'>
-                    <input type='text' v-model='editObjProyecto.tipos_excluidos' maxlen='100' />
-                </div>
-            </div> -->
+        Tipos excluidos
+    </div>
+    <div class='pure-u-1-1 pure-u-md-1-3'>
+        <div class='formInputStandard positTex'>
+            <input type='text' v-model='editObjProyecto.tipos_excluidos' maxlen='100' />
+        </div>
+    </div> -->
             <!--Waze, Whatsapp y Otros-->
             <div class='pure-u-1-1 pure-u-md-1-1 formDivision' style="margin-top: 1em;">
                 Waze, Whatsapp y Otros
