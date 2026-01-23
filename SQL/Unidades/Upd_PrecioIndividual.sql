@@ -2,7 +2,8 @@
 -- Proceso: Unidades/Upd_PrecioIndividual
 -- =============================================
 --START_PARAM
-set @id_precio = NULL,
+set @id_lista = NULL,
+    @id_unidad = NULL,
     @precio = NULL,
     @en_smlv = NULL,
     @precio_m2 = NULL,
@@ -18,6 +19,6 @@ set precio = if(@precio is null or @precio = '', 0, @precio),
     precio_alt = if(@precio_alt is null or @precio_alt = '', 0, @precio_alt),
     en_smlv_alt = if(@en_smlv_alt is null or @en_smlv_alt = '', 0, @en_smlv_alt),
     precio_m2_alt = if(@precio_m2_alt is null or @precio_m2_alt = '', 0, @precio_m2_alt)
-where id_precio = @id_precio;
+where id_lista = @id_lista and id_unidad = @id_unidad;
 
 SELECT 'OK' AS result;

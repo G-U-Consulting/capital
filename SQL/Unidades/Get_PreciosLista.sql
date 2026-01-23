@@ -7,7 +7,7 @@ set @id_lista = NULL,
 --END_PARAM
 
 select pu.id_precio, pu.precio, pu.en_smlv, pu.precio_m2, pu.precio_alt, pu.en_smlv_alt, pu.precio_m2_alt, 
-    t.consecutivo as torre, u.numero_apartamento as apartamento
+    t.consecutivo as torre, u.numero_apartamento as apartamento, pu.id_lista, pu.id_unidad
 from dim_precio_unidad pu
 join fact_unidades u on pu.id_unidad = u.id_unidad
 join fact_torres t on u.id_torre = t.id_torre

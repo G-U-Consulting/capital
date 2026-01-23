@@ -15,6 +15,7 @@ using capital.code.Util;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using capital.Code.Inte.Davivienda;
+using capital.Code.Inte.Masiv;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -473,5 +474,14 @@ app.Map("/avisor", async (HttpContext context) =>
     Avisor avisor = await Avisor.GetInstance(obj, rootPath);
     string link = await avisor.GetLinks();
     return link;
+});
+app.Map("/masiv/{ciudad}", async (HttpContext context, string ciudad) =>
+{
+    string body;
+    using (var stream = new StreamReader(context.Request.Body)) {
+        body = await stream.ReadToEndAsync();
+    }
+    Masiv masiv = new(ciudad, body);
+    return await masiv.Send();
 });
 app.Run();

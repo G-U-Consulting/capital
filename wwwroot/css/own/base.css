@@ -2153,13 +2153,13 @@ button.red-btn:hover {
   border-top: 1px;
 }
 .cal-table-today {
-  border: 2px #c80000 solid;
+  border: 0.16rem #c80000 solid;
 }
 .cal-table-selected {
-  border: 2px #0c5968 solid;
+  border: 0.16rem #0c5968 solid;
 }
 .cal-table-today.cal-table-selected {
-  border: 2px #832020 solid;
+  border: 0.16rem #832020 solid;
 }
 .cal-deshabilitada {
   font-style: italic;

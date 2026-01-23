@@ -1175,6 +1175,8 @@
                             <th>Clase</th>
                             <th>Tipo</th>
                             <th>Localización</th>
+                            <th>Importe sin descuento</th>
+                            <th>Descuento</th>
                             <th>Importe</th>
                         </tr>
                     </thead>
@@ -1186,8 +1188,10 @@
                             <td>{{apto.clase}}</td>
                             <td>{{apto.codigo_planta}}</td>
                             <td>{{apto.localizacion}}</td>
-                            <td style="text-align: end;">{{formatNumber((apto.valor_unidad || apto.valor_complemento),
+                            <td style="text-align: end;">{{formatNumber((apto.valor_unidad || apto.valor_complemento || 0),
                                 false)}}</td>
+                            <td style="text-align: end;">{{formatNumber((apto.valor_descuento || 0), false)}}</td>
+                            <td style="text-align: end;">{{formatNumber((Number(apto.valor_unidad) || Number(apto.valor_complemento) || 0) - (Number(apto.valor_descuento) || 0), false)}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1421,8 +1425,12 @@
 
     <div class="cal-modal-overlay" id="modalOverlayList" @click.stop.prevent="closeListModal">
         <div class="modal-container" style="min-width: 70vw; max-width: 85vw;">
-            <h2 style="text-align: center; margin-bottom: .5rem;">{{listFromCSV ? 'Previsualización Listas de Precios' :
-                `Detalles de lista ${viewList}`}}</h2>
+            <div style="display: flex;">
+                <h2 style="text-align: left; width: 95px;">{{this.listFromCSV ? '' : txtTorre}}</h2>
+                <h2 style="text-align: center; margin-bottom: .5rem; margin-right: 95px; flex: 1;">
+                    {{listFromCSV ? 'Previsualización Listas de Precios' :
+                    `Edición de lista ${viewList}`}}</h2>
+            </div>
             <div style="display: flex; gap: 1rem; height: 72vh;">
                 <div v-if="listFromCSV">
                     <div class="lista-torres" style="height: 100%; gap: 5px; overflow-y: auto;">
@@ -1448,8 +1456,8 @@
                                 <div v-bind:class="{'menu-title': listFromCSV}"
                                     style="justify-content: flex-end; gap: 1rem"
                                     @click="listFromCSV && (torre.expanded = !torre.expanded)">
-                                    <span
-                                        v-bind:class="{'menu-title-text' : listFromCSV, 'menu-title-text-no-expand' : !listFromCSV}">
+                                    <span v-if="listFromCSV"
+                                        v-bind:class="{'menu-title-text' : listFromCSV}">
                                         Torre {{torre.torre}}
                                     </span>
                                     <div v-if="listFromCSV" @click.stop.prevent="toggleSelectedTorre(torre)">
@@ -1540,7 +1548,7 @@
             <div style="display: flex; justify-content: space-evenly; margin-top: 1rem;">
                 <button class="closeListModal" @click="closeListModal">Volver</button>
                 <button v-if="listFromCSV" @click="confirmUploadList">Guardar</button>
-                <button v-else @click="updatePrices">Guardar</button>
+                <button v-else @click="reqUpdatePrices">Guardar</button>
             </div>
         </div>
     </div>

@@ -73,6 +73,7 @@
 			tmpListas: [],
 			selLista: {},
 			currentList: {},
+			txtTorre: '',
 
 			filtros: {
 				aptos: {
@@ -646,6 +647,7 @@
 		},
 		formatNumber(value, dec = true, ndec) {
 			if (!value) return "";
+			if (typeof value === "number") value += "";
 			let [parteEntera, parteDecimal] = value.split(".");
 			parteEntera = parteEntera.replace(/\D/g, "");
 			parteDecimal = parteDecimal && dec ? parteDecimal.replace(/\D/g, "") : "";
@@ -986,6 +988,9 @@
 				this.previewList = obj;
 				this.viewList = lista.lista;
 				this.listFromCSV = false;
+				let seltorres = Object.values(torres);
+				if (seltorres[0])
+					this.txtTorre = 'Torre ' + seltorres[0].torre;
 				this.openListModal();
 			}
 			hideProgress();
@@ -1335,6 +1340,12 @@
 			this.modifiedPrices = {};
 			document.getElementById('modalOverlayList').style.display = 'none';
 			hideProgress();
+		},
+		async reqUpdatePrices() {
+			if (Object.keys(this.modifiedPrices).length) 
+				this.reqOperation(`Se actualizarán precios de la <b>lista ${this.viewList}</b>.`,
+						this.updatePrices, null, null);
+			else this.updatePrices();
 		}
 	},
 	computed: {
