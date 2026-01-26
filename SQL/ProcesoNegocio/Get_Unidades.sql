@@ -2,10 +2,11 @@
 -- Proceso: ProcesoNegocio/Get_Unidades
 -- =============================================
 --START_PARAM
-set @id_proyecto = 9;
+set @id_proyecto = 13;
 
 --END_PARAM
-select count(distinct u_all.id_unidad) as total_unidades, count(distinct u_bloq.id_unidad) as unidades_opcionadas, 
+select 
+    count(distinct u_all.id_unidad) as total_unidades, count(distinct u_bloq.id_unidad) as unidades_opcionadas, 
     (count(distinct u_bloq.id_unidad)/count(distinct u_all.id_unidad)) * 100 as porcentaje_opcionadas,
     group_concat(distinct ptt.id_tipo separator ',') as tipos_bloq, group_concat(distinct tu.tipo separator ',') as nombre_tipos,
     t.id_torre, t.id_proyecto, t.consecutivo, t.orden_salida, t.en_venta, t.aptos_piso, t.aptos_fila, t.id_sinco, 
@@ -15,11 +16,11 @@ select count(distinct u_all.id_unidad) as total_unidades, count(distinct u_bloq.
 from fact_torres t 
  left join dim_banco_constructor b on t.id_banco_constructor = b.id_banco
  left join dim_props_tipo_torre ptt on t.id_torre = ptt.id_torre and ptt.excluir_bloqueados = 1
- left join fact_unidades u_all on t.id_torre = u_all.id_torre and ptt.id_tipo = u_all.id_tipo 
+ left join fact_unidades u_all on t.id_torre = u_all.id_torre and ptt.id_tipo = u_all.id_tipo and u_all.id_estado_unidad is not null
  left join fact_unidades u_bloq on u_all.id_unidad = u_bloq.id_unidad
     and (u_bloq.id_estado_unidad <> 1)
 left join dim_tipo_unidad tu on ptt.id_tipo = tu.id_tipo
-where t.id_proyecto = @id_proyecto and u_all.id_estado_unidad is not null
+where t.id_proyecto = @id_proyecto
 group by t.id_torre;
 
 select
