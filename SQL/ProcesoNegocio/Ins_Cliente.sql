@@ -46,12 +46,14 @@ if (@is_atencion_rapida = 1) then
     limit 1;
 
     insert into fact_clientes (
-        nombres, email1, numero_documento, is_atencion_rapida
+        nombres, apellido1, apellido2, email1, numero_documento, is_atencion_rapida
     ) values (
-        @nombres, @email1, @numeroDocumento, 1
+        @nombres, @apellido1, @apellido2, @email1, @numeroDocumento, 1
     )
     on duplicate key update
         nombres = values(nombres),
+        apellido1 = values(apellido1),
+        apellido2 = values(apellido2),
         email1 = values(email1),
         numero_documento = values(numero_documento),
         is_atencion_rapida = 1,

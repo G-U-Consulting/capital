@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmación de Opción</title>
+    <title>Resumen de Cotización</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -40,12 +40,6 @@
         p {
             color: #555;
             line-height: 1.6;
-        }
-        .info-box {
-            background-color: #f8f9fa;
-            border-left: 4px solid #009AB9;
-            padding: 15px;
-            margin: 15px 0;
         }
         .success-message {
             background-color: #d4edda;
@@ -88,25 +82,23 @@
             font-weight: bold;
             font-size: 16px;
         }
-        .cupones-section {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #009AB9;
             padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
+            margin: 15px 0;
         }
-        .cupones-section h3 {
-            color: #856404;
+        .unidad-item {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .unidad-item h3 {
+            color: #009AB9;
             margin-top: 0;
-        }
-        .btn-cupon {
-            display: inline-block;
-            background-color: #009AB9;
-            color: #ffffff;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 5px;
+            margin-bottom: 10px;
         }
         .footer {
             margin-top: 30px;
@@ -121,15 +113,6 @@
             max-width: 600px;
             height: auto;
             margin-top: 15px;
-        }
-        .attachment-note {
-            background-color: #e7f3ff;
-            border: 1px solid #b6d4fe;
-            color: #084298;
-            padding: 12px;
-            border-radius: 5px;
-            margin: 15px 0;
-            text-align: center;
         }
     </style>
 </head>
@@ -147,18 +130,18 @@
                 </tr>
             </table>
             <div class="header-title">
-                <h1>Confirmación de Opción - #proyecto#</h1>
-                <p style="color: #666; margin: 5px 0;">Número de Opción: <strong>#id_opcion#</strong></p>
-                <p style="color: #666; margin: 5px 0;">Fecha: <strong>#fecha_opcion#</strong></p>
+                <h1>Resumen de Cotización - #proyecto#</h1>
+                <p style="color: #666; margin: 5px 0;">Número de Cotización: <strong>#id_cotizacion#</strong></p>
+                <p style="color: #666; margin: 5px 0;">Fecha: <strong>#fecha_cotizacion#</strong></p>
             </div>
         </div>
 
         <div class="success-message">
-            <strong>¡Felicitaciones!</strong> Su opción ha sido registrada exitosamente.
+            <strong>¡Gracias por su interés!</strong> A continuación encontrará el resumen de su cotización.
         </div>
 
         <p>Estimado/a <strong>#nombre_cliente#</strong>,</p>
-        <p>Nos complace confirmarle que su opción de compra ha sido procesada correctamente. A continuación, encontrará el resumen de su transacción:</p>
+        <p>Es un placer compartir con usted el resumen de las unidades que cotizamos en nuestro proyecto <strong>#proyecto#</strong>. Nuestro equipo está a su disposición para aclarar cualquier inquietud.</p>
 
         <h2>Información del Cliente</h2>
         <table>
@@ -178,84 +161,21 @@
                 <td class="label">Email</td>
                 <td class="value">#email#</td>
             </tr>
-            <tr>
-                <td class="label">Dirección</td>
-                <td class="value">#direccion#</td>
-            </tr>
         </table>
 
-        <h2>Información del Proyecto</h2>
-        <table>
-            <tr>
-                <td class="label">Proyecto</td>
-                <td class="value">#proyecto#</td>
-            </tr>
-            <tr>
-                <td class="label">Torre</td>
-                <td class="value">#torre#</td>
-            </tr>
-            <tr>
-                <td class="label">Unidad</td>
-                <td class="value">#nombre_unidad#</td>
-            </tr>
-            <tr>
-                <td class="label">Tipo</td>
-                <td class="value">#tipo_unidad#</td>
-            </tr>
-            <tr>
-                <td class="label">Área Privada</td>
-                <td class="value">#area_privada# m²</td>
-            </tr>
-            <tr>
-                <td class="label">Área Construida</td>
-                <td class="value">#area_construida# m²</td>
-            </tr>
-        </table>
-
-        <h2>Detalle Financiero</h2>
-        <table>
-            <tr>
-                <td class="label">Valor Total Unidad</td>
-                <td class="value highlight-value">$#valor_total#</td>
-            </tr>
-            <tr>
-                <td class="label">Valor Separación</td>
-                <td class="value highlight-value">$#valor_separacion#</td>
-            </tr>
-            <tr>
-                <td class="label">Cuota Inicial</td>
-                <td class="value">$#cuota_inicial#</td>
-            </tr>
-            <tr>
-                <td class="label">Valor a Financiar</td>
-                <td class="value">$#valor_financiar#</td>
-            </tr>
-            <tr>
-                <td class="label">Forma de Pago</td>
-                <td class="value">#forma_pago#</td>
-            </tr>
-            <tr>
-                <td class="label">Fecha Estimada de Entrega</td>
-                <td class="value">#fecha_entrega#</td>
-            </tr>
-        </table>
-
-        #cupones_section#
-
-        <div class="attachment-note">
-            <strong>Nota:</strong> Adjunto a este correo encontrará el PDF con el detalle completo de su opción, incluyendo la tabla de amortización.
-        </div>
+        <h2>Unidades Cotizadas</h2>
+        #unidades_section#
 
         <div class="info-box">
             <strong>Importante:</strong>
             <ul>
-                <li>El valor de separación debe ser cancelado dentro de las próximas 48 horas para garantizar la reserva de su unidad.</li>
-                <li>Los cupones de pago adjuntos pueden ser utilizados en cualquier banco o punto de recaudo autorizado.</li>
-                <li>Conserve este correo como comprobante de su transacción.</li>
+                <li>Los precios y condiciones presentados están sujetos a disponibilidad al momento de formalizar la compra.</li>
+                <li>Esta cotización tiene una vigencia de 15 días calendario.</li>
+                <li>Para reservar alguna de estas unidades, debe realizar el pago de separación correspondiente.</li>
             </ul>
         </div>
 
-        <h2>Asesor Comercial</h2>
+        <h2>Su Asesor Comercial</h2>
         <table>
             <tr>
                 <td class="label">Nombre</td>
@@ -264,6 +184,10 @@
             <tr>
                 <td class="label">Email</td>
                 <td class="value">#email_asesor#</td>
+            </tr>
+            <tr>
+                <td class="label">Teléfono</td>
+                <td class="value">#telefono_asesor#</td>
             </tr>
         </table>
 
