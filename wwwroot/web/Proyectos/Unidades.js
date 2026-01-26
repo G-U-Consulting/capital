@@ -100,6 +100,7 @@
 				'consignado': 'Unidad en proceso de consignación',
 				'vendido': 'Unidad vendida'
 			};
+			if (this.bloqueoComercial(apto)) return 'Bloqueo comercial';
 			return tooltips[estado] || ('Estado: ' + apto.estatus);
 		},
 		closeFloating() {
