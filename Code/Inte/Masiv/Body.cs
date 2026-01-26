@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-
 namespace capital.Code.Inte.Masiv;
 
 public partial class Body
@@ -43,6 +42,12 @@ public partial class Body
     {
         get => _Parameters;
         set => _Parameters = value;
+    }
+    private Attachment[]? _Attachments;
+    public Attachment[]? Attachments
+    {
+        get => _Attachments;
+        set => _Attachments = value;
     }
     private Recipient[]? _Recipients;
     public Recipient[]? Recipients

@@ -29,6 +29,7 @@
 			selectedAptos: [],
 			ids_unidades: [],
 			listas: [],
+			listasCSV: [],
 			listaTipoTorre: [],
 			precios: [],
 			preview: [],
@@ -837,7 +838,10 @@
 					keys.forEach((k, i) => obj[k] = l[i]);
 					return obj;
 				}).filter(l => l.precio !== null && l.precio !== undefined);
-				let res = {};
+				let res = {},
+					CSVLists = Array(...new Set(temp.map(p => p.lista)));
+				this.listasCSV = [];
+				CSVLists.forEach(fl => this.listasCSV.push({ lista: fl, nueva: !this.listas.find(l => l.lista == fl) }));
 				temp.forEach(l => {
 					l.selected = true;
 					if (res[l.lista] && res[l.lista].lista)

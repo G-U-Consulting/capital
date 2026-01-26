@@ -1,3 +1,5 @@
+namespace capital.Code.Inte.Masiv;
+
 public class Template
 {
     private string _Type = "text/html";
@@ -14,7 +16,13 @@ public class Template
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Template.Value es obligatorio.");
-            _Value = WebUt.SanitizeXss(value);
+            _Value = value;
         }
+    }
+    private EmbedImage[]? _EmbedImages;
+    public EmbedImage[]? EmbedImages
+    {
+        get => _EmbedImages;
+        set => _EmbedImages = value;
     }
 }
