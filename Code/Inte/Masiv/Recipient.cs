@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+namespace capital.Code.Inte.Masiv;
 
 public partial class Recipient
 {
@@ -23,6 +24,12 @@ public partial class Recipient
             return _Parameters;
         }
         set => _Parameters = value;
+    }
+    private Attachment[]? _Attachments;
+    public Attachment[]? Attachments
+    {
+        get => _Attachments;
+        set => _Attachments = value;
     }
 
     [GeneratedRegex(@"[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})")]

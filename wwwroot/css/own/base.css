@@ -2685,6 +2685,10 @@ tr.cal-row-info > td {
   padding: .5rem 1rem;
   cursor: pointer;
 }
+.lista-precio-nueva {
+  border: 3px solid #C80000;
+  background: gold;
+}
 
 .lista-precio.current-list {
   color: white;

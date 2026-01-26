@@ -1,3 +1,5 @@
+namespace capital.Code.Inte.Masiv;
+
 public class Parameter
 {
     private string? _Name;

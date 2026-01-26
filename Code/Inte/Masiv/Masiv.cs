@@ -1,6 +1,5 @@
 using dotenv.net;
 using Newtonsoft.Json;
-
 namespace capital.Code.Inte.Masiv;
 
 public class Masiv
@@ -27,7 +26,6 @@ public class Masiv
 
         using HttpClient client = new();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", auth);
-        client.DefaultRequestHeaders.Add("Content-Type", "application/json");
 
         string jsonContent = JsonConvert.SerializeObject(fields, new JsonSerializerSettings
         {

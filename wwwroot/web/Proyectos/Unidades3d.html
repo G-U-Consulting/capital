@@ -1166,18 +1166,19 @@
                 </div>
             </div>
             <div style="width: 100%; height: calc(100% - 3rem); overflow-y: auto; margin-top: .5rem;">
-                <table class="dataTable" style="table-layout: auto;">
+                <table class="dataTable">
                     <thead>
                         <tr>
-                            <th>Torre</th>
-                            <th>ID Unidad</th>
-                            <th>Piso</th>
-                            <th>Clase</th>
-                            <th>Tipo</th>
-                            <th>Localización</th>
-                            <th>Importe sin descuento</th>
-                            <th>Descuento</th>
-                            <th>Importe base</th>
+                            <th style="width: 55px;">Torre</th>
+                            <th style="width: 85px;">ID Unidad</th>
+                            <th style="width: 55px;">Piso</th>
+                            <th style="width: 130px;">Clase</th>
+                            <th style="width: 100px;">Tipo</th>
+                            <th style="width: 120px;">Localización</th>
+                            <th>Observación</th>
+                            <th style="width: 143px;">Imp. sin descuento</th>
+                            <th style="width: 143px;">Descuento</th>
+                            <th style="width: 143px;">Importe base</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1188,10 +1189,13 @@
                             <td>{{apto.clase}}</td>
                             <td>{{apto.codigo_planta}}</td>
                             <td>{{apto.localizacion}}</td>
+                            <td>{{apto.observacion_apto}}</td>
                             <td style="text-align: end;">{{formatNumber((apto.valor_unidad || apto.valor_complemento || 0),
                                 false)}}</td>
                             <td style="text-align: end;">{{formatNumber((apto.valor_descuento || 0), false)}}</td>
-                            <td style="text-align: end;">{{formatNumber((Number(apto.valor_unidad) || Number(apto.valor_complemento) || 0) - (Number(apto.valor_descuento) || 0), false)}}</td>
+                            <td style="text-align: end;">
+                                {{formatNumber((Number(apto.valor_unidad) || Number(apto.valor_complemento) || 0) - (Number(apto.valor_descuento) || 0), false)}}
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -1434,9 +1438,9 @@
             <div style="display: flex; gap: 1rem; height: 72vh;">
                 <div v-if="listFromCSV">
                     <div class="lista-torres" style="height: 100%; gap: 5px; overflow-y: auto;">
-                        <div class="lista-precio" v-for="list in listas" @click="viewList = list.lista;"
-                            v-bind:class="{'current-list': list.lista == viewList}">
-                            <span>Lista {{list.lista}}</span>
+                        <div class="lista-precio" v-for="l in listasCSV.sort((a, b) => Number(a.lista) - Number(b.lista))" @click="viewList = l.lista;"
+                            v-bind:class="{'lista-precio-nueva': l.nueva, 'current-list': l.lista == viewList}">
+                            <span>Lista {{l.lista}}</span>
                         </div>
                     </div>
                 </div>
@@ -1471,7 +1475,8 @@
                                     <img v-if="listFromCSV" src="../../img/ico/down-combo.png"
                                         v-bind:class="{'expanded': torre.expanded}">
                                 </div>
-                                <div class="menu-content" v-bind:class="{'open': torre.expanded}" style="padding: 0;">
+                                <div class="menu-content" v-bind:class="{'open': torre.expanded}" style="padding: 0;"
+                                    :style="!listFromCSV && 'overflow: unset;'">
                                     <table class="dataTable" style="table-layout: auto;"
                                         v-bind:class="{'editable-prices': !listFromCSV, 'readonly-prices': listFromCSV}">
                                         <thead>
