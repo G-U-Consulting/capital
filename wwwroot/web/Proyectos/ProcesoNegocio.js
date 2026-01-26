@@ -635,18 +635,29 @@ export default {
         },
 
         validateModeCliente() {
-            const camposObligatorios = [
+            const camposAtencionRapida = [
                 { campo: "nombres", label: "Nombres" },
                 { campo: "apellido1", label: "Primer Apellido" },
                 { campo: "apellido2", label: "Segundo Apellido" },
+                { campo: "numeroDocumento", label: "Número de Documento" },
+                { campo: "email1", label: "Email" },
+            ];
+
+            const camposCompletos = [
+                { campo: "nombres", label: "Nombres" },
+                { campo: "apellido1", label: "Primer Apellido" },
+                { campo: "apellido2", label: "Segundo Apellido" },
+                { campo: "tipoDocumento", label: "Tipo de Documento" },
+                { campo: "numeroDocumento", label: "Número de Documento" },
+                { campo: "email1", label: "Email" },
                 { campo: "fechaNacimiento", label: "Fecha de Nacimiento" },
                 { campo: "direccion", label: "Dirección" },
                 { campo: "ciudad", label: "Ciudad" },
                 { campo: "barrio", label: "Barrio" },
                 { campo: "departamento", label: "Departamento" },
-                { campo: "tipoDocumento", label: "Tipo de Documento" },
-                { campo: "numeroDocumento", label: "Número de Documento" },
             ];
+
+            const camposObligatorios = this.israpida ? camposAtencionRapida : camposCompletos;
 
             const faltante = camposObligatorios.find(c => !this.ObjCliente[c.campo] || this.ObjCliente[c.campo].trim() === "");
 
@@ -1002,7 +1013,7 @@ export default {
             }
 
             const saveActions = {
-                0: () => this.nuevoCliente(0),
+                0: () => this.nuevoCliente(this.israpida ? 1 : 0),
                 1: () => {
                     if (this.ObjVisita.id_visita && !this.camposBloqueados) {
                         return this.updateVisita();
@@ -1122,7 +1133,7 @@ export default {
         async continuarNavegacion(nextIndex) {
             if (this.mode === 0 && nextIndex === 1) {
                 if (!this.validateModeCliente()) return;
-                await this.nuevoCliente(0);
+                await this.nuevoCliente(this.israpida ? 1 : 0);
             }
 
             if (this.mode === 1 && nextIndex === 2) {
@@ -1244,8 +1255,8 @@ export default {
                 return;
             }
 
-            if (cliente[0].result.includes("OK")) {
-                if (cliente[0].result.includes('Insert')) {
+            if (cliente[0].result.toLowerCase().includes("ok")) {
+                if (cliente[0].result.toLowerCase().includes('insert')) {
                     showMessage("Cliente creado correctamente.");
                 } else if (huboCambio) {
                     showMessage("Cliente actualizado correctamente.");
@@ -2107,11 +2118,11 @@ export default {
             this.contadorProyectos = contador;
         },
         antencionRapida() {
+            this.ObjCliente.numeroDocumento = this.cliente;
             this.iscliente = false;
             this.israpida = true;
             this.policyAccepted = true;
             this.isClienteVetado = false;
-            this.ObjCliente.numeroDocumento = '';
             this.ObjCliente.nombres = '';
             this.ObjCliente.email1 = '';
         },
@@ -2705,6 +2716,153 @@ export default {
             }
 
         },
+
+        async enviarCorreoRegistro(idVisita) {
+            if (!idVisita) return;
+
+            try {
+                const respDatos = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_DatosVisitaCorreo', {
+                    id_visita: idVisita
+                });
+
+                if (!respDatos.data || !respDatos.data[0] || !respDatos.data[0][0]) {
+                    console.error('[CORREO] No se pudieron obtener los datos de la visita');
+                    return;
+                }
+
+                const datosVisita = respDatos.data[0][0];
+                const cliente = respDatos.data[1] ? respDatos.data[1][0] : null;
+
+                if (!cliente || !cliente.email) return;
+
+                const baseUrlCorreo = 'https://dev.serlefinpbi.com';
+                const logoProyectoImg = datosVisita.logo_proyecto_llave
+                    ? `<img src="${baseUrlCorreo}/file/S3get/${datosVisita.logo_proyecto_llave}" alt="${datosVisita.proyecto}" style="max-width: 180px; max-height: 80px;">`
+                    : '';
+
+                const emailData = {
+                    email: cliente.email,
+                    nombre_cliente: cliente.nombre_cliente || '',
+                    fecha_visita: datosVisita.fecha_visita || '',
+                    proyecto: datosVisita.proyecto || '',
+                    nombre_asesor: datosVisita.nombre_asesor || '',
+                    email_asesor: datosVisita.email_asesor || '',
+                    telefono_asesor: datosVisita.telefono_asesor || '',
+                    sala_venta: datosVisita.sala_venta || '',
+                    direccion_sala: datosVisita.direccion_sala || '',
+                    logo_proyecto_img: logoProyectoImg
+                };
+
+                const respEnvio = await httpFunc('/util/SendMail/RegistroFinalizado', {
+                    emails: [emailData],
+                    subject: `Gracias por su visita - ${datosVisita.proyecto}`
+                });
+
+                if (respEnvio !== 'OK') {
+                    console.error('[CORREO] Error al enviar correo de registro:', respEnvio);
+                }
+            } catch (error) {
+                console.error('[CORREO] Error al enviar correo de registro:', error);
+            }
+        },
+
+        async enviarCorreoCotizacion(idNegociosUnidades) {
+            if (!idNegociosUnidades) return;
+
+            try {
+                const respDatos = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_DatosCotizacionCorreo', {
+                    id_negocios_unidades: idNegociosUnidades
+                });
+
+                if (!respDatos.data || !respDatos.data[0] || !respDatos.data[0][0]) {
+                    console.error('[CORREO] No se pudieron obtener los datos de la cotización');
+                    return;
+                }
+
+                const datosCotizacion = respDatos.data[0][0];
+                const cliente = respDatos.data[1] ? respDatos.data[1][0] : null;
+                const unidades = respDatos.data[2] || [];
+
+                if (!cliente || !cliente.email) return;
+
+                const baseUrlCorreo = 'https://dev.serlefinpbi.com';
+                const logoProyectoImg = datosCotizacion.logo_proyecto_llave
+                    ? `<img src="${baseUrlCorreo}/file/S3get/${datosCotizacion.logo_proyecto_llave}" alt="${datosCotizacion.proyecto}" style="max-width: 180px; max-height: 80px;">`
+                    : '';
+
+                let unidadesSection = '';
+                if (unidades.length > 0) {
+                    unidadesSection = unidades.map((u, index) => `
+                        <div class="unidad-item">
+                            <h3>Unidad ${index + 1}: ${u.nombre_unidad} - Torre ${u.torre}</h3>
+                            <table>
+                                <tr>
+                                    <td class="label">Tipo</td>
+                                    <td class="value">${u.tipo_unidad}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Área Privada</td>
+                                    <td class="value">${u.area_privada} m²</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Área Construida</td>
+                                    <td class="value">${u.area_construida} m²</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Valor Unidad</td>
+                                    <td class="value highlight-value">$${u.valor_unidad}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Descuento</td>
+                                    <td class="value">$${u.valor_descuento}</td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Valor Final</td>
+                                    <td class="value highlight-value">$${u.valor_final}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    `).join('');
+                }
+
+                const emailsData = [
+                    {
+                        email: cliente.email,
+                        nombre_cliente: cliente.nombre_cliente || '',
+                        tipo_documento: cliente.tipo_documento || '',
+                        numero_documento: cliente.numero_documento || '',
+                        telefono: cliente.telefono || '',
+                        proyecto: datosCotizacion.proyecto || '',
+                        id_cotizacion: datosCotizacion.id_cotizacion || '',
+                        fecha_cotizacion: datosCotizacion.fecha_cotizacion || '',
+                        nombre_asesor: datosCotizacion.nombre_asesor || '',
+                        email_asesor: datosCotizacion.email_asesor || '',
+                        telefono_asesor: datosCotizacion.telefono_asesor || '',
+                        unidades_section: unidadesSection,
+                        logo_proyecto_img: logoProyectoImg
+                    }
+                ];
+
+                if (datosCotizacion.email_asesor) {
+                    emailsData.push({
+                        ...emailsData[0],
+                        email: datosCotizacion.email_asesor
+                    });
+                }
+
+                const respEnvio = await httpFunc('/util/SendMail/CotizacionFinalizada', {
+                    emails: emailsData,
+                    subject: `Resumen de Cotización - ${datosCotizacion.proyecto}`
+                });
+
+                if (respEnvio !== 'OK') {
+                    console.error('[CORREO] Error al enviar correo de cotización:', respEnvio);
+                }
+            } catch (error) {
+                console.error('[CORREO] Error al enviar correo de cotización:', error);
+            }
+        },
+
         async terminarAtencion() {
             if (!this.asuntoSeleccionado) {
                 showMessage('Por favor seleccione un tipo de seguimiento');
@@ -2727,16 +2885,17 @@ export default {
                 );
 
                 const results = await Promise.all(promises);
-
                 const errores = results.filter(res => res.isError);
                 if (errores.length > 0) {
                     throw new Error(`Error al actualizar ${errores.length} unidad(es)`);
                 }
 
+                if (this.mode === 2 && unidadesAsignadas.length > 0) {
+                    await this.enviarCorreoCotizacion(unidadesAsignadas[0].id_negocios_unidades);
+                }
+
                 await this.cerrarVentanaUnidadesConValidacion();
-
                 showMessage(`Atención finalizada exitosamente.`);
-
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
                 if (GlobalVariables.proyectosApp) {
@@ -2746,7 +2905,7 @@ export default {
                     GlobalVariables.proyectosApp.setRuta([]);
                 }
             } catch (error) {
-                console.error('Error al terminar atención:', error);
+                console.error('[ERROR] Error en terminarAtencion:', error);
                 showMessage('Error: ' + (error.message || 'No se pudo terminar la atención'));
             } finally {
                 hideProgress();
@@ -2786,6 +2945,23 @@ export default {
 
                 if (resultado.isError) {
                     throw new Error(resultado.message || resultado.error || 'Error al guardar el seguimiento');
+                }
+
+                if (this.mode === 1 && this.id_visita) {
+                    try {
+                        await this.enviarCorreoRegistro(this.id_visita);
+                    } catch (errorCorreo) {
+                        console.error('[CORREO] Error al enviar correo de registro:', errorCorreo);
+                    }
+                } else if (this.mode === 2) {
+                    const unidadesAsignadas = this.unidades.filter(u => u.is_asignado == 1);
+                    if (unidadesAsignadas.length > 0) {
+                        try {
+                            await this.enviarCorreoCotizacion(unidadesAsignadas[0].id_negocios_unidades);
+                        } catch (errorCorreo) {
+                            console.error('[CORREO] Error al enviar correo de cotización:', errorCorreo);
+                        }
+                    }
                 }
 
                 this.cerrarModalSeguimiento();

@@ -97,7 +97,24 @@ public class WorkerTareas(string rootPath) : BackgroundService
                 obj["is_active"] = "1";
                 obj["fecha_programada"] = reprogramar.ToString("yyyy-MM-dd HH:mm:ss");
             }
-            else obj["is_active"] = "0";
+            else
+            {
+                obj["is_active"] = "0";
+
+                try
+                {
+                    JObject datosObj = JObject.Parse(datos);
+                    if (datosObj["id_negocios_unidades"] != null)
+                    {
+                        string idNegociosUnidades = datosObj["id_negocios_unidades"]!.ToString();
+                        await EnviarCorreoAtencion(idNegociosUnidades);
+                    }
+                }
+                catch (Exception exCorreo)
+                {
+                    Logger.Log("Util.WorkerTareas.ProcessTaskLiberarUnd - Error al enviar correo: " + exCorreo.Message);
+                }
+            }
             await Generic.ProcessRequest(null, null, "genericST", "General/Upd_ColaTareas", JsonConvert.SerializeObject(obj), rootPath);
         }
         catch (Exception ex)
@@ -158,6 +175,184 @@ public class WorkerTareas(string rootPath) : BackgroundService
             Logger.Log("Util.WorkerTareas.LiberarUnidad - " + ex.Message + Environment.NewLine + datos + Environment.NewLine + ex.StackTrace);
             consecutiveErrors++;
             return ex.Message;
+        }
+    }
+
+    private async Task EnviarCorreoAtencion(string idNegociosUnidades)
+    {
+        try
+        {
+            var paramsJson = JsonConvert.SerializeObject(new { id_negocios_unidades = idNegociosUnidades });
+
+            var resValidacion = await Generic.ProcessRequest(null, null, "genericDS", "ProcesoNegocio/Get_ValidarModoUnidad", paramsJson, rootPath);
+            var modoData = resValidacion?["data"]?[0]?[0];
+
+            if (modoData == null)
+            {
+                Logger.Log("Util.WorkerTareas.EnviarCorreoAtencion - No se pudo obtener el modo de la unidad");
+                return;
+            }
+
+            int modo = Convert.ToInt32(modoData["modo"]?.ToString() ?? "0");
+
+            if (modo == 1)
+            {
+                await EnviarCorreoRegistro(idNegociosUnidades);
+            }
+            else if (modo == 2)
+            {
+                await EnviarCorreoCotizacion(idNegociosUnidades);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("Util.WorkerTareas.EnviarCorreoAtencion - " + ex.Message + Environment.NewLine + ex.StackTrace);
+        }
+    }
+
+    private async Task EnviarCorreoRegistro(string idNegociosUnidades)
+    {
+        try
+        {
+            var paramsJson = JsonConvert.SerializeObject(new { id_negocios_unidades = idNegociosUnidades });
+            var respDatos = await Generic.ProcessRequest(null, null, "genericDS", "ProcesoNegocio/Get_DatosRegistroCorreo", paramsJson, rootPath);
+
+            var datosRegistro = respDatos?["data"]?[0]?[0];
+            var cliente = respDatos?["data"]?[1]?[0];
+
+            if (datosRegistro == null || cliente == null)
+            {
+                Logger.Log("Util.WorkerTareas.EnviarCorreoRegistro - No se pudieron obtener los datos");
+                return;
+            }
+
+            string? emailCliente = cliente["email"]?.ToString();
+            if (string.IsNullOrWhiteSpace(emailCliente))
+            {
+                Logger.Log("Util.WorkerTareas.EnviarCorreoRegistro - Cliente sin email");
+                return;
+            }
+
+            var emailData = new JObject
+            {
+                ["nombre_cliente"] = cliente["nombre_cliente"]?.ToString() ?? "",
+                ["fecha_visita"] = datosRegistro["fecha_visita"]?.ToString() ?? "",
+                ["proyecto"] = datosRegistro["proyecto"]?.ToString() ?? "",
+                ["nombre_asesor"] = datosRegistro["nombre_asesor"]?.ToString() ?? "",
+                ["email_asesor"] = datosRegistro["email_asesor"]?.ToString() ?? "",
+                ["telefono_asesor"] = datosRegistro["telefono_asesor"]?.ToString() ?? "",
+                ["sala_venta"] = datosRegistro["sala_venta"]?.ToString() ?? "",
+                ["direccion_sala"] = datosRegistro["direccion_sala"]?.ToString() ?? "",
+                ["logo_proyecto_img"] = string.IsNullOrWhiteSpace(datosRegistro["logo_proyecto_llave"]?.ToString())
+                    ? ""
+                    : $"<img src=\"https://dev.serlefinpbi.com/file/S3get/{datosRegistro["logo_proyecto_llave"]}\" alt=\"{datosRegistro["proyecto"]}\" style=\"max-width: 180px; max-height: 80px;\">"
+            };
+
+            SendMail.Send(
+                emailCliente,
+                $"Gracias por su visita - {datosRegistro["proyecto"]}",
+                "RegistroFinalizado",
+                emailData,
+                rootPath
+            );
+
+            Logger.Log($"Util.WorkerTareas.EnviarCorreoRegistro - Correo enviado exitosamente a {emailCliente}");
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("Util.WorkerTareas.EnviarCorreoRegistro - " + ex.Message + Environment.NewLine + ex.StackTrace);
+        }
+    }
+
+    private async Task EnviarCorreoCotizacion(string idNegociosUnidades)
+    {
+        try
+        {
+            var paramsJson = JsonConvert.SerializeObject(new { id_negocios_unidades = idNegociosUnidades });
+            var respDatos = await Generic.ProcessRequest(null, null, "genericDS", "ProcesoNegocio/Get_DatosCotizacionCorreo", paramsJson, rootPath);
+
+            var datosCotizacion = respDatos?["data"]?[0]?[0];
+            var cliente = respDatos?["data"]?[1]?[0];
+            var unidades = respDatos?["data"]?[2] as JArray;
+
+            if (datosCotizacion == null || cliente == null)
+            {
+                Logger.Log("Util.WorkerTareas.EnviarCorreoCotizacion - No se pudieron obtener los datos");
+                return;
+            }
+
+            string? emailCliente = cliente["email"]?.ToString();
+            if (string.IsNullOrWhiteSpace(emailCliente))
+            {
+                Logger.Log("Util.WorkerTareas.EnviarCorreoCotizacion - Cliente sin email");
+                return;
+            }
+
+            var unidadesSection = new System.Text.StringBuilder();
+            if (unidades != null && unidades.Count > 0)
+            {
+                for (int i = 0; i < unidades.Count; i++)
+                {
+                    var u = unidades[i];
+                    unidadesSection.Append($@"
+                        <div class=""unidad-item"">
+                            <h3>Unidad {i + 1}: {u["nombre_unidad"]} - Torre {u["torre"]}</h3>
+                            <table>
+                                <tr><td class=""label"">Tipo</td><td class=""value"">{u["tipo_unidad"]}</td></tr>
+                                <tr><td class=""label"">Área Privada</td><td class=""value"">{u["area_privada"]} m²</td></tr>
+                                <tr><td class=""label"">Área Construida</td><td class=""value"">{u["area_construida"]} m²</td></tr>
+                                <tr><td class=""label"">Valor Unidad</td><td class=""value highlight-value"">${u["valor_unidad"]}</td></tr>
+                                <tr><td class=""label"">Descuento</td><td class=""value"">${u["valor_descuento"]}</td></tr>
+                                <tr><td class=""label"">Valor Final</td><td class=""value highlight-value"">${u["valor_final"]}</td></tr>
+                            </table>
+                        </div>");
+                }
+            }
+
+            var emailData = new JObject
+            {
+                ["nombre_cliente"] = cliente["nombre_cliente"]?.ToString() ?? "",
+                ["tipo_documento"] = cliente["tipo_documento"]?.ToString() ?? "",
+                ["numero_documento"] = cliente["numero_documento"]?.ToString() ?? "",
+                ["telefono"] = cliente["telefono"]?.ToString() ?? "",
+                ["email"] = emailCliente,
+                ["proyecto"] = datosCotizacion["proyecto"]?.ToString() ?? "",
+                ["id_cotizacion"] = datosCotizacion["id_cotizacion"]?.ToString() ?? "",
+                ["fecha_cotizacion"] = datosCotizacion["fecha_cotizacion"]?.ToString() ?? "",
+                ["nombre_asesor"] = datosCotizacion["nombre_asesor"]?.ToString() ?? "",
+                ["email_asesor"] = datosCotizacion["email_asesor"]?.ToString() ?? "",
+                ["telefono_asesor"] = datosCotizacion["telefono_asesor"]?.ToString() ?? "",
+                ["unidades_section"] = unidadesSection.ToString(),
+                ["logo_proyecto_img"] = string.IsNullOrWhiteSpace(datosCotizacion["logo_proyecto_llave"]?.ToString())
+                    ? ""
+                    : $"<img src=\"https://dev.serlefinpbi.com/file/S3get/{datosCotizacion["logo_proyecto_llave"]}\" alt=\"{datosCotizacion["proyecto"]}\" style=\"max-width: 180px; max-height: 80px;\">"
+            };
+
+            SendMail.Send(
+                emailCliente,
+                $"Resumen de Cotización - {datosCotizacion["proyecto"]}",
+                "CotizacionFinalizada",
+                emailData,
+                rootPath
+            );
+
+            string? emailAsesor = datosCotizacion["email_asesor"]?.ToString();
+            if (!string.IsNullOrWhiteSpace(emailAsesor) && emailAsesor != emailCliente)
+            {
+                SendMail.Send(
+                    emailAsesor,
+                    $"Resumen de Cotización - {datosCotizacion["proyecto"]}",
+                    "CotizacionFinalizada",
+                    emailData,
+                    rootPath
+                );
+            }
+
+            Logger.Log($"Util.WorkerTareas.EnviarCorreoCotizacion - Correo enviado exitosamente a {emailCliente}");
+        }
+        catch (Exception ex)
+        {
+            Logger.Log("Util.WorkerTareas.EnviarCorreoCotizacion - " + ex.Message + Environment.NewLine + ex.StackTrace);
         }
     }
 
