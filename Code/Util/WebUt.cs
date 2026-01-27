@@ -76,6 +76,25 @@ public static partial class WebUt {
         return HttpUtility.HtmlEncode(noTags);
     }
 
+    public static async Task<Dictionary<string, string>> Url2base64(string fileUrl)
+    {
+        using HttpClient client = new();
+        HttpResponseMessage response = await client.GetAsync(fileUrl);
+        response.EnsureSuccessStatusCode();
+
+        string? fileType = response.Content.Headers.ContentType?.ToString();
+
+        byte[] fileBytes = await response.Content.ReadAsByteArrayAsync();
+        string base64 = Convert.ToBase64String(fileBytes);
+
+        string embedValue = $"data:{fileType};base64,{base64}";
+        return new Dictionary<string, string>()
+        {
+            ["fileType"] = fileType,
+            ["base64"] = embedValue
+        };
+    }
+
     [GeneratedRegex("<.*?>")]
     private static partial Regex XssRegex();
 }

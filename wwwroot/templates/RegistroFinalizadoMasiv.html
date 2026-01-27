@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gracias por su visita</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            border-bottom: 3px solid #009AB9;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header-title {
+            text-align: center;
+        }
+
+        h1 {
+            color: #009AB9;
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 18px;
+            border-bottom: 2px solid #009AB9;
+            padding-bottom: 8px;
+            margin-top: 25px;
+        }
+
+        p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            margin: 15px 0;
+            border-collapse: collapse;
+            background-color: #ffffff;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #009AB9;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #333;
+            width: 40%;
+        }
+
+        .value {
+            color: #555;
+        }
+
+        .info-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid #009AB9;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .footer img {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <table class="header-logos" style="width: 100%; border: none;">
+                <tr style="border: none;">
+                    <td style="width: 50%; text-align: left; border: none; padding: 0;">
+                        <img src="https://dev.serlefinpbi.com/img/ico/logo-capital.png" alt="Constructora Capital"
+                            style="max-width: 180px; max-height: 80px;">
+                    </td>
+                    <td style="width: 50%; text-align: right; border: none; padding: 0;">
+                        <img src="{{logo_proyecto_img}}" alt="Logo Proyecto"
+                            style="max-width: 180px; max-height: 80px;">
+                    </td>
+                </tr>
+            </table>
+            <div class="header-title">
+                <h1>¡Gracias por visitarnos!</h1>
+                <p style="color: #666; margin: 5px 0;">Proyecto: <strong>{{proyecto}}</strong></p>
+                <p style="color: #666; margin: 5px 0;">Fecha: <strong>{{fecha_visita}}</strong></p>
+            </div>
+        </div>
+
+        <div class="success-message">
+            <strong>¡Gracias por su tiempo!</strong> Fue un placer atenderle.
+        </div>
+
+        <p>Estimado/a <strong>{{nombre_cliente}}</strong>,</p>
+        <p>Agradecemos su visita a nuestro proyecto <strong>{{proyecto}}</strong>. Esperamos que la información
+            proporcionada haya sido de su interés y que pronto pueda formar parte de nuestra familia de clientes.</p>
+
+        <div class="info-box">
+            <p style="margin: 5px 0;"><strong>Su asesor comercial está disponible para resolver cualquier duda o
+                    inquietud que pueda tener sobre nuestro proyecto.</strong></p>
+        </div>
+
+        <h2>Su Asesor Comercial</h2>
+        <table>
+            <tr>
+                <td class="label">Nombre</td>
+                <td class="value">{{nombre_asesor}}</td>
+            </tr>
+            <tr>
+                <td class="label">Email</td>
+                <td class="value">{{email_asesor}}</td>
+            </tr>
+        </table>
+
+        <h2>Información del Proyecto</h2>
+        <table>
+            <tr>
+                <td class="label">Proyecto</td>
+                <td class="value">{{proyecto}}</td>
+            </tr>
+            <tr>
+                <td class="label">Sala de Ventas</td>
+                <td class="value">{{sala_venta}}</td>
+            </tr>
+        </table>
+
+        <p>No dude en contactarnos si requiere información adicional:</p>
+        <p><strong>Bogotá:</strong> (601) 443 0700 | <strong>Medellín:</strong> (604) 448 7440</p>
+
+        <p>Saludos cordiales,</p>
+        <p><strong>Constructora Capital</strong></p>
+
+        <div class="footer">
+            <img src="https://www.constructoracapital.com/web_datas/1643035548_02-encuentra-lo-mejort-para-ti-y-tu-familia.jpg"
+                alt="Constructora Capital">
+            <p><a href="https://www.constructoracapital.com/">www.constructoracapital.com</a></p>
+            <p style="font-size: 0.8em; color: #999;">
+                Este correo ha sido generado automáticamente. Por favor no responda directamente a este mensaje.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

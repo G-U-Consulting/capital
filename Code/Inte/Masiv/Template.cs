@@ -14,15 +14,25 @@ public class Template
         get => _Value;
         set
         {
+            string content;
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Template.Value es obligatorio.");
-            _Value = value;
+            else
+            {
+                string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "templates", $"{value}.html");
+                Console.WriteLine("templatePath: " + templatePath);
+                if (!File.Exists(templatePath))
+                    content = value;
+                else
+                    content = File.ReadAllText(templatePath);
+            }
+            _Value = content;
         }
     }
-    private EmbedImage[]? _EmbedImages;
+    /* private EmbedImage[]? _EmbedImages;
     public EmbedImage[]? EmbedImages
     {
         get => _EmbedImages;
         set => _EmbedImages = value;
-    }
+    } */
 }

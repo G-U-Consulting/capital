@@ -21,6 +21,9 @@ public class Masiv
 
         Body? fields = JsonConvert.DeserializeObject<Body>(body);
 
+        /* if (fields?.Template?.EmbedImages?.Length > 0)
+            await LoadBase64Img(fields.Template.EmbedImages); */
+
         byte[] bytes = System.Text.Encoding.UTF8.GetBytes($"{User}:{Password}");
         string auth = Convert.ToBase64String(bytes);
 
@@ -42,4 +45,19 @@ public class Masiv
 
         return responseContent;
     }
+
+/*     private static async Task LoadBase64Img(EmbedImage[] images) {
+        var tasks = images
+            .Where(img => !string.IsNullOrWhiteSpace(img.Path) && img.Path.StartsWith("http"))
+            .Select(async img => {
+                try {
+                    Dictionary<string, string> tmp = await WebUt.Url2base64(img.Path);
+                    img.Path = tmp["base64"] ?? img.Path;
+                    img.ImageType = tmp["fileType"] ?? img.ImageType;
+                }
+                catch {}
+            });
+
+        await Task.WhenAll(tasks);
+    } */
 }
