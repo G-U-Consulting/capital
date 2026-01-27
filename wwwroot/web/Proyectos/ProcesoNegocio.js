@@ -2192,7 +2192,7 @@ export default {
             }
 
             this.seguimientoData = {
-                tipo: '',
+                tipo: this.opcionesSeguimientoActuales.length === 1 ? this.opcionesSeguimientoActuales[0] : '',
                 fecha: new Date().toISOString().split('T')[0],
                 descripcion: descripcionAutomatica
             };
@@ -5707,6 +5707,15 @@ export default {
                     return false;
                 }
             });
+        },
+        unidadesFiltradas() {
+            if (!this.cotizacionSeleccionada) {
+                return [];
+            }
+            const cotizacionVisible = this.cotizacionesFiltradas.some(
+                c => c.cotizacion === this.cotizacionSeleccionada
+            );
+            return cotizacionVisible ? this.unidades : [];
         },
         textoCotizacion() {
             if (!this.unidades || this.unidades.length === 0) return "";

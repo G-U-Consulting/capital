@@ -624,7 +624,7 @@
                                 <th style="width: 36%;">Observación</th>
                                 <th style="width: 4%;" title="Precio Alternativo">Alt</th>
                                 <th style="width: 13%;">
-                                    <span v-if="unidades.some(u => u.mostrar_precio_alt)">Importe Alt</span>
+                                    <span v-if="unidadesFiltradas.some(u => u.mostrar_precio_alt)">Importe Alt</span>
                                     <span v-else>Importe</span>
                                 </th>
                                 <th style="width: 13%;">Descuento Base</th>
@@ -635,7 +635,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(item, index) in unidades" :key="index">
+                            <tr v-for="(item, index) in unidadesFiltradas" :key="index">
                                 <td>{{ item.consecutivo }}</td>
                                 <td>{{ item.tipo }}</td>
                                 <td>{{ item.numero_apartamento }}</td>
