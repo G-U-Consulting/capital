@@ -90,7 +90,7 @@
                 <div v-if="viewProperties.viewType == 'classic'">
                     <div class="lista-torres">
                         <div v-for="item in torres" class="torre" @click="toggleTorre(item)"
-                            v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre),'en-venta': item.en_venta == '1'}">
+                            v-bind:class="{'sel-torre': filtros.aptos.torres.includes(item.idtorre),'en-venta': item.en_venta == '1', 'torre-no-venta': item.en_venta != '1'}">
                             <div style="align-self: center;">
                                 <span style="font-weight: bold;">Torre {{item.idtorre}}</span>
                             </div>
@@ -124,7 +124,8 @@
                                         <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini"
                                             @click="selectApto(apto)" :class="[
                                                                        { active: selectedApto && selectedApto.id_unidad === apto.id_unidad,
-                                                                    'apto-gris': apto.id_estado_unidad == '' },
+                                                                    'apto-gris': apto.id_estado_unidad == '',
+                                                                    'torre-no-venta': !isTorreEnVenta(apto.idtorre) && (apto.estatus || '').trim().toLowerCase() === 'libre' },
                                                                        'estado-' + (apto.estatus || '').trim().toLowerCase()
                                                                      ]">
                                             <div class="mini-header">
@@ -157,7 +158,8 @@
                                       'apto-asignado': apto.asignado == 1,
                                       'apto-fake': apto.fake,
                                       'apto-gris': !apto.id_estado_unidad && !apto.fake,
-                                      'apto-bloq-com': bloqueoComercial(apto)
+                                      'apto-bloq-com': bloqueoComercial(apto),
+                                      'torre-no-venta': !isTorreEnVenta(apto.idtorre) && (apto.estatus || '').trim().toLowerCase() === 'libre'
                                     },
                                     'estado-' + (apto.estatus || '').trim().toLowerCase()
                                  ]">

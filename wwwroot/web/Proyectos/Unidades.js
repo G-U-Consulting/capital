@@ -169,9 +169,9 @@
 				this.computeViews();
 
 				if (!this._preselectDone) {
-					const tVenta = this.torres.find(t => t.en_venta === '1' || t.en_venta === 1 || t.en_venta === true);
+					const torresEnVenta = this.torres.filter(t => t.en_venta === '1' || t.en_venta === 1 || t.en_venta === true);
 					this.$nextTick(() => {
-						this.filtros.aptos.torres = tVenta ? [tVenta.idtorre] : [];
+						this.filtros.aptos.torres = torresEnVenta.map(t => t.idtorre);
 					});
 					this._preselectDone = true;
 				}
@@ -499,6 +499,11 @@
 			}
 		},
 		async addUnidad(apto) {
+			if (!this.isTorreEnVenta(apto.idtorre)) {
+				showMessage("Esta torre no se encuentra a la venta actualmente.");
+				return;
+			}
+
 			if (!await this.validarTorreUnidad(apto)) {
 				return;
 			}
@@ -929,6 +934,10 @@
 		closeModal() {
 			this.showModal = false
 			this.modalImage = null
+		},
+		isTorreEnVenta(idtorre) {
+			const torre = this.torres.find(t => t.idtorre === idtorre);
+			return torre && (torre.en_venta === '1' || torre.en_venta === 1 || torre.en_venta === true);
 		},
 		setTorre(torre) {
 			this.torre = torre;

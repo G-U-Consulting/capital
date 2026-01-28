@@ -4223,6 +4223,17 @@ tr.cal-row-info > td {
   color: transparent;
   pointer-events: none;
 }
+.torre-no-venta {
+  opacity: 0.45;
+  filter: grayscale(100%);
+}
+.torre.torre-no-venta {
+  background-color: #e0e0e0;
+  opacity: 0.6;
+}
+.torre.torre-no-venta.sel-torre {
+  opacity: 0.7;
+}
 .apto-bloq-com {
   background-color: #ff4a13;
   color: white !important;
