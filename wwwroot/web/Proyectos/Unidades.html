@@ -124,8 +124,7 @@
                                         <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini"
                                             @click="selectApto(apto)" :class="[
                                                                        { active: selectedApto && selectedApto.id_unidad === apto.id_unidad,
-                                                                    'apto-gris': apto.id_estado_unidad == '',
-                                                                    'torre-no-venta': !isTorreEnVenta(apto.idtorre) && (apto.estatus || '').trim().toLowerCase() === 'libre' },
+                                                                    'apto-gris': apto.id_estado_unidad == '' },
                                                                        'estado-' + (apto.estatus || '').trim().toLowerCase()
                                                                      ]">
                                             <div class="mini-header">
@@ -158,8 +157,7 @@
                                       'apto-asignado': apto.asignado == 1,
                                       'apto-fake': apto.fake,
                                       'apto-gris': !apto.id_estado_unidad && !apto.fake,
-                                      'apto-bloq-com': bloqueoComercial(apto),
-                                      'torre-no-venta': !isTorreEnVenta(apto.idtorre) && (apto.estatus || '').trim().toLowerCase() === 'libre'
+                                      'apto-bloq-com': bloqueoComercial(apto)
                                     },
                                     'estado-' + (apto.estatus || '').trim().toLowerCase()
                                  ]">
@@ -222,7 +220,7 @@
                                         <li><span class="label">📊 Estatus:</span> {{ selectedApto.estatus }}</li>
                                         <li><span class="label">📍 Localización:</span> {{ selectedApto.localizacion
                                             }}</li>
-                                        <li><span class="label">🔧 UT:</span> {{ selectedApto.inv_terminado == 1 ?
+                                        <li><span class="label">🔧 IT:</span> {{ selectedApto.inv_terminado == 1 ?
                                             'SI' : 'NO' }}</li>
                                         <li><span class="label">📏 Área Priv. Cubierta:</span>
                                             <samp class="area-card">{{ selectedApto.area_privada_cub }}</samp>
@@ -282,6 +280,22 @@
                 </div>
             </div>
         </div>
-
+        <div v-if="showUnidadAgregada" class="modal-overlay" @click="closeUnidadAgregada">
+            <div class="modal-unidad-agregada" @click.stop>
+                <span class="close" @click="closeUnidadAgregada">&times;</span>
+                <div class="modal-unidad-header">
+                    <span class="check-icon">&#10003;</span>
+                    <h3>Unidad Agregada</h3>
+                </div>
+                <div class="modal-unidad-body">
+                    <p><strong>Cotización:</strong> #{{ unidadAgregadaInfo?.cotizacion }}</p>
+                    <p><strong>Unidad:</strong> {{ unidadAgregadaInfo?.unidad }}</p>
+                    <p><strong>Torre:</strong> {{ unidadAgregadaInfo?.torre }}</p>
+                    <p><strong>Tipo:</strong> {{ unidadAgregadaInfo?.tipo }}</p>
+                    <p><strong>Valor:</strong> {{ new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(unidadAgregadaInfo?.valor || 0) }}</p>
+                </div>
+                <button class="pure-button pure-button-primary" @click="closeUnidadAgregada">Aceptar</button>
+            </div>
+        </div>
     </div>
 </div>
