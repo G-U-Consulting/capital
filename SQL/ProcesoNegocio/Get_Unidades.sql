@@ -8,7 +8,7 @@ set @id_proyecto = 13;
 select 
     count(distinct u_all.id_unidad) as total_unidades, count(distinct u_bloq.id_unidad) as unidades_opcionadas, 
     (count(distinct u_bloq.id_unidad)/count(distinct u_all.id_unidad)) * 100 as porcentaje_opcionadas,
-    group_concat(distinct ptt.id_tipo separator ',') as tipos_bloq, group_concat(distinct tu.tipo separator ',') as nombre_tipos,
+    group_concat(distinct ptt.id_tipo separator ',') as tipos_bloq,
     t.id_torre, t.id_proyecto, t.consecutivo, t.orden_salida, t.en_venta, t.aptos_piso, t.aptos_fila, t.id_sinco, 
     date_format(t.fecha_p_equ,'%Y-%m-%d') as fecha_p_equ, date_format(t.fecha_inicio_obra,'%Y-%m-%d') as fecha_inicio_obra, 
     date_format(t.fecha_escrituracion,'%Y-%m-%d') as fecha_escrituracion, t.tasa_base, t.antes_p_equ, t.despues_p_equ, 

@@ -963,7 +963,7 @@
 				id_torre: apto.id_torre,
 				piso: apto.piso,
 				id_tipo: apto.id_tipo,
-				/*id_clase: apto.id_tipo_proyecto,*/
+				id_clase: apto.id_clase,
 				localizacion: apto.localizacion,
 				num_alcobas: apto.num_alcobas,
 				num_banos: apto.num_banos,

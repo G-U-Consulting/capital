@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Lista de Espera</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            max-width: 900px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #3b3b3b;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .msg-table {
+            width: 90%;
+            margin: 15px 0;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            table-layout: fixed;
+        }
+        .msg-table th,
+        .msg-table td {
+            padding: 5px;
+            text-align: left;
+            border: 1px solid #bbb;
+        }
+        .msg-table th {
+            background-color: #d3edf0;
+            color: #333;
+            font-weight: bold;
+        }
+        img {
+            width: 100%;
+            height: auto;
+        }
+        .left-text {
+            text-align: left;
+            margin: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <table class="header-logos" style="width: 100%; border: none;">
+                <tr style="border: none;">
+                    <td style="width: 50%; text-align: left; border: none; padding: 0;">
+                        <img src="https://dev.serlefinpbi.com/img/ico/logo-capital.png" alt="Constructora Capital" style="max-width: 180px; max-height: 80px;">
+                    </td>
+                    <td style="width: 50%; text-align: right; border: none; padding: 0;">
+                        <img src="{{logo_proyecto_img}}" alt="Logo Proyecto"
+                            style="max-width: 180px; max-height: 80px;">
+                    </td>
+                </tr>
+            </table>
+            <div class="header-title">
+                <h1>Unidad Disponible en el proyecto {{proyecto}}</h1>
+            </div>
+        </div>
+        <div class="left-text">
+            <p>Estimado/a cliente {{nombre_cliente}},</p>
+            <p>Nos complace informarle que disponemos de una unidad que coincide con las especificaciones que solicitó:
+        </div>
+        
+        <table class="msg-table">
+            <thead>
+                <tr>
+                    <th>Torre</th>
+                    <th>Piso</th>
+                    <th>Clase</th>
+                    <th>Tipo</th>
+                    <th>Nombre Unidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{torre}}</td>
+                    <td>{{piso}}</td>
+                    <td>{{clase}}</td>
+                    <td>{{tipo}}</td>
+                    <td>{{nombre_unidad}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="msg-table">
+            <thead>
+                <tr>
+                    <th>Localización</th>
+                    <th>Asoleación</th>
+                    <th>Altura</th>
+                    <th>Número de Alcobas</th>
+                    <th>Número de Baños</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{localizacion}}</td>
+                    <td>{{asoleacion}}</td>
+                    <td>{{altura}}</td>
+                    <td>{{num_alcobas}}</td>
+                    <td>{{num_banos}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="msg-table">
+            <thead>
+                <tr>
+                    <th>Balcón</th>
+                    <th>Parq. Sencillo</th>
+                    <th>Parq. Doble</th>
+                    <th>Depósito</th>
+                    <th>Acabados</th>
+                    <th>Cerca Portería</th>
+                    <th>Cerca Juegos Inf.</th>
+                    <th>Cerca Piscina</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{tiene_balcon}}</td>
+                    <td>{{tiene_parq_sencillo}}</td>
+                    <td>{{tiene_parq_doble}}</td>
+                    <td>{{tiene_deposito}}</td>
+                    <td>{{tiene_acabados}}</td>
+                    <td>{{cerca_porteria}}</td>
+                    <td>{{cerca_juegos_infantiles}}</td>
+                    <td>{{cerca_piscina}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="left-text">
+            <p>Atendido por: {{nombre_asesor}}</p>
+            <p>Si está interesado/a, por favor confirmenos respondiendo a este correo o contactándonos a los teléfonos (601)
+                443 0700 en Bogotá o (604) 448 7440 en Medellín.</p>
+            <p>Le recomendamos responder dentro de las próximas 48 horas para asegurar la disponibilidad de la unidad.</p>
+            <p>Saludos cordiales,</p>
+            <p>Constructora Capital</p>
+        </div>
+
+        <img src="https://www.constructoracapital.com/web_datas/1643035548_02-encuentra-lo-mejort-para-ti-y-tu-familia.jpg" alt="CCapital">
+        <div class="footer">
+            <span>Si tiene preguntas adicionales, no dude en contactarnos.</span>
+        </div>
+    </div>
+</body>
+</html>

@@ -121,7 +121,7 @@ export default {
                 this.modal.style.display = 'none';
         },
         async onNotify() {
-            let hide = ['apellido1','apellido2','nombres','notify','numero_documento','seguimiento','telefono'];
+            let hide = ['apellido1','apellido2','nombres','notify','numero_documento','seguimiento','telefono','salesforce_id'];
             let emails = JSON.parse(JSON.stringify(
                 this.items.filter(it => it.is_waiting == '0' && it.is_active == '1' && it.notify && this.isEmail(it.email))
             ));
@@ -129,14 +129,32 @@ export default {
                 if (k.startsWith('id_') || k.startsWith('is_') || k.includes('created') || hide.includes(k)) 
                     delete it[k];
                 else if (k.startsWith('cerca_') || k.startsWith('tiene_'))
-                    it[k] = it[k] === '1' ? 'Sí' : '';
+                    it[k] = it[k] === '1' ? 'Sí' : 'N/A';
+                else if (k == 'logo_proyecto_img')
+                    it[k] = 'https://dev.serlefinpbi.com/file/S3get/' + it[k];
                 else if (!it[k]) it[k] = '(Sin especificar)';
             }));
             console.log(emails);
             showProgress();
-            let res = null;
             try {
-                res = await httpFunc('/util/SendMail/ListaEspera', { subject: "Confirmación de Lista de Espera", emails });
+                let sedes = {};
+                emails.forEach(e => {
+                    if (e.sede) {
+                        let sede = e.sede.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), To = e.email;
+                        delete e.email;
+                        if (!sedes[sede]) sedes[sede] = {
+                                Subject: "Confirmación de Lista de Espera",
+                                Template: {
+                                    Value: "ListaEsperaMatch"
+                                },
+                                Recipients: []
+                            };
+                        sedes[sede].Recipients.push({ To, Parameters: Object.keys(e).map(p => ({ Name: p, Value: e[p] })) });    
+                    }
+                });
+                console.log(sedes);
+                Object.keys(sedes).forEach(async s => await httpFunc(`/masiv/${s}`, sedes[s]));
+                //res = await httpFunc('/util/SendMail/ListaEspera', { subject: "Confirmación de Lista de Espera", emails });
                 this.closeModal({}, true);
             } catch (e) {
                 console.error(e);

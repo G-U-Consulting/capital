@@ -14,19 +14,7 @@ public partial class Body
             _Subject = WebUt.SanitizeXss(value);
         }
     }
-    private string? _From;
-    public string? From
-    {
-        get => _From;
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("From es obligatorio.");
-            if (!EmailRegex().IsMatch(value))
-                throw new ArgumentException("From debe ser email válido.");
-            _From = WebUt.SanitizeXss(value);
-        }
-    }
+    public string From = "protecciondedatos@constructoracapital.com";
     private Template? _Template;
     public Template? Template
     {
