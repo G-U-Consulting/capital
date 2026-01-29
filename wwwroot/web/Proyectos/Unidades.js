@@ -66,7 +66,9 @@
 			showModal: false,
 			modalImage: null,
 			zoom: "torres",
-    		showFloating: false,	
+    		showFloating: false,
+			showUnidadAgregada: false,
+			unidadAgregadaInfo: null
 		};
 	},
 	three: null,
@@ -543,6 +545,15 @@
 			console.log(payload)
 
 			if (res.data.includes("OK")) {
+				this.unidadAgregadaInfo = {
+					cotizacion: GlobalVariables.cotizacion,
+					unidad: apto.apartamento || apto.nombre_unidad,
+					torre: apto.idtorre,
+					tipo: apto.tipo,
+					valor: parseFloat(apto.valor_unidad) || 0
+				};
+				this.showUnidadAgregada = true;
+
 				this.mode = 3;
 				this._preselectDone = false;
 				await this.loadUnidades();
@@ -934,6 +945,10 @@
 		closeModal() {
 			this.showModal = false
 			this.modalImage = null
+		},
+		closeUnidadAgregada() {
+			this.showUnidadAgregada = false;
+			this.unidadAgregadaInfo = null;
 		},
 		isTorreEnVenta(idtorre) {
 			const torre = this.torres.find(t => t.idtorre === idtorre);
