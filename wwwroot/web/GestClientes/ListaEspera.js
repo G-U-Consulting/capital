@@ -152,9 +152,7 @@ export default {
                         sedes[sede].Recipients.push({ To, Parameters: Object.keys(e).map(p => ({ Name: p, Value: e[p] })) });    
                     }
                 });
-                console.log(sedes);
                 Object.keys(sedes).forEach(async s => await httpFunc(`/masiv/${s}`, sedes[s]));
-                //res = await httpFunc('/util/SendMail/ListaEspera', { subject: "Confirmación de Lista de Espera", emails });
                 this.closeModal({}, true);
             } catch (e) {
                 console.error(e);

@@ -88,7 +88,7 @@
 		},
 		getEstadoTooltip(apto) {
 			if (apto.asignado == 1) {
-				return 'Unidad bloqueada';
+				return 'Bloqueo por atención simultanea';
 			}
 			if (!apto.estatus) {
 				return 'Sin información de estado';
@@ -1007,6 +1007,7 @@
 				showMessage("El registro en la lista de espera fue completado con éxito.");
 				this.mode = 3;
 				this._preselectDone = false;
+				this.notifyLista(payload);
 				await this.loadUnidades();
 
 				if (window.opener) {
@@ -1030,6 +1031,9 @@
 				return tipos.includes(apto.id_tipo) && !Number.isNaN(limit) && !Number.isNaN(p_opcionados) && p_opcionados >= limit;
 			}
 			else return false;
+		},
+		async notifyLista(lista) {
+			//enviar masiv
 		}
 	},
 	computed: {

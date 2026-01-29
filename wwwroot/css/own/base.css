@@ -4161,8 +4161,13 @@ tr.cal-row-info > td {
 .filtros-bloque.unidades-ancho {
     flex: 0 0 90%;
 }
+.apto-bloq-com {
+  background-color: #ff4a13;
+  color: white !important;
+}
 .apto-asignado {
   background-color: gold;
+  color: #333 !important;
 }
 
 .log-container {
@@ -4233,10 +4238,6 @@ tr.cal-row-info > td {
 }
 .torre.torre-no-venta.sel-torre {
   opacity: 0.7;
-}
-.apto-bloq-com {
-  background-color: #ff4a13;
-  color: white !important;
 }
 
 .resaltado {

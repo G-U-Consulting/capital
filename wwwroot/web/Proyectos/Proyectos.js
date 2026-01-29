@@ -187,6 +187,9 @@ export default {
                 case "SetRuta":
                     this.setRuta(data);
                     break;
+                case "InitLateralMenu":
+                    this.lateralMenu = this.ruta.length > 2;
+                    break;
 
                 case "GoToProjectHome":
                     this.lateralMenu = true;

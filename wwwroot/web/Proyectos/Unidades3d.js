@@ -126,7 +126,9 @@
 				'cuenta_tipo', 'cuenta_numero', 'convenio', 'cuota_inicial_banco', 'ean'
 			],
 			requiredKeys: ['apartamento', 'torre', 'piso'],
-			convenioKeys: ['cuenta_tipo', 'cuenta_numero', 'convenio', 'cuota_inicial_banco', 'ean']
+			convenioKeys: ['cuenta_tipo', 'cuenta_numero', 'convenio', 'cuota_inicial_banco', 'ean'],
+
+			tieneCambiosPendientes: false
 		};
 	},
 	three: null,
@@ -140,52 +142,82 @@
 		if (b) this.ruta.push({ text: `Torres`, action: () => this.setTabmode(0) })
 		this.setRuta();
 		this.listResources();
+		window.addEventListener('beforeunload', this.handleBeforeUnload);
+        window.activeMiniModule = this;
+        window.activeMiniModule.name = "Torres";
 	},
 	methods: {
+		handleBeforeUnload(e) {
+            if (this.tieneCambiosPendientes) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        },
 		setRuta() {
 			GlobalVariables.miniModuleCallback('SetRuta', this.ruta);
 		},
 		async setTabmode(index, force) {
 			if (this.tabmode !== -1 || force) {
-				if (index === 0) if (this.sortTorres.length) this.torre = this.sortTorres[0];
-				if (index === 1) this.computeViews();
-				if (index === 2) {
-					await this.loadListas();
-					this.projectList = GlobalVariables.proyecto.id_lista;
-					this.projectAlert = GlobalVariables.proyecto.alerta_cambio_lista || '';
-					if (this.torres.length) {
-						if (!this.torre.id_torre) this.torre = this.sortTorres[0];
-						this.selRow2 = 0;
-						this.tabmode = index;
-					}
-					if (this.listas.length) this.selRow2 ||= 0;
-					if (!this.filtroTipos.length) this.toggleTipos();
-					this.setTorresList();
+				if (this.tabmode == 0 && this.tieneCambiosPendientes) {
+					
+					return new Promise((resolve) => {
+						showConfirm(
+							'Tienes cambios sin guardar. ¿Deseas guardar antes de continuar?',
+							async () => {
+								await this.onSaveTorre();
+								await this.continuarSetSubmode(index);
+								resolve();
+							},
+							async () => {
+								await this.continuarSetSubmode(index);
+								resolve();
+							}
+						);
+					});
 				}
-				if (index === 3) {
-					await this.loadAgrupacion();
-					if (this.selRow3 !== null)
-						this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow3].id_agrupacion + '';
-					else this.filtros.aptos.id_agrupacion = 'null';
-				}
-				if (index === 4) {
-					if (this.tabmode !== 4) {
-						await this.loadTipos();
-						if (this.tipos.length) this.selTipo = this.tipos[0];
-						else {
-							showMessage("No se encotraron tipos para las unidades");
-							return;
-						}
-						if (this.resType === 'imagen') this.setFile(this.selTipo.id_archivo_planta);
-						if (this.resType === 'recorrido') this.setFile(this.selTipo.id_archivo_recorrido);
-					}
-				}
-				if (index !== 2 && index !== 3) this.onClearFilters('aptos');
-				this.editRow = false;
-				this.tabmode = index;
-				this.ruta = [this.ruta[0], { text: this.tabs[index], action: () => this.setTabmode(index) }];
-				this.setRuta();
+				await this.continuarSetSubmode(index);
 			}
+		},
+		async continuarSetSubmode(index){
+			if (index === 0) if (this.sortTorres.length) this.torre = this.sortTorres[0];
+			if (index === 1) this.computeViews();
+			if (index === 2) {
+				await this.loadListas();
+				this.projectList = GlobalVariables.proyecto.id_lista;
+				this.projectAlert = GlobalVariables.proyecto.alerta_cambio_lista || '';
+				if (this.torres.length) {
+					if (!this.torre.id_torre) this.torre = this.sortTorres[0];
+					this.selRow2 = 0;
+					this.tabmode = index;
+				}
+				if (this.listas.length) this.selRow2 ||= 0;
+				if (!this.filtroTipos.length) this.toggleTipos();
+				this.setTorresList();
+			}
+			if (index === 3) {
+				await this.loadAgrupacion();
+				if (this.selRow3 !== null)
+					this.filtros.aptos.id_agrupacion = this.getFilteredList('agrupaciones')[this.selRow3].id_agrupacion + '';
+				else this.filtros.aptos.id_agrupacion = 'null';
+			}
+			if (index === 4) {
+				if (this.tabmode !== 4) {
+					await this.loadTipos();
+					if (this.tipos.length) this.selTipo = this.tipos[0];
+					else {
+						showMessage("No se encotraron tipos para las unidades");
+						return;
+					}
+					if (this.resType === 'imagen') this.setFile(this.selTipo.id_archivo_planta);
+					if (this.resType === 'recorrido') this.setFile(this.selTipo.id_archivo_recorrido);
+				}
+			}
+			if (index !== 2 && index !== 3) this.onClearFilters('aptos');
+			this.editRow = false;
+			this.tabmode = index;
+			this.ruta = [this.ruta[0], { text: this.tabs[index], action: () => this.setTabmode(index) }];
+			this.setRuta();
 		},
 		async loadUnidades(compute) {
 			showProgress();
@@ -536,6 +568,7 @@
 					if (this.blockTower(this.torre)) delete torre.orden_salida;
 					res = await httpFunc('/generic/genericST/Unidades:Upd_Torre', torre);
 					if (res.isError || res.data !== 'OK') throw res;
+					this.tieneCambiosPendientes = false;
 					await this.loadUnidades();
 					await this.setTabmode(0);
 					this.torre = tmp;
@@ -580,7 +613,25 @@
 				this.selListas = [...listas];
 			}
 		},
-		setTorre(torre) {
+		async setTorre(torre) {
+			if (this.tabmode == 0 && this.tieneCambiosPendientes) {
+				return new Promise((resolve) => {
+					showConfirm(
+						'Tienes cambios sin guardar. ¿Deseas guardar antes de continuar?',
+						async () => {
+							await this.onSaveTorre();
+							this.torre = torre;
+							this.tieneCambiosPendientes = false;
+							resolve();
+						},
+						async () => {
+							this.torre = torre;
+							this.tieneCambiosPendientes = false;
+							resolve();
+						}
+					);
+				});
+			}
 			this.torre = torre;
 		},
 		toggleApto(apto) {
@@ -1486,4 +1537,16 @@
 			}
 		}
 	},
+    watch: {
+        beforeDestroy() {
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
+            if (window.activeMiniModule === this)
+                window.activeMiniModule = null;
+        },
+        beforeUnmount() {
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
+            if (window.activeMiniModule === this)
+                window.activeMiniModule = null;
+        },
+    }
 };
