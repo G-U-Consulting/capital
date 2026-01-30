@@ -2724,8 +2724,8 @@ export default {
             this.mostrarModal = false;
 
             if (res == 'OK') {
-                this.seleccionarCotizacion(item.cotizacion);
-                this.abrirNuevoModulo();
+                await this.seleccionarCotizacion(item.cotizacion);
+                showMessage('Unidad eliminada correctamente');
             }
 
         },
@@ -5739,7 +5739,7 @@ export default {
         textoCotizacion() {
             if (!this.unidades || this.unidades.length === 0) return "";
             let unidadesTexto = this.unidades
-                .map(u => `Torre ${u.consecutivo || ""} ${u.numero_apartamento || ""}`)
+                .map(u => `Torre ${u.consecutivo || ""} - ${u.numero_apartamento || ""}`)
                 .join(" || ");
             return `${this.nombre} - ${unidadesTexto}`;
         },
