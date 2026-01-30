@@ -15,6 +15,8 @@ select
     a.id_tipo_proyecto,
     a.id_ciudadela,
     a.subsidios_vis,
+    a.acabados,
+    a.reformas,
     a.dias_separacion,
     a.dias_cierre_sala,
     a.meses_ci,

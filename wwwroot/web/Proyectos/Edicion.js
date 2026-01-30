@@ -101,6 +101,7 @@
                 id_fiduciaria: 0,
                 id_opcion_visual: 0,
                 acabados: "",
+                reformas: "",
 
                 lanzamiento: 0,
                 ciudad_lanzamiento: "",
@@ -972,9 +973,10 @@
             try {
                 showProgress();
 
-                // Convertir strings a enteros para campos BIT en la BD
                 const dataToSend = {
                     ...this.editObjProyecto,
+                    acabados: this.editObjProyecto.acabados == 1 || this.editObjProyecto.acabados === "1" || this.editObjProyecto.acabados === true ? 1 : 0,
+                    reformas: this.editObjProyecto.reformas == 1 || this.editObjProyecto.reformas === "1" || this.editObjProyecto.reformas === true ? 1 : 0,
                     incluir_especificaciones_tecnicias: parseInt(this.editObjProyecto.incluir_especificaciones_tecnicias),
                     incluir_cartilla_negocios_cotizacion: parseInt(this.editObjProyecto.incluir_cartilla_negocios_cotizacion),
                     incluir_cartilla_negocios_opcion: parseInt(this.editObjProyecto.incluir_cartilla_negocios_opcion),
@@ -990,6 +992,8 @@
 
                 if (GlobalVariables.proyecto) {
                     GlobalVariables.proyecto.id_pie_legal = this.editObjProyecto.id_pie_legal;
+                    GlobalVariables.proyecto.acabados = dataToSend.acabados;
+                    GlobalVariables.proyecto.reformas = dataToSend.reformas;
                 }
 
                 hideProgress();

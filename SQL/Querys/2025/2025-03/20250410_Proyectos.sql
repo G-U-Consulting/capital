@@ -208,6 +208,8 @@ create table fact_proyectos(
 	id_ciudadela int,
 	constraint fk_id_ciudadela_fact_proyectos foreign key(id_ciudadela) references dim_ciudadela(id_ciudadela),
 	subsidios_vis varchar(200),
+	acabados int,
+	reformas int,
 	dias_separacion int,
 	id_opcion_visual int,
 	constraint fk_id_opcion_visual_fact_proyectos foreign key(id_opcion_visual) references dim_opcion_visual(id_opcion_visual),

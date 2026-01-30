@@ -733,14 +733,14 @@
                 Reformas, Acabados, Descuento
             </div>
             <div class="pure-u-1 pure-u-md-1-1">
-                <div class="pure-u-1 pure-u-md-1-8" v-if="valor_reformas != 0 && valor_reformas != '' && valor_reformas != null">
+                <div class="pure-u-1 pure-u-md-1-8" v-if="permitirReformas">
                     <div class="formInputStandard">
                         <span>Reformas <span v-if="reformaActivo" style="color: red; font-weight: bold;">(IT)</span></span>
                         <input type="text" style="text-align: right;" v-model="f_valor_reformas" @keyup="validarFormato"
                             :disabled="esOpcionGuardada || modoSoloLectura || reformaActivo" />
                     </div>
                 </div>
-                <div class="pure-u-1 pure-u-md-1-8" v-if="valor_acabados != 0 && valor_acabados != '' && valor_acabados != null">
+                <div class="pure-u-1 pure-u-md-1-8" v-if="permitirAcabados">
                     <div class="formInputStandard">
                         <span>Acabados <span v-if="reformaActivo" style="color: red; font-weight: bold;">(IT)</span></span>
                         <input type="text" style="text-align: right;" v-model="f_valor_acabados" @keyup="validarFormato"

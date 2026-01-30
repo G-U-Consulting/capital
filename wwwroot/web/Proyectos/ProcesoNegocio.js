@@ -341,6 +341,19 @@ export default {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
         this.proyecto = await GlobalVariables.miniModuleCallback("ProcesoNegocio", null);
         this.setRuta();
+        if (GlobalVariables.proyecto && GlobalVariables.id_proyecto) {
+            try {
+                const proyectoResp = await httpFunc('/generic/genericDS/Proyectos:Get_Proyecto', { id_proyecto: GlobalVariables.id_proyecto });
+                const proyectoData = proyectoResp.data[0][0];
+                if (proyectoData) {
+                    GlobalVariables.proyecto.acabados = proyectoData.acabados;
+                    GlobalVariables.proyecto.reformas = proyectoData.reformas;
+                }
+            } catch (error) {
+                console.error('No se pudieron cargar acabados y reformas:', error);
+            }
+        }
+
         let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Variables', {usuario: GlobalVariables.username});
         let respa = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidades', {id_proyecto: this.id_proyecto});
         this.categoria = resp.data[0];
@@ -5386,6 +5399,12 @@ export default {
         },
         proyectoData() {
             return (typeof GlobalVariables !== 'undefined' && GlobalVariables.proyecto) ? GlobalVariables.proyecto : null;
+        },
+        permitirReformas() {
+            return this.proyectoData?.reformas == 1 || this.proyectoData?.reformas === true;
+        },
+        permitirAcabados() {
+            return this.proyectoData?.acabados == 1 || this.proyectoData?.acabados === true;
         },
         esOpcionGuardada() {
             return this.id_opcion !== null;
