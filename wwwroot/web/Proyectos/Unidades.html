@@ -262,9 +262,11 @@
                                 </div>
                             </div>
                             <div class="action-footer">
-                                <button v-if="selectedApto.estatus === 'Libre' && selectedApto.asignado != 1" @click="addUnidad(selectedApto)"
+                                <button v-if="selectedApto.estatus === 'Libre' && selectedApto.asignado != 1"
+                                    @click="addUnidad(selectedApto)"
+                                    :disabled="agregandoUnidad"
                                     class="pure-button pure-button-primary">
-                                    Agregar
+                                    {{ agregandoUnidad ? 'Agregando...' : 'Agregar' }}
                                 </button>
                                 <div v-else-if="selectedApto.estatus === 'Libre' && selectedApto.id_cliente == id_cliente && activeTab === 'detalle'" class="info-message">
                                     Esta unidad ya fue agregada por el cliente a la lista de espera.
@@ -280,7 +282,7 @@
                 </div>
             </div>
         </div>
-        <div v-if="showUnidadAgregada" class="modal-overlay" @click="closeUnidadAgregada">
+        <div v-if="showUnidadAgregada" class="modal-overlay">
             <div class="modal-unidad-agregada" @click.stop>
                 <span class="close" @click="closeUnidadAgregada">&times;</span>
                 <div class="modal-unidad-header">

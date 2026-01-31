@@ -2392,9 +2392,14 @@ export default {
                 this.idcotizacion = id || null;
                 this.cotizacionSeleccionada = cotizacionId;
 
-                const { unidades } = await this.cargarCotizacion(cotizacionId);
+                const { unidades, totalFinal } = await this.cargarCotizacion(cotizacionId);
 
                 this.unidades = unidades;
+
+                const cotizacion = this.cotizaciones.find(c => c.cotizacion === cotizacionId);
+                if (cotizacion) {
+                    cotizacion.importe = totalFinal;
+                }
 
                 await this.isSubsidio();
 
@@ -2725,6 +2730,7 @@ export default {
 
             if (res == 'OK') {
                 await this.seleccionarCotizacion(item.cotizacion);
+                await this.getCotizaciones();
                 showMessage('Unidad eliminada correctamente');
             }
 
