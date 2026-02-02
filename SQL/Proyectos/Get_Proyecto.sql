@@ -69,6 +69,8 @@ select
     a.za1_id,
     id_opcion_visual,
     a.descripcion_comercial,
+    s.sede,
+    d.llave as logo,
     c.edge_estado,
     (
         select group_concat(id_estado_publicacion)
@@ -115,4 +117,7 @@ left join (
     where id_estado_publicacion in (5, 6)
     group by id_proyecto
 ) c on a.id_proyecto = c.id_proyecto
+left join dim_sede s on a.id_sede = s.id_sede
+left join fact_documento_proyecto dp on a.id_proyecto = dp.id_proyecto and dp.tipo = 'logo' and dp.is_active = 1
+left join fact_documentos d on dp.id_documento = d.id_documento
 where a.id_proyecto = @id_proyecto;

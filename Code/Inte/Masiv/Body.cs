@@ -11,7 +11,7 @@ public partial class Body
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Subject es obligatorio.");
-            _Subject = WebUt.SanitizeXss(value);
+            _Subject = value;
         }
     }
     public string From = "protecciondedatos@constructoracapital.com";
