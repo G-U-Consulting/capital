@@ -33,4 +33,4 @@ select a.id_cliente,
     a.porcentaje_copropiedad
 from fact_cotizacion_cliente b
  join fact_clientes a on a.id_cliente = b.id_cliente
-where id_cotizacion = @id_cotizacion;
+where b.id_cotizacion = @id_cotizacion;

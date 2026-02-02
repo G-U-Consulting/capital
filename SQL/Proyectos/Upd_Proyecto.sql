@@ -20,6 +20,8 @@ set
 
 
     @subsidios_vis = '',
+    @acabados = 0,
+    @reformas = 0,
     @dias_separacion = '',
     @dias_cierre_sala = '',
     @meses_ci = '',
@@ -89,6 +91,8 @@ set
     descripcion_comercial = @descripcion_comercial,
 
     subsidios_vis = @subsidios_vis,
+    acabados = CAST(@acabados as UNSIGNED),
+    reformas = CAST(@reformas as UNSIGNED),
     dias_separacion = @dias_separacion,
     dias_cierre_sala = @dias_cierre_sala,
     meses_ci = @meses_ci,

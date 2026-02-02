@@ -68,7 +68,8 @@
 			zoom: "torres",
     		showFloating: false,
 			showUnidadAgregada: false,
-			unidadAgregadaInfo: null
+			unidadAgregadaInfo: null,
+			agregandoUnidad: false
 		};
 	},
 	three: null,
@@ -505,18 +506,32 @@
 			showConfirm(`¿Está seguro de cotizar la unidad ${apto.nombre_unidad} con <b>Bloqueo Comercial</b>?`, this.addUnidad, null, apto);
 		},
 		async addUnidad(apto) {
-			if (!this.isTorreEnVenta(apto.idtorre)) {
-				showMessage("Esta torre no se encuentra a la venta actualmente.");
+			if (this.agregandoUnidad) {
 				return;
 			}
 
-			if (!await this.validarTorreUnidad(apto)) {
-				return;
-			}
+			this.agregandoUnidad = true;
+			showProgress();
 
-			if (!await this.validarVISUnidad(apto)) {
-				return;
-			}
+			try {
+				if (!this.isTorreEnVenta(apto.idtorre)) {
+					showMessage("Esta torre no se encuentra a la venta actualmente.");
+					hideProgress();
+					this.agregandoUnidad = false;
+					return;
+				}
+
+				if (!await this.validarTorreUnidad(apto)) {
+					hideProgress();
+					this.agregandoUnidad = false;
+					return;
+				}
+
+				if (!await this.validarVISUnidad(apto)) {
+					hideProgress();
+					this.agregandoUnidad = false;
+					return;
+				}
 
 			const descuentoFeria = await this.obtenerDescuentoFeria(GlobalVariables.id_proyecto);
 
@@ -571,6 +586,10 @@
 				}
 			} else {
 				showMessage("Ocurrió un error al registrar la unidad");
+			}
+			} finally {
+				hideProgress();
+				this.agregandoUnidad = false;
 			}
 		},
 		async validarTorreUnidad(nuevaUnidad) {
@@ -953,6 +972,7 @@
 		closeUnidadAgregada() {
 			this.showUnidadAgregada = false;
 			this.unidadAgregadaInfo = null;
+			window.close();
 		},
 		isTorreEnVenta(idtorre) {
 			const torre = this.torres.find(t => t.idtorre === idtorre);
