@@ -2508,7 +2508,7 @@
     <div class="pure-u-1 pure-u-md-1-1" v-if="mostrarModalCliente">
         <div class="tabla-modal-overlay">
             <div class="tabla-modal-box">
-                <span class="asunto-modal-close" @click="mostrarModalCliente = false">×</span>
+                <span class="asunto-modal-close" @click="cerrarModalCliente">×</span>
                 <h3>Agregar Cliente</h3>
                 <div class="tabla-scroll-content">
                     <div style="height: 9rem; overflow-y: auto; margin-top: 0.1em;">
@@ -2550,7 +2550,11 @@
                         </div>
                     </div>
                     <div class='pure-u-1-1 pure-u-md-1-2' style="text-align: right;margin-top: .2rem;">
-                        <button @click="agregarCliente" :disabled="agregandoCliente">Agregar</button>
+                        <button @click="agregarCliente"
+                                :disabled="agregandoCliente || !puedeAgregarCliente"
+                                :style="(agregandoCliente || !puedeAgregarCliente) ? 'opacity: 0.5; cursor: not-allowed; background-color: #ccc;' : ''">
+                            Agregar
+                        </button>
                     </div>
                     <div v-if="iscliente">
                         <div>
