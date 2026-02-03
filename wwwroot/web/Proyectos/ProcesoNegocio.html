@@ -2787,9 +2787,10 @@
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
                     </div>
-                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="f_permitirOpcionar && (showOpcionarModal = true)"
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" 
+                        @click="f_permitirOpcionar ? (showOpcionarModal = true) : showMsg(getDisabledMsg)"
                         v-bind:class="{'boton-accion-disabled': !f_permitirOpcionar}"
-                        @mouseenter="tooltipVisible = !f_permitirOpcionar; tooltipMsg = 'Proyecto no habilitado para opcionar';"
+                        @mouseenter="tooltipVisible = !f_permitirOpcionar; tooltipMsg = getDisabledMsg;"
                         @mouseleave="tooltipVisible = false;" @mousemove="updateCursorRight">
                         <img src="../../img/ico/achievement.png" alt="Opcionar">
                         <span>Enviar y Opcionar</span>

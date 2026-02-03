@@ -4280,7 +4280,7 @@ export default {
                         }
                     );
                     if (sds.restricted) {
-                        mensaje = "Error: No es posible continuar con la opción.";
+                        mensaje = "Error: No es posible continuar con la opción. Consultar con dirección comercial.";
                         this.opcion_bloq = true;
                     }
                 }
@@ -5541,6 +5541,9 @@ export default {
 			this.tooltipX = document.body.getBoundingClientRect().width - event.clientX + 2;
 			this.tooltipY = event.clientY - 30;
 		},
+        showMsg(msg) {
+            showMessage(msg);
+        }
     },
     computed: {
         id_proyecto() {
@@ -6031,7 +6034,11 @@ export default {
         tituloModalSeguimiento() {
             return "Seleccione el Seguimiento";
         },
-
+        getDisabledMsg: {
+            get() {
+                return GlobalVariables.sala?.sala_venta ? `Proyecto no habilitado para opcionar en '${GlobalVariables.sala?.sala_venta}'` : "No se puede opcionar sin sala de venta";
+            }
+        }
     },
     watch: {
         ObjVisita: {
