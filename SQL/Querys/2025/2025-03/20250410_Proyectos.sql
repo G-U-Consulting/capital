@@ -345,10 +345,10 @@ insert into dim_tipo_financiacion(tipo_financiacion, porcentaje)values
 ('Aplica Leasing 10-90', 90),
 
 insert into dim_opcion_visual(opcion_visual) values
-('Aumento automático PATE'),
-('Aumento automático NumRef Bancaria'),
-('Oculat info Separación'),
-('Mostrar Botón "Link de Pagos"');
+('Aumento automático PATE');
+-- ('Aumento automático NumRef Bancaria'),
+-- ('Oculat info Separación'),
+-- ('Mostrar Botón "Link de Pagos"');
 -- ('Mostrar Precio como smmlv');
 
 insert into dim_pie_legal (pie_legal) values

@@ -3,146 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmación de Lista de Espera - Constructora Capital</title>
+    <title>Confirmación de Lista de Espera</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
             margin: 0;
-            padding: 20px;
         }
         .container {
-            max-width: 700px;
-            margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 900px;
         }
-        .header {
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-            color: #ffffff;
-            padding: 30px 20px;
-            text-align: center;
-        }
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        .header p {
-            font-size: 14px;
-            opacity: 0.95;
-        }
-        .content {
-            padding: 30px 20px;
-        }
-        h2 {
-            color: #1e40af;
-            font-size: 18px;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #1e40af;
-            padding-bottom: 10px;
-        }
-        h2:first-child {
-            margin-top: 0;
+        h1 {
+            color: #333;
         }
         p {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 12px;
-            font-size: 14px;
+            color: #3b3b3b;
         }
-        .highlight {
-            background-color: #f0f4ff;
-            border-left: 4px solid #1e40af;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
+        .footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
         }
-        .highlight p {
-            margin: 0;
-        }
-        table {
-            width: 100%;
+        .msg-table {
+            width: 90%;
             margin: 15px 0;
             border-collapse: collapse;
             background-color: #ffffff;
-            table-layout: auto;
+            table-layout: fixed;
         }
-        th,
-        td {
-            padding: 12px;
+        .msg-table th,
+        .msg-table td {
+            padding: 5px;
             text-align: left;
-            border-bottom: 1px solid #e5e5e5;
-            font-size: 14px;
+            border: 1px solid #bbb;
         }
-        th {
-            background-color: #f0f4ff;
-            color: #1e40af;
-            font-weight: 600;
-            border-bottom: 2px solid #1e40af;
-        }
-        td {
-            color: #555;
-        }
-        .checkbox-item {
-            display: inline-block;
-            padding: 6px 12px;
-            background-color: #f0f4ff;
-            color: #1e40af;
-            border-radius: 20px;
-            margin: 5px 5px 5px 0;
-            font-size: 13px;
-            font-weight: 500;
-        }
-        .footer {
-            background-color: #f9fafb;
-            padding: 20px;
-            border-top: 1px solid #e5e5e5;
-            font-size: 12px;
-            color: #777;
-            text-align: center;
-        }
-        .cta-button {
-            display: inline-block;
-            background-color: #1e40af;
-            color: #ffffff;
-            padding: 12px 30px;
-            border-radius: 4px;
-            text-decoration: none;
-            margin: 15px 0;
-            font-weight: 600;
-            text-align: center;
-            font-size: 14px;
-        }
-        .contact-info {
-            background-color: #f9fafb;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 15px 0;
-            border-left: 4px solid #16a34a;
-        }
-        .contact-info p {
-            margin: 5px 0;
+        .msg-table th {
+            background-color: #d3edf0;
+            color: #333;
+            font-weight: bold;
         }
         img {
             width: 100%;
             height: auto;
-            display: block;
+        }
+        .left-text {
+            text-align: left;
+            margin: 20px;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-
         <div class="header">
             <table class="header-logos" style="width: 100%; border: none;">
                 <tr style="border: none;">
@@ -156,139 +69,94 @@
                 </tr>
             </table>
             <div class="header-title">
-                <h1>✓ Lista de Espera Registrada</h1>
-                <p>en {{proyecto}}</p>
+                <h1>Confirmación de Inscripción en Lista de Espera - {{proyecto}}</h1>
             </div>
         </div>
+        <div class="left-text">
+            <p>Estimado/a cliente {{nombre_cliente}},</p>
+            <p>Agradecemos su interés en el proyecto {{proyecto}}. Confirmamos que ha sido inscrito/a exitosamente en nuestra lista de espera con los siguientes criterios de búsqueda:
+        </div>
+        
+        <table class="msg-table">
+            <thead>
+                <tr>
+                    <th>Torre</th>
+                    <th>Piso</th>
+                    <th>Clase</th>
+                    <th>Tipo</th>
+                    <th>Nombre Unidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{torre}}</td>
+                    <td>{{piso}}</td>
+                    <td>{{clase}}</td>
+                    <td>{{tipo}}</td>
+                    <td>{{nombre_unidad}}</td>
+                </tr>
+            </tbody>
+        </table>
 
-        <div class="content">
-            <p>Estimado/a <strong>{{nombre_cliente}}</strong>,</p>
-            <div class="highlight">
-                <p><strong>¡Excelente!</strong> Su lista de espera ha sido registrada exitosamente. Ahora estamos buscando activamente las unidades que coincidan con sus especificaciones.</p>
-            </div>
+        <table class="msg-table">
+            <thead>
+                <tr>
+                    <th>Localización</th>
+                    <th>Asoleación</th>
+                    <th>Altura</th>
+                    <th>Número de Alcobas</th>
+                    <th>Número de Baños</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{localizacion}}</td>
+                    <td>{{asoleacion}}</td>
+                    <td>{{altura}}</td>
+                    <td>{{num_alcobas}}</td>
+                    <td>{{num_banos}}</td>
+                </tr>
+            </tbody>
+        </table>
 
-            <h2>📋 Criterios de Búsqueda Registrados</h2>
-            <p>Hemos registrado los siguientes criterios para identificar las unidades más adecuadas para usted:</p>
+        <table class="msg-table">
+            <thead>
+                <tr>
+                    <th>Balcón</th>
+                    <th>Parq. Sencillo</th>
+                    <th>Parq. Doble</th>
+                    <th>Depósito</th>
+                    <th>Acabados</th>
+                    <th>Cerca Portería</th>
+                    <th>Cerca Juegos Inf.</th>
+                    <th>Cerca Piscina</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{tiene_balcon}}</td>
+                    <td>{{tiene_parq_sencillo}}</td>
+                    <td>{{tiene_parq_doble}}</td>
+                    <td>{{tiene_deposito}}</td>
+                    <td>{{tiene_acabados}}</td>
+                    <td>{{cerca_porteria}}</td>
+                    <td>{{cerca_juegos_infantiles}}</td>
+                    <td>{{cerca_piscina}}</td>
+                </tr>
+            </tbody>
+        </table>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Característica</th>
-                        <th>Especificación</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Proyecto</strong></td>
-                        <td>{{proyecto}}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Torre</strong></td>
-                        <td>{{torre}}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Piso</strong></td>
-                        <td>{{piso}}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Clase</strong></td>
-                        <td>{{clase}}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Tipo</strong></td>
-                        <td>{{tipo}}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2>🏠 Características de Ubicación y Distribución</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ubicación</th>
-                        <th>Asoleación</th>
-                        <th>Altura</th>
-                        <th>Alcobas</th>
-                        <th>Baños</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{localizacion}}</td>
-                        <td>{{asoleacion}}</td>
-                        <td>{{altura}}</td>
-                        <td>{{num_alcobas}}</td>
-                        <td>{{num_banos}}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2>🎯 Características Adicionales Requeridas</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Característica</th>
-                        <th>Requerido</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Balcón</td>
-                        <td>{{tiene_balcon}}</td>
-                    </tr>
-                    <tr>
-                        <td>Parqueo Sencillo</td>
-                        <td>{{tiene_parq_sencillo}}</td>
-                    </tr>
-                    <tr>
-                        <td>Parqueo Doble</td>
-                        <td>{{tiene_parq_doble}}</td>
-                    </tr>
-                    <tr>
-                        <td>Depósito</td>
-                        <td>{{tiene_deposito}}</td>
-                    </tr>
-                    <tr>
-                        <td>Acabados Premium</td>
-                        <td>{{tiene_acabados}}</td>
-                    </tr>
-                    <tr>
-                        <td>Cerca Portería</td>
-                        <td>{{cerca_porteria}}</td>
-                    </tr>
-                    <tr>
-                        <td>Cerca Juegos Infantiles</td>
-                        <td>{{cerca_juegos_infantiles}}</td>
-                    </tr>
-                    <tr>
-                        <td>Cerca Piscina</td>
-                        <td>{{cerca_piscina}}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h2>📞 ¿Qué sucede ahora?</h2>
-            <p>Nuestro equipo de asesores inmobiliarios realizará un seguimiento permanente de las unidades disponibles. En el momento en que una unidad coincida con sus especificaciones, nos pondremos en contacto inmediatamente para ofrecerle la oportunidad de visitarla.</p>
-
-            <div class="contact-info">
-                <p><strong>Atendido por:</strong> {{nombre_asesor}}</p>
-                <p><strong>Contacto:</strong></p>
-                <p>📱 Bogotá: (601) 443 0700<br>
-                📱 Medellín: (604) 448 7440</p>
-                <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;">No dude en contactarnos si desea modificar sus criterios o si tiene alguna pregunta.</p>
-            </div>
-
-            <h2>⏱️ Tiempo de Respuesta</h2>
-            <p>Dependiendo de la disponibilidad de unidades que cumplan con sus especificaciones, nos comunicaremos con usted en un plazo de <strong>2 a 30 días hábiles</strong>. Su lista de espera permanecerá activa durante <strong>12 meses</strong>.</p>
-
-            <p style="margin-top: 25px;">Saludos cordiales,<br><strong>Constructora Capital</strong></p>
-
-            <img src="https://www.constructoracapital.com/web_datas/1643035548_02-encuentra-lo-mejort-para-ti-y-tu-familia.jpg" alt="Constructora Capital">
+        <div class="left-text">
+            <p>Atendido por: {{nombre_asesor}}</p>
+            <p>Le notificaremos inmediatamente cuando dispongamos de una unidad que cumpla con sus especificaciones. Nuestro equipo se encuentra atento a cualquier cambio que pueda interesarle.</p>
+            <p>Si desea modificar sus criterios de búsqueda o tiene alguna pregunta, por favor contáctenos a los teléfonos (601) 443 0700 en Bogotá o (604) 448 7440 en Medellín.</p>
+            <p>Saludos cordiales,</p>
+            <p>Constructora Capital</p>
         </div>
 
+        <img src="https://www.constructoracapital.com/web_datas/1643035548_02-encuentra-lo-mejort-para-ti-y-tu-familia.jpg" alt="CCapital">
         <div class="footer">
-            <p>Este es un correo automático. Por favor, no responda directamente a este mensaje. Utilice los números de contacto mencionados arriba.</p>
-            <p>© 2025 Constructora Capital. Todos los derechos reservados.</p>
+            <span>Si tiene preguntas adicionales, no dude en contactarnos.</span>
         </div>
     </div>
 </body>

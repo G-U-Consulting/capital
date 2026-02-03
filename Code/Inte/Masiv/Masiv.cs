@@ -21,27 +21,21 @@ public class Masiv
 
         Body? fields = JsonConvert.DeserializeObject<Body>(body);
 
-        /* if (fields?.Template?.EmbedImages?.Length > 0)
-            await LoadBase64Img(fields.Template.EmbedImages); */
-
         byte[] bytes = System.Text.Encoding.UTF8.GetBytes($"{User}:{Password}");
         string auth = Convert.ToBase64String(bytes);
 
         using HttpClient client = new();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", auth);
 
-        string jsonContent = JsonConvert.SerializeObject(fields, new JsonSerializerSettings
-        {
-            StringEscapeHandling = StringEscapeHandling.EscapeHtml
-        });
-        Console.WriteLine("Masiv body:\n" + jsonContent);
+        string jsonContent = JsonConvert.SerializeObject(fields, new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.Default });
+        //Console.WriteLine("\nMasiv body:\n" + jsonContent);
 
         StringContent content = new(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
         HttpResponseMessage response = await client.PostAsync(url, content);
         string responseContent = await response.Content.ReadAsStringAsync();
         
-        Console.WriteLine("Masiv response:\n" + responseContent);
+        //Console.WriteLine("\nMasiv response:\n" + responseContent);
 
         return responseContent;
     }

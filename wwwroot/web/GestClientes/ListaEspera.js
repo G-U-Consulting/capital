@@ -134,7 +134,6 @@ export default {
                     it[k] = 'https://dev.serlefinpbi.com/file/S3get/' + it[k];
                 else if (!it[k]) it[k] = '(Sin especificar)';
             }));
-            console.log(emails);
             showProgress();
             try {
                 let sedes = {};

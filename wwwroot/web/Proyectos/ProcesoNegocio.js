@@ -1314,19 +1314,57 @@ export default {
                     return;
                 }
 
-                await this.addCliente();
+                const idCliente = await this.addCliente();
+
+                if (!idCliente) {
+                    showMessage("No se pudo agregar el cliente.");
+                    return;
+                }
+
+                this.ObjClienteOpcional.id_cliente = idCliente;
 
                 const nuevo = JSON.parse(JSON.stringify(this.ObjClienteOpcional));
+                nuevo.porcentaje = 0;
+
                 this.clientes.push(nuevo);
 
+                await this.redistribuirPorcentajes();
+
                 showMessage("Cliente agregado a la lista.");
+
+                this.clienteOpcional = '';
+                this.iscliente = false;
+                this.limpiarObjClienteOpcional();
             } finally {
                 this.agregandoCliente = false;
             }
         },
-        eliminarCliente(index) {
-            this.clientes.splice(index, 1);
-            this.actualizarPorcentajeSiUnico();
+        async eliminarCliente(index) {
+            const cliente = this.clientes[index];
+
+            if (!cliente || !cliente.id_cliente) {
+                showMessage("No se puede eliminar el cliente.");
+                return;
+            }
+
+            try {
+                await httpFunc('/generic/genericDT/ProcesoNegocio:Del_Cotizacion_Cliente', {
+                    id_cliente: cliente.id_cliente,
+                    id_cotizacion: this.idcotizacion
+                });
+
+                this.clientes.splice(index, 1);
+                await this.actualizarPorcentajeSiUnico();
+
+                this.clienteOpcional = '';
+                this.iscliente = false;
+                this.limpiarObjClienteOpcional();
+
+                showMessage("Cliente eliminado correctamente.");
+            } catch (error) {
+                console.error("Error eliminando cliente:", error);
+                showMessage("Error al eliminar el cliente.");
+            }
         },
         async limpiarObjClient() {
             this.limpiarObj();
@@ -1583,7 +1621,7 @@ export default {
                 this.$nextTick(() => {
                     this.calcularMesesMaximos();
                     this.calcularEscrituras();
-                    this.isSubsidio(); // Asegurar que subsidioActivo se obtiene del proyecto
+                    this.isSubsidio();
                     if (this.ingresos_mensuales) {
                         this.onInputIngresos();
                     }
@@ -1678,16 +1716,26 @@ export default {
             const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cliente', { cliente: clienteOpcional });
             const data = resp?.data?.[0]?.[0] || null;
 
-            await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_SaveCliente', {
-                username: GlobalVariables.username,
-                cliente: this.cliente
-            });
+            if (ids) {
+                await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_SaveCliente', {
+                    username: GlobalVariables.username,
+                    cliente: this.cliente
+                });
+            }
 
             if (!data) {
-                this.iscliente = false;
-                this.ObjCliente.nombres = '';
+                if (ids) {
+                    
+                    this.iscliente = false;
+                    this.ObjCliente.nombres = '';
+                    this.limpiarObj();
+                } else {
+                    this.iscliente = true;
+                    this.limpiarObjClienteOpcional();
+                    this.initIntlTel(this.ObjClienteOpcional);
+                }
+
                 showMessage("No se encontró el cliente.");
-                this.limpiarObj();
                 return;
             }
 
@@ -1711,12 +1759,23 @@ export default {
             };
 
             if (ids) {
+               
                 for (const key in data) {
                     const target = map[key] || key;
                     if (target in this.ObjCliente) {
                         this.ObjCliente[target] = data[key];
                     }
                 }
+
+                this.id_cliente = data.id_cliente;
+                this.policyAccepted = this.ObjCliente.isPoliticaAceptada == 1;
+                this.isClienteVetado = data.is_vetado == "1";
+                this.ObjClienteOriginal = { ...this.ObjCliente };
+                this.activeTabs(this.cliente);
+                this.iscliente = true;
+                this.isboton = false;
+                this.israpida = false;
+                this.initIntlTel(this.ObjCliente);
             } else {
                 for (const key in data) {
                     const target = map[key] || key;
@@ -1724,19 +1783,11 @@ export default {
                         this.ObjClienteOpcional[target] = data[key];
                     }
                 }
+
+                
+                this.iscliente = true;
+                this.initIntlTel(this.ObjClienteOpcional);
             }
-
-            this.id_cliente = data.id_cliente;
-            this.policyAccepted = this.ObjCliente.isPoliticaAceptada == 1;
-            this.isClienteVetado = data.is_vetado == "1";
-
-            this.ObjClienteOriginal = { ...this.ObjCliente };
-
-            this.activeTabs(this.cliente);
-            this.initIntlTel(ids ? this.ObjCliente : this.ObjClienteOpcional);
-            this.iscliente = true;
-            this.isboton = false;
-            this.israpida = false;
         },
         async initIntlTel(cliente) {
             await Promise.resolve();
@@ -2719,6 +2770,13 @@ export default {
             }
         },
         async dropitem(item) {
+            const hoy = new Date().toISOString().split('T')[0];
+            if (item.fecha_formateada !== hoy) {
+                showMessage('No se puede eliminar. Solo se pueden eliminar unidades agregadas el día de hoy.', 2);
+                this.mostrarModal = false;
+                return;
+            }
+
             let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
                 id_negocios_unidades: item.id_negocios_unidades,
                 terminarAtencion: 0,
@@ -2734,6 +2792,11 @@ export default {
                 showMessage('Unidad eliminada correctamente');
             }
 
+        },
+
+        esUnidadDeHoy(item) {
+            const hoy = new Date().toISOString().split('T')[0];
+            return item.fecha_formateada === hoy;
         },
 
         async enviarCorreoRegistro(idVisita) {
@@ -4240,7 +4303,6 @@ export default {
                 this.tieneCambiosPendientes = false;
                 this.esOpcionGuardada = true;
 
-                // Enviar correo de confirmación si es una opción nueva y no está bloqueada
                 if (nueva && !this.opcion_bloq && idOpcionFinal) {
                     try {
                         await this.enviarCorreoOpcion(idOpcionFinal, true);
@@ -4290,7 +4352,6 @@ export default {
             hideProgress();
         },
         async enviarCorreoManual() {
-            // Verificar si hay una opción guardada
             if (!this.id_opcion) {
                 showMessage('No hay una opción guardada para enviar por correo. Primero debe opcionar.');
                 return;
@@ -4537,7 +4598,6 @@ export default {
                 this.valor_credito_final = this.valor_credito_max || 0;
             }
 
-            // Calcular cuota inicial final restando aportes
             let cuota = this.cleanNumber(this.cuota_inicial);
             let totalAportes = this.cleanNumber(this.cesantias) + this.cleanNumber(this.ahorros);
 
@@ -4581,48 +4641,14 @@ export default {
             try {
                 this.clientes = [];
 
-            const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizacion_Cliente', {
-                id_cotizacion: this.idcotizacion
-            });
-
-            const lista = resp?.data?.[0] ?? [];
-
-            const existeCliente = this.clientes.some(c => c.id_cliente === this.ObjClienteOpcional.id_cliente);
-
-            if (!existeCliente) {
-                this.clientes.unshift({
-                    nombres: this.ObjCliente.nombres,
-                    apellido1: this.ObjCliente.apellido1,
-                    apellido2: this.ObjCliente.apellido2,
-                    numeroDocumento: this.ObjCliente.numeroDocumento,
-                    id_cliente: this.ObjCliente.id_cliente,
-                    porcentaje: this.ObjCliente.porcentaje_copropiedad,
-                    direccion: this.ObjCliente.direccion,
-                    ciudad: this.ObjCliente.ciudad,
-                    departamento: this.ObjCliente.departamento,
-                    pais: this.ObjCliente.pais,
-                    email1: this.ObjCliente.email1,
-                    email2: this.ObjCliente.email2,
-                    telefono1: this.ObjCliente.telefono1,
-                    telefono2: this.ObjCliente.telefono2,
-                    tipoDocumento: this.ObjCliente.tipoDocumento,
-                    paisExpedicion: this.ObjCliente.paisExpedicion,
-                    ciudadExpedicion: this.ObjCliente.ciudadExpedicion,
-                    fechaExpedicion: this.ObjCliente.fechaExpedicion,
-                    fechaNacimiento: this.ObjCliente.fechaNacimiento
+                const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizacion_Cliente', {
+                    id_cotizacion: this.idcotizacion
                 });
-            } else {
-                const idx = this.clientes.findIndex(c => c.id_cliente === this.ObjClienteOpcional.id_cliente);
-                if (idx > 0) {
-                    const cliente = this.clientes.splice(idx, 1)[0];
-                    this.clientes.unshift(cliente);
-                }
-            }
 
-            for (const item of lista) {
-                const existe = this.clientes.some(c => c.id_cliente === item.id_cliente);
+                const lista = resp?.data?.[0] ?? [];
 
-                if (!existe) {
+                
+                for (const item of lista) {
                     this.clientes.push({
                         nombres: item.nombres,
                         apellido1: item.apellido1,
@@ -4645,58 +4671,195 @@ export default {
                         fechaNacimiento: item.fecha_nacimiento
                     });
                 }
-            }
-            this.actualizarPorcentajeSiUnico();
-            this.mostrarModalCliente = true;
-            this.initIntlTel(this.ObjClienteOpcional);
+                const titularExiste = this.clientes.some(c => c.id_cliente === this.ObjCliente.id_cliente);
+
+                if (!titularExiste && this.ObjCliente.id_cliente) {
+                    this.clientes.unshift({
+                        nombres: this.ObjCliente.nombres,
+                        apellido1: this.ObjCliente.apellido1,
+                        apellido2: this.ObjCliente.apellido2,
+                        numeroDocumento: this.ObjCliente.numeroDocumento,
+                        id_cliente: this.ObjCliente.id_cliente,
+                        porcentaje: this.ObjCliente.porcentaje_copropiedad,
+                        direccion: this.ObjCliente.direccion,
+                        ciudad: this.ObjCliente.ciudad,
+                        departamento: this.ObjCliente.departamento,
+                        pais: this.ObjCliente.pais,
+                        email1: this.ObjCliente.email1,
+                        email2: this.ObjCliente.email2,
+                        telefono1: this.ObjCliente.telefono1,
+                        telefono2: this.ObjCliente.telefono2,
+                        tipoDocumento: this.ObjCliente.tipoDocumento,
+                        paisExpedicion: this.ObjCliente.paisExpedicion,
+                        ciudadExpedicion: this.ObjCliente.ciudadExpedicion,
+                        fechaExpedicion: this.ObjCliente.fechaExpedicion,
+                        fechaNacimiento: this.ObjCliente.fechaNacimiento
+                    });
+                }
+
+               
+                if (this.clientes.length === 1 && !this.clientes[0].porcentaje) {
+                    this.clientes[0].porcentaje = 100;
+                    await this.guardarPorcentaje(this.clientes[0], true);
+                }
+                this.mostrarModalCliente = true;
+                this.initIntlTel(this.ObjClienteOpcional);
             } finally {
                 this.abriendoModalCliente = false;
             }
         },
 
-        actualizarPorcentajeSiUnico() {
-            if (this.clientes.length === 1 && !this.clientes[0].porcentaje) {
+        async actualizarPorcentajeSiUnico() {
+            if (this.clientes.length === 0) return;
+
+            
+            if (this.clientes.length === 1) {
                 this.clientes[0].porcentaje = 100;
-                this.guardarPorcentaje(this.clientes[0]);
+                await this.guardarPorcentaje(this.clientes[0], true);
+                return;
+            }
+
+            await this.redistribuirPorcentajes();
+        },
+
+        async redistribuirPorcentajes() {
+            if (this.clientes.length === 0) return;
+
+            const porcentajeBase = Math.floor(100 / cantidadClientes);
+            const residuo = 100 - (porcentajeBase * cantidadClientes);
+
+            let sumaAsignada = 0;
+            for (let i = 0; i < this.clientes.length; i++) {
+                const c = this.clientes[i];
+                if (i === this.clientes.length - 1) {
+                    c.porcentaje = 100 - sumaAsignada;
+                } else {
+                    c.porcentaje = porcentajeBase;
+                    sumaAsignada += porcentajeBase;
+                }
+                await this.guardarPorcentaje(c, true);
             }
         },
 
-        async guardarPorcentaje(c) {
+        async guardarPorcentaje(c, skipValidacion = false) {
 
             if (c.porcentaje === '' || c.porcentaje == null) {
-                return;
+                c.porcentaje = 0;
             }
 
-            const valor = Number(c.porcentaje);
+            let valor = Number(c.porcentaje);
 
             if (isNaN(valor) || valor < 0) {
                 showMessage("El porcentaje no es válido.", 2);
-                c.porcentaje = '';
-                return;
+                c.porcentaje = 0;
+                valor = 0;
             }
 
-            const suma = this.clientes
-                .filter(x => x !== c)
-                .reduce((acc, x) => acc + Number(x.porcentaje || 0), 0);
-
-            const total = suma + valor;
-
-            if (total > 100) {
-                showMessage("La suma total de porcentajes no puede superar el 100%.", 2);
-                c.porcentaje = ''; 
+            if (valor > 100) {
+                valor = 100;
+                c.porcentaje = 100;
             }
-        
+
+            if (valor < 0) {
+                c.porcentaje = 0;
+                valor = 0;
+            }
+
+            
             try {
-                const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Upd_Cotizacion_Cliente',
+                await httpFunc('/generic/genericDS/ProcesoNegocio:Upd_Cotizacion_Cliente',
                     {
                         id_cliente: c.id_cliente,
-                        porcentaje: valor
+                        porcentaje: valor,
+                        id_cotizacion: this.idcotizacion
                     }
                 );
+
+                
+                if (c.id_cliente == this.ObjCliente.id_cliente) {
+                    this.ObjCliente.porcentaje_copropiedad = valor;
+                }
+
+                
+                if (!skipValidacion && this.clientes.length > 1) {
+                    
+                    if (valor === 0) {
+                        showMessage("El porcentaje debe ser mayor a 0%. Ningún cliente puede tener 0%.", 2);
+                        return;
+                    }
+
+                    const sumaTotal = this.clientes.reduce((acc, x) => acc + Number(x.porcentaje || 0), 0);
+                    if (sumaTotal > 100) {
+                        showMessage(`La suma de porcentajes (${sumaTotal}%) supera el 100%. Ajuste los valores.`, 2);
+                    } else if (sumaTotal < 100) {
+                        showMessage(`Falta ${100 - sumaTotal}% para completar el 100%.`, 2);
+                    }
+                }
 
             } catch (e) {
                 console.error("Error guardando porcentaje", e);
             }
+        },
+
+        cerrarModalCliente() {
+            
+            if (this.clientes.length > 1) {
+                
+                const clienteConCero = this.clientes.find(c => Number(c.porcentaje || 0) === 0);
+                if (clienteConCero) {
+                    showMessage(`No se puede cerrar. El cliente ${clienteConCero.nombres} tiene 0%. Todos deben tener un porcentaje mayor a 0%.`, 2);
+                    return;
+                }
+
+                
+                const sumaTotal = this.clientes.reduce((acc, c) => acc + Number(c.porcentaje || 0), 0);
+                if (sumaTotal > 100) {
+                    showMessage(`No se puede cerrar. La suma de porcentajes (${sumaTotal}%) supera el 100%.`, 2);
+                    return;
+                } else if (sumaTotal < 100) {
+                    showMessage(`No se puede cerrar. Falta ${100 - sumaTotal}% para completar el 100%.`, 2);
+                    return;
+                }
+            }
+            this.mostrarModalCliente = false;
+        },
+
+        limpiarObjClienteOpcional() {
+            this.ObjClienteOpcional = {
+                id_cliente: '',
+                nombres: '',
+                apellido1: '',
+                apellido2: '',
+                direccion: '',
+                ciudad: '',
+                barrio: '',
+                departamento: '',
+                pais: '',
+                email1: '',
+                email2: '',
+                telefono1: '',
+                telefono2: '',
+                tipoDocumento: '',
+                numeroDocumento: '',
+                paisExpedicion: '',
+                departamentoExpedicion: '',
+                ciudadExpedicion: '',
+                fechaExpedicion: '',
+                isPoliticaAceptada: 0,
+                ventanaUnidades: null,
+                currentSubmode: null,
+                is_atencion_rapida: 0,
+                is_titular: 0,
+                nombreEmpresa: '',
+                nit: '',
+                fechaNacimiento: '',
+                porcentaje_copropiedad: '',
+                pais_tel1: 'co',
+                pais_tel2: 'co',
+                codigo_tel1: '+57',
+                codigo_tel2: '+57',
+                observaciones: ''
+            };
         },
 
         async addCliente() {
@@ -4712,7 +4875,7 @@ export default {
                     id_cotizacion: this.idcotizacion
                 });
 
-                return;
+                return clienteExistente;
             }
             let obj = {};
             Object.keys(this.ObjClienteOpcional).forEach(k => (this.ObjClienteOpcional[k] || this.ObjClienteOpcional[k] === 0) && (obj[k] = this.ObjClienteOpcional[k]))
@@ -4723,7 +4886,7 @@ export default {
 
             if (!nuevoId) {
                 showMessage("No fue posible obtener el ID del cliente creado.");
-                return;
+                return null;
             }
 
             const clientes = [nuevoId];
@@ -4739,6 +4902,7 @@ export default {
                 });
             }
 
+            return nuevoId;
         },
 
         calcularEscrituras() {
@@ -5411,6 +5575,34 @@ export default {
         },
         permitirAcabados() {
             return this.proyectoData?.acabados == 1 || this.proyectoData?.acabados === true;
+        },
+        sumaPorcentajes() {
+            return this.clientes.reduce((acc, c) => acc + Number(c.porcentaje || 0), 0);
+        },
+        porcentajeValido() {
+            return this.sumaPorcentajes === 100;
+        },
+        puedeAgregarCliente() {
+            const camposMiniimos = ['nombres', 'apellido1', 'tipoDocumento', 'numeroDocumento'];
+
+            for (let campo of camposMiniimos) {
+                let valor = this.ObjClienteOpcional[campo];
+                if (!valor || valor.toString().trim() === '') {
+                    return false;
+                }
+            }
+
+            if (this.camposObligatorios && this.camposObligatorios.length > 0) {
+                for (let i = 0; i < this.camposObligatorios.length; i++) {
+                    let campo = this.camposObligatorios[i];
+                    let valor = this.ObjClienteOpcional[campo];
+                    if (valor === undefined || valor === null || valor.toString().trim() === '') {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         },
         esOpcionGuardada() {
             return this.id_opcion !== null;
