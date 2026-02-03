@@ -661,7 +661,7 @@
                                 <td style="text-align: center;">{{ item.lista }}</td>
                                 <td style="text-align: center;">{{ item.inv_terminado == '1' ? 'SI' : 'NO' }} </td>
                                  <td style="text-align: center;">
-                                    <span class="delete" v-if="item.is_asignado == 1"
+                                    <span class="delete" v-if="item.is_asignado == 1 && esUnidadDeHoy(item)"
                                         @click.stop.prevent="reqOperation(`Desea eliminar el item? <b></b>.`, dropitem, null, item)"> ✖
                                     </span>
                                 </td>
@@ -1555,7 +1555,7 @@
                 <div class="pure-u-1 pure-u-md-1-2"></div>
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard" style="text-align: right;">
-                        <button @click="detalle = true">Ver detalle</button>
+                        <button style="background-color: orange; color: black;" @click="detalle = true">Ver detalle</button>
                     </div>
                 </div>
             </div>

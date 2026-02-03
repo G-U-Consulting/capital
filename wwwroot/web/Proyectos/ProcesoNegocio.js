@@ -2770,6 +2770,13 @@ export default {
             }
         },
         async dropitem(item) {
+            const hoy = new Date().toISOString().split('T')[0];
+            if (item.fecha_formateada !== hoy) {
+                showMessage('No se puede eliminar. Solo se pueden eliminar unidades agregadas el día de hoy.', 2);
+                this.mostrarModal = false;
+                return;
+            }
+
             let res = await httpFunc("/generic/genericST/ProcesoNegocio:Del_Item", {
                 id_negocios_unidades: item.id_negocios_unidades,
                 terminarAtencion: 0,
@@ -2785,6 +2792,11 @@ export default {
                 showMessage('Unidad eliminada correctamente');
             }
 
+        },
+
+        esUnidadDeHoy(item) {
+            const hoy = new Date().toISOString().split('T')[0];
+            return item.fecha_formateada === hoy;
         },
 
         async enviarCorreoRegistro(idVisita) {
