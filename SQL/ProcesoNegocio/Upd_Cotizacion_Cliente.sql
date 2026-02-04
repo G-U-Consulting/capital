@@ -7,10 +7,9 @@ set @id_cliente = '1',
     @id_cotizacion = '0';
 --END_PARAM
 
-
-update fact_clientes
+update fact_cotizacion_cliente
 set porcentaje_copropiedad = @porcentaje
-where id_cliente = @id_cliente;
-
+where id_cliente = @id_cliente
+  and id_cotizacion = @id_cotizacion;
 
 select concat('ok-id_cliente:', @id_cliente, ' porcentaje:', @porcentaje) as result;
