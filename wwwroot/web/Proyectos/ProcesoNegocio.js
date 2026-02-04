@@ -2917,15 +2917,15 @@ export default {
                     telefono_asesor: datosVisita.telefono_asesor || '',
                     sala_venta: datosVisita.sala_venta || '',
                     direccion_sala: datosVisita.direccion_sala || '',
-                    logo_proyecto_img: logoProyectoImg
+                    logo_proyecto_img: `${baseUrlCorreo}/file/S3get/${datosVisita.logo_proyecto_llave}`
                 };
 
-                const respEnvio = await httpFunc('/util/SendMail/RegistroFinalizado', {
+                const respEnvio = await this.onNotify({
                     emails: [emailData],
                     subject: `Gracias por su visita - ${datosVisita.proyecto}`
-                });
+                }, 'RegistroFinalizado');
 
-                if (respEnvio !== 'OK') {
+                if (respEnvio.status !== 'OK') {
                     console.error('[CORREO] Error al enviar correo de registro:', respEnvio);
                 }
             } catch (error) {
@@ -3006,7 +3006,7 @@ export default {
                         email_asesor: datosCotizacion.email_asesor || '',
                         telefono_asesor: datosCotizacion.telefono_asesor || '',
                         unidades_section: unidadesSection,
-                        logo_proyecto_img: logoProyectoImg
+                        logo_proyecto_img: `${baseUrlCorreo}/file/S3get/${datosCotizacion.logo_proyecto_llave}`
                     }
                 ];
 
@@ -3017,12 +3017,12 @@ export default {
                     });
                 }
 
-                const respEnvio = await httpFunc('/util/SendMail/CotizacionFinalizada', {
+                const respEnvio = await this.onNotify({
                     emails: emailsData,
                     subject: `Resumen de Cotización - ${datosCotizacion.proyecto}`
-                });
+                }, 'CotizacionFinalizada');
 
-                if (respEnvio !== 'OK') {
+                if (respEnvio.status !== 'OK') {
                     console.error('[CORREO] Error al enviar correo de cotización:', respEnvio);
                 }
             } catch (error) {
@@ -4383,7 +4383,7 @@ export default {
                     if (sds.restricted) {
                         mensaje = "Error: No es posible continuar con la opción. Consultar con dirección comercial.";
                         this.opcion_bloq = true;
-                    }
+                    } 
                 }
 
                 this.loadingProcess = "Finalizando";
@@ -4553,7 +4553,7 @@ export default {
                         email_asesor: datosOpcion.email_asesor || '',
                         telefono_asesor: datosOpcion.telefono_asesor || '',
                         cupones_section: cuponesSection,
-                        logo_proyecto_img: logoProyectoImg
+                        logo_proyecto_img: `${baseUrlCorreo}/file/S3get/${datosOpcion.logo_proyecto_llave}`
                     }));
 
                 if (emailsData.length === 0) {
@@ -4563,15 +4563,14 @@ export default {
 
                 this.loadingProcess = "Enviando correos de confirmación";
 
-
-                const respEnvio = await httpFunc('/util/SendMail/OpcionFinalizada', {
+                const respEnvio = await this.onNotify({
                     emails: emailsData,
                     subject: `Confirmación de Opción - ${datosOpcion.proyecto} - ${datosOpcion.nombre_unidad}`,
                     pdfBase64: pdfBase64,
                     pdfFileName: `Opcion_${idOpcion}_${(datosOpcion.nombre_unidad || 'unidad').replace(/\s+/g, '_')}.pdf`
-                });
+                }, 'OpcionFinalizada');
 
-                if (respEnvio === 'OK') {
+                if (respEnvio.status === 'OK') {
 
                 } else {
                     console.error('[CORREO] ❌ Error al enviar correos:', respEnvio);
@@ -5586,6 +5585,40 @@ export default {
 		},
         showMsg(msg) {
             showMessage(msg);
+        },
+        async onNotify(data, template) {
+            let emails = data.emails, sede = GlobalVariables.proyecto?.sede?.normalize("NFD")?.replace(/[\u0300-\u036f]/g, ""), 
+                Subject = data.subject, Bcc = [], Attachments = [], res = {};
+            console.log(`\nNotify ${template}: `, data, sede, Subject);
+            let Recipients = [];
+
+            emails.filter(e => this.isEmail(e.email)).forEach(e => 
+                Recipients.push({ To: e.email, Parameters: Object.keys(e).map(p => ({ Name: p, Value: e[p] || '(Sin especificar)' }))}));
+            console.log("Recipients: ", Recipients);
+            if (Recipients.length && sede) {
+                Object.keys(GlobalVariables.proyecto || {}).filter(k => k.startsWith('email_receptor_'))
+                    .forEach(k => this.isEmail(GlobalVariables.proyecto[k]) && Bcc.push(GlobalVariables.proyecto[k]));
+                if (data.pdfBase64 && data.pdfFileName)
+                    Attachments.push({ Path: data.pdfBase64, Filename: data.pdfFileName });
+                try {
+					res = await httpFunc(`/masiv/${sede}`, {
+						Subject,
+						Template: { Value: template },
+						Recipients,
+						Bcc,
+                        Attachments
+					});
+				}
+				catch (e) {
+					console.error(e);
+					showMessage('Error: ' + e.errorMessage || e.data);
+				}
+            }
+            return res;
+        },
+        isEmail(email) {
+            let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
+            return !!email && regex.test(email);
         }
     },
     computed: {

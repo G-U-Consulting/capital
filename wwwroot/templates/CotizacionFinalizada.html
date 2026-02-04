@@ -125,14 +125,15 @@
                         <img src="https://dev.serlefinpbi.com/img/ico/logo-capital.png" alt="Constructora Capital" style="max-width: 180px; max-height: 80px;">
                     </td>
                     <td style="width: 50%; text-align: right; border: none; padding: 0;">
-                        #logo_proyecto_img#
+                        <img src="{{logo_proyecto_img}}" alt="Logo Proyecto"
+                            style="max-width: 180px; max-height: 80px;">
                     </td>
                 </tr>
             </table>
             <div class="header-title">
-                <h1>Resumen de Cotización - #proyecto#</h1>
-                <p style="color: #666; margin: 5px 0;">Número de Cotización: <strong>#id_cotizacion#</strong></p>
-                <p style="color: #666; margin: 5px 0;">Fecha: <strong>#fecha_cotizacion#</strong></p>
+                <h1>Resumen de Cotización - {{proyecto}}</h1>
+                <p style="color: #666; margin: 5px 0;">Número de Cotización: <strong>{{id_cotizacion}}</strong></p>
+                <p style="color: #666; margin: 5px 0;">Fecha: <strong>{{fecha_cotizacion}}</strong></p>
             </div>
         </div>
 
@@ -140,31 +141,31 @@
             <strong>¡Gracias por su interés!</strong> A continuación encontrará el resumen de su cotización.
         </div>
 
-        <p>Estimado/a <strong>#nombre_cliente#</strong>,</p>
-        <p>Es un placer compartir con usted el resumen de las unidades que cotizamos en nuestro proyecto <strong>#proyecto#</strong>. Nuestro equipo está a su disposición para aclarar cualquier inquietud.</p>
+        <p>Estimado/a <strong>{{nombre_cliente}}</strong>,</p>
+        <p>Es un placer compartir con usted el resumen de las unidades que cotizamos en nuestro proyecto <strong>{{proyecto}}</strong>. Nuestro equipo está a su disposición para aclarar cualquier inquietud.</p>
 
         <h2>Información del Cliente</h2>
         <table>
             <tr>
                 <td class="label">Nombre Completo</td>
-                <td class="value">#nombre_cliente#</td>
+                <td class="value">{{nombre_cliente}}</td>
             </tr>
             <tr>
                 <td class="label">Documento</td>
-                <td class="value">#tipo_documento# #numero_documento#</td>
+                <td class="value">{{tipo_documento}} {{numero_documento}}</td>
             </tr>
             <tr>
                 <td class="label">Teléfono</td>
-                <td class="value">#telefono#</td>
+                <td class="value">{{telefono}}</td>
             </tr>
             <tr>
                 <td class="label">Email</td>
-                <td class="value">#email#</td>
+                <td class="value">{{email}}</td>
             </tr>
         </table>
 
         <h2>Unidades Cotizadas</h2>
-        #unidades_section#
+        {{unidades_section}}
 
         <div class="info-box">
             <strong>Importante:</strong>
@@ -179,15 +180,15 @@
         <table>
             <tr>
                 <td class="label">Nombre</td>
-                <td class="value">#nombre_asesor#</td>
+                <td class="value">{{nombre_asesor}}</td>
             </tr>
             <tr>
                 <td class="label">Email</td>
-                <td class="value">#email_asesor#</td>
+                <td class="value">{{email_asesor}}</td>
             </tr>
             <tr>
                 <td class="label">Teléfono</td>
-                <td class="value">#telefono_asesor#</td>
+                <td class="value">{{telefono_asesor}}</td>
             </tr>
         </table>
 

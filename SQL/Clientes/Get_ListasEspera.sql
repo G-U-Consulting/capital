@@ -9,7 +9,8 @@ select date_format(l.created_on, '%Y-%m-%d') as created_on, l.*, coalesce(c.emai
     coalesce(c.telefono1, c.telefono2) as telefono, c.numero_documento, t.consecutivo as torre, tp.tipo_proyecto as clase,
     concat(coalesce(c.nombres, ''), ' ', coalesce(c.apellido1, ''), ' ', coalesce(c.apellido2, '')) as nombre_cliente,
     c.nombres, c.apellido1, c.apellido2, u.nombres as nombre_asesor, p.nombre as proyecto, un.nombre_unidad, s.sede, 
-    d.llave as logo_proyecto_img
+    d.llave as logo_proyecto_img, 
+    concat(coalesce(p.email_receptor_1), ',', coalesce(p.email_receptor_2), ',', coalesce(p.email_receptor_3), ',', coalesce(p.email_receptor_4)) as emails_receptores
 from fact_lista_espera l
 join fact_clientes c on l.id_cliente = c.id_cliente
 join fact_proyectos p on l.id_proyecto = p.id_proyecto

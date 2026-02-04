@@ -271,7 +271,6 @@
 			this.tabmode = 0;
 			this.mode = 3;
 			this.viewProperties === '3d' && setTimeout(this.threeInit, 10);
-			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => this.computeViews() }];
 			this.setRuta();
 		},
 		threeInit: async function () {
@@ -442,7 +441,6 @@
 		onSelectApto(apto) {
 			this.apto = apto;
 			this.mode = 5;
-			this.ruta = [this.ruta[0], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
 		},
         toMySQLDateTime(f) {
@@ -1094,6 +1092,10 @@
 					else if (!it[k]) it[k] = '(Sin especificar)';
 				});
 
+				let Bcc = [];
+				Object.keys(GlobalVariables.proyecto || {}).filter(k => k.startsWith('email_receptor_'))
+					.forEach(k => this.isEmail(GlobalVariables.proyecto[k]) && Bcc.push(GlobalVariables.proyecto[k]));
+
 				try {
 					let email = {
 						Subject: "Confirmación nueva Lista de Espera",
@@ -1101,7 +1103,8 @@
 							Value: "ListaEsperaNueva"
 						},
 						Parameters: Object.keys(it).map(p => ({ Name: p, Value: it[p] })),
-						Recipients: [{ To }]
+						Recipients: [{ To }],
+						Bcc
 					};
 					await httpFunc(`/masiv/${sede}`, email);
 				}
@@ -1114,7 +1117,7 @@
 		},
 		isEmail(email) {
             let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
-            return !email || regex.test(email);
+            return !!email && regex.test(email);
         },
 	},
 	computed: {
