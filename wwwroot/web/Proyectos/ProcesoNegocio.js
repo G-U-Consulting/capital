@@ -261,6 +261,10 @@ export default {
             mostrarModalCliente: false,
             mostrarTooltipOpcion: false,
 
+            mostrarModalTiempoAgotado: false,
+            timerVerificacionTiempo: null,
+            segundosRestantes: null,
+
             valor_notariales: 0,
             valor_beneficiencia: 0,
             valor_registro: 0,
@@ -344,7 +348,7 @@ export default {
         if (GlobalVariables.proyecto && GlobalVariables.id_proyecto) {
             try {
                 const proyectoResp = await httpFunc('/generic/genericDS/Proyectos:Get_Proyecto', { id_proyecto: GlobalVariables.id_proyecto });
-                const proyectoData = proyectoResp.data[0][0];
+                const proyectoData = proyectoResp?.data?.[0]?.[0];
                 if (proyectoData) {
                     GlobalVariables.proyecto.acabados = proyectoData.acabados;
                     GlobalVariables.proyecto.reformas = proyectoData.reformas;
@@ -636,6 +640,7 @@ export default {
         async handleMessages(event) {
             if (event.data?.type === 'REFRESH_COTIZACION') {
                 await this.seleccionarCotizacion(event.data.cotizacionId);
+                this.iniciarTimerTiempo();
             }
         },
 
@@ -729,7 +734,7 @@ export default {
             if (!id_unidad) return;
 
             const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
-            this.unidadOpcion = resp.data[0][0];
+            this.unidadOpcion = resp?.data?.[0]?.[0];
             this.reformaActivo = this.unidadOpcion?.inv_terminado == 1;
 
             this.unidadesDetalladas = await Promise.all(
@@ -738,7 +743,7 @@ export default {
                         const respUnidad = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', {
                             id_unidad: unidad.id_unidad
                         });
-                        return respUnidad.data[0][0];
+                        return respUnidad?.data?.[0]?.[0];
                     } catch (error) {
                         console.error(`Error al cargar unidad ${unidad.id_unidad}:`, error);
                         return unidad;
@@ -1293,7 +1298,7 @@ export default {
 
             const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cliente', { cliente: c.numeroDocumento });
       
-            Object.assign(this.ObjClienteOpcional, resp.data[0][0]);
+            Object.assign(this.ObjClienteOpcional, resp?.data?.[0]?.[0] || {});
              
             this.isTitular = !!c.is_titular;
             this.iscliente = true;
@@ -1328,8 +1333,6 @@ export default {
 
                 this.clientes.push(nuevo);
 
-                await this.redistribuirPorcentajes();
-
                 showMessage("Cliente agregado a la lista.");
 
                 this.clienteOpcional = '';
@@ -1354,7 +1357,6 @@ export default {
                 });
 
                 this.clientes.splice(index, 1);
-                await this.actualizarPorcentajeSiUnico();
 
                 this.clienteOpcional = '';
                 this.iscliente = false;
@@ -1935,7 +1937,7 @@ export default {
 
                 if (id_unidad) {
                     let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Unidad', { id_unidad });
-                    this.unidadOpcion = await resp.data[0][0];
+                    this.unidadOpcion = resp?.data?.[0]?.[0];
                 }
 
                 if (this.unidades && this.unidades.length > 0) {
@@ -2071,7 +2073,8 @@ export default {
                 this.ObjVisita.id_visita = id_visita;
                 const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Registro', { id_visita });
 
-                const data = resp.data[0][0];
+                const data = resp?.data?.[0]?.[0];
+                if (!data) return;
 
                 Object.assign(this.ObjVisita, {
                     id_categoria: data.id_categoria_medio,
@@ -2452,6 +2455,14 @@ export default {
                     cotizacion.importe = totalFinal;
                 }
 
+                // Iniciar timer si hay unidades asignadas
+                const unidadesAsignadas = unidades.filter(u => u.is_asignado == 1);
+                if (unidadesAsignadas.length > 0) {
+                    this.iniciarTimerTiempo();
+                } else {
+                    this.detenerTimerTiempo();
+                }
+
                 await this.isSubsidio();
 
                 this.limpiarDatosOpcion();
@@ -2770,7 +2781,8 @@ export default {
             }
         },
         async dropitem(item) {
-            const hoy = new Date().toISOString().split('T')[0];
+            const ahora = new Date();
+            const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
             if (item.fecha_formateada !== hoy) {
                 showMessage('No se puede eliminar. Solo se pueden eliminar unidades agregadas el día de hoy.', 2);
                 this.mostrarModal = false;
@@ -2795,8 +2807,81 @@ export default {
         },
 
         esUnidadDeHoy(item) {
-            const hoy = new Date().toISOString().split('T')[0];
+            const ahora = new Date();
+            const hoy = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-' + String(ahora.getDate()).padStart(2, '0');
             return item.fecha_formateada === hoy;
+        },
+
+        //  Control de tiempo de atención 
+        iniciarTimerTiempo() {
+           
+            this.detenerTimerTiempo();
+
+     
+            this.timerVerificacionTiempo = setInterval(() => {
+                this.verificarTiempoRestante();
+            }, 30000);
+
+      
+            this.verificarTiempoRestante();
+        },
+
+        detenerTimerTiempo() {
+            if (this.timerVerificacionTiempo) {
+                clearInterval(this.timerVerificacionTiempo);
+                this.timerVerificacionTiempo = null;
+            }
+        },
+
+        async verificarTiempoRestante() {
+            if (!this.idcotizacion || this.mostrarModalTiempoAgotado) return;
+
+            try {
+                const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_TiempoRestante_Atencion', {
+                    id_cotizacion: this.idcotizacion
+                });
+
+                const data = resp?.data?.[0]?.[0];
+                if (!data) return;
+
+                this.segundosRestantes = data.segundos_restantes;
+
+                if (this.segundosRestantes !== null && this.segundosRestantes <= 180 && this.segundosRestantes > 0) {
+                    this.mostrarModalTiempoAgotado = true;
+                }
+
+                if (this.segundosRestantes !== null && this.segundosRestantes <= 0) {
+                    this.volverABienvenida();
+                }
+
+            } catch (error) {
+                console.error('Error verificando tiempo restante:', error);
+            }
+        },
+
+        async extenderTiempoAtencion() {
+            try {
+                await httpFunc('/generic/genericDS/ProcesoNegocio:Upd_ExtenderTiempo_Atencion', {
+                    id_cotizacion: this.idcotizacion
+                });
+
+                this.mostrarModalTiempoAgotado = false;
+                showMessage('Tiempo extendido 30 minutos más.');
+            } catch (error) {
+                console.error('Error extendiendo tiempo:', error);
+                showMessage('Error al extender el tiempo.', 2);
+            }
+        },
+
+        cerrarModalTiempoAgotado() {
+            this.volverABienvenida();
+        },
+
+        volverABienvenida() {
+            this.mostrarModalTiempoAgotado = false;
+            this.detenerTimerTiempo();
+            showMessage('El tiempo de atención ha expirado. Las unidades han sido liberadas.', 2);
+            this.setMode(0);
         },
 
         async enviarCorreoRegistro(idVisita) {
@@ -2977,6 +3062,9 @@ export default {
                 }
 
                 await this.cerrarVentanaUnidadesConValidacion();
+
+                this.detenerTimerTiempo();
+
                 showMessage(`Atención finalizada exitosamente.`);
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
@@ -3278,15 +3366,16 @@ export default {
                 cotizacion: this.cotizacionId
             });
 
-            this.añoentrega = respa.data[0][0]?.fecha_entrega.match(/\d{4}/)?.[0] || '';
-            this.d_fecha_entrega = respa.data[0][0]?.fecha_entrega_f || '';
-            this.f_cotizacion = (respa.data[0][0]?.created_on || '').split('T')[0].split(' ')[0];
-            this.d_tna_antes = respa.data[0][0]?.antes_p_equ;
-            this.d_tna_despues = respa.data[0][0]?.despues_p_equ;
-            this.d_fecha_escrituracion = respa.data[0][0]?.fecha_escrituracion;
-            this.f_creacion = respa.data[0][0]?.created_on;
-            this.d_fecha_pe = respa.data[0][0]?.fecha_p_equ;
-            this.consecutivo = respa.data[0][0]?.consecutivo;
+            const datoUnidad = respa?.data?.[0]?.[0];
+            this.añoentrega = datoUnidad?.fecha_entrega?.match(/\d{4}/)?.[0] || '';
+            this.d_fecha_entrega = datoUnidad?.fecha_entrega_f || '';
+            this.f_cotizacion = (datoUnidad?.created_on || '').split('T')[0].split(' ')[0];
+            this.d_tna_antes = datoUnidad?.antes_p_equ;
+            this.d_tna_despues = datoUnidad?.despues_p_equ;
+            this.d_fecha_escrituracion = datoUnidad?.fecha_escrituracion;
+            this.f_creacion = datoUnidad?.created_on;
+            this.d_fecha_pe = datoUnidad?.fecha_p_equ;
+            this.consecutivo = datoUnidad?.consecutivo;
             if (!this.d_fecha_escrituracion) return;
 
             let fechaEscrit = new Date(this.d_fecha_escrituracion);
@@ -3373,8 +3462,8 @@ export default {
             let resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Proyecto', {
                 id_proyecto: GlobalVariables.id_proyecto
             });
-            let dato = resp.data[0][0]?.id_tipo_vis
-            let estado = resp.data[0][0]?.estado_publicacion_final
+            let dato = resp?.data?.[0]?.[0]?.id_tipo_vis
+            let estado = resp?.data?.[0]?.[0]?.estado_publicacion_final
 
             const proyectoEsVIS = dato != 4;
 
@@ -4303,6 +4392,8 @@ export default {
                 this.tieneCambiosPendientes = false;
                 this.esOpcionGuardada = true;
 
+                this.detenerTimerTiempo();
+
                 if (nueva && !this.opcion_bloq && idOpcionFinal) {
                     try {
                         await this.enviarCorreoOpcion(idOpcionFinal, true);
@@ -4568,8 +4659,8 @@ export default {
                     anioSeleccionado: this.anioSeleccionado + ' años',
                     tipo_factor: this.tipo_factor
                 });
-                this.factorBanco = resp.data[0][0].valor;
-                this.idFactorBanco = resp.data[0][0].id_banco_factor;
+                this.factorBanco = resp?.data?.[0]?.[0]?.valor;
+                this.idFactorBanco = resp?.data?.[0]?.[0]?.id_banco_factor;
                 this.tipoFinanciacionSeleccionada = '';
 
             } catch (err) {
@@ -4641,36 +4732,38 @@ export default {
             try {
                 this.clientes = [];
 
-                const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizacion_Cliente', {
-                    id_cotizacion: this.idcotizacion
-                });
-
-                const lista = resp?.data?.[0] ?? [];
-
-                
-                for (const item of lista) {
-                    this.clientes.push({
-                        nombres: item.nombres,
-                        apellido1: item.apellido1,
-                        apellido2: item.apellido2,
-                        numeroDocumento: item.numero_documento,
-                        id_cliente: item.id_cliente,
-                        porcentaje: item.porcentaje_copropiedad,
-                        direccion: item.direccion,
-                        ciudad: item.ciudad,
-                        departamento: item.departamento,
-                        pais: item.pais,
-                        email1: item.email1,
-                        email2: item.email2,
-                        telefono1: item.telefono1,
-                        telefono2: item.telefono2,
-                        tipoDocumento: item.tipo_documento,
-                        paisExpedicion: item.pais_expedicion,
-                        ciudadExpedicion: item.ciudad_expedicion,
-                        fechaExpedicion: item.fecha_expedicion,
-                        fechaNacimiento: item.fecha_nacimiento
+                if (this.idcotizacion) {
+                    const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Cotizacion_Cliente', {
+                        id_cotizacion: this.idcotizacion
                     });
+
+                    const lista = resp?.data?.[0] ?? [];
+
+                    for (const item of lista) {
+                        this.clientes.push({
+                            nombres: item.nombres,
+                            apellido1: item.apellido1,
+                            apellido2: item.apellido2,
+                            numeroDocumento: item.numero_documento,
+                            id_cliente: item.id_cliente,
+                            porcentaje: item.porcentaje_copropiedad,
+                            direccion: item.direccion,
+                            ciudad: item.ciudad,
+                            departamento: item.departamento,
+                            pais: item.pais,
+                            email1: item.email1,
+                            email2: item.email2,
+                            telefono1: item.telefono1,
+                            telefono2: item.telefono2,
+                            tipoDocumento: item.tipo_documento,
+                            paisExpedicion: item.pais_expedicion,
+                            ciudadExpedicion: item.ciudad_expedicion,
+                            fechaExpedicion: item.fecha_expedicion,
+                            fechaNacimiento: item.fecha_nacimiento
+                        });
+                    }
                 }
+
                 const titularExiste = this.clientes.some(c => c.id_cliente === this.ObjCliente.id_cliente);
 
                 if (!titularExiste && this.ObjCliente.id_cliente) {
@@ -4696,12 +4789,13 @@ export default {
                         fechaNacimiento: this.ObjCliente.fechaNacimiento
                     });
                 }
-
-               
-                if (this.clientes.length === 1 && !this.clientes[0].porcentaje) {
-                    this.clientes[0].porcentaje = 100;
-                    await this.guardarPorcentaje(this.clientes[0], true);
+                if (this.clientes.length === 1 && !Number(this.clientes[0].porcentaje)) {
+                   this.clientes[0].porcentaje = 100;
+                   if (this.idcotizacion) {
+                       await this.guardarPorcentaje(this.clientes[0]);
+                   }
                 }
+
                 this.mostrarModalCliente = true;
                 this.initIntlTel(this.ObjClienteOpcional);
             } finally {
@@ -4709,39 +4803,8 @@ export default {
             }
         },
 
-        async actualizarPorcentajeSiUnico() {
-            if (this.clientes.length === 0) return;
 
-            
-            if (this.clientes.length === 1) {
-                this.clientes[0].porcentaje = 100;
-                await this.guardarPorcentaje(this.clientes[0], true);
-                return;
-            }
-
-            await this.redistribuirPorcentajes();
-        },
-
-        async redistribuirPorcentajes() {
-            if (this.clientes.length === 0) return;
-
-            const porcentajeBase = Math.floor(100 / cantidadClientes);
-            const residuo = 100 - (porcentajeBase * cantidadClientes);
-
-            let sumaAsignada = 0;
-            for (let i = 0; i < this.clientes.length; i++) {
-                const c = this.clientes[i];
-                if (i === this.clientes.length - 1) {
-                    c.porcentaje = 100 - sumaAsignada;
-                } else {
-                    c.porcentaje = porcentajeBase;
-                    sumaAsignada += porcentajeBase;
-                }
-                await this.guardarPorcentaje(c, true);
-            }
-        },
-
-        async guardarPorcentaje(c, skipValidacion = false) {
+        async guardarPorcentaje(c) {
 
             if (c.porcentaje === '' || c.porcentaje == null) {
                 c.porcentaje = 0;
@@ -4750,7 +4813,6 @@ export default {
             let valor = Number(c.porcentaje);
 
             if (isNaN(valor) || valor < 0) {
-                showMessage("El porcentaje no es válido.", 2);
                 c.porcentaje = 0;
                 valor = 0;
             }
@@ -4760,12 +4822,6 @@ export default {
                 c.porcentaje = 100;
             }
 
-            if (valor < 0) {
-                c.porcentaje = 0;
-                valor = 0;
-            }
-
-            
             try {
                 await httpFunc('/generic/genericDS/ProcesoNegocio:Upd_Cotizacion_Cliente',
                     {
@@ -4775,25 +4831,8 @@ export default {
                     }
                 );
 
-                
                 if (c.id_cliente == this.ObjCliente.id_cliente) {
                     this.ObjCliente.porcentaje_copropiedad = valor;
-                }
-
-                
-                if (!skipValidacion && this.clientes.length > 1) {
-                    
-                    if (valor === 0) {
-                        showMessage("El porcentaje debe ser mayor a 0%. Ningún cliente puede tener 0%.", 2);
-                        return;
-                    }
-
-                    const sumaTotal = this.clientes.reduce((acc, x) => acc + Number(x.porcentaje || 0), 0);
-                    if (sumaTotal > 100) {
-                        showMessage(`La suma de porcentajes (${sumaTotal}%) supera el 100%. Ajuste los valores.`, 2);
-                    } else if (sumaTotal < 100) {
-                        showMessage(`Falta ${100 - sumaTotal}% para completar el 100%.`, 2);
-                    }
                 }
 
             } catch (e) {
@@ -4802,24 +4841,16 @@ export default {
         },
 
         cerrarModalCliente() {
-            
-            if (this.clientes.length > 1) {
-                
-                const clienteConCero = this.clientes.find(c => Number(c.porcentaje || 0) === 0);
-                if (clienteConCero) {
-                    showMessage(`No se puede cerrar. El cliente ${clienteConCero.nombres} tiene 0%. Todos deben tener un porcentaje mayor a 0%.`, 2);
-                    return;
-                }
+            const clienteConCero = this.clientes.find(c => Number(c.porcentaje || 0) <= 0);
+            if (clienteConCero) {
+                showMessage(`No se puede cerrar. El cliente ${clienteConCero.nombres} tiene 0%. Todos deben tener un porcentaje mayor a 0%.`, 2);
+                return;
+            }
 
-                
-                const sumaTotal = this.clientes.reduce((acc, c) => acc + Number(c.porcentaje || 0), 0);
-                if (sumaTotal > 100) {
-                    showMessage(`No se puede cerrar. La suma de porcentajes (${sumaTotal}%) supera el 100%.`, 2);
-                    return;
-                } else if (sumaTotal < 100) {
-                    showMessage(`No se puede cerrar. Falta ${100 - sumaTotal}% para completar el 100%.`, 2);
-                    return;
-                }
+            const sumaTotal = this.clientes.reduce((acc, c) => acc + Number(c.porcentaje || 0), 0);
+            if (sumaTotal !== 100) {
+                showMessage(`No se puede cerrar. La suma de porcentajes debe ser 100%. Actualmente es ${sumaTotal}%.`, 2);
+                return;
             }
             this.mostrarModalCliente = false;
         },
@@ -6239,6 +6270,7 @@ export default {
         window.removeEventListener('keydown', this.eliminarCotizacionActivaSiVacia);
         window.removeEventListener('beforeunload', this.handleBeforeUnload);
         this.detenerMonitoreoVentanaUnidades();
+        this.detenerTimerTiempo();
         if (window.activeMiniModule === this) {
             window.activeMiniModule = null;
         }
@@ -6247,6 +6279,7 @@ export default {
         window.removeEventListener('message', this.handleMessages);
         window.removeEventListener('beforeunload', this.handleBeforeUnload);
         this.detenerMonitoreoVentanaUnidades();
+        this.detenerTimerTiempo();
         if (window.activeMiniModule === this) {
             window.activeMiniModule = null;
         }
