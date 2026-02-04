@@ -722,7 +722,44 @@ export default {
                 return false;
             }
 
+            const bloqueadas = await this.validarUnidadesBloqueadas();
+            if (bloqueadas) return false;
+
             return true;
+        },
+
+        async validarUnidadesBloqueadas() {
+            try {
+                const cotiz = this.cotizaciones.find(c => c.cotizacion == this.cotizacionSeleccionada);
+                const idCotizacion = this.idcotizacion || cotiz?.id_cotizacion;
+
+                if (!idCotizacion) {
+                    showMessage('No se pudo validar la cotización. Seleccione la cotización nuevamente.', 2);
+                    return true;
+                }
+
+                const resp = await httpFunc('/generic/genericDS/ProcesoNegocio:Get_Validar_Unidades_Bloqueadas', {
+                    id_cotizacion: idCotizacion,
+                    id_cliente: this.id_cliente
+                });
+
+                const unidades = resp?.data?.[0] || [];
+
+                if (unidades.length > 0) {
+                    const aptos = unidades.map(u => u.numero_apartamento).join(', ');
+                    showMessage(
+                        `No se puede continuar. La(s) unidad(es) ${aptos} ya se encuentra(n) en otra cotización activa del día. ` +
+                        `Debe eliminar la unidad de una de las cotizaciones antes de continuar.`, 2
+                    );
+                    return true;
+                }
+
+                return false;
+            } catch (error) {
+                console.error('Error validando unidades bloqueadas:', error);
+                showMessage('Error al validar las unidades. Intente nuevamente.', 2);
+                return true;
+            }
         },
 
         async prepararDatosOpcion() {
@@ -3134,9 +3171,22 @@ export default {
                     }
                 }
 
+                const unidadesParaLiberar = this.unidades.filter(u => u.is_asignado == 1);
+                if (unidadesParaLiberar.length > 0) {
+                    const liberarPromises = unidadesParaLiberar.map(unidad =>
+                        httpFunc("/generic/genericST/ProcesoNegocio:Upd_Item", {
+                            id_negocios_unidades: unidad.id_negocios_unidades,
+                            asunto: this.seguimientoData.tipo
+                        })
+                    );
+                    await Promise.all(liberarPromises);
+                }
+
+                await this.cerrarVentanaUnidadesConValidacion();
+                this.detenerTimerTiempo();
                 this.cerrarModalSeguimiento();
 
-                showMessage('Seguimiento guardado exitosamente como tarea');
+                showMessage('Seguimiento guardado y unidades liberadas exitosamente.');
 
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
@@ -4231,7 +4281,6 @@ export default {
                 return;
             }
 
-        
             let id_tipo = null;
             if (this.unidadSeleccionada && this.unidadSeleccionada !== 0) {
                 const factor = this.factoresBanco.find(f => f.unidad === this.unidadSeleccionada);
@@ -4764,16 +4813,22 @@ export default {
                     }
                 }
 
-                const titularExiste = this.clientes.some(c => c.id_cliente === this.ObjCliente.id_cliente);
+                const titularExiste = this.clientes.some(c => String(c.id_cliente) === String(this.ObjCliente.id_cliente));
 
                 if (!titularExiste && this.ObjCliente.id_cliente) {
+                    if (this.idcotizacion) {
+                        await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cotizacion_Cliente', {
+                            id_cliente: this.ObjCliente.id_cliente,
+                            id_cotizacion: this.idcotizacion
+                        });
+                    }
                     this.clientes.unshift({
                         nombres: this.ObjCliente.nombres,
                         apellido1: this.ObjCliente.apellido1,
                         apellido2: this.ObjCliente.apellido2,
                         numeroDocumento: this.ObjCliente.numeroDocumento,
                         id_cliente: this.ObjCliente.id_cliente,
-                        porcentaje: this.ObjCliente.porcentaje_copropiedad,
+                        porcentaje: 0,
                         direccion: this.ObjCliente.direccion,
                         ciudad: this.ObjCliente.ciudad,
                         departamento: this.ObjCliente.departamento,
@@ -4789,11 +4844,11 @@ export default {
                         fechaNacimiento: this.ObjCliente.fechaNacimiento
                     });
                 }
-                if (this.clientes.length === 1 && !Number(this.clientes[0].porcentaje)) {
-                   this.clientes[0].porcentaje = 100;
-                   if (this.idcotizacion) {
-                       await this.guardarPorcentaje(this.clientes[0]);
-                   }
+                if (this.clientes.length === 1 && Number(this.clientes[0].porcentaje) !== 100) {
+                    this.clientes[0].porcentaje = 100;
+                    if (this.idcotizacion) {
+                        await this.guardarPorcentaje(this.clientes[0]);
+                    }
                 }
 
                 this.mostrarModalCliente = true;
@@ -4831,23 +4886,19 @@ export default {
                     }
                 );
 
-                if (c.id_cliente == this.ObjCliente.id_cliente) {
-                    this.ObjCliente.porcentaje_copropiedad = valor;
-                }
-
             } catch (e) {
                 console.error("Error guardando porcentaje", e);
             }
         },
 
         cerrarModalCliente() {
-            const clienteConCero = this.clientes.find(c => Number(c.porcentaje || 0) <= 0);
+            const clienteConCero = this.clientes.find(c => parseInt(c.porcentaje) <= 0 || isNaN(parseInt(c.porcentaje)));
             if (clienteConCero) {
                 showMessage(`No se puede cerrar. El cliente ${clienteConCero.nombres} tiene 0%. Todos deben tener un porcentaje mayor a 0%.`, 2);
                 return;
             }
 
-            const sumaTotal = this.clientes.reduce((acc, c) => acc + Number(c.porcentaje || 0), 0);
+            const sumaTotal = this.clientes.reduce((acc, c) => acc + parseInt(c.porcentaje || 0), 0);
             if (sumaTotal !== 100) {
                 showMessage(`No se puede cerrar. La suma de porcentajes debe ser 100%. Actualmente es ${sumaTotal}%.`, 2);
                 return;
@@ -4920,18 +4971,10 @@ export default {
                 return null;
             }
 
-            const clientes = [nuevoId];
-
-            if (this.id_cliente > 0) {
-                clientes.push(this.id_cliente);
-            }
-
-            for (const id of clientes) {
-                await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cotizacion_Cliente', {
-                    id_cliente: id,
-                    id_cotizacion: this.idcotizacion
-                });
-            }
+            await httpFunc('/generic/genericDT/ProcesoNegocio:Ins_Cotizacion_Cliente', {
+                id_cliente: nuevoId,
+                id_cotizacion: this.idcotizacion
+            });
 
             return nuevoId;
         },
