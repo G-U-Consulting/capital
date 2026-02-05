@@ -229,6 +229,7 @@ export default {
                     alert("Error: " + response.errorMessage);
                 } else {
                     alert("Obra deshabilitada correctamente");
+                    this.setMode(0);
                     this.getObras();
                 }
             } catch (error) {
