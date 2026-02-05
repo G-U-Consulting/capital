@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 
@@ -93,6 +95,21 @@ public static partial class WebUt {
             ["fileType"] = fileType,
             ["base64"] = embedValue
         };
+    }
+
+    public static string NormalizeText(string texto)
+    {
+        string textoNormalizado = texto.Normalize(NormalizationForm.FormD);
+        StringBuilder sb = new();
+
+        foreach (char c in textoNormalizado)
+        {
+            UnicodeCategory categoria = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (categoria != UnicodeCategory.NonSpacingMark)
+                sb.Append(c);
+        }
+
+        return sb.ToString().Normalize(NormalizationForm.FormC);
     }
 
     [GeneratedRegex("<.*?>")]

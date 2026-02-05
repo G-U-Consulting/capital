@@ -1,5 +1,6 @@
 using System;
 using capital.Code.Inte.Davivienda;
+using capital.Code.Inte.Masiv;
 using capital.Code.Inte.Salesforce;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -55,7 +56,6 @@ public class WorkerTareas(string rootPath) : BackgroundService
                 }
             }
             else await Task.Delay(20000, stoppingToken);
-            //CleanDavRequest();
         }
     }
 
@@ -227,6 +227,9 @@ public class WorkerTareas(string rootPath) : BackgroundService
             }
 
             string? emailCliente = cliente["email"]?.ToString();
+            string ciudad = WebUt.NormalizeText(datosRegistro["sede"]?.ToString() ?? "");
+            string[] Bcc = datosRegistro["emails_receptores"]?.ToString()?.Split(',') ?? [];
+            Bcc = [.. Bcc.Select(email => email.Trim()).Where(email => !string.IsNullOrWhiteSpace(email))];
             if (string.IsNullOrWhiteSpace(emailCliente))
             {
                 Logger.Log("Util.WorkerTareas.EnviarCorreoRegistro - Cliente sin email");
@@ -235,27 +238,41 @@ public class WorkerTareas(string rootPath) : BackgroundService
 
             var emailData = new JObject
             {
-                ["nombre_cliente"] = cliente["nombre_cliente"]?.ToString() ?? "",
-                ["fecha_visita"] = datosRegistro["fecha_visita"]?.ToString() ?? "",
-                ["proyecto"] = datosRegistro["proyecto"]?.ToString() ?? "",
-                ["nombre_asesor"] = datosRegistro["nombre_asesor"]?.ToString() ?? "",
-                ["email_asesor"] = datosRegistro["email_asesor"]?.ToString() ?? "",
-                ["telefono_asesor"] = datosRegistro["telefono_asesor"]?.ToString() ?? "",
-                ["sala_venta"] = datosRegistro["sala_venta"]?.ToString() ?? "",
-                ["direccion_sala"] = datosRegistro["direccion_sala"]?.ToString() ?? "",
-                ["logo_proyecto_img"] = string.IsNullOrWhiteSpace(datosRegistro["logo_proyecto_llave"]?.ToString())
-                    ? ""
-                    : $"<img src=\"https://dev.serlefinpbi.com/file/S3get/{datosRegistro["logo_proyecto_llave"]}\" alt=\"{datosRegistro["proyecto"]}\" style=\"max-width: 180px; max-height: 80px;\">"
+                ["nombre_cliente"] = cliente["nombre_cliente"]?.ToString() ?? "(Sin especificar)",
+                ["fecha_visita"] = datosRegistro["fecha_visita"]?.ToString() ?? "(Sin especificar)",
+                ["proyecto"] = datosRegistro["proyecto"]?.ToString() ?? "(Sin especificar)",
+                ["nombre_asesor"] = datosRegistro["nombre_asesor"]?.ToString() ?? "(Sin especificar)",
+                ["email_asesor"] = datosRegistro["email_asesor"]?.ToString() ?? "(Sin especificar)",
+                ["telefono_asesor"] = datosRegistro["telefono_asesor"]?.ToString() ?? "(Sin especificar)",
+                ["sala_venta"] = datosRegistro["sala_venta"]?.ToString() ?? "(Sin especificar)",
+                ["direccion_sala"] = datosRegistro["direccion_sala"]?.ToString() ?? "(Sin especificar)",
+                ["logo_proyecto_img"] = $"https://dev.serlefinpbi.com/file/S3get/{datosRegistro["logo_proyecto_llave"] ?? ""}"
             };
 
-            SendMail.Send(
-                emailCliente,
-                $"Gracias por su visita - {datosRegistro["proyecto"]}",
-                "RegistroFinalizado",
-                emailData,
-                rootPath
-            );
+            Parameter[] parameters = [];
+            emailData.Properties().ToList().ForEach(prop =>
+            {
+                parameters =
+                [
+                    new Parameter
+                    {
+                        Name = prop.Name,
+                        Value = prop.Value.ToString() ?? ""
+                    },
+                ];
+            });
 
+            Masiv masiv = new(ciudad, "");
+            Body body = new()
+            {
+                Template = new Template { Value = "RegistroFinalizado" },
+                Parameters = parameters,
+                Subject = $"Gracias por su visita - {datosRegistro["proyecto"]}",
+                Recipients = [ new Recipient { To = emailCliente } ],
+                Bcc = Bcc
+            };
+
+            await masiv.Request(body);
             Logger.Log($"Util.WorkerTareas.EnviarCorreoRegistro - Correo enviado exitosamente a {emailCliente}");
         }
         catch (Exception ex)
@@ -274,7 +291,9 @@ public class WorkerTareas(string rootPath) : BackgroundService
             var datosCotizacion = respDatos?["data"]?[0]?[0];
             var cliente = respDatos?["data"]?[1]?[0];
             var unidades = respDatos?["data"]?[2] as JArray;
-
+            string ciudad = WebUt.NormalizeText(datosCotizacion?["sede"]?.ToString() ?? "");
+            string[] Bcc = datosCotizacion?["emails_receptores"]?.ToString()?.Split(',') ?? [];
+            Bcc = [.. Bcc.Select(email => email.Trim()).Where(email => !string.IsNullOrWhiteSpace(email))];
             if (datosCotizacion == null || cliente == null)
             {
                 Logger.Log("Util.WorkerTareas.EnviarCorreoCotizacion - No se pudieron obtener los datos");
@@ -311,41 +330,35 @@ public class WorkerTareas(string rootPath) : BackgroundService
 
             var emailData = new JObject
             {
-                ["nombre_cliente"] = cliente["nombre_cliente"]?.ToString() ?? "",
-                ["tipo_documento"] = cliente["tipo_documento"]?.ToString() ?? "",
-                ["numero_documento"] = cliente["numero_documento"]?.ToString() ?? "",
-                ["telefono"] = cliente["telefono"]?.ToString() ?? "",
+                ["nombre_cliente"] = cliente["nombre_cliente"]?.ToString() ?? "(Sin especificar)",
+                ["tipo_documento"] = cliente["tipo_documento"]?.ToString() ?? "(Sin especificar)",
+                ["numero_documento"] = cliente["numero_documento"]?.ToString() ?? "(Sin especificar)",
+                ["telefono"] = cliente["telefono"]?.ToString() ?? "(Sin especificar)",
                 ["email"] = emailCliente,
-                ["proyecto"] = datosCotizacion["proyecto"]?.ToString() ?? "",
-                ["id_cotizacion"] = datosCotizacion["id_cotizacion"]?.ToString() ?? "",
-                ["fecha_cotizacion"] = datosCotizacion["fecha_cotizacion"]?.ToString() ?? "",
-                ["nombre_asesor"] = datosCotizacion["nombre_asesor"]?.ToString() ?? "",
-                ["email_asesor"] = datosCotizacion["email_asesor"]?.ToString() ?? "",
-                ["telefono_asesor"] = datosCotizacion["telefono_asesor"]?.ToString() ?? "",
+                ["proyecto"] = datosCotizacion["proyecto"]?.ToString() ?? "(Sin especificar)",
+                ["id_cotizacion"] = datosCotizacion["id_cotizacion"]?.ToString() ?? "(Sin especificar)",
+                ["fecha_cotizacion"] = datosCotizacion["fecha_cotizacion"]?.ToString() ?? "(Sin especificar)",
+                ["nombre_asesor"] = datosCotizacion["nombre_asesor"]?.ToString() ?? "(Sin especificar)",
+                ["email_asesor"] = datosCotizacion["email_asesor"]?.ToString() ?? "(Sin especificar)",
+                ["telefono_asesor"] = datosCotizacion["telefono_asesor"]?.ToString() ?? "(Sin especificar)",
                 ["unidades_section"] = unidadesSection.ToString(),
-                ["logo_proyecto_img"] = string.IsNullOrWhiteSpace(datosCotizacion["logo_proyecto_llave"]?.ToString())
-                    ? ""
-                    : $"<img src=\"https://dev.serlefinpbi.com/file/S3get/{datosCotizacion["logo_proyecto_llave"]}\" alt=\"{datosCotizacion["proyecto"]}\" style=\"max-width: 180px; max-height: 80px;\">"
+                ["logo_proyecto_img"] = $"https://dev.serlefinpbi.com/file/S3get/{datosCotizacion["logo_proyecto_llave"] ?? ""}"
             };
-
-            SendMail.Send(
-                emailCliente,
-                $"Resumen de Cotización - {datosCotizacion["proyecto"]}",
-                "CotizacionFinalizada",
-                emailData,
-                rootPath
-            );
+            Masiv masiv = new(ciudad, "");
+            Body body = new()
+            {
+                Template = new Template { Value = "CotizacionFinalizada" },
+                Subject = $"Resumen de Cotización - {datosCotizacion["proyecto"]}",
+                Recipients = [ new Recipient { To = emailCliente } ],
+                Bcc = Bcc
+            };
+            await masiv.Request(body);
 
             string? emailAsesor = datosCotizacion["email_asesor"]?.ToString();
             if (!string.IsNullOrWhiteSpace(emailAsesor) && emailAsesor != emailCliente)
             {
-                SendMail.Send(
-                    emailAsesor,
-                    $"Resumen de Cotización - {datosCotizacion["proyecto"]}",
-                    "CotizacionFinalizada",
-                    emailData,
-                    rootPath
-                );
+                body.Recipients = [ new Recipient { To = emailAsesor } ];
+                await masiv.Request(body);
             }
 
             Logger.Log($"Util.WorkerTareas.EnviarCorreoCotizacion - Correo enviado exitosamente a {emailCliente}");
@@ -354,18 +367,5 @@ public class WorkerTareas(string rootPath) : BackgroundService
         {
             Logger.Log("Util.WorkerTareas.EnviarCorreoCotizacion - " + ex.Message + Environment.NewLine + ex.StackTrace);
         }
-    }
-
-    private static void CleanDavRequest()
-    {
-        int c = 0;
-        foreach (string key in Davivienda.requests.Keys)
-        {
-            Davivienda dav = Davivienda.requests[key];
-            if (DateTimeOffset.Now.ToUnixTimeSeconds() >= dav.validUntil)
-                Davivienda.requests.Remove(key);
-            c++;
-        }
-        Console.WriteLine("Dav clean: " + c);
     }
 }

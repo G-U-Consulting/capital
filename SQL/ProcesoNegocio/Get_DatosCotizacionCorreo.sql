@@ -2,7 +2,7 @@
 -- Proceso: ProcesoNegocio/Get_DatosCotizacionCorreo
 -- =============================================
 --START_PARAM
-set @id_negocios_unidades = 1;
+set @id_negocios_unidades = 162;
 --END_PARAM
 
 select
@@ -15,11 +15,15 @@ select
     (select fd.llave from fact_documento_proyecto fdp
      join fact_documentos fd on fdp.id_documento = fd.id_documento
      where fdp.id_proyecto = p.id_proyecto and fdp.tipo = 'logo' and fdp.is_active = 1
-     limit 1) as logo_proyecto_llave
+     limit 1) as logo_proyecto_llave,
+    s.sede,
+    concat(coalesce(p.email_receptor_1, ''), ',', coalesce(p.email_receptor_1, ''), ',', 
+     coalesce(p.email_receptor_1, ''), ',', coalesce(p.email_receptor_1, '')) as emails_receptores
 from fact_negocios_unidades nu
 join fact_cotizaciones co on nu.id_cotizacion = co.id_cotizacion
 join fact_proyectos p on co.id_proyecto = p.id_proyecto
 left join fact_usuarios us on co.created_by = us.usuario collate utf8mb4_general_ci
+left join dim_sede s on p.id_sede = s.id_sede
 where nu.id_negocios_unidades = @id_negocios_unidades
 limit 1;
 
