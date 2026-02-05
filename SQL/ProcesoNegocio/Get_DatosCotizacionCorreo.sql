@@ -17,8 +17,8 @@ select
      where fdp.id_proyecto = p.id_proyecto and fdp.tipo = 'logo' and fdp.is_active = 1
      limit 1) as logo_proyecto_llave,
     s.sede,
-    concat(coalesce(p.email_receptor_1, ''), ',', coalesce(p.email_receptor_1, ''), ',', 
-     coalesce(p.email_receptor_1, ''), ',', coalesce(p.email_receptor_1, '')) as emails_receptores
+    concat(coalesce(p.email_receptor_1, ''), ',', coalesce(p.email_receptor_2, ''), ',', 
+     coalesce(p.email_receptor_3, ''), ',', coalesce(p.email_receptor_4, '')) as emails_receptores
 from fact_negocios_unidades nu
 join fact_cotizaciones co on nu.id_cotizacion = co.id_cotizacion
 join fact_proyectos p on co.id_proyecto = p.id_proyecto
