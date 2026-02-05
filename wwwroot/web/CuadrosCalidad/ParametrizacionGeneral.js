@@ -21,9 +21,14 @@ export default {
             formData: {
                 id: "",
                 id_proyecto: "",
+                id_concretera: "",
                 nombre: "",
                 descripcion: "",
-                politica_recoleccion: 0
+                politica_recoleccion: 0,
+                logo: "",
+                logoPreview: "",
+                logoFile: null,
+                logoChanged: false
             },
             currentSection: ""
         }
@@ -89,10 +94,10 @@ export default {
         async getConcreteras() {
             showProgress();
             try {
-                // TODO: Implementar llamada al stored procedure
-                // const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_Concreteras", this.filtroConcreteras);
-                // this.concreteras = response.data || [];
-                this.concreteras = [];
+                const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_Concreteras", {
+                    nombre: this.filtroConcreteras.nombre || null
+                });
+                this.concreteras = response.data || [];
             } catch (error) {
                 console.error("Error al obtener concreteras:", error);
             }
@@ -171,12 +176,34 @@ export default {
         // COMMON METHODS
         startNew(section) {
             this.currentSection = section;
-            this.formData = { id: "", nombre: "", descripcion: "" };
+            if (section === 'concreteras') {
+                this.formData = {
+                    id_concretera: "",
+                    nombre: "",
+                    logo: "",
+                    logoPreview: "",
+                    logoFile: null,
+                    logoChanged: false
+                };
+            } else {
+                this.formData = { id: "", nombre: "", descripcion: "" };
+            }
             this.setMode(1);
         },
         selectItem(item, section) {
             this.currentSection = section;
-            this.formData = { ...item };
+            if (section === 'concreteras') {
+                this.formData = {
+                    id_concretera: item.id_concretera,
+                    nombre: item.nombre,
+                    logo: item.logo || "",
+                    logoPreview: item.logo ? '/file/S3get/' + item.logo : "",
+                    logoFile: null,
+                    logoChanged: false
+                };
+            } else {
+                this.formData = { ...item };
+            }
             this.setMode(2);
         },
         async saveData(section) {
@@ -186,7 +213,7 @@ export default {
                 let params = {};
 
                 if (section === 'obras') {
-                    // Obras uses parametrizacion_obra_cc
+                    // Obras uses parametrizacion_obra_cc (logo comes from main project system)
                     sp = this.mode == 1
                         ? 'CuadrosCalidad:Ins_Proyecto_CC'
                         : 'CuadrosCalidad:Upd_Proyecto_CC';
@@ -195,8 +222,27 @@ export default {
                         politica_recoleccion: this.formData.politica_recoleccion || 0,
                         usuario: GlobalVariables.username
                     };
+                } else if (section === 'concreteras') {
+                    // Upload logo if changed
+                    let logoKey = this.formData.logo;
+                    if (this.formData.logoChanged && this.formData.logoFile) {
+                        logoKey = await this.uploadLogo();
+                        if (!logoKey && this.formData.logoFile) {
+                            hideProgress();
+                            return; // Upload failed
+                        }
+                    }
+                    sp = this.mode == 1
+                        ? 'CuadrosCalidad:Ins_Concretera'
+                        : 'CuadrosCalidad:Upd_Concretera';
+                    params = {
+                        id_concretera: this.formData.id_concretera || null,
+                        nombre: this.formData.nombre,
+                        logo: logoKey || null,
+                        usuario: GlobalVariables.username
+                    };
                 } else {
-                    // TODO: Implement other sections (concreteras, laboratorios, etc.)
+                    // TODO: Implement other sections (laboratorios, etc.)
                     showMessage("Sección no implementada");
                     hideProgress();
                     return;
@@ -256,6 +302,91 @@ export default {
             } catch (error) {
                 console.error("Error al obtener proyectos disponibles:", error);
                 return [];
+            }
+        },
+        // LOGO HANDLING METHODS
+        previewLogo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showMessage("Error: El archivo debe ser una imagen");
+                return;
+            }
+
+            // Validate file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                showMessage("Error: El archivo debe ser menor a 2MB");
+                return;
+            }
+
+            this.formData.logoFile = file;
+            this.formData.logoChanged = true;
+
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.formData.logoPreview = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+        handleLogoDrop(event) {
+            const file = event.dataTransfer.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showMessage("Error: El archivo debe ser una imagen");
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                showMessage("Error: El archivo debe ser menor a 2MB");
+                return;
+            }
+
+            this.formData.logoFile = file;
+            this.formData.logoChanged = true;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.formData.logoPreview = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        },
+        removeLogo() {
+            this.formData.logoPreview = "";
+            this.formData.logoFile = null;
+            this.formData.logoChanged = true;
+            this.formData.logo = "";
+        },
+        async uploadLogo() {
+            if (!this.formData.logoFile) return null;
+
+            try {
+                const form = new FormData();
+                form.append(this.formData.logoFile.name, this.formData.logoFile);
+
+                // Step 1: Upload to temp storage
+                const uploadResponse = await httpFunc("/file/upload", form);
+                if (uploadResponse.isError) {
+                    showMessage("Error: " + uploadResponse.errorMessage);
+                    return null;
+                }
+
+                // Step 2: Upload to S3
+                const s3Response = await httpFunc("/file/S3upload", uploadResponse.data);
+                if (s3Response.isError) {
+                    showMessage("Error: " + s3Response.errorMessage);
+                    return null;
+                }
+
+                // Return the S3 key
+                return s3Response.data[0]?.llave || null;
+            } catch (error) {
+                console.error("Error al subir logo:", error);
+                showMessage("Error al subir el logo");
+                return null;
             }
         }
     }

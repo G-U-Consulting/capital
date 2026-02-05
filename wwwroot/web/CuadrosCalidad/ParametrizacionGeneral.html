@@ -67,6 +67,7 @@
                         <table class="dataTable">
                             <thead>
                                 <tr>
+                                    <th style="width: 80px;">Logo</th>
                                     <th>Proyecto</th>
                                     <th>Política de Recolección</th>
                                     <th style="width: 15%;">Fecha Habilitación</th>
@@ -75,13 +76,18 @@
                             </thead>
                             <tbody>
                                 <tr v-for="item in obras" @click="editObra(item)" style="cursor: pointer;">
+                                    <td style="text-align: center;">
+                                        <img v-if="item.logo" :src="'/file/S3get/' + item.logo"
+                                             style="width: 64px; height: 64px; object-fit: contain; border-radius: 4px;" />
+                                        <span v-else style="color: #ccc;">-</span>
+                                    </td>
                                     <td>{{ item.nombre }}</td>
                                     <td>{{ item.politica_descripcion }}</td>
                                     <td style="text-align: center;">{{ formatDate(item.created_on) }}</td>
                                     <td style="text-align: center;">{{ item.estado }}</td>
                                 </tr>
                                 <tr v-if="obras.length === 0">
-                                    <td colspan="4" style="text-align: center; color: #999; padding: 2rem;">
+                                    <td colspan="5" style="text-align: center; color: #999; padding: 2rem;">
                                         No hay obras habilitadas para Cuadros de Calidad.
                                         <br><br>
                                         <button @click="startNewObra()">Habilitar primera obra</button>
@@ -194,16 +200,20 @@
                         <table class="dataTable">
                             <thead>
                                 <tr>
+                                    <th style="width: 80px;">Logo</th>
                                     <th>Nombre</th>
-                                    <th>Descripción</th>
-                                    <th>Estado</th>
+                                    <th style="width: 100px;">Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in concreteras" @click="selectItem(item, 'concreteras')">
+                                <tr v-for="item in concreteras" @click="selectItem(item, 'concreteras')" style="cursor: pointer;">
+                                    <td style="text-align: center;">
+                                        <img v-if="item.logo" :src="'/file/S3get/' + item.logo"
+                                             style="width: 64px; height: 64px; object-fit: contain; border-radius: 4px;" />
+                                        <span v-else style="color: #ccc;">-</span>
+                                    </td>
                                     <td>{{ item.nombre }}</td>
-                                    <td>{{ item.descripcion }}</td>
-                                    <td>{{ item.estado }}</td>
+                                    <td style="text-align: center;">{{ item.is_active ? 'Activo' : 'Inactivo' }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -220,9 +230,23 @@
                             <label>Nombre</label>
                             <input type="text" v-model="formData.nombre" class="pure-input-1" />
                         </div>
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem;"></div>
                         <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem;">
-                            <label>Descripción</label>
-                            <input type="text" v-model="formData.descripcion" class="pure-input-1" />
+                            <label>Logo (&lt; 2MB)</label>
+                            <div v-if="!formData.logoPreview" style="margin-top: 0.5rem;">
+                                <label for="archivo-logo-concretera" class="file-upload-label">
+                                    Seleccionar Logo
+                                </label>
+                                <input accept="image/*" type="file" id="archivo-logo-concretera"
+                                    class="hidden-input" @change="previewLogo($event)" />
+                            </div>
+                            <div v-else style="display: flex; align-items: center; gap: 10px; margin-top: 0.5rem;">
+                                <img :src="formData.logoPreview" alt="Logo" style="max-height: 40px; border-radius: 4px;" />
+                                <button @click="removeLogo()" type="button"
+                                    style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;">
+                                    Cambiar
+                                </button>
+                            </div>
                         </div>
                         <div class="pure-u-1-1" style="padding: 0.5rem; text-align: right;">
                             <button @click="setMode(0)">Cancelar</button>
