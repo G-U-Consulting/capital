@@ -6,6 +6,7 @@ export default {
             ruta: [],
             // Data arrays for each section
             obras: [],
+            proyectosDisponibles: [],
             concreteras: [],
             laboratorios: [],
             clasesMuestra: [],
@@ -19,8 +20,10 @@ export default {
             // Form data
             formData: {
                 id: "",
+                id_proyecto: "",
                 nombre: "",
-                descripcion: ""
+                descripcion: "",
+                politica_recoleccion: 0
             },
             currentSection: ""
         }
@@ -69,14 +72,14 @@ export default {
                 case 5: await this.getTiposMuestra(); break;
             }
         },
-        // OBRAS
+        // OBRAS - Get enabled projects for Cuadros de Calidad
         async getObras() {
             showProgress();
             try {
-                // TODO: Implementar llamada al stored procedure
-                // const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_Obras", this.filtroObras);
-                // this.obras = response.data || [];
-                this.obras = [];
+                const response = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Proyectos_CC', {
+                    nombre: this.filtroObras.nombre || null
+                });
+                this.obras = response.data || [];
             } catch (error) {
                 console.error("Error al obtener obras:", error);
             }
@@ -134,6 +137,37 @@ export default {
             }
             hideProgress();
         },
+        // OBRAS SPECIFIC METHODS
+        async startNewObra() {
+            showProgress();
+            this.proyectosDisponibles = await this.getProyectosDisponibles();
+            this.formData = {
+                id_proyecto: "",
+                nombre: "",
+                politica_recoleccion: 0
+            };
+            this.currentSection = 'obras';
+            this.setMode(1);
+            hideProgress();
+        },
+        editObra(item) {
+            this.formData = {
+                id_proyecto: item.id_proyecto,
+                nombre: item.nombre,
+                politica_recoleccion: item.politica_recoleccion
+            };
+            this.currentSection = 'obras';
+            this.setMode(2);
+        },
+        formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-CO', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        },
         // COMMON METHODS
         startNew(section) {
             this.currentSection = section;
@@ -148,25 +182,72 @@ export default {
         async saveData(section) {
             showProgress();
             try {
-                // TODO: Implementar llamada al stored procedure según sección
-                // const spMap = {
-                //     'obras': { ins: 'CuadrosCalidad:Ins_Obra', upd: 'CuadrosCalidad:Upd_Obra' },
-                //     'concreteras': { ins: 'CuadrosCalidad:Ins_Concretera', upd: 'CuadrosCalidad:Upd_Concretera' },
-                //     'laboratorios': { ins: 'CuadrosCalidad:Ins_Laboratorio', upd: 'CuadrosCalidad:Upd_Laboratorio' },
-                //     'clasesMuestra': { ins: 'CuadrosCalidad:Ins_ClaseMuestra', upd: 'CuadrosCalidad:Upd_ClaseMuestra' },
-                //     'tiposMuestra': { ins: 'CuadrosCalidad:Ins_TipoMuestra', upd: 'CuadrosCalidad:Upd_TipoMuestra' }
-                // };
-                // const sp = this.mode == 1 ? spMap[section].ins : spMap[section].upd;
-                // await httpFunc(`/generic/genericST/${sp}`, this.formData);
-                alert("Guardado correctamente");
-                this.setMode(0);
-                // Reload data
-                this.setMainMode(this.mainmode);
+                let sp = '';
+                let params = {};
+
+                if (section === 'obras') {
+                    // Obras uses parametrizacion_obra_cc
+                    sp = this.mode == 1
+                        ? 'CuadrosCalidad:Ins_Proyecto_CC'
+                        : 'CuadrosCalidad:Upd_Proyecto_CC';
+                    params = {
+                        id_proyecto: this.formData.id_proyecto,
+                        politica_recoleccion: this.formData.politica_recoleccion || 0,
+                        usuario: GlobalVariables.username
+                    };
+                } else {
+                    // TODO: Implement other sections (concreteras, laboratorios, etc.)
+                    alert("Sección no implementada");
+                    hideProgress();
+                    return;
+                }
+
+                const response = await httpFunc('/generic/genericST/' + sp, params);
+                if (response.isError) {
+                    alert("Error: " + response.errorMessage);
+                } else {
+                    alert("Guardado correctamente");
+                    this.setMode(0);
+                    this.setMainMode(this.mainmode);
+                }
             } catch (error) {
                 console.error("Error al guardar:", error);
                 alert("Error al guardar");
             }
             hideProgress();
+        },
+        // Disable/remove a project from CC
+        async removeObra(id_proyecto) {
+            if (!confirm('¿Está seguro de deshabilitar esta obra de Cuadros de Calidad?')) return;
+            showProgress();
+            try {
+                const response = await httpFunc('/generic/genericST/CuadrosCalidad:Del_Proyecto_CC', {
+                    id_proyecto: id_proyecto,
+                    usuario: GlobalVariables.username
+                });
+                if (response.isError) {
+                    alert("Error: " + response.errorMessage);
+                } else {
+                    alert("Obra deshabilitada correctamente");
+                    this.getObras();
+                }
+            } catch (error) {
+                console.error("Error al deshabilitar:", error);
+                alert("Error al deshabilitar");
+            }
+            hideProgress();
+        },
+        // Get available projects (not yet enabled for CC)
+        async getProyectosDisponibles() {
+            try {
+                const response = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Proyectos_Disponibles', {
+                    nombre: null
+                });
+                return response.data || [];
+            } catch (error) {
+                console.error("Error al obtener proyectos disponibles:", error);
+                return [];
+            }
         }
     }
 };
