@@ -30,7 +30,7 @@ select a.id_cliente,
     a.nit,
     a.is_titular,
     a.nombre_empresa,
-    a.porcentaje_copropiedad
+    IFNULL(b.porcentaje_copropiedad, 0) as porcentaje_copropiedad
 from fact_cotizacion_cliente b
  join fact_clientes a on a.id_cliente = b.id_cliente
 where b.id_cotizacion = @id_cotizacion;

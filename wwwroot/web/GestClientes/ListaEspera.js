@@ -121,27 +121,29 @@ export default {
                 this.modal.style.display = 'none';
         },
         async onNotify() {
-            let hide = ['apellido1','apellido2','nombres','notify','numero_documento','seguimiento','telefono','salesforce_id'];
-            let emails = JSON.parse(JSON.stringify(
-                this.items.filter(it => it.is_waiting == '0' && it.is_active == '1' && it.notify && this.isEmail(it.email))
-            ));
+            let hide = ['apellido1','apellido2','nombres','notify','numero_documento','seguimiento','telefono','salesforce_id'],
+                emails = JSON.parse(JSON.stringify(
+                    this.items.filter(it => it.is_waiting == '0' && it.is_active == '1' && it.notify && this.isEmail(it.email))
+                ));
             emails.forEach(it => Object.keys(it).forEach(k => {
                 if (k.startsWith('id_') || k.startsWith('is_') || k.includes('created') || hide.includes(k)) 
                     delete it[k];
                 else if (k.startsWith('cerca_') || k.startsWith('tiene_'))
                     it[k] = it[k] === '1' ? 'Sí' : 'N/A';
+                else if (k == 'emails_receptores')
+                    it[k] = it[k].split(',').filter(e => this.isEmail(e));
                 else if (k == 'logo_proyecto_img')
                     it[k] = 'https://dev.serlefinpbi.com/file/S3get/' + it[k];
                 else if (!it[k]) it[k] = '(Sin especificar)';
             }));
-            console.log(emails);
             showProgress();
             try {
                 let sedes = {};
                 emails.forEach(e => {
                     if (e.sede) {
-                        let sede = e.sede.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), To = e.email;
+                        let sede = e.sede.normalize("NFD").replace(/[\u0300-\u036f]/g, ""), To = e.email, Bcc = e.emails_receptores;
                         delete e.email;
+                        delete e.emails_receptores;
                         if (!sedes[sede]) sedes[sede] = {
                                 Subject: "Confirmación de Lista de Espera",
                                 Template: {
@@ -149,7 +151,7 @@ export default {
                                 },
                                 Recipients: []
                             };
-                        sedes[sede].Recipients.push({ To, Parameters: Object.keys(e).map(p => ({ Name: p, Value: e[p] })) });    
+                        sedes[sede].Recipients.push({ To, Parameters: Object.keys(e).map(p => ({ Name: p, Value: e[p] })), Bcc });    
                     }
                 });
                 Object.keys(sedes).forEach(async s => await httpFunc(`/masiv/${s}`, sedes[s]));
@@ -183,7 +185,7 @@ export default {
         },
         isEmail(email) {
             let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
-            return !email || regex.test(email);
+            return !!email && regex.test(email);
         },
     },
     computed: {

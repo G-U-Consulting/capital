@@ -261,6 +261,7 @@ create table fact_cotizacion_cliente(
     id_cotizacion_cliente int primary key auto_increment,
     id_cliente int not null references fact_clientes(id_cliente),
     id_cotizacion int not null references fact_cotizaciones(id_cotizacion),
+    porcentaje_copropiedad int not null,
     constraint uk_cliente_cotizacion unique (id_cliente, id_cotizacion)
 );
 

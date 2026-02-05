@@ -124,7 +124,8 @@
                                         <div v-for="apto in row" :key="apto.apartamento" class="apto-card-mini"
                                             @click="selectApto(apto)" :class="[
                                                                        { active: selectedApto && selectedApto.id_unidad === apto.id_unidad,
-                                                                    'apto-gris': apto.id_estado_unidad == '' },
+                                                                    'apto-gris': apto.id_estado_unidad == '',
+                                                                    'apto-bloq-com': apto.isBloqCom },
                                                                        'estado-' + (apto.estatus || '').trim().toLowerCase()
                                                                      ]">
                                             <div class="mini-header">
@@ -157,7 +158,7 @@
                                       'apto-asignado': apto.asignado == 1,
                                       'apto-fake': apto.fake,
                                       'apto-gris': !apto.id_estado_unidad && !apto.fake,
-                                      'apto-bloq-com': bloqueoComercial(apto)
+                                      'apto-bloq-com': apto.isBloqCom
                                     },
                                     'estado-' + (apto.estatus || '').trim().toLowerCase()
                                  ]">
@@ -263,7 +264,7 @@
                             </div>
                             <div class="action-footer">
                                 <button v-if="selectedApto.estatus === 'Libre' && selectedApto.asignado != 1"
-                                    @click="addUnidad(selectedApto)"
+                                    @click="selectedApto.isBloqCom ? reqAddUnidad(selectedApto) : addUnidad(selectedApto)"
                                     :disabled="agregandoUnidad"
                                     class="pure-button pure-button-primary">
                                     {{ agregandoUnidad ? 'Agregando...' : 'Agregar' }}

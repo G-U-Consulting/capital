@@ -5,8 +5,8 @@ namespace capital.Code.Inte.Masiv;
 public class Masiv
 {
     private static readonly string url = "https://api.masiv.masivian.com/email/v1/delivery";
-    private string ciudad;
-    private string body;
+    private readonly string ciudad;
+    private readonly string body;
     public Masiv(string ciudad, string body)
     {
         this.ciudad = ciudad;
@@ -16,32 +16,29 @@ public class Masiv
     
     public async Task<string> Send()
     {
+        Body? fields = JsonConvert.DeserializeObject<Body>(body);
+        return await Request(fields);
+    }
+
+    public async Task<string> Request(Body? body) {
         string? User = Environment.GetEnvironmentVariable("MASIV_USERNAME_" + ciudad.ToUpper()),
             Password = Environment.GetEnvironmentVariable("MASIV_PASSWORD_" + ciudad.ToUpper());
-
-        Body? fields = JsonConvert.DeserializeObject<Body>(body);
-
-        /* if (fields?.Template?.EmbedImages?.Length > 0)
-            await LoadBase64Img(fields.Template.EmbedImages); */
-
+            
         byte[] bytes = System.Text.Encoding.UTF8.GetBytes($"{User}:{Password}");
         string auth = Convert.ToBase64String(bytes);
 
         using HttpClient client = new();
         client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", auth);
 
-        string jsonContent = JsonConvert.SerializeObject(fields, new JsonSerializerSettings
-        {
-            StringEscapeHandling = StringEscapeHandling.EscapeHtml
-        });
-        Console.WriteLine("Masiv body:\n" + jsonContent);
+        string jsonContent = JsonConvert.SerializeObject(body, new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.Default });
+        //Console.WriteLine("\nMasiv body:\n" + jsonContent);
 
         StringContent content = new(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
         HttpResponseMessage response = await client.PostAsync(url, content);
         string responseContent = await response.Content.ReadAsStringAsync();
         
-        Console.WriteLine("Masiv response:\n" + responseContent);
+        //Console.WriteLine("\nMasiv response:\n" + responseContent);
 
         return responseContent;
     }

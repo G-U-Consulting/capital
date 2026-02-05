@@ -20,7 +20,6 @@ public class Template
             else
             {
                 string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "templates", $"{value}.html");
-                Console.WriteLine("templatePath: " + templatePath);
                 if (!File.Exists(templatePath))
                     content = value;
                 else

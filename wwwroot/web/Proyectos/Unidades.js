@@ -103,7 +103,7 @@
 				'consignado': 'Unidad en proceso de consignación',
 				'vendido': 'Unidad vendida'
 			};
-			if (this.bloqueoComercial(apto)) return 'Bloqueo comercial';
+			if (apto.isBloqCom) return 'Bloqueo comercial';
 			return tooltips[estado] || ('Estado: ' + apto.estatus);
 		},
 		closeFloating() {
@@ -157,6 +157,7 @@
 						if (i == -1) torre.pisos.push({ idtorre: torre.idtorre, idpiso: (a.piso + ''), unidades: [a] });
 						else torre.pisos[i].unidades.push(a);
 					}
+					a.isBloqCom = this.bloqueoComercial(a);
 				});
 				torres.sort((a, b) => parseInt(a.idtorre) - parseInt(b.idtorre));
 				torres.forEach(item => item.pisos.sort((a, b) => parseInt(a.idpiso) - parseInt(b.idpiso)));
@@ -168,9 +169,9 @@
 				this.pisos = [...pisos].sort((a, b) => parseInt(b) - parseInt(a));
 				this.tipos = [...tipos].sort();
 				this.localizaciones = [...localizaciones].sort();
-
+				
 				this.computeViews();
-
+				
 				if (!this._preselectDone) {
 					const torresEnVenta = this.torres.filter(t => t.en_venta === '1' || t.en_venta === 1 || t.en_venta === true);
 					this.$nextTick(() => {
@@ -270,7 +271,6 @@
 			this.tabmode = 0;
 			this.mode = 3;
 			this.viewProperties === '3d' && setTimeout(this.threeInit, 10);
-			this.ruta = [{ text: `${GlobalVariables.proyecto.nombre} / Unidades`, action: () => this.computeViews() }];
 			this.setRuta();
 		},
 		threeInit: async function () {
@@ -441,7 +441,6 @@
 		onSelectApto(apto) {
 			this.apto = apto;
 			this.mode = 5;
-			this.ruta = [this.ruta[0], { text: `Torre ${apto.idtorre} - ${apto.apartamento}`, action: () => this.onSelectApto(apto) }];
 			this.setRuta();
 		},
         toMySQLDateTime(f) {
@@ -500,6 +499,9 @@
 				console.error('Error al obtener descuento de feria:', error);
 				return 0;
 			}
+		},
+		reqAddUnidad(apto) {
+			showConfirm(`¿Está seguro de cotizar la unidad ${apto.nombre_unidad} con <b>Bloqueo Comercial</b>?`, this.addUnidad, null, apto);
 		},
 		async addUnidad(apto) {
 			if (this.agregandoUnidad) {
@@ -1042,7 +1044,7 @@
 				showMessage("El registro en la lista de espera fue completado con éxito.");
 				this.mode = 3;
 				this._preselectDone = false;
-				this.notifyLista(payload);
+				this.onNotify(payload);
 				await this.loadUnidades();
 
 				if (window.opener) {
@@ -1067,9 +1069,56 @@
 			}
 			else return false;
 		},
-		async notifyLista(lista) {
-			//enviar masiv
-		}
+		async onNotify(lista) {
+			showProgress();
+			const res = (await httpFunc('/generic/genericDT/ProcesoNegocio:Get_InfoLista', {
+				usuario: GlobalVariables.username,
+				id_cliente: lista.id_cliente,
+				id_unidad: lista.id_unidad
+			}));
+			let it = {}, sede = GlobalVariables.proyecto.sede.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+			if (res && res.data && res.data.length)
+				it = {...lista, ...res.data[0], logo_proyecto_img: GlobalVariables.proyecto.logo, proyecto: GlobalVariables.proyecto.nombre};
+			let To = it.email;
+
+			if (To && this.isEmail(To) && sede) {
+				Object.keys(it).forEach(k => {
+					if (k.startsWith('id_') || k.startsWith('is_') || k.includes('created') || k == 'email') 
+						delete it[k];
+					else if (k.startsWith('cerca_') || k.startsWith('tiene_'))
+						it[k] = it[k] === '1' ? 'Sí' : 'N/A';
+					else if (k == 'logo_proyecto_img')
+						it[k] = 'https://dev.serlefinpbi.com/file/S3get/' + it[k];
+					else if (!it[k]) it[k] = '(Sin especificar)';
+				});
+
+				let Bcc = [];
+				Object.keys(GlobalVariables.proyecto || {}).filter(k => k.startsWith('email_receptor_'))
+					.forEach(k => this.isEmail(GlobalVariables.proyecto[k]) && Bcc.push(GlobalVariables.proyecto[k]));
+
+				try {
+					let email = {
+						Subject: "Confirmación nueva Lista de Espera",
+						Template: {
+							Value: "ListaEsperaNueva"
+						},
+						Parameters: Object.keys(it).map(p => ({ Name: p, Value: it[p] })),
+						Recipients: [{ To }],
+						Bcc
+					};
+					await httpFunc(`/masiv/${sede}`, email);
+				}
+				catch (e) {
+					console.error(e);
+					showMessage('Error: ' + e.errorMessage || e.data);
+				}
+			}
+			hideProgress();
+		},
+		isEmail(email) {
+            let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
+            return !!email && regex.test(email);
+        },
 	},
 	computed: {
 		f_area_privada_cub: {

@@ -165,7 +165,7 @@ export default {
         },
         isEmail(email) {
             let regex = /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/i;
-            return !email || regex.test(email);
+            return !!email && regex.test(email);
         },
         onSelect(veto) {
             this.openModal();

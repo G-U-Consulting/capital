@@ -11,7 +11,7 @@ public partial class Body
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Subject es obligatorio.");
-            _Subject = WebUt.SanitizeXss(value);
+            _Subject = value;
         }
     }
     public string From = "protecciondedatos@constructoracapital.com";
@@ -42,6 +42,18 @@ public partial class Body
     {
         get => _Recipients;
         set => _Recipients = value;
+    }
+    private string[]? _Cc;
+    public string[]? Cc
+    {
+        get => _Cc;
+        set => _Cc = value;
+    }
+    private string[]? _Bcc;
+    public string[]? Bcc
+    {
+        get => _Bcc;
+        set => _Bcc = value;
     }
 
     [GeneratedRegex(@"[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})")]

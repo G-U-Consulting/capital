@@ -661,7 +661,7 @@
                                 <td style="text-align: center;">{{ item.lista }}</td>
                                 <td style="text-align: center;">{{ item.inv_terminado == '1' ? 'SI' : 'NO' }} </td>
                                  <td style="text-align: center;">
-                                    <span class="delete" v-if="item.is_asignado == 1"
+                                    <span class="delete" v-if="esUnidadDeHoy(item) && !esCotizacionOpcionada"
                                         @click.stop.prevent="reqOperation(`Desea eliminar el item? <b></b>.`, dropitem, null, item)"> ✖
                                     </span>
                                 </td>
@@ -1555,7 +1555,7 @@
                 <div class="pure-u-1 pure-u-md-1-2"></div>
                 <div class="pure-u-1 pure-u-md-1-6">
                     <div class="formInputStandard" style="text-align: right;">
-                        <button @click="detalle = true">Ver detalle</button>
+                        <button style="background-color: orange; color: black;" @click="detalle = true">Ver detalle</button>
                     </div>
                 </div>
             </div>
@@ -2744,6 +2744,45 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de tiempo de atención agotándose -->
+    <div v-if="mostrarModalTiempoAgotado"
+         style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 10px; padding: 1.5rem 2rem; max-width: 420px; width: 90%; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 1.2rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span style="font-size: 1.1rem; font-weight: bold; color: #92400e;">Atención</span>
+                </div>
+                <p style="color: #92400e; font-size: 0.9rem; margin: 0.3rem 0; line-height: 1.5;">
+                    La atención está a punto de terminar al haber transcurrido 30 minutos.
+                </p>
+                <p style="color: #92400e; font-size: 0.9rem; margin: 0.3rem 0; line-height: 1.5;">
+                    Las unidades cotizadas serán desbloqueadas para otros clientes.
+                </p>
+                <p style="color: #92400e; font-size: 1rem; font-weight: bold; margin: 0.8rem 0 0 0;">
+                    ¿Desea extender otros 30 minutos la sesión?
+                </p>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1.2rem;">
+                <button class="pure-button"
+                        style="background-color: #10b981; color: white; padding: 0.6rem 1.8rem; font-size: 0.95rem; border-radius: 6px; cursor: pointer;"
+                        @click="extenderTiempoAtencion">
+                    Sí, Extender
+                </button>
+                <button class="pure-button"
+                        style="background-color: #ef4444; color: white; padding: 0.6rem 1.8rem; font-size: 0.95rem; border-radius: 6px; cursor: pointer;"
+                        @click="cerrarModalTiempoAgotado">
+                    No
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ------------------------------------------------------------ -->
     <!-- ----------------------------- Global------------------------- -->
     <!-- ------------------------------------------------------------ -->
@@ -2787,9 +2826,10 @@
                         <img src="../../img/ico/mail.png" alt="Mail">
                         <span>Sólo Enviar al Mail</span>
                     </div>
-                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" @click="f_permitirOpcionar && (showOpcionarModal = true)"
+                    <div v-if="!esOpcionGuardada && !modoSoloLectura" class="boton-accion" 
+                        @click="f_permitirOpcionar ? (showOpcionarModal = true) : showMsg(getDisabledMsg)"
                         v-bind:class="{'boton-accion-disabled': !f_permitirOpcionar}"
-                        @mouseenter="tooltipVisible = !f_permitirOpcionar; tooltipMsg = 'Proyecto no habilitado para opcionar';"
+                        @mouseenter="tooltipVisible = !f_permitirOpcionar; tooltipMsg = getDisabledMsg;"
                         @mouseleave="tooltipVisible = false;" @mousemove="updateCursorRight">
                         <img src="../../img/ico/achievement.png" alt="Opcionar">
                         <span>Enviar y Opcionar</span>
