@@ -8,7 +8,7 @@ SELECT
     'Disponible' as estado
 FROM fact_proyectos p
 LEFT JOIN fact_parametrizacion_obra_cc pc
-    ON p.id_proyecto = pc.id_proyecto AND pc.is_active = 1
+    ON p.id_proyecto = pc.id_proyecto
 WHERE p.is_active = 1
   AND pc.id_proyecto IS NULL
   AND (@nombre IS NULL OR p.nombre LIKE CONCAT('%', @nombre, '%'))

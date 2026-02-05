@@ -12,13 +12,13 @@ SELECT
     END as politica_descripcion,
     d.llave as logo,
     pc.created_on,
-    'Habilitado' as estado
+    pc.is_active,
+    CASE WHEN pc.is_active = 1 THEN 'Habilitado' ELSE 'Deshabilitado' END as estado
 FROM fact_proyectos p
 INNER JOIN fact_parametrizacion_obra_cc pc ON p.id_proyecto = pc.id_proyecto
 LEFT JOIN fact_documento_proyecto dp ON p.id_proyecto = dp.id_proyecto
     AND dp.tipo = 'logo' AND dp.is_active = 1
 LEFT JOIN fact_documentos d ON dp.id_documento = d.id_documento
 WHERE p.is_active = 1
-  AND pc.is_active = 1
   AND (@nombre IS NULL OR p.nombre LIKE CONCAT('%', @nombre, '%'))
-ORDER BY p.nombre;
+ORDER BY pc.is_active DESC, p.nombre;

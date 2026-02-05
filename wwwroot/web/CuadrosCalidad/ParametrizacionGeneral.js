@@ -11,12 +11,13 @@ export default {
             laboratorios: [],
             clasesMuestra: [],
             tiposMuestra: [],
+            clasesDisponibles: [],
             // Filters for each section
             filtroObras: { nombre: "" },
             filtroConcreteras: { nombre: "" },
             filtroLaboratorios: { nombre: "" },
             filtroClasesMuestra: { nombre: "" },
-            filtroTiposMuestra: { nombre: "" },
+            filtroTiposMuestra: { descripcion: "" },
             // Form data
             formData: {
                 id: "",
@@ -133,14 +134,24 @@ export default {
         async getTiposMuestra() {
             showProgress();
             try {
-                // TODO: Implementar llamada al stored procedure
-                // const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_TiposMuestra", this.filtroTiposMuestra);
-                // this.tiposMuestra = response.data || [];
-                this.tiposMuestra = [];
+                const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_TiposMuestra", {
+                    descripcion: this.filtroTiposMuestra.descripcion || null
+                });
+                this.tiposMuestra = response.data || [];
             } catch (error) {
                 console.error("Error al obtener tipos de muestra:", error);
             }
             hideProgress();
+        },
+        async getClasesDisponibles() {
+            try {
+                const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_ClasesMuestra", {
+                    nombre: null
+                });
+                this.clasesDisponibles = response.data || [];
+            } catch (error) {
+                console.error("Error al obtener clases disponibles:", error);
+            }
         },
         // OBRAS SPECIFIC METHODS
         async startNewObra() {
@@ -159,7 +170,8 @@ export default {
             this.formData = {
                 id_proyecto: item.id_proyecto,
                 nombre: item.nombre,
-                politica_recoleccion: item.politica_recoleccion
+                politica_recoleccion: item.politica_recoleccion,
+                estado: item.estado
             };
             this.currentSection = 'obras';
             this.setMode(2);
@@ -174,7 +186,7 @@ export default {
             });
         },
         // COMMON METHODS
-        startNew(section) {
+        async startNew(section) {
             this.currentSection = section;
             if (section === 'concreteras') {
                 this.formData = {
@@ -196,12 +208,23 @@ export default {
                 };
             } else if (section === 'clasesMuestra') {
                 this.formData = { id_clase_muestra: "", descripcion: "" };
+            } else if (section === 'tiposMuestra') {
+                await this.getClasesDisponibles();
+                this.formData = {
+                    id_tipo_muestra: "",
+                    id_clase_muestra: "",
+                    descripcion: "",
+                    rango_verde: "",
+                    rango_amarillo: "",
+                    rango_rojo: "",
+                    diametro: ""
+                };
             } else {
                 this.formData = { id: "", nombre: "", descripcion: "" };
             }
             this.setMode(1);
         },
-        selectItem(item, section) {
+        async selectItem(item, section) {
             this.currentSection = section;
             if (section === 'concreteras') {
                 this.formData = {
@@ -227,6 +250,18 @@ export default {
                 this.formData = {
                     id_clase_muestra: item.id_clase_muestra,
                     descripcion: item.descripcion,
+                    estado: item.estado
+                };
+            } else if (section === 'tiposMuestra') {
+                await this.getClasesDisponibles();
+                this.formData = {
+                    id_tipo_muestra: item.id_tipo_muestra,
+                    id_clase_muestra: item.id_clase_muestra,
+                    descripcion: item.descripcion,
+                    rango_verde: item.rango_verde,
+                    rango_amarillo: item.rango_amarillo,
+                    rango_rojo: item.rango_rojo,
+                    diametro: item.diametro || "",
                     estado: item.estado
                 };
             } else {
@@ -296,6 +331,19 @@ export default {
                         id_clase_muestra: this.formData.id_clase_muestra || null,
                         descripcion: this.formData.descripcion
                     };
+                } else if (section === 'tiposMuestra') {
+                    sp = this.mode == 1
+                        ? 'CuadrosCalidad:Ins_TipoMuestra'
+                        : 'CuadrosCalidad:Upd_TipoMuestra';
+                    params = {
+                        id_tipo_muestra: this.formData.id_tipo_muestra || null,
+                        id_clase_muestra: this.formData.id_clase_muestra,
+                        descripcion: this.formData.descripcion,
+                        rango_verde: this.formData.rango_verde,
+                        rango_amarillo: this.formData.rango_amarillo,
+                        rango_rojo: this.formData.rango_rojo,
+                        diametro: this.formData.diametro || null
+                    };
                 } else {
                     showMessage("Sección no implementada");
                     hideProgress();
@@ -346,12 +394,33 @@ export default {
             }
             hideProgress();
         },
+        async activateObra(id_proyecto) {
+            showProgress();
+            try {
+                const response = await httpFunc('/generic/genericST/CuadrosCalidad:Act_Proyecto_CC', {
+                    id_proyecto: id_proyecto,
+                    usuario: GlobalVariables.username
+                });
+                if (response.isError) {
+                    showMessage("Error: " + response.errorMessage);
+                } else {
+                    showMessage("Obra habilitada correctamente");
+                    this.setMode(0);
+                    this.getObras();
+                }
+            } catch (error) {
+                console.error("Error al habilitar:", error);
+                showMessage("Error al habilitar");
+            }
+            hideProgress();
+        },
         // Request confirmation to delete a concretera or laboratorio
         reqRemoveItem(id, section) {
             const labels = {
                 concreteras: 'esta concretera',
                 laboratorios: 'este laboratorio',
-                clasesMuestra: 'esta clase de muestra'
+                clasesMuestra: 'esta clase de muestra',
+                tiposMuestra: 'este tipo de muestra'
             };
             showConfirm(
                 `¿Está seguro de deshabilitar ${labels[section] || 'este elemento'}?`,
@@ -375,6 +444,9 @@ export default {
                 } else if (section === 'clasesMuestra') {
                     sp = 'CuadrosCalidad:Del_ClaseMuestra';
                     params.id_clase_muestra = id;
+                } else if (section === 'tiposMuestra') {
+                    sp = 'CuadrosCalidad:Del_TipoMuestra';
+                    params.id_tipo_muestra = id;
                 }
 
                 const response = await httpFunc('/generic/genericST/' + sp, params);
@@ -406,6 +478,9 @@ export default {
                 } else if (section === 'clasesMuestra') {
                     sp = 'CuadrosCalidad:Act_ClaseMuestra';
                     params.id_clase_muestra = id;
+                } else if (section === 'tiposMuestra') {
+                    sp = 'CuadrosCalidad:Act_TipoMuestra';
+                    params.id_tipo_muestra = id;
                 }
 
                 const response = await httpFunc('/generic/genericST/' + sp, params);

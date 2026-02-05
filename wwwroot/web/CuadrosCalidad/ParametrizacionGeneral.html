@@ -154,8 +154,11 @@
                             </small>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; margin-top: 1rem;">
-                            <button @click="reqRemoveObra(formData.id_proyecto)" style="background-color: #dc3545; border-color: #dc3545;">
+                            <button v-if="formData.estado === 'Habilitado'" @click="reqRemoveObra(formData.id_proyecto)" style="background-color: #dc3545; border-color: #dc3545;">
                                 Deshabilitar Obra
+                            </button>
+                            <button v-else @click="activateObra(formData.id_proyecto)" style="background-color: #28a745; border-color: #28a745;">
+                                Habilitar Obra
                             </button>
                         </div>
                         <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; text-align: right; margin-top: 1rem;">
@@ -547,7 +550,7 @@
                     <div class="searchBox">
                         <div class="pure-g">
                             <div class="pure-u-1-1 pure-u-md-16-24">
-                                <input type="text" placeholder="Buscar tipo de muestra..." v-model="filtroTiposMuestra.nombre" @keyup.enter="getTiposMuestra" />
+                                <input type="text" placeholder="Buscar tipo de muestra..." v-model="filtroTiposMuestra.descripcion" @keyup.enter="getTiposMuestra" />
                             </div>
                             <div class="pure-u-1-1 pure-u-md-1-24">
                                 <div class="imgGraybutton">
@@ -564,16 +567,35 @@
                         <table class="dataTable">
                             <thead>
                                 <tr>
-                                    <th>Nombre</th>
                                     <th>Descripción</th>
-                                    <th>Estado</th>
+                                    <th>Clase Muestra</th>
+                                    <th style="width: 10%;">Rango Verde</th>
+                                    <th style="width: 10%;">Rango Amarillo</th>
+                                    <th style="width: 10%;">Rango Rojo</th>
+                                    <th style="width: 10%;">Diámetro</th>
+                                    <th style="width: 8%;">Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in tiposMuestra" @click="selectItem(item, 'tiposMuestra')">
-                                    <td>{{ item.nombre }}</td>
+                                <tr v-for="item in tiposMuestra" @click="selectItem(item, 'tiposMuestra')" style="cursor: pointer;">
                                     <td>{{ item.descripcion }}</td>
-                                    <td>{{ item.estado }}</td>
+                                    <td>{{ item.clase_descripcion }}</td>
+                                    <td style="text-align: center;">
+                                        <span style="color: green; font-weight: 500;">{{ item.rango_verde }}%</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span style="color: #DAA520; font-weight: 500;">{{ item.rango_amarillo }}%</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span style="color: red; font-weight: 500;">{{ item.rango_rojo }}%</span>
+                                    </td>
+                                    <td style="text-align: center;">{{ item.diametro || '-' }}</td>
+                                    <td style="text-align: center;">{{ item.estado }}</td>
+                                </tr>
+                                <tr v-if="tiposMuestra.length === 0">
+                                    <td colspan="7" style="text-align: center; color: #999; padding: 2rem;">
+                                        No hay tipos de muestra registrados.
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -581,22 +603,101 @@
                 </div>
                 <div class="pure-u-1-24"></div>
             </div>
-            <div v-if="mode == 1 || mode == 2" style="padding-top: 1em;">
+            <div v-if="mode == 1" style="padding-top: 1em;">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
-                    <h2>{{ mode == 1 ? 'Nuevo Tipo Muestra' : 'Editar Tipo Muestra' }}</h2>
+                    <h2>Nuevo Tipo Muestra</h2>
                     <div class="pure-g" style="padding: 1rem;">
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem;">
-                            <label>Nombre</label>
-                            <input type="text" v-model="formData.nombre" class="pure-input-1" />
-                        </div>
-                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem;">
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
                             <label>Descripción</label>
                             <input type="text" v-model="formData.descripcion" class="pure-input-1" />
                         </div>
-                        <div class="pure-u-1-1" style="padding: 0.5rem; text-align: right;">
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Diámetro</label>
+                            <input type="text" v-model="formData.diametro" class="pure-input-1" />
+                            <small style="color: #666;">Opcional</small>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Clase Muestra</label>
+                            <select v-model="formData.id_clase_muestra" class="pure-input-1">
+                                <option value="">-- Seleccione una clase --</option>
+                                <option v-for="c in clasesDisponibles" :value="c.id_clase_muestra">
+                                    {{ c.descripcion }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Rango Verde (%)</label>
+                            <input type="number" step="0.001" v-model="formData.rango_verde" class="pure-input-1" />
+                            <small style="color: #666;">Umbral mínimo para estado verde</small>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Rango Amarillo (%)</label>
+                            <input type="number" step="0.001" v-model="formData.rango_amarillo" class="pure-input-1" />
+                            <small style="color: #666;">Umbral mínimo para estado amarillo</small>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Rango Rojo (%)</label>
+                            <input type="number" step="0.001" v-model="formData.rango_rojo" class="pure-input-1" />
+                            <small style="color: #666;">Umbral mínimo para estado rojo</small>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; text-align: right; margin-top: 1rem;">
                             <button @click="setMode(0)">Cancelar</button>
-                            <button @click="saveData('tiposMuestra')">Guardar</button>
+                            <button @click="saveData('tiposMuestra')" :disabled="!formData.id_clase_muestra || !formData.descripcion">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+            <div v-if="mode == 2" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Editar Tipo Muestra</h2>
+                    <div class="pure-g" style="padding: 1rem;">
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Descripción</label>
+                            <input type="text" v-model="formData.descripcion" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Diámetro</label>
+                            <input type="text" v-model="formData.diametro" class="pure-input-1" />
+                            <small style="color: #666;">Opcional</small>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Clase Muestra</label>
+                            <select v-model="formData.id_clase_muestra" class="pure-input-1">
+                                <option value="">-- Seleccione una clase --</option>
+                                <option v-for="c in clasesDisponibles" :value="c.id_clase_muestra">
+                                    {{ c.descripcion }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Rango Verde (%)</label>
+                            <input type="number" step="0.001" v-model="formData.rango_verde" class="pure-input-1" />
+                            <small style="color: #666;">Umbral mínimo para estado verde</small>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Rango Amarillo (%)</label>
+                            <input type="number" step="0.001" v-model="formData.rango_amarillo" class="pure-input-1" />
+                            <small style="color: #666;">Umbral mínimo para estado amarillo</small>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Rango Rojo (%)</label>
+                            <input type="number" step="0.001" v-model="formData.rango_rojo" class="pure-input-1" />
+                            <small style="color: #666;">Umbral mínimo para estado rojo</small>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; margin-top: 1rem;">
+                            <button v-if="formData.estado === 'Activo'" @click="reqRemoveItem(formData.id_tipo_muestra, 'tiposMuestra')" style="background-color: #dc3545; border-color: #dc3545;">
+                                Deshabilitar
+                            </button>
+                            <button v-else @click="activateItem(formData.id_tipo_muestra, 'tiposMuestra')" style="background-color: #28a745; border-color: #28a745;">
+                                Activar
+                            </button>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; text-align: right; margin-top: 1rem;">
+                            <button @click="setMode(0)">Cancelar</button>
+                            <button @click="saveData('tiposMuestra')" :disabled="!formData.id_clase_muestra || !formData.descripcion">Guardar</button>
                         </div>
                     </div>
                 </div>
