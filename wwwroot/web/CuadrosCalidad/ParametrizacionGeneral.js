@@ -197,28 +197,36 @@ export default {
                     };
                 } else {
                     // TODO: Implement other sections (concreteras, laboratorios, etc.)
-                    alert("Sección no implementada");
+                    showMessage("Sección no implementada");
                     hideProgress();
                     return;
                 }
 
                 const response = await httpFunc('/generic/genericST/' + sp, params);
                 if (response.isError) {
-                    alert("Error: " + response.errorMessage);
+                    showMessage("Error: " + response.errorMessage);
                 } else {
-                    alert("Guardado correctamente");
+                    showMessage("Guardado correctamente");
                     this.setMode(0);
                     this.setMainMode(this.mainmode);
                 }
             } catch (error) {
                 console.error("Error al guardar:", error);
-                alert("Error al guardar");
+                showMessage("Error al guardar");
             }
             hideProgress();
         },
-        // Disable/remove a project from CC
+        // Request confirmation to disable a project from CC
+        reqRemoveObra(id_proyecto) {
+            showConfirm(
+                '¿Está seguro de deshabilitar esta obra de Cuadros de Calidad?',
+                this.removeObra,
+                null,
+                id_proyecto
+            );
+        },
+        // Disable/remove a project from CC (called after confirmation)
         async removeObra(id_proyecto) {
-            if (!confirm('¿Está seguro de deshabilitar esta obra de Cuadros de Calidad?')) return;
             showProgress();
             try {
                 const response = await httpFunc('/generic/genericST/CuadrosCalidad:Del_Proyecto_CC', {
@@ -226,15 +234,15 @@ export default {
                     usuario: GlobalVariables.username
                 });
                 if (response.isError) {
-                    alert("Error: " + response.errorMessage);
+                    showMessage("Error: " + response.errorMessage);
                 } else {
-                    alert("Obra deshabilitada correctamente");
+                    showMessage("Obra deshabilitada correctamente");
                     this.setMode(0);
                     this.getObras();
                 }
             } catch (error) {
                 console.error("Error al deshabilitar:", error);
-                alert("Error al deshabilitar");
+                showMessage("Error al deshabilitar");
             }
             hideProgress();
         },
