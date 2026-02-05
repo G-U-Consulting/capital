@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `fact_parametrizacion_obra_cc` (
   `updated_by` VARCHAR(200) NULL,
   `is_active` BIT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_parametrizacion`),
-  INDEX `fk_param_cc_proyecto_idx` (`id_proyecto` ASC),
+  UNIQUE INDEX `uq_proyecto_cc` (`id_proyecto` ASC),
   CONSTRAINT `fk_param_cc_proyecto`
     FOREIGN KEY (`id_proyecto`)
     REFERENCES `fact_proyectos` (`id_proyecto`)
