@@ -807,6 +807,10 @@ export default {
         async removeImage(index) {
             this.previews.splice(index, 1);
             this.files.splice(index, 1);
+            this.alertImg = true;
+        },
+        reqRemoveImage(index) {
+            showConfirm("¿Estás seguro de retirar el archivo?", this.removeImage, null, index);
         },
         async handleFileChange(event) {
             const selectedFiles = event.target.files;
@@ -889,6 +893,9 @@ export default {
         async clearAllImages() {
             this.previews = [];
             this.files = [];
+        },
+        reqClearAllImages() {
+            showConfirm("¿Estás seguro de retirar todos los archivos?", this.clearAllImages, null);
         },
         async loadFiles(id_doc, tipo) {
             this.clearAllImages();

@@ -72,6 +72,9 @@ export default {
             this.previews.splice(index, 1);
             this.files.splice(index, 1);
         },
+        reqRemoveImage(index) {
+            showConfirm("¿Estás seguro de retirar el archivo?", this.removeImage, null, index);
+        },
         async handleFileChange(event) {
             let selectedFiles = { ...event.target.files }, files = [];
             for (const key in selectedFiles)
@@ -155,6 +158,9 @@ export default {
         async clearAllImages() {
             this.previews = [];
             this.files = [];
+        },
+        reqClearAllImages() {
+            showConfirm("¿Estás seguro de retirar todos los archivos?", this.clearAllImages, null);
         },
         async onSave() {
             showProgress();
