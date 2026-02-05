@@ -107,10 +107,10 @@ export default {
         async getLaboratorios() {
             showProgress();
             try {
-                // TODO: Implementar llamada al stored procedure
-                // const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_Laboratorios", this.filtroLaboratorios);
-                // this.laboratorios = response.data || [];
-                this.laboratorios = [];
+                const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_Laboratorios", {
+                    nombre: this.filtroLaboratorios.nombre || null
+                });
+                this.laboratorios = response.data || [];
             } catch (error) {
                 console.error("Error al obtener laboratorios:", error);
             }
@@ -120,10 +120,10 @@ export default {
         async getClasesMuestra() {
             showProgress();
             try {
-                // TODO: Implementar llamada al stored procedure
-                // const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_ClasesMuestra", this.filtroClasesMuestra);
-                // this.clasesMuestra = response.data || [];
-                this.clasesMuestra = [];
+                const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_ClasesMuestra", {
+                    nombre: this.filtroClasesMuestra.nombre || null
+                });
+                this.clasesMuestra = response.data || [];
             } catch (error) {
                 console.error("Error al obtener clases de muestra:", error);
             }
@@ -185,6 +185,17 @@ export default {
                     logoFile: null,
                     logoChanged: false
                 };
+            } else if (section === 'laboratorios') {
+                this.formData = {
+                    id_laboratorio: "",
+                    nombre: "",
+                    logo: "",
+                    logoPreview: "",
+                    logoFile: null,
+                    logoChanged: false
+                };
+            } else if (section === 'clasesMuestra') {
+                this.formData = { id_clase_muestra: "", descripcion: "" };
             } else {
                 this.formData = { id: "", nombre: "", descripcion: "" };
             }
@@ -199,7 +210,24 @@ export default {
                     logo: item.logo || "",
                     logoPreview: item.logo ? '/file/S3get/' + item.logo : "",
                     logoFile: null,
-                    logoChanged: false
+                    logoChanged: false,
+                    estado: item.estado
+                };
+            } else if (section === 'laboratorios') {
+                this.formData = {
+                    id_laboratorio: item.id_laboratorio,
+                    nombre: item.nombre,
+                    logo: item.logo || "",
+                    logoPreview: item.logo ? '/file/S3get/' + item.logo : "",
+                    logoFile: null,
+                    logoChanged: false,
+                    estado: item.estado
+                };
+            } else if (section === 'clasesMuestra') {
+                this.formData = {
+                    id_clase_muestra: item.id_clase_muestra,
+                    descripcion: item.descripcion,
+                    estado: item.estado
                 };
             } else {
                 this.formData = { ...item };
@@ -241,8 +269,34 @@ export default {
                         logo: logoKey || null,
                         usuario: GlobalVariables.username
                     };
+                } else if (section === 'laboratorios') {
+                    // Upload logo if changed
+                    let logoKey = this.formData.logo;
+                    if (this.formData.logoChanged && this.formData.logoFile) {
+                        logoKey = await this.uploadLogo();
+                        if (!logoKey && this.formData.logoFile) {
+                            hideProgress();
+                            return; // Upload failed
+                        }
+                    }
+                    sp = this.mode == 1
+                        ? 'CuadrosCalidad:Ins_Laboratorio'
+                        : 'CuadrosCalidad:Upd_Laboratorio';
+                    params = {
+                        id_laboratorio: this.formData.id_laboratorio || null,
+                        nombre: this.formData.nombre,
+                        logo: logoKey || null,
+                        usuario: GlobalVariables.username
+                    };
+                } else if (section === 'clasesMuestra') {
+                    sp = this.mode == 1
+                        ? 'CuadrosCalidad:Ins_ClaseMuestra'
+                        : 'CuadrosCalidad:Upd_ClaseMuestra';
+                    params = {
+                        id_clase_muestra: this.formData.id_clase_muestra || null,
+                        descripcion: this.formData.descripcion
+                    };
                 } else {
-                    // TODO: Implement other sections (laboratorios, etc.)
                     showMessage("Sección no implementada");
                     hideProgress();
                     return;
@@ -289,6 +343,82 @@ export default {
             } catch (error) {
                 console.error("Error al deshabilitar:", error);
                 showMessage("Error al deshabilitar");
+            }
+            hideProgress();
+        },
+        // Request confirmation to delete a concretera or laboratorio
+        reqRemoveItem(id, section) {
+            const labels = {
+                concreteras: 'esta concretera',
+                laboratorios: 'este laboratorio',
+                clasesMuestra: 'esta clase de muestra'
+            };
+            showConfirm(
+                `¿Está seguro de deshabilitar ${labels[section] || 'este elemento'}?`,
+                this.removeItem,
+                null,
+                { id, section }
+            );
+        },
+        async removeItem({ id, section }) {
+            showProgress();
+            try {
+                let sp = '';
+                let params = { usuario: GlobalVariables.username };
+
+                if (section === 'concreteras') {
+                    sp = 'CuadrosCalidad:Del_Concretera';
+                    params.id_concretera = id;
+                } else if (section === 'laboratorios') {
+                    sp = 'CuadrosCalidad:Del_Laboratorio';
+                    params.id_laboratorio = id;
+                } else if (section === 'clasesMuestra') {
+                    sp = 'CuadrosCalidad:Del_ClaseMuestra';
+                    params.id_clase_muestra = id;
+                }
+
+                const response = await httpFunc('/generic/genericST/' + sp, params);
+                if (response.isError) {
+                    showMessage("Error: " + response.errorMessage);
+                } else {
+                    showMessage("Deshabilitado correctamente");
+                    this.setMode(0);
+                    this.setMainMode(this.mainmode);
+                }
+            } catch (error) {
+                console.error("Error al eliminar:", error);
+                showMessage("Error al eliminar");
+            }
+            hideProgress();
+        },
+        async activateItem(id, section) {
+            showProgress();
+            try {
+                let sp = '';
+                let params = { usuario: GlobalVariables.username };
+
+                if (section === 'concreteras') {
+                    sp = 'CuadrosCalidad:Act_Concretera';
+                    params.id_concretera = id;
+                } else if (section === 'laboratorios') {
+                    sp = 'CuadrosCalidad:Act_Laboratorio';
+                    params.id_laboratorio = id;
+                } else if (section === 'clasesMuestra') {
+                    sp = 'CuadrosCalidad:Act_ClaseMuestra';
+                    params.id_clase_muestra = id;
+                }
+
+                const response = await httpFunc('/generic/genericST/' + sp, params);
+                if (response.isError) {
+                    showMessage("Error: " + response.errorMessage);
+                } else {
+                    showMessage("Activado correctamente");
+                    this.setMode(0);
+                    this.setMainMode(this.mainmode);
+                }
+            } catch (error) {
+                console.error("Error al activar:", error);
+                showMessage("Error al activar");
             }
             hideProgress();
         },
@@ -382,7 +512,7 @@ export default {
                 }
 
                 // Return the S3 key
-                return s3Response.data[0]?.llave || null;
+                return s3Response.data[0]?.CacheKey || null;
             } catch (error) {
                 console.error("Error al subir logo:", error);
                 showMessage("Error al subir el logo");
