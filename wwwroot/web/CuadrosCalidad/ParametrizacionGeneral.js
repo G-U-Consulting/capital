@@ -7,6 +7,7 @@ export default {
             // Data arrays for each section
             obras: [],
             proyectosDisponibles: [],
+            laboratoriosActivos: [],
             concreteras: [],
             laboratorios: [],
             clasesMuestra: [],
@@ -25,7 +26,8 @@ export default {
                 id_concretera: "",
                 nombre: "",
                 descripcion: "",
-                politica_recoleccion: 0,
+                id_laboratorio: "",
+                codigo_laboratorio: "",
                 logo: "",
                 logoPreview: "",
                 logoFile: null,
@@ -157,24 +159,31 @@ export default {
         async startNewObra() {
             showProgress();
             this.proyectosDisponibles = await this.getProyectosDisponibles();
+            this.laboratoriosActivos = await this.getLaboratoriosActivos();
             this.formData = {
                 id_proyecto: "",
                 nombre: "",
-                politica_recoleccion: 0
+                id_laboratorio: "",
+                codigo_laboratorio: ""
             };
             this.currentSection = 'obras';
             this.setMode(1);
             hideProgress();
         },
-        editObra(item) {
+        async editObra(item) {
+            showProgress();
+            this.laboratoriosActivos = await this.getLaboratoriosActivos();
             this.formData = {
+                id_proyecto_cc: item.id_proyecto_cc,
                 id_proyecto: item.id_proyecto,
                 nombre: item.nombre,
-                politica_recoleccion: item.politica_recoleccion,
+                id_laboratorio: item.id_laboratorio,
+                codigo_laboratorio: item.codigo_laboratorio,
                 estado: item.estado
             };
             this.currentSection = 'obras';
             this.setMode(2);
+            hideProgress();
         },
         formatDate(dateStr) {
             if (!dateStr) return '';
@@ -276,15 +285,23 @@ export default {
                 let params = {};
 
                 if (section === 'obras') {
-                    // Obras uses parametrizacion_obra_cc (logo comes from main project system)
-                    sp = this.mode == 1
-                        ? 'CuadrosCalidad:Ins_Proyecto_CC'
-                        : 'CuadrosCalidad:Upd_Proyecto_CC';
-                    params = {
-                        id_proyecto: this.formData.id_proyecto,
-                        politica_recoleccion: this.formData.politica_recoleccion || 0,
-                        usuario: GlobalVariables.username
-                    };
+                    if (this.mode == 1) {
+                        sp = 'CuadrosCalidad:Ins_Proyecto_CC';
+                        params = {
+                            id_proyecto: this.formData.id_proyecto,
+                            id_laboratorio: this.formData.id_laboratorio,
+                            codigo_laboratorio: this.formData.codigo_laboratorio,
+                            usuario: GlobalVariables.username
+                        };
+                    } else {
+                        sp = 'CuadrosCalidad:Upd_Proyecto_CC';
+                        params = {
+                            id_proyecto_cc: this.formData.id_proyecto_cc,
+                            id_laboratorio: this.formData.id_laboratorio,
+                            codigo_laboratorio: this.formData.codigo_laboratorio,
+                            usuario: GlobalVariables.username
+                        };
+                    }
                 } else if (section === 'concreteras') {
                     // Upload logo if changed
                     let logoKey = this.formData.logo;
@@ -365,20 +382,20 @@ export default {
             hideProgress();
         },
         // Request confirmation to disable a project from CC
-        reqRemoveObra(id_proyecto) {
+        reqRemoveObra(id_proyecto_cc) {
             showConfirm(
                 '¿Está seguro de deshabilitar esta obra de Cuadros de Calidad?',
                 this.removeObra,
                 null,
-                id_proyecto
+                id_proyecto_cc
             );
         },
         // Disable/remove a project from CC (called after confirmation)
-        async removeObra(id_proyecto) {
+        async removeObra(id_proyecto_cc) {
             showProgress();
             try {
                 const response = await httpFunc('/generic/genericST/CuadrosCalidad:Del_Proyecto_CC', {
-                    id_proyecto: id_proyecto,
+                    id_proyecto_cc: id_proyecto_cc,
                     usuario: GlobalVariables.username
                 });
                 if (response.isError) {
@@ -394,11 +411,11 @@ export default {
             }
             hideProgress();
         },
-        async activateObra(id_proyecto) {
+        async activateObra(id_proyecto_cc) {
             showProgress();
             try {
                 const response = await httpFunc('/generic/genericST/CuadrosCalidad:Act_Proyecto_CC', {
-                    id_proyecto: id_proyecto,
+                    id_proyecto_cc: id_proyecto_cc,
                     usuario: GlobalVariables.username
                 });
                 if (response.isError) {
@@ -506,6 +523,18 @@ export default {
                 return response.data || [];
             } catch (error) {
                 console.error("Error al obtener proyectos disponibles:", error);
+                return [];
+            }
+        },
+        // Get active laboratories for dropdown
+        async getLaboratoriosActivos() {
+            try {
+                const response = await httpFunc("/generic/genericDT/CuadrosCalidad:Get_Laboratorios", {
+                    nombre: null
+                });
+                return (response.data || []).filter(l => l.is_active == 1);
+            } catch (error) {
+                console.error("Error al obtener laboratorios activos:", error);
                 return [];
             }
         },

@@ -86,11 +86,37 @@ CREATE TABLE IF NOT EXISTS `dim_estado_cc` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- -----------------------------------------------------
+-- fact_proyecto_cc (Project-Laboratory link for CC)
+-- Only this table references fact_proyectos directly.
+-- All other _cc fact tables reference this table via id_proyecto_cc.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `fact_proyecto_cc` (
+  `id_proyecto_cc` INT NOT NULL AUTO_INCREMENT,
+  `id_proyecto` INT NOT NULL,
+  `id_laboratorio` INT NOT NULL,
+  `codigo_laboratorio` INT NOT NULL,
+  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_by` VARCHAR(200) NOT NULL,
+  `updated_on` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_by` VARCHAR(200) NULL,
+  `is_active` BIT NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id_proyecto_cc`),
+  UNIQUE INDEX `uq_proyecto_cc` (`id_proyecto` ASC),
+  INDEX `fk_proyecto_cc_laboratorio_idx` (`id_laboratorio` ASC),
+  CONSTRAINT `fk_proyecto_cc_proyecto`
+    FOREIGN KEY (`id_proyecto`)
+    REFERENCES `fact_proyectos` (`id_proyecto`),
+  CONSTRAINT `fk_proyecto_cc_laboratorio`
+    FOREIGN KEY (`id_laboratorio`)
+    REFERENCES `dim_laboratorio_cc` (`id_laboratorio`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+-- -----------------------------------------------------
 -- fact_ubicacion_cc (Locations synced from ACC)
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `fact_ubicacion_cc` (
   `id_ubicacion` INT NOT NULL AUTO_INCREMENT,
-  `id_proyecto` INT NOT NULL,
+  `id_proyecto_cc` INT NOT NULL,
   `cod_acc` VARCHAR(120) NOT NULL,
   `descripcion` VARCHAR(120) NOT NULL,
   `activado_acc` TINYINT NOT NULL DEFAULT 1 COMMENT '0=desactivado en ACC, 1=activo',
@@ -99,10 +125,10 @@ CREATE TABLE IF NOT EXISTS `fact_ubicacion_cc` (
   `created_by` VARCHAR(200) NOT NULL,
   `is_active` BIT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_ubicacion`),
-  INDEX `fk_ubicacion_cc_proyecto_idx` (`id_proyecto` ASC),
+  INDEX `fk_ubicacion_cc_proyecto_idx` (`id_proyecto_cc` ASC),
   CONSTRAINT `fk_ubicacion_cc_proyecto`
-    FOREIGN KEY (`id_proyecto`)
-    REFERENCES `fact_proyectos` (`id_proyecto`)
+    FOREIGN KEY (`id_proyecto_cc`)
+    REFERENCES `fact_proyecto_cc` (`id_proyecto_cc`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- -----------------------------------------------------
@@ -110,7 +136,7 @@ CREATE TABLE IF NOT EXISTS `fact_ubicacion_cc` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `fact_piso_cc` (
   `id_piso` INT NOT NULL AUTO_INCREMENT,
-  `id_proyecto` INT NOT NULL,
+  `id_proyecto_cc` INT NOT NULL,
   `cod_acc` VARCHAR(120) NOT NULL,
   `numero` VARCHAR(45) NOT NULL,
   `activado_acc` TINYINT NOT NULL DEFAULT 1,
@@ -119,10 +145,10 @@ CREATE TABLE IF NOT EXISTS `fact_piso_cc` (
   `created_by` VARCHAR(200) NOT NULL,
   `is_active` BIT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_piso`),
-  INDEX `fk_piso_cc_proyecto_idx` (`id_proyecto` ASC),
+  INDEX `fk_piso_cc_proyecto_idx` (`id_proyecto_cc` ASC),
   CONSTRAINT `fk_piso_cc_proyecto`
-    FOREIGN KEY (`id_proyecto`)
-    REFERENCES `fact_proyectos` (`id_proyecto`)
+    FOREIGN KEY (`id_proyecto_cc`)
+    REFERENCES `fact_proyecto_cc` (`id_proyecto_cc`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- -----------------------------------------------------
@@ -130,17 +156,17 @@ CREATE TABLE IF NOT EXISTS `fact_piso_cc` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `fact_observacion_cc` (
   `id_observacion` INT NOT NULL AUTO_INCREMENT,
-  `id_proyecto` INT NOT NULL,
+  `id_proyecto_cc` INT NOT NULL,
   `descripcion` VARCHAR(200) NOT NULL,
   `accion` SMALLINT NULL COMMENT 'Special action trigger code',
   `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` VARCHAR(200) NOT NULL,
   `is_active` BIT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_observacion`),
-  INDEX `fk_observacion_cc_proyecto_idx` (`id_proyecto` ASC),
+  INDEX `fk_observacion_cc_proyecto_idx` (`id_proyecto_cc` ASC),
   CONSTRAINT `fk_observacion_cc_proyecto`
-    FOREIGN KEY (`id_proyecto`)
-    REFERENCES `fact_proyectos` (`id_proyecto`)
+    FOREIGN KEY (`id_proyecto_cc`)
+    REFERENCES `fact_proyecto_cc` (`id_proyecto_cc`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- -----------------------------------------------------
@@ -148,7 +174,7 @@ CREATE TABLE IF NOT EXISTS `fact_observacion_cc` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `fact_parametrizacion_obra_cc` (
   `id_parametrizacion` INT NOT NULL AUTO_INCREMENT,
-  `id_proyecto` INT NOT NULL,
+  `id_proyecto_cc` INT NOT NULL,
   `politica_recoleccion` SMALLINT NOT NULL DEFAULT 0 COMMENT '0=1 dia antes, 1=1 dia despues (festivos)',
   `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `created_by` VARCHAR(200) NOT NULL,
@@ -156,8 +182,8 @@ CREATE TABLE IF NOT EXISTS `fact_parametrizacion_obra_cc` (
   `updated_by` VARCHAR(200) NULL,
   `is_active` BIT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id_parametrizacion`),
-  UNIQUE INDEX `uq_proyecto_cc` (`id_proyecto` ASC),
+  UNIQUE INDEX `uq_parametrizacion_proyecto_cc` (`id_proyecto_cc` ASC),
   CONSTRAINT `fk_param_cc_proyecto`
-    FOREIGN KEY (`id_proyecto`)
-    REFERENCES `fact_proyectos` (`id_proyecto`)
+    FOREIGN KEY (`id_proyecto_cc`)
+    REFERENCES `fact_proyecto_cc` (`id_proyecto_cc`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
