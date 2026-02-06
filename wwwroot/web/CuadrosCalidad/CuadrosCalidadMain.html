@@ -11,6 +11,12 @@
             <div class="lateralMenuHeader">
             </div>
             <div class="lateralMenuGroup">
+                <div v-on:click="setMainMode(0)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 0}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Proyectos
+                </div>
+            </div>
+            <div class="lateralMenuGroup">
                 <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
                     Parametrización General
                 </div>
