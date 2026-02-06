@@ -1,44 +1,111 @@
 <div class="pure-g">
-    <div class="pure-u-1-1 pure-u-md-1-5 lateralMenu">
-        <div class="lateralMenuHeader">
+    <div style="position:relative">
+        <div class="float-btn" @click="toggleList" v-bind:class="{'open': showList}"
+            :style="{right: (showList?'-20.3vw':'-2.3vw') }">
+            <img src="../../img/ico/deploy.png">
         </div>
-        <div class="lateralMenuGroup">
-            <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
-                Parametrización General
+    </div>
+    <div class="pure-u-1-1 pure-u-md-1-5" :style="{display:showList?'block':'none'}"
+        :class="['lateralMenuContainer', { open: showList }]">
+        <div class="lateralMenu">
+            <div class="lateralMenuHeader">
             </div>
-        </div>
-        <div class="lateralMenuGroup">
-            <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
-                <img src="./img/ico/svg/building.svg" />
-                Selección de Obras
+            <div class="lateralMenuGroup">
+                <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
+                    Parametrización General
+                </div>
             </div>
-            <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
-                <img src="./img/ico/svg/building.svg" />
-                Concretera
+            <div class="lateralMenuGroup">
+                <div v-on:click="setMainMode(1)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 1}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Selección de Obras
+                </div>
+                <div v-on:click="setMainMode(2)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 2}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Concretera
+                </div>
+                <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Laboratorio
+                </div>
+                <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Clase Muestra
+                </div>
+                <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Tipo Muestra
+                </div>
             </div>
-            <div v-on:click="setMainMode(3)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 3}">
-                <img src="./img/ico/svg/building.svg" />
-                Laboratorio
+            <div class="lateralMenuGroup">
+                <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
+                    Parametrización de Obra
+                </div>
             </div>
-            <div v-on:click="setMainMode(4)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 4}">
-                <img src="./img/ico/svg/building.svg" />
-                Clase Muestra
-            </div>
-            <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
-                <img src="./img/ico/svg/building.svg" />
-                Tipo Muestra
+            <div class="lateralMenuGroup">
+                <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Personalización
+                </div>
+                <div v-on:click="setMainMode(7)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Ubicación
+                </div>
+                <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 8}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Pisos
+                </div>
+                <div v-on:click="setMainMode(9)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 9}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Observaciones
+                </div>
             </div>
         </div>
     </div>
-    <div class="pure-u-1-1 pure-u-md-4-5">
-        <!-- SELECCIÓN DE OBRAS -->
-        <div v-if="mainmode == 1">
-            <div style="font-size: 1rem; font-weight: 500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
+    <div :class="['pure-u-1-1', showList ? 'pure-u-md-4-5' : 'pure-u-md-1-1']">
+        <div style="font-size: 1rem; font-weight: 500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; padding-left: 2rem;">
+            <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                <span class="hoverLink">{{ r.text }}</span>
+                <span v-if="i < ruta.length - 1"> / </span>
+            </div>
+        </div>
+        <!-- PROYECTOS CARD VIEW -->
+        <div v-if="mainmode == 0" style="padding-top: 1em;">
+            <div class="pure-u-1-24"></div>
+            <div class="pure-u-22-24" style="height: calc(100vh - 11rem); overflow-y: auto;">
+                <div class="searchBox" style="padding: 1rem 5px;">
+                    <div class="pure-g">
+                        <div class="pure-u-1-1 pure-u-md-5-24">
+                            <input type="text" placeholder="Buscar proyecto..." v-model="searchCC" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-24">
+                            <div class="imgGraybutton" @click="searchCC = ''">
+                                <img src="./img/ico/eraser.png" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="matrix-cont" style="padding-top: .5rem;">
+                    <div class="item-matrix" v-for="item in getFilteredProyectosCC()" :key="item.id_proyecto_cc">
+                        <div class="img-matrix">
+                            <img class="img-matrix-img" v-if="item.logo" :src="'/file/S3get/' + item.logo" :alt="`img_${item.nombre}`">
+                        </div>
+                        <div class="bottom-matrix">
+                            <span>{{ item.nombre }}</span>
+                        </div>
+                        <div class="bottom-adm">
+                            <span>{{ item.nombre_laboratorio }}</span>
+                        </div>
+                    </div>
+                    <div v-if="getFilteredProyectosCC().length === 0" style="padding: 2rem; text-align: center; color: #999;">
+                        No se encontraron proyectos habilitados.
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- SELECCIÓN DE OBRAS -->
+        <div v-if="mainmode == 1">
             <!-- LIST VIEW -->
             <div v-if="mode == 0" style="padding-top: 1em;">
                 <div class="pure-u-1-24"></div>
@@ -184,12 +251,6 @@
 
         <!-- CONCRETERA -->
         <div v-if="mainmode == 2">
-            <div style="font-size: 1rem; font-weight: 500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
-                </div>
-            </div>
             <div v-if="mode == 0" style="padding-top: 1em;">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
@@ -320,12 +381,6 @@
 
         <!-- LABORATORIO -->
         <div v-if="mainmode == 3">
-            <div style="font-size: 1rem; font-weight: 500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
-                </div>
-            </div>
             <div v-if="mode == 0" style="padding-top: 1em;">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
@@ -456,12 +511,6 @@
 
         <!-- CLASE MUESTRA -->
         <div v-if="mainmode == 4">
-            <div style="font-size: 1rem; font-weight: 500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
-                </div>
-            </div>
             <div v-if="mode == 0" style="padding-top: 1em;">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
@@ -548,12 +597,6 @@
 
         <!-- TIPO MUESTRA -->
         <div v-if="mainmode == 5">
-            <div style="font-size: 1rem; font-weight: 500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem;">
-                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                    <span class="hoverLink">{{ r.text }}</span>
-                    <span v-if="i < ruta.length - 1"> / </span>
-                </div>
-            </div>
             <div v-if="mode == 0" style="padding-top: 1em;">
                 <div class="pure-u-1-24"></div>
                 <div class="pure-u-22-24 menuCard">
@@ -713,6 +756,34 @@
                     </div>
                 </div>
                 <div class="pure-u-1-24"></div>
+            </div>
+        </div>
+
+        <!-- PERSONALIZACIÓN -->
+        <div v-if="mainmode == 6">
+            <div style="padding: 2rem; text-align: center; color: #999;">
+                Personalización - En construcción
+            </div>
+        </div>
+
+        <!-- UBICACIÓN -->
+        <div v-if="mainmode == 7">
+            <div style="padding: 2rem; text-align: center; color: #999;">
+                Ubicación - En construcción
+            </div>
+        </div>
+
+        <!-- PISOS -->
+        <div v-if="mainmode == 8">
+            <div style="padding: 2rem; text-align: center; color: #999;">
+                Pisos - En construcción
+            </div>
+        </div>
+
+        <!-- OBSERVACIONES -->
+        <div v-if="mainmode == 9">
+            <div style="padding: 2rem; text-align: center; color: #999;">
+                Observaciones - En construcción
             </div>
         </div>
     </div>

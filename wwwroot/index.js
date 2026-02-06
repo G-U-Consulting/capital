@@ -316,8 +316,12 @@ mainVue = {
                 return this.logOut();
             }
             const isZAZone = item.name === 'ZA';
+            const isZCZone = item.name === 'ZC';
             if (isZAZone) {
                 this.loadModule('Proyectos', null);
+                this.closeMenu();
+            } else if (isZCZone) {
+                this.loadModule('CuadrosCalidadMain', null);
                 this.closeMenu();
             } else {
                 this.openZone(item);

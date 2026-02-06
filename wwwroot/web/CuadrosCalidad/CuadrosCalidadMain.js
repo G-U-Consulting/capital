@@ -1,7 +1,7 @@
 export default {
     data() {
         return {
-            mainmode: 1,
+            mainmode: 0,
             mode: 0,
             ruta: [],
             // Data arrays for each section
@@ -33,20 +33,28 @@ export default {
                 logoFile: null,
                 logoChanged: false
             },
-            currentSection: ""
+            currentSection: "",
+            showList: window.innerWidth > 1424,
+            proyectosCC: [],
+            searchCC: ''
         }
     },
     async mounted() {
-        this.setMainMode(1);
+        this.setMainMode(0);
     },
     methods: {
         getMainModeTitle() {
             const titles = {
+                0: "Proyectos",
                 1: "Selección de Obras",
                 2: "Concretera",
                 3: "Laboratorio",
                 4: "Clase Muestra",
-                5: "Tipo Muestra"
+                5: "Tipo Muestra",
+                6: "Personalización",
+                7: "Ubicación",
+                8: "Pisos",
+                9: "Observaciones"
             };
             return titles[this.mainmode] || "";
         },
@@ -73,12 +81,30 @@ export default {
 
             // Load data for the selected section
             switch(mode) {
+                case 0: await this.getProyectosCC(); break;
                 case 1: await this.getObras(); break;
                 case 2: await this.getConcreteras(); break;
                 case 3: await this.getLaboratorios(); break;
                 case 4: await this.getClasesMuestra(); break;
                 case 5: await this.getTiposMuestra(); break;
             }
+        },
+        // PROYECTOS CC - Card view
+        async getProyectosCC() {
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Proyectos_CC', { nombre: null });
+                this.proyectosCC = (resp.data || []).filter(o => o.is_active == '1');
+            } catch (e) {
+                console.error('Error cargando proyectos CC:', e);
+                this.proyectosCC = [];
+            }
+            hideProgress();
+        },
+        getFilteredProyectosCC() {
+            if (!this.searchCC) return this.proyectosCC;
+            const term = this.searchCC.toLowerCase();
+            return this.proyectosCC.filter(o => o.nombre.toLowerCase().includes(term));
         },
         // OBRAS - Get enabled projects for Cuadros de Calidad
         async getObras() {
@@ -184,6 +210,9 @@ export default {
             this.currentSection = 'obras';
             this.setMode(2);
             hideProgress();
+        },
+        toggleList() {
+            this.showList = !this.showList;
         },
         formatDate(dateStr) {
             if (!dateStr) return '';

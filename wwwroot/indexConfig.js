@@ -322,11 +322,11 @@
     //      allow: ["*"]
     //  }
     // Cuadros de Calidad
-    "ParametrizacionGeneral": {
-        templateUrl: "./web/CuadrosCalidad/ParametrizacionGeneral.html",
-        jsUrl: "./web/CuadrosCalidad/ParametrizacionGeneral.js",
-        title: "Parametrización General",
-        desc: "Parametrización general de cuadros de calidad",
+    "CuadrosCalidadMain": {
+        templateUrl: "./web/CuadrosCalidad/CuadrosCalidadMain.html",
+        jsUrl: "./web/CuadrosCalidad/CuadrosCalidadMain.js",
+        title: "Cuadros de Calidad",
+        desc: "Módulo principal de cuadros de calidad",
         imgSrc: "./img/ico/menu/006-group.png",
         zone: "ZC",
         category: "PARAMETRIZACION",
@@ -382,7 +382,7 @@ const zones = {
         title: "Cuadros de Calidad",
         img: "./img/ico/menu/zcc.svg",
         categories: [
-            { key: "PARAMETRIZACION", name: "Parametrización General" }
+            { key: "PARAMETRIZACION", name: "Parametrización" }
         ]
     },
     "OUT": {
