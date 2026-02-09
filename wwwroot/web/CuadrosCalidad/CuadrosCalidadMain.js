@@ -19,6 +19,7 @@ export default {
             filtroLaboratorios: { nombre: "" },
             filtroClasesMuestra: { nombre: "" },
             filtroTiposMuestra: { descripcion: "" },
+            filtroObservaciones: { descripcion: "" },
             // Form data
             formData: {
                 id: "",
@@ -35,12 +36,22 @@ export default {
             },
             currentSection: "",
             showList: window.innerWidth > 1424,
+            observaciones: [],
             proyectosCC: [],
-            searchCC: ''
+            selectedProyectoCC: null,
+            searchCC: '',
+            personalizacion: { politica_recoleccion: null }
         }
     },
     async mounted() {
+        await this.getProyectosCC();
         this.setMainMode(0);
+    },
+    watch: {
+        selectedProyectoCC() {
+            if (this.mainmode == 6) this.getPersonalizacion();
+            if (this.mainmode == 9) this.getObservaciones();
+        }
     },
     methods: {
         getMainModeTitle() {
@@ -87,6 +98,8 @@ export default {
                 case 3: await this.getLaboratorios(); break;
                 case 4: await this.getClasesMuestra(); break;
                 case 5: await this.getTiposMuestra(); break;
+                case 6: await this.getPersonalizacion(); break;
+                case 9: await this.getObservaciones(); break;
             }
         },
         // PROYECTOS CC - Card view
@@ -101,10 +114,76 @@ export default {
             }
             hideProgress();
         },
+        getSelectedProyecto() {
+            if (!this.selectedProyectoCC) return null;
+            return this.proyectosCC.find(p => p.id_proyecto_cc == this.selectedProyectoCC) || null;
+        },
         getFilteredProyectosCC() {
             if (!this.searchCC) return this.proyectosCC;
             const term = this.searchCC.toLowerCase();
             return this.proyectosCC.filter(o => o.nombre.toLowerCase().includes(term));
+        },
+        // PERSONALIZACIÓN
+        async getPersonalizacion() {
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Personalizacion', {
+                    id_proyecto_cc: this.selectedProyectoCC
+                });
+                if (resp.data && resp.data.length > 0) {
+                    this.personalizacion = resp.data[0];
+                } else {
+                    this.personalizacion = { politica_recoleccion: null };
+                }
+            } catch (e) {
+                console.error('Error cargando personalización:', e);
+                this.personalizacion = { politica_recoleccion: null };
+            }
+            hideProgress();
+        },
+        async savePersonalizacion() {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Save_Personalizacion', {
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    politica_recoleccion: this.personalizacion.politica_recoleccion,
+                    usuario: GlobalVariables.username
+                });
+                showMessage('Personalización guardada correctamente');
+            } catch (e) {
+                console.error('Error guardando personalización:', e);
+                showMessage('Error al guardar personalización', 'error');
+            }
+            hideProgress();
+        },
+        // OBSERVACIONES
+        async getObservaciones() {
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Observaciones', {
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    descripcion: this.filtroObservaciones.descripcion || null
+                });
+                this.observaciones = resp.data || [];
+            } catch (e) {
+                console.error('Error cargando observaciones:', e);
+                this.observaciones = [];
+            }
+            hideProgress();
+        },
+        async toggleAccion(id_observacion, parametro) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Upd_Observacion_Accion', {
+                    id_observacion,
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    parametro
+                });
+                await this.getObservaciones();
+            } catch (e) {
+                console.error('Error actualizando acción:', e);
+            }
+            hideProgress();
         },
         // OBRAS - Get enabled projects for Cuadros de Calidad
         async getObras() {
@@ -257,6 +336,8 @@ export default {
                     rango_rojo: "",
                     diametro: ""
                 };
+            } else if (section === 'observaciones') {
+                this.formData = { id_observacion: "", descripcion: "" };
             } else {
                 this.formData = { id: "", nombre: "", descripcion: "" };
             }
@@ -300,6 +381,12 @@ export default {
                     rango_amarillo: item.rango_amarillo,
                     rango_rojo: item.rango_rojo,
                     diametro: item.diametro || "",
+                    estado: item.estado
+                };
+            } else if (section === 'observaciones') {
+                this.formData = {
+                    id_observacion: item.id_observacion,
+                    descripcion: item.descripcion,
                     estado: item.estado
                 };
             } else {
@@ -390,6 +477,16 @@ export default {
                         rango_rojo: this.formData.rango_rojo,
                         diametro: this.formData.diametro || null
                     };
+                } else if (section === 'observaciones') {
+                    sp = this.mode == 1
+                        ? 'CuadrosCalidad:Ins_Observacion'
+                        : 'CuadrosCalidad:Upd_Observacion';
+                    params = {
+                        id_observacion: this.formData.id_observacion || null,
+                        id_proyecto_cc: this.selectedProyectoCC,
+                        descripcion: this.formData.descripcion,
+                        usuario: GlobalVariables.username
+                    };
                 } else {
                     showMessage("Sección no implementada");
                     hideProgress();
@@ -466,7 +563,8 @@ export default {
                 concreteras: 'esta concretera',
                 laboratorios: 'este laboratorio',
                 clasesMuestra: 'esta clase de muestra',
-                tiposMuestra: 'este tipo de muestra'
+                tiposMuestra: 'este tipo de muestra',
+                observaciones: 'esta observación'
             };
             showConfirm(
                 `¿Está seguro de deshabilitar ${labels[section] || 'este elemento'}?`,
@@ -493,6 +591,9 @@ export default {
                 } else if (section === 'tiposMuestra') {
                     sp = 'CuadrosCalidad:Del_TipoMuestra';
                     params.id_tipo_muestra = id;
+                } else if (section === 'observaciones') {
+                    sp = 'CuadrosCalidad:Del_Observacion';
+                    params.id_observacion = id;
                 }
 
                 const response = await httpFunc('/generic/genericST/' + sp, params);
@@ -527,6 +628,9 @@ export default {
                 } else if (section === 'tiposMuestra') {
                     sp = 'CuadrosCalidad:Act_TipoMuestra';
                     params.id_tipo_muestra = id;
+                } else if (section === 'observaciones') {
+                    sp = 'CuadrosCalidad:Act_Observacion';
+                    params.id_observacion = id;
                 }
 
                 const response = await httpFunc('/generic/genericST/' + sp, params);

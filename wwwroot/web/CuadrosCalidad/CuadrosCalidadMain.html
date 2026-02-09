@@ -43,12 +43,12 @@
                     Tipo Muestra
                 </div>
             </div>
-            <div class="lateralMenuGroup">
+            <div class="lateralMenuGroup" v-if="selectedProyectoCC">
                 <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
                     Parametrización de Obra
                 </div>
             </div>
-            <div class="lateralMenuGroup">
+            <div class="lateralMenuGroup" v-if="selectedProyectoCC">
                 <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
                     <img src="./img/ico/svg/building.svg" />
                     Personalización
@@ -69,10 +69,21 @@
         </div>
     </div>
     <div :class="['pure-u-1-1', showList ? 'pure-u-md-4-5' : 'pure-u-md-1-1']">
-        <div style="font-size: 1rem; font-weight: 500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; padding-left: 2rem;">
-            <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
-                <span class="hoverLink">{{ r.text }}</span>
-                <span v-if="i < ruta.length - 1"> / </span>
+        <div style="font-size: 1rem; font-weight: 500; border-bottom: 1px solid rgb(231, 231, 231); padding: 1rem; padding-left: 2rem; padding-right: 3rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="display: inline;" v-for="(r, i) in ruta.filter(r => r.text)" @click="r.action">
+                    <span class="hoverLink">{{ r.text }}</span>
+                    <span v-if="i < ruta.length - 1"> / </span>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label style="font-size: 0.85rem; color: #666; white-space: nowrap;">Proyecto:</label>
+                <select v-model="selectedProyectoCC" style="padding: 0.3rem 0.5rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; min-width: 200px;">
+                    <option :value="null">-- Seleccione un proyecto --</option>
+                    <option v-for="p in proyectosCC" :key="p.id_proyecto_cc" :value="p.id_proyecto_cc">
+                        {{ p.nombre }}
+                    </option>
+                </select>
             </div>
         </div>
         <!-- PROYECTOS CARD VIEW -->
@@ -767,8 +778,24 @@
 
         <!-- PERSONALIZACIÓN -->
         <div v-if="mainmode == 6">
-            <div style="padding: 2rem; text-align: center; color: #999;">
-                Personalización - En construcción
+            <div style="padding: 2rem;">
+                <div class="pure-g">
+                    <div class="pure-u-1-1 pure-u-md-1-2">
+                        <div class="formSection">
+                            <label>Política de recolección (días festivos)</label>
+                            <select v-model="personalizacion.politica_recoleccion" class="pure-input-1">
+                                <option :value="null" disabled>-- Seleccionar --</option>
+                                <option :value="0">1 día antes del festivo</option>
+                                <option :value="1">1 día después del festivo</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="pure-button pure-button-primary" @click="savePersonalizacion">
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -788,8 +815,113 @@
 
         <!-- OBSERVACIONES -->
         <div v-if="mainmode == 9">
-            <div style="padding: 2rem; text-align: center; color: #999;">
-                Observaciones - En construcción
+            <div v-if="mode == 0" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Observaciones</h2>
+                    <div class="searchBox">
+                        <div class="pure-g">
+                            <div class="pure-u-1-1 pure-u-md-16-24">
+                                <input type="text" placeholder="Buscar observación..." v-model="filtroObservaciones.descripcion" @keyup.enter="getObservaciones" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/svg/search.svg" @click="getObservaciones" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24"></div>
+                            <div class="pure-u-1-1 pure-u-md-5-24" style="text-align: right;">
+                                <button v-on:click="startNew('observaciones')">Nueva Observación</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th style="width: 90px; text-align: center;">Defecto</th>
+                                    <th style="width: 120px; text-align: center;">Cerrar Muestra</th>
+                                    <th style="width: 100px; text-align: center;">Liberación</th>
+                                    <th style="width: 100px;">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in observaciones" style="cursor: pointer;">
+                                    <td @click="selectItem(item, 'observaciones')">{{ item.descripcion }}</td>
+                                    <td style="text-align: center;">
+                                        <button @click="toggleAccion(item.id_observacion, item.accion == 1 ? 0 : 1)"
+                                            :style="{ backgroundColor: item.accion == 1 ? '#28a745' : '#ccc', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer' }">
+                                            {{ item.accion == 1 ? 'Sí' : 'No' }}
+                                        </button>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button @click="toggleAccion(item.id_observacion, item.accion == 2 ? 0 : 2)"
+                                            :style="{ backgroundColor: item.accion == 2 ? '#28a745' : '#ccc', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer' }">
+                                            {{ item.accion == 2 ? 'Sí' : 'No' }}
+                                        </button>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <button @click="toggleAccion(item.id_observacion, item.accion == 3 ? 0 : 3)"
+                                            :style="{ backgroundColor: item.accion == 3 ? '#28a745' : '#ccc', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer' }">
+                                            {{ item.accion == 3 ? 'Sí' : 'No' }}
+                                        </button>
+                                    </td>
+                                    <td style="text-align: center;" @click="selectItem(item, 'observaciones')">{{ item.estado }}</td>
+                                </tr>
+                                <tr v-if="observaciones.length === 0">
+                                    <td colspan="5" style="text-align: center; color: #999; padding: 2rem;">
+                                        No hay observaciones registradas.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+            <div v-if="mode == 1" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Nueva Observación</h2>
+                    <div class="pure-g" style="padding: 1rem;">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem;">
+                            <label>Descripción</label>
+                            <input type="text" v-model="formData.descripcion" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1" style="padding: 0.5rem; text-align: right;">
+                            <button @click="setMode(0)">Cancelar</button>
+                            <button @click="saveData('observaciones')" :disabled="!formData.descripcion">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+            <div v-if="mode == 2" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Editar Observación</h2>
+                    <div class="pure-g" style="padding: 1rem;">
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem;">
+                            <label>Descripción</label>
+                            <input type="text" v-model="formData.descripcion" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem;"></div>
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; margin-top: 1rem;">
+                            <button v-if="formData.estado === 'Activo'" @click="reqRemoveItem(formData.id_observacion, 'observaciones')" style="background-color: #dc3545; border-color: #dc3545;">
+                                Deshabilitar
+                            </button>
+                            <button v-else @click="activateItem(formData.id_observacion, 'observaciones')" style="background-color: #28a745; border-color: #28a745;">
+                                Activar
+                            </button>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; text-align: right; margin-top: 1rem;">
+                            <button @click="setMode(0)">Cancelar</button>
+                            <button @click="saveData('observaciones')" :disabled="!formData.descripcion">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
             </div>
         </div>
     </div>
