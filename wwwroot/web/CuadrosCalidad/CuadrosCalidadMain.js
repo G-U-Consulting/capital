@@ -54,7 +54,8 @@ export default {
         this.setMainMode(0);
     },
     watch: {
-        selectedProyectoCC() {
+        selectedProyectoCC(val) {
+            if (val == null) { this.setMainMode(0); return; }
             if (this.mainmode == 6) this.getPersonalizacion();
             if (this.mainmode == 7) this.getUbicaciones();
             if (this.mainmode == 8) this.getPisos();
