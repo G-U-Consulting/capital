@@ -9,6 +9,7 @@ SELECT
     l.id_laboratorio,
     l.nombre AS nombre_laboratorio,
     pc.codigo_laboratorio,
+    pc.acc_project_id,
     d.llave as logo,
     pc.created_on,
     pc.is_active,

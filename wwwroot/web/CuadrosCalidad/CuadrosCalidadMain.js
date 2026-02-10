@@ -40,7 +40,13 @@ export default {
             proyectosCC: [],
             selectedProyectoCC: null,
             searchCC: '',
-            personalizacion: { politica_recoleccion: null }
+            personalizacion: { politica_recoleccion: null },
+            // Autodesk ACC
+            ubicaciones: [],
+            pisos: [],
+            autodeskConnected: false,
+            accProjects: [],
+            syncingACC: false
         }
     },
     async mounted() {
@@ -50,6 +56,8 @@ export default {
     watch: {
         selectedProyectoCC() {
             if (this.mainmode == 6) this.getPersonalizacion();
+            if (this.mainmode == 7) this.getUbicaciones();
+            if (this.mainmode == 8) this.getPisos();
             if (this.mainmode == 9) this.getObservaciones();
         }
     },
@@ -99,6 +107,8 @@ export default {
                 case 4: await this.getClasesMuestra(); break;
                 case 5: await this.getTiposMuestra(); break;
                 case 6: await this.getPersonalizacion(); break;
+                case 7: await this.checkAutodeskStatus(); await this.getUbicaciones(); break;
+                case 8: await this.checkAutodeskStatus(); await this.getPisos(); break;
                 case 9: await this.getObservaciones(); break;
             }
         },
@@ -278,12 +288,14 @@ export default {
         async editObra(item) {
             showProgress();
             this.laboratoriosActivos = await this.getLaboratoriosActivos();
+            await this.getACCProjects();
             this.formData = {
                 id_proyecto_cc: item.id_proyecto_cc,
                 id_proyecto: item.id_proyecto,
                 nombre: item.nombre,
                 id_laboratorio: item.id_laboratorio,
                 codigo_laboratorio: item.codigo_laboratorio,
+                acc_project_id: item.acc_project_id || "",
                 estado: item.estado
             };
             this.currentSection = 'obras';
@@ -417,6 +429,15 @@ export default {
                             codigo_laboratorio: this.formData.codigo_laboratorio,
                             usuario: GlobalVariables.username
                         };
+                        // Save ACC mapping if changed
+                        if (this.formData.acc_project_id !== undefined) {
+                            await httpFunc('/generic/genericST/CuadrosCalidad:Upd_Proyecto_ACC', {
+                                id_proyecto_cc: this.formData.id_proyecto_cc,
+                                acc_project_id: this.formData.acc_project_id || null,
+                                acc_container_id: null,
+                                usuario: GlobalVariables.username
+                            });
+                        }
                     }
                 } else if (section === 'concreteras') {
                     // Upload logo if changed
@@ -670,6 +691,95 @@ export default {
                 console.error("Error al obtener laboratorios activos:", error);
                 return [];
             }
+        },
+        // AUTODESK ACC METHODS
+        async getUbicaciones() {
+            if (!this.selectedProyectoCC) return;
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Ubicaciones', {
+                    id_proyecto_cc: this.selectedProyectoCC
+                });
+                this.ubicaciones = resp.data || [];
+            } catch (e) {
+                console.error('Error cargando ubicaciones:', e);
+                this.ubicaciones = [];
+            }
+            hideProgress();
+        },
+        async getPisos() {
+            if (!this.selectedProyectoCC) return;
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Pisos', {
+                    id_proyecto_cc: this.selectedProyectoCC
+                });
+                this.pisos = resp.data || [];
+            } catch (e) {
+                console.error('Error cargando pisos:', e);
+                this.pisos = [];
+            }
+            hideProgress();
+        },
+        async checkAutodeskStatus() {
+            try {
+                const resp = await httpFunc('/autodesk/status', {});
+                this.autodeskConnected = resp.connected || false;
+            } catch (e) {
+                this.autodeskConnected = false;
+            }
+        },
+        connectAutodesk() {
+            window.open('/autodesk/auth', '_blank');
+        },
+        async syncFromACC() {
+            if (!this.selectedProyectoCC || this.syncingACC) return;
+            this.syncingACC = true;
+            showProgress();
+            try {
+                const resp = await httpFunc('/autodesk/sync/' + this.selectedProyectoCC, {});
+                if (resp.isError) {
+                    showMessage(resp.message || 'Error al sincronizar', 'error');
+                } else {
+                    showMessage(resp.message || 'Sincronización completada');
+                    await this.getUbicaciones();
+                    await this.getPisos();
+                }
+            } catch (e) {
+                console.error('Error sincronizando desde ACC:', e);
+                showMessage('Error al sincronizar con Autodesk', 'error');
+            }
+            this.syncingACC = false;
+            hideProgress();
+        },
+        async getACCProjects() {
+            try {
+                const resp = await httpFunc('/autodesk/projects', {});
+                this.accProjects = resp.data || [];
+            } catch (e) {
+                console.error('Error cargando proyectos ACC:', e);
+                this.accProjects = [];
+            }
+        },
+        async toggleUbicacion(id_ubicacion) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Act_Ubicacion', { id_ubicacion });
+                await this.getUbicaciones();
+            } catch (e) {
+                console.error('Error toggling ubicacion:', e);
+            }
+            hideProgress();
+        },
+        async togglePiso(id_piso) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Act_Piso', { id_piso });
+                await this.getPisos();
+            } catch (e) {
+                console.error('Error toggling piso:', e);
+            }
+            hideProgress();
         },
         // LOGO HANDLING METHODS
         previewLogo(event) {
