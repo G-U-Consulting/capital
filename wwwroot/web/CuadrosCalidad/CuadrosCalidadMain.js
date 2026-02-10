@@ -15,6 +15,7 @@ export default {
             clasesDisponibles: [],
             // Filters for each section
             filtroObras: { nombre: "" },
+            mostrarTodosObras: false,
             filtroConcreteras: { nombre: "" },
             filtroLaboratorios: { nombre: "" },
             filtroClasesMuestra: { nombre: "" },
@@ -212,6 +213,10 @@ export default {
                 console.error("Error al obtener obras:", error);
             }
             hideProgress();
+        },
+        getFilteredObras() {
+            if (this.mostrarTodosObras) return this.obras;
+            return this.obras.filter(o => o.estado === 'Habilitado');
         },
         // CONCRETERAS
         async getConcreteras() {
