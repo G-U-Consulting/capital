@@ -103,7 +103,7 @@
                     </div>
                 </div>
                 <div class="matrix-cont" style="padding-top: .5rem;">
-                    <div class="item-matrix" v-for="item in getFilteredProyectosCC()" :key="item.id_proyecto_cc">
+                    <div class="item-matrix" v-for="item in getFilteredProyectosCC()" :key="item.id_proyecto_cc" @click="selectedProyectoCC = item.id_proyecto_cc" style="cursor: pointer;">
                         <div class="img-matrix">
                             <img class="img-matrix-img" v-if="item.logo" :src="'/file/S3get/' + item.logo" :alt="`img_${item.nombre}`">
                         </div>
