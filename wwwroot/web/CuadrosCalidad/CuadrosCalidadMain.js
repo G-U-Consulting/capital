@@ -41,6 +41,10 @@ export default {
             selectedProyectoCC: null,
             searchCC: '',
             personalizacion: { politica_recoleccion: null },
+            // Edades (child of TipoMuestra)
+            edades: [],
+            formEdad: { id_edad_muestra: "", edad: "", color: "" },
+            edadMode: 0, // 0=list, 1=adding
             // Autodesk ACC
             ubicaciones: [],
             pisos: [],
@@ -396,6 +400,7 @@ export default {
                     diametro: item.diametro || "",
                     estado: item.estado
                 };
+                await this.getEdades(item.id_tipo_muestra);
             } else if (section === 'observaciones') {
                 this.formData = {
                     id_observacion: item.id_observacion,
@@ -779,6 +784,88 @@ export default {
                 await this.getPisos();
             } catch (e) {
                 console.error('Error toggling piso:', e);
+            }
+            hideProgress();
+        },
+        // EDADES METHODS (child of TipoMuestra)
+        async getEdades(id_tipo_muestra) {
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Edades', {
+                    id_tipo_muestra
+                });
+                this.edades = resp.data || [];
+            } catch (e) {
+                console.error('Error cargando edades:', e);
+                this.edades = [];
+            }
+        },
+        startNewEdad() {
+            this.formEdad = { id_edad_muestra: "", edad: "", color: "" };
+            this.edadMode = 1;
+        },
+        editEdad(item) {
+            this.formEdad = {
+                id_edad_muestra: item.id_edad_muestra,
+                edad: item.edad,
+                color: item.color || ""
+            };
+            this.edadMode = 2;
+        },
+        cancelEdad() {
+            this.formEdad = { id_edad_muestra: "", edad: "", color: "" };
+            this.edadMode = 0;
+        },
+        async saveEdad() {
+            showProgress();
+            try {
+                const sp = this.edadMode == 1
+                    ? 'CuadrosCalidad:Ins_Edad'
+                    : 'CuadrosCalidad:Upd_Edad';
+                const params = {
+                    id_edad_muestra: this.formEdad.id_edad_muestra || null,
+                    id_tipo_muestra: this.formData.id_tipo_muestra,
+                    edad: this.formEdad.edad,
+                    color: this.formEdad.color || null
+                };
+                const resp = await httpFunc('/generic/genericST/' + sp, params);
+                if (resp.isError) {
+                    showMessage('Error: ' + resp.errorMessage);
+                } else {
+                    showMessage('Edad guardada correctamente');
+                    this.cancelEdad();
+                    await this.getEdades(this.formData.id_tipo_muestra);
+                }
+            } catch (e) {
+                console.error('Error guardando edad:', e);
+                showMessage('Error al guardar edad');
+            }
+            hideProgress();
+        },
+        reqRemoveEdad(id_edad_muestra) {
+            showConfirm(
+                '¿Está seguro de deshabilitar esta edad?',
+                this.removeEdad,
+                null,
+                id_edad_muestra
+            );
+        },
+        async removeEdad(id_edad_muestra) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Del_Edad', { id_edad_muestra });
+                await this.getEdades(this.formData.id_tipo_muestra);
+            } catch (e) {
+                console.error('Error deshabilitando edad:', e);
+            }
+            hideProgress();
+        },
+        async activateEdad(id_edad_muestra) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Act_Edad', { id_edad_muestra });
+                await this.getEdades(this.formData.id_tipo_muestra);
+            } catch (e) {
+                console.error('Error activando edad:', e);
             }
             hideProgress();
         },
