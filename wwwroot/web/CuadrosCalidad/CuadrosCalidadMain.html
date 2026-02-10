@@ -156,11 +156,11 @@
                                     <th>Laboratorio</th>
                                     <th style="width: 12%;">Código Lab.</th>
                                     <th style="width: 15%;">Fecha Habilitación</th>
-                                    <th style="width: 10%;">Estado</th>
+                                    <th style="width: 10%;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in obras" @click="editObra(item)" style="cursor: pointer;">
+                                <tr v-for="item in obras">
                                     <td style="text-align: center;">
                                         <img v-if="item.logo" :src="'/file/S3get/' + item.logo"
                                              style="width: 64px; height: 64px; object-fit: contain; border-radius: 4px;" />
@@ -170,7 +170,11 @@
                                     <td>{{ item.nombre_laboratorio }}</td>
                                     <td style="text-align: center;">{{ item.codigo_laboratorio }}</td>
                                     <td style="text-align: center;">{{ formatDate(item.created_on) }}</td>
-                                    <td style="text-align: center;">{{ item.estado }}</td>
+                                    <td style="text-align: center;">
+                                        <span @click="editObra(item)" style="cursor: pointer; margin-right: 10px; font-size: 1.1rem;" title="Editar">✏️</span>
+                                        <span v-if="item.estado === 'Habilitado'" @click="reqRemoveObra(item.id_proyecto_cc)" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="activateObra(item.id_proyecto_cc)" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
+                                    </td>
                                 </tr>
                                 <tr v-if="obras.length === 0">
                                     <td colspan="6" style="text-align: center; color: #999; padding: 2rem;">
@@ -303,18 +307,22 @@
                                 <tr>
                                     <th style="width: 80px;">Logo</th>
                                     <th>Nombre</th>
-                                    <th style="width: 100px;">Estado</th>
+                                    <th style="width: 100px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in concreteras" @click="selectItem(item, 'concreteras')" style="cursor: pointer;">
+                                <tr v-for="item in concreteras">
                                     <td style="text-align: center;">
                                         <img v-if="item.logo" :src="'/file/S3get/' + item.logo"
                                              style="width: 64px; height: 64px; object-fit: contain; border-radius: 4px;" />
                                         <span v-else style="color: #ccc;">-</span>
                                     </td>
                                     <td>{{ item.nombre }}</td>
-                                    <td style="text-align: center;">{{ item.estado }}</td>
+                                    <td style="text-align: center;">
+                                        <span @click="selectItem(item, 'concreteras')" style="cursor: pointer; margin-right: 10px; font-size: 1.1rem;" title="Editar">✏️</span>
+                                        <span v-if="item.estado === 'Activo'" @click="reqRemoveItem(item.id_concretera, 'concreteras')" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="activateItem(item.id_concretera, 'concreteras')" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -433,18 +441,22 @@
                                 <tr>
                                     <th style="width: 80px;">Logo</th>
                                     <th>Nombre</th>
-                                    <th style="width: 100px;">Estado</th>
+                                    <th style="width: 100px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in laboratorios" @click="selectItem(item, 'laboratorios')" style="cursor: pointer;">
+                                <tr v-for="item in laboratorios">
                                     <td style="text-align: center;">
                                         <img v-if="item.logo" :src="'/file/S3get/' + item.logo"
                                              style="width: 64px; height: 64px; object-fit: contain; border-radius: 4px;" />
                                         <span v-else style="color: #ccc;">-</span>
                                     </td>
                                     <td>{{ item.nombre }}</td>
-                                    <td style="text-align: center;">{{ item.estado }}</td>
+                                    <td style="text-align: center;">
+                                        <span @click="selectItem(item, 'laboratorios')" style="cursor: pointer; margin-right: 10px; font-size: 1.1rem;" title="Editar">✏️</span>
+                                        <span v-if="item.estado === 'Activo'" @click="reqRemoveItem(item.id_laboratorio, 'laboratorios')" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="activateItem(item.id_laboratorio, 'laboratorios')" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -562,13 +574,17 @@
                             <thead>
                                 <tr>
                                     <th>Descripción</th>
-                                    <th style="width: 100px;">Estado</th>
+                                    <th style="width: 100px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in clasesMuestra" @click="selectItem(item, 'clasesMuestra')" style="cursor: pointer;">
+                                <tr v-for="item in clasesMuestra">
                                     <td>{{ item.descripcion }}</td>
-                                    <td style="text-align: center;">{{ item.estado }}</td>
+                                    <td style="text-align: center;">
+                                        <span @click="selectItem(item, 'clasesMuestra')" style="cursor: pointer; margin-right: 10px; font-size: 1.1rem;" title="Editar">✏️</span>
+                                        <span v-if="item.estado === 'Activo'" @click="reqRemoveItem(item.id_clase_muestra, 'clasesMuestra')" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="activateItem(item.id_clase_muestra, 'clasesMuestra')" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -653,11 +669,11 @@
                                     <th style="width: 10%;">Rango Amarillo</th>
                                     <th style="width: 10%;">Rango Rojo</th>
                                     <th style="width: 10%;">Diámetro</th>
-                                    <th style="width: 8%;">Estado</th>
+                                    <th style="width: 8%;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in tiposMuestra" @click="selectItem(item, 'tiposMuestra')" style="cursor: pointer;">
+                                <tr v-for="item in tiposMuestra">
                                     <td>{{ item.descripcion }}</td>
                                     <td>{{ item.clase_descripcion }}</td>
                                     <td style="text-align: center;">
@@ -670,7 +686,11 @@
                                         <span style="color: red; font-weight: 500;">{{ item.rango_rojo }}%</span>
                                     </td>
                                     <td style="text-align: center;">{{ item.diametro || '-' }}</td>
-                                    <td style="text-align: center;">{{ item.estado }}</td>
+                                    <td style="text-align: center;">
+                                        <span @click="selectItem(item, 'tiposMuestra')" style="cursor: pointer; margin-right: 10px; font-size: 1.1rem;" title="Editar">✏️</span>
+                                        <span v-if="item.estado === 'Activo'" @click="reqRemoveItem(item.id_tipo_muestra, 'tiposMuestra')" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="activateItem(item.id_tipo_muestra, 'tiposMuestra')" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
+                                    </td>
                                 </tr>
                                 <tr v-if="tiposMuestra.length === 0">
                                     <td colspan="7" style="text-align: center; color: #999; padding: 2rem;">
@@ -915,10 +935,8 @@
                                     <td style="text-align: center; font-size: 0.85em; color: #666;">{{ item.cod_acc }}</td>
                                     <td style="text-align: center;">{{ formatDate(item.fecha_sincronizacion) }}</td>
                                     <td style="text-align: center;">
-                                        <button @click="toggleUbicacion(item.id_ubicacion)"
-                                            :style="{ backgroundColor: item.is_active == '1' ? '#28a745' : '#ccc', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer' }">
-                                            {{ item.estado }}
-                                        </button>
+                                        <span v-if="item.is_active == '1'" @click="toggleUbicacion(item.id_ubicacion)" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="toggleUbicacion(item.id_ubicacion)" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
                                     </td>
                                 </tr>
                                 <tr v-if="ubicaciones.length === 0">
@@ -976,10 +994,8 @@
                                     <td style="text-align: center; font-size: 0.85em; color: #666;">{{ item.cod_acc }}</td>
                                     <td style="text-align: center;">{{ formatDate(item.fecha_sincronizacion) }}</td>
                                     <td style="text-align: center;">
-                                        <button @click="togglePiso(item.id_piso)"
-                                            :style="{ backgroundColor: item.is_active == '1' ? '#28a745' : '#ccc', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer' }">
-                                            {{ item.estado }}
-                                        </button>
+                                        <span v-if="item.is_active == '1'" @click="togglePiso(item.id_piso)" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="togglePiso(item.id_piso)" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
                                     </td>
                                 </tr>
                                 <tr v-if="pisos.length === 0">
@@ -1025,12 +1041,12 @@
                                     <th style="width: 90px; text-align: center;">Defecto</th>
                                     <th style="width: 120px; text-align: center;">Cerrar Muestra</th>
                                     <th style="width: 100px; text-align: center;">Liberación</th>
-                                    <th style="width: 100px;">Estado</th>
+                                    <th style="width: 80px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in observaciones" style="cursor: pointer;">
-                                    <td @click="selectItem(item, 'observaciones')">{{ item.descripcion }}</td>
+                                <tr v-for="item in observaciones">
+                                    <td>{{ item.descripcion }}</td>
                                     <td style="text-align: center;">
                                         <button @click="toggleAccion(item.id_observacion, item.accion == 1 ? 0 : 1)"
                                             :style="{ backgroundColor: item.accion == 1 ? '#28a745' : '#ccc', color: '#fff', border: 'none', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer' }">
@@ -1049,7 +1065,11 @@
                                             {{ item.accion == 3 ? 'Sí' : 'No' }}
                                         </button>
                                     </td>
-                                    <td style="text-align: center;" @click="selectItem(item, 'observaciones')">{{ item.estado }}</td>
+                                    <td style="text-align: center;">
+                                        <span @click="selectItem(item, 'observaciones')" style="cursor: pointer; margin-right: 10px; font-size: 1.1rem;" title="Editar">✏️</span>
+                                        <span v-if="item.estado === 'Activo'" @click="reqRemoveItem(item.id_observacion, 'observaciones')" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="activateItem(item.id_observacion, 'observaciones')" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
+                                    </td>
                                 </tr>
                                 <tr v-if="observaciones.length === 0">
                                     <td colspan="5" style="text-align: center; color: #999; padding: 2rem;">
