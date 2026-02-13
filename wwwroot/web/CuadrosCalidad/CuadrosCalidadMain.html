@@ -15,6 +15,49 @@
                     <img src="./img/ico/svg/building.svg" />
                     Proyectos
                 </div>
+                <div v-if="selectedProyectoCC" v-on:click="setMainMode(14)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 14}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Muestras
+                </div>
+                <div v-if="selectedProyectoCC" v-on:click="setMainMode(10)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 10}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Formato Mixer
+                </div>
+                <div v-if="selectedProyectoCC" v-on:click="setMainMode(11)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 11}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Remisiones
+                </div>
+                <div v-if="selectedProyectoCC" v-on:click="setMainMode(12)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 12}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Descargar en Excel
+                </div>
+                <div v-if="selectedProyectoCC" v-on:click="setMainMode(13)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 13}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Dashboard
+                </div>
+            </div>
+            <div class="lateralMenuGroup" v-if="selectedProyectoCC">
+                <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
+                    Parametrización de Obra
+                </div>
+            </div>
+            <div class="lateralMenuGroup" v-if="selectedProyectoCC">
+                <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Personalización
+                </div>
+                <div v-on:click="setMainMode(7)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Ubicación
+                </div>
+                <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 8}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Pisos
+                </div>
+                <div v-on:click="setMainMode(9)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 9}">
+                    <img src="./img/ico/svg/building.svg" />
+                    Observaciones
+                </div>
             </div>
             <div class="lateralMenuGroup">
                 <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
@@ -41,29 +84,6 @@
                 <div v-on:click="setMainMode(5)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 5}">
                     <img src="./img/ico/svg/building.svg" />
                     Tipo Muestra
-                </div>
-            </div>
-            <div class="lateralMenuGroup" v-if="selectedProyectoCC">
-                <div class="lateralMenuItem noSelect group" style="padding-left: 8px; cursor: auto;">
-                    Parametrización de Obra
-                </div>
-            </div>
-            <div class="lateralMenuGroup" v-if="selectedProyectoCC">
-                <div v-on:click="setMainMode(6)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 6}">
-                    <img src="./img/ico/svg/building.svg" />
-                    Personalización
-                </div>
-                <div v-on:click="setMainMode(7)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 7}">
-                    <img src="./img/ico/svg/building.svg" />
-                    Ubicación
-                </div>
-                <div v-on:click="setMainMode(8)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 8}">
-                    <img src="./img/ico/svg/building.svg" />
-                    Pisos
-                </div>
-                <div v-on:click="setMainMode(9)" class="lateralMenuItem noSelect" v-bind:class="{'lateralMenuItemSelected': mainmode == 9}">
-                    <img src="./img/ico/svg/building.svg" />
-                    Observaciones
                 </div>
             </div>
         </div>
@@ -103,7 +123,7 @@
                     </div>
                 </div>
                 <div class="matrix-cont" style="padding-top: .5rem;">
-                    <div class="item-matrix" v-for="item in getFilteredProyectosCC()" :key="item.id_proyecto_cc" @click="selectedProyectoCC = item.id_proyecto_cc" style="cursor: pointer;">
+                    <div class="item-matrix" v-for="item in getFilteredProyectosCC()" :key="item.id_proyecto_cc" @click="selectedProyectoCC = item.id_proyecto_cc; setMainMode(14)" style="cursor: pointer;">
                         <div class="img-matrix">
                             <img class="img-matrix-img" v-if="item.logo" :src="'/file/S3get/' + item.logo" :alt="`img_${item.nombre}`">
                         </div>
@@ -1123,6 +1143,672 @@
                         <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; text-align: right; margin-top: 1rem;">
                             <button @click="setMode(0)">Cancelar</button>
                             <button @click="saveData('observaciones')" :disabled="!formData.descripcion">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+        </div>
+
+        <!-- FORMATO MIXER -->
+        <div v-if="mainmode == 10">
+            <!-- LIST VIEW -->
+            <div v-if="mode == 0" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Formato Mixer</h2>
+                    <div class="searchBox">
+                        <div class="pure-g" style="align-items: center;">
+                            <div class="pure-u-1-1 pure-u-md-5-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Desde</label>
+                                <input type="date" v-model="filtroMixer.fecha_desde" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-5-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Hasta</label>
+                                <input type="date" v-model="filtroMixer.fecha_hasta" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-5-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Proveedor</label>
+                                <select v-model="filtroMixer.id_concretera" class="pure-input-1">
+                                    <option value="">-- Todos --</option>
+                                    <option v-for="c in concretrasActivas" :value="c.id_concretera">{{ c.nombre }}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24" style="padding-top: 1rem;">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/svg/search.svg" @click="getFormatosMixer" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24" style="padding-top: 1rem;">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/eraser.png" @click="clearMixerFilters" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-6-24" style="text-align: right; padding-top: 1rem;">
+                                <button @click="startNewMixer()">Nuevo Registro</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content" style="overflow-x: auto;">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Cant.(M3)</th>
+                                    <th>Proveedor</th>
+                                    <th>Res.Esp.(PSI)</th>
+                                    <th>As.Esp</th>
+                                    <th>As.Real</th>
+                                    <th>Remisión</th>
+                                    <th>Recibido</th>
+                                    <th style="width: 40px;">Editar</th>
+                                    <th style="width: 45px;">Eliminar</th>
+                                    <th style="width: 50px;">Muestra</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in mixers" style="cursor: default;">
+                                    <td>{{ formatDate(item.fecha) }}</td>
+                                    <td style="text-align: right;">{{ item.cantidad_m3 || '-' }}</td>
+                                    <td>{{ item.nombre_concretera || '-' }}</td>
+                                    <td style="text-align: right;">{{ item.resistencia_psi || '-' }}</td>
+                                    <td style="text-align: center;">{{ item.asentamiento_esperado || '-' }}</td>
+                                    <td style="text-align: center;">{{ item.asentamiento_real || '-' }}</td>
+                                    <td style="text-align: center;">{{ item.numero_remision || '-' }}</td>
+                                    <td style="text-align: center;">
+                                        <span :style="{ color: (item.recibido == '1' || item.recibido == 1) ? '#28a745' : '#dc3545', fontWeight: 500 }">
+                                            {{ (item.recibido == '1' || item.recibido == 1) ? 'Sí' : 'No' }}
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span @click="editMixer(item)" style="cursor: pointer; font-size: 1.1rem;" title="Editar">✏️</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span v-if="item.estado === 'Activo'" @click="reqRemoveMixer(item.id_formato_mixer)" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Deshabilitar">✖</span>
+                                        <span v-else @click="activateMixer(item.id_formato_mixer)" style="cursor: pointer; font-size: 1.1rem; color: #28a745;" title="Activar">✔</span>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span v-if="item.seleccionado_muestra == '1' || item.seleccionado_muestra == 1" style="color: #28a745; font-weight: 600; font-size: 0.85em;" title="Muestra generada">
+                                            #{{ item.numero_muestra_obra || item.id_muestra }}
+                                        </span>
+                                        <input v-else type="checkbox" @change="reqGenerarMuestra(item)" title="Generar Muestra" style="cursor: pointer;" :checked="false" />
+                                    </td>
+                                </tr>
+                                <tr v-if="mixers.length === 0">
+                                    <td colspan="11" style="text-align: center; color: #999; padding: 2rem;">
+                                        No hay registros de mixer.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+            <!-- CREATE / EDIT MIXER -->
+            <div v-if="mode == 1 || mode == 2" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>{{ mode == 1 ? 'Nuevo Registro de Mixer' : 'Editar Registro de Mixer' }}</h2>
+                    <div class="pure-g" style="padding: 1rem;">
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Fecha</label>
+                            <input type="datetime-local" v-model="formMixer.fecha" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Cantidad de concreto (m3)</label>
+                            <input type="number" step="0.001" v-model="formMixer.cantidad_m3" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Concretera</label>
+                            <select v-model="formMixer.id_concretera" class="pure-input-1">
+                                <option value="">-- Seleccione --</option>
+                                <option v-for="c in concretrasActivas" :value="c.id_concretera">{{ c.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Resistencia ESP (PSI)</label>
+                            <input type="number" step="0.001" v-model="formMixer.resistencia_psi" @input="calcMpa()" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Asentamiento Real</label>
+                            <input type="number" step="0.001" v-model="formMixer.asentamiento_real" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Asentamiento Esperado</label>
+                            <input type="number" step="0.001" v-model="formMixer.asentamiento_esperado" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Recibido</label>
+                            <select v-model="formMixer.recibido" class="pure-input-1">
+                                <option value="1">Sí</option>
+                                <option value="0">No</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Temperatura</label>
+                            <input type="number" step="0.01" v-model="formMixer.temperatura" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Remisión</label>
+                            <input type="text" v-model="formMixer.numero_remision" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1" style="padding: 0.5rem;">
+                            <span style="font-size: 0.85em; color: #666;">MPa = psi × 0.00689476 = {{ formMixer.resistencia_mpa || '—' }}</span>
+                        </div>
+                        <div class="pure-u-1-1" style="padding: 0.5rem;">
+                            <label>Observaciones</label>
+                            <input type="text" v-model="formMixer.observaciones" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-2" style="padding: 0.5rem; margin-top: 1rem;" v-if="mode == 2">
+                            <button v-if="formMixer.estado === 'Activo'" @click="reqRemoveMixer(formMixer.id_formato_mixer)" style="background-color: #dc3545; border-color: #dc3545;">
+                                Deshabilitar
+                            </button>
+                            <button v-else @click="activateMixer(formMixer.id_formato_mixer)" style="background-color: #28a745; border-color: #28a745;">
+                                Activar
+                            </button>
+                        </div>
+                        <div :class="mode == 2 ? 'pure-u-1-1 pure-u-md-1-2' : 'pure-u-1-1'" style="padding: 0.5rem; text-align: right; margin-top: 1rem;">
+                            <button @click="setMode(0)">Cancelar</button>
+                            <button @click="saveMixer()" :disabled="!formMixer.fecha">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+        </div>
+
+        <!-- REMISIONES -->
+        <div v-if="mainmode == 11">
+            <!-- LIST VIEW -->
+            <div v-if="mode == 0" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Remisiones</h2>
+                    <div class="searchBox">
+                        <div class="pure-g" style="align-items: center;">
+                            <div class="pure-u-1-1 pure-u-md-4-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Estado</label>
+                                <select v-model="filtroRemision.procesado" class="pure-input-1">
+                                    <option value="">Todas</option>
+                                    <option value="0">Abiertas</option>
+                                    <option value="1">Procesadas</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-4-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Desde</label>
+                                <input type="date" v-model="filtroRemision.fecha_desde" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-4-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Hasta</label>
+                                <input type="date" v-model="filtroRemision.fecha_hasta" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24" style="padding-top: 1rem;">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/svg/search.svg" @click="getRemisiones" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24" style="padding-top: 1rem;">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/eraser.png" @click="clearRemisionFilters" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-9-24" style="text-align: right; padding-top: 1rem;">
+                                <button @click="startNewRemision()">Nueva Remisión</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Consecutivo</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Fecha Envío</th>
+                                    <th style="width: 100px;">Muestras</th>
+                                    <th style="width: 100px;">Estado</th>
+                                    <th>Observaciones</th>
+                                    <th style="width: 100px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in remisiones" style="cursor: default;">
+                                    <td style="text-align: center; font-weight: 600;">{{ item.consecutivo }}</td>
+                                    <td>{{ formatDate(item.fecha_creacion) }}</td>
+                                    <td>{{ formatDate(item.fecha_envio) || '-' }}</td>
+                                    <td style="text-align: center;">{{ item.total_muestras }}</td>
+                                    <td style="text-align: center;">
+                                        <span :style="{ padding: '3px 8px', borderRadius: '4px', fontSize: '0.85em', fontWeight: 500, backgroundColor: item.procesado == '1' ? '#d4edda' : '#fff3cd', color: item.procesado == '1' ? '#155724' : '#856404' }">
+                                            {{ item.estado_remision }}
+                                        </span>
+                                    </td>
+                                    <td style="font-size: 0.85em;">{{ item.observaciones || '-' }}</td>
+                                    <td style="text-align: center;">
+                                        <span @click="openRemision(item)" style="cursor: pointer; margin-right: 10px; font-size: 1.1rem;" title="Abrir">✏️</span>
+                                        <span v-if="item.procesado != '1'" @click="reqRemoveRemision(item.id_remision)" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Eliminar">✖</span>
+                                    </td>
+                                </tr>
+                                <tr v-if="remisiones.length === 0">
+                                    <td colspan="7" style="text-align: center; color: #999; padding: 2rem;">
+                                        No hay remisiones.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+            <!-- REMISION DETAIL -->
+            <div v-if="mode == 2" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2 style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Remisión #{{ formRemision.consecutivo }}</span>
+                        <span :style="{ padding: '3px 10px', borderRadius: '4px', fontSize: '0.8em', backgroundColor: formRemision.procesado ? '#d4edda' : '#fff3cd', color: formRemision.procesado ? '#155724' : '#856404' }">
+                            {{ formRemision.procesado ? 'Procesada' : 'Abierta' }}
+                        </span>
+                    </h2>
+                    <div class="pure-g" style="padding: 0.5rem 1rem;" v-if="!formRemision.procesado">
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Fecha Envío</label>
+                            <input type="date" v-model="formRemision.fecha_envio" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Observaciones</label>
+                            <input type="text" v-model="formRemision.observaciones" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem; display: flex; align-items: flex-end; gap: 0.5rem;">
+                            <button @click="saveRemision()">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+                <!-- MUESTRAS ASIGNADAS -->
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard" style="margin-top: 1rem;">
+                    <h2>Muestras Asignadas ({{ muestrasRemision.length }})</h2>
+                    <div class="main-content" style="max-height: 300px; overflow-y: auto;">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th>No. Muestra</th>
+                                    <th>Fecha</th>
+                                    <th>Tipo Muestra</th>
+                                    <th>Ubicación</th>
+                                    <th>Piso</th>
+                                    <th>Concretera</th>
+                                    <th style="width: 80px;" v-if="!formRemision.procesado">Quitar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="m in muestrasRemision">
+                                    <td>{{ m.numero_muestra_obra || m.id_muestra }}</td>
+                                    <td>{{ formatDate(m.fecha) }}</td>
+                                    <td>{{ m.tipo_muestra }}</td>
+                                    <td>{{ m.ubicacion || '-' }}</td>
+                                    <td>{{ m.piso || '-' }}</td>
+                                    <td>{{ m.nombre_concretera || '-' }}</td>
+                                    <td style="text-align: center;" v-if="!formRemision.procesado">
+                                        <span @click="unassignMuestra(m.id_muestra)" style="cursor: pointer; color: #dc3545; font-size: 1.1rem;" title="Quitar">✖</span>
+                                    </td>
+                                </tr>
+                                <tr v-if="muestrasRemision.length === 0">
+                                    <td :colspan="formRemision.procesado ? 6 : 7" style="text-align: center; color: #999; padding: 1rem;">
+                                        No hay muestras asignadas.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+                <!-- MUESTRAS DISPONIBLES -->
+                <div v-if="!formRemision.procesado">
+                    <div class="pure-u-1-24"></div>
+                    <div class="pure-u-22-24 menuCard" style="margin-top: 1rem;">
+                        <h2>Muestras Disponibles ({{ muestrasDisponibles.length }})</h2>
+                        <div class="main-content" style="max-height: 300px; overflow-y: auto;">
+                            <table class="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>No. Muestra</th>
+                                        <th>Fecha</th>
+                                        <th>Tipo Muestra</th>
+                                        <th>Ubicación</th>
+                                        <th>Piso</th>
+                                        <th style="width: 80px;">Agregar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="m in muestrasDisponibles">
+                                        <td>{{ m.numero_muestra_obra || m.id_muestra }}</td>
+                                        <td>{{ formatDate(m.fecha) }}</td>
+                                        <td>{{ m.tipo_muestra }}</td>
+                                        <td>{{ m.ubicacion || '-' }}</td>
+                                        <td>{{ m.piso || '-' }}</td>
+                                        <td style="text-align: center;">
+                                            <span @click="assignMuestra(m.id_muestra)" style="cursor: pointer; color: #28a745; font-size: 1.1rem;" title="Agregar">✔</span>
+                                        </td>
+                                    </tr>
+                                    <tr v-if="muestrasDisponibles.length === 0">
+                                        <td colspan="6" style="text-align: center; color: #999; padding: 1rem;">
+                                            No hay muestras disponibles sin remisión.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="pure-u-1-24"></div>
+                </div>
+                <!-- ACTION BUTTONS -->
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24" style="margin-top: 1rem; display: flex; justify-content: space-between;">
+                    <button @click="setMode(0)">Volver</button>
+                    <button v-if="!formRemision.procesado && muestrasRemision.length > 0" @click="reqProcesarRemision()" style="background-color: #28a745; border-color: #28a745;">
+                        Procesar Remisión
+                    </button>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+        </div>
+
+        <!-- DESCARGAR EN EXCEL -->
+        <div v-if="mainmode == 12">
+            <div style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Descargar en Excel</h2>
+                    <div class="pure-g" style="padding: 1rem;">
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Tipo Muestra</label>
+                            <select v-model="filtroExport.id_tipo_muestra" class="pure-input-1">
+                                <option value="">-- Todos --</option>
+                                <option v-for="t in tiposMuestraActivos" :value="t.id_tipo_muestra">{{ t.descripcion }}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Ubicación</label>
+                            <select v-model="filtroExport.id_ubicacion" class="pure-input-1">
+                                <option value="">-- Todas --</option>
+                                <option v-for="u in ubicacionesActivas" :value="u.id_ubicacion">{{ u.descripcion }}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Piso</label>
+                            <select v-model="filtroExport.id_piso" class="pure-input-1">
+                                <option value="">-- Todos --</option>
+                                <option v-for="p in pisosActivos" :value="p.id_piso">{{ p.numero }}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Desde</label>
+                            <input type="date" v-model="filtroExport.fecha_desde" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Hasta</label>
+                            <input type="date" v-model="filtroExport.fecha_hasta" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem; display: flex; align-items: flex-end; gap: 0.5rem;">
+                            <button @click="exportExcel()">Descargar Excel</button>
+                            <button @click="clearExportFilters()" style="background: #6c757d; border-color: #6c757d;">Limpiar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div v-if="mainmode == 13">
+            <div style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24">
+                    <!-- SUMMARY CARDS -->
+                    <div class="pure-g" style="gap: 0; margin-bottom: 1rem;">
+                        <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; text-align: center; border-left: 4px solid #007bff;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #007bff;">{{ dashboardResumen.total_muestras || 0 }}</div>
+                                <div style="font-size: 0.85rem; color: #666;">Total Muestras</div>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; text-align: center; border-left: 4px solid #ffc107;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #ffc107;">{{ dashboardResumen.en_proceso || 0 }}</div>
+                                <div style="font-size: 0.85rem; color: #666;">En Proceso</div>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; text-align: center; border-left: 4px solid #17a2b8;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #17a2b8;">{{ dashboardResumen.en_remision || 0 }}</div>
+                                <div style="font-size: 0.85rem; color: #666;">En Remisión</div>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; text-align: center; border-left: 4px solid #28a745;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #28a745;">{{ dashboardResumen.entregadas || 0 }}</div>
+                                <div style="font-size: 0.85rem; color: #666;">Entregadas</div>
+                            </div>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                            <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; text-align: center; border-left: 4px solid #6f42c1;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #6f42c1;">{{ dashboardResumen.con_resultados || 0 }}</div>
+                                <div style="font-size: 0.85rem; color: #666;">Con Resultados</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- CHART FILTERS -->
+                    <div class="menuCard">
+                        <h2>Resultados por Muestra</h2>
+                        <div class="pure-g" style="padding: 0.5rem 1rem;">
+                            <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                                <label style="font-size: 0.8rem;">Tipo Muestra</label>
+                                <select v-model="filtroDashboard.id_tipo_muestra" class="pure-input-1">
+                                    <option value="">-- Todos --</option>
+                                    <option v-for="t in tiposMuestraActivos" :value="t.id_tipo_muestra">{{ t.descripcion }}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                                <label style="font-size: 0.8rem;">Ubicación</label>
+                                <select v-model="filtroDashboard.id_ubicacion" class="pure-input-1">
+                                    <option value="">-- Todas --</option>
+                                    <option v-for="u in ubicacionesActivas" :value="u.id_ubicacion">{{ u.descripcion }}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                                <label style="font-size: 0.8rem;">Desde</label>
+                                <input type="date" v-model="filtroDashboard.fecha_desde" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem;">
+                                <label style="font-size: 0.8rem;">Hasta</label>
+                                <input type="date" v-model="filtroDashboard.fecha_hasta" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-5" style="padding: 0.3rem; display: flex; align-items: flex-end; gap: 0.5rem;">
+                                <button @click="getDashboardResultados()">Consultar</button>
+                                <button @click="clearDashboardFilters()" style="background: #6c757d; border-color: #6c757d;">Limpiar</button>
+                            </div>
+                        </div>
+                        <!-- CHART -->
+                        <div style="padding: 1rem; position: relative; min-height: 300px;">
+                            <canvas id="dashboardChart"></canvas>
+                            <div v-if="dashboardResultados.length === 0" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #999;">
+                                Haga clic en "Consultar" para ver resultados.
+                            </div>
+                        </div>
+                        <div v-if="dashboardResultados.length > 0" style="padding: 0 1rem 1rem; text-align: right;">
+                            <button @click="exportDashboardChart()" style="background: #6c757d; border-color: #6c757d;">Exportar Gráfico</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+        </div>
+
+        <!-- MUESTRAS STANDALONE -->
+        <div v-if="mainmode == 14">
+            <!-- LIST VIEW -->
+            <div v-if="mode == 0" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Muestras</h2>
+                    <div class="searchBox">
+                        <div class="pure-g" style="align-items: center;">
+                            <div class="pure-u-1-1 pure-u-md-4-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Tipo Muestra</label>
+                                <select v-model="filtroMuestraStandalone.id_tipo_muestra" class="pure-input-1">
+                                    <option value="">-- Todos --</option>
+                                    <option v-for="t in tiposMuestraActivos" :value="t.id_tipo_muestra">{{ t.descripcion }}</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-3-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Estado</label>
+                                <select v-model="filtroMuestraStandalone.id_estado" class="pure-input-1">
+                                    <option value="">-- Todos --</option>
+                                    <option value="1">En Proceso</option>
+                                    <option value="2">En Remisión</option>
+                                    <option value="3">Entregada</option>
+                                    <option value="4">Con Resultados</option>
+                                    <option value="5">Cerrada</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-4-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Desde</label>
+                                <input type="date" v-model="filtroMuestraStandalone.fecha_desde" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-4-24" style="padding: 0 0.3rem;">
+                                <label style="font-size: 0.8rem;">Hasta</label>
+                                <input type="date" v-model="filtroMuestraStandalone.fecha_hasta" class="pure-input-1" />
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24" style="padding-top: 1rem;">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/svg/search.svg" @click="getMuestrasStandalone" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-1-24" style="padding-top: 1rem;">
+                                <div class="imgGraybutton">
+                                    <img src="./img/ico/eraser.png" @click="clearMuestraFilters" />
+                                </div>
+                            </div>
+                            <div class="pure-u-1-1 pure-u-md-6-24" style="padding-top: 1rem;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-content" style="overflow-x: auto;">
+                        <table class="dataTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 70px;">ID</th>
+                                    <th style="width: 90px;">Fecha</th>
+                                    <th>Tipo Muestra</th>
+                                    <th>Ubicación</th>
+                                    <th style="width: 60px;">Piso</th>
+                                    <th style="width: 100px;">Estado</th>
+                                    <th>Localización</th>
+                                    <th>Observaciones</th>
+                                    <th style="width: 80px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in muestrasStandalone" style="cursor: default;">
+                                    <td style="text-align: center; font-weight: 600;">{{ item.id_muestra }}</td>
+                                    <td>{{ formatDate(item.fecha) }}</td>
+                                    <td>{{ item.tipo_muestra || '-' }}</td>
+                                    <td>{{ item.ubicacion || '-' }}</td>
+                                    <td style="text-align: center;">{{ item.piso || '-' }}</td>
+                                    <td style="text-align: center;">
+                                        <span :style="{
+                                            padding: '3px 8px', borderRadius: '4px', fontSize: '0.85em', fontWeight: 500,
+                                            backgroundColor: item.id_estado == 1 ? '#fff3cd' : item.id_estado == 2 ? '#cce5ff' : item.id_estado == 3 ? '#d4edda' : item.id_estado == 4 ? '#d1ecf1' : '#e2e3e5',
+                                            color: item.id_estado == 1 ? '#856404' : item.id_estado == 2 ? '#004085' : item.id_estado == 3 ? '#155724' : item.id_estado == 4 ? '#0c5460' : '#383d41'
+                                        }">
+                                            {{ item.estado_muestra }}
+                                        </span>
+                                    </td>
+                                    <td style="font-size: 0.85em;">{{ item.localizacion || '-' }}</td>
+                                    <td style="font-size: 0.85em;">{{ item.observaciones || '-' }}</td>
+                                    <td style="text-align: center;">
+                                        <span @click="editMuestraStandalone(item)" style="cursor: pointer; margin-right: 10px; font-size: 1.1rem;" title="Editar">✏️</span>
+                                        <span @click="reqRemoveMuestraStandalone(item.id_muestra)" style="cursor: pointer; font-size: 1.1rem; color: #dc3545;" title="Eliminar">✖</span>
+                                    </td>
+                                </tr>
+                                <tr v-if="muestrasStandalone.length === 0">
+                                    <td colspan="9" style="text-align: center; color: #999; padding: 2rem;">
+                                        No hay muestras registradas.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="pure-u-1-24"></div>
+            </div>
+            <!-- EDIT MUESTRA -->
+            <div v-if="mode == 2" style="padding-top: 1em;">
+                <div class="pure-u-1-24"></div>
+                <div class="pure-u-22-24 menuCard">
+                    <h2>Editar Muestra #{{ formMuestraStandalone.id_muestra }}</h2>
+                    <div class="pure-g" style="padding: 1rem;">
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Fecha</label>
+                            <input type="date" v-model="formMuestraStandalone.fecha" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Día de Recolección</label>
+                            <select v-model="formMuestraStandalone.dia_recoleccion" class="pure-input-1">
+                                <option value="">-- Ninguno --</option>
+                                <option value="1">Lunes</option>
+                                <option value="2">Martes</option>
+                                <option value="3">Miércoles</option>
+                                <option value="4">Jueves</option>
+                                <option value="5">Viernes</option>
+                                <option value="6">Sábado</option>
+                                <option value="7">Domingo</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Tipo Muestra</label>
+                            <select v-model="formMuestraStandalone.id_tipo_muestra" class="pure-input-1">
+                                <option value="">-- Seleccione --</option>
+                                <option v-for="t in tiposMuestraActivos" :value="t.id_tipo_muestra">{{ t.descripcion }}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Ubicación</label>
+                            <select v-model="formMuestraStandalone.id_ubicacion" class="pure-input-1">
+                                <option value="">-- Ninguna --</option>
+                                <option v-for="u in ubicacionesActivas" :value="u.id_ubicacion">{{ u.descripcion }}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Piso</label>
+                            <select v-model="formMuestraStandalone.id_piso" class="pure-input-1">
+                                <option value="">-- Ninguno --</option>
+                                <option v-for="p in pisosActivos" :value="p.id_piso">{{ p.numero }}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>Concretera</label>
+                            <select v-model="formMuestraStandalone.id_concretera" class="pure-input-1">
+                                <option value="">-- Ninguna --</option>
+                                <option v-for="c in concretrasActivas" :value="c.id_concretera">{{ c.nombre }}</option>
+                            </select>
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-1-3" style="padding: 0.5rem;">
+                            <label>No. Muestra Obra</label>
+                            <input type="number" v-model="formMuestraStandalone.numero_muestra_obra" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1 pure-u-md-2-3" style="padding: 0.5rem;">
+                            <label>Localización</label>
+                            <input type="text" v-model="formMuestraStandalone.localizacion" class="pure-input-1" placeholder="Elemento - Piso - Detalle - Ejes" />
+                        </div>
+                        <div class="pure-u-1-1" style="padding: 0.5rem;">
+                            <label>Observaciones</label>
+                            <input type="text" v-model="formMuestraStandalone.observaciones" class="pure-input-1" />
+                        </div>
+                        <div class="pure-u-1-1" style="padding: 0.5rem; text-align: right; margin-top: 1rem;">
+                            <button @click="setMode(0)">Cancelar</button>
+                            <button @click="saveMuestraStandalone()" :disabled="!formMuestraStandalone.id_tipo_muestra || !formMuestraStandalone.fecha">Guardar</button>
                         </div>
                     </div>
                 </div>

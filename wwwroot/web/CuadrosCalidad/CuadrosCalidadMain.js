@@ -42,6 +42,42 @@ export default {
             selectedProyectoCC: null,
             searchCC: '',
             personalizacion: { politica_recoleccion: null },
+            // Formato Mixer
+            mixers: [],
+            concretrasActivas: [],
+            filtroMixer: { fecha_desde: "", fecha_hasta: "", id_concretera: "" },
+            formMixer: {
+                id_formato_mixer: "", fecha: "", cantidad_m3: "",
+                id_concretera: "", resistencia_psi: "", resistencia_mpa: "",
+                asentamiento_esperado: "", asentamiento_real: "",
+                temperatura: "", recibido: "0", numero_remision: "",
+                observaciones: ""
+            },
+            // Muestras (standalone view)
+            muestrasStandalone: [],
+            filtroMuestraStandalone: { id_tipo_muestra: "", id_estado: "", fecha_desde: "", fecha_hasta: "" },
+            formMuestraStandalone: {
+                id_muestra: "", id_tipo_muestra: "", id_ubicacion: "", id_piso: "",
+                id_concretera: "", id_formato_mixer: "", numero_muestra_obra: "",
+                fecha: "", dia_recoleccion: "", localizacion: "", observaciones: ""
+            },
+            // Remisiones
+            remisiones: [],
+            filtroRemision: { procesado: "", fecha_desde: "", fecha_hasta: "" },
+            formRemision: { id_remision: "", consecutivo: "", observaciones: "", fecha_envio: "" },
+            muestrasRemision: [],
+            muestrasDisponibles: [],
+            // Muestras dropdowns (shared)
+            tiposMuestraActivos: [],
+            ubicacionesActivas: [],
+            pisosActivos: [],
+            // Excel Export
+            filtroExport: { id_tipo_muestra: "", id_ubicacion: "", id_piso: "", fecha_desde: "", fecha_hasta: "" },
+            // Dashboard
+            dashboardResumen: {},
+            filtroDashboard: { id_tipo_muestra: "", id_ubicacion: "", id_piso: "", fecha_desde: "", fecha_hasta: "" },
+            dashboardResultados: [],
+            dashboardChart: null,
             // Edades (child of TipoMuestra)
             edades: [],
             formEdad: { id_edad_muestra: "", edad: "", color: "" },
@@ -65,6 +101,10 @@ export default {
             if (this.mainmode == 7) this.getUbicaciones();
             if (this.mainmode == 8) this.getPisos();
             if (this.mainmode == 9) this.getObservaciones();
+            if (this.mainmode == 10) this.getFormatosMixer();
+            if (this.mainmode == 11) this.getRemisiones();
+            if (this.mainmode == 13) this.getDashboardResumen();
+            if (this.mainmode == 14) this.getMuestrasStandalone();
         }
     },
     methods: {
@@ -79,7 +119,12 @@ export default {
                 6: "Personalización",
                 7: "Ubicación",
                 8: "Pisos",
-                9: "Observaciones"
+                9: "Observaciones",
+                10: "Formato Mixer",
+                11: "Remisiones",
+                12: "Descargar en Excel",
+                13: "Dashboard",
+                14: "Muestras"
             };
             return titles[this.mainmode] || "";
         },
@@ -116,6 +161,11 @@ export default {
                 case 7: await this.checkAutodeskStatus(); await this.getUbicaciones(); break;
                 case 8: await this.checkAutodeskStatus(); await this.getPisos(); break;
                 case 9: await this.getObservaciones(); break;
+                case 10: this.initMixerFilters(); await this.loadConcretrasActivas(); await this.getFormatosMixer(); break;
+                case 11: await this.getRemisiones(); break;
+                case 12: await this.loadFilterDropdowns(); break;
+                case 13: await this.loadFilterDropdowns(); await this.getDashboardResumen(); break;
+                case 14: await this.loadMuestraDropdowns(); await this.getMuestrasStandalone(); break;
             }
         },
         // PROYECTOS CC - Card view
@@ -873,6 +923,629 @@ export default {
                 console.error('Error activando edad:', e);
             }
             hideProgress();
+        },
+        // FORMATO MIXER METHODS
+        async getFormatosMixer() {
+            if (!this.selectedProyectoCC) return;
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_FormatosMixer', {
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    fecha_desde: this.filtroMixer.fecha_desde || null,
+                    fecha_hasta: this.filtroMixer.fecha_hasta || null,
+                    id_concretera: this.filtroMixer.id_concretera || null
+                });
+                this.mixers = resp.data || [];
+            } catch (e) {
+                console.error('Error cargando formatos mixer:', e);
+                this.mixers = [];
+            }
+            hideProgress();
+        },
+        async loadConcretrasActivas() {
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Concreteras', { nombre: null });
+                this.concretrasActivas = (resp.data || []).filter(c => c.is_active == 1);
+            } catch (e) {
+                console.error('Error cargando concreteras activas:', e);
+                this.concretrasActivas = [];
+            }
+        },
+        async startNewMixer() {
+            showProgress();
+            await this.loadConcretrasActivas();
+            const now = new Date();
+            const localISO = now.getFullYear() + '-' +
+                String(now.getMonth()+1).padStart(2,'0') + '-' +
+                String(now.getDate()).padStart(2,'0') + 'T' +
+                String(now.getHours()).padStart(2,'0') + ':' +
+                String(now.getMinutes()).padStart(2,'0');
+            this.formMixer = {
+                id_formato_mixer: "", fecha: localISO, cantidad_m3: "",
+                id_concretera: "", resistencia_psi: "", resistencia_mpa: "",
+                asentamiento_esperado: "", asentamiento_real: "",
+                temperatura: "", recibido: "0", numero_remision: "",
+                observaciones: ""
+            };
+            this.setMode(1);
+            hideProgress();
+        },
+        async editMixer(item) {
+            showProgress();
+            await this.loadConcretrasActivas();
+            this.formMixer = {
+                id_formato_mixer: item.id_formato_mixer,
+                fecha: item.fecha ? this.toDatetimeLocal(item.fecha) : "",
+                cantidad_m3: item.cantidad_m3 || "",
+                id_concretera: item.id_concretera || "",
+                resistencia_psi: item.resistencia_psi || "",
+                resistencia_mpa: item.resistencia_mpa || "",
+                asentamiento_esperado: item.asentamiento_esperado || "",
+                asentamiento_real: item.asentamiento_real || "",
+                temperatura: item.temperatura || "",
+                recibido: (item.recibido == '1' || item.recibido === 1) ? "1" : "0",
+                numero_remision: item.numero_remision || "",
+                observaciones: item.observaciones || "",
+                estado: item.estado
+            };
+            this.setMode(2);
+            hideProgress();
+        },
+        calcMpa() {
+            const psi = parseFloat(this.formMixer.resistencia_psi);
+            this.formMixer.resistencia_mpa = psi ? (psi * 0.00689476).toFixed(3) : "";
+        },
+        async saveMixer() {
+            showProgress();
+            try {
+                const isNew = this.mode == 1;
+                const sp = isNew ? 'CuadrosCalidad:Ins_FormatoMixer' : 'CuadrosCalidad:Upd_FormatoMixer';
+                const params = {
+                    id_formato_mixer: this.formMixer.id_formato_mixer || null,
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    id_concretera: this.formMixer.id_concretera || null,
+                    fecha: this.formMixer.fecha || null,
+                    cantidad_m3: this.formMixer.cantidad_m3 || null,
+                    resistencia_psi: this.formMixer.resistencia_psi || null,
+                    asentamiento_esperado: this.formMixer.asentamiento_esperado || null,
+                    asentamiento_real: this.formMixer.asentamiento_real || null,
+                    temperatura: this.formMixer.temperatura || null,
+                    recibido: parseInt(this.formMixer.recibido) || 0,
+                    numero_remision: this.formMixer.numero_remision || null,
+                    observaciones: this.formMixer.observaciones || null,
+                    usuario: GlobalVariables.username
+                };
+                const raw = await axios.post('/generic/genericST/' + sp, params);
+                const resp = raw.data;
+                if (resp.isError) {
+                    showMessage(resp.errorMessage);
+                } else if (resp.data && resp.data.toString().startsWith('ERROR:')) {
+                    showMessage(resp.data.toString().replace('ERROR:', ''));
+                } else {
+                    showMessage('Registro guardado correctamente');
+                    this.setMode(0);
+                    await this.getFormatosMixer();
+                }
+            } catch (e) {
+                console.error('Error guardando formato mixer:', e);
+                showMessage('Error al guardar');
+            }
+            hideProgress();
+        },
+        reqRemoveMixer(id) {
+            showConfirm(
+                '¿Está seguro de deshabilitar este registro de mixer?',
+                this.removeMixer,
+                null,
+                id
+            );
+        },
+        async removeMixer(id) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Del_FormatoMixer', {
+                    id_formato_mixer: id,
+                    usuario: GlobalVariables.username
+                });
+                showMessage('Registro deshabilitado');
+                await this.getFormatosMixer();
+            } catch (e) {
+                console.error('Error deshabilitando mixer:', e);
+            }
+            hideProgress();
+        },
+        async activateMixer(id) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Act_FormatoMixer', {
+                    id_formato_mixer: id,
+                    usuario: GlobalVariables.username
+                });
+                showMessage('Registro activado');
+                await this.getFormatosMixer();
+            } catch (e) {
+                console.error('Error activando mixer:', e);
+            }
+            hideProgress();
+        },
+        getTodayStr() {
+            return new Date().toISOString().split('T')[0];
+        },
+        toDatetimeLocal(dateStr) {
+            const d = new Date(dateStr);
+            if (isNaN(d)) return "";
+            return d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0') + 'T' +
+                String(d.getHours()).padStart(2, '0') + ':' +
+                String(d.getMinutes()).padStart(2, '0');
+        },
+        initMixerFilters() {
+            const today = this.getTodayStr();
+            this.filtroMixer = { fecha_desde: today, fecha_hasta: today, id_concretera: "" };
+        },
+        clearMixerFilters() {
+            this.filtroMixer = { fecha_desde: "", fecha_hasta: "", id_concretera: "" };
+            this.getFormatosMixer();
+        },
+        reqGenerarMuestra(item) {
+            showConfirm(
+                'Se generará una muestra vinculada a este mixer. ¿Continuar?',
+                this.generarMuestra,
+                null,
+                item
+            );
+        },
+        async generarMuestra(item) {
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericST/CuadrosCalidad:Ins_Muestra_FromMixer', {
+                    id_formato_mixer: item.id_formato_mixer,
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    id_tipo_muestra: this.tiposMuestraActivos.length > 0 ? this.tiposMuestraActivos[0].id_tipo_muestra : null,
+                    fecha: null,
+                    usuario: GlobalVariables.username
+                });
+                if (resp.isError) {
+                    showMessage('Error: ' + resp.errorMessage);
+                } else {
+                    showMessage('Muestra #' + (resp.data || '') + ' generada correctamente');
+                    await this.getFormatosMixer();
+                }
+            } catch (e) {
+                console.error('Error generando muestra:', e);
+                showMessage('Error al generar muestra');
+            }
+            hideProgress();
+        },
+        // MUESTRAS STANDALONE METHODS (mainmode 14)
+        async getMuestrasStandalone() {
+            if (!this.selectedProyectoCC) return;
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Muestras', {
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    id_remision: null,
+                    sin_remision: null,
+                    id_tipo_muestra: this.filtroMuestraStandalone.id_tipo_muestra || null,
+                    id_estado: this.filtroMuestraStandalone.id_estado || null,
+                    fecha_desde: this.filtroMuestraStandalone.fecha_desde || null,
+                    fecha_hasta: this.filtroMuestraStandalone.fecha_hasta || null
+                });
+                this.muestrasStandalone = resp.data || [];
+            } catch (e) {
+                console.error('Error cargando muestras:', e);
+                this.muestrasStandalone = [];
+            }
+            hideProgress();
+        },
+        async editMuestraStandalone(item) {
+            showProgress();
+            await this.loadMuestraDropdowns();
+            this.formMuestraStandalone = {
+                id_muestra: item.id_muestra,
+                id_tipo_muestra: item.id_tipo_muestra || "",
+                id_ubicacion: item.id_ubicacion || "",
+                id_piso: item.id_piso || "",
+                id_concretera: item.id_concretera || "",
+                id_formato_mixer: item.id_formato_mixer || "",
+                numero_muestra_obra: item.numero_muestra_obra || "",
+                fecha: item.fecha ? item.fecha.split('T')[0] : "",
+                dia_recoleccion: item.dia_recoleccion || "",
+                localizacion: item.localizacion || "",
+                observaciones: item.observaciones || "",
+                estado: item.estado
+            };
+            this.setMode(2);
+            hideProgress();
+        },
+        async saveMuestraStandalone() {
+            showProgress();
+            try {
+                const isNew = this.mode == 1;
+                const sp = isNew ? 'CuadrosCalidad:Ins_Muestra' : 'CuadrosCalidad:Upd_Muestra';
+                const params = {
+                    id_muestra: this.formMuestraStandalone.id_muestra || null,
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    id_formato_mixer: this.formMuestraStandalone.id_formato_mixer || null,
+                    id_tipo_muestra: this.formMuestraStandalone.id_tipo_muestra || null,
+                    id_ubicacion: this.formMuestraStandalone.id_ubicacion || null,
+                    id_piso: this.formMuestraStandalone.id_piso || null,
+                    id_concretera: this.formMuestraStandalone.id_concretera || null,
+                    numero_muestra_obra: this.formMuestraStandalone.numero_muestra_obra || null,
+                    fecha: this.formMuestraStandalone.fecha,
+                    dia_recoleccion: this.formMuestraStandalone.dia_recoleccion || null,
+                    localizacion: this.formMuestraStandalone.localizacion || null,
+                    observaciones: this.formMuestraStandalone.observaciones || null,
+                    usuario: GlobalVariables.username
+                };
+                const resp = await httpFunc('/generic/genericST/' + sp, params);
+                if (resp.isError) {
+                    showMessage('Error: ' + resp.errorMessage);
+                } else {
+                    showMessage('Muestra guardada correctamente');
+                    this.setMode(0);
+                    await this.getMuestrasStandalone();
+                }
+            } catch (e) {
+                console.error('Error guardando muestra:', e);
+                showMessage('Error al guardar');
+            }
+            hideProgress();
+        },
+        reqRemoveMuestraStandalone(id) {
+            showConfirm(
+                '¿Está seguro de eliminar esta muestra?',
+                this.removeMuestraStandalone,
+                null,
+                id
+            );
+        },
+        async removeMuestraStandalone(id) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Del_Muestra', {
+                    id_muestra: id,
+                    usuario: GlobalVariables.username
+                });
+                showMessage('Muestra eliminada');
+                await this.getMuestrasStandalone();
+            } catch (e) {
+                console.error('Error eliminando muestra:', e);
+            }
+            hideProgress();
+        },
+        clearMuestraFilters() {
+            this.filtroMuestraStandalone = { id_tipo_muestra: "", id_estado: "", fecha_desde: "", fecha_hasta: "" };
+            this.getMuestrasStandalone();
+        },
+        getDiaRecoleccionLabel(dia) {
+            const dias = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo' };
+            return dias[dia] || '';
+        },
+        // REMISIONES METHODS
+        async getRemisiones() {
+            if (!this.selectedProyectoCC) return;
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Remisiones', {
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    procesado: this.filtroRemision.procesado === "" ? null : this.filtroRemision.procesado,
+                    fecha_desde: this.filtroRemision.fecha_desde || null,
+                    fecha_hasta: this.filtroRemision.fecha_hasta || null
+                });
+                this.remisiones = resp.data || [];
+            } catch (e) {
+                console.error('Error cargando remisiones:', e);
+                this.remisiones = [];
+            }
+            hideProgress();
+        },
+        async startNewRemision() {
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericST/CuadrosCalidad:Ins_Remision', {
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    observaciones: null,
+                    usuario: GlobalVariables.username
+                });
+                if (resp.isError) {
+                    showMessage('Error: ' + resp.errorMessage);
+                } else {
+                    showMessage('Remisión creada');
+                    await this.getRemisiones();
+                }
+            } catch (e) {
+                console.error('Error creando remision:', e);
+                showMessage('Error al crear remisión');
+            }
+            hideProgress();
+        },
+        async openRemision(item) {
+            showProgress();
+            this.formRemision = {
+                id_remision: item.id_remision,
+                consecutivo: item.consecutivo,
+                observaciones: item.observaciones || "",
+                fecha_envio: item.fecha_envio ? item.fecha_envio.split('T')[0] : "",
+                procesado: item.procesado == '1' || item.procesado === true,
+                estado_remision: item.estado_remision
+            };
+            await this.loadRemisionDetail(item.id_remision);
+            await this.loadMuestraDropdowns();
+            this.setMode(2);
+            hideProgress();
+        },
+        async loadRemisionDetail(id_remision) {
+            try {
+                const [assigned, available] = await Promise.all([
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_Muestras', {
+                        id_proyecto_cc: this.selectedProyectoCC,
+                        id_remision: id_remision,
+                        sin_remision: null, id_tipo_muestra: null, id_estado: null,
+                        fecha_desde: null, fecha_hasta: null
+                    }),
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_Muestras', {
+                        id_proyecto_cc: this.selectedProyectoCC,
+                        id_remision: null,
+                        sin_remision: 1, id_tipo_muestra: null, id_estado: null,
+                        fecha_desde: null, fecha_hasta: null
+                    })
+                ]);
+                this.muestrasRemision = assigned.data || [];
+                this.muestrasDisponibles = available.data || [];
+            } catch (e) {
+                console.error('Error cargando detalle remision:', e);
+            }
+        },
+        async loadMuestraDropdowns() {
+            try {
+                const [tipos, ubis, pisos, concs] = await Promise.all([
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_TiposMuestra', { descripcion: null }),
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_Ubicaciones', { id_proyecto_cc: this.selectedProyectoCC }),
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_Pisos', { id_proyecto_cc: this.selectedProyectoCC }),
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_Concreteras', { nombre: null })
+                ]);
+                this.tiposMuestraActivos = (tipos.data || []).filter(t => t.is_active == 1);
+                this.ubicacionesActivas = (ubis.data || []).filter(u => u.is_active == '1');
+                this.pisosActivos = (pisos.data || []).filter(p => p.is_active == '1');
+                this.concretrasActivas = (concs.data || []).filter(c => c.is_active == 1);
+            } catch (e) {
+                console.error('Error cargando dropdowns muestra:', e);
+            }
+        },
+        async assignMuestra(id_muestra) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Assign_Muestra_Remision', {
+                    id_muestra: id_muestra,
+                    id_remision: this.formRemision.id_remision,
+                    accion: 'assign',
+                    usuario: GlobalVariables.username
+                });
+                await this.loadRemisionDetail(this.formRemision.id_remision);
+            } catch (e) {
+                console.error('Error asignando muestra:', e);
+            }
+            hideProgress();
+        },
+        async unassignMuestra(id_muestra) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Assign_Muestra_Remision', {
+                    id_muestra: id_muestra,
+                    id_remision: this.formRemision.id_remision,
+                    accion: 'unassign',
+                    usuario: GlobalVariables.username
+                });
+                await this.loadRemisionDetail(this.formRemision.id_remision);
+            } catch (e) {
+                console.error('Error desasignando muestra:', e);
+            }
+            hideProgress();
+        },
+        async saveRemision() {
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericST/CuadrosCalidad:Upd_Remision', {
+                    id_remision: this.formRemision.id_remision,
+                    fecha_envio: this.formRemision.fecha_envio || null,
+                    observaciones: this.formRemision.observaciones || null,
+                    usuario: GlobalVariables.username
+                });
+                if (resp.isError) {
+                    showMessage('Error: ' + resp.errorMessage);
+                } else {
+                    showMessage('Remisión actualizada');
+                }
+            } catch (e) {
+                console.error('Error guardando remision:', e);
+                showMessage('Error al guardar');
+            }
+            hideProgress();
+        },
+        reqProcesarRemision() {
+            showConfirm(
+                '¿Está seguro de procesar esta remisión? Esta acción es irreversible.',
+                this.procesarRemision,
+                null,
+                this.formRemision.id_remision
+            );
+        },
+        async procesarRemision(id_remision) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Procesar_Remision', {
+                    id_remision: id_remision,
+                    usuario: GlobalVariables.username
+                });
+                showMessage('Remisión procesada');
+                this.setMode(0);
+                await this.getRemisiones();
+            } catch (e) {
+                console.error('Error procesando remision:', e);
+                showMessage('Error al procesar');
+            }
+            hideProgress();
+        },
+        reqRemoveRemision(id) {
+            showConfirm(
+                '¿Está seguro de eliminar esta remisión? Las muestras asignadas serán liberadas.',
+                this.removeRemision,
+                null,
+                id
+            );
+        },
+        async removeRemision(id) {
+            showProgress();
+            try {
+                await httpFunc('/generic/genericST/CuadrosCalidad:Del_Remision', {
+                    id_remision: id,
+                    usuario: GlobalVariables.username
+                });
+                showMessage('Remisión eliminada');
+                this.setMode(0);
+                await this.getRemisiones();
+            } catch (e) {
+                console.error('Error eliminando remision:', e);
+            }
+            hideProgress();
+        },
+        clearRemisionFilters() {
+            this.filtroRemision = { procesado: "", fecha_desde: "", fecha_hasta: "" };
+            this.getRemisiones();
+        },
+        // EXCEL EXPORT METHODS
+        async loadFilterDropdowns() {
+            try {
+                const [tipos, ubis, pisos] = await Promise.all([
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_TiposMuestra', { descripcion: null }),
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_Ubicaciones', { id_proyecto_cc: this.selectedProyectoCC }),
+                    httpFunc('/generic/genericDT/CuadrosCalidad:Get_Pisos', { id_proyecto_cc: this.selectedProyectoCC })
+                ]);
+                this.tiposMuestraActivos = (tipos.data || []).filter(t => t.is_active == 1);
+                this.ubicacionesActivas = (ubis.data || []).filter(u => u.is_active == '1');
+                this.pisosActivos = (pisos.data || []).filter(p => p.is_active == '1');
+            } catch (e) {
+                console.error('Error cargando dropdowns:', e);
+            }
+        },
+        async exportExcel() {
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/exportDataSP/CuadrosCalidad:Export_Muestras', {
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    id_tipo_muestra: this.filtroExport.id_tipo_muestra || null,
+                    id_ubicacion: this.filtroExport.id_ubicacion || null,
+                    id_piso: this.filtroExport.id_piso || null,
+                    fecha_desde: this.filtroExport.fecha_desde || null,
+                    fecha_hasta: this.filtroExport.fecha_hasta || null
+                });
+                if (resp.data) {
+                    window.open('./docs/' + resp.data);
+                } else {
+                    showMessage('No se generó el archivo');
+                }
+            } catch (e) {
+                console.error('Error exportando:', e);
+                showMessage('Error al exportar');
+            }
+            hideProgress();
+        },
+        clearExportFilters() {
+            this.filtroExport = { id_tipo_muestra: "", id_ubicacion: "", id_piso: "", fecha_desde: "", fecha_hasta: "" };
+        },
+        // DASHBOARD METHODS
+        async getDashboardResumen() {
+            if (!this.selectedProyectoCC) return;
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Dashboard_Resumen', {
+                    id_proyecto_cc: this.selectedProyectoCC
+                });
+                this.dashboardResumen = (resp.data && resp.data[0]) || {};
+            } catch (e) {
+                console.error('Error cargando dashboard resumen:', e);
+                this.dashboardResumen = {};
+            }
+            hideProgress();
+        },
+        async getDashboardResultados() {
+            if (!this.selectedProyectoCC) return;
+            showProgress();
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Dashboard_Resultados', {
+                    id_proyecto_cc: this.selectedProyectoCC,
+                    id_tipo_muestra: this.filtroDashboard.id_tipo_muestra || null,
+                    id_ubicacion: this.filtroDashboard.id_ubicacion || null,
+                    id_piso: this.filtroDashboard.id_piso || null,
+                    fecha_desde: this.filtroDashboard.fecha_desde || null,
+                    fecha_hasta: this.filtroDashboard.fecha_hasta || null
+                });
+                this.dashboardResultados = resp.data || [];
+                this.renderDashboardChart();
+            } catch (e) {
+                console.error('Error cargando resultados:', e);
+                this.dashboardResultados = [];
+            }
+            hideProgress();
+        },
+        renderDashboardChart() {
+            const canvas = document.getElementById('dashboardChart');
+            if (!canvas) return;
+            if (this.dashboardChart) this.dashboardChart.destroy();
+
+            const data = this.dashboardResultados;
+            if (data.length === 0) return;
+
+            const labels = data.map(d => (d.numero_muestra_obra || d.id_muestra) + ' (' + d.edad + 'd)');
+            const valores = data.map(d => parseFloat(d.porcentaje) || 0);
+            const rangoVerde = data.length > 0 ? parseFloat(data[0].rango_verde) || 100 : 100;
+            const rangoAmarillo = data.length > 0 ? parseFloat(data[0].rango_amarillo) || 80 : 80;
+            const rangoRojo = data.length > 0 ? parseFloat(data[0].rango_rojo) || 60 : 60;
+
+            const bgColors = valores.map(v => {
+                if (v >= rangoVerde) return 'rgba(40, 167, 69, 0.7)';
+                if (v >= rangoAmarillo) return 'rgba(218, 165, 32, 0.7)';
+                return 'rgba(220, 53, 69, 0.7)';
+            });
+
+            this.dashboardChart = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '% vs Diseño',
+                        data: valores,
+                        backgroundColor: bgColors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        annotation: {
+                            annotations: {
+                                lineVerde: { type: 'line', yMin: rangoVerde, yMax: rangoVerde, borderColor: '#28a745', borderWidth: 2, borderDash: [5, 5], label: { display: true, content: 'Verde ' + rangoVerde + '%', position: 'end' } },
+                                lineAmarillo: { type: 'line', yMin: rangoAmarillo, yMax: rangoAmarillo, borderColor: '#DAA520', borderWidth: 2, borderDash: [5, 5], label: { display: true, content: 'Amarillo ' + rangoAmarillo + '%', position: 'end' } },
+                                lineRojo: { type: 'line', yMin: rangoRojo, yMax: rangoRojo, borderColor: '#dc3545', borderWidth: 2, borderDash: [5, 5], label: { display: true, content: 'Rojo ' + rangoRojo + '%', position: 'end' } }
+                            }
+                        }
+                    },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: '% vs Diseño' } } }
+                }
+            });
+        },
+        exportDashboardChart() {
+            const canvas = document.getElementById('dashboardChart');
+            if (!canvas) return;
+            const link = document.createElement('a');
+            link.download = 'dashboard_cuadros_calidad.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        },
+        clearDashboardFilters() {
+            this.filtroDashboard = { id_tipo_muestra: "", id_ubicacion: "", id_piso: "", fecha_desde: "", fecha_hasta: "" };
+            this.getDashboardResumen();
         },
         // LOGO HANDLING METHODS
         previewLogo(event) {
