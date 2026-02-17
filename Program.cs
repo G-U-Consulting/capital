@@ -80,6 +80,13 @@ app.UseStaticFiles(new StaticFileOptions() {
 string rootPath = builder.Environment.ContentRootPath;
 Logger.Init(rootPath);
 Logger.Log("INIT");
+foreach (string dir in new[] {
+    Path.Combine(rootPath, "Docs"),
+    Path.Combine(rootPath, "wwwroot", "docs"),
+    Path.Combine(rootPath, "wwwroot", "cache"),
+    Path.Combine(rootPath, "wwwroot", "upload")
+})
+    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 WebBDUt.Init(rootPath, !app.Environment.IsDevelopment(), orca.ConfigurationManager.AppSetting["DefaultDB"]);
 string defaultDB = WebBDUt.GetConnectionStringByName(orca.ConfigurationManager.AppSetting["DefaultDB"]);
 /*****************************************************************************/
