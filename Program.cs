@@ -15,6 +15,7 @@ using capital.code.Util;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using capital.Code.Inte.Davivienda;
+using capital.Code.Inte.Autodesk;
 using capital.Code.Inte.Masiv;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -79,6 +80,13 @@ app.UseStaticFiles(new StaticFileOptions() {
 string rootPath = builder.Environment.ContentRootPath;
 Logger.Init(rootPath);
 Logger.Log("INIT");
+foreach (string dir in new[] {
+    Path.Combine(rootPath, "Docs"),
+    Path.Combine(rootPath, "wwwroot", "docs"),
+    Path.Combine(rootPath, "wwwroot", "cache"),
+    Path.Combine(rootPath, "wwwroot", "upload")
+})
+    if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
 WebBDUt.Init(rootPath, !app.Environment.IsDevelopment(), orca.ConfigurationManager.AppSetting["DefaultDB"]);
 string defaultDB = WebBDUt.GetConnectionStringByName(orca.ConfigurationManager.AppSetting["DefaultDB"]);
 /*****************************************************************************/
@@ -484,4 +492,157 @@ app.Map("/masiv/{ciudad}", async (HttpContext context, string ciudad) =>
     Masiv masiv = new(ciudad, body);
     return await masiv.Send();
 });
+/*****************************************************************************/
+/***************************** Autodesk ACC **********************************/
+/*****************************************************************************/
+app.MapGet("/autodesk/auth", (HttpResponse response) =>
+{
+    string url = AutodeskService.GetAuthorizationUrl();
+    response.Redirect(url);
+    return Results.Empty;
+}).RequireAuthorization();
+
+app.MapGet("/autodesk/callback", async (HttpRequest request, HttpResponse response) =>
+{
+    try
+    {
+        string? code = request.Query["code"];
+        if (string.IsNullOrEmpty(code))
+        {
+            response.Redirect("/?autodeskError=no_code");
+            return Results.Empty;
+        }
+        await AutodeskService.ExchangeCodeForToken(code, rootPath);
+        response.Redirect("/?autodeskConnected=true");
+        return Results.Empty;
+    }
+    catch (Exception ex)
+    {
+        Logger.Log("autodesk/callback\t" + ex.Message + Environment.NewLine + ex.StackTrace);
+        response.Redirect("/?autodeskError=" + Uri.EscapeDataString(ex.Message));
+        return Results.Empty;
+    }
+});
+
+app.Map("/autodesk/projects", async (HttpContext context) =>
+{
+    try
+    {
+        string token = await AutodeskService.GetValidAccessToken(rootPath);
+        JArray projects = await AutodeskService.GetProjects(token);
+        return JsonConvert.SerializeObject(new { isError = false, data = projects });
+    }
+    catch (Exception ex)
+    {
+        Logger.Log("autodesk/projects\t" + ex.Message + Environment.NewLine + ex.StackTrace);
+        context.Response.StatusCode = 500;
+        return JsonConvert.SerializeObject(new { isError = true, message = ex.Message });
+    }
+}).RequireAuthorization();
+
+app.Map("/autodesk/sync/{id_proyecto_cc}", async (HttpContext context, int id_proyecto_cc) =>
+{
+    try
+    {
+        string token = await AutodeskService.GetValidAccessToken(rootPath);
+        string usuario = context.User.Identity?.Name ?? "system";
+
+        // Get project ACC mapping
+        JToken projRes = await Generic.ProcessRequest(null, null, "genericDT", "CuadrosCalidad/Get_Proyectos_CC", "{\"nombre\":null}", rootPath);
+        JArray? projects = projRes["data"] as JArray;
+        JObject? proyecto = projects?.FirstOrDefault(p => p["id_proyecto_cc"]?.Value<int>() == id_proyecto_cc) as JObject;
+
+        if (proyecto == null)
+            throw new Exception("Proyecto no encontrado");
+
+        string? accProjectId = proyecto["acc_project_id"]?.ToString();
+        if (string.IsNullOrEmpty(accProjectId))
+            throw new Exception("Este proyecto no tiene un proyecto ACC vinculado. Configure la vinculación en Selección de Obras.");
+
+        // Get container ID from ACC API
+        string containerId = await AutodeskService.GetLocationsContainerId(token, accProjectId);
+
+        // Save container ID for future use
+        JObject updPars = new()
+        {
+            ["id_proyecto_cc"] = id_proyecto_cc,
+            ["acc_project_id"] = accProjectId,
+            ["acc_container_id"] = containerId,
+            ["usuario"] = usuario
+        };
+        await Generic.ProcessRequest(null, null, "genericST", "CuadrosCalidad/Upd_Proyecto_ACC", updPars.ToString(), rootPath);
+
+        // Fetch location nodes
+        JArray nodes = await AutodeskService.GetLocationNodes(token, containerId);
+
+        int ubicacionCount = 0, pisoCount = 0;
+
+        foreach (JObject node in nodes)
+        {
+            string? nodeType = node["type"]?.ToString();
+            string? nodeId = node["id"]?.ToString();
+            string? nodeName = node["name"]?.ToString();
+            string? parentId = node["parentId"]?.ToString();
+
+            if (string.IsNullOrEmpty(nodeId) || string.IsNullOrEmpty(nodeName))
+                continue;
+
+            if (string.Equals(nodeType, "Floor", StringComparison.OrdinalIgnoreCase))
+            {
+                // Floor -> piso
+                JObject pisoPars = new()
+                {
+                    ["id_proyecto_cc"] = id_proyecto_cc,
+                    ["cod_acc"] = nodeId,
+                    ["numero"] = nodeName,
+                    ["usuario"] = usuario
+                };
+                await Generic.ProcessRequest(null, null, "genericST", "CuadrosCalidad/Sync_Pisos", pisoPars.ToString(), rootPath);
+                pisoCount++;
+            }
+            else
+            {
+                // Area/Building -> ubicacion
+                JObject ubiPars = new()
+                {
+                    ["id_proyecto_cc"] = id_proyecto_cc,
+                    ["cod_acc"] = nodeId,
+                    ["descripcion"] = nodeName,
+                    ["usuario"] = usuario
+                };
+                await Generic.ProcessRequest(null, null, "genericST", "CuadrosCalidad/Sync_Ubicaciones", ubiPars.ToString(), rootPath);
+                ubicacionCount++;
+            }
+        }
+
+        return JsonConvert.SerializeObject(new
+        {
+            isError = false,
+            message = $"Sincronización completada: {ubicacionCount} ubicaciones, {pisoCount} pisos",
+            ubicaciones = ubicacionCount,
+            pisos = pisoCount
+        });
+    }
+    catch (Exception ex)
+    {
+        Logger.Log("autodesk/sync/" + id_proyecto_cc + "\t" + ex.Message + Environment.NewLine + ex.StackTrace);
+        context.Response.StatusCode = 500;
+        return JsonConvert.SerializeObject(new { isError = true, message = ex.Message });
+    }
+}).RequireAuthorization();
+
+app.Map("/autodesk/status", async (HttpContext context) =>
+{
+    try
+    {
+        bool connected = await AutodeskService.IsConnected(rootPath);
+        return JsonConvert.SerializeObject(new { isError = false, connected });
+    }
+    catch (Exception ex)
+    {
+        Logger.Log("autodesk/status\t" + ex.Message + Environment.NewLine + ex.StackTrace);
+        return JsonConvert.SerializeObject(new { isError = false, connected = false });
+    }
+}).RequireAuthorization();
+
 app.Run();

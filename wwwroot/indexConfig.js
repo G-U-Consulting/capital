@@ -321,6 +321,17 @@
     //      category: "WebSockets",
     //      allow: ["*"]
     //  }
+    // Cuadros de Calidad
+    "CuadrosCalidadMain": {
+        templateUrl: "./web/CuadrosCalidad/CuadrosCalidadMain.html",
+        jsUrl: "./web/CuadrosCalidad/CuadrosCalidadMain.js",
+        title: "Cuadros de Calidad",
+        desc: "Módulo principal de cuadros de calidad",
+        imgSrc: "./img/ico/menu/006-group.png",
+        zone: "ZC",
+        category: "PARAMETRIZACION",
+        allow: ["*"]
+    }
 };
 const zones = {
     "ZM": {
@@ -364,6 +375,14 @@ const zones = {
         categories: [
             { key: "INFORMES", name: "Informes" },
             { key: "DASHBOARDS", name: "Dashboards" },
+        ]
+    },
+    "ZC": {
+        name: "ZC",
+        title: "Cuadros de Calidad",
+        img: "./img/ico/menu/zcc.svg",
+        categories: [
+            { key: "PARAMETRIZACION", name: "Parametrización" }
         ]
     },
     "OUT": {

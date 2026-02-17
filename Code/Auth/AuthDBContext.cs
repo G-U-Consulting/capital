@@ -19,7 +19,7 @@ namespace orca.Code.Auth {
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             string cnString = orca.ConfigurationManager.AppSetting["ConnectionStrings:" + orca.ConfigurationManager.AppSetting["AuthDB"]];
-            var serverVersion = ServerVersion.AutoDetect(cnString);
+            var serverVersion = new MySqlServerVersion(new Version(8, 0, 0));
             optionsBuilder.UseMySql(cnString, serverVersion);
         }
     }
