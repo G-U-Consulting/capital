@@ -207,15 +207,6 @@
             changeBloq: false,
         };
     },
-    watch: {
-        editObjProyecto: {
-            deep: true,
-            handler(nuevo) {
-                if (this.cargandoProyecto) return;
-                this.tieneCambiosPendientes = !this.sonIguales(nuevo, this.originalObjProyecto);
-            }
-        }
-    },
     computed: {
         tabClasses() {
             return this.tabs.map((_, index) => {
@@ -275,11 +266,28 @@
         },
     },
     watch: {
+        editObjProyecto: {
+            deep: true,
+            handler(nuevo) {
+                if (this.cargandoProyecto) return;
+                this.tieneCambiosPendientes = !this.sonIguales(nuevo, this.originalObjProyecto);
+            }
+        },
         proyectoGlobal(newVal) {
             if (newVal && !this.cargandoInicial) {
                 this.setRuta();
             }
-        }
+        },
+        beforeDestroy() {
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
+            if (window.activeMiniModule === this)
+                window.activeMiniModule = null;
+        },
+        beforeUnmount() {
+            window.removeEventListener('beforeunload', this.handleBeforeUnload);
+            if (window.activeMiniModule === this)
+                window.activeMiniModule = null;
+        },
     },
     async mounted() {
         this.tabsIncomplete = this.tabs.map((_, index) => index);
@@ -288,19 +296,22 @@
         }
         this.setRuta();
         window.activeMiniModule = this;
-        window.activeMiniModule.name = "Edicion";
+        window.activeMiniModule.name = "EdicionProyecto";
         await this.setSubmode(0);
         this.cargandoInicial = false;
-    },
-    beforeUnmount() {
-        if (window.activeMiniModule === this) {
-            window.activeMiniModule = null;
-        }
+        window.addEventListener('beforeunload', this.handleBeforeUnload);
     },
     unmounted() {
         this.interval && clearInterval(this.interval);
     },
     methods: {
+        handleBeforeUnload(e) {
+            if (this.tieneCambiosPendientes) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        },
         async setMainMode() {
             showProgress();
             const [proyectosResp, variablesResp, plazosResp] = await Promise.all([
@@ -392,7 +403,7 @@
                 GlobalVariables.miniModuleCallback("NewProject", null)
         },
         confirmarCambioSubmode(index) {
-            if (this.tieneCambiosPendientes) {
+            /* if (this.tieneCambiosPendientes) {
                 showConfirm(
                     "⚠️ Existen cambios sin guardar.",
                     () => {
@@ -402,7 +413,7 @@
                     null
                 );
                 return;
-            }
+            } */
             this.setSubmode(index);
         },
         async setSubmode(index) {

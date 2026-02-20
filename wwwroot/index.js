@@ -123,7 +123,7 @@ mainVue = {
                     ? "Tienes cambios sin guardar en la opción. ¿Deseas guardar antes de salir?"
                     : moduleName == 'SalaVenta' || moduleName == 'selSalaVenta' 
                     ? 'Algunos proyectos no tienen fecha de vigencia para el descuento.'
-                    : moduleName == 'Torres'
+                    : moduleName == 'Torres' || moduleName == 'EdicionProyecto'
                     ? 'Tienes cambios sin guardar. ¿Deseas guardar antes de salir?'
                     : `⚠️ Existen cambios sin guardar en ${moduleName}`;
 
@@ -143,6 +143,8 @@ mainVue = {
                                 window.activeMiniModule.setSelect(false);
                             if (moduleName === 'Torres')
                                 window.activeMiniModule.onSaveTorre();
+                            if (moduleName === 'EdicionProyecto')
+                                window.activeMiniModule.updateProject();
                             window.activeMiniModule.tieneCambiosPendientes = false;
                             await GlobalVariables._originalLoadMiniModule(modName, zone, data);
                             resolve();
@@ -465,7 +467,7 @@ function showConfirm(msg, okCallback, cancelCallback, event, textOk, textCancel)
         document.getElementById("divConfirm").style.display = "none";
     };
     document.getElementById("btXConfirmCancel").onclick = function () {
-        GlobalVariables.miniModuleCallback("InitLateralMenu");
+        GlobalVariables.miniModuleCallback && GlobalVariables.miniModuleCallback("InitLateralMenu");
         document.getElementById("divConfirm").style.display = "none";
     };
     confirm.innerText = textOk != null ? textOk : "SI";
