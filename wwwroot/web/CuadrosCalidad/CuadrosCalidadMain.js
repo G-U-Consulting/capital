@@ -61,6 +61,17 @@ export default {
                 id_concretera: "", id_formato_mixer: "", numero_muestra_obra: "",
                 fecha: "", dia_recoleccion: "", localizacion: "", observaciones: ""
             },
+            // Multi-step muestra edit
+            muestraStep: 0,
+            muestraEdades: [],
+            muestraDatos: [],
+            muestraMixerInfo: null,
+            muestraRecoleccionMode: 0,
+            tipoDeEnsayoOptions: [
+                { value: '0', label: 'ABSORCIÓN' },
+                { value: '1', label: 'COMPRESIÓN' },
+                { value: '2', label: 'ESTABILIDAD DIMENSIONAL' }
+            ],
             // Remisiones
             remisiones: [],
             filtroRemision: { procesado: "", fecha_desde: "", fecha_hasta: "" },
@@ -1141,52 +1152,84 @@ export default {
         },
         async editMuestraStandalone(item) {
             showProgress();
-            await this.loadMuestraDropdowns();
-            this.formMuestraStandalone = {
-                id_muestra: item.id_muestra,
-                id_tipo_muestra: item.id_tipo_muestra || "",
-                id_ubicacion: item.id_ubicacion || "",
-                id_piso: item.id_piso || "",
-                id_concretera: item.id_concretera || "",
-                id_formato_mixer: item.id_formato_mixer || "",
-                numero_muestra_obra: item.numero_muestra_obra || "",
-                fecha: item.fecha ? item.fecha.split('T')[0] : "",
-                dia_recoleccion: item.dia_recoleccion || "",
-                localizacion: item.localizacion || "",
-                observaciones: item.observaciones || "",
-                estado: item.estado
-            };
-            this.setMode(2);
+            try {
+                await this.loadMuestraDropdowns();
+                await this.getPersonalizacion();
+                this.formMuestraStandalone = {
+                    id_muestra: item.id_muestra,
+                    id_tipo_muestra: item.id_tipo_muestra || "",
+                    id_ubicacion: item.id_ubicacion || "",
+                    id_piso: item.id_piso || "",
+                    id_concretera: item.id_concretera || "",
+                    id_formato_mixer: item.id_formato_mixer || "",
+                    numero_muestra_obra: item.numero_muestra_obra || "",
+                    fecha: item.fecha ? item.fecha.split('T')[0] : "",
+                    dia_recoleccion: item.dia_recoleccion || "",
+                    localizacion: item.localizacion || "",
+                    observaciones: item.observaciones || ""
+                };
+                this.muestraStep = 0;
+                this.muestraRecoleccionMode = 0;
+                this.muestraDatos = [];
+                this.muestraMixerInfo = null;
+                this.muestraEdades = [];
+                this.setMode(2);
+            } catch (e) {
+                console.error('Error cargando muestra para edición:', e);
+                showMessage('Error al cargar la muestra');
+            }
             hideProgress();
         },
         async saveMuestraStandalone() {
             showProgress();
             try {
-                const isNew = this.mode == 1;
-                const sp = isNew ? 'CuadrosCalidad:Ins_Muestra' : 'CuadrosCalidad:Upd_Muestra';
-                const params = {
+                // 1. Update the muestra record
+                const resp = await httpFunc('/generic/genericST/CuadrosCalidad:Upd_Muestra', {
                     id_muestra: this.formMuestraStandalone.id_muestra || null,
-                    id_proyecto_cc: this.selectedProyectoCC,
-                    id_formato_mixer: this.formMuestraStandalone.id_formato_mixer || null,
                     id_tipo_muestra: this.formMuestraStandalone.id_tipo_muestra || null,
                     id_ubicacion: this.formMuestraStandalone.id_ubicacion || null,
                     id_piso: this.formMuestraStandalone.id_piso || null,
                     id_concretera: this.formMuestraStandalone.id_concretera || null,
+                    id_formato_mixer: this.formMuestraStandalone.id_formato_mixer || null,
                     numero_muestra_obra: this.formMuestraStandalone.numero_muestra_obra || null,
                     fecha: this.formMuestraStandalone.fecha,
                     dia_recoleccion: this.formMuestraStandalone.dia_recoleccion || null,
-                    localizacion: this.formMuestraStandalone.localizacion || null,
+                    localizacion: null,
                     observaciones: this.formMuestraStandalone.observaciones || null,
                     usuario: GlobalVariables.username
-                };
-                const resp = await httpFunc('/generic/genericST/' + sp, params);
+                });
                 if (resp.isError) {
                     showMessage('Error: ' + resp.errorMessage);
-                } else {
-                    showMessage('Muestra guardada correctamente');
-                    this.setMode(0);
-                    await this.getMuestrasStandalone();
+                    hideProgress();
+                    return;
                 }
+
+                // 2. Save all datos rows in parallel
+                const datosResults = await Promise.all(this.muestraDatos.map(dato =>
+                    httpFunc('/generic/genericST/CuadrosCalidad:Save_DatosMuestra', {
+                        id_muestra: this.formMuestraStandalone.id_muestra,
+                        id_edad_muestra: dato.id_edad_muestra || null,
+                        numero_muestra: dato.numero_muestra,
+                        cilindro: dato.cilindro,
+                        edad: dato.edad || null,
+                        vaciado: dato.vaciado || null,
+                        ensayo: dato.ensayo || null,
+                        recoleccion: dato.recoleccion || null,
+                        procedencia: dato.procedencia || null,
+                        tipo_de_ensayo: dato.tipo_de_ensayo != null ? dato.tipo_de_ensayo : null,
+                        usuario: GlobalVariables.username
+                    })
+                ));
+                const datosError = datosResults.find(r => r.isError);
+                if (datosError) {
+                    showMessage('Error guardando datos: ' + datosError.errorMessage);
+                    hideProgress();
+                    return;
+                }
+
+                showMessage('Muestra guardada correctamente');
+                this.setMode(0);
+                await this.getMuestrasStandalone();
             } catch (e) {
                 console.error('Error guardando muestra:', e);
                 showMessage('Error al guardar');
@@ -1222,6 +1265,325 @@ export default {
         getDiaRecoleccionLabel(dia) {
             const dias = { 1: 'Lunes', 2: 'Martes', 3: 'Miércoles', 4: 'Jueves', 5: 'Viernes', 6: 'Sábado', 7: 'Domingo' };
             return dias[dia] || '';
+        },
+        // MUESTRA MULTI-STEP WIZARD METHODS
+        isUnidades() {
+            const tipo = this.tiposMuestraActivos.find(
+                t => t.id_tipo_muestra == this.formMuestraStandalone.id_tipo_muestra
+            );
+            return tipo && tipo.id_clase_muestra == 3;
+        },
+        async nextMuestraStep() {
+            if (this.muestraStep === 0) {
+                if (!this.formMuestraStandalone.id_tipo_muestra) {
+                    showMessage('Seleccione un tipo de muestra');
+                    return;
+                }
+                await this.loadEdadesForMuestra();
+            }
+            if (this.muestraStep === 1) {
+                await this.loadMixerInfoForMuestra();
+            }
+            if (this.muestraStep < 2) this.muestraStep++;
+        },
+        prevMuestraStep() {
+            if (this.muestraStep > 0) this.muestraStep--;
+        },
+        async loadEdadesForMuestra() {
+            showProgress();
+            try {
+                // Load existing datos if editing
+                let existingDatos = [];
+                if (this.formMuestraStandalone.id_muestra) {
+                    const datosResp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_DatosMuestra', {
+                        id_muestra: this.formMuestraStandalone.id_muestra
+                    });
+                    existingDatos = datosResp.data || [];
+                }
+
+                if (this.isUnidades()) {
+                    // Unidades: fixed 5 rows, no edades
+                    this.muestraEdades = [];
+                    if (existingDatos.length > 0) {
+                        this.muestraDatos = existingDatos.map(d => ({
+                            id_dato_muestra: d.id_dato_muestra,
+                            id_edad_muestra: null,
+                            numero_muestra: d.numero_muestra || d.cilindro,
+                            cilindro: d.cilindro,
+                            edad: null, color: null,
+                            vaciado: '', ensayo: '',
+                            recoleccion: d.recoleccion ? d.recoleccion.split('T')[0] : '',
+                            procedencia: d.procedencia || '',
+                            tipo_de_ensayo: d.tipo_de_ensayo != null ? String(d.tipo_de_ensayo) : '0'
+                        }));
+                    } else {
+                        this.muestraDatos = Array.from({ length: 5 }, (_, i) => ({
+                            id_dato_muestra: null,
+                            id_edad_muestra: null,
+                            numero_muestra: i + 1,
+                            cilindro: i + 1,
+                            edad: null, color: null,
+                            vaciado: '', ensayo: '',
+                            recoleccion: '',
+                            procedencia: '',
+                            tipo_de_ensayo: '0'
+                        }));
+                    }
+                } else {
+                    // Regular muestras: rows driven by edades
+                    const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_Edades', {
+                        id_tipo_muestra: this.formMuestraStandalone.id_tipo_muestra
+                    });
+                    this.muestraEdades = (resp.data || []).filter(e => e.is_active == '1' || e.is_active == 1);
+
+                    this.muestraDatos = this.muestraEdades.map((edad, index) => {
+                        const existing = existingDatos.find(d => d.id_edad_muestra == edad.id_edad_muestra);
+                        return {
+                            id_dato_muestra: existing ? existing.id_dato_muestra : null,
+                            id_edad_muestra: edad.id_edad_muestra,
+                            numero_muestra: existing ? existing.numero_muestra : (index + 1),
+                            cilindro: existing ? existing.cilindro : (index + 1),
+                            edad: edad.edad,
+                            color: edad.color || '#999',
+                            vaciado: existing && existing.vaciado ? existing.vaciado.split('T')[0] : '',
+                            ensayo: existing && existing.ensayo ? existing.ensayo.split('T')[0] : '',
+                            recoleccion: existing && existing.recoleccion ? existing.recoleccion.split('T')[0] : '',
+                            procedencia: '',
+                            tipo_de_ensayo: null
+                        };
+                    });
+                }
+            } catch (e) {
+                console.error('Error cargando edades para muestra:', e);
+                this.muestraEdades = [];
+                this.muestraDatos = [];
+            }
+            hideProgress();
+        },
+        addMuestraRow() {
+            const lastRow = this.muestraDatos.length > 0
+                ? this.muestraDatos[this.muestraDatos.length - 1]
+                : null;
+            const nextCilindro = lastRow ? lastRow.cilindro + 1 : 1;
+            const nextNumero = lastRow ? (lastRow.numero_muestra || lastRow.cilindro) + 1 : 1;
+
+            this.muestraDatos.push({
+                id_dato_muestra: null,
+                id_edad_muestra: null,
+                numero_muestra: nextNumero,
+                cilindro: nextCilindro,
+                edad: null,
+                color: null,
+                vaciado: '',
+                ensayo: '',
+                recoleccion: '',
+                procedencia: '',
+                tipo_de_ensayo: this.isUnidades() ? '0' : null
+            });
+        },
+        async loadMixerInfoForMuestra() {
+            if (!this.formMuestraStandalone.id_formato_mixer) {
+                this.muestraMixerInfo = null;
+                return;
+            }
+            try {
+                const resp = await httpFunc('/generic/genericDT/CuadrosCalidad:Get_MixerByMuestra', {
+                    id_muestra: this.formMuestraStandalone.id_muestra
+                });
+                this.muestraMixerInfo = (resp.data && resp.data.length > 0) ? resp.data[0] : null;
+            } catch (e) {
+                console.error('Error cargando info mixer:', e);
+                this.muestraMixerInfo = null;
+            }
+        },
+        recalculateDates() {
+            const fecha = this.formMuestraStandalone.fecha;
+            if (!fecha) {
+                showMessage('La fecha no debe estar vacía');
+                return;
+            }
+
+            const diaRecoleccion = parseInt(this.formMuestraStandalone.dia_recoleccion) || null;
+            if (!diaRecoleccion) {
+                showMessage('Debe seleccionar un día de recolección');
+                return;
+            }
+
+            const politica = this.personalizacion ? this.personalizacion.politica_recoleccion : null;
+            let firstRecoleccion = '';
+
+            if (this.isUnidades()) {
+                // Unidades: calculate recoleccion directly from fecha (no vaciado/ensayo)
+                this.muestraDatos.forEach(dato => {
+                    const recolDate = this.calculateRecoleccion(fecha, diaRecoleccion, politica);
+                    if (parseInt(this.muestraRecoleccionMode) === 1 && dato.cilindro !== 1 && firstRecoleccion) {
+                        dato.recoleccion = firstRecoleccion;
+                    } else {
+                        dato.recoleccion = recolDate;
+                        if (dato.cilindro === 1) firstRecoleccion = dato.recoleccion;
+                    }
+                });
+            } else {
+                // Regular muestras: vaciado → ensayo → recoleccion cascade
+                this.muestraDatos.forEach(dato => {
+                    dato.vaciado = fecha;
+
+                    if (dato.vaciado && dato.edad) {
+                        const vaciadoDate = new Date(dato.vaciado + 'T12:00:00');
+                        vaciadoDate.setDate(vaciadoDate.getDate() + dato.edad + 1);
+                        dato.ensayo = this.formatDateISO(vaciadoDate);
+                    }
+
+                    if (dato.ensayo && diaRecoleccion) {
+                        if (parseInt(this.muestraRecoleccionMode) === 1 && dato.cilindro !== 1 && firstRecoleccion) {
+                            dato.recoleccion = firstRecoleccion;
+                        } else {
+                            dato.recoleccion = this.calculateRecoleccion(dato.ensayo, diaRecoleccion, politica);
+                            if (dato.cilindro === 1) firstRecoleccion = dato.recoleccion;
+                        }
+                    }
+                });
+            }
+        },
+        formatDateISO(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        },
+        calculateRecoleccion(ensayoStr, diaRecoleccion, politica) {
+            // diaRecoleccion: 1=Mon, 2=Tue, ..., 7=Sun
+            const ensayo = new Date(ensayoStr + 'T12:00:00');
+            const ensayoDow = ensayo.getDay(); // 0=Sun, 1=Mon, ... 6=Sat
+
+            // Convert 1-7 (Mon-Sun) to JS 0-6 (Sun-Sat)
+            const targetDow = diaRecoleccion === 7 ? 0 : diaRecoleccion;
+
+            // Find the nearest occurrence of targetDow on or before ensayo
+            let diff = ensayoDow - targetDow;
+            if (diff < 0) diff += 7;
+            const recoleccion = new Date(ensayo);
+            recoleccion.setDate(recoleccion.getDate() - diff);
+
+            // Holiday adjustment
+            const holidays = this.getColombianHolidays(recoleccion.getFullYear());
+            let attempts = 0;
+            while (attempts < 10 && this.isHolidayOrSunday(recoleccion, holidays)) {
+                if (politica === 0 || politica === '0') {
+                    recoleccion.setDate(recoleccion.getDate() - 1);
+                } else {
+                    recoleccion.setDate(recoleccion.getDate() + 1);
+                }
+                attempts++;
+            }
+
+            return this.formatDateISO(recoleccion);
+        },
+        isHolidayOrSunday(date, holidays) {
+            if (date.getDay() === 0) return true; // Sunday
+            const dateStr = this.formatDateISO(date);
+            return holidays.includes(dateStr);
+        },
+        getColombianHolidays(year) {
+            const holidays = [];
+            const addDate = (m, d) => {
+                const dt = new Date(year, m - 1, d, 12, 0, 0);
+                holidays.push(this.formatDateISO(dt));
+            };
+            const toNextMonday = (dt) => {
+                const dow = dt.getDay();
+                if (dow === 1) return dt;
+                const daysUntil = dow === 0 ? 1 : (8 - dow);
+                dt.setDate(dt.getDate() + daysUntil);
+                return dt;
+            };
+            const addEmiliani = (m, d) => {
+                const dt = new Date(year, m - 1, d, 12, 0, 0);
+                holidays.push(this.formatDateISO(toNextMonday(dt)));
+            };
+
+            // Fixed holidays
+            addDate(1, 1);   // Ano Nuevo
+            addDate(5, 1);   // Dia del Trabajo
+            addDate(7, 20);  // Grito de Independencia
+            addDate(8, 7);   // Batalla de Boyaca
+            addDate(12, 8);  // Inmaculada Concepcion
+            addDate(12, 25); // Navidad
+
+            // Easter-based holidays
+            const easter = this.getEasterDate(year);
+            const addEasterOffset = (offset) => {
+                const dt = new Date(easter);
+                dt.setDate(dt.getDate() + offset);
+                holidays.push(this.formatDateISO(dt));
+            };
+            const addEasterEmiliani = (offset) => {
+                const dt = new Date(easter);
+                dt.setDate(dt.getDate() + offset);
+                holidays.push(this.formatDateISO(toNextMonday(dt)));
+            };
+            addEasterOffset(-3);  // Jueves Santo
+            addEasterOffset(-2);  // Viernes Santo
+            addEasterEmiliani(43); // Ascension
+            addEasterEmiliani(64); // Corpus Christi
+            addEasterEmiliani(71); // Sagrado Corazon
+
+            // Ley Emiliani dates (moved to next Monday)
+            addEmiliani(1, 6);   // Reyes Magos
+            addEmiliani(3, 19);  // San Jose
+            addEmiliani(6, 29);  // San Pedro y San Pablo
+            addEmiliani(8, 15);  // Asuncion
+            addEmiliani(10, 12); // Dia de la Raza
+            addEmiliani(11, 1);  // Todos los Santos
+            addEmiliani(11, 11); // Independencia de Cartagena
+
+            return holidays;
+        },
+        getEasterDate(year) {
+            const a = year % 19;
+            const b = Math.floor(year / 100);
+            const c = year % 100;
+            const d = Math.floor(b / 4);
+            const e = b % 4;
+            const f = Math.floor((b + 8) / 25);
+            const g = Math.floor((b - f + 1) / 3);
+            const h = (19 * a + b - d - g + 15) % 30;
+            const i = Math.floor(c / 4);
+            const k = c % 4;
+            const l = (32 + 2 * e + 2 * i - h - k) % 7;
+            const m = Math.floor((a + 11 * h + 22 * l) / 451);
+            const month = Math.floor((h + l - 7 * m + 114) / 31);
+            const day = ((h + l - 7 * m + 114) % 31) + 1;
+            return new Date(year, month - 1, day, 12, 0, 0);
+        },
+        clearMuestraDates() {
+            this.muestraDatos.forEach(dato => {
+                dato.vaciado = '';
+                dato.ensayo = '';
+                dato.recoleccion = '';
+                if (this.isUnidades()) dato.procedencia = '';
+            });
+        },
+        async reqChangeTipoMuestra() {
+            if (!this.formMuestraStandalone.id_muestra || !this.muestraDatos.some(d => d.id_dato_muestra)) return;
+            showConfirm(
+                'Cambiar el tipo de muestra eliminará los datos de ensayo existentes. ¿Continuar?',
+                async () => {
+                    showProgress();
+                    try {
+                        await httpFunc('/generic/genericST/CuadrosCalidad:Del_DatosMuestra', {
+                            id_muestra: this.formMuestraStandalone.id_muestra,
+                            usuario: GlobalVariables.username
+                        });
+                        await this.loadEdadesForMuestra();
+                    } catch (e) {
+                        console.error('Error eliminando datos de muestra:', e);
+                        showMessage('Error al eliminar datos de ensayo');
+                    }
+                    hideProgress();
+                },
+                null
+            );
         },
         // REMISIONES METHODS
         async getRemisiones() {
