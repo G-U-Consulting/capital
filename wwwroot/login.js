@@ -59,14 +59,18 @@ loginVue = {
         async login() {
             this.errorMessage = "";
             showProgress();
-            var data = await httpFunc("/auth/login", this.loginData);
-            if (data.isError == false)
-                window.location = "./";
-            else {
-                this.errorMessage = data.errorMessage;
+            try {
+                var data = await httpFunc("/auth/login", this.loginData);
+                if (data.isError == false)
+                    window.location = "./";
+                else {
+                    this.errorMessage = data.errorMessage;
+                    hideProgress();
+                }
+            } catch (e) {
+                this.errorMessage = "Error de conexión. Intente de nuevo.";
                 hideProgress();
             }
-            
         }
     }
 };
